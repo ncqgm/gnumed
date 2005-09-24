@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -223,7 +223,7 @@ class cLabJournalNB(wxNotebook):
 			pnl_page,
 			wxID_TextCtrl_req_id,
 			"",
-			wxPyDefaultPosition,
+			wxDefaultPosition,
 			wxSize(80,-1),
 			0
 		)
@@ -246,7 +246,7 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_pending = cLabIDListCtrl(
 			pnl_page,
 			wxID_pending_requests,
-			size = wxPyDefaultSize,
+			size = wxDefaultSize,
 			style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES
 		)
 
@@ -274,7 +274,7 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_errors = cLabIDListCtrl (
 			parent = pnl_page,
 			id = wxID_lbox_errors,
-			size = wxPyDefaultSize,
+			size = wxDefaultSize,
 			style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES
 		)
 		self.lbox_errors.InsertColumn(0, _("noticed when"))
@@ -864,7 +864,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.12  2005-06-10 23:22:43  ncq
+# Revision 1.13  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.12  2005/06/10 23:22:43  ncq
 # - SQL2 match provider now requires query *list*
 #
 # Revision 1.11  2005/05/05 06:28:23  ncq

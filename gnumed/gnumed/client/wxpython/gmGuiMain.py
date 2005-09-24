@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.214 2005-09-11 17:34:10 ncq Exp $
-__version__ = "$Revision: 1.214 $"
+# $Id: gmGuiMain.py,v 1.215 2005-09-24 09:17:28 ncq Exp $
+__version__ = "$Revision: 1.215 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -95,7 +95,7 @@ class gmTopLevelFrame(wx.wxFrame):
 	"""
 
 	#----------------------------------------------
-	def __init__(self, parent, id, title, size=wx.wxPyDefaultSize, layout=None):
+	def __init__(self, parent, id, title, size=wx.wxDefaultSize, layout=None):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 		wx.wxFrame.__init__(
@@ -929,7 +929,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.214  2005-09-11 17:34:10  ncq
+# Revision 1.215  2005-09-24 09:17:28  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.214  2005/09/11 17:34:10  ncq
 # - support consultation summary generation just before
 #   switching to the next patient
 #

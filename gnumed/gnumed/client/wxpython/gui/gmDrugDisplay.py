@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -84,8 +84,8 @@ class DrugDisplay(wxPanel):
 	NoDrugFoundMessageHTML	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("No matching drug found.") + "</FONT></BODY></HTML>"
 	WelcomeMessageHTML 	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("Please enter at least three digits of the drug name.") + "</FONT></BODY></HTML>"
 
-	def __init__(self, parent, id, pos = wxPyDefaultPosition, 
-				 size = wxPyDefaultSize, style = wxTAB_TRAVERSAL):
+	def __init__(self, parent, id, pos = wxDefaultPosition, 
+				 size = wxDefaultSize, style = wxTAB_TRAVERSAL):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		
@@ -641,7 +641,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.25  2005-03-17 20:30:56  hinnef
+# Revision 1.26  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.25  2005/03/17 20:30:56  hinnef
 # fixed some bugs, module dependencies
 #
 # Revision 1.24  2005/03/06 14:54:19  ncq

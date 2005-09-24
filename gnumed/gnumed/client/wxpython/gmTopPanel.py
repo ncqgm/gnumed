@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.62 2005-09-04 07:34:31 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmTopPanel.py,v 1.63 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -179,8 +179,8 @@ class cMainTopPanel(wxPanel):
 			self,
 			ID_CBOX_consult_type,
 			self.DEF_CONSULT_TYPE,
-			wxPyDefaultPosition,
-			wxPyDefaultSize,
+			wxDefaultPosition,
+			wxDefaultSize,
 			self.__consultation_types,
 			wxCB_DROPDOWN | wxCB_READONLY
 		)
@@ -425,7 +425,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.62  2005-09-04 07:34:31  ncq
+# Revision 1.63  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.62  2005/09/04 07:34:31  ncq
 # - comment out padlock button for now
 # - add label "Patient" in front of patient search field as per Hilmar's request
 #

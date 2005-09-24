@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.15 2005-07-31 16:22:57 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmHorstSpace.py,v 1.16 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -21,8 +21,7 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-from wxPython.wx import *
-import wx
+from wxPython import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
@@ -45,8 +44,8 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			self,
 			parent = parent,
 			id = id,
-			pos = wxPyDefaultPosition,
-			size = wxPyDefaultSize,
+			pos = wxDefaultPosition,
+			size = wxDefaultSize,
 			style = wxNO_BORDER,
 			name = 'HorstSpace.LayoutMgrPnl'
 		)
@@ -109,6 +108,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 
 		#  and load them
 		prev_plugin = ""
+		first_plugin = None
 		result = -1
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
@@ -125,10 +125,26 @@ class cHorstSpaceLayoutMgr(wxPanel):
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info(), verbose = 0)
 				result = 0
 
+			if first_plugin is None:
+				first_plugin = plugin
 			prev_plugin = curr_plugin
 
 		progress_bar.Destroy()
 		wxEndBusyCursor()
+
+		# force-refresh first notebook page
+		page = self.nb.GetPage(0)
+		print page
+		page.Refresh()
+
+#		if first_plugin is not None:
+#			print "giving focus"
+#			plugin.receive_focus()
+#			print "refreshing"
+#			plugin.Refresh()
+#			print "refreshing"
+#			self.nb.GetPage(0).Refresh()
+
 		return True
 	#----------------------------------------------
 	# external callbacks
@@ -291,7 +307,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.15  2005-07-31 16:22:57  ncq
+# Revision 1.16  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.15  2005/07/31 16:22:57  ncq
 # - cleanup
 #
 # Revision 1.14  2005/07/23 22:03:08  shilbert

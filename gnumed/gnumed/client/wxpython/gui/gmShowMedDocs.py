@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise
 
-			wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize)
+			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 			self.SetTitle(_("stored medical documents"))
 			self.__do_layout()
 			self.tree.refresh()
@@ -259,7 +259,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.59  2005-01-31 10:37:26  ncq
+# Revision 1.60  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.59  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.58  2004/10/17 15:53:55  ncq

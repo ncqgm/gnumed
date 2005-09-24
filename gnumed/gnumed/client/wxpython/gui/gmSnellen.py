@@ -6,8 +6,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.13 2004-07-28 15:43:12 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmSnellen.py,v 1.14 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -415,7 +415,7 @@ class cSnellenCfgDlg (wx.wxDialog):
 			None,
 			-1,
 			_("Snellen Chart Setup"),
-			wx.wxPyDefaultPosition,
+			wx.wxDefaultPosition,
 			wx.wxSize(350, 200)
 		)
 		vbox = wx.wxBoxSizer (wx.wxVERTICAL)
@@ -442,9 +442,9 @@ left-click increases text
 right-click decreases text
 double-click ends""")), 0, wx.wxALL, 15)
 		hbox5 = wx.wxBoxSizer (wx.wxHORIZONTAL)
-		ok = wx.wxButton(self, wx.wxID_OK, _(" OK "), size=wx.wxPyDefaultSize)
+		ok = wx.wxButton(self, wx.wxID_OK, _(" OK "), size=wx.wxDefaultSize)
 		cancel = wx.wxButton (self, wx.wxID_CANCEL, _(" Cancel "),
-						   size=wx.wxPyDefaultSize)
+						   size=wx.wxDefaultSize)
 		hbox5.Add (ok, 1, wx.wxTOP, 15)
 		hbox5.Add (cancel, 1, wx.wxTOP, 15)
 		vbox.Add (hbox5, 1, wx.wxEXPAND)
@@ -530,6 +530,9 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.13  2004-07-28 15:43:12  ncq
+# Revision 1.14  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.13  2004/07/28 15:43:12  ncq
 # - tabify, start rework for permanent (?) inclusion in top panel
 #

@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmRichardSpace.py,v $
-# $Id: gmRichardSpace.py,v 1.2 2005-02-18 11:16:41 ihaywood Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmRichardSpace.py,v 1.3 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 K. Hilbert <Karsten.Hilbert@gmx.net>,\
 I. Haywood <ihaywood@gnu.org>>\
@@ -23,7 +23,7 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-import wx
+from wxPython import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
 from Gnumed.wxpython import gmPlugin
@@ -135,7 +135,10 @@ class cLayoutMgr(wx.Panel):
 
 #==============================================================================
 # $Log: gmRichardSpace.py,v $
-# Revision 1.2  2005-02-18 11:16:41  ihaywood
+# Revision 1.3  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.2  2005/02/18 11:16:41  ihaywood
 # new demographics UI code won't crash the whole client now ;-)
 # still needs much work
 # RichardSpace working

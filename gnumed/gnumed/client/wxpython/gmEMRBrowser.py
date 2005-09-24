@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.39 2005-09-11 17:30:02 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmEMRBrowser.py,v 1.40 2005-09-24 09:17:28 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -84,8 +84,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self,
 			parent,
 			id,
-			wx.wxPyDefaultPosition,
-			wx.wxPyDefaultSize,
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
 			wx.wxNO_BORDER
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -248,7 +248,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# FIXME: get position from tree item
 #		pos = (event.GetX(), event.GetY())
-		pos = wx.wxPyDefaultPosition
+		pos = wx.wxDefaultPosition
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__handle_issue_context(issue=node_data, pos=pos)
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
@@ -345,7 +345,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__custom_right_widget = None
 	#--------------------------------------------------------
 	# episodes
-	def __handle_episode_context(self, episode=None, pos=wx.wxPyDefaultPosition):
+	def __handle_episode_context(self, episode=None, pos=wx.wxDefaultPosition):
 		self.__selected_episode = episode
 		self.__epi_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
@@ -391,7 +391,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print self.__selected_episode
 	#--------------------------------------------------------
 	# encounters
-	def __handle_encounter_context(self, encounter = None, pos=wx.wxPyDefaultPosition):
+	def __handle_encounter_context(self, encounter = None, pos=wx.wxDefaultPosition):
 		self.__selected_encounter = encounter
 		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
@@ -425,7 +425,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		self._on_episodes_modified()
 	#--------------------------------------------------------
 	# health issues
-	def __handle_issue_context(self, issue=None, pos=wx.wxPyDefaultPosition):
+	def __handle_issue_context(self, issue=None, pos=wx.wxDefaultPosition):
 		self.__selected_issue = issue
 #		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__issue_context_popup, pos)
@@ -455,7 +455,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		return
 	#--------------------------------------------------------
 	# health issues
-	def __handle_root_context(self, pos=wx.wxPyDefaultPosition):
+	def __handle_root_context(self, pos=wx.wxDefaultPosition):
 		self.PopupMenu(self.__root_context_popup, pos)		
 	#--------------------------------------------------------
 	def __create_issue(self, event):
@@ -603,7 +603,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.39  2005-09-11 17:30:02  ncq
+# Revision 1.40  2005-09-24 09:17:28  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.39  2005/09/11 17:30:02  ncq
 # - cleanup
 #
 # Revision 1.38  2005/09/08 16:57:48  ncq

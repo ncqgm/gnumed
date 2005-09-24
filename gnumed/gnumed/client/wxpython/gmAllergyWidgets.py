@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -230,7 +230,7 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	#----------------------------------------------------
 	def __init__(self, parent, id=-1):
-		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__do_layout()
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -250,8 +250,8 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LCTRL_allergies = wxListCtrl (
 			parent = self,
 			id = ID_ALLERGY_LIST,
-			pos = wxPyDefaultPosition,
-			size = wxPyDefaultSize,
+			pos = wxDefaultPosition,
+			size = wxDefaultSize,
 			style = wxLC_SINGLE_SEL | wxLC_REPORT | wxSUNKEN_BORDER | wxLC_HRULES | wxLC_VRULES | wxVSCROLL
 		)
 		self.LCTRL_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
@@ -344,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.7  2005-03-20 17:49:11  ncq
+# Revision 1.8  2005-09-24 09:17:27  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.7  2005/03/20 17:49:11  ncq
 # - default for id
 #
 # Revision 1.6  2005/01/31 10:37:26  ncq

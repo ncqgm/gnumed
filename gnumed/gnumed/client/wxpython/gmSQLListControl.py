@@ -51,7 +51,7 @@ class SQLListControl(wxListCtrl):
 
 
 
-	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=True, hideid=False):
+	def __init__(self, parent, id, pos=wxDefaultPosition, size=wxDefaultSize, style=wxLC_REPORT, feedback=True, hideid=False):
 		wxListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
 		self.__hide_id=hideid # first column is assumed to be id field

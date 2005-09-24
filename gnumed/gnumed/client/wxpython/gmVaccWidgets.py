@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.17 2005-06-10 23:22:43 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmVaccWidgets.py,v 1.18 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -332,7 +332,7 @@ class cNewVaccinationPopup(wxDialog):
 class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent, id):
-		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pat = gmPerson.gmCurrentPatient()
 		# do this here so "import cImmunisationsPanel from gmVaccWidgets" works
@@ -349,7 +349,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# top part
 		#-----------------------------------------------
 		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("  IMMUNISATIONS  "))
-		self.editarea = cVaccinationEditArea(self, -1, wxPyDefaultPosition, wxPyDefaultSize, wxNO_BORDER)
+		self.editarea = cVaccinationEditArea(self, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 
 		#-----------------------------------------------
 		# middle part
@@ -599,7 +599,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.17  2005-06-10 23:22:43  ncq
+# Revision 1.18  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.17  2005/06/10 23:22:43  ncq
 # - SQL2 match provider now requires query *list*
 #
 # Revision 1.16  2005/04/20 22:23:36  ncq

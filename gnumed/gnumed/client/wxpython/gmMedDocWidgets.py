@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -292,7 +292,7 @@ class cDocTree(wxTreeCtrl):
 		wxID_load_submenu = wxNewId()
 		menu = wxMenu(title = _('document menu'))
 		menu.AppendMenu(wxID_load_submenu, _('descriptions ...'), desc_menu)
-		self.PopupMenu(menu, wxPyDefaultPosition)
+		self.PopupMenu(menu, wxDefaultPosition)
 		menu.Destroy()
 	#--------------------------------------------------------
 	def __show_description(self, evt):
@@ -308,7 +308,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.11  2005-03-06 14:54:19  ncq
+# Revision 1.12  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.11  2005/03/06 14:54:19  ncq
 # - szr.AddWindow() -> Add() such that wx2.5 works
 # - 'demographic record' -> get_identity()
 #

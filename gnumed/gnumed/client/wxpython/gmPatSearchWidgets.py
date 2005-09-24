@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.20 2005-09-12 15:18:05 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPatSearchWidgets.py,v 1.21 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -178,8 +178,8 @@ class cPatientPickList(wx.wxDialog):
 			self,
 			wx.wxID_OK,
 			_("&Activate"),
-			wx.wxPyDefaultPosition,
-			wx.wxPyDefaultSize,
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
 			0
 		)
 		# allow add new patient
@@ -187,8 +187,8 @@ class cPatientPickList(wx.wxDialog):
 			self,
 			ID_BTN_AddNew,
 			_("Add as &New"),
-			wx.wxPyDefaultPosition,
-			wx.wxPyDefaultSize,
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
 			0
 		)
 		# cancel pick list
@@ -196,8 +196,8 @@ class cPatientPickList(wx.wxDialog):
 			self,
 			wx.wxID_CANCEL,
 			_("&Cancel"),
-			wx.wxPyDefaultPosition,
-			wx.wxPyDefaultSize,
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
 			0
 		)
 		spacer = wx.wxBoxSizer(wx.wxHORIZONTAL)
@@ -298,7 +298,7 @@ class cPatientPickList(wx.wxDialog):
 #============================================================
 class cPatientSelector(wx.wxTextCtrl):
 	"""Widget for smart search for patients."""
-	def __init__ (self, parent, id = -1, pos = wx.wxPyDefaultPosition, size = wx.wxPyDefaultSize):
+	def __init__ (self, parent, id = -1, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize):
 		self.curr_pat = gmPerson.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
@@ -731,7 +731,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.20  2005-09-12 15:18:05  ncq
+# Revision 1.21  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.20  2005/09/12 15:18:05  ncq
 # - fix faulty call to SetActivePatient() found by Richard when using
 #   always_dismiss_after_search
 #

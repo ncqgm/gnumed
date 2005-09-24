@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.12 2005-08-06 16:50:51 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmEMRStructWidgets.py,v 1.13 2005-09-24 09:17:28 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -199,8 +199,8 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 					msg = '',
 					action_txt = _('UNDEFINED action'),					
 					pk_health_issue = None,
-				 	pos = wx.wxPyDefaultPosition,
-				 	size = wx.wxPyDefaultSize,
+				 	pos = wx.wxDefaultPosition,
+				 	size = wx.wxDefaultSize,
 				 	style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER
 				 ):
 		"""
@@ -268,8 +268,8 @@ class cEpisodePicker(wx.wxPanel):
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxPyDefaultPosition,
-			size = wx.wxPyDefaultSize,
+			pos = wx.wxDefaultPosition,
+			size = wx.wxDefaultSize,
 			style = wx.wxNO_BORDER
 		)
 
@@ -473,8 +473,8 @@ class cEpisodeEditorDlg(wx.wxDialog):
 					id,
 					title = _('Episode editor'),
 					pk_health_issue=None,
-				 	pos = wx.wxPyDefaultPosition,
-				 	size = wx.wxPyDefaultSize,
+				 	pos = wx.wxDefaultPosition,
+				 	size = wx.wxDefaultSize,
 				 	style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER
 				 ):
 		"""
@@ -531,8 +531,8 @@ class cEpisodeEditor(wx.wxPanel):
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxPyDefaultPosition,
-			size = wx.wxPyDefaultSize,
+			pos = wx.wxDefaultPosition,
+			size = wx.wxDefaultSize,
 			style = wx.wxNO_BORDER
 		)
 
@@ -876,7 +876,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.12  2005-08-06 16:50:51  ncq
+# Revision 1.13  2005-09-24 09:17:28  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.12  2005/08/06 16:50:51  ncq
 # - zero-size spacer seems pointless and besides it
 #   don't work like that in wx2.5
 #

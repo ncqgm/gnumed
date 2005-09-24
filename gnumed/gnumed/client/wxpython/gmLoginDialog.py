@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.61 2005-08-15 15:15:25 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmLoginDialog.py,v 1.62 2005-09-24 09:17:29 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -41,8 +41,8 @@ class LoginPanel(wx.wxPanel):
 	"""GUI panel class that interactively gets Postgres login parameters"""
 
 	def __init__(self, parent, id,
-		pos = wx.wxPyDefaultPosition,
-		size = wx.wxPyDefaultSize,
+		pos = wx.wxDefaultPosition,
+		size = wx.wxDefaultSize,
 		style = wx.wxTAB_TRAVERSAL,
 		loginparams = None,
 		isDialog = 0
@@ -467,7 +467,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.61  2005-08-15 15:15:25  ncq
+# Revision 1.62  2005-09-24 09:17:29  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.61  2005/08/15 15:15:25  ncq
 # - improved error message
 #
 # Revision 1.60  2005/08/14 15:22:04  ncq

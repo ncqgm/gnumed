@@ -35,7 +35,7 @@ class SQLSimpleSearch(wxPanel):
 	"""
 	
 	def __init__(self, parent, id,
-		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
+		pos = wxDefaultPosition, size = wxDefaultSize,
 		style = wxTAB_TRAVERSAL, service = 'default' ):
 
 		self.selected = None

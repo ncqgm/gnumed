@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.62 2005-09-12 15:09:00 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmDemographicsWidgets.py,v 1.63 2005-09-24 09:17:27 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,7 +18,7 @@ import time, string, sys
 
 # 3rd party
 import mx.DateTime as mxDT
-import wx
+from wxPython import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 from wxPython import wizard
 
@@ -2878,7 +2878,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.62  2005-09-12 15:09:00  ncq
+# Revision 1.63  2005-09-24 09:17:27  ncq
+# - some wx2.6 compatibility fixes
+#
+# Revision 1.62  2005/09/12 15:09:00  ncq
 # - make first tab display first in demographics editor
 #
 # Revision 1.61  2005/09/04 07:29:53  ncq

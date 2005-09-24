@@ -54,7 +54,7 @@ to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSQL.py,v $
 
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -86,7 +86,7 @@ class RedirectToTextctrl:
 class SQLWindow(wxPanel):
 
     def __init__(self, parent, id,
-        pos = wxPyDefaultPosition, size = wxPyDefaultSize,
+        pos = wxDefaultPosition, size = wxDefaultSize,
         style = wxTAB_TRAVERSAL ):
         wxPanel.__init__(self, parent, id, pos, size, style)
 

@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 
 import string
 from wxPython.wx import *
@@ -38,7 +38,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 	to create a new person record, to delete and to modify records"""
 
 	def __init__(self, parent, id=-1,
-		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
+		pos = wxDefaultPosition, size = wxDefaultSize,
 		style = wxTAB_TRAVERSAL, service = 'demographica' ):
 
 		SQLSimpleSearch.__init__(self, parent, id, pos, size, style, service)

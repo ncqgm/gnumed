@@ -64,7 +64,7 @@ class gmCryptoText(wxTextCtrl):
     position
     """
 
-    def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
+    def __init__(self, parent, id, size=wxDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
         #initialize parent class
         wxTextCtrl.__init__(self, parent, id, size=size, style=style)
  	self.SetDefaultStyle(wxTextAttr(wxRED))
