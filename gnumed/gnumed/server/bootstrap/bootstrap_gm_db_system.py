@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -707,7 +707,7 @@ class database:
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
-		cmd = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
+		cmd = "BEGIN; SELECT datname FROM pg_database WHERE datname='%s'" % self.name
 
 		aCursor = self.conn.cursor()
 		try:
@@ -716,7 +716,7 @@ class database:
 			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
 			return None
 
-		res = aCursor.fetchone()
+		res = aCursor.fetchall()
 		tmp = aCursor.rowcount
 		aCursor.close()
 		if tmp == 1:
@@ -1429,7 +1429,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.9  2005-09-24 23:16:55  ihaywood
+# Revision 1.10  2005-09-24 23:28:41  ihaywood
+# make __db_exists () work on my box
+# please test this.
+#
+# Revision 1.9  2005/09/24 23:16:55  ihaywood
 # fix for UNIX local socket connections
 #
 # Revision 1.8  2005/09/13 11:48:59  ncq
