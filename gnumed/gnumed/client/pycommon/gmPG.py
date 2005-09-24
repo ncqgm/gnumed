@@ -1,4 +1,4 @@
-"""Broker for Postgres distributed backend connections.
+"""Broker for PostgreSQL distributed backend connections.
 
 @copyright: author
 
@@ -7,14 +7,14 @@ TODO: iterator/generator batch fetching:
 	- search Google for "Geneator/Iterator Nesting Problem - Any Ideas? 2.4"
 
 winner:
-def resultset_functional_batchgene rator(cursor, size=100):
+def resultset_functional_batchgenerator(cursor, size=100):
 	for results in iter(lambda: cursor.fetchmany(size), []):
 		for rec in results:
 			yield rec
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -40,37 +40,19 @@ del gmCLI
 
 # 3rd party dependencies
 
-# FIXME: this needs a better way of specifying which library to load
-# add SQL-relay, too
-
 # first, do we have the preferred postgres-python library available ?
 try:
 	import pyPgSQL
 	_log.Log(gmLog.lData, 'pyPgSQL version: %s' % pyPgSQL.__version__)
 	del pyPgSQL
-	import pyPgSQL.PgSQL # try preferred backend library
-	dbapi = pyPgSQL.PgSQL
-	_isPGDB = 0
+	import pyPgSQL.PgSQL as dbapi # try preferred backend library
+#	dbapi = pyPgSQL.PgSQL
 except ImportError:
-	try:
-		import psycopg # try Zope library
-		dbapi = psycopg
-		_isPGDB = 0
-	except ImportError:
-		try:
-			# well, well, no such luck - fall back to stock pgdb library
-			import pgdb # try standard Postgres binding
-			dbapi = pgdb
-			_isPGDB = 1
-		except ImportError:
-			_log.LogException("No Python database adapter found.", sys.exc_info(), verbose=1)
-			print "CRITICAL ERROR: Cannot find any Python module for connecting to the database server."
-			raise
+	_log.LogException("No Python database adapter found.", sys.exc_info(), verbose=1)
+	print "CRITICAL ERROR: Cannot find module pyPgSQL for connecting to the database server."
+	raise
 
-# FIXME: DBMS should eventually be configurable
-__backend = 'PostgreSQL'
-
-_log.Log(gmLog.lInfo, 'DBMS [%s] via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+_log.Log(gmLog.lInfo, 'PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 
 # check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
@@ -425,17 +407,12 @@ class ConnectionPool:
 		"""connect to a postgres backend as specified by login object; return a connection object"""
 		dsn = ""
 		hostport = ""
-		if _isPGDB:
-			dsn, hostport = login.GetPGDB_DSN()
-		else:
-			dsn = login.GetDBAPI_DSN()
-			hostport = "0"
+		dsn = login.GetDBAPI_DSN()
+		hostport = "0"
 
 		try:
-			if _isPGDB:
-				conn = dbapi.connect(dsn, host=hostport)
-			else:
-				conn = dbapi.connect(dsn)
+#			conn = dbapi.connect(dsn, host=hostport)
+			conn = dbapi.connect(dsn)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
@@ -556,7 +533,6 @@ def fieldNames(cursor):
 #---------------------------------------------------
 def listDatabases(service='default'):
 	"""list all accessible databases on the database backend of the specified service"""
-	assert(__backend == 'PostgreSQL')
 	return run_ro_query(service, "select * from pg_database")
 #---------------------------------------------------
 def _import_listener_engine():
@@ -1218,7 +1194,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.51 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.52 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1236,9 +1212,6 @@ def add_housekeeping_todo(
 		return (None, err)
 	return (1, result[0][0])
 #---------------------------------------------------
-#---------------------------------------------------
-def getBackendName():
-	return __backend
 #---------------------------------------------------
 def set_default_client_encoding(encoding = None):
 	if encoding is None:
@@ -1393,7 +1366,7 @@ def __run_notifications_debugger():
 # Main - unit testing
 #------------------------------------------------------------------
 if __name__ == "__main__":
-	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % ('PostgreSQL', dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 
 	print "Do you want to test the backend notification code ?"
 	yes_no = raw_input('y/n: ')
@@ -1445,7 +1418,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.51  2005-07-16 18:35:55  ncq
+# Revision 1.52  2005-09-24 09:14:39  ncq
+# - cleanup, removing bogus support for other DB-API adapters
+# - remove __backend, we only support PostgreSQL anyways
+#
+# Revision 1.51  2005/07/16 18:35:55  ncq
 # - catch more errors around locale access
 #
 # Revision 1.50  2005/07/11 08:34:11  ncq
