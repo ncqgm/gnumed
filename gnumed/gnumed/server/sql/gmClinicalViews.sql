@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.154 2005-09-24 09:07:02 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.155 2005-09-25 17:49:24 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1697,13 +1697,18 @@ select
 	i.title as title,
 	n.firstnames as firstnames,
 	n.lastnames as lastnames,
-	n.preferred as preferred,
+	n.preferred as preferred_name,
 	i.dob as dob,
 	i.gender as gender,
 	_(i.gender) as l10n_gender,
 	wl.registered as registered,
-	vmre.rfe as rfe,
+	vmre.started as start_most_recent_encounter,
+	vmre.rfe as most_recent_rfe,
 	wl.comment as comment,
+	(select started from clin_encounter ce
+	 where vmre.pk_encounter = ce.id
+	 order by last_affirmed desc limit 1 offset 1
+	) as start_previous_encounter,
 	i.pk as pk_identity,
 	n.id as pk_name,
 	i.pupic as pupic
@@ -1727,8 +1732,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin_health_issue_id_seq
 	, clin_episode
 	, clin_episode_pk_seq
-	, last_act_episode
-	, last_act_episode_id_seq
 	, encounter_type
 	, encounter_type_pk_seq
 	, clin_encounter
@@ -1839,11 +1842,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.154 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.155 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.154  2005-09-24 09:07:02  ncq
+-- Revision 1.155  2005-09-25 17:49:24  ncq
+-- - add start of current/previous encounter to waiting list view
+--
+-- Revision 1.154  2005/09/24 09:07:02  ncq
 -- - removed left-over reference to clin_encounter.fk_provider
 --
 -- Revision 1.153  2005/09/22 15:43:48  ncq
