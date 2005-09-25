@@ -3,7 +3,7 @@
 
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/es/gmDemographics-Data.es.sql,v $
--- $Id: gmDemographics-Data.es.sql,v 1.4 2005-09-19 16:27:05 ncq Exp $
+-- $Id: gmDemographics-Data.es.sql,v 1.5 2005-09-25 17:52:45 ncq Exp $
 -- author: Carlos Moro
 -- license: GPL
 
@@ -14,6 +14,25 @@
 set client_encoding to 'LATIN1';
 -- ===================================================================
 select i18n_upd_tx('es_ES', 'Spain', 'España');
+
+-- Carlos, please reconcile:
+--INSERT INTO state(code, country, name) VALUES ('AN','ES',i18n('Andalusia'));
+--INSERT INTO state(code, country, name) VALUES ('AR','ES',i18n('Aragon'));
+--INSERT INTO state(code, country, name) VALUES ('AS','ES',i18n('Asturias'));
+--INSERT INTO state(code, country, name) VALUES ('BI','ES',i18n('Balearic Islands'));
+--INSERT INTO state(code, country, name) VALUES ('BC','ES',i18n('Basque Country'));
+--INSERT INTO state(code, country, name) VALUES ('CI','ES',i18n('Canary Islands'));
+--INSERT INTO state(code, country, name) VALUES ('CA','ES',i18n('Cantabria'));
+--INSERT INTO state(code, country, name) VALUES ('CL','ES',i18n('Castilla y Leon'));
+--INSERT INTO state(code, country, name) VALUES ('CM','ES',i18n('Castilla-La Mancha'));
+--INSERT INTO state(code, country, name) VALUES ('CT','ES',i18n('Catalonia'));
+--INSERT INTO state(code, country, name) VALUES ('EX','ES',i18n('Extremadura'));
+--INSERT INTO state(code, country, name) VALUES ('GA','ES',i18n('Galicia'));
+--INSERT INTO state(code, country, name) VALUES ('LR','ES',i18n('La Rioja'));
+--INSERT INTO state(code, country, name) VALUES ('MA','ES',i18n('Madrid'));
+--INSERT INTO state(code, country, name) VALUES ('MU','ES',i18n('Murcia'));
+--INSERT INTO state(code, country, name) VALUES ('NA','ES',i18n('Navarre'));
+--INSERT INTO state(code, country, name) VALUES ('VA','ES',i18n('Valencia'));
 
 -- spanish geographic information (mostly of type 'state')
 INSERT INTO state(code,country,name) VALUES ('01','ES',i18n('Álava'));
@@ -71,11 +90,15 @@ select gm_upd_default_states();
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.es.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-Data.es.sql,v $
--- Revision 1.4  2005-09-19 16:27:05  ncq
+-- Revision 1.5  2005-09-25 17:52:45  ncq
+-- - carlos needs to take a look, his data and the data from Jim's file
+--   are different
+--
+-- Revision 1.4  2005/09/19 16:27:05  ncq
 -- - update default states
 --
 -- Revision 1.3  2005/07/14 21:31:43  ncq
