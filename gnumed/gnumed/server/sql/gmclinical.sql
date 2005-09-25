@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.166 $
+-- $Revision: 1.167 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -126,33 +126,6 @@ comment on column clin_episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
 	 means open in a temporal sense as in "not closed yet";
 	 only one episode can be open per health issue';
-
--- -------------------------------------------------------------------
-create table last_act_episode (
-	id serial primary key,
-	fk_episode integer
-		unique
-		not null
-		references clin_episode(pk)
-		on update cascade
-		on delete cascade,
-	id_patient integer
-		unique
-		not null
-		references xlnk_identity(xfk_identity)
-		on update cascade
-		on delete restrict
-);
-
-comment on table last_act_episode is
-	'records the most recently active episode per patient,
-	 upon instantiation of a patient object it should read
-	 the most recently active episode from this table,
-	 upon deletion of the object, the last active episode
-	 should be recorded here,
-	 do *not* rely on the content of this table *during*
-	 the life time of a patient object as the value can
-	 change from under us';
 
 -- ===================================================================
 -- encounter related tables
@@ -1251,11 +1224,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.166 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.167 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.166  2005-09-25 01:00:47  ihaywood
+-- Revision 1.167  2005-09-25 17:48:23  ncq
+-- - remove last_act_episode, it's not used
+--
+-- Revision 1.166  2005/09/25 01:00:47  ihaywood
 -- bugfixes
 --
 -- remember 2.6 uses "import wx" not "from wxPython import wx"
