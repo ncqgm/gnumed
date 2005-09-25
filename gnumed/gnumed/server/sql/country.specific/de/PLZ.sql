@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -42,6 +42,17 @@ insert into state (code, country, name) values ('Sbg', 'AT', 'Salzburg');
 insert into state (code, country, name) values ('Vlbg', 'AT', 'Vorarlberg');
 insert into state (code, country, name) values ('Bgld', 'AT', 'Burgenland');
 insert into state (code, country, name) values ('Ktn', 'AT', 'Kärnten');			-- Carinthia
+
+-- jo, wos is jetz dös ?
+--INSERT INTO state(code, country, name) VALUES ('BU','AT',i18n('Burgenland'));
+--INSERT INTO state(code, country, name) VALUES ('CA','AT',i18n('Carinthia'));
+--INSERT INTO state(code, country, name) VALUES ('NI','AT',i18n('Niederoesterreich'));
+--INSERT INTO state(code, country, name) VALUES ('OB','AT',i18n('Oberoesterreich'));
+--INSERT INTO state(code, country, name) VALUES ('SA','AT',i18n('Salzburg'));
+--INSERT INTO state(code, country, name) VALUES ('ST','AT',i18n('Steiermark'));
+--INSERT INTO state(code, country, name) VALUES ('TI','AT',i18n('Tirol'));
+--INSERT INTO state(code, country, name) VALUES ('VO','AT',i18n('Vorarlberg'));
+--INSERT INTO state(code, country, name) VALUES ('WI','AT',i18n('Wien'));
 
 select gm_upd_default_states();
 
@@ -140,11 +151,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.9  2005-09-19 16:26:07  ncq
+-- Revision 1.10  2005-09-25 17:52:09  ncq
+-- - add commented out alternative state information for AT
+--
+-- Revision 1.9  2005/09/19 16:26:07  ncq
 -- - update default states
 --
 -- Revision 1.8  2005/07/14 21:31:43  ncq
