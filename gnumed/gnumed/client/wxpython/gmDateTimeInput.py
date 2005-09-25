@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.26 2005-09-25 01:00:47 ihaywood Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmDateTimeInput.py,v 1.27 2005-09-25 01:13:06 ihaywood Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -196,7 +196,7 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 #		EVT_KILL_FOCUS(self, self.__on_lose_focus)
 		#EVT_KEY_DOWN (self, self.__on_key_pressed)
 
-		if wxVERSION[1] > 4 or wxVERSION[0] > 2:
+		if globals ().has_key ('wxUSE_UNICODE') and wxUSE_UNICODE:
 			self.__tooltip = _(
 				u"""------------------------------------------------------------------------------
 				Date input field
@@ -208,7 +208,7 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 """)
 		else:
 			self.__tooltip = _(
-				u"""------------------------------------------------------------------------------
+				"""------------------------------------------------------------------------------
 				Date input field
 				
 				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
@@ -383,7 +383,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.26  2005-09-25 01:00:47  ihaywood
+# Revision 1.27  2005-09-25 01:13:06  ihaywood
+# use a nicer way of discovering non-Unicode wxPython builds
+# I resisted the temptation to use "if os.environ['USER'] == 'ncq':"
+#
+# Revision 1.26  2005/09/25 01:00:47  ihaywood
 # bugfixes
 #
 # remember 2.6 uses "import wx" not "from wxPython import wx"
