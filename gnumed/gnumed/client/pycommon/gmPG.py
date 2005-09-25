@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,9 +44,8 @@ del gmCLI
 try:
 	import pyPgSQL
 	_log.Log(gmLog.lData, 'pyPgSQL version: %s' % pyPgSQL.__version__)
-	#del pyPgSQL
+	del pyPgSQL
 	import pyPgSQL.PgSQL as dbapi # try preferred backend library
-#	dbapi = pyPgSQL.PgSQL
 except ImportError:
 	_log.LogException("No Python database adapter found.", sys.exc_info(), verbose=1)
 	print "CRITICAL ERROR: Cannot find module pyPgSQL for connecting to the database server."
@@ -184,10 +183,7 @@ class ConnectionPool:
 				return None
 
 		if extra_verbose:
-			if dbapi == pyPgSQL.PgSQL:
-				conn.conn.toggleShowQuery
-			else:
-				_log.Log(gmLog.lInfo, 'extra_verbose not supported by DB API adapter [%s]' % dbapi)
+			conn.conn.toggleShowQuery
 
 		return conn
 	#-----------------------------
@@ -292,10 +288,7 @@ class ConnectionPool:
 		"""when performance is crucial, let the db adapter
 		return a list of lists instead a list of database objects.
 		CAREFUL: this affects the whole connection!!!"""
-		if dbapi is pyPgSQL.PgSQL:
-			dbapi.fetchReturnsList = on
-		else:
-			_log.Log(gmLog.lWarn, 'not supported with DB-API [%s], please supply a patch' % dbapi)
+		dbapi.fetchReturnsList = on
 	#-----------------------------		
 	def GetLoginInfoFor(self, service, login = None):
 		"""return login information for a particular service"""
@@ -677,8 +670,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 		_log.Log(gmLog.lErr, msg % service)
 		return (False, (1, _(msg) % service))
 	if extra_verbose:
-		if dbapi == pyPgSQL.PgSQL:
-			conn.conn.toggleShowQuery
+		conn.conn.toggleShowQuery
 	curs = conn.cursor()
 	for attempt in range(0, max_tries):
 		if extra_verbose:
@@ -751,8 +743,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 #---------------------------------------------------
 def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, get_col_idx=False):
 	if extra_verbose:
-		if dbapi == pyPgSQL.PgSQL:
-			conn.conn.toggleShowQuery
+		conn.conn.toggleShowQuery
 
 	# get cursor
 	curs = conn.cursor()
@@ -774,8 +765,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 				_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 				curs.close()
 				if extra_verbose:
-					if dbapi == pyPgSQL.PgSQL:
-						conn.conn.toggleShowQuery
+					conn.conn.toggleShowQuery
 				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], conn), exc_info)
@@ -786,8 +776,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			tmp = tmp.replace('ExecAppend:', '')
 			tmp = tmp.strip()
 			if extra_verbose:
-				if dbapi == pyPgSQL.PgSQL:
-					conn.conn.toggleShowQuery
+				conn.conn.toggleShowQuery
 			return (False, (1, _('SQL: %s') % tmp))
 		# apparently succeeded
 		if extra_verbose:
@@ -796,8 +785,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 	# done with queries
 	if extra_verbose:
-		if dbapi == pyPgSQL.PgSQL:
-			conn.conn.toggleShowQuery
+		conn.conn.toggleShowQuery
 	# did we get result rows in the last query ?
 	data = None
 	idx = {}
@@ -1194,7 +1182,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.53 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.54 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1418,7 +1406,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.53  2005-09-25 01:00:47  ihaywood
+# Revision 1.54  2005-09-25 17:22:42  ncq
+# - cleanup
+#
+# Revision 1.53  2005/09/25 01:00:47  ihaywood
 # bugfixes
 #
 # remember 2.6 uses "import wx" not "from wxPython import wx"
