@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmRichardSpace.py,v $
-# $Id: gmRichardSpace.py,v 1.3 2005-09-24 09:17:29 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmRichardSpace.py,v 1.4 2005-09-25 01:00:47 ihaywood Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 K. Hilbert <Karsten.Hilbert@gmx.net>,\
 I. Haywood <ihaywood@gnu.org>>\
@@ -23,7 +23,7 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
 from Gnumed.wxpython import gmPlugin
@@ -135,7 +135,14 @@ class cLayoutMgr(wx.Panel):
 
 #==============================================================================
 # $Log: gmRichardSpace.py,v $
-# Revision 1.3  2005-09-24 09:17:29  ncq
+# Revision 1.4  2005-09-25 01:00:47  ihaywood
+# bugfixes
+#
+# remember 2.6 uses "import wx" not "from wxPython import wx"
+# removed not null constraint on clin_encounter.rfe as has no value on instantiation
+# client doesn't try to set clin_encounter.description as it doesn't exist anymore
+#
+# Revision 1.3  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.2  2005/02/18 11:16:41  ihaywood

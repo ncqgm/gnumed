@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,7 @@ del gmCLI
 try:
 	import pyPgSQL
 	_log.Log(gmLog.lData, 'pyPgSQL version: %s' % pyPgSQL.__version__)
-	del pyPgSQL
+	#del pyPgSQL
 	import pyPgSQL.PgSQL as dbapi # try preferred backend library
 #	dbapi = pyPgSQL.PgSQL
 except ImportError:
@@ -1194,7 +1194,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.52 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.53 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1418,7 +1418,14 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.52  2005-09-24 09:14:39  ncq
+# Revision 1.53  2005-09-25 01:00:47  ihaywood
+# bugfixes
+#
+# remember 2.6 uses "import wx" not "from wxPython import wx"
+# removed not null constraint on clin_encounter.rfe as has no value on instantiation
+# client doesn't try to set clin_encounter.description as it doesn't exist anymore
+#
+# Revision 1.52  2005/09/24 09:14:39  ncq
 # - cleanup, removing bogus support for other DB-API adapters
 # - remove __backend, we only support PostgreSQL anyways
 #

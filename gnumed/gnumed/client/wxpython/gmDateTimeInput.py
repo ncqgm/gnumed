@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.25 2005-08-22 13:03:46 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmDateTimeInput.py,v 1.26 2005-09-25 01:00:47 ihaywood Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -196,14 +196,25 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 #		EVT_KILL_FOCUS(self, self.__on_lose_focus)
 		#EVT_KEY_DOWN (self, self.__on_key_pressed)
 
-		self.__tooltip = _(
-"""------------------------------------------------------------------------------
-Date input field
-
- <ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
- <ALT-K>:         Kalender
- +/- X d/w/m:     X days/weeks/months ago/from now
-------------------------------------------------------------------------------
+		if wxVERSION[1] > 4 or wxVERSION[0] > 2:
+			self.__tooltip = _(
+				u"""------------------------------------------------------------------------------
+				Date input field
+				
+				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
+				<ALT-K>:         Kalender
+				+/- X d/w/m:     X days/weeks/months ago/from now
+				------------------------------------------------------------------------------
+""")
+		else:
+			self.__tooltip = _(
+				u"""------------------------------------------------------------------------------
+				Date input field
+				
+				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
+				<ALT-K>:         Kalender
+				+/- X d/w/m:     X days/weeks/months ago/from now
+				------------------------------------------------------------------------------
 """)
 		self.SetToolTip(wxToolTip(self.__tooltip))
 	#----------------------------------------------
@@ -372,7 +383,14 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.25  2005-08-22 13:03:46  ncq
+# Revision 1.26  2005-09-25 01:00:47  ihaywood
+# bugfixes
+#
+# remember 2.6 uses "import wx" not "from wxPython import wx"
+# removed not null constraint on clin_encounter.rfe as has no value on instantiation
+# client doesn't try to set clin_encounter.description as it doesn't exist anymore
+#
+# Revision 1.25  2005/08/22 13:03:46  ncq
 # - set bounds on "day of month" calculations
 #
 # Revision 1.24  2005/07/31 16:22:25  ncq

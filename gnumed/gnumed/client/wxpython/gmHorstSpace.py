@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.16 2005-09-24 09:17:29 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmHorstSpace.py,v 1.17 2005-09-25 01:00:47 ihaywood Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -21,7 +21,8 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-from wxPython import wx
+from wxPython.wx import *
+import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
@@ -284,7 +285,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
 		self.PopupMenu(menu, evt.GetPosition())
 		menu.Destroy()
-#		evt.Skip()
+		evt.Skip()
 	#----------------------------------------------		
 	def _on_drop_plugin(self, evt):
 		"""Unload plugin and drop from load list."""
@@ -307,7 +308,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.16  2005-09-24 09:17:29  ncq
+# Revision 1.17  2005-09-25 01:00:47  ihaywood
+# bugfixes
+#
+# remember 2.6 uses "import wx" not "from wxPython import wx"
+# removed not null constraint on clin_encounter.rfe as has no value on instantiation
+# client doesn't try to set clin_encounter.description as it doesn't exist anymore
+#
+# Revision 1.16  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.15  2005/07/31 16:22:57  ncq

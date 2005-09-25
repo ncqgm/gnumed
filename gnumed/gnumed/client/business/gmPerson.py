@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.54 2005-09-19 16:33:31 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmPerson.py,v 1.55 2005-09-25 01:00:47 ihaywood Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -837,21 +837,39 @@ class cPatientSearcher_SQL:
 			return None
 		if len(aString) == 0:
 			return aString
-
-		# umlauts
-		normalized =    aString.replace(u'Ä'.encode('latin-1'), u'(Ä|AE|Ae|A|E)'.encode('latin-1'))
-		normalized = normalized.replace(u'Ö'.encode('latin-1'), u'(Ö|OE|Oe|O)'.encode('latin-1'))
-		normalized = normalized.replace(u'Ü'.encode('latin-1'), u'(Ü|UE|Ue|U)'.encode('latin-1'))
-		normalized = normalized.replace(u'ä'.encode('latin-1'), u'(ä|ae|e|a)'.encode('latin-1'))
-		normalized = normalized.replace(u'ö'.encode('latin-1'), u'(ö|oe|o)'.encode('latin-1'))
-		normalized = normalized.replace(u'ü'.encode('latin-1'), u'(ü|ue|u|y|i)'.encode('latin-1'))
-		normalized = normalized.replace(u'ß'.encode('latin-1'), u'(ß|sz|ss|s)'.encode('latin-1'))
-
-		# common soundalikes
-		# - René, Desiré, Inés ...
-		normalized = normalized.replace(u'é'.encode('latin-1'), u'*#DUMMY#*'.encode('latin-1'))
-		normalized = normalized.replace(u'è'.encode('latin-1'), u'*#DUMMY#*'.encode('latin-1'))
-		normalized = normalized.replace(u'*#DUMMY#*'.encode('latin-1'), u'(é|e|è|ä|ae)'.encode('latin-1'))
+		if type (aString) is types.UnicodeType:
+			# latin-1 encoding breaks when aString is itself Unicode 
+		
+			# umlauts
+			normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|A|E)')
+			normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe|O)')
+			normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue|U)')
+			normalized = normalized.replace(u'ä', u'(ä|ae|e|a)')
+			normalized = normalized.replace(u'ö', u'(ö|oe|o)')
+			normalized = normalized.replace(u'ü', u'(ü|ue|u|y|i)')
+			normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
+			
+			# common soundalikes
+			# - René, Desiré, Inés ...
+			normalized = normalized.replace(u'é', u'*#DUMMY#*')
+			normalized = normalized.replace(u'è', u'*#DUMMY#*')
+			normalized = normalized.replace(u'*#DUMMY#*', u'(é|e|è|ä|ae)')
+		else:
+		
+			# umlauts
+			normalized =    aString.replace(u'Ä'.encode('latin-1'), u'(Ä|AE|Ae|A|E)'.encode('latin-1'))
+			normalized = normalized.replace(u'Ö'.encode('latin-1'), u'(Ö|OE|Oe|O)'.encode('latin-1'))
+			normalized = normalized.replace(u'Ü'.encode('latin-1'), u'(Ü|UE|Ue|U)'.encode('latin-1'))
+			normalized = normalized.replace(u'ä'.encode('latin-1'), u'(ä|ae|e|a)'.encode('latin-1'))
+			normalized = normalized.replace(u'ö'.encode('latin-1'), u'(ö|oe|o)'.encode('latin-1'))
+			normalized = normalized.replace(u'ü'.encode('latin-1'), u'(ü|ue|u|y|i)'.encode('latin-1'))
+			normalized = normalized.replace(u'ß'.encode('latin-1'), u'(ß|sz|ss|s)'.encode('latin-1'))
+			
+			# common soundalikes
+			# - René, Desiré, Inés ...
+			normalized = normalized.replace(u'é'.encode('latin-1'), u'*#DUMMY#*'.encode('latin-1'))
+			normalized = normalized.replace(u'è'.encode('latin-1'), u'*#DUMMY#*'.encode('latin-1'))
+			normalized = normalized.replace(u'*#DUMMY#*'.encode('latin-1'), u'(é|e|è|ä|ae)'.encode('latin-1'))
 		# FIXME: missing i/a/o - but uncommon in German
 		normalized = normalized.replace('v', '*#DUMMY#*')
 		normalized = normalized.replace('f', '*#DUMMY#*')
@@ -1484,7 +1502,14 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.54  2005-09-19 16:33:31  ncq
+# Revision 1.55  2005-09-25 01:00:47  ihaywood
+# bugfixes
+#
+# remember 2.6 uses "import wx" not "from wxPython import wx"
+# removed not null constraint on clin_encounter.rfe as has no value on instantiation
+# client doesn't try to set clin_encounter.description as it doesn't exist anymore
+#
+# Revision 1.54  2005/09/19 16:33:31  ncq
 # - less incorrect message re EMR loading
 #
 # Revision 1.53  2005/09/12 15:06:20  ncq

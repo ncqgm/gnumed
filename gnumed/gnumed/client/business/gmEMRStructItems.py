@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -410,7 +410,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		return (False, _('internal error, check log'))
 	return (True, episode)
 #-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, description=None, enc_type=None):
+def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
 
 	fk_patient - patient PK
@@ -421,8 +421,8 @@ def create_encounter(fk_patient=None, fk_location=-1, description=None, enc_type
 	FIXME: we don't deal with location yet
 	"""
 	# sanity check:
-	if description is None:
-		description = _('auto-created %s') % mxDT.now().Format('%A %Y-%m-%d %H:%M')
+	#if description is None:
+	#	description = _('auto-created %s') % mxDT.now().Format('%A %Y-%m-%d %H:%M')
 	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
 		enc_type = 'in surgery'
@@ -432,19 +432,19 @@ def create_encounter(fk_patient=None, fk_location=-1, description=None, enc_type
 		enc_type = int(enc_type)
 		cmd = """
 			insert into clin_encounter (
-				fk_patient, fk_location, description, fk_type
+				fk_patient, fk_location, fk_type
 			) values (
-				%s, -1, %s,	%s
+				%s, -1, %s
 			)"""
 	except ValueError:
 		enc_type = str(enc_type)
 		cmd = """
 			insert into clin_encounter (
-				fk_patient, fk_location, description, fk_type
+				fk_patient, fk_location, fk_type
 			) values (
-				%s, -1, %s,	coalesce((select pk from encounter_type where description=%s), 0)
+				%s, -1,	coalesce((select pk from encounter_type where description=%s), 0)
 			)"""
-	queries.append((cmd, [fk_patient, description, enc_type]))
+	queries.append((cmd, [fk_patient, enc_type]))
 	cmd = "select currval('clin_encounter_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
@@ -537,7 +537,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.63  2005-09-22 15:45:11  ncq
+# Revision 1.64  2005-09-25 01:00:47  ihaywood
+# bugfixes
+#
+# remember 2.6 uses "import wx" not "from wxPython import wx"
+# removed not null constraint on clin_encounter.rfe as has no value on instantiation
+# client doesn't try to set clin_encounter.description as it doesn't exist anymore
+#
+# Revision 1.63  2005/09/22 15:45:11  ncq
 # - clin_encounter.fk_provider removed
 #
 # Revision 1.62  2005/09/19 16:32:42  ncq

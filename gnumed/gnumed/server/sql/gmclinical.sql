@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.165 $
+-- $Revision: 1.166 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -184,7 +184,7 @@ create table clin_encounter (
 	fk_location integer,
 	source_time_zone interval,
 	rfe text
-		not null
+		default null
 		check (trim(both from coalesce(rfe, 'xxxDEFAULTxxx')) != ''),
 	aoe text
 		default null
@@ -1251,11 +1251,18 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.165 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.166 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.165  2005-09-22 15:40:43  ncq
+-- Revision 1.166  2005-09-25 01:00:47  ihaywood
+-- bugfixes
+--
+-- remember 2.6 uses "import wx" not "from wxPython import wx"
+-- removed not null constraint on clin_encounter.rfe as has no value on instantiation
+-- client doesn't try to set clin_encounter.description as it doesn't exist anymore
+--
+-- Revision 1.165  2005/09/22 15:40:43  ncq
 -- - clin_encounter
 --   - aoe must be default null because we don't know
 --     it yet when starting an encounter
