@@ -267,20 +267,19 @@ insert into country(code, name) values('AE', i18n('United Arab Emirates'));
 insert into country(code, name) values('GB', i18n('United Kingdom'));
 insert into country(code, name) values('US', i18n('United States'));
 
--- FIXME: move to it's own file
-insert into state (code, country, name) values ('S', 'NZ', 'South Island');
-insert into state (code, country, name) values ('N', 'NZ', 'North Island');
+-- ===================================================================
+\i gmCountryZones.sql
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.7 $');
-
--- delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-GIS-data.sql,v $';
--- INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.7 $');
+select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.7  2005-09-19 16:38:51  ncq
+-- Revision 1.8  2005-09-25 17:47:49  ncq
+-- - include state data
+--
+-- Revision 1.7  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.6  2005/07/15 21:16:55  ncq
