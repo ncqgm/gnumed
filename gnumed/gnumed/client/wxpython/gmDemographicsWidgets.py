@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.64 2005-09-25 01:00:47 ihaywood Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmDemographicsWidgets.py,v 1.65 2005-09-25 17:30:58 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,7 +18,10 @@ import time, string, sys
 
 # 3rd party
 import mx.DateTime as mxDT
-import wx
+# FIXME: (RSN) use "proper" way for importing wx2.6, eg wxversion etc
+# FIXME: please do not just "fix" "bugs" appearing in your build environment
+# FIMXE: but rather try to first understand the implications
+from wxPython import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 from wxPython import wizard
 
@@ -2878,7 +2881,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.64  2005-09-25 01:00:47  ihaywood
+# Revision 1.65  2005-09-25 17:30:58  ncq
+# - revert back to wx2.4 style import awaiting "proper" wx2.6 importing
+#
+# Revision 1.64  2005/09/25 01:00:47  ihaywood
 # bugfixes
 #
 # remember 2.6 uses "import wx" not "from wxPython import wx"
