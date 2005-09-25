@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.17 2005-09-25 01:00:47 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmHorstSpace.py,v 1.18 2005-09-25 17:32:50 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -22,7 +22,6 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 import os.path, os, sys
 
 from wxPython.wx import *
-import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
@@ -308,7 +307,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.17  2005-09-25 01:00:47  ihaywood
+# Revision 1.18  2005-09-25 17:32:50  ncq
+# - revert back to 2.4 wx import until compatible 2.6 method is found
+#
+# Revision 1.17  2005/09/25 01:00:47  ihaywood
 # bugfixes
 #
 # remember 2.6 uses "import wx" not "from wxPython import wx"
