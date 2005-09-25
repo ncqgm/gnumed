@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -41,6 +41,102 @@ values (
 \set ON_ERROR_STOP 1
 
 -- == service clinical ====================================
+
+-- clin_episode ----------------------------------------
+
+-- merge multiple open episodes per issue into one ...
+
+-- select them
+create view v_linked_multiple_open_epis as
+select *
+from clin_episode ce1
+where
+	is_open and
+	(select
+		count(*)
+	from
+		clin_episode ce2
+	where
+		is_open and
+		ce2.fk_health_issue = ce1.fk_health_issue
+	) > 1
+;
+
+-- merge functions
+create or replace function merge_open_epis(integer)
+	returns void
+	language 'plpgsql'
+as '
+declare
+	_fk_health_issue alias for $1;
+	_new_epi_name text;
+	_old_epi_row record;
+	_dummy integer;
+begin
+	raise notice ''merging episodes on health issue %'', _fk_health_issue;
+	-- sanity check
+	select into _dummy 1 from v_linked_multiple_open_epis where fk_health_issue = _fk_health_issue;
+	if not found then
+		raise notice ''no episode found'';
+		return;
+	end if;
+	-- aggregate descriptions
+	_new_epi_name := '''';
+	for _old_epi_row in
+		select description from v_linked_multiple_open_epis where fk_health_issue = _fk_health_issue
+	loop
+		raise notice ''old description [%]'', _old_epi_row.description;
+		_new_epi_name := _new_epi_name || _old_epi_row.description || '' // '';
+	end loop;
+	raise notice ''new description [%]'', _new_epi_name;
+	-- create new episode
+	insert into clin_episode (
+		fk_health_issue, fk_patient, description, is_open
+	) values (
+		_fk_health_issue, Null, _new_epi_name, true
+	);
+	select into _dummy currval(''clin_episode_pk_seq'');
+	raise notice ''new episode pk: [%]'', _dummy;
+	-- point items to new episode
+	raise notice ''now updating clin_root_items'';
+	update clin_root_item
+		set fk_episode = currval(''clin_episode_pk_seq'')
+		where fk_episode in (
+			select pk
+			from v_linked_multiple_open_epis
+			where fk_health_issue = _fk_health_issue
+		);
+	-- delete all but the new episode
+	raise notice ''now deleting old episodes'';
+	delete from clin_episode where
+		is_open and
+		fk_health_issue = _fk_health_issue and
+		pk != currval(''clin_episode_pk_seq'');
+	return;
+end;
+';
+
+create or replace function do_epi_merge()
+	returns void
+	language 'plpgsql'
+as '
+declare
+	_epi_row record;
+begin
+	for _epi_row in select distinct fk_health_issue from v_linked_multiple_open_epis loop
+		perform merge_open_epis(_epi_row.fk_health_issue);
+	end loop;
+	return;
+end;
+';
+
+-- actually merge them
+select do_epi_merge();
+
+-- cleanup
+drop function merge_open_epis(integer);
+drop function do_epi_merge();
+drop view v_linked_multiple_open_epis;
 
 -- -- clin_encounter -----------------------------------
 
@@ -170,23 +266,35 @@ alter table clin_narrative
 -- curr_encounter --------------------------------------
 drop table curr_encounter;
 
+-- last_act_episode ------------------------------------
+drop table last_act_episode;
+
 -- gm_schema_revision ----------------------------------
 alter table gm_schema_revision
 	drop column is_core cascade;
 
 -- ===================================================================
+-- add tables, data, etc
 \i gmWaitingList.sql
+\i gmCountryZones.sql
 
 -- ===================================================================
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: update_db-v1_v2.sql,v $';
-insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.5 $');
+insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.5  2005-09-22 15:50:00  ncq
+-- Revision 1.6  2005-09-25 17:51:14  ncq
+-- - include country zones
+-- - drop last_act_episode
+-- - if a health issue has several open episodes merge them
+--   into one as we don't allow that anymore, don't lose data
+--   in the process if we can help it
+--
+-- Revision 1.5  2005/09/22 15:50:00  ncq
 -- - cascade column drop
 --
 -- Revision 1.4  2005/09/22 15:41:58  ncq
