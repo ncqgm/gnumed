@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.54 2005-09-12 15:10:43 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmSOAPWidgets.py,v 1.55 2005-09-26 04:31:27 ihaywood Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -28,7 +28,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 NOTE_SAVED = -2
 
 #============================================================
-def create_issue_popup(parent, pos, size, style):
+def create_issue_popup(parent, pos, size, style, problem):
 	ea = gmEMRStructWidgets.cHealthIssueEditArea (
 		parent,
 		-1,
@@ -48,15 +48,24 @@ def create_issue_popup(parent, pos, size, style):
 	)
 	return popup
 #============================================================
-def create_vacc_popup(parent, pos, size, style):
-	popup = gmVaccWidgets.cNewVaccinationPopup (
+def create_vacc_popup(parent, pos, size, style, problem):
+	ea = gmVaccWidgets.cVaccinationEditArea (
+		parent = parent,
+		id = -1,
+      		pos = pos,
+		size = size,
+		style = style,
+		problem = problem
+	)
+	popup = gmEditArea.cEditAreaPopup (
 		parent = parent,
 		id = -1,
 		title = _('Enter vaccination given'),
 		pos = pos,
 		size = size,
 		style = style,
-		name = ''
+		name = '',
+		edit_area = ea
 	)
 	return popup
 #============================================================
@@ -1023,6 +1032,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		if input_defs is None or len(input_defs) == 0:
 			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % (input_defs)
 		self.__input_defs = input_defs
+		self.__problem = parent.get_problem ()
 		gmResizingWidgets.cResizingWindow.__init__(self, parent, id=-1, size=size)
 	#--------------------------------------------------------
 	def DoLayout(self):
@@ -1032,7 +1042,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# add fields to edit widget
 		# note: this may produce identically labelled lines
 		for line_def in self.__input_defs:
-			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def)
+			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def, problem = self.__problem)
 			input_field.SetText(line_def.text)
 			kwds = progress_note_keywords[line_def.soap_cat]
 			input_field.set_keywords(popup_keywords=kwds)
@@ -1539,7 +1549,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.54  2005-09-12 15:10:43  ncq
+# Revision 1.55  2005-09-26 04:31:27  ihaywood
+# allow problem to be passed to clinical popup EditAreas
+#
+# Revision 1.54  2005/09/12 15:10:43  ncq
 # - robustify auto-closing of episodes
 #
 # Revision 1.53  2005/09/11 17:39:54  ncq

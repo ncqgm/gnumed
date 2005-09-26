@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.33 2005-09-09 13:55:29 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmResizingWidgets.py,v 1.34 2005-09-26 04:31:27 ihaywood Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -357,9 +357,10 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 	FIXME: override standard STC popup menu
 	"""
-	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0, data=None):
+	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0, data=None, problem=None):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
+		self.__problem = problem
 		stc.wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
 		self.SetWrapMode (stc.wxSTC_WRAP_WORD)
 		# FIXME: configure
@@ -807,7 +808,8 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 				parent = top_parent,
 				pos = best_pos,
 				size = wx.wxSize(400, 300),
-				style = wx.wxSUNKEN_BORDER
+				style = wx.wxSUNKEN_BORDER,
+				problem = self.__problem
 			)
 		except StandardError:
 			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
@@ -1067,7 +1069,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.33  2005-09-09 13:55:29  ncq
+# Revision 1.34  2005-09-26 04:31:27  ihaywood
+# allow problem to be passed to clinical popup EditAreas
+#
+# Revision 1.33  2005/09/09 13:55:29  ncq
 # - better variable naming
 #
 # Revision 1.32  2005/08/08 08:07:55  ncq
