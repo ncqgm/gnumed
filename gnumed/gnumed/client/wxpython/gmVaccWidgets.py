@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.18 2005-09-24 09:17:29 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmVaccWidgets.py,v 1.19 2005-09-26 04:30:33 ihaywood Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -29,8 +29,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 	- ask if "missing" (= previous, non-recorded) vaccinations
 	  should be estimated and saved (add note "auto-generated")
 	"""
-	def __init__(self, parent, id, pos, size, style):
+	def __init__(self, parent, id, pos, size, style, problem):
 		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
+		self.__problem = problem
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 #		# regime/disease
@@ -142,13 +143,6 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			widget = self.fld_progress_note,
 			weight = 1
 		)
-
-		self._add_field (
-			line = 6,
-			pos = 1,
-			widget = self._make_standard_buttons(parent),
-			weight = 1
-		)
 		return 1
 	#----------------------------------------------------
 	def _define_prompts(self):
@@ -157,13 +151,14 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self._add_prompt(line = 3, label = _("Serial #"))
 		self._add_prompt(line = 4, label = _("Site injected"))
 		self._add_prompt(line = 5, label = _("Progress Note"))
-		self._add_prompt(line = 6, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
 		# FIXME: validation ?
+		import pdb
+		pdb.set_trace ()
 		emr = self._patient.get_clinical_record()
 		# create new vaccination
-		successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue())
+		successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue(), episode=self.__problem)
 		if not successfull:
 			gmGuiHelpers.gm_beep_status_text(_('Cannot save vaccination: %s') % data)
 			return False
@@ -195,6 +190,12 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			return False
 		_gb['main.statustext'](_('Vaccination updated.'))
 		return True
+	#----------------------------------------------------
+	def save_data (self):
+		if self.data is None:
+			return self._save_new_entry ()
+		else:
+			return self._save_modified_entry ()
 	#----------------------------------------------------
 	def set_data(self, aVacc = None):
 		"""Set edit area fields with vaccination object data.
@@ -253,81 +254,6 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 
 		_log.Log(gmLog.lErr, 'do not know how to handle [%s:%s]' % (type(aVacc), str(aVacc)))
 		return False
-#======================================================================
-class cNewVaccinationPopup(wxDialog):
-	def __init__ (self, parent, id, title, pos, size, style, name):
-		wxDialog.__init__(self, parent, id, title, pos, size, style, name)
-		self.__wxID_BTN_SAVE = wxNewId()
-		self.__wxID_BTN_RESET = wxNewId()
-#		self.__completion_callback = None
-		self.__do_layout()
-		self.__register_events()
-	#------------------------------------------------------------------
-#	def set_completion_callback(self, callback=None):
-#		self.__completion_callback = callback
-	#------------------------------------------------------------------
-	def __do_layout(self):
-		self.__editarea = cVaccinationEditArea(self, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTAB_TRAVERSAL)
-
-		self.__btn_SAVE = wxButton(self, self.__wxID_BTN_SAVE, _("Save"))
-		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
-		self.__btn_RESET = wxButton(self, self.__wxID_BTN_RESET, _("Reset"))
-		self.__btn_RESET.SetToolTipString(_('reset entry'))
-		self.__btn_CANCEL = wxButton(self, wxID_CANCEL, _("Cancel"))
-#		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
-
-		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.__btn_SAVE, 1, wxEXPAND | wxALL, 1)
-#		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.__btn_RESET, 1, wxEXPAND | wxALL, 1)
-		szr_buttons.Add(self.__btn_CANCEL, 1, wxEXPAND | wxALL, 1)
-
-		szr_main = wxBoxSizer(wxVERTICAL)
-		szr_main.Add(self.__editarea, 1, wxEXPAND)
-		szr_main.Add(szr_buttons, 0, wxEXPAND)
-
-		self.SetSizerAndFit(szr_main)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_events(self):
-		# connect standard buttons
-		EVT_BUTTON(self.__btn_SAVE, self.__wxID_BTN_SAVE, self._on_SAVE_btn_pressed)
-		EVT_BUTTON(self.__btn_RESET, self.__wxID_BTN_RESET, self._on_RESET_btn_pressed)
-		EVT_BUTTON(self.__btn_CANCEL, wxID_CANCEL, self._on_CANCEL_btn_pressed)
-
-		EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
-
-		# client internal signals
-#		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
-#		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
-#		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
-
-		return 1
-	#--------------------------------------------------------
-	def _on_SAVE_btn_pressed(self, evt):
-		print "saving"
-#		if self.__completion_callback is not None:
-#			try:
-#				self.__completion_callback(True)
-#			except:
-#				_log.Log(gmLog.lErr, 'cannot call [%s] on completion' % self.__completion_callback)
-		self.EndModal(wxID_OK)
-	#--------------------------------------------------------
-	def _on_CANCEL_btn_pressed(self, evt):
-		"""
-		Configure appropiate *dialog* return value when the user clicks the
-		window system's closer (usually X)
-		"""
-#		if self.__completion_callback is not None:
-#			try:
-#				self.__completion_callback(False)
-#			except:
-#				_log.Log(gmLog.lErr, 'cannot call [%s] on completion' % self.__completion_callback)
-		self.EndModal(wxID_CANCEL)
-	#--------------------------------------------------------
-	def _on_RESET_btn_pressed(self, evt):
-		print "resetting fields"
 #======================================================================
 class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
@@ -599,7 +525,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.18  2005-09-24 09:17:29  ncq
+# Revision 1.19  2005-09-26 04:30:33  ihaywood
+# allow problem to be passed to vaccs popup
+# use the same popup method as for cHealthIssue
+# get rid of the second set of OK/Cancel buttons
+#
+# Revision 1.18  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.17  2005/06/10 23:22:43  ncq
