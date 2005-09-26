@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.94 2005-08-08 08:26:17 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmEditArea.py,v 1.95 2005-09-26 04:28:52 ihaywood Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -584,7 +584,7 @@ class cEditArea2(wxPanel):
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btn_OK, 1, wx.wxEXPAND | wxALL, 1)
-		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add((5, 0), 0)
 		szr_buttons.Add(self.btn_Clear, 1, wx.wxEXPAND | wxALL, 1)
 
 		# connect standard buttons
@@ -2342,7 +2342,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.94  2005-08-08 08:26:17  ncq
+# Revision 1.95  2005-09-26 04:28:52  ihaywood
+# fix for wx2.6, use (x, y) for sizer.Add ()
+#
+# Revision 1.94  2005/08/08 08:26:17  ncq
 # - explicitely class Close() on edit area in popup so signals are deregistered
 #
 # Revision 1.93  2005/08/08 08:10:22  ncq
