@@ -20,12 +20,12 @@
 #	contains dummy data only
 #      
 ############################################################################
-#if __name__=="__main__":
-#	import sys
-#	sys.path.append('../../wxpython')
-#	sys.path.append('../../pycommon')
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 	
-from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages

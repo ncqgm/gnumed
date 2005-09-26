@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.215 2005-09-24 09:17:28 ncq Exp $
-__version__ = "$Revision: 1.215 $"
+# $Id: gmGuiMain.py,v 1.216 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.216 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -23,12 +23,16 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 import sys, time, os, cPickle, zlib
 
 try:
-	from wxPython import wx
+	import wxversion
+	import wx
 except ImportError:
-	print "GNUmed startup: Cannot import wxPython library."
-	print "GNUmed startup: Make sure wxPython is installed."
-	print 'CRITICAL ERROR: Error importing wxPython. Halted.'
-	raise
+	try:
+		from wxPython import wx
+	except ImportError:
+		print "GNUmed startup: Cannot import wxPython library."
+		print "GNUmed startup: Make sure wxPython is installed."
+		print 'CRITICAL ERROR: Error importing wxPython. Halted.'
+		raise
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea
@@ -929,7 +933,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.215  2005-09-24 09:17:28  ncq
+# Revision 1.216  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.215  2005/09/24 09:17:28  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.214  2005/09/11 17:34:10  ncq

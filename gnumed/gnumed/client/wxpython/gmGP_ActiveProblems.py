@@ -1,4 +1,8 @@
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 import gmMultiColumnList
 

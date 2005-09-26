@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.28 2005-07-23 14:20:15 shilbert Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmManual.py,v 1.29 2005-09-26 18:01:52 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -121,6 +121,8 @@ class ManualHtmlPanel(wxPanel):
 
 
 	def OnViewSource(self, event):
+		xxx
+		# FIXME:
 		from wxPython.lib.dialogs import wxScrolledMessageDialog
 		source = self.html.GetParser().GetSource()
 		dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
@@ -249,7 +251,12 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.28  2005-07-23 14:20:15  shilbert
+# Revision 1.29  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.28  2005/07/23 14:20:15  shilbert
 # - fix path so docs will be found when using MS Windows
 #
 # Revision 1.27  2005/07/15 20:56:07  ncq

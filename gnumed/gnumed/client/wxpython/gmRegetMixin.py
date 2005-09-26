@@ -23,12 +23,16 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.20 2005-08-03 20:02:11 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmRegetMixin.py,v 1.21 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog
 
@@ -124,7 +128,12 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.20  2005-08-03 20:02:11  ncq
+# Revision 1.21  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.20  2005/08/03 20:02:11  ncq
 # - Hilmar eventually seems to have found a way to
 #   update data in visible widgets immediately
 #

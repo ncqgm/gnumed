@@ -4,13 +4,17 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.5 2005-07-24 09:21:09 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmTimer.py,v 1.6 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
 # 3rd party
-from wxPython.wx import wxTimer
+try:
+	import wxversion
+	import wx.wxTimer as wxTimer
+except ImportError:
+	from wxPython.wx import wxTimer
 
 # GnuMed
 from Gnumed.pycommon import gmLog
@@ -62,7 +66,13 @@ class cTimer(wxTimer):
 #===========================================================================
 if __name__ == '__main__':
 	import time
-	from wxPython.wx import wxApp
+
+	try:
+		import wxversion
+		import wx
+	except ImportError:
+		from wxPython.wx import wxApp
+
 	#-----------------------------------------------------------------------
 	def cb_timer(cookie):
 		print "timer <%s> fired" % cookie
@@ -83,7 +93,12 @@ if __name__ == '__main__':
 	app.MainLoop()
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.5  2005-07-24 09:21:09  ncq
+# Revision 1.6  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.5  2005/07/24 09:21:09  ncq
 # - use proxy Start() to work around Windows timer Start() glitches
 #
 # Revision 1.4  2005/07/23 21:12:19  ncq

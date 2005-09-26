@@ -3,16 +3,19 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.95 2005-09-26 04:28:52 ihaywood Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmEditArea.py,v 1.96 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
 
 import sys, traceback, time
 
-from wxPython.wx import *
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord, gmForms
@@ -2342,7 +2345,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.95  2005-09-26 04:28:52  ihaywood
+# Revision 1.96  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.95  2005/09/26 04:28:52  ihaywood
 # fix for wx2.6, use (x, y) for sizer.Add ()
 #
 # Revision 1.94  2005/08/08 08:26:17  ncq

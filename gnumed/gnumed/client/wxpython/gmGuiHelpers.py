@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.23 2005-09-12 15:09:42 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmGuiHelpers.py,v 1.24 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,7 +21,11 @@ import sys, string, os
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker
 _log = gmLog.gmDefLog
@@ -276,7 +280,12 @@ class cTextObjectValidator(wxPyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.23  2005-09-12 15:09:42  ncq
+# Revision 1.24  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.23  2005/09/12 15:09:42  ncq
 # - cleanup
 #
 # Revision 1.22  2005/06/10 16:11:14  shilbert

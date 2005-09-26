@@ -8,17 +8,21 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: gmMultiSash.py,v 1.4 2005-04-12 10:04:59 ncq Exp $
+# RCS-ID:		$Id: gmMultiSash.py,v 1.5 2005-09-26 18:01:51 ncq Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMultiSash.py,v $
-# $Id: gmMultiSash.py,v 1.4 2005-04-12 10:04:59 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMultiSash.py,v 1.5 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
-	   
-from wxPython.wx import *
 
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	   
 MV_HOR = 0
 MV_VER = not MV_HOR
 
@@ -894,7 +898,12 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: gmMultiSash.py,v $
-# Revision 1.4  2005-04-12 10:04:59  ncq
+# Revision 1.5  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.4  2005/04/12 10:04:59  ncq
 # - cleanup
 #
 # Revision 1.3  2005/03/18 16:48:41  cfmoro

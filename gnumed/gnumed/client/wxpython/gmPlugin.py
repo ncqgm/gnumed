@@ -4,14 +4,18 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.50 2005-08-14 16:20:44 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPlugin.py,v 1.51 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os, sys, re
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
 from Gnumed.wxpython import gmShadow
@@ -419,7 +423,12 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.50  2005-08-14 16:20:44  ncq
+# Revision 1.51  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.50  2005/08/14 16:20:44  ncq
 # - missing "Gnumed" directory
 #
 # Revision 1.49  2005/08/14 16:03:00  ncq

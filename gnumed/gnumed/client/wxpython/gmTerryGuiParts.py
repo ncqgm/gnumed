@@ -10,11 +10,15 @@ dependencies: wxPython (>= version 2.3.1)
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTerryGuiParts.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = 'Dr. Richard Terry'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 #===========================================================================
 class cAlertCaption(wxPanel):
@@ -151,7 +155,12 @@ if __name__ == "__main__":
 
 #===========================================================================
 # $Log: gmTerryGuiParts.py,v $
-# Revision 1.2  2004-07-18 19:55:29  ncq
+# Revision 1.3  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.2  2004/07/18 19:55:29  ncq
 # - true/false -> True/False
 # - indentation fix
 #

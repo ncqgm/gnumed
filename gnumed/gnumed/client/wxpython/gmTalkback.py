@@ -11,11 +11,15 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 #  talkback
 ID_BUTTON_CANCEL = wxNewId()
@@ -135,7 +139,12 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.8  2005-03-29 07:31:28  ncq
+# Revision 1.9  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.8  2005/03/29 07:31:28  ncq
 # - cleanup
 #
 # Revision 1.7  2004/07/18 20:30:54  ncq

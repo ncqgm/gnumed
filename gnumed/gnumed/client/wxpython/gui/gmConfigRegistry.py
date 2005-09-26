@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -19,7 +19,11 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmCfg, gmWhoAmI, gmConfigCommon, gmI18N
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 _cfg = gmCfg.gmDefCfgFile
 
@@ -548,7 +552,12 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.29  2005-03-29 07:33:06  ncq
+# Revision 1.30  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.29  2005/03/29 07:33:06  ncq
 # - add comment
 #
 # Revision 1.28  2005/03/17 20:29:47  hinnef

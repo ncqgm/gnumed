@@ -6,14 +6,18 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.14 2005-09-24 09:17:29 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmSnellen.py,v 1.15 2005-09-26 18:01:52 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import math, random
 
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N
 #from Gnumed.wxpython import gmPlugin
@@ -530,7 +534,12 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.14  2005-09-24 09:17:29  ncq
+# Revision 1.15  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.14  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.13  2004/07/28 15:43:12  ncq

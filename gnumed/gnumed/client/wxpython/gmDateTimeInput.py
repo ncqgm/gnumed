@@ -10,15 +10,19 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.27 2005-09-25 01:13:06 ihaywood Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmDateTimeInput.py,v 1.28 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
 import re, string, sys, time
 
 import mx.DateTime as mxDT
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
@@ -383,7 +387,12 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.27  2005-09-25 01:13:06  ihaywood
+# Revision 1.28  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.27  2005/09/25 01:13:06  ihaywood
 # use a nicer way of discovering non-Unicode wxPython builds
 # I resisted the temptation to use "if os.environ['USER'] == 'ncq':"
 #

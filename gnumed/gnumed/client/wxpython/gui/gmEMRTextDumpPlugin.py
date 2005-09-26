@@ -2,13 +2,17 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.wxpython import gmEMRTextDump, gmPlugin
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -54,7 +58,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.11  2004-08-04 17:16:02  ncq
+# Revision 1.12  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.11  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.12 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmEMRTextDump.py,v 1.13 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -12,7 +12,11 @@ from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
 from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 _log = gmLog.gmDefLog
 #============================================================
@@ -123,7 +127,12 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.12  2005-01-31 10:37:26  ncq
+# Revision 1.13  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.12  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.11  2004/06/13 22:31:48  ncq

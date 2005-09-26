@@ -20,14 +20,18 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.17 2004-08-04 17:16:02 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmXdtViewer.py,v 1.18 2005-09-26 18:01:52 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
 
-from wxPython.wx import *
-from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmI18N
@@ -331,7 +335,12 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.17  2004-08-04 17:16:02  ncq
+# Revision 1.18  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.17  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

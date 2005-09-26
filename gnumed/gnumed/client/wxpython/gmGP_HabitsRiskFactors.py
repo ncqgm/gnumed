@@ -1,4 +1,8 @@
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 class HabitsRiskFactors(wxPanel):
     def __init__(self, parent,id):

@@ -17,7 +17,13 @@
 ############################################################################
 
 import sys, time
-from wxPython.wx import *
+
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 from Gnumed.pycommon import gmPG, gmLog
 
 _log = gmLog.gmDefLog

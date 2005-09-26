@@ -6,17 +6,19 @@ includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.5 2004-06-20 16:01:05 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmFormPrinter.py,v 1.6 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Ian Haywood"
 
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
-from wxPython.wx import *
-import string, gettext
+import string
+
 from Gnumed.pycommon import gmPG, gmCfg, gmLog
-
-if __name__ == '__main__':
-	_ = lambda x:x
 
 cache_form = 0 # cached variables to allow repeat of last form
 cache_params = {}
@@ -340,6 +342,11 @@ psd = gmPrinterSetupDialog (fp)
 
 #=================================================
 # $Log: gmFormPrinter.py,v $
-# Revision 1.5  2004-06-20 16:01:05  ncq
+# Revision 1.6  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.5  2004/06/20 16:01:05  ncq
 # - please epydoc more carefully
 #

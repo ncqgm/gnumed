@@ -6,14 +6,19 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.19 2005-09-26 04:30:33 ihaywood Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmVaccWidgets.py,v 1.20 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, time
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 import mx.DateTime as mxDT
 
 from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin
@@ -525,7 +530,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.19  2005-09-26 04:30:33  ihaywood
+# Revision 1.20  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.19  2005/09/26 04:30:33  ihaywood
 # allow problem to be passed to vaccs popup
 # use the same popup method as for cHealthIssue
 # get rid of the second set of OK/Cancel buttons

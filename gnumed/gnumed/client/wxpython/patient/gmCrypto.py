@@ -1,5 +1,11 @@
 # a simple wrapper for the cryptowidget
-from wxPython.wx import *
+
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 from Gnumed.wxpython import gmPlugin_Patient, images_gnuMedGP_Toolbar, gmCryptoText 
 
 ID_CRYPTO = wxNewId ()

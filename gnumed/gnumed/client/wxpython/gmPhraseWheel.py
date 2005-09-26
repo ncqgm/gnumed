@@ -9,13 +9,17 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.57 2005-08-14 15:37:36 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPhraseWheel.py,v 1.58 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
@@ -561,7 +565,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.57  2005-08-14 15:37:36  ncq
+# Revision 1.58  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.57  2005/08/14 15:37:36  ncq
 # - cleanup
 #
 # Revision 1.56  2005/07/24 11:35:59  ncq

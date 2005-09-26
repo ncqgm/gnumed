@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.40 2005-09-24 09:17:28 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmEMRBrowser.py,v 1.41 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -11,7 +11,11 @@ __license__ = "GPL"
 import sys, types, os.path, StringIO
 
 # 3rd party
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
@@ -603,7 +607,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.40  2005-09-24 09:17:28  ncq
+# Revision 1.41  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.40  2005/09/24 09:17:28  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.39  2005/09/11 17:30:02  ncq

@@ -11,12 +11,16 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.business import gmPerson, gmMedDoc
@@ -259,7 +263,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.60  2005-09-24 09:17:29  ncq
+# Revision 1.61  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.60  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.59  2005/01/31 10:37:26  ncq

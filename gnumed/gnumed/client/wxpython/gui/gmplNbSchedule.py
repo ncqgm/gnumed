@@ -1,5 +1,4 @@
 # a simple wrapper for the cryptowidget
-from wxPython.wx import *
 import gmPlugin
 import gmScheduleAllDoctorsPnl
 
@@ -17,6 +16,3 @@ class gmplNbSchedule(gmPlugin.cNotebookPluginOld):
     def GetWidget (self, parent):
         pnl = gmScheduleAllDoctorsPnl.ScheduleAllDoctorsPnl(parent)
         return pnl
-
-
-

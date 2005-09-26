@@ -2,12 +2,17 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.17 2005-07-24 11:35:59 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmAbout.py,v 1.18 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 import zlib, cPickle
 
 ID_MENU = wxNewId()
@@ -227,7 +232,12 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.17  2005-07-24 11:35:59  ncq
+# Revision 1.18  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.17  2005/07/24 11:35:59  ncq
 # - use robustified gmTimer.Start() interface
 #
 # Revision 1.16  2005/07/18 20:45:25  ncq

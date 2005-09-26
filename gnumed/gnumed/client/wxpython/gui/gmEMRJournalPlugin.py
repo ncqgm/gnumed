@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -42,7 +42,12 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 if __name__ == "__main__":
 
     import sys
-    from wxPython import wx
+
+	try:
+		import wxversion
+		import wx
+	except ImportError:
+		from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
     from Gnumed.exporters import gmPatientExporter
@@ -95,7 +100,12 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.2  2005-06-07 20:56:56  ncq
+# Revision 1.3  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.2  2005/06/07 20:56:56  ncq
 # - take advantage of improved EMR menu
 #
 # Revision 1.1  2005/04/12 16:26:33  ncq

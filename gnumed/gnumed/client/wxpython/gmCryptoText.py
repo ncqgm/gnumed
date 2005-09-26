@@ -34,7 +34,12 @@ Right clicking pops up a menu that allows to encrypt or decrypt
 the selected text segment.
 """
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 import string, rotor, binascii
 
 ID_POP_ENCRYPT = wxNewId()

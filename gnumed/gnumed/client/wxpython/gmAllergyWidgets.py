@@ -3,13 +3,17 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmExceptions
 from Gnumed.wxpython import gmEditArea, gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
@@ -344,7 +348,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.8  2005-09-24 09:17:27  ncq
+# Revision 1.9  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.8  2005/09/24 09:17:27  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.7  2005/03/20 17:49:11  ncq

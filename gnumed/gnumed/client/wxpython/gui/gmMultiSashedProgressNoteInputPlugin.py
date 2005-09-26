@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -45,7 +45,12 @@ class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 if __name__ == "__main__":
 
     import sys
-    from wxPython import wx
+
+	try:
+		import wxversion
+		import wx
+	except ImportError:
+		from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
     from Gnumed.business import gmPerson
@@ -96,7 +101,12 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.6  2005-05-12 15:13:28  ncq
+# Revision 1.7  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.6  2005/05/12 15:13:28  ncq
 # - cleanup
 #
 # Revision 1.5  2005/05/08 21:44:08  ncq

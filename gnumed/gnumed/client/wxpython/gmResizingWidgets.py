@@ -4,15 +4,19 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.34 2005-09-26 04:31:27 ihaywood Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmResizingWidgets.py,v 1.35 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
 import sys
 
-from wxPython import wx
-from wxPython import stc
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	from wxPython import stc
 
 from Gnumed.pycommon import gmI18N, gmLog
 from Gnumed.wxpython import gmGuiHelpers, gmTimer
@@ -1069,7 +1073,12 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.34  2005-09-26 04:31:27  ihaywood
+# Revision 1.35  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.34  2005/09/26 04:31:27  ihaywood
 # allow problem to be passed to clinical popup EditAreas
 #
 # Revision 1.33  2005/09/09 13:55:29  ncq

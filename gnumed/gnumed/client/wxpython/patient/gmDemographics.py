@@ -15,11 +15,17 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.34 2004-09-10 10:43:50 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmDemographics.py,v 1.35 2005-09-26 18:01:53 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, SJ Tan"
 
-from wxPython.wx import *
+
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 from mx import DateTime
 
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals
@@ -429,7 +435,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.34  2004-09-10 10:43:50  ncq
+# Revision 1.35  2005-09-26 18:01:53  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.34  2004/09/10 10:43:50  ncq
 # - remove dead import
 #
 # Revision 1.33  2004/08/31 19:46:45  ncq

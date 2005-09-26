@@ -8,8 +8,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2004-06-20 15:46:20 $
-# @version $Revision: 1.12 $ $Date: 2004-06-20 15:46:20 $ $Author: ncq $
+# @Date: $Date: 2005-09-26 18:01:50 $
+# @version $Revision: 1.13 $ $Date: 2005-09-26 18:01:50 $ $Author: ncq $
 #      
 #               
 #
@@ -22,15 +22,19 @@ A simple interface to the appointments book.
 
 import sys, time, os
 
-from wxPython.wx import *
-from wxPython.calendar import *
-from wxPython.grid import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
+#from wxPython.wx import *
+#from wxPython.calendar import *
+#from wxPython.grid import *
 
 from Gnumed.pycommon import gmGuiBroker, gmPG
 from Gnumed.wxpython import gmSQLSimpleSearch
 
-if __name__ == '__main__':
-	_ = lambda x:x
 
 ID_ABOUT=101  
 ID_OPEN=102 
@@ -255,7 +259,12 @@ if __name__ == '__main__':
 
 #=================================================================
 # $Log: gmAppoint.py,v $
-# Revision 1.12  2004-06-20 15:46:20  ncq
+# Revision 1.13  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.12  2004/06/20 15:46:20  ncq
 # - better please epydoc
 #
 

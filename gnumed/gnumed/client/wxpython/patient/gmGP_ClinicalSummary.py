@@ -1,4 +1,9 @@
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 try:
 	import cDividerCaption        #panel class to display sub-headings or divider headings
 	import cAlertCaption          #panel to hold flashing

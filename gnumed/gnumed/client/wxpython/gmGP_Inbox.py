@@ -1,4 +1,8 @@
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from gmListCtrlMapper import *
 try:
@@ -53,7 +57,12 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGP_Inbox.py,v $
-# Revision 1.7  2004-07-18 20:30:53  ncq
+# Revision 1.8  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.7  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.6  2004/06/20 16:01:05  ncq

@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -119,7 +119,9 @@ class StikoHtmlPanel(wxPanel):
 
 
 	def OnViewSource(self, event):
-		from wxPython.lib.dialogs import wxScrolledMessageDialog
+		xxx
+		# FIXME:
+		#from wxPython.lib.dialogs import wxScrolledMessageDialog
 		source = self.html.GetParser().GetSource()
 		dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
 		dlg.ShowModal()
@@ -241,7 +243,12 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.17  2004-12-27 18:55:12  shilbert
+# Revision 1.18  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.17  2004/12/27 18:55:12  shilbert
 # - I should have tested the last commit :-) shame on me
 #
 # Revision 1.16  2004/12/27 18:51:37  shilbert

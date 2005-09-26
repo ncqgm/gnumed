@@ -27,12 +27,17 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.19 2004-07-18 20:30:54 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmGP_TabbedLists.py,v 1.20 2005-09-26 18:01:53 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 
-from wxPython.wx import *
-#from wxPython.gizmos import *
-#from wxPython.stc import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	#from wxPython.gizmos import *
+	#from wxPython.stc import *
+
 import keyword
 import time
 import images #bitmaps for column headers of lists
@@ -338,7 +343,12 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.19  2004-07-18 20:30:54  ncq
+# Revision 1.20  2005-09-26 18:01:53  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.19  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.18  2003/11/17 10:56:42  sjtan

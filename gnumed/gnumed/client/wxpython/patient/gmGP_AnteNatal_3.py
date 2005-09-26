@@ -1,5 +1,10 @@
-from wxPython.wx import *
-from wxPython.grid import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	from wxPython import grid
+
 import string
 
 from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings

@@ -5,12 +5,16 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.3 2004-10-11 20:12:09 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmAllergiesPlugin.py,v 1.4 2005-09-26 18:01:52 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.wxpython import gmPlugin, gmAllergyWidgets
 from Gnumed.pycommon import gmLog
@@ -57,7 +61,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.3  2004-10-11 20:12:09  ncq
+# Revision 1.4  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.3  2004/10/11 20:12:09  ncq
 # - turn into new-style notebook plugin
 #
 # Revision 1.2  2004/08/04 17:16:02  ncq

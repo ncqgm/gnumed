@@ -10,15 +10,18 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.21 2005-09-24 09:17:29 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPatSearchWidgets.py,v 1.22 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
 import sys, os.path, time, string, re
 
-#from wxPython.wx import *
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmWhoAmI, gmCfg
 from Gnumed.business import gmPerson, gmKVK
@@ -731,7 +734,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.21  2005-09-24 09:17:29  ncq
+# Revision 1.22  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.21  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.20  2005/09/12 15:18:05  ncq

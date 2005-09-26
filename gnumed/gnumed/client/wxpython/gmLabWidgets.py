@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -16,9 +16,13 @@ import os.path, sys, os, re, random
 import time
 
 # 3rd party
-from wxPython.wx import *
-from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
-from wxPython.grid import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+	from wxPython import grid
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider, gmGuiBroker
 from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
@@ -864,7 +868,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.13  2005-09-24 09:17:29  ncq
+# Revision 1.14  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.13  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.12  2005/06/10 23:22:43  ncq

@@ -5,13 +5,17 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.3 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPlugin_Patient.py,v 1.4 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
 from Gnumed.wxpython import gmShadow
@@ -181,7 +185,12 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.3  2005-01-31 10:37:26  ncq
+# Revision 1.4  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.3  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.2  2004/07/24 17:21:49  ncq

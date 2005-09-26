@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.10 2004-06-13 22:31:48 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmGP_PatientPicture.py,v 1.11 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -14,7 +14,11 @@ from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker
 from Gnumed.business import gmMedDoc
 
 import mx.DateTime as mxDT
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 current_patient = -1
 current_photo = None
@@ -104,7 +108,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.10  2004-06-13 22:31:48  ncq
+# Revision 1.11  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.10  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

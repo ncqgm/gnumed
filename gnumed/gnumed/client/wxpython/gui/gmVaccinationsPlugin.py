@@ -7,12 +7,16 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmVaccinationsPlugin.py,v $
-# $Id: gmVaccinationsPlugin.py,v 1.4 2004-09-18 13:56:34 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmVaccinationsPlugin.py,v 1.5 2005-09-26 18:01:52 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 # panel class holding editing prompts and text boxes
 from Gnumed.wxpython import gmPlugin, gmVaccWidgets
@@ -60,7 +64,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccinationsPlugin.py,v $
-# Revision 1.4  2004-09-18 13:56:34  ncq
+# Revision 1.5  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.4  2004/09/18 13:56:34  ncq
 # - translate tab label
 #
 # Revision 1.3  2004/08/04 17:16:02  ncq

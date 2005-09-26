@@ -8,14 +8,18 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 from Gnumed.pycommon import gmLog, gmI18N
 
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
@@ -1037,7 +1041,12 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.40  2004-08-04 17:16:02  ncq
+# Revision 1.41  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.40  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmRichardSpace.py,v $
-# $Id: gmRichardSpace.py,v 1.5 2005-09-25 17:34:11 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmRichardSpace.py,v 1.6 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 K. Hilbert <Karsten.Hilbert@gmx.net>,\
 I. Haywood <ihaywood@gnu.org>>\
@@ -23,7 +23,11 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
 from Gnumed.wxpython import gmPlugin
@@ -135,7 +139,12 @@ class cLayoutMgr(wx.Panel):
 
 #==============================================================================
 # $Log: gmRichardSpace.py,v $
-# Revision 1.5  2005-09-25 17:34:11  ncq
+# Revision 1.6  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.5  2005/09/25 17:34:11  ncq
 # - back to 2.4 import until compatible way for 2.6 is found
 #
 # Revision 1.4  2005/09/25 01:00:47  ihaywood

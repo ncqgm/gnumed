@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.7 2005-07-24 18:52:55 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmBMIWidgets.py,v 1.8 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -24,7 +24,11 @@ __license__ = "GPL (details at http://www.gnu.org)"
 
 import os.path
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmI18N
 
@@ -549,7 +553,12 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.7  2005-07-24 18:52:55  ncq
+# Revision 1.8  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.7  2005/07/24 18:52:55  ncq
 # - comment out not-yet-functional buttons
 #
 # Revision 1.6  2005/07/16 11:34:47  ncq

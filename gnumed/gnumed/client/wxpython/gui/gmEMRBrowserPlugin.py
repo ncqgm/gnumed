@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,12 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 if __name__ == "__main__":
 
     import sys
-    from wxPython import wx
+
+	try:
+		import wxversion
+		import wx
+	except ImportError:
+		from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
     from Gnumed.exporters import gmPatientExporter
@@ -97,7 +102,12 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.6  2005-06-07 20:56:56  ncq
+# Revision 1.7  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.6  2005/06/07 20:56:56  ncq
 # - take advantage of improved EMR menu
 #
 # Revision 1.5  2005/03/29 07:33:47  ncq

@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.65 2005-09-25 17:30:58 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmDemographicsWidgets.py,v 1.66 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -21,9 +21,13 @@ import mx.DateTime as mxDT
 # FIXME: (RSN) use "proper" way for importing wx2.6, eg wxversion etc
 # FIXME: please do not just "fix" "bugs" appearing in your build environment
 # FIMXE: but rather try to first understand the implications
-from wxPython import wx
-from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
-from wxPython import wizard
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+	#from wxPython import wizard
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
@@ -2881,7 +2885,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.65  2005-09-25 17:30:58  ncq
+# Revision 1.66  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.65  2005/09/25 17:30:58  ncq
 # - revert back to wx2.4 style import awaiting "proper" wx2.6 importing
 #
 # Revision 1.64  2005/09/25 01:00:47  ihaywood

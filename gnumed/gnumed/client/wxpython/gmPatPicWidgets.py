@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.9 2005-08-08 08:07:11 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPatPicWidgets.py,v 1.10 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -16,11 +16,16 @@ __license__ = "GPL"
 import sys, os, shutil
 
 # 3rd party
-from wxPython import wx
-from wxPython.lib import imagebrowser
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	from wxPython.lib import imagebrowser
+
 import mx.DateTime as mxDT
 
-# GnuMed
+# GNUmed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker, gmLog, gmI18N
 from Gnumed.business import gmMedDoc, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
@@ -181,7 +186,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.9  2005-08-08 08:07:11  ncq
+# Revision 1.10  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.9  2005/08/08 08:07:11  ncq
 # - cleanup
 #
 # Revision 1.8  2005/02/05 10:58:09  ihaywood

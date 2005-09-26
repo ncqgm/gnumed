@@ -1,5 +1,10 @@
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 import string
 
 		
@@ -176,7 +181,11 @@ class CharValidator:
 if __name__ == "__main__":
 
 
-	from wxPython.wx import *
+	try:
+		import wxversion
+		import wx
+	except ImportError:
+		from wxPython import wx
 
 
 	class REWResizer:

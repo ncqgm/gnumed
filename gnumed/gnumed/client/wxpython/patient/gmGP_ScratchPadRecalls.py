@@ -3,10 +3,15 @@
 
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_ScratchPadRecalls.py,v $
-# $Id: gmGP_ScratchPadRecalls.py,v 1.15 2004-07-18 20:30:54 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmGP_ScratchPadRecalls.py,v 1.16 2005-09-26 18:01:53 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
 from  gmPatientHolder import PatientHolder
 scratchpaddata = {}
@@ -159,7 +164,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===============================================================
 # $Log: gmGP_ScratchPadRecalls.py,v $
-# Revision 1.15  2004-07-18 20:30:54  ncq
+# Revision 1.16  2005-09-26 18:01:53  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.15  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.14  2003/11/17 10:56:42  sjtan

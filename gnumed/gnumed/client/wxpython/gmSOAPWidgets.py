@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.55 2005-09-26 04:31:27 ihaywood Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmSOAPWidgets.py,v 1.56 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -13,7 +13,11 @@ __license__ = "GPL"
 import types
 
 # 3rd party
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmWhoAmI
@@ -1549,7 +1553,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.55  2005-09-26 04:31:27  ihaywood
+# Revision 1.56  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.55  2005/09/26 04:31:27  ihaywood
 # allow problem to be passed to clinical popup EditAreas
 #
 # Revision 1.54  2005/09/12 15:10:43  ncq

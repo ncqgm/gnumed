@@ -1,10 +1,15 @@
 # a simple wrapper for the cryptowidget
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  someone before me :-)>"
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+
 from Gnumed.wxpython import gmPlugin
 
 class gmPython (gmPlugin.cNotebookPluginOld):
@@ -20,7 +25,7 @@ class gmPython (gmPlugin.cNotebookPluginOld):
         return ('view', _('&Python'))
 
     def GetWidget (self, parent):
-        from wx import py
+        #from wx import py
         #from wxPython.lib.PyCrust import shell, version, filling
         win = wxSplitterWindow(parent, -1, size=(600, 300))
         shellWin = py.shell.Shell(win, -1, introText='The Amazing GnuMed Python Shell!\n')
@@ -31,7 +36,12 @@ class gmPython (gmPlugin.cNotebookPluginOld):
 
 #======================================================
 # $Log: gmPython.py,v $
-# Revision 1.10  2004-08-04 17:16:02  ncq
+# Revision 1.11  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.10  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

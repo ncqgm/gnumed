@@ -7,7 +7,13 @@
 # You should rename your image file eg to images_myproject.py
 # before you add the images 
 #------------------------------------------------------------
-from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	#from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+
 import cPickle, zlib
 #----------------------------------------------------------------------
 def getToolbar_AllergiesData():

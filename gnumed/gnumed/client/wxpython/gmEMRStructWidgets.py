@@ -8,15 +8,19 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.13 2005-09-24 09:17:28 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmEMRStructWidgets.py,v 1.14 2005-09-26 18:01:50 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
 # 3rd party
-from wxPython import wx
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
-# GnuMed
+# GNUmed
 from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
@@ -876,7 +880,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.13  2005-09-24 09:17:28  ncq
+# Revision 1.14  2005-09-26 18:01:50  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.13  2005/09/24 09:17:28  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.12  2005/08/06 16:50:51  ncq

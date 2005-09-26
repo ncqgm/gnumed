@@ -17,8 +17,11 @@
 """
 gmSQLSimpleSearch - a widget for simple database search & selection interaction
 """
-
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.wxpython import gmSQLListControl
 from Gnumed.pycommon import gmI18N

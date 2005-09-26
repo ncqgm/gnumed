@@ -13,16 +13,20 @@ ideally, tool should query backend for parity, race, etc. for exact measurement
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPregWidgets.py,v $
-# $Id: gmPregWidgets.py,v 1.3 2005-07-16 22:49:52 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPregWidgets.py,v 1.4 2005-09-26 18:01:51 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 __licence__ = "GPL"
 
 import math, zlib, cPickle, random, string, os.path
 
-from wxPython.wx import *
-from wxPython.calendar import *
-from wxPython.lib.rcsizer import RowColSizer
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	from wxPython import calender
+	from wxPython.lib.rcsizer import RowColSizer
 
 LMP_FIELD = 0
 US_FIELD = 1
@@ -445,7 +449,12 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmPregWidgets.py,v $
-# Revision 1.3  2005-07-16 22:49:52  ncq
+# Revision 1.4  2005-09-26 18:01:51  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.3  2005/07/16 22:49:52  ncq
 # - cleanup
 #
 # Revision 1.2  2005/06/16 07:39:46  rterry

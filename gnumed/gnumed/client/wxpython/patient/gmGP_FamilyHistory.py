@@ -18,10 +18,14 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_FamilyHistory.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 import gmEditArea, gmPlugin_Patient, gmLog
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
@@ -199,7 +203,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================# 
 # $Log: gmGP_FamilyHistory.py,v $
-# Revision 1.9  2004-07-18 20:30:54  ncq
+# Revision 1.10  2005-09-26 18:01:53  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.9  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.8  2004/06/25 13:28:00  ncq

@@ -24,14 +24,18 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
-from wxPython.wx import *
-from wxPython.stc import *
-from wxPython.html import *
-import wxPython.lib.wxpTag
-from wxPython.lib.splashscreen import SplashScreen
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
+	#from wxPython.stc import *
+	#from wxPython.html import *
+	#import wxPython.lib.wxpTag
+	#from wxPython.lib.splashscreen import SplashScreen
 
 import string
 
@@ -641,7 +645,12 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.26  2005-09-24 09:17:29  ncq
+# Revision 1.27  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.26  2005/09/24 09:17:29  ncq
 # - some wx2.6 compatibility fixes
 #
 # Revision 1.25  2005/03/17 20:30:56  hinnef

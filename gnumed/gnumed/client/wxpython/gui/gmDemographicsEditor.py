@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.15 2005-05-26 15:54:46 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmDemographicsEditor.py,v 1.16 2005-09-26 18:01:52 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
 
@@ -42,7 +42,11 @@ class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	from wxPython import wx
+	try:
+		import wxversion
+		import wx
+	except ImportError:
+		from wxPython import wx
 
 	# catch all remaining exceptions
 	try:
@@ -56,7 +60,12 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.15  2005-05-26 15:54:46  ncq
+# Revision 1.16  2005-09-26 18:01:52  ncq
+# - use proper way to import wx26 vs wx2.4
+# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
+# - time for fixup
+#
+# Revision 1.15  2005/05/26 15:54:46  ncq
 # - Carlos wrote a new plugin wrapper for his demographics
 #   editor so rollback the changes in this one
 #
