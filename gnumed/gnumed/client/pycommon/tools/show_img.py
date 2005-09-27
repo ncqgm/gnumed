@@ -2,16 +2,20 @@
 ###############################################################
 # This is a tool to show images from files in client/artwork/
 #
-# @Date: $Date: 2004-06-21 18:47:10 $
+# @Date: $Date: 2005-09-27 20:27:41 $
 ###############################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/tools/show_img.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __license__ = "GPL (details at http://www.gnu.org)"
 __author__ = "Sebastian Hilbert"
 
 import cPickle, zlib, string 
 
-from wxPython.wx import *
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython import wx
 
 from Gnumed.pycommon import gmCLI
 
@@ -56,6 +60,9 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: show_img.py,v $
-# Revision 1.1  2004-06-21 18:47:10  ncq
+# Revision 1.2  2005-09-27 20:27:41  ncq
+# - wx2.6 fix
+#
+# Revision 1.1  2004/06/21 18:47:10  ncq
 # - this shows images from artwork/ by using getImage()
 #
