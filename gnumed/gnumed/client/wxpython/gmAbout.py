@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.18 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmAbout.py,v 1.19 2005-09-27 20:44:58 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -159,7 +159,7 @@ class AboutFrame (wxFrame):
 		self.win.timer.Stop ()
 		self.Destroy ()
 #====================================================================
-class cContributorsDlg(wx.wxDialog):
+class cContributorsDlg(wx.Dialog):
 	# people who don't want to be listed here:
 	# ...
 	contributors = _(
@@ -198,18 +198,18 @@ Andreas Tille
 """
 	#----------------------------------------------
 	def __init__(self, *args, **kwargs):
-		wx.wxDialog.__init__(self, *args, **kwargs)
-		contributor_listing = wx.wxTextCtrl (
+		wx.Dialog.__init__(self, *args, **kwargs)
+		contributor_listing = wx.TextCtrl (
 			self,
 			-1,
 			cContributorsDlg.contributors,
-			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY,
-			size = wx.wxSize(500, 300)
+			style = wx.TE_MULTILINE | wx.TE_READONLY,
+			size = wx.Size(500, 300)
 		)
-#		contributor_listing.SetFont(wx.wxFont(12, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
+#		contributor_listing.SetFont(wx.Font(12, wx.MODERN, wx.NORMAL, wx.NORMAL))
 		# arrange widgets
-		szr_outer = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_outer.Add(contributor_listing, 1, wx.wxEXPAND, 0)
+		szr_outer = wx.BoxSizer(wx.VERTICAL)
+		szr_outer.Add(contributor_listing, 1, wx.EXPAND, 0)
 		# and do layout
 		self.SetAutoLayout(1)
 		self.SetSizerAndFit(szr_outer)
@@ -232,7 +232,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.18  2005-09-26 18:01:50  ncq
+# Revision 1.19  2005-09-27 20:44:58  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.18  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.63 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmLoginDialog.py,v 1.64 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -41,13 +41,13 @@ class cLoginParamChoices:
 		}
 
 #====================================================
-class LoginPanel(wx.wxPanel):
+class LoginPanel(wx.Panel):
 	"""GUI panel class that interactively gets Postgres login parameters"""
 
 	def __init__(self, parent, id,
-		pos = wx.wxDefaultPosition,
-		size = wx.wxDefaultSize,
-		style = wx.wxTAB_TRAVERSAL,
+		pos = wx.DefaultPosition,
+		size = wx.DefaultSize,
+		style = wx.TAB_TRAVERSAL,
 		loginparams = None,
 		isDialog = 0
 		):
@@ -59,7 +59,7 @@ class LoginPanel(wx.wxPanel):
 					resize the dialog automatically to display everything neatly
 					if isDialog is set to True
 		"""
-		wx.wxPanel.__init__(self, parent, id, pos, size, style)
+		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
 		self.gb = gmGuiBroker.GuiBroker()
@@ -77,16 +77,16 @@ class LoginPanel(wx.wxPanel):
 		else:
 			self.loginparams = loginparams
 
-		self.topsizer = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
 		bitmap = os.path.join (self.gb['gnumed_dir'], 'bitmaps', 'gnumedlogo.png')
 		try:
-			wx.wxImage_AddHandler(wx.wxPNGHandler())
-			png = wx.wxImage(bitmap, wx.wxBITMAP_TYPE_PNG).ConvertToBitmap()
-			bmp = wx.wxStaticBitmap(self, -1, png, wx.wxPoint(10, 10), wx.wxSize(png.GetWidth(), png.GetHeight()))
-			self.topsizer.Add(bmp, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 10)
+			wx.Image_AddHandler(wx.PNGHandler())
+			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+			bmp = wx.StaticBitmap(self, -1, png, wx.Point(10, 10), wx.Size(png.GetWidth(), png.GetHeight()))
+			self.topsizer.Add(bmp, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
 		except:
-			self.topsizer.Add(wx.wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wx.wxALIGN_CENTRE), 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 10)
+			self.topsizer.Add(wx.StaticText (self, -1, _("Cannot find image") + bitmap, style=wx.ALIGN_CENTRE), 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
 
 		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
 			paramsbox_caption = _("Slave Login - %s" % _whoami.get_workplace())
@@ -94,69 +94,69 @@ class LoginPanel(wx.wxPanel):
 			paramsbox_caption = _("Login - %s" % _whoami.get_workplace())
 
 		# FIXME: why doesn't this align in the centre ?
-		self.paramsbox = wx.wxStaticBox( self, -1, paramsbox_caption, style = wx.wxALIGN_CENTRE_HORIZONTAL)
-		self.paramsboxsizer = wx.wxStaticBoxSizer( self.paramsbox, wx.wxVERTICAL )
-		self.paramsbox.SetForegroundColour(wx.wxColour(35, 35, 142))
+		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
+		self.paramsboxsizer = wx.StaticBoxSizer( self.paramsbox, wx.VERTICAL )
+		self.paramsbox.SetForegroundColour(wx.Colour(35, 35, 142))
 		# FIXME: can we get around this ugly IFDEF ?
-		if wx.wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			# on wxMac there seems to be no faceName option so don't use it
-			self.paramsbox.SetFont(wx.wxFont(
+			self.paramsbox.SetFont(wx.Font(
 				pointSize = 12,
-				family = wx.wxSWISS,
-				style = wx.wxNORMAL,
-				weight = wx.wxBOLD,
+				family = wx.SWISS,
+				style = wx.NORMAL,
+				weight = wx.BOLD,
 				underline = False
 			))
 		else:
-			self.paramsbox.SetFont(wx.wxFont(
+			self.paramsbox.SetFont(wx.Font(
 				pointSize = 12,
-				family = wx.wxSWISS,
-				style = wx.wxNORMAL,
-				weight = wx.wxBOLD,
+				family = wx.SWISS,
+				style = wx.NORMAL,
+				weight = wx.BOLD,
 				underline = False,
 				faceName = ''
 			))
-		self.pboxgrid = wx.wxFlexGridSizer( 4, 2, 5, 5 )
+		self.pboxgrid = wx.FlexGridSizer( 4, 2, 5, 5 )
 		self.pboxgrid.AddGrowableCol( 1 )
 
 		# PROFILE COMBO
-		label = wx.wxStaticText( self, -1, _("Profile"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		label.SetForegroundColour(wx.wxColour(35, 35, 142))
-		self.pboxgrid.Add(label, 0, wx.wxALIGN_CENTER_VERTICAL | wx.wxALL, 5)
-		self.profilecombo = wx.wxComboBox(
+		label = wx.StaticText( self, -1, _("Profile"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+		self.profilecombo = wx.ComboBox(
 			self,
 			-1,
 			self.loginparams.profilelist[0],
-			wx.wxDefaultPosition,
-			wx.wxSize(150,-1),
+			wx.DefaultPosition,
+			wx.Size(150,-1),
 			self.loginparams.profilelist,
-			wx.wxCB_READONLY
+			wx.CB_READONLY
 		)
-		self.pboxgrid.Add (self.profilecombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add (self.profilecombo, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
 		# USER NAME COMBO
-		label = wx.wxStaticText( self, -1, _("Username"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		label.SetForegroundColour(wx.wxColour(35, 35, 142))
-		self.pboxgrid.Add( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-		self.usercombo = wx.wxComboBox(
+		label = wx.StaticText( self, -1, _("Username"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.pboxgrid.Add( label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.usercombo = wx.ComboBox(
 			self,
 			-1,
 			self.loginparams.userlist[0],
-			wx.wxDefaultPosition,
-			wx.wxSize(150,-1),
+			wx.DefaultPosition,
+			wx.Size(150,-1),
 			self.loginparams.userlist,
-			wx.wxCB_DROPDOWN
+			wx.CB_DROPDOWN
 		)
-		self.pboxgrid.Add( self.usercombo, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add( self.usercombo, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
 		#PASSWORD TEXT ENTRY
-		label = wx.wxStaticText( self, -1, _("Password"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		label.SetForegroundColour(wx.wxColour(35, 35, 142))
-		self.pboxgrid.Add( label, 0, wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
-		self.pwdentry = wx.wxTextCtrl( self, 1, '', wx.wxDefaultPosition, wx.wxSize(80,-1), wx.wxTE_PASSWORD )
+		label = wx.StaticText( self, -1, _("Password"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.pboxgrid.Add( label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.pwdentry = wx.TextCtrl( self, 1, '', wx.DefaultPosition, wx.Size(80,-1), wx.TE_PASSWORD )
 		# set focus on password entry
 		self.pwdentry.SetFocus()
-		self.pboxgrid.Add( self.pwdentry, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.pboxgrid.Add( self.pwdentry, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
 		
 		#----------------------------------------------------------------------
@@ -171,37 +171,37 @@ class LoginPanel(wx.wxPanel):
 		#this eliminates the heavy border when you use the default 
 		#?is the default word needed for any other reason?
 		#----------------------------------------------------------------------
-		self.button_gridsizer = wx.wxGridSizer(1,3,0,0)
+		self.button_gridsizer = wx.GridSizer(1,3,0,0)
 		#---------------------
 		#3:create login ok button
 		#---------------------
-		ID_BUTTON_LOGIN = wx.wxNewId()
-		button_login_ok = wx.wxButton(self, ID_BUTTON_LOGIN, _("&Ok"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		button_login_ok.SetToolTip(wx.wxToolTip(_("Proceed with login.")) )
+		ID_BUTTON_LOGIN = wx.NewId()
+		button_login_ok = wx.Button(self, ID_BUTTON_LOGIN, _("&Ok"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		button_login_ok.SetToolTip(wx.ToolTip(_("Proceed with login.")) )
 		button_login_ok.SetDefault()
 
 		#---------------------
 		#3:create cancel button
 		#---------------------
-		ID_BUTTON_CANCEL = wx.wxNewId()
-		button_cancel = wx.wxButton(self, ID_BUTTON_CANCEL, _("&Cancel"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		button_cancel.SetToolTip(wx.wxToolTip(_("Cancel Login.")) )
+		ID_BUTTON_CANCEL = wx.NewId()
+		button_cancel = wx.Button(self, ID_BUTTON_CANCEL, _("&Cancel"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		button_cancel.SetToolTip(wx.ToolTip(_("Cancel Login.")) )
 		#---------------------
 		#2:create Help button
 		#---------------------
-		ID_BUTTON_HELP = wx.wxNewId()
-		button_help = wx.wxButton(self, ID_BUTTON_HELP, _("&Help"), wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
-		button_help.SetToolTip(wx.wxToolTip(_("Help for login screen")) )
+		ID_BUTTON_HELP = wx.NewId()
+		button_help = wx.Button(self, ID_BUTTON_HELP, _("&Help"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		button_help.SetToolTip(wx.ToolTip(_("Help for login screen")) )
 		#----------------------------
 		#Add buttons to the gridsizer
 		#----------------------------
-		self.button_gridsizer.Add (button_help,0,wx.wxEXPAND|wx.wxALL,5)
-		self.button_gridsizer.Add (button_login_ok,0,wx.wxEXPAND|wx.wxALL,5)
-		self.button_gridsizer.Add (button_cancel,0,wx.wxEXPAND|wx.wxALL,5)
+		self.button_gridsizer.Add (button_help,0,wx.EXPAND|wx.ALL,5)
+		self.button_gridsizer.Add (button_login_ok,0,wx.EXPAND|wx.ALL,5)
+		self.button_gridsizer.Add (button_cancel,0,wx.EXPAND|wx.ALL,5)
 		
-		self.paramsboxsizer.Add(self.pboxgrid, 1, wx.wxGROW|wx.wxALL, 10)
-		self.topsizer.Add(self.paramsboxsizer, 1, wx.wxGROW|wx.wxALL, 10)
-		self.topsizer.Add( self.button_gridsizer, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		self.paramsboxsizer.Add(self.pboxgrid, 1, wx.GROW|wx.ALL, 10)
+		self.topsizer.Add(self.paramsboxsizer, 1, wx.GROW|wx.ALL, 10)
+		self.topsizer.Add( self.button_gridsizer, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
 		self.SetAutoLayout(True)
 		self.SetSizer( self.topsizer)
@@ -388,7 +388,7 @@ class LoginPanel(wx.wxPanel):
 			print _("You need to set the option [workplace] -> <help desk> in the config file !")
 			tmp = "http://www.gnumed.org"
 
-		wx.wxMessageBox(_(
+		wx.MessageBox(_(
 """GnuMed main login screen
 
 USER:
@@ -421,7 +421,7 @@ For assistance on using GnuMed please contact:
 		self.parent.Close()
 
 #====================================================
-class LoginDialog(wx.wxDialog):
+class LoginDialog(wx.Dialog):
 	"""LoginDialog - window holding LoginPanel"""
 
 	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
@@ -433,14 +433,14 @@ class LoginDialog(wx.wxDialog):
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
 
 	def __init__(self, parent, id, title=_("Welcome to the")):
-		wx.wxDialog.__init__(self, parent, id, title)
+		wx.Dialog.__init__(self, parent, id, title)
 		self.panel = LoginPanel(self, -1, isDialog=1)
 		self.Fit () # needed for Windoze.
 		self.Centre()
 
 		# set window icon
-		icon_bmp_data = wx.wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent)))
-		icon = wx.wxEmptyIcon()
+		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent)))
+		icon = wx.EmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 
@@ -453,7 +453,7 @@ if __name__ == '__main__':
 	gb = gmGuiBroker.GuiBroker()	
 	gb['gnumed_dir'] = os.curdir+'/..'
 
-	app = wx.wxPyWidgetTester(size = (300,400))
+	app = wx.PyWidgetTester(size = (300,400))
 	#show the login panel in a main window
 #	app.SetWidget(LoginPanel, -1)
 	#and pop the login dialog up modally
@@ -462,16 +462,19 @@ if __name__ == '__main__':
 	#demonstration how to access the login dialog values
 	lp = dlg.panel.GetLoginInfo()
 	if lp is None:
-		wx.wxMessageBox(_("Dialog was cancelled by user"))
+		wx.MessageBox(_("Dialog was cancelled by user"))
 	else:
-		wx.wxMessageBox(_("You tried to log in as [%s] with password [%s].\nHost:%s, DB: %s, Port: %s") % (lp.GetUser(),lp.GetPassword(),lp.GetHost(),lp.GetDatabase(),lp.GetPort()))
+		wx.MessageBox(_("You tried to log in as [%s] with password [%s].\nHost:%s, DB: %s, Port: %s") % (lp.GetUser(),lp.GetPassword(),lp.GetHost(),lp.GetDatabase(),lp.GetPort()))
 	dlg.Destroy()
 #	app.MainLoop()
 
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.63  2005-09-26 18:01:51  ncq
+# Revision 1.64  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.63  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

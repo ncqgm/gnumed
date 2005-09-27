@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.96 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmEditArea.py,v 1.97 2005-09-27 20:44:58 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -25,7 +25,7 @@ _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
 _whoami = gmWhoAmI.cWhoAmI()
 
-ID_PROGRESSNOTES = wx.wxNewId()
+ID_PROGRESSNOTES = wx.NewId()
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
 gmSECTION_CLINICALNOTES = 3
@@ -35,91 +35,91 @@ gmSECTION_SCRIPT = 8
 
 #--------------------------------------------
 gmSECTION_REQUESTS = 9
-ID_REQUEST_TYPE = wx.wxNewId()
-ID_REQUEST_COMPANY  = wx.wxNewId()
-ID_REQUEST_STREET  = wx.wxNewId()
-ID_REQUEST_SUBURB  = wx.wxNewId()
-ID_REQUEST_PHONE  = wx.wxNewId()
-ID_REQUEST_REQUESTS  = wx.wxNewId()
-ID_REQUEST_FORMNOTES = wx.wxNewId()
-ID_REQUEST_MEDICATIONS = wx.wxNewId()
-ID_REQUEST_INCLUDEALLMEDICATIONS  = wx.wxNewId()
-ID_REQUEST_COPYTO = wx.wxNewId()
-ID_REQUEST_BILL_BB = wx.wxNewId()
-ID_REQUEST_BILL_PRIVATE = wx.wxNewId()
-ID_REQUEST_BILL_wcover = wx.wxNewId()
-ID_REQUEST_BILL_REBATE  = wx.wxNewId()
+ID_REQUEST_TYPE = wx.NewId()
+ID_REQUEST_COMPANY  = wx.NewId()
+ID_REQUEST_STREET  = wx.NewId()
+ID_REQUEST_SUBURB  = wx.NewId()
+ID_REQUEST_PHONE  = wx.NewId()
+ID_REQUEST_REQUESTS  = wx.NewId()
+ID_REQUEST_FORMNOTES = wx.NewId()
+ID_REQUEST_MEDICATIONS = wx.NewId()
+ID_REQUEST_INCLUDEALLMEDICATIONS  = wx.NewId()
+ID_REQUEST_COPYTO = wx.NewId()
+ID_REQUEST_BILL_BB = wx.NewId()
+ID_REQUEST_BILL_PRIVATE = wx.NewId()
+ID_REQUEST_BILL_wcover = wx.NewId()
+ID_REQUEST_BILL_REBATE  = wx.NewId()
 #---------------------------------------------
 gmSECTION_MEASUREMENTS = 10
-ID_MEASUREMENT_TYPE = wx.wxNewId()
-ID_MEASUREMENT_VALUE = wx.wxNewId()
-ID_MEASUREMENT_DATE = wx.wxNewId()
-ID_MEASUREMENT_COMMENT = wx.wxNewId()
-ID_MEASUREMENT_NEXTVALUE = wx.wxNewId()
-ID_MEASUREMENT_GRAPH   = wx.wxNewId()
+ID_MEASUREMENT_TYPE = wx.NewId()
+ID_MEASUREMENT_VALUE = wx.NewId()
+ID_MEASUREMENT_DATE = wx.NewId()
+ID_MEASUREMENT_COMMENT = wx.NewId()
+ID_MEASUREMENT_NEXTVALUE = wx.NewId()
+ID_MEASUREMENT_GRAPH   = wx.NewId()
 #---------------------------------------------
 gmSECTION_REFERRALS = 11
-ID_REFERRAL_CATEGORY        = wx.wxNewId()
-ID_REFERRAL_NAME        = wx.wxNewId()
-ID_REFERRAL_USEFIRSTNAME        = wx.wxNewId()
-ID_REFERRAL_ORGANISATION        = wx.wxNewId()
-ID_REFERRAL_HEADOFFICE        = wx.wxNewId()
-ID_REFERRAL_STREET1       = wx.wxNewId()
-ID_REFERRAL_STREET2        = wx.wxNewId()
-ID_REFERRAL_STREET3       = wx.wxNewId()
-ID_REFERRAL_SUBURB        = wx.wxNewId()
-ID_REFERRAL_POSTCODE        = wx.wxNewId()
-ID_REFERRAL_FOR        = wx.wxNewId()
-ID_REFERRAL_WPHONE        = wx.wxNewId()
-ID_REFERRAL_WFAX        = wx.wxNewId()
-ID_REFERRAL_WEMAIL        = wx.wxNewId()
-ID_REFERRAL_INCLUDE_MEDICATIONS        = wx.wxNewId()
-ID_REFERRAL_INCLUDE_SOCIALHISTORY       = wx.wxNewId()
-ID_REFERRAL_INCLUDE_FAMILYHISTORY        = wx.wxNewId()
-ID_REFERRAL_INCLUDE_PASTPROBLEMS        = wx.wxNewId()
-ID_REFERRAL_ACTIVEPROBLEMS       = wx.wxNewId()
-ID_REFERRAL_HABITS        = wx.wxNewId()
-ID_REFERRAL_INCLUDEALL        = wx.wxNewId()
-ID_BTN_PREVIEW = wx.wxNewId()
-ID_REFERRAL_COPYTO = wx.wxNewId()
+ID_REFERRAL_CATEGORY        = wx.NewId()
+ID_REFERRAL_NAME        = wx.NewId()
+ID_REFERRAL_USEFIRSTNAME        = wx.NewId()
+ID_REFERRAL_ORGANISATION        = wx.NewId()
+ID_REFERRAL_HEADOFFICE        = wx.NewId()
+ID_REFERRAL_STREET1       = wx.NewId()
+ID_REFERRAL_STREET2        = wx.NewId()
+ID_REFERRAL_STREET3       = wx.NewId()
+ID_REFERRAL_SUBURB        = wx.NewId()
+ID_REFERRAL_POSTCODE        = wx.NewId()
+ID_REFERRAL_FOR        = wx.NewId()
+ID_REFERRAL_WPHONE        = wx.NewId()
+ID_REFERRAL_WFAX        = wx.NewId()
+ID_REFERRAL_WEMAIL        = wx.NewId()
+ID_REFERRAL_INCLUDE_MEDICATIONS        = wx.NewId()
+ID_REFERRAL_INCLUDE_SOCIALHISTORY       = wx.NewId()
+ID_REFERRAL_INCLUDE_FAMILYHISTORY        = wx.NewId()
+ID_REFERRAL_INCLUDE_PASTPROBLEMS        = wx.NewId()
+ID_REFERRAL_ACTIVEPROBLEMS       = wx.NewId()
+ID_REFERRAL_HABITS        = wx.NewId()
+ID_REFERRAL_INCLUDEALL        = wx.NewId()
+ID_BTN_PREVIEW = wx.NewId()
+ID_REFERRAL_COPYTO = wx.NewId()
 #----------------------------------------
 gmSECTION_RECALLS = 12
-ID_RECALLS_TOSEE  = wx.wxNewId()
-ID_RECALLS_TXT_FOR  = wx.wxNewId()
-ID_RECALLS_TXT_DATEDUE  = wx.wxNewId()
-ID_RECALLS_CONTACTMETHOD = wx.wxNewId()
-ID_RECALLS_APPNTLENGTH = wx.wxNewId()
-ID_RECALLS_TXT_ADDTEXT  = wx.wxNewId()
-ID_RECALLS_TXT_INCLUDEFORMS = wx.wxNewId()
-ID_RECALLS_TOSEE  = wx.wxNewId()
-ID_RECALLS_TXT_FOR  = wx.wxNewId()
-ID_RECALLS_TXT_DATEDUE  = wx.wxNewId()
-ID_RECALLS_CONTACTMETHOD = wx.wxNewId()
-ID_RECALLS_APPNTLENGTH = wx.wxNewId()
-ID_RECALLS_TXT_ADDTEXT  = wx.wxNewId()
-ID_RECALLS_TXT_INCLUDEFORMS = wx.wxNewId()
+ID_RECALLS_TOSEE  = wx.NewId()
+ID_RECALLS_TXT_FOR  = wx.NewId()
+ID_RECALLS_TXT_DATEDUE  = wx.NewId()
+ID_RECALLS_CONTACTMETHOD = wx.NewId()
+ID_RECALLS_APPNTLENGTH = wx.NewId()
+ID_RECALLS_TXT_ADDTEXT  = wx.NewId()
+ID_RECALLS_TXT_INCLUDEFORMS = wx.NewId()
+ID_RECALLS_TOSEE  = wx.NewId()
+ID_RECALLS_TXT_FOR  = wx.NewId()
+ID_RECALLS_TXT_DATEDUE  = wx.NewId()
+ID_RECALLS_CONTACTMETHOD = wx.NewId()
+ID_RECALLS_APPNTLENGTH = wx.NewId()
+ID_RECALLS_TXT_ADDTEXT  = wx.NewId()
+ID_RECALLS_TXT_INCLUDEFORMS = wx.NewId()
 
 
 
-PHX_CONDITION=wx.wxNewId()
-PHX_NOTES=wx.wxNewId()
-PHX_NOTES2=wx.wxNewId()
-PHX_LEFT=wx.wxNewId()
-PHX_RIGHT=wx.wxNewId()
-PHX_BOTH=wx.wxNewId()
-PHX_AGE=wx.wxNewId()
-PHX_YEAR=wx.wxNewId()
-PHX_ACTIVE=wx.wxNewId()
-PHX_OPERATION=wx.wxNewId()
-PHX_CONFIDENTIAL=wx.wxNewId()
-PHX_SIGNIFICANT=wx.wxNewId()
-PHX_PROGRESSNOTES=wx.wxNewId()
+PHX_CONDITION=wx.NewId()
+PHX_NOTES=wx.NewId()
+PHX_NOTES2=wx.NewId()
+PHX_LEFT=wx.NewId()
+PHX_RIGHT=wx.NewId()
+PHX_BOTH=wx.NewId()
+PHX_AGE=wx.NewId()
+PHX_YEAR=wx.NewId()
+PHX_ACTIVE=wx.NewId()
+PHX_OPERATION=wx.NewId()
+PHX_CONFIDENTIAL=wx.NewId()
+PHX_SIGNIFICANT=wx.NewId()
+PHX_PROGRESSNOTES=wx.NewId()
 
-richards_blue = wx.wxColour(0,0,131)
-richards_aqua = wx.wxColour(0,194,197)
-richards_dark_gray = wx.wxColor(131,129,131)
-richards_light_gray = wx.wxColor(255,255,255)
-richards_coloured_gray = wx.wxColor(131,129,131)
+richards_blue = wx.Colour(0,0,131)
+richards_aqua = wx.Colour(0,194,197)
+richards_dark_gray = wx.Color(131,129,131)
+richards_light_gray = wx.Color(255,255,255)
+richards_coloured_gray = wx.Color(131,129,131)
 
 
 CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wxSpinCtrl', 'gmPhraseWheel', 'wxComboBox'] 
@@ -128,18 +128,18 @@ basicPrescriptionExtra = [
 	None,
 	None,
 	None,
-	("qty", _("Quantity"), wx.wxTextCtrl),
-	("rpts", _("Repeats"), wx.wxTextCtrl) ,
-	("usual", _("Usual"), wx.wxCheckBox)
+	("qty", _("Quantity"), wx.TextCtrl),
+	("rpts", _("Repeats"), wx.TextCtrl) ,
+	("usual", _("Usual"), wx.CheckBox)
 	]	
 
 auPrescriptionExtra = [
 	None, 
-	("vet", _("Veteran"), wx.wxCheckBox) ,
-	("reg24", _("Reg 24"), wx.wxCheckBox) ,
+	("vet", _("Veteran"), wx.CheckBox) ,
+	("reg24", _("Reg 24"), wx.CheckBox) ,
 	("qty", _("Quantity"), wxSpinCtrl),
 	("rpts", _("Repeats"), wxSpinCtrl) ,
-	("usual", _("Usual"), wx.wxCheckBox)
+	("usual", _("Usual"), wx.CheckBox)
 	]
 
 
@@ -148,11 +148,11 @@ auBillingChoices =  [_("bulk bill"), _("private"),  _("concession"), _("workcove
 
 
 referralColumn2 = [
-	("isByFirstname", _("chums"), wx.wxCheckBox),
-	("isHeadOffice", _("head office"), wx.wxCheckBox),
-	("W Phone", _("W Phone"), wx.wxTextCtrl),
-	("W Fax", _("W Fax  "), wx.wxTextCtrl),
-	("W Email", _("W Email"), wx.wxTextCtrl),
+	("isByFirstname", _("chums"), wx.CheckBox),
+	("isHeadOffice", _("head office"), wx.CheckBox),
+	("W Phone", _("W Phone"), wx.TextCtrl),
+	("W Fax", _("W Fax  "), wx.TextCtrl),
+	("W Email", _("W Email"), wx.TextCtrl),
 	None 
 	] 
 
@@ -161,15 +161,15 @@ recallColumn2 = [
 	None,
 	None,
 	None,
-	("appt", _("Appointment Type"), wx.wxComboBox),
-	("for", _("request for"), wx.wxTextCtrl)
+	("appt", _("Appointment Type"), wx.ComboBox),
+	("for", _("request for"), wx.TextCtrl)
 	 ]
 
 requestColumn2 = [
 	None,	None, None,
-	("phone", _("Phone"), wx.wxTextCtrl ),
+	("phone", _("Phone"), wx.TextCtrl ),
 	None, None,
-	("all meds", _("Include All Meds"), wx.wxCheckBox)
+	("all meds", _("Include All Meds"), wx.CheckBox)
 	]
 
 
@@ -256,27 +256,27 @@ _known_edit_area_types = []
 _known_edit_area_types.extend(_prompt_defs.keys())
 
 def _decorate_editarea_field(widget):
-	widget.SetForegroundColour(wx.wxColor(255, 0, 0))
-	widget.SetFont(wxFont(12, wxSWISS, wx.wxNORMAL, wxBOLD, False, ''))
+	widget.SetForegroundColour(wx.Color(255, 0, 0))
+	widget.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wxBOLD, False, ''))
 
 #====================================================================
-class cEditAreaPopup(wx.wxDialog):
+class cEditAreaPopup(wx.Dialog):
 	def __init__ (
 		self,
 		parent,
 		id,
 		title = 'edit area popup',
-		pos=wx.wxDefaultPosition,
-		size=wx.wxDefaultSize,
-		style=wx.wxSIMPLE_BORDER,
+		pos=wx.DefaultPosition,
+		size=wx.DefaultSize,
+		style=wx.SIMPLE_BORDER,
 		name='',
 		edit_area = None
 	):
 		if not isinstance(edit_area, cEditArea2):
 			raise gmExceptions.ConstructorError, '<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area)
-		wx.wxDialog.__init__(self, parent, id, title, pos, size, style, name)
-		self.__wxID_BTN_SAVE = wx.wxNewId()
-		self.__wxID_BTN_RESET = wx.wxNewId()
+		wx.Dialog.__init__(self, parent, id, title, pos, size, style, name)
+		self.__wxID_BTN_SAVE = wx.NewId()
+		self.__wxID_BTN_RESET = wx.NewId()
 		self.__editarea = edit_area
 		self.__do_layout()
 		self.__register_events()
@@ -289,21 +289,21 @@ class cEditAreaPopup(wx.wxDialog):
 	def __do_layout(self):
 		self.__editarea.Reparent(self)
 
-		self.__btn_SAVE = wx.wxButton(self, self.__wxID_BTN_SAVE, _("Save"))
+		self.__btn_SAVE = wx.Button(self, self.__wxID_BTN_SAVE, _("Save"))
 		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
-		self.__btn_RESET = wx.wxButton(self, self.__wxID_BTN_RESET, _("Reset"))
+		self.__btn_RESET = wx.Button(self, self.__wxID_BTN_RESET, _("Reset"))
 		self.__btn_RESET.SetToolTipString(_('reset entry'))
-		self.__btn_CANCEL = wx.wxButton(self, wx.wxID_CANCEL, _("Cancel"))
+		self.__btn_CANCEL = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
 
-		szr_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_buttons.Add(self.__btn_SAVE, 1, wx.wxEXPAND | wx.wxALL, 1)
-		szr_buttons.Add(self.__btn_RESET, 1, wx.wxEXPAND | wx.wxALL, 1)
-		szr_buttons.Add(self.__btn_CANCEL, 1, wx.wxEXPAND | wx.wxALL, 1)
+		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		szr_buttons.Add(self.__btn_SAVE, 1, wx.EXPAND | wx.ALL, 1)
+		szr_buttons.Add(self.__btn_RESET, 1, wx.EXPAND | wx.ALL, 1)
+		szr_buttons.Add(self.__btn_CANCEL, 1, wx.EXPAND | wx.ALL, 1)
 
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__editarea, 1, wx.wxEXPAND)
-		szr_main.Add(szr_buttons, 0, wx.wxEXPAND)
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(self.__editarea, 1, wx.EXPAND)
+		szr_main.Add(szr_buttons, 0, wx.EXPAND)
 
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
@@ -313,7 +313,7 @@ class cEditAreaPopup(wx.wxDialog):
 		# connect standard buttons
 		wx.EVT_BUTTON(self.__btn_SAVE, self.__wxID_BTN_SAVE, self._on_SAVE_btn_pressed)
 		wx.EVT_BUTTON(self.__btn_RESET, self.__wxID_BTN_RESET, self._on_RESET_btn_pressed)
-		wx.EVT_BUTTON(self.__btn_CANCEL, wx.wxID_CANCEL, self._on_CANCEL_btn_pressed)
+		wx.EVT_BUTTON(self.__btn_CANCEL, wx.ID_CANCEL, self._on_CANCEL_btn_pressed)
 
 		wx.EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
 
@@ -327,7 +327,7 @@ class cEditAreaPopup(wx.wxDialog):
 	def _on_SAVE_btn_pressed(self, evt):
 		if self.__editarea.save_data():
 			self.__editarea.Close()
-			self.EndModal(wx.wxID_OK)
+			self.EndModal(wx.ID_OK)
 			return
 		short_err = self.__editarea.get_short_error()
 		long_err = self.__editarea.get_long_error()
@@ -344,13 +344,13 @@ class cEditAreaPopup(wx.wxDialog):
 	#--------------------------------------------------------
 	def _on_CANCEL_btn_pressed(self, evt):
 		self.__editarea.Close()
-		self.EndModal(wx.wxID_CANCEL)
+		self.EndModal(wx.ID_CANCEL)
 	#--------------------------------------------------------
 	def _on_RESET_btn_pressed(self, evt):
 		self.__editarea.reset_ui()
 #====================================================================
 class cEditArea2(wxPanel):
-	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=wx.wxTAB_TRAVERSAL):
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.TAB_TRAVERSAL):
 		# init main background panel
 		wxPanel.__init__ (
 			self,
@@ -358,9 +358,9 @@ class cEditArea2(wxPanel):
 			id,
 			pos = pos,
 			size = size,
-			style = style | wx.wxTAB_TRAVERSAL
+			style = style | wx.TAB_TRAVERSAL
 		)
-		self.SetBackgroundColour(wx.wxColor(222,222,222))
+		self.SetBackgroundColour(wx.Color(222,222,222))
 
 		self.data = None		# a placeholder for opaque data
 		self.fields = {}
@@ -370,8 +370,8 @@ class cEditArea2(wxPanel):
 		self._summary = None
 		self._patient = gmPerson.gmCurrentPatient()
 
-		self._wxID_BTN_OK = wx.wxNewId()
-		self._wxID_BTN_Clear = wx.wxNewId()
+		self._wxID_BTN_OK = wx.NewId()
+		self._wxID_BTN_Clear = wx.NewId()
 		self.__do_layout()
 		self.__register_events()
 		self.Show()
@@ -518,10 +518,10 @@ class cEditArea2(wxPanel):
 				style = wxALIGN_CENTRE
 			)
 			# FIXME: resolution dependant
-			prompt.SetFont(wxFont(10, wxSWISS, wx.wxNORMAL, wxBOLD, False, ''))
+			prompt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wxBOLD, False, ''))
 			prompt.SetForegroundColour(color)
 			prompt.SetBackgroundColour(richards_light_gray)
-			szr_main_fgrid.Add(prompt, flag=wx.wxEXPAND | wxALIGN_RIGHT)
+			szr_main_fgrid.Add(prompt, flag=wx.EXPAND | wxALIGN_RIGHT)
 
 			# 2) widget(s) for line
 			szr_line = wxBoxSizer(wxHORIZONTAL)
@@ -529,8 +529,8 @@ class cEditArea2(wxPanel):
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
-#				field.SetBackgroundColour(wx.wxColor(222,222,222))
-				szr_line.Add(field, weight, wx.wxEXPAND)
+#				field.SetBackgroundColour(wx.Color(222,222,222))
+				szr_line.Add(field, weight, wx.EXPAND)
 			szr_main_fgrid.Add(szr_line, flag=wxGROW | wxALIGN_LEFT)
 
 		# grid can grow column 1 only, not column 0
@@ -539,7 +539,7 @@ class cEditArea2(wxPanel):
 #		# use sizer for border around everything plus a little gap
 #		# FIXME: fold into szr_main_panels ?
 #		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
-#		self.szr_central_container.Add(self.szr_main_panels, 1, wx.wxEXPAND | wxALL, 5)
+#		self.szr_central_container.Add(self.szr_main_panels, 1, wx.EXPAND | wxALL, 5)
 
 		# and do the layouting
 		self.SetSizerAndFit(szr_main_fgrid)
@@ -586,9 +586,9 @@ class cEditArea2(wxPanel):
 		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_OK, 1, wx.wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wxALL, 1)
 		szr_buttons.Add((5, 0), 0)
-		szr_buttons.Add(self.btn_Clear, 1, wx.wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_Clear, 1, wx.EXPAND | wxALL, 1)
 
 		# connect standard buttons
 		EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_OK_btn_pressed)
@@ -599,9 +599,9 @@ class cEditArea2(wxPanel):
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
-class cEditAreaField(wx.wxTextCtrl):
+class cEditAreaField(wx.TextCtrl):
 	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size=wxDefaultSize):
-		wx.wxTextCtrl.__init__(self,parent,id,"",pos, size ,wxSIMPLE_BORDER)
+		wx.TextCtrl.__init__(self,parent,id,"",pos, size ,wxSIMPLE_BORDER)
 		_decorate_editarea_field(self)
 #====================================================================
 class cEditArea(wxPanel):
@@ -610,15 +610,15 @@ class cEditArea(wxPanel):
 		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
 
 		# init main background panel
-		wxPanel.__init__(self, parent, id, pos=pos, size=size, style=wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL)
-		self.SetBackgroundColour(wx.wxColor(222,222,222))
+		wxPanel.__init__(self, parent, id, pos=pos, size=size, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
+		self.SetBackgroundColour(wx.Color(222,222,222))
 
 		self.data = None
 		self.fields = {}
 		self.prompts = {}
 
-		self._wxID_BTN_OK = wx.wxNewId()
-		self._wxID_BTN_Clear = wx.wxNewId()
+		self._wxID_BTN_OK = wx.NewId()
+		self._wxID_BTN_Clear = wx.NewId()
 
 		self.__do_layout()
 
@@ -636,7 +636,7 @@ class cEditArea(wxPanel):
 	def __do_layout(self):
 		# define prompts and fields
 		self._define_prompts()
-		self.fields_pnl = wxPanel(self, -1, style = wxRAISED_BORDER | wx.wxTAB_TRAVERSAL)
+		self.fields_pnl = wxPanel(self, -1, style = wxRAISED_BORDER | wx.TAB_TRAVERSAL)
 		self._define_fields(parent = self.fields_pnl)
 		# and generate edit area from it
 		szr_prompts = self.__generate_prompts()
@@ -644,14 +644,14 @@ class cEditArea(wxPanel):
 
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
-		self.szr_main_panels.Add(szr_prompts, 11, wx.wxEXPAND)
-		self.szr_main_panels.Add(5, 0, 0, wx.wxEXPAND)
-		self.szr_main_panels.Add(szr_fields, 90, wx.wxEXPAND)
+		self.szr_main_panels.Add(szr_prompts, 11, wx.EXPAND)
+		self.szr_main_panels.Add(5, 0, 0, wx.EXPAND)
+		self.szr_main_panels.Add(szr_fields, 90, wx.EXPAND)
 
 		# use sizer for border around everything plus a little gap
 		# FIXME: fold into szr_main_panels ?
 		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
-		self.szr_central_container.Add(self.szr_main_panels, 1, wx.wxEXPAND | wxALL, 5)
+		self.szr_central_container.Add(self.szr_main_panels, 1, wx.EXPAND | wxALL, 5)
 
 		# and do the layouting
 		self.SetAutoLayout(True)
@@ -677,30 +677,30 @@ class cEditArea(wxPanel):
 		shadow_below_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_below_prompts = wxBoxSizer (wxHORIZONTAL)
-		szr_shadow_below_prompts.Add(5, 0, 0, wx.wxEXPAND)
-		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wx.wxEXPAND)
+		szr_shadow_below_prompts.Add(5, 0, 0, wx.EXPAND)
+		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wx.EXPAND)
 
 		# stack prompt panel and shadow vertically
 		vszr_prompts = wxBoxSizer(wxVERTICAL)
-		vszr_prompts.Add(prompt_pnl, 97, wx.wxEXPAND)
-		vszr_prompts.Add(szr_shadow_below_prompts, 5, wx.wxEXPAND)
+		vszr_prompts.Add(prompt_pnl, 97, wx.EXPAND)
+		vszr_prompts.Add(szr_shadow_below_prompts, 5, wx.EXPAND)
 
 		# make shadow to the right of the prompts
 		shadow_rightof_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_rightof_prompts = wxBoxSizer(wxVERTICAL)
-		szr_shadow_rightof_prompts.Add(0,5,0,wx.wxEXPAND)
-		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts, 1, wx.wxEXPAND)
+		szr_shadow_rightof_prompts.Add(0,5,0,wx.EXPAND)
+		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts, 1, wx.EXPAND)
 
 		# stack vertical prompt sizer and shadow horizontally
 		hszr_prompts = wxBoxSizer(wxHORIZONTAL)
-		hszr_prompts.Add(vszr_prompts, 10, wx.wxEXPAND)
-		hszr_prompts.Add(szr_shadow_rightof_prompts, 1, wx.wxEXPAND)
+		hszr_prompts.Add(vszr_prompts, 10, wx.EXPAND)
+		hszr_prompts.Add(szr_shadow_rightof_prompts, 1, wx.EXPAND)
 
 		return hszr_prompts
 	#----------------------------------------------------------------
 	def __generate_fields(self):
-		self.fields_pnl.SetBackgroundColour(wx.wxColor(222,222,222))
+		self.fields_pnl.SetBackgroundColour(wx.Color(222,222,222))
 		# rows, cols, hgap, vgap
 		vszr = wxBoxSizer(wxVERTICAL)
 		lines = self.fields.keys()
@@ -712,9 +712,9 @@ class cEditArea(wxPanel):
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
-				self.field_line_szr[line].Add(field, weight, wx.wxEXPAND)
+				self.field_line_szr[line].Add(field, weight, wx.EXPAND)
 			try:
-				vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wx.wxEXPAND) # use same lineweight as prompts
+				vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wx.EXPAND) # use same lineweight as prompts
 			except KeyError:
 				_log.Log(gmLog.lErr, "Error with line=%s, self.field_line_szr has key:%s; self.prompts has key: %s" % (line, self.field_line_szr.has_key(line), self.prompts.has_key(line) ) )
 		# put them on the panel
@@ -725,25 +725,25 @@ class cEditArea(wxPanel):
 		shadow_below_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_below_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_below_edit_fields = wxBoxSizer(wxHORIZONTAL)
-		szr_shadow_below_edit_fields.Add(5, 0, 0, wx.wxEXPAND)
-		szr_shadow_below_edit_fields.Add(shadow_below_edit_fields, 12, wx.wxEXPAND)
+		szr_shadow_below_edit_fields.Add(5, 0, 0, wx.EXPAND)
+		szr_shadow_below_edit_fields.Add(shadow_below_edit_fields, 12, wx.EXPAND)
 
 		# stack edit fields and shadow vertically
 		vszr_edit_fields = wxBoxSizer(wxVERTICAL)
-		vszr_edit_fields.Add(self.fields_pnl, 92, wx.wxEXPAND)
-		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wx.wxEXPAND)
+		vszr_edit_fields.Add(self.fields_pnl, 92, wx.EXPAND)
+		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wx.EXPAND)
 
 		# make shadow to the right of the edit area
 		shadow_rightof_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_rightof_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_rightof_edit_fields = wxBoxSizer(wxVERTICAL)
-		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wx.wxEXPAND)
-		szr_shadow_rightof_edit_fields.Add(shadow_rightof_edit_fields, 1, wx.wxEXPAND)
+		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wx.EXPAND)
+		szr_shadow_rightof_edit_fields.Add(shadow_rightof_edit_fields, 1, wx.EXPAND)
 
 		# stack vertical edit fields sizer and shadow horizontally
 		hszr_edit_fields = wxBoxSizer(wxHORIZONTAL)
-		hszr_edit_fields.Add(vszr_edit_fields, 89, wx.wxEXPAND)
-		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wx.wxEXPAND)
+		hszr_edit_fields.Add(vszr_edit_fields, 89, wx.EXPAND)
+		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wx.EXPAND)
 
 		return hszr_edit_fields
 	#---------------------------------------------------------------
@@ -755,7 +755,7 @@ class cEditArea(wxPanel):
 			aLabel,
 			style = wxALIGN_RIGHT
 		)
-		prompt.SetFont(wxFont(10, wxSWISS, wx.wxNORMAL, wxBOLD, False, ''))
+		prompt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wxBOLD, False, ''))
 		prompt.SetForegroundColour(aColor)
 		return prompt
 	#----------------------------------------------------------------
@@ -799,9 +799,9 @@ class cEditArea(wxPanel):
 		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_OK, 1, wx.wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Clear, 1, wx.wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_Clear, 1, wx.EXPAND | wxALL, 1)
 
 		return szr_buttons
 	#--------------------------------------------------------
@@ -923,7 +923,7 @@ class gmEditArea(cEditArea):
 		color = richards_aqua
 		for prompt in prompt_labels:
 			label = self.__make_prompt(prompt_pnl, "%s " % prompt, color)
-			gszr.Add(label, 0, wx.wxEXPAND | wxALIGN_RIGHT)
+			gszr.Add(label, 0, wx.EXPAND | wxALIGN_RIGHT)
 			color = richards_blue
 			gszr.RemoveGrowableRow (line-1)
 		# put sizer on panel
@@ -935,25 +935,25 @@ class gmEditArea(cEditArea):
 		shadow_below_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_below_prompts = wxBoxSizer (wxHORIZONTAL)
-		szr_shadow_below_prompts.Add(5, 0, 0, wx.wxEXPAND)
-		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wx.wxEXPAND)
+		szr_shadow_below_prompts.Add(5, 0, 0, wx.EXPAND)
+		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wx.EXPAND)
 
 		# stack prompt panel and shadow vertically
 		vszr_prompts = wxBoxSizer(wxVERTICAL)
-		vszr_prompts.Add(prompt_pnl, 97, wx.wxEXPAND)
-		vszr_prompts.Add(szr_shadow_below_prompts, 5, wx.wxEXPAND)
+		vszr_prompts.Add(prompt_pnl, 97, wx.EXPAND)
+		vszr_prompts.Add(szr_shadow_below_prompts, 5, wx.EXPAND)
 
 		# make shadow to the right of the prompts
 		shadow_rightof_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_rightof_prompts = wxBoxSizer(wxVERTICAL)
-		szr_shadow_rightof_prompts.Add(0,5,0,wx.wxEXPAND)
-		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts,1,wx.wxEXPAND)
+		szr_shadow_rightof_prompts.Add(0,5,0,wx.EXPAND)
+		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts,1,wx.EXPAND)
 
 		# stack vertical prompt sizer and shadow horizontally
 		hszr_prompts = wxBoxSizer(wxHORIZONTAL)
-		hszr_prompts.Add(vszr_prompts, 10, wx.wxEXPAND)
-		hszr_prompts.Add(szr_shadow_rightof_prompts, 1, wx.wxEXPAND)
+		hszr_prompts.Add(vszr_prompts, 10, wx.EXPAND)
+		hszr_prompts.Add(szr_shadow_rightof_prompts, 1, wx.EXPAND)
 
 		return hszr_prompts
 	#----------------------------------------------------------------
@@ -964,8 +964,8 @@ class gmEditArea(cEditArea):
 	#----------------------------------------------------------------
 	def __make_editing_area(self):
 		# make edit fields
-		fields_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, style = wxRAISED_BORDER | wx.wxTAB_TRAVERSAL)
-		fields_pnl.SetBackgroundColour(wx.wxColor(222,222,222))
+		fields_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, style = wxRAISED_BORDER | wx.TAB_TRAVERSAL)
+		fields_pnl.SetBackgroundColour(wx.Color(222,222,222))
 		# rows, cols, hgap, vgap
 		gszr = wxGridSizer(len(_prompt_defs[self._type]), 1, 2, 2)
 
@@ -976,7 +976,7 @@ class gmEditArea(cEditArea):
 		if len(lines) != len(_prompt_defs[self._type]):
 			_log.Log(gmLog.lErr, '#(edit lines) not equal #(prompts) for [%s], something is fishy' % self._type)
 		for line in lines:
-			gszr.Add(line, 0, wx.wxEXPAND | wxALIGN_LEFT)
+			gszr.Add(line, 0, wx.EXPAND | wxALIGN_LEFT)
 		# put them on the panel
 		fields_pnl.SetSizer(gszr)
 		gszr.Fit(fields_pnl)
@@ -986,25 +986,25 @@ class gmEditArea(cEditArea):
 		shadow_below_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_below_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_below_edit_fields = wxBoxSizer(wxHORIZONTAL)
-		szr_shadow_below_edit_fields.Add(5, 0, 0, wx.wxEXPAND)
-		szr_shadow_below_edit_fields.Add(shadow_below_edit_fields, 12, wx.wxEXPAND)
+		szr_shadow_below_edit_fields.Add(5, 0, 0, wx.EXPAND)
+		szr_shadow_below_edit_fields.Add(shadow_below_edit_fields, 12, wx.EXPAND)
 
 		# stack edit fields and shadow vertically
 		vszr_edit_fields = wxBoxSizer(wxVERTICAL)
-		vszr_edit_fields.Add(fields_pnl, 92, wx.wxEXPAND)
-		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wx.wxEXPAND)
+		vszr_edit_fields.Add(fields_pnl, 92, wx.EXPAND)
+		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wx.EXPAND)
 
 		# make shadow to the right of the edit area
 		shadow_rightof_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_rightof_edit_fields.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_rightof_edit_fields = wxBoxSizer(wxVERTICAL)
-		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wx.wxEXPAND)
-		szr_shadow_rightof_edit_fields.Add(shadow_rightof_edit_fields, 1, wx.wxEXPAND)
+		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wx.EXPAND)
+		szr_shadow_rightof_edit_fields.Add(shadow_rightof_edit_fields, 1, wx.EXPAND)
 
 		# stack vertical edit fields sizer and shadow horizontally
 		hszr_edit_fields = wxBoxSizer(wxHORIZONTAL)
-		hszr_edit_fields.Add(vszr_edit_fields, 89, wx.wxEXPAND)
-		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wx.wxEXPAND)
+		hszr_edit_fields.Add(vszr_edit_fields, 89, wx.EXPAND)
+		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wx.EXPAND)
 
 		return hszr_edit_fields
 
@@ -1041,13 +1041,13 @@ class gmEditArea(cEditArea):
 
 	def _makeLineSizer(self,  widget, weight, spacerWeight):
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add( widget, weight, wx.wxEXPAND)
-		szr.Add( 0,0, spacerWeight, wx.wxEXPAND)
+		szr.Add( widget, weight, wx.EXPAND)
+		szr.Add( 0,0, spacerWeight, wx.EXPAND)
 		return szr
 
 	def _makeCheckBox(self, parent, title):
 		
-		cb =  wx.wxCheckBox( parent, -1, _(title))
+		cb =  wx.CheckBox( parent, -1, _(title))
 		cb.SetForegroundColour( richards_blue)
 		return cb
 
@@ -1081,7 +1081,7 @@ class gmEditArea(cEditArea):
 				(existingWeight, extraWeight) = weightMap[x]
 
 			szr = wxBoxSizer(wxHORIZONTAL)
-			szr.Add( x, existingWeight, wx.wxEXPAND)
+			szr.Add( x, existingWeight, wx.EXPAND)
 			if i < len(extra) and  extra[i] <> None:
 				
 				(inputKey, widgetLabel, aclass) = extra[i]
@@ -1094,7 +1094,7 @@ class gmEditArea(cEditArea):
 				if not aclass.__name__ in CONTROLS_WITHOUT_LABELS:
 					w.SetForegroundColour(richards_blue)
 				
-				szr.Add(w, extraWeight , wx.wxEXPAND)
+				szr.Add(w, extraWeight , wx.EXPAND)
 
 				# make sure the widget is locatable via input_fields
 				self.input_fields[inputKey] = w
@@ -1166,23 +1166,23 @@ class gmFamilyHxEditArea(gmEditArea):
 		self.input_fields['DOB'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		lbl_dob = self._make_prompt(parent, _(" Date of Birth "), richards_blue)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.input_fields['name'], 4, wx.wxEXPAND)
-		szr.Add(lbl_dob, 2, wx.wxEXPAND)
-		szr.Add(self.input_fields['DOB'], 4, wx.wxEXPAND)
+		szr.Add(self.input_fields['name'], 4, wx.EXPAND)
+		szr.Add(lbl_dob, 2, wx.EXPAND)
+		szr.Add(self.input_fields['DOB'], 4, wx.EXPAND)
 		lines.append(szr)
 		# line 2
 		# FIXME: keep relationship attachments permamently ! (may need to make new patient ...)
 		# FIXME: learning phrasewheel attached to list loaded from backend
 		self.input_fields['relationship'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.input_fields['relationship'], 4, wx.wxEXPAND)
+		szr.Add(self.input_fields['relationship'], 4, wx.EXPAND)
 		lines.append(szr)
 		# line 3
 		self.input_fields['condition'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		self.cb_condition_confidential = wx.wxCheckBox(parent, -1, _("confidental"), wxDefaultPosition, wxDefaultSize, wx.wxNO_BORDER)
+		self.cb_condition_confidential = wx.CheckBox(parent, -1, _("confidental"), wxDefaultPosition, wxDefaultSize, wx.NO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.input_fields['condition'], 6, wx.wxEXPAND)
-		szr.Add(self.cb_condition_confidential, 0, wx.wxEXPAND)
+		szr.Add(self.input_fields['condition'], 6, wx.EXPAND)
+		szr.Add(self.cb_condition_confidential, 0, wx.EXPAND)
 		lines.append(szr)
 		# line 4
 		self.input_fields['comment'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
@@ -1196,12 +1196,12 @@ class gmFamilyHxEditArea(gmEditArea):
 		lbl_aod = self._make_prompt(parent, _(" age died "), richards_blue)
 		self.input_fields['AOD'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(lbl_onset, 0, wx.wxEXPAND)
-		szr.Add(self.input_fields['age onset'], 1,wx.wxEXPAND)
-		szr.Add(lbl_caused_death, 0, wx.wxEXPAND)
-		szr.Add(self.input_fields['caused death'], 2,wx.wxEXPAND)
-		szr.Add(lbl_aod, 0, wx.wxEXPAND)
-		szr.Add(self.input_fields['AOD'], 1, wx.wxEXPAND)
+		szr.Add(lbl_onset, 0, wx.EXPAND)
+		szr.Add(self.input_fields['age onset'], 1,wx.EXPAND)
+		szr.Add(lbl_caused_death, 0, wx.EXPAND)
+		szr.Add(self.input_fields['caused death'], 2,wx.EXPAND)
+		szr.Add(lbl_aod, 0, wx.EXPAND)
+		szr.Add(self.input_fields['AOD'], 1, wx.EXPAND)
 		szr.Add(2, 2, 8)
 		lines.append(szr)
 		# line 6
@@ -1211,9 +1211,9 @@ class gmFamilyHxEditArea(gmEditArea):
 		self.Btn_next_condition = wxButton(parent, -1, _("Next Condition"))
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.AddSpacer(10, 0, 0)
-		szr.Add(self.Btn_next_condition, 0, wx.wxEXPAND | wxALL, 1)
+		szr.Add(self.Btn_next_condition, 0, wx.EXPAND | wxALL, 1)
 		szr.Add(2, 1, 5)
-		szr.Add(self._make_standard_buttons(parent), 0, wx.wxEXPAND)
+		szr.Add(self._make_standard_buttons(parent), 0, wx.EXPAND)
 		lines.append(szr)
 
 		return lines
@@ -1309,17 +1309,17 @@ class gmPastHistoryEditArea(gmEditArea):
 			weight = 6
 		)
 		# line 5
-		self.fld_significant= wx.wxCheckBox(
+		self.fld_significant= wx.CheckBox(
 			parent,
 			-1,
 			_("significant"),
-			style = wx.wxNO_BORDER
+			style = wx.NO_BORDER
 		)
-		self.fld_active= wx.wxCheckBox(
+		self.fld_active= wx.CheckBox(
 			parent,
 			-1,
 			_("active"),
-			style = wx.wxNO_BORDER
+			style = wx.NO_BORDER
 		)
 
 		self._add_field(
@@ -1466,7 +1466,7 @@ class gmReferralEditArea(gmEditArea):
 			widget = self.fld_name,
 			weight = 1
 			)
-		self.fld_address = wx.wxComboBox (parent, -1, style = wx.wxCB_READONLY)
+		self.fld_address = wx.ComboBox (parent, -1, style = wx.CB_READONLY)
 		#_decorate_editarea_field (self.fld_address)
 		self._add_field (
 			line = 3,
@@ -1477,21 +1477,21 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_specialty.setDependent (self.fld_name, "occupation")
 		self.fld_name.add_callback_on_selection(self.setAddresses)
 		# flags line
-		self.fld_med = wx.wxCheckBox (parent, -1, _("Meds"), style=wx.wxNO_BORDER)
+		self.fld_med = wx.CheckBox (parent, -1, _("Meds"), style=wx.NO_BORDER)
 		self._add_field (
 			line = 4,
 			pos = 1,
 			widget = self.fld_med,
 			weight = 1
 			)
-		self.fld_past = wx.wxCheckBox (parent, -1, _("Past Hx"), style=wx.wxNO_BORDER)
+		self.fld_past = wx.CheckBox (parent, -1, _("Past Hx"), style=wx.NO_BORDER)
 		self._add_field (
 			line = 4,
 			pos = 4,
 			widget = self.fld_past,
 			weight = 1
 			)
-		self.fld_text = wx.wxTextCtrl (parent, -1, style= wx.wxTE_MULTILINE)
+		self.fld_text = wx.TextCtrl (parent, -1, style= wx.TE_MULTILINE)
 		self._add_field (
 			line = 5,
 			pos = 1,
@@ -1705,8 +1705,8 @@ class gmRecallEditArea(gmEditArea):
 		self.txt_tosee = cEditAreaField(parent)
 		self.txt_for = cEditAreaField(parent)
 		self.txt_date = cEditAreaField(parent)
-		self.txt_contactBy = wx.wxComboBox(parent, -1)
-		self.txt_testType= wx.wxComboBox(parent , -1)
+		self.txt_contactBy = wx.ComboBox(parent, -1)
+		self.txt_testType= wx.ComboBox(parent , -1)
 		self.txt_includeList = cEditAreaField(parent)
 		self.txt_instructions = cEditAreaField(parent)
 		self.txt_progress = cEditAreaField(parent)
@@ -1806,9 +1806,9 @@ class gmRequestEditArea(gmEditArea):
 		lines.append(progress)
 		#lines.append(billings)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(billings, 2, wx.wxEXPAND)
+		szr.Add(billings, 2, wx.EXPAND)
 		
-		szr.Add(self._make_standard_buttons(parent), 1, wx.wxEXPAND)
+		szr.Add(self._make_standard_buttons(parent), 1, wx.EXPAND)
 		lines.append(szr)
 		#lines.append(self._make_standard_buttons(parent))
 		self.input_fields = {
@@ -1839,7 +1839,7 @@ class gmRequestEditArea(gmEditArea):
 class cPrompt_edit_area(wxStaticText):
 	def __init__(self, parent, id, prompt, aColor = richards_blue):
 		wxStaticText.__init__(self, parent, id, prompt, wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT)
-		self.SetFont(wxFont(10, wxSWISS, wx.wxNORMAL, wxBOLD, False, ''))
+		self.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wxBOLD, False, ''))
 		self.SetForegroundColour(aColor)
 #====================================================================
 # create the editorprompts class which expects a dictionary of labels
@@ -1854,7 +1854,7 @@ class gmPnlEditAreaPrompts(wxPanel):
 		color = richards_aqua
 		for prompt_key in prompt_labels.keys():
 			label = cPrompt_edit_area(self, -1, " %s" % prompt_labels[prompt_key], aColor = color)
-			gszr.Add(label, 0, wx.wxEXPAND | wxALIGN_RIGHT)
+			gszr.Add(label, 0, wx.EXPAND | wxALIGN_RIGHT)
 			color = richards_blue
 		self.SetSizer(gszr)
 		gszr.Fit(self)
@@ -1868,8 +1868,8 @@ class gmPnlEditAreaPrompts(wxPanel):
 #----------------------------------------------------------
 class EditTextBoxes(wxPanel):
 	def __init__(self, parent, id, editareaprompts, section):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxRAISED_BORDER | wx.wxTAB_TRAVERSAL)
-		self.SetBackgroundColour(wx.wxColor(222,222,222))
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxRAISED_BORDER | wx.TAB_TRAVERSAL)
+		self.SetBackgroundColour(wx.Color(222,222,222))
 		self.parent = parent
 		# rows, cols, hgap, vgap
 		self.gszr = wxGridSizer(len(editareaprompts), 1, 2, 2)
@@ -1891,15 +1891,15 @@ class EditTextBoxes(wxPanel):
 			self.rb_sideright = wxRadioButton(self, PHX_RIGHT, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
 			self.rb_sideboth = wxRadioButton(self, PHX_BOTH, _("Both"), wxDefaultPosition,wxDefaultSize)
 			rbsizer = wxBoxSizer(wxHORIZONTAL)
-			rbsizer.Add(self.rb_sideleft,1,wx.wxEXPAND)
-			rbsizer.Add(self.rb_sideright,1,wx.wxEXPAND) 
-			rbsizer.Add(self.rb_sideboth,1,wx.wxEXPAND)
+			rbsizer.Add(self.rb_sideleft,1,wx.EXPAND)
+			rbsizer.Add(self.rb_sideright,1,wx.EXPAND) 
+			rbsizer.Add(self.rb_sideboth,1,wx.EXPAND)
 			szr1 = wxBoxSizer(wxHORIZONTAL)
-			szr1.Add(self.txt_condition, 4, wx.wxEXPAND)
-			szr1.Add(rbsizer, 3, wx.wxEXPAND)
-#			self.sizer_line1.Add(self.rb_sideleft,1,wx.wxEXPAND|wxALL,2)
-#			self.sizer_line1.Add(self.rb_sideright,1,wx.wxEXPAND|wxALL,2)
-#			self.sizer_line1.Add(self.rb_sideboth,1,wx.wxEXPAND|wxALL,2)
+			szr1.Add(self.txt_condition, 4, wx.EXPAND)
+			szr1.Add(rbsizer, 3, wx.EXPAND)
+#			self.sizer_line1.Add(self.rb_sideleft,1,wx.EXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideright,1,wx.EXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideboth,1,wx.EXPAND|wxALL,2)
 			# line 2
 			self.txt_notes1 = cEditAreaField(self,PHX_NOTES,wxDefaultPosition,wxDefaultSize)
 			# line 3
@@ -1907,38 +1907,38 @@ class EditTextBoxes(wxPanel):
 			# line 4
 			self.txt_agenoted = cEditAreaField(self, PHX_AGE, wxDefaultPosition, wxDefaultSize)
 			szr4 = wxBoxSizer(wxHORIZONTAL)
-			szr4.Add(self.txt_agenoted, 1, wx.wxEXPAND)
+			szr4.Add(self.txt_agenoted, 1, wx.EXPAND)
 			szr4.Add(5, 0, 5)
 			# line 5
 			self.txt_yearnoted  = cEditAreaField(self,PHX_YEAR,wxDefaultPosition,wxDefaultSize)
 			szr5 = wxBoxSizer(wxHORIZONTAL)
-			szr5.Add(self.txt_yearnoted, 1, wx.wxEXPAND)
+			szr5.Add(self.txt_yearnoted, 1, wx.EXPAND)
 			szr5.Add(5, 0, 5)
 			# line 6
-			self.parent.cb_active = wx.wxCheckBox(self, PHX_ACTIVE, _("Active"), wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-			self.parent.cb_operation = wx.wxCheckBox(self, PHX_OPERATION, _("Operation"), wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-			self.parent.cb_confidential = wx.wxCheckBox(self, PHX_CONFIDENTIAL , _("Confidential"), wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-			self.parent.cb_significant = wx.wxCheckBox(self, PHX_SIGNIFICANT, _("Significant"), wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
+			self.parent.cb_active = wx.CheckBox(self, PHX_ACTIVE, _("Active"), wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+			self.parent.cb_operation = wx.CheckBox(self, PHX_OPERATION, _("Operation"), wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+			self.parent.cb_confidential = wx.CheckBox(self, PHX_CONFIDENTIAL , _("Confidential"), wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+			self.parent.cb_significant = wx.CheckBox(self, PHX_SIGNIFICANT, _("Significant"), wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
 			szr6 = wxBoxSizer(wxHORIZONTAL)
-			szr6.Add(self.parent.cb_active, 1, wx.wxEXPAND)
-			szr6.Add(self.parent.cb_operation, 1, wx.wxEXPAND)
-			szr6.Add(self.parent.cb_confidential, 1, wx.wxEXPAND)
-			szr6.Add(self.parent.cb_significant, 1, wx.wxEXPAND)
+			szr6.Add(self.parent.cb_active, 1, wx.EXPAND)
+			szr6.Add(self.parent.cb_operation, 1, wx.EXPAND)
+			szr6.Add(self.parent.cb_confidential, 1, wx.EXPAND)
+			szr6.Add(self.parent.cb_significant, 1, wx.EXPAND)
 			# line 7
 			self.txt_progressnotes  = cEditAreaField(self,PHX_PROGRESSNOTES ,wxDefaultPosition,wxDefaultSize)
 			# line 8
 			szr8 = wxBoxSizer(wxHORIZONTAL)
 			szr8.Add(5, 0, 6)
-			szr8.Add(self._make_standard_buttons(), 0, wx.wxEXPAND)
+			szr8.Add(self._make_standard_buttons(), 0, wx.EXPAND)
 
-			self.gszr.Add(szr1,0,wx.wxEXPAND)
-			self.gszr.Add(self.txt_notes1,0,wx.wxEXPAND)
-			self.gszr.Add(self.txt_notes2,0,wx.wxEXPAND)
-			self.gszr.Add(szr4,0,wx.wxEXPAND)
-			self.gszr.Add(szr5,0,wx.wxEXPAND)
-			self.gszr.Add(szr6,0,wx.wxEXPAND)
-			self.gszr.Add(self.txt_progressnotes,0,wx.wxEXPAND)
-			self.gszr.Add(szr8,0,wx.wxEXPAND)
+			self.gszr.Add(szr1,0,wx.EXPAND)
+			self.gszr.Add(self.txt_notes1,0,wx.EXPAND)
+			self.gszr.Add(self.txt_notes2,0,wx.EXPAND)
+			self.gszr.Add(szr4,0,wx.EXPAND)
+			self.gszr.Add(szr5,0,wx.EXPAND)
+			self.gszr.Add(szr6,0,wx.EXPAND)
+			self.gszr.Add(self.txt_progressnotes,0,wx.EXPAND)
+			self.gszr.Add(szr8,0,wx.EXPAND)
 			#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
 
 		elif section == gmSECTION_SCRIPT:
@@ -1962,17 +1962,17 @@ class EditTextBoxes(wxPanel):
 		self.btn_OK = wxButton(self, -1, _("Ok"))
 		self.btn_Clear = wxButton(self, -1, _("Clear"))
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_OK, 1, wx.wxEXPAND, wxALL, 1)
+		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND, wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Clear, 1, wx.wxEXPAND, wxALL, 1)
+		szr_buttons.Add(self.btn_Clear, 1, wx.EXPAND, wxALL, 1)
 		return szr_buttons
 #====================================================================
 class EditArea(wxPanel):
 	def __init__(self, parent, id, line_labels, section):
 		_log.Log(gmLog.lWarn, '***** old style EditArea instantiated, please convert *****')
 
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, style = wx.wxNO_BORDER)
-		self.SetBackgroundColour(wx.wxColor(222,222,222))
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, style = wx.NO_BORDER)
+		self.SetBackgroundColour(wx.Color(222,222,222))
 
 		# make prompts
 		prompts = gmPnlEditAreaPrompts(self, -1, line_labels)
@@ -1981,12 +1981,12 @@ class EditArea(wxPanel):
 		# ... gray
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_below_prompts = wxBoxSizer (wxHORIZONTAL)
-		szr_shadow_below_prompts.Add(5,0,0,wx.wxEXPAND)
-		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wx.wxEXPAND)
+		szr_shadow_below_prompts.Add(5,0,0,wx.EXPAND)
+		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wx.EXPAND)
 		# stack prompts and shadow vertically
 		szr_prompts = wxBoxSizer(wxVERTICAL)
-		szr_prompts.Add(prompts, 97, wx.wxEXPAND)
-		szr_prompts.Add(szr_shadow_below_prompts, 5, wx.wxEXPAND)
+		szr_prompts.Add(prompts, 97, wx.EXPAND)
+		szr_prompts.Add(szr_shadow_below_prompts, 5, wx.EXPAND)
 
 		# make edit fields
 		edit_fields = EditTextBoxes(self, -1, line_labels, section)
@@ -1995,39 +1995,39 @@ class EditArea(wxPanel):
 		# ... gray
 		shadow_below_editarea.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_below_editarea = wxBoxSizer(wxHORIZONTAL)
-		szr_shadow_below_editarea.Add(5,0,0,wx.wxEXPAND)
-		szr_shadow_below_editarea.Add(shadow_below_editarea, 12, wx.wxEXPAND)
+		szr_shadow_below_editarea.Add(5,0,0,wx.EXPAND)
+		szr_shadow_below_editarea.Add(shadow_below_editarea, 12, wx.EXPAND)
 		# stack edit fields and shadow vertically
 		szr_editarea = wxBoxSizer(wxVERTICAL)
-		szr_editarea.Add(edit_fields, 92, wx.wxEXPAND)
-		szr_editarea.Add(szr_shadow_below_editarea, 5, wx.wxEXPAND)
+		szr_editarea.Add(edit_fields, 92, wx.EXPAND)
+		szr_editarea.Add(szr_shadow_below_editarea, 5, wx.EXPAND)
 
 		# make shadows to the right of ...
 		# ... the prompts ...
 		shadow_rightof_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
 		szr_shadow_rightof_prompts = wxBoxSizer(wxVERTICAL)
-		szr_shadow_rightof_prompts.Add(0,5,0,wx.wxEXPAND)
-		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts,1,wx.wxEXPAND)
+		szr_shadow_rightof_prompts.Add(0,5,0,wx.EXPAND)
+		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts,1,wx.EXPAND)
 		# ... and the edit area
 		shadow_rightof_editarea = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_rightof_editarea.SetBackgroundColour(richards_coloured_gray)
 		szr_shadow_rightof_editarea = wxBoxSizer(wxVERTICAL)
-		szr_shadow_rightof_editarea.Add(0, 5, 0, wx.wxEXPAND)
-		szr_shadow_rightof_editarea.Add(shadow_rightof_editarea, 1, wx.wxEXPAND)
+		szr_shadow_rightof_editarea.Add(0, 5, 0, wx.EXPAND)
+		szr_shadow_rightof_editarea.Add(shadow_rightof_editarea, 1, wx.EXPAND)
 
 		# stack prompts, shadows and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
-		self.szr_main_panels.Add(szr_prompts, 10, wx.wxEXPAND)
-		self.szr_main_panels.Add(szr_shadow_rightof_prompts, 1, wx.wxEXPAND)
-		self.szr_main_panels.Add(5, 0, 0, wx.wxEXPAND)
-		self.szr_main_panels.Add(szr_editarea, 89, wx.wxEXPAND)
-		self.szr_main_panels.Add(szr_shadow_rightof_editarea, 1, wx.wxEXPAND)
+		self.szr_main_panels.Add(szr_prompts, 10, wx.EXPAND)
+		self.szr_main_panels.Add(szr_shadow_rightof_prompts, 1, wx.EXPAND)
+		self.szr_main_panels.Add(5, 0, 0, wx.EXPAND)
+		self.szr_main_panels.Add(szr_editarea, 89, wx.EXPAND)
+		self.szr_main_panels.Add(szr_shadow_rightof_editarea, 1, wx.EXPAND)
 
 		# use sizer for border around everything plus a little gap
 		# FIXME: fold into szr_main_panels ?
 		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
-		self.szr_central_container.Add(self.szr_main_panels, 1, wx.wxEXPAND | wxALL, 5)
+		self.szr_central_container.Add(self.szr_main_panels, 1, wx.EXPAND | wxALL, 5)
 		self.SetSizer(self.szr_central_container)
 		self.szr_central_container.Fit(self)
 		self.SetAutoLayout(True)
@@ -2057,44 +2057,44 @@ class EditArea(wxPanel):
 #		      lbl_quantity = cPrompt_edit_area(self,-1,"  Quantity  ")
 #		      lbl_repeats = cPrompt_edit_area(self,-1,"  Repeats  ")
 #		      lbl_usualmed = cPrompt_edit_area(self,-1,"  Usual  ")
-#		      self.cb_veteran  = wx.wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.cb_reg24 = wx.wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.cb_usualmed = wx.wxCheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
+#		      self.cb_veteran  = wx.CheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.cb_reg24 = wx.CheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.cb_usualmed = wx.CheckBox(self, -1, " Yes ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
 #		      self.sizer_auth_PI = wxBoxSizer(wxHORIZONTAL)
 #		      self.btn_authority = wxButton(self,-1,">Authority")     #create authority script
 #		      self.btn_briefPI   = wxButton(self,-1,"Brief PI")       #show brief drug product information
-#		      self.sizer_auth_PI.Add(self.btn_authority,1,wx.wxEXPAND|wxALL,2)  #put authority button and PI button
-#		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wx.wxEXPAND|wxALL,2)    #on same sizer
+#		      self.sizer_auth_PI.Add(self.btn_authority,1,wx.EXPAND|wxALL,2)  #put authority button and PI button
+#		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wx.EXPAND|wxALL,2)    #on same sizer
 #		      self.text10_repeats  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.sizer_line3.Add(self.text3_generic_drug,5,wx.wxEXPAND)
-#		      self.sizer_line3.Add(lbl_veterans,1,wx.wxEXPAND)
- #       	      self.sizer_line3.Add(self.cb_veteran,1,wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.text4_brand_drug,5,wx.wxEXPAND)
-#		      self.sizer_line4.Add(lbl_reg24,1,wx.wxEXPAND)
- #       	      self.sizer_line4.Add(self.cb_reg24,1,wx.wxEXPAND)
-#		      self.sizer_line5.Add(self.text5_strength,5,wx.wxEXPAND)
-#		      self.sizer_line5.Add(lbl_quantity,1,wx.wxEXPAND)
- #       	      self.sizer_line5.Add(self.text9_quantity,1,wx.wxEXPAND)
-#		      self.sizer_line6.Add(self.text6_directions,5,wx.wxEXPAND)
-#		      self.sizer_line6.Add(lbl_repeats,1,wx.wxEXPAND)
- #       	      self.sizer_line6.Add(self.text10_repeats,1,wx.wxEXPAND)
-#		      self.sizer_line7.Add(self.text7_for_duration,5,wx.wxEXPAND)
-#		      self.sizer_line7.Add(lbl_usualmed,1,wx.wxEXPAND)
- #       	      self.sizer_line7.Add(self.cb_usualmed,1,wx.wxEXPAND)
+#		      self.sizer_line3.Add(self.text3_generic_drug,5,wx.EXPAND)
+#		      self.sizer_line3.Add(lbl_veterans,1,wx.EXPAND)
+ #       	      self.sizer_line3.Add(self.cb_veteran,1,wx.EXPAND)
+#		      self.sizer_line4.Add(self.text4_brand_drug,5,wx.EXPAND)
+#		      self.sizer_line4.Add(lbl_reg24,1,wx.EXPAND)
+ #       	      self.sizer_line4.Add(self.cb_reg24,1,wx.EXPAND)
+#		      self.sizer_line5.Add(self.text5_strength,5,wx.EXPAND)
+#		      self.sizer_line5.Add(lbl_quantity,1,wx.EXPAND)
+ #       	      self.sizer_line5.Add(self.text9_quantity,1,wx.EXPAND)
+#		      self.sizer_line6.Add(self.text6_directions,5,wx.EXPAND)
+#		      self.sizer_line6.Add(lbl_repeats,1,wx.EXPAND)
+ #       	      self.sizer_line6.Add(self.text10_repeats,1,wx.EXPAND)
+#		      self.sizer_line7.Add(self.text7_for_duration,5,wx.EXPAND)
+#		      self.sizer_line7.Add(lbl_usualmed,1,wx.EXPAND)
+ #       	      self.sizer_line7.Add(self.cb_usualmed,1,wx.EXPAND)
 #		      self.sizer_line8.Add(5,0,0)
-#		      self.sizer_line8.Add(self.sizer_auth_PI,2,wx.wxEXPAND)
+#		      self.sizer_line8.Add(self.sizer_auth_PI,2,wx.EXPAND)
 #		      self.sizer_line8.Add(5,0,2)
-#		      self.sizer_line8.Add(self.btn_OK,1,wx.wxEXPAND|wxALL,2)
-#		      self.sizer_line8.Add(self.btn_Clear,1,wx.wxEXPAND|wxALL,2)
-#		      self.gszr.Add(self.text1_prescription_reason,1,wx.wxEXPAND) #prescribe for
-#		      self.gszr.Add(self.text2_drug_class,1,wx.wxEXPAND) #prescribe by class
-#		      self.gszr.Add(self.sizer_line3,1,wx.wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
-#		      self.gszr.Add(self.sizer_line4,1,wx.wxEXPAND) #prescribe by brand, lbl_reg24, cb_reg24
-#		      self.gszr.Add(self.sizer_line5,1,wx.wxEXPAND) #drug strength, lbl_quantity, text_quantity 
-#		      self.gszr.Add(self.sizer_line6,1,wx.wxEXPAND) #txt_directions, lbl_repeats, text_repeats 
-#		      self.gszr.Add(self.sizer_line7,1,wx.wxEXPAND) #text_for,lbl_usual,chk_usual
-#		      self.gszr.Add(self.text8_prescription_progress_notes,1,wx.wxEXPAND)            #text_progressNotes
-#		      self.gszr.Add(self.sizer_line8,1,wx.wxEXPAND)
+#		      self.sizer_line8.Add(self.btn_OK,1,wx.EXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wx.EXPAND|wxALL,2)
+#		      self.gszr.Add(self.text1_prescription_reason,1,wx.EXPAND) #prescribe for
+#		      self.gszr.Add(self.text2_drug_class,1,wx.EXPAND) #prescribe by class
+#		      self.gszr.Add(self.sizer_line3,1,wx.EXPAND) #prescribe by generic, lbl_veterans, cb_veteran
+#		      self.gszr.Add(self.sizer_line4,1,wx.EXPAND) #prescribe by brand, lbl_reg24, cb_reg24
+#		      self.gszr.Add(self.sizer_line5,1,wx.EXPAND) #drug strength, lbl_quantity, text_quantity 
+#		      self.gszr.Add(self.sizer_line6,1,wx.EXPAND) #txt_directions, lbl_repeats, text_repeats 
+#		      self.gszr.Add(self.sizer_line7,1,wx.EXPAND) #text_for,lbl_usual,chk_usual
+#		      self.gszr.Add(self.text8_prescription_progress_notes,1,wx.EXPAND)            #text_progressNotes
+#		      self.gszr.Add(self.sizer_line8,1,wx.EXPAND)
 		      
 		      
 #	        elif section == gmSECTION_REQUESTS:
@@ -2113,7 +2113,7 @@ class EditArea(wxPanel):
 #		      self.txt_request_copyto = cEditAreaField(self,ID_REQUEST_COPYTO,wxDefaultPosition,wxDefaultSize)
 #		      self.txt_request_progressnotes = cEditAreaField(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
 #		      self.lbl_companyphone = cPrompt_edit_area(self,-1,"  Phone  ")
-#		      self.cb_includeallmedications = wx.wxCheckBox(self, -1, " Include all medications ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
+#		      self.cb_includeallmedications = wx.CheckBox(self, -1, " Include all medications ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
 #		      self.rb_request_bill_bb = wxRadioButton(self, ID_REQUEST_BILL_BB, "Bulk Bill ", wxDefaultPosition,wxDefaultSize)
 #	              self.rb_request_bill_private = wxRadioButton(self, ID_REQUEST_BILL_PRIVATE, "Private", wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
 #		      self.rb_request_bill_rebate = wxRadioButton(self, ID_REQUEST_BILL_REBATE, "Rebate", wxDefaultPosition,wxDefaultSize)
@@ -2122,41 +2122,41 @@ class EditArea(wxPanel):
                      #add controls to sizers where multiple controls per editor line
 		      #--------------------------------------------------------------
 #                      self.sizer_request_optionbuttons = wxBoxSizer(wxHORIZONTAL)
-#		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_bb,1,wx.wxEXPAND)
-#		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_private ,1,wx.wxEXPAND)
-#                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_rebate  ,1,wx.wxEXPAND)
-#                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_wcover  ,1,wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.txt_request_suburb,4,wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.lbl_companyphone,1,wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.txt_request_phone,2,wx.wxEXPAND)
-#		      self.sizer_line7.Add(self.txt_request_medications, 4,wx.wxEXPAND)
-#		      self.sizer_line7.Add(self.cb_includeallmedications,3,wx.wxEXPAND)
-#		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wx.wxEXPAND)
-#		      self.sizer_line10.AddSizer(self.szr_buttons,1,wx.wxEXPAND)
-		      #self.sizer_line10.Add(self.btn_OK,1,wx.wxEXPAND|wxALL,1)
-	              #self.sizer_line10.Add(self.btn_Clear,1,wx.wxEXPAND|wxALL,1)  
+#		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_bb,1,wx.EXPAND)
+#		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_private ,1,wx.EXPAND)
+#                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_rebate  ,1,wx.EXPAND)
+#                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_wcover  ,1,wx.EXPAND)
+#		      self.sizer_line4.Add(self.txt_request_suburb,4,wx.EXPAND)
+#		      self.sizer_line4.Add(self.lbl_companyphone,1,wx.EXPAND)
+#		      self.sizer_line4.Add(self.txt_request_phone,2,wx.EXPAND)
+#		      self.sizer_line7.Add(self.txt_request_medications, 4,wx.EXPAND)
+#		      self.sizer_line7.Add(self.cb_includeallmedications,3,wx.EXPAND)
+#		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wx.EXPAND)
+#		      self.sizer_line10.AddSizer(self.szr_buttons,1,wx.EXPAND)
+		      #self.sizer_line10.Add(self.btn_OK,1,wx.EXPAND|wxALL,1)
+	              #self.sizer_line10.Add(self.btn_Clear,1,wx.EXPAND|wxALL,1)  
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
 		      #------------------------------------------------------------------
-#                      self.gszr.Add(self.txt_request_type,0,wx.wxEXPAND)                   #e.g Pathology
-#		      self.gszr.Add(self.txt_request_company,0,wx.wxEXPAND)                #e.g Douglas Hanly Moir
-#		      self.gszr.Add(self.txt_request_street,0,wx.wxEXPAND)                 #e.g 120 Big Street  
-#		      self.gszr.AddSizer(self.sizer_line4,0,wx.wxEXPAND)                   #e.g RYDE NSW Phone 02 1800 222 365
-#		      self.gszr.Add(self.txt_request_requests,0,wx.wxEXPAND)               #e.g FBC;ESR;UEC;LFTS
-#		      self.gszr.Add(self.txt_request_notes,0,wx.wxEXPAND)                  #e.g generally tired;weight loss;
-#		      self.gszr.AddSizer(self.sizer_line7,0,wx.wxEXPAND)                   #e.g Lipitor;losec;zyprexa
-#		      self.gszr.Add(self.txt_request_copyto,0,wx.wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
-#		      self.gszr.Add(self.txt_request_progressnotes,0,wx.wxEXPAND)          #emphasised to patient must return for results 
+#                      self.gszr.Add(self.txt_request_type,0,wx.EXPAND)                   #e.g Pathology
+#		      self.gszr.Add(self.txt_request_company,0,wx.EXPAND)                #e.g Douglas Hanly Moir
+#		      self.gszr.Add(self.txt_request_street,0,wx.EXPAND)                 #e.g 120 Big Street  
+#		      self.gszr.AddSizer(self.sizer_line4,0,wx.EXPAND)                   #e.g RYDE NSW Phone 02 1800 222 365
+#		      self.gszr.Add(self.txt_request_requests,0,wx.EXPAND)               #e.g FBC;ESR;UEC;LFTS
+#		      self.gszr.Add(self.txt_request_notes,0,wx.EXPAND)                  #e.g generally tired;weight loss;
+#		      self.gszr.AddSizer(self.sizer_line7,0,wx.EXPAND)                   #e.g Lipitor;losec;zyprexa
+#		      self.gszr.Add(self.txt_request_copyto,0,wx.EXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
+#		      self.gszr.Add(self.txt_request_progressnotes,0,wx.EXPAND)          #emphasised to patient must return for results 
  #                     self.sizer_line8.Add(5,0,6)
-#		      self.sizer_line8.Add(self.btn_OK,1,wx.wxEXPAND|wxALL,2)
-#	              self.sizer_line8.Add(self.btn_Clear,1,wx.wxEXPAND|wxALL,2)   
-#		      self.gszr.Add(self.sizer_line10,0,wx.wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
+#		      self.sizer_line8.Add(self.btn_OK,1,wx.EXPAND|wxALL,2)
+#	              self.sizer_line8.Add(self.btn_Clear,1,wx.EXPAND|wxALL,2)   
+#		      self.gszr.Add(self.sizer_line10,0,wx.EXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
 
 		      
 #	        elif section == gmSECTION_MEASUREMENTS:
-#		      self.combo_measurement_type = wx.wxComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wx.wxCB_DROPDOWN)
-#		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wx.wxNORMAL, wxBOLD,False,''))
-#		      self.combo_measurement_type.SetForegroundColour(wx.wxColor(255,0,0))
+#		      self.combo_measurement_type = wx.ComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wx.CB_DROPDOWN)
+#		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wxBOLD,False,''))
+#		      self.combo_measurement_type.SetForegroundColour(wx.Color(255,0,0))
 #		      self.txt_measurement_value = cEditAreaField(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
 #		      self.txt_txt_measurement_date = cEditAreaField(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
 #		      self.txt_txt_measurement_comment = cEditAreaField(self,ID_MEASUREMENT_COMMENT,wxDefaultPosition,wxDefaultSize)
@@ -2164,19 +2164,19 @@ class EditArea(wxPanel):
 #		      self.sizer_graphnextbtn = wxBoxSizer(wxHORIZONTAL)
 #		      self.btn_nextvalue = wxButton(self,ID_MEASUREMENT_NEXTVALUE,"   Next Value   ")                 #clear fields except type
 #		      self.btn_graph   = wxButton(self,ID_MEASUREMENT_GRAPH," Graph ")                        #graph all values of this type
-#		      self.sizer_graphnextbtn.Add(self.btn_nextvalue,1,wx.wxEXPAND|wxALL,2)  #put next and graph button
-#		      self.sizer_graphnextbtn.Add(self.btn_graph,1,wx.wxEXPAND|wxALL,2)      #on same sizer	
-#		      self.gszr.Add(self.combo_measurement_type,0,wx.wxEXPAND)              #e.g Blood pressure
-#		      self.gszr.Add(self.txt_measurement_value,0,wx.wxEXPAND)               #e.g 120.70
-#		      self.gszr.Add(self.txt_txt_measurement_date,0,wx.wxEXPAND)            #e.g 10/12/2001
-#		      self.gszr.Add(self.txt_txt_measurement_comment,0,wx.wxEXPAND)         #e.g sitting, right arm
-#		      self.gszr.Add(self.txt_txt_measurement_progressnote,0,wx.wxEXPAND)    #e.g given home BP montitor, see 1 week
+#		      self.sizer_graphnextbtn.Add(self.btn_nextvalue,1,wx.EXPAND|wxALL,2)  #put next and graph button
+#		      self.sizer_graphnextbtn.Add(self.btn_graph,1,wx.EXPAND|wxALL,2)      #on same sizer	
+#		      self.gszr.Add(self.combo_measurement_type,0,wx.EXPAND)              #e.g Blood pressure
+#		      self.gszr.Add(self.txt_measurement_value,0,wx.EXPAND)               #e.g 120.70
+#		      self.gszr.Add(self.txt_txt_measurement_date,0,wx.EXPAND)            #e.g 10/12/2001
+#		      self.gszr.Add(self.txt_txt_measurement_comment,0,wx.EXPAND)         #e.g sitting, right arm
+#		      self.gszr.Add(self.txt_txt_measurement_progressnote,0,wx.EXPAND)    #e.g given home BP montitor, see 1 week
 #		      self.sizer_line8.Add(5,0,0)
-#		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wx.wxEXPAND)
+#		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wx.EXPAND)
 #		      self.sizer_line8.Add(5,0,2)
-#		      self.sizer_line8.Add(self.btn_OK,1,wx.wxEXPAND|wxALL,2)
-#		      self.sizer_line8.Add(self.btn_Clear,1,wx.wxEXPAND|wxALL,2)
-#		      self.gszr.AddSizer(self.sizer_line8,0,wx.wxEXPAND)
+#		      self.sizer_line8.Add(self.btn_OK,1,wx.EXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Clear,1,wx.EXPAND|wxALL,2)
+#		      self.gszr.AddSizer(self.sizer_line8,0,wx.EXPAND)
 		      
 
 #	        elif section == gmSECTION_REFERRALS:
@@ -2207,79 +2207,79 @@ class EditArea(wxPanel):
 #		      self.lbl_referralwfax = cPrompt_edit_area(self,-1,"  W Fax  ")
 #		      self.lbl_referralwemail = cPrompt_edit_area(self,-1,"  W Email  ")
 #		      self.lbl_referralpostcode = cPrompt_edit_area(self,-1,"  Postcode  ")
-#		      self.chkbox_referral_usefirstname = wx.wxCheckBox(self, -1, " Use Firstname ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_headoffice = wx.wxCheckBox(self, -1, " Head Office ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_medications = wx.wxCheckBox(self, -1, " Medications ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_socialhistory = wx.wxCheckBox(self, -1, " Social History ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_familyhistory = wx.wxCheckBox(self, -1, " Family History ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_pastproblems = wx.wxCheckBox(self, -1, " Past Problems ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_activeproblems = wx.wxCheckBox(self, -1, " Active Problems ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-#		      self.chkbox_referral_habits = wx.wxCheckBox(self, -1, " Habits ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
-		      #self.chkbox_referral_Includeall = wx.wxCheckBox(self, -1, " Include all of the above ", wxDefaultPosition,wxDefaultSize, wx.wxNO_BORDER)
+#		      self.chkbox_referral_usefirstname = wx.CheckBox(self, -1, " Use Firstname ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_headoffice = wx.CheckBox(self, -1, " Head Office ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_medications = wx.CheckBox(self, -1, " Medications ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_socialhistory = wx.CheckBox(self, -1, " Social History ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_familyhistory = wx.CheckBox(self, -1, " Family History ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_pastproblems = wx.CheckBox(self, -1, " Past Problems ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_activeproblems = wx.CheckBox(self, -1, " Active Problems ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+#		      self.chkbox_referral_habits = wx.CheckBox(self, -1, " Habits ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
+		      #self.chkbox_referral_Includeall = wx.CheckBox(self, -1, " Include all of the above ", wxDefaultPosition,wxDefaultSize, wx.NO_BORDER)
 		      #--------------------------------------------------------------
                       #add controls to sizers where multiple controls per editor line
 		      #--------------------------------------------------------------
-#		      self.sizer_line2.Add(self.txt_referralname,2,wx.wxEXPAND) 
-#		      self.sizer_line2.Add(self.chkbox_referral_usefirstname,2,wx.wxEXPAND)
-#		      self.sizer_line3.Add(self.txt_referralorganisation,2,wx.wxEXPAND)
-#		      self.sizer_line3.Add(self.chkbox_referral_headoffice,2, wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.txt_referralstreet1,2,wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.lbl_referralwphone,1,wx.wxEXPAND)
-#		      self.sizer_line4.Add(self.txt_referralwphone,1,wx.wxEXPAND)
-#		      self.sizer_line5.Add(self.txt_referralstreet2,2,wx.wxEXPAND)
-#		      self.sizer_line5.Add(self.lbl_referralwfax,1,wx.wxEXPAND)
-#		      self.sizer_line5.Add(self.txt_referralwfax,1,wx.wxEXPAND)
-#		      self.sizer_line6.Add(self.txt_referralstreet3,2,wx.wxEXPAND)
-#		      self.sizer_line6.Add(self.lbl_referralwemail,1,wx.wxEXPAND)
-#		      self.sizer_line6.Add(self.txt_referralwemail,1,wx.wxEXPAND)
-#		      self.sizer_line7.Add(self.txt_referralsuburb,2,wx.wxEXPAND)
-#		      self.sizer_line7.Add(self.lbl_referralpostcode,1,wx.wxEXPAND)
-#		      self.sizer_line7.Add(self.txt_referralpostcode,1,wx.wxEXPAND)
-#		      self.sizer_line10.Add(self.chkbox_referral_medications,1,wx.wxEXPAND)
-#	              self.sizer_line10.Add(self.chkbox_referral_socialhistory,1,wx.wxEXPAND)
-#		      self.sizer_line10.Add(self.chkbox_referral_familyhistory,1,wx.wxEXPAND)
-#		      self.sizer_line11.Add(self.chkbox_referral_pastproblems  ,1,wx.wxEXPAND)
-#		      self.sizer_line11.Add(self.chkbox_referral_activeproblems  ,1,wx.wxEXPAND)
-#		      self.sizer_line11.Add(self.chkbox_referral_habits  ,1,wx.wxEXPAND)
-#		      self.sizer_btnpreviewok.Add(self.btnpreview,0,wx.wxEXPAND)
-#		      self.szr_buttons.Add(self.btn_Clear,0, wx.wxEXPAND)		      
+#		      self.sizer_line2.Add(self.txt_referralname,2,wx.EXPAND) 
+#		      self.sizer_line2.Add(self.chkbox_referral_usefirstname,2,wx.EXPAND)
+#		      self.sizer_line3.Add(self.txt_referralorganisation,2,wx.EXPAND)
+#		      self.sizer_line3.Add(self.chkbox_referral_headoffice,2, wx.EXPAND)
+#		      self.sizer_line4.Add(self.txt_referralstreet1,2,wx.EXPAND)
+#		      self.sizer_line4.Add(self.lbl_referralwphone,1,wx.EXPAND)
+#		      self.sizer_line4.Add(self.txt_referralwphone,1,wx.EXPAND)
+#		      self.sizer_line5.Add(self.txt_referralstreet2,2,wx.EXPAND)
+#		      self.sizer_line5.Add(self.lbl_referralwfax,1,wx.EXPAND)
+#		      self.sizer_line5.Add(self.txt_referralwfax,1,wx.EXPAND)
+#		      self.sizer_line6.Add(self.txt_referralstreet3,2,wx.EXPAND)
+#		      self.sizer_line6.Add(self.lbl_referralwemail,1,wx.EXPAND)
+#		      self.sizer_line6.Add(self.txt_referralwemail,1,wx.EXPAND)
+#		      self.sizer_line7.Add(self.txt_referralsuburb,2,wx.EXPAND)
+#		      self.sizer_line7.Add(self.lbl_referralpostcode,1,wx.EXPAND)
+#		      self.sizer_line7.Add(self.txt_referralpostcode,1,wx.EXPAND)
+#		      self.sizer_line10.Add(self.chkbox_referral_medications,1,wx.EXPAND)
+#	              self.sizer_line10.Add(self.chkbox_referral_socialhistory,1,wx.EXPAND)
+#		      self.sizer_line10.Add(self.chkbox_referral_familyhistory,1,wx.EXPAND)
+#		      self.sizer_line11.Add(self.chkbox_referral_pastproblems  ,1,wx.EXPAND)
+#		      self.sizer_line11.Add(self.chkbox_referral_activeproblems  ,1,wx.EXPAND)
+#		      self.sizer_line11.Add(self.chkbox_referral_habits  ,1,wx.EXPAND)
+#		      self.sizer_btnpreviewok.Add(self.btnpreview,0,wx.EXPAND)
+#		      self.szr_buttons.Add(self.btn_Clear,0, wx.EXPAND)		      
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
 		      #------------------------------------------------------------------
- #                     self.gszr.Add(self.txt_referralcategory,0,wx.wxEXPAND)               #e.g Othopaedic surgeon
-#		      self.gszr.Add(self.sizer_line2,0,wx.wxEXPAND)                        #e.g Dr B Breaker
-#		      self.gszr.Add(self.sizer_line3,0,wx.wxEXPAND)                        #e.g General Orthopaedic servies
-#		      self.gszr.Add(self.sizer_line4,0,wx.wxEXPAND)                        #e.g street1
-#		      self.gszr.Add(self.sizer_line5,0,wx.wxEXPAND)                        #e.g street2
-#		      self.gszr.Add(self.sizer_line6,0,wx.wxEXPAND)                        #e.g street3
-#		      self.gszr.Add(self.sizer_line7,0,wx.wxEXPAND)                        #e.g suburb and postcode
-#		      self.gszr.Add(self.txt_referralfor,0,wx.wxEXPAND)                    #e.g Referral for an opinion
-#		      self.gszr.Add(self.txt_referralcopyto,0,wx.wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
-#		      self.gszr.Add(self.txt_referralprogressnotes,0,wx.wxEXPAND)          #emphasised to patient must return for results 
-#		      self.gszr.AddSizer(self.sizer_line10,0,wx.wxEXPAND)                   #e.g check boxes to include medications etc
-#		      self.gszr.Add(self.sizer_line11,0,wx.wxEXPAND)                       #e.g check boxes to include active problems etc
+ #                     self.gszr.Add(self.txt_referralcategory,0,wx.EXPAND)               #e.g Othopaedic surgeon
+#		      self.gszr.Add(self.sizer_line2,0,wx.EXPAND)                        #e.g Dr B Breaker
+#		      self.gszr.Add(self.sizer_line3,0,wx.EXPAND)                        #e.g General Orthopaedic servies
+#		      self.gszr.Add(self.sizer_line4,0,wx.EXPAND)                        #e.g street1
+#		      self.gszr.Add(self.sizer_line5,0,wx.EXPAND)                        #e.g street2
+#		      self.gszr.Add(self.sizer_line6,0,wx.EXPAND)                        #e.g street3
+#		      self.gszr.Add(self.sizer_line7,0,wx.EXPAND)                        #e.g suburb and postcode
+#		      self.gszr.Add(self.txt_referralfor,0,wx.EXPAND)                    #e.g Referral for an opinion
+#		      self.gszr.Add(self.txt_referralcopyto,0,wx.EXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
+#		      self.gszr.Add(self.txt_referralprogressnotes,0,wx.EXPAND)          #emphasised to patient must return for results 
+#		      self.gszr.AddSizer(self.sizer_line10,0,wx.EXPAND)                   #e.g check boxes to include medications etc
+#		      self.gszr.Add(self.sizer_line11,0,wx.EXPAND)                       #e.g check boxes to include active problems etc
 		      #self.spacer = wxWindow(self,-1,wxDefaultPosition,wxDefaultSize)
-		      #self.spacer.SetBackgroundColour(wx.wxColor(255,255,255))
+		      #self.spacer.SetBackgroundColour(wx.Color(255,255,255))
 #		      self.sizer_line12.Add(5,0,6)
-		      #self.sizer_line12.Add(self.spacer,6,wx.wxEXPAND)
-#		      self.sizer_line12.Add(self.btnpreview,1,wx.wxEXPAND|wxALL,2)
-#	              self.sizer_line12.Add(self.btn_Clear,1,wx.wxEXPAND|wxALL,2)    
-#	              self.gszr.Add(self.sizer_line12,0,wx.wxEXPAND)                       #btnpreview and btn clear
+		      #self.sizer_line12.Add(self.spacer,6,wx.EXPAND)
+#		      self.sizer_line12.Add(self.btnpreview,1,wx.EXPAND|wxALL,2)
+#	              self.sizer_line12.Add(self.btn_Clear,1,wx.EXPAND|wxALL,2)    
+#	              self.gszr.Add(self.sizer_line12,0,wx.EXPAND)                       #btnpreview and btn clear
 		      
 
 #		elif section == gmSECTION_RECALLS:
 		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
-#		      self.combo_tosee = wx.wxComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wx.wxCB_READONLY ) #wx.wxCB_DROPDOWN)
-#		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wx.wxNORMAL, wxBOLD,False,''))
-#		      self.combo_tosee.SetForegroundColour(wx.wxColor(255,0,0))
+#		      self.combo_tosee = wx.ComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wx.CB_READONLY ) #wx.CB_DROPDOWN)
+#		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wxBOLD,False,''))
+#		      self.combo_tosee.SetForegroundColour(wx.Color(255,0,0))
 		      #FIXME defaults need to be loaded from database
-#		      self.combo_recall_method = wx.wxComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wxDefaultPosition,wxDefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wx.wxCB_READONLY )
-#		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wx.wxNORMAL, wxBOLD,False,''))
-#		      self.combo_recall_method.SetForegroundColour(wx.wxColor(255,0,0))
+#		      self.combo_recall_method = wx.ComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wxDefaultPosition,wxDefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wx.CB_READONLY )
+#		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wxBOLD,False,''))
+#		      self.combo_recall_method.SetForegroundColour(wx.Color(255,0,0))
 		      #FIXME defaults need to be loaded from database
- #                     self.combo_apptlength = wx.wxComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wx.wxCB_READONLY )
-#		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wx.wxNORMAL, wxBOLD,False,''))
-#		      self.combo_apptlength.SetForegroundColour(wx.wxColor(255,0,0))
+ #                     self.combo_apptlength = wx.ComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wx.CB_READONLY )
+#		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wxBOLD,False,''))
+#		      self.combo_apptlength.SetForegroundColour(wx.Color(255,0,0))
 #		      self.txt_recall_for = cEditAreaField(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
 #		      self.txt_recall_due = cEditAreaField(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)
 #		      self.txt_recall_addtext = cEditAreaField(self,ID_RECALLS_TXT_ADDTEXT,wxDefaultPosition,wxDefaultSize)
@@ -2287,21 +2287,21 @@ class EditArea(wxPanel):
 #		      self.txt_recall_progressnotes = cEditAreaField(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
 #		      self.lbl_recall_consultlength = cPrompt_edit_area(self,-1,"  Appointment length  ")
 		      #sizer_lkine1 has the method of recall and the appointment length
-#		      self.sizer_line1.Add(self.combo_recall_method,1,wx.wxEXPAND)
-#		      self.sizer_line1.Add(self.lbl_recall_consultlength,1,wx.wxEXPAND)
-#		      self.sizer_line1.Add(self.combo_apptlength,1,wx.wxEXPAND)
+#		      self.sizer_line1.Add(self.combo_recall_method,1,wx.EXPAND)
+#		      self.sizer_line1.Add(self.lbl_recall_consultlength,1,wx.EXPAND)
+#		      self.sizer_line1.Add(self.combo_apptlength,1,wx.EXPAND)
 		      #Now add the controls to the grid sizer
- #                     self.gszr.Add(self.combo_tosee,1,wx.wxEXPAND)                       #list of personel for patient to see
-#		      self.gszr.Add(self.txt_recall_for,1,wx.wxEXPAND)                    #the actual recall may be free text or word wheel  
-#		      self.gszr.Add(self.txt_recall_due,1,wx.wxEXPAND)                    #date of future recall 
-#		      self.gszr.Add(self.txt_recall_addtext,1,wx.wxEXPAND)                #added explanation e.g 'come fasting' 
-#		      self.gszr.Add(self.txt_recall_include,1,wx.wxEXPAND)                #any forms to be sent out first eg FBC
-#		      self.gszr.AddSizer(self.sizer_line1,1,wx.wxEXPAND)                        #the contact method, appointment length
-#		      self.gszr.Add(self.txt_recall_progressnotes,1,wx.wxEXPAND)          #add any progress notes for consultation
+ #                     self.gszr.Add(self.combo_tosee,1,wx.EXPAND)                       #list of personel for patient to see
+#		      self.gszr.Add(self.txt_recall_for,1,wx.EXPAND)                    #the actual recall may be free text or word wheel  
+#		      self.gszr.Add(self.txt_recall_due,1,wx.EXPAND)                    #date of future recall 
+#		      self.gszr.Add(self.txt_recall_addtext,1,wx.EXPAND)                #added explanation e.g 'come fasting' 
+#		      self.gszr.Add(self.txt_recall_include,1,wx.EXPAND)                #any forms to be sent out first eg FBC
+#		      self.gszr.AddSizer(self.sizer_line1,1,wx.EXPAND)                        #the contact method, appointment length
+#		      self.gszr.Add(self.txt_recall_progressnotes,1,wx.EXPAND)          #add any progress notes for consultation
 #		      self.sizer_line8.Add(5,0,6)
-#		      self.sizer_line8.Add(self.btn_OK,1,wx.wxEXPAND|wxALL,2)
-#	              self.sizer_line8.Add(self.btn_Clear,1,wx.wxEXPAND|wxALL,2)    
-#		      self.gszr.Add(self.sizer_line8,1,wx.wxEXPAND)
+#		      self.sizer_line8.Add(self.btn_OK,1,wx.EXPAND|wxALL,2)
+#	              self.sizer_line8.Add(self.btn_Clear,1,wx.EXPAND|wxALL,2)    
+#		      self.gszr.Add(self.sizer_line8,1,wx.EXPAND)
 #		else:
 #		      pass
 
@@ -2345,7 +2345,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.96  2005-09-26 18:01:50  ncq
+# Revision 1.97  2005-09-27 20:44:58  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.96  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

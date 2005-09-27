@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -67,11 +67,11 @@ class cMacroPrimitives:
 			return 1
 		self.__user_done = False
 		# FIXME: use self.__sync_cookie for syncing with user interaction
-		wx.wxCallAfter(self._force_detach)
+		wx.CallAfter(self._force_detach)
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.16 $" % self.__class__.__name__
+		return "%s $Revision: 1.17 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -99,7 +99,7 @@ class cMacroPrimitives:
 			_log.Log(gmLog.lErr, 'non-authenticated raise_notebook_plugin()')
 			return 0
 		# FIXME: use semaphore
-		wx.wxCallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
+		wx.CallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
 		return 1
 	#-----------------------------------------------------------------
 	def lock_into_patient(self, auth_cookie = None, search_params = None):
@@ -216,7 +216,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.16  2005-01-31 10:37:26  ncq
+# Revision 1.17  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.16  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.15  2004/09/13 09:38:29  ncq

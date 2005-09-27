@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.21 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmRegetMixin.py,v 1.22 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -59,7 +59,7 @@ class cRegetOnPaintMixin:
 	#-----------------------------------------------------
 	def _on_paint_event(self, event):
 		"""Repopulate UI if data is stale."""
-#		dc = wx.wxPaintDC(self)
+#		dc = wx.PaintDC(self)
 		if self._data_stale:
 			self.__populate_with_data()
 		event.Skip()		# FIXME: needed ?
@@ -93,9 +93,9 @@ class cRegetOnPaintMixin:
 
 		# Master Robin Dunn says this is The Way(tm) but
 		# neither this:
-#		wx.wxGetApp().GetTopWindow().Refresh()
+#		wx.GetApp().GetTopWindow().Refresh()
 		# nor this:
-		#top_parent = wx.wxGetTopLevelParent(self)
+		#top_parent = wx.GetTopLevelParent(self)
 		#top_parent.Refresh()
 		# appear to work as expected :-(
 		# The issues I have with them are:
@@ -128,7 +128,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.21  2005-09-26 18:01:51  ncq
+# Revision 1.22  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.21  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

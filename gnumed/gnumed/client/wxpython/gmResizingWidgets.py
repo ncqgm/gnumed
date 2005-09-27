@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.35 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmResizingWidgets.py,v 1.36 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -29,9 +29,9 @@ STYLE_TEXT=2
 STYLE_EMBED=4
 
 #====================================================================
-class cPickList(wx.wxListBox):
+class cPickList(wx.ListBox):
 	def __init__ (self, parent, pos, size, callback):
-		wx.wxListBox.__init__(self, parent, -1, pos, size, style=wx.wxLB_SINGLE | wx.wxLB_NEEDED_SB)
+		wx.ListBox.__init__(self, parent, -1, pos, size, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
 		self.callback = callback
 		self.alive = 1 # 0=dead, 1=alive, 2=must die
 		wx.EVT_LISTBOX (self, self.GetId(), self.OnList)
@@ -78,21 +78,21 @@ class cPickList(wx.wxListBox):
 				self.callback (text, data)
 			self.alive = 2
 		else:
-			wx.wxCallAfter (self.Destroy) # in theory we shouldn't have to do this,
+			wx.CallAfter (self.Destroy) # in theory we shouldn't have to do this,
 									   # but when we don't, wx segfaults.
 	#------------------------------------------------
 	def Destroy (self):
 		self.alive = 0
-		wx.wxListBox.Destroy (self)
+		wx.ListBox.Destroy (self)
 #====================================================================
 # according to Ian there isn't really a particular reason
 # why we do not use wxMiniFrame instead of wxFrame or even a wxWindow
-class cPopupFrame(wx.wxFrame):
+class cPopupFrame(wx.Frame):
 #	def __init__ (self, embed_header, widget_class, originator=None, pos=wxDefaultPosition):
 #		wxFrame.__init__(self, None, wxNewId(), widget_class.__name__, pos=pos, style=wxSIMPLE_BORDER)
 #		self.win = widget_class(self, -1, pos = pos, size = wxSize(300, 150), complete = self.OnOK)
-	def __init__ (self, embed_header, widget, originator=None, pos=wx.wxDefaultPosition):
-		wx.wxFrame.__init__(self, None, wx.wxNewId(), widget.__class__.__name__, pos=pos, style=wx.wxSIMPLE_BORDER)
+	def __init__ (self, embed_header, widget, originator=None, pos=wx.DefaultPosition):
+		wx.Frame.__init__(self, None, wx.NewId(), widget.__class__.__name__, pos=pos, style=wx.SIMPLE_BORDER)
 		widget.set_completion_callback(self.OnOK)
 		self.win = widget
 		self.embed_header = embed_header
@@ -105,15 +105,15 @@ class cPopupFrame(wx.wxFrame):
 		self.win.SetFocus ()
 	#------------------------------------------------
 	def __do_layout(self):
-		self.__BTN_OK = wx.wxButton (self, -1, _("OK"), style=wx.wxBU_EXACTFIT)
-		self.__BTN_Cancel = wx.wxButton (self, -1, _("Cancel"), style=wx.wxBU_EXACTFIT)
-		szr_btns = wx.wxBoxSizer (wx.wxHORIZONTAL)
+		self.__BTN_OK = wx.Button (self, -1, _("OK"), style=wx.BU_EXACTFIT)
+		self.__BTN_Cancel = wx.Button (self, -1, _("Cancel"), style=wx.BU_EXACTFIT)
+		szr_btns = wx.BoxSizer (wx.HORIZONTAL)
 		szr_btns.Add(self.__BTN_OK, 0, 0)
 		szr_btns.Add(self.__BTN_Cancel, 0, 0)
 
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.win, 1, wx.wxEXPAND, 0)
-		szr_main.Add(szr_btns, 0, wx.wxEXPAND)
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(self.win, 1, wx.EXPAND, 0)
+		szr_main.Add(szr_btns, 0, wx.EXPAND)
 
 		self.SetAutoLayout(1)
 		self.SetSizer(szr_main)
@@ -134,14 +134,14 @@ class cSTCval:
 		self.text = None
 		self.data = None
 #====================================================================
-class cResizingWindow(wx.wxScrolledWindow):
+class cResizingWindow(wx.ScrolledWindow):
 	"""A vertically-scrolled window which allows subwindows
 	   to change their size, and adjusts accordingly.
 	"""
-#	def __init__ (self, parent, id, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize, complete = None):
-	def __init__ (self, parent, id, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize):
+#	def __init__ (self, parent, id, pos = wx.DefaultPosition, size = wx.DefaultSize, complete = None):
+	def __init__ (self, parent, id, pos = wx.DefaultPosition, size = wx.DefaultSize):
 
-		wx.wxScrolledWindow.__init__(self, parent, id, pos = pos, size = size, style=wx.wxVSCROLL)
+		wx.ScrolledWindow.__init__(self, parent, id, pos = pos, size = size, style=wx.VSCROLL)
 		self.SetScrollRate(0, 20) # suppresses X scrolling by setting X rate to zero
 
 #		self.__list = None
@@ -150,7 +150,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		self.__input_lines = [[]]
 		self.__szr_main = None
 		self.DoLayout()
-		self.__szr_main = wx.wxFlexGridSizer(len(self.__input_lines), 2)
+		self.__szr_main = wx.FlexGridSizer(len(self.__input_lines), 2)
 		for line in self.__input_lines:
 			if len(line) != 0:
 				# first label goes into column 1
@@ -159,13 +159,13 @@ class cResizingWindow(wx.wxScrolledWindow):
 				else:
 					self.__szr_main.Add((1, 1))
 				# the rest gets crammed into column 2
-				h_szr = wx.wxBoxSizer (wx.wxHORIZONTAL)
-				h_szr.Add(line[0]['instance'], 1, wx.wxEXPAND)
+				h_szr = wx.BoxSizer (wx.HORIZONTAL)
+				h_szr.Add(line[0]['instance'], 1, wx.EXPAND)
 				for widget in line[1:]:
 					if widget['label'] is not None:
 						h_szr.Add(widget['label'], 0)
-					h_szr.Add(widget['instance'], 1, wx.wxEXPAND)
-				self.__szr_main.Add(h_szr, 1, wx.wxEXPAND)
+					h_szr.Add(widget['instance'], 1, wx.EXPAND)
+				self.__szr_main.Add(h_szr, 1, wx.EXPAND)
 		self.__szr_main.AddGrowableCol(1)
 		self.__szr_main.Add((1, 1))
 
@@ -179,12 +179,12 @@ class cResizingWindow(wx.wxScrolledWindow):
 		
 		@type label: string
 		@param label: text of the label
-		@type widgets: wx.wxWindow descendant
+		@type widgets: wx.Window descendant
 		"""
 		if label is None:
 			textbox = None
 		else:
-			textbox = wx.wxStaticText(self, -1, label, style=wx.wxALIGN_RIGHT)
+			textbox = wx.StaticText(self, -1, label, style=wx.ALIGN_RIGHT)
 		# append to last line
 		self.__input_lines[-1].append({'ID': label, 'label': textbox, 'instance': widget})
 	#------------------------------------------------
@@ -243,7 +243,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 				if values.has_key(widget['ID']):
 					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
 						widget['instance'].SetText(values[widget['ID']])
-					elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
+					elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):
 						widget['instance'].SetSelection(values[widget['ID']])
 					else:
 						widget['instance'].SetValue(values[widget['ID']])
@@ -267,7 +267,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 					result.data = widget['instance'].GetData()
 				elif isinstance(widget['instance'], stc.wxStyledTextCtrl):
 					result.text = widget['instance'].GetText()
-				elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
+				elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):
 					result.selection = widget['instance'].GetSelection()
 				else:
 					result.value = widget['instance'].GetValue()
@@ -282,13 +282,13 @@ class cResizingWindow(wx.wxScrolledWindow):
 			for widget in line:
 				if isinstance (widget['instance'], stc.wxStyledTextCtrl):
 					widget['instance'].ClearAll()
-				elif isinstance (widget['instance'], wx.wxTextCtrl):
+				elif isinstance (widget['instance'], wx.TextCtrl):
 					widget['instance'].Clear()
-				elif isinstance (widget['instance'], (wx.wxToggleButton, wx.wxCheckBox, wx.wxRadioButton, wx.wxGauge)):
+				elif isinstance (widget['instance'], (wx.ToggleButton, wx.CheckBox, wx.RadioButton, wx.Gauge)):
 					widget['instance'].SetValue(0)
-				elif isinstance (widget['instance'], (wx.wxChoice, wx.wxComboBox, wx.wxRadioBox)):
+				elif isinstance (widget['instance'], (wx.Choice, wx.ComboBox, wx.RadioBox)):
 					widget['instance'].SetSelection(0)
-				elif isinstance (widget['instance'], wx.wxSpinCtrl):
+				elif isinstance (widget['instance'], wx.SpinCtrl):
 					widget['instance'].SetValue(widget['instance'].GetMin())
 	#------------------------------------------------
 	def SetFocus (self):
@@ -340,9 +340,9 @@ class cResizingWindow(wx.wxScrolledWindow):
 			x_final = our_width - list_width
 		else:
 			x_final = x_intended
-#		self.__list = cPickList(self, wx.wxPoint(x_final, y_final), wx.wxSize(list_width, list_height), callback=callback)
+#		self.__list = cPickList(self, wx.Point(x_final, y_final), wx.Size(list_width, list_height), callback=callback)
 #		return self.__list
-		list = cPickList(self, wx.wxPoint(x_final, y_final), wx.wxSize(list_width, list_height), callback=callback)
+		list = cPickList(self, wx.Point(x_final, y_final), wx.Size(list_width, list_height), callback=callback)
 		return list
 	#------------------------------------------------
 #	def set_completion_callback(self, callback):
@@ -361,7 +361,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 	FIXME: override standard STC popup menu
 	"""
-	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0, data=None, problem=None):
+	def __init__ (self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, data=None, problem=None):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
 		self.__problem = problem
@@ -460,7 +460,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		if line == 1:
 			if x is None:
 				x = 0
-			self.GotoPos(self.PositionFromPoint(wx.wxPoint(x,0)))
+			self.GotoPos(self.PositionFromPoint(wx.Point(x,0)))
 			return
 		# goto last line ?
 		if line == -1:
@@ -472,7 +472,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 				return
 			y = self.PointFromPosition(last_char_pos).y
 			_log.Log(gmLog.lData, 'going to given X=%s' % x)
-			self.GotoPos(self.PositionFromPoint(wx.wxPoint(x,y)))
+			self.GotoPos(self.PositionFromPoint(wx.Point(x,y)))
 			return
 		# goto last current position
 		cur = self.PointFromPosition(self.GetCurrentPos())
@@ -791,7 +791,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		else:
 			popup_x_pos = curs_pos.x + stc_origin_x
 #		print "optimal geometry = %sx%s @ %s:%s" % (popup_width, popup_height, popup_x_pos, popup_y_pos)
-		return (wx.wxPoint(popup_x_pos, popup_y_pos), wx.wxSize(popup_width, popup_height))
+		return (wx.Point(popup_x_pos, popup_y_pos), wx.Size(popup_width, popup_height))
 	#------------------------------------------------
 	def __handle_keyword(self, kwd=None):
 		try:
@@ -805,14 +805,14 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 #		best_pos, best_size = self.__get_best_popup_geom()
 		screen_pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
-		top_parent = wx.wxGetTopLevelParent(self)
+		top_parent = wx.GetTopLevelParent(self)
 		best_pos = top_parent.ScreenToClient(screen_pos)
 		try:
 			popup = create_widget (
 				parent = top_parent,
 				pos = best_pos,
-				size = wx.wxSize(400, 300),
-				style = wx.wxSUNKEN_BORDER,
+				size = wx.Size(400, 300),
+				style = wx.SUNKEN_BORDER,
 				problem = self.__problem
 			)
 		except StandardError:
@@ -823,7 +823,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			)
 			return False
 
-		if not isinstance(popup, wx.wxDialog):
+		if not isinstance(popup, wx.Dialog):
 			gmGuiHelpers.gm_beep_statustext (
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
@@ -837,9 +837,9 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		# FIXME: same with originator
 
 		result = popup.ShowModal()
-		if result == wx.wxID_OK:
+		if result == wx.ID_OK:
 			summary = popup.get_summary()
-			wx.wxCallAfter(self.Embed, summary)
+			wx.CallAfter(self.Embed, summary)
 		popup.Destroy()
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
@@ -909,9 +909,9 @@ if __name__ == '__main__':
 			aTitle = 'msg box on create_widget from test_keyword'
 		)
 	#================================================================
-	class cTestKwdPopupPanel(wx.wxPanel):
+	class cTestKwdPopupPanel(wx.Panel):
 		def __init__(self, parent, pos, size, style, completion_callback):
-			wx.wxPanel.__init__ (
+			wx.Panel.__init__ (
 				self,
 				parent,
 				-1,
@@ -920,8 +920,8 @@ if __name__ == '__main__':
 				style
 			)
 			self.__completion_callback = completion_callback
-			self._wxID_BTN_OK = wx.wxNewId()
-			self._wxID_BTN_Cancel = wx.wxNewId()
+			self._wxID_BTN_OK = wx.NewId()
+			self._wxID_BTN_Cancel = wx.NewId()
 			self.__do_layout()
 			self.__register_interests()
 			self.Show()
@@ -929,19 +929,19 @@ if __name__ == '__main__':
 		def __do_layout(self):
 			# message
 			msg = "test keyword popup"
-			text = wx.wxStaticText (self, -1, msg)
+			text = wx.StaticText (self, -1, msg)
 			# buttons
-			self.btn_OK = wx.wxButton(self, self._wxID_BTN_OK, _("OK"))
+			self.btn_OK = wx.Button(self, self._wxID_BTN_OK, _("OK"))
 			self.btn_OK.SetToolTipString(_('dismiss popup and embed data'))
-			self.btn_Cancel = wx.wxButton(self, self._wxID_BTN_Cancel, _("Cancel"))
+			self.btn_Cancel = wx.Button(self, self._wxID_BTN_Cancel, _("Cancel"))
 			self.btn_Cancel.SetToolTipString(_('dismiss popup and throw away data'))
-			szr_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)
-			szr_buttons.Add(self.btn_OK, 1, wx.wxEXPAND | wx.wxALL, 1)
+			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+			szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
 			szr_buttons.Add(5, 0, 0)
-			szr_buttons.Add(self.btn_Cancel, 1, wx.wxEXPAND | wx.wxALL, 1)
+			szr_buttons.Add(self.btn_Cancel, 1, wx.EXPAND | wx.ALL, 1)
 			# arrange
-			szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-			szr_main.Add(text, 1, wx.wxEXPAND | wx.wxALL, 1)
+			szr_main = wx.BoxSizer(wx.VERTICAL)
+			szr_main.Add(text, 1, wx.EXPAND | wx.ALL, 1)
 			szr_main.Add(szr_buttons, 0)
 			# layout
 			self.SetAutoLayout(True)
@@ -991,15 +991,15 @@ if __name__ == '__main__':
 			kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd3}
 			self.input2.set_keywords(popup_keywords=kwds)
 	#================================================================
-	class cSoapPanel(wx.wxPanel):
+	class cSoapPanel(wx.Panel):
 		def __init__ (self, parent, id):
-			wx.wxPanel.__init__(self, parent, id)
-			sizer = wx.wxBoxSizer(wx.wxVERTICAL)
+			wx.Panel.__init__(self, parent, id)
+			sizer = wx.BoxSizer(wx.VERTICAL)
 			self.soap = cSoapWin(self, -1)
-			self.save = wx.wxButton (self, -1, _(" Save "))
-			self.delete = wx.wxButton (self, -1, _(" Delete "))
-			self.new = wx.wxButton (self, -1, _(" New "))
-#			self.list = wx.wxListBox (self, -1, style=wx.wxLB_SINGLE | wx.wxLB_NEEDED_SB)
+			self.save = wx.Button (self, -1, _(" Save "))
+			self.delete = wx.Button (self, -1, _(" Delete "))
+			self.new = wx.Button (self, -1, _(" New "))
+#			self.list = wx.ListBox (self, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
 			wx.EVT_BUTTON (self.save, self.save.GetId (), self.OnSave)
 			wx.EVT_BUTTON (self.delete, self.delete.GetId (), self.OnDelete)
 			wx.EVT_BUTTON (self.new, self.new.GetId (), self.OnNew)
@@ -1007,14 +1007,14 @@ if __name__ == '__main__':
 			self.__do_layout()
 
 		def __do_layout (self):
-			sizer_1 = wx.wxBoxSizer(wx.wxVERTICAL)
-			sizer_1.Add(self.soap, 3, wx.wxEXPAND, 0)
-			sizer_2 = wx.wxBoxSizer (wx.wxHORIZONTAL)
+			sizer_1 = wx.BoxSizer(wx.VERTICAL)
+			sizer_1.Add(self.soap, 3, wx.EXPAND, 0)
+			sizer_2 = wx.BoxSizer (wx.HORIZONTAL)
 			sizer_2.Add(self.save, 0, 0)
 			sizer_2.Add(self.delete, 0, 0)
 			sizer_2.Add(self.new, 0, 0)
-			sizer_1.Add(sizer_2, 0, wx.wxEXPAND)
-#			sizer_1.Add(self.list, 3, wx.wxEXPAND, 0)
+			sizer_1.Add(sizer_2, 0, wx.EXPAND)
+#			sizer_1.Add(self.list, 3, wx.EXPAND, 0)
 			self.SetAutoLayout(1)
 			self.SetSizer(sizer_1)
 			sizer_1.Fit(self)
@@ -1048,13 +1048,13 @@ if __name__ == '__main__':
 #		def OnList (self, event):
 #			self.soap.SetValues (event.GetClientData ())
 	#================================================================
-	class testFrame(wx.wxFrame):
+	class testFrame(wx.Frame):
 		def __init__ (self, title):
-			wx.wxFrame.__init__ (self, None, wx.wxNewId(), "test SOAP", size = wx.wxSize (350, 500)) # this frame will have big fat borders
+			wx.Frame.__init__ (self, None, wx.NewId(), "test SOAP", size = wx.Size (350, 500)) # this frame will have big fat borders
 			wx.EVT_CLOSE (self, self.OnClose)
 			panel = cSoapPanel(self, -1)
-			sizer = wx.wxBoxSizer(wx.wxVERTICAL)
-			sizer.Add (panel, 1, wx.wxGROW)
+			sizer = wx.BoxSizer(wx.VERTICAL)
+			sizer.Add (panel, 1, wx.GROW)
 			self.SetSizer(sizer)
 			self.SetAutoLayout(1)
 			sizer.Fit (self)
@@ -1063,7 +1063,7 @@ if __name__ == '__main__':
 		def OnClose (self, event):
 			self.Destroy()
 	#================================================================
-	class testApp(wx.wxApp):
+	class testApp(wx.App):
 		def OnInit (self):
 			self.frame = testFrame ("testFrame")
 			self.frame.Show()
@@ -1073,7 +1073,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.35  2005-09-26 18:01:51  ncq
+# Revision 1.36  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.35  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

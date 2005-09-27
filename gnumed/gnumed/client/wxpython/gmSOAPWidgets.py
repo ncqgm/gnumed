@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.56 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmSOAPWidgets.py,v 1.57 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -36,9 +36,9 @@ def create_issue_popup(parent, pos, size, style, problem):
 	ea = gmEMRStructWidgets.cHealthIssueEditArea (
 		parent,
 		-1,
-		wx.wxDefaultPosition,
-		wx.wxDefaultSize,
-		wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+		wx.DefaultPosition,
+		wx.DefaultSize,
+		wx.NO_BORDER | wx.TAB_TRAVERSAL
 	)
 	popup = gmEditArea.cEditAreaPopup (
 		parent = parent,
@@ -97,17 +97,17 @@ progress_note_keywords = {
 	}
 }
 #============================================================
-class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin):
+class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	"""Notebook style widget displaying progress note editors.
 	"""
-	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize):
-		wx.wxNotebook.__init__ (
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize):
+		wx.Notebook.__init__ (
 			self,
 			parent = parent,
 			id = id,
 			pos = pos,
 			size = size,
-			style = wx.wxNB_TOP | wx.wxNB_MULTILINE | wx.wxNO_BORDER | wx.wxVSCROLL | wx.wxHSCROLL,
+			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER | wx.VSCROLL | wx.HSCROLL,
 			name = self.__class__.__name__
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -196,7 +196,7 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 #		print "- ask user about unsaved data"
 		pass
 #============================================================
-class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""A progress note input panel.
 
 	Left hand side:
@@ -213,13 +213,13 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		@param id: Wx widget id
 		"""
 		# Call parents constructors
-		wx.wxPanel.__init__ (
+		wx.Panel.__init__ (
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxDefaultPosition,
-			size = wx.wxDefaultSize,
-			style = wx.wxNO_BORDER
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style = wx.NO_BORDER
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -249,56 +249,56 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		right: soap editors
 		"""
 		# SOAP input panel main splitter window
-		self.__splitter = wx.wxSplitterWindow(self, -1)
+		self.__splitter = wx.SplitterWindow(self, -1)
 
 		# left hand side
-		PNL_list = wx.wxPanel(self.__splitter, -1)
+		PNL_list = wx.Panel(self.__splitter, -1)
 		# - header
-		list_header = wx.wxStaticText (
+		list_header = wx.StaticText (
 			parent = PNL_list,
 			id = -1,
 			label = _('Active Problems'),
-			style = wx.wxNO_BORDER | wx.wxALIGN_CENTRE
+			style = wx.NO_BORDER | wx.ALIGN_CENTRE
 		)
 		# - problem list
-		self.__LST_problems = wx.wxListBox (
+		self.__LST_problems = wx.ListBox (
 			PNL_list,
 			-1,
-			style= wx.wxNO_BORDER
+			style= wx.NO_BORDER
 		)
 		# - arrange
-		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_left = wx.BoxSizer(wx.VERTICAL)
 		szr_left.Add(list_header, 0)
-		szr_left.Add(self.__LST_problems, 1, wx.wxEXPAND)
+		szr_left.Add(self.__LST_problems, 1, wx.EXPAND)
 		PNL_list.SetSizerAndFit(szr_left)
 
 		# right hand side
 		# - soap inputs panel
-		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
+		PNL_soap_editors = wx.Panel(self.__splitter, -1)
 		# - progress note notebook
 		self.__soap_notebook = cProgressNoteInputNotebook(PNL_soap_editors, -1)
 		# - buttons
-		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&New'))
+		self.__BTN_add_unassociated = wx.Button(PNL_soap_editors, -1, _('&New'))
 		self.__BTN_add_unassociated.SetToolTipString(_('add editor for new unassociated progress note'))
 
-		self.__BTN_clear = wx.wxButton(PNL_soap_editors, -1, _('&Reset'))
+		self.__BTN_clear = wx.Button(PNL_soap_editors, -1, _('&Reset'))
 		self.__BTN_clear.SetToolTipString(_('clear progress note editor'))
 
-		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
+		self.__BTN_save = wx.Button(PNL_soap_editors, -1, _('&Save'))
 		self.__BTN_save.SetToolTipString(_('save progress note into medical record'))
 
-#		self.__BTN_discard = wx.wxButton(PNL_soap_editors, -1, _('&Discard'))
+#		self.__BTN_discard = wx.Button(PNL_soap_editors, -1, _('&Discard'))
 #		self.__BTN_discard.SetToolTipString(_('Discard progress note and close editor. This will loose any data you already typed into this editor !'))
 
 		# - arrange
-		szr_btns_right = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
-		szr_btns_right.Add(self.__BTN_clear, 0, wx.wxSHAPED)
-		szr_btns_right.Add(self.__BTN_save, 0, wx.wxSHAPED)
-#		szr_btns_right.Add(self.__BTN_discard, 0, wx.wxSHAPED)
+		szr_btns_right = wx.BoxSizer(wx.HORIZONTAL)
+		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.SHAPED)
+		szr_btns_right.Add(self.__BTN_clear, 0, wx.SHAPED)
+		szr_btns_right.Add(self.__BTN_save, 0, wx.SHAPED)
+#		szr_btns_right.Add(self.__BTN_discard, 0, wx.SHAPED)
 
-		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_right.Add(self.__soap_notebook, 1, wx.wxEXPAND)
+		szr_right = wx.BoxSizer(wx.VERTICAL)
+		szr_right.Add(self.__soap_notebook, 1, wx.EXPAND)
 		szr_right.Add(szr_btns_right)
 		PNL_soap_editors.SetSizerAndFit(szr_right)
 
@@ -306,8 +306,8 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		self.__splitter.SetMinimumPaneSize(20)
 		self.__splitter.SplitVertically(PNL_list, PNL_soap_editors)
 
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(self.__splitter, 1, wx.EXPAND, 0)
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
@@ -362,7 +362,7 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
 #		print "should be refreshing problem list, either now or later"
-#		dc = wx.wxPaintDC(self)
+#		dc = wx.PaintDC(self)
 #		print "%s clipping box       : %s" % (self.__class__.__name__, str(dc.GetClippingBox()))
 #		print "%s update region empty: %s" % (self.__class__.__name__, str(self.GetUpdateRegion().IsEmpty()))
 #		print "%s update region      : %s" % (self.__class__.__name__, str(self.GetUpdateRegion()))
@@ -459,7 +459,7 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 #============================================================
 # FIXME attribute encapsulation and private methods
 #============================================================
-class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cMultiSashedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	Basic multi-sash based note input panel.
 
@@ -485,13 +485,13 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		@param id: Wx widget id
 		"""
 		# Call parents constructors
-		wx.wxPanel.__init__ (
+		wx.Panel.__init__ (
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxDefaultPosition,
-			size = wx.wxDefaultSize,
-			style = wx.wxNO_BORDER
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style = wx.NO_BORDER
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -511,63 +511,63 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		right: soap editors
 		"""
 		# SOAP input panel main splitter window
-		self.__splitter = wx.wxSplitterWindow(self, -1)
+		self.__splitter = wx.SplitterWindow(self, -1)
 
 		# left hand side
-		PNL_list = wx.wxPanel(self.__splitter, -1)
+		PNL_list = wx.Panel(self.__splitter, -1)
 		# - header
-		list_header = wx.wxStaticText (
+		list_header = wx.StaticText (
 			parent = PNL_list,
 			id = -1,
 			label = _('Active Problems'),
-			style = wx.wxNO_BORDER | wx.wxALIGN_CENTRE
+			style = wx.NO_BORDER | wx.ALIGN_CENTRE
 		)
 		# - problem list
-		self.__LST_problems = wx.wxListBox (
+		self.__LST_problems = wx.ListBox (
 			PNL_list,
 			-1,
-			style= wx.wxNO_BORDER
+			style= wx.NO_BORDER
 		)
 		# - arrange widgets
-		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_left = wx.BoxSizer(wx.VERTICAL)
 		szr_left.Add(list_header, 0)
-		szr_left.Add(self.__LST_problems, 1, wx.wxEXPAND)
+		szr_left.Add(self.__LST_problems, 1, wx.EXPAND)
 		PNL_list.SetSizerAndFit(szr_left)
 
 		# right hand side
 		# - soap inputs panel
-		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
+		PNL_soap_editors = wx.Panel(self.__splitter, -1)
 		self.__soap_multisash = gmMultiSash.cMultiSash(PNL_soap_editors, -1)				
 		# - buttons
-		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
+		self.__BTN_save = wx.Button(PNL_soap_editors, -1, _('&Save'))
 		#self.__BTN_save.Disable()
 		self.__BTN_save.SetToolTipString(_('save focussed progress note into medical record'))
 
-		self.__BTN_clear = wx.wxButton(PNL_soap_editors, -1, _('&Clear'))
+		self.__BTN_clear = wx.Button(PNL_soap_editors, -1, _('&Clear'))
 		#self.__BTN_clear.Disable()
 		self.__BTN_clear.SetToolTipString(_('clear focussed progress note'))
 
-		self.__BTN_remove = wx.wxButton(PNL_soap_editors, -1, _('&Remove'))
+		self.__BTN_remove = wx.Button(PNL_soap_editors, -1, _('&Remove'))
 		#self.__BTN_remove.Disable()
 		self.__BTN_remove.SetToolTipString(_('close focussed progress note'))
 		
-		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&Unassociated new progress note'))
+		self.__BTN_add_unassociated = wx.Button(PNL_soap_editors, -1, _('&Unassociated new progress note'))
 		self.__BTN_add_unassociated.SetToolTipString(_('create a progress note that is not at first associated with any episode'))
 
 		# FIXME comment out that button for now until we fully
 		# understand how we want it to work.
-		#self.__BTN_new = wx.wxButton(PNL_soap_editors, -1, _('&New'))
+		#self.__BTN_new = wx.Button(PNL_soap_editors, -1, _('&New'))
 		#self.__BTN_new.Disable()
 		#self.__BTN_new.SetToolTipString(_('create empty progress note for new problem'))
 
 		# - arrange widgets
-		szr_btns_right = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_btns_right.Add(self.__BTN_save, 0, wx.wxSHAPED)
-		szr_btns_right.Add(self.__BTN_clear, 0, wx.wxSHAPED)		
-		szr_btns_right.Add(self.__BTN_remove, 0, wx.wxSHAPED)
-		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
-		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_right.Add(self.__soap_multisash, 1, wx.wxEXPAND)
+		szr_btns_right = wx.BoxSizer(wx.HORIZONTAL)
+		szr_btns_right.Add(self.__BTN_save, 0, wx.SHAPED)
+		szr_btns_right.Add(self.__BTN_clear, 0, wx.SHAPED)		
+		szr_btns_right.Add(self.__BTN_remove, 0, wx.SHAPED)
+		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.SHAPED)
+		szr_right = wx.BoxSizer(wx.VERTICAL)
+		szr_right.Add(self.__soap_multisash, 1, wx.EXPAND)
 		szr_right.Add(szr_btns_right)
 		PNL_soap_editors.SetSizerAndFit(szr_right)
 
@@ -575,8 +575,8 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		self.__splitter.SetMinimumPaneSize(20)
 		self.__splitter.SplitVertically(PNL_list, PNL_soap_editors)
 
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(self.__splitter, 1, wx.EXPAND, 0)
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
@@ -1067,7 +1067,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			except IndexError:
 				input_fields[field_idx].next_in_tab_order = None
 #============================================================
-class cResizingSoapPanel(wx.wxPanel):
+class cResizingSoapPanel(wx.Panel):
 	"""Basic progress note panel.
 
 	It provides a gmResizingWindow based progress note editor
@@ -1109,13 +1109,13 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__is_saved = False
 		self.__pat = gmPerson.gmCurrentPatient()
 		# do layout
-		wx.wxPanel.__init__ (
+		wx.Panel.__init__ (
 			self,
 			parent,
 			-1,
-			wx.wxDefaultPosition,
-			wx.wxDefaultSize,
-			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+			wx.DefaultPosition,
+			wx.DefaultSize,
+			wx.NO_BORDER | wx.TAB_TRAVERSAL
 		)
 		# - editor
 		if input_defs is None:
@@ -1151,12 +1151,12 @@ class cResizingSoapPanel(wx.wxPanel):
 			soap_lines = input_defs
 		self.__soap_editor = cResizingSoapWin (
 			self,
-			size = wx.wxDefaultSize,
+			size = wx.DefaultSize,
 			input_defs = soap_lines
 		)
 		# - arrange
-		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__szr_main.Add(self.__soap_editor, 1, wx.wxEXPAND)
+		self.__szr_main = wx.BoxSizer(wx.VERTICAL)
+		self.__szr_main.Add(self.__soap_editor, 1, wx.EXPAND)
 		self.SetSizerAndFit(self.__szr_main)
 	#--------------------------------------------------------
 	# public API
@@ -1295,12 +1295,12 @@ class cResizingSoapPanel(wx.wxPanel):
 		"""
 		return self.__is_saved
 #============================================================
-class cSingleBoxSOAP(wx.wxTextCtrl):
+class cSingleBoxSOAP(wx.TextCtrl):
 	"""if we separate it out like this it can transparently gain features"""
 	def __init__(self, *args, **kwargs):
-		wx.wxTextCtrl.__init__(self, *args, **kwargs)
+		wx.TextCtrl.__init__(self, *args, **kwargs)
 #============================================================
-class cSingleBoxSOAPPanel(wx.wxPanel):
+class cSingleBoxSOAPPanel(wx.Panel):
 	"""Single Box free text SOAP input.
 
 	This widget was suggested by David Guest on the mailing
@@ -1309,7 +1309,7 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 	Subjective.
 	"""
 	def __init__(self, *args, **kwargs):
-		wx.wxPanel.__init__(self, *args, **kwargs)
+		wx.Panel.__init__(self, *args, **kwargs)
 		self.__do_layout()
 		self.__pat = gmPerson.gmCurrentPatient()
 		if not self.__register_events():
@@ -1321,20 +1321,20 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 			self,
 			-1,
 			'',
-			style = wx.wxTE_MULTILINE
+			style = wx.TE_MULTILINE
 		)
 		# buttons below that
-		self.__BTN_save = wx.wxButton(self, wx.wxNewId(), _("save"))
+		self.__BTN_save = wx.Button(self, wx.NewId(), _("save"))
 		self.__BTN_save.SetToolTipString(_('save clinical note in EMR'))
-		self.__BTN_discard = wx.wxButton(self, wx.wxNewId(), _("discard"))
+		self.__BTN_discard = wx.Button(self, wx.NewId(), _("discard"))
 		self.__BTN_discard.SetToolTipString(_('discard clinical note'))
-		szr_btns = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_btns.Add(self.__BTN_save, 1, wx.wxALIGN_CENTER_HORIZONTAL, 0)
-		szr_btns.Add(self.__BTN_discard, 1, wx.wxALIGN_CENTER_HORIZONTAL, 0)
+		szr_btns = wx.BoxSizer(wx.HORIZONTAL)
+		szr_btns.Add(self.__BTN_save, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		szr_btns.Add(self.__BTN_discard, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 		# arrange widgets
-		szr_outer = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _("clinical progress note")), wx.wxVERTICAL)
-		szr_outer.Add(self.__soap_box, 1, wx.wxEXPAND, 0)
-		szr_outer.Add(szr_btns, 0, wx.wxEXPAND, 0)
+		szr_outer = wx.StaticBoxSizer(wx.StaticBox(self, -1, _("clinical progress note")), wx.VERTICAL)
+		szr_outer.Add(self.__soap_box, 1, wx.EXPAND, 0)
+		szr_outer.Add(szr_btns, 0, wx.EXPAND, 0)
 		# and do layout
 		self.SetAutoLayout(1)
 		self.SetSizer(szr_outer)
@@ -1367,7 +1367,7 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 	# internal helpers
 	#--------------------------------------------------------
 	def _save_note(self):
-		wx.wxCallAfter(self.__save_note)
+		wx.CallAfter(self.__save_note)
 	#--------------------------------------------------------
 	def __save_note(self):
 		# sanity checks
@@ -1476,14 +1476,14 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_soap_notebook():
 		print 'testing notebooked soap input...'
-		application = wx.wxPyWidgetTester(size=(800,500))
+		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cProgressNoteInputNotebook(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#--------------------------------------------------------
 	def test_soap_notebook_panel():
 		print 'testing notebooked soap panel...'
-		application = wx.wxPyWidgetTester(size=(800,500))
+		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cNotebookedProgressNoteInputPanel(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
@@ -1502,7 +1502,7 @@ if __name__ == "__main__":
 
 #		# multisash soap
 #		print 'testing multisashed soap input...'
-#		application = wx.wxPyWidgetTester(size=(800,500))
+#		application = wx.PyWidgetTester(size=(800,500))
 #		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
 #		application.frame.Show(True)
 #		application.MainLoop()
@@ -1513,14 +1513,14 @@ if __name__ == "__main__":
 #		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
 #		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
 #		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
-#		app = wx.wxPyWidgetTester(size=(300,500))		
+#		app = wx.PyWidgetTester(size=(300,500))		
 #		app.SetWidget(cResizingSoapPanel, episode, narrative)
 #		app.MainLoop()
 #		del app
 		
 #		# soap progress note for episode
 #		print 'testing soap editor for episode...'
-#		app = wx.wxPyWidgetTester(size=(300,300))
+#		app = wx.PyWidgetTester(size=(300,300))
 #		app.SetWidget(cResizingSoapPanel, episode)
 #		app.MainLoop()
 #		del app
@@ -1528,21 +1528,21 @@ if __name__ == "__main__":
 #		# soap progress note for problem
 #		print 'testing soap editor for problem...'
 #		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
-#		app = wx.wxPyWidgetTester(size=(300,300))
+#		app = wx.PyWidgetTester(size=(300,300))
 #		app.SetWidget(cResizingSoapPanel, problem)
 #		app.MainLoop()
 #		del app		
 		
 #		# unassociated soap progress note
 #		print 'testing unassociated soap editor...'
-#		app = wx.wxPyWidgetTester(size=(300,300))
+#		app = wx.PyWidgetTester(size=(300,300))
 #		app.SetWidget(cResizingSoapPanel, None)
 #		app.MainLoop()
 #		del app		
 		
 #		# unstructured progress note
 #		print 'testing unstructured progress note...'
-#		app = wx.wxPyWidgetTester(size=(600,600))
+#		app = wx.PyWidgetTester(size=(600,600))
 #		app.SetWidget(cSingleBoxSOAPPanel, -1)
 #		app.MainLoop()
 		
@@ -1553,7 +1553,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.56  2005-09-26 18:01:51  ncq
+# Revision 1.57  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.56  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

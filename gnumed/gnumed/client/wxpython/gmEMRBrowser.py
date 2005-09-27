@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.41 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmEMRBrowser.py,v 1.42 2005-09-27 20:44:58 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -50,18 +50,18 @@ def export_emr_to_ascii(parent=None):
 	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
 	ident = pat.get_identity()
 	fname = '%s-%s_%s.txt' % (_('emr-export'), ident['lastnames'], ident['firstnames'])
-	dlg = wx.wxFileDialog (
+	dlg = wx.FileDialog (
 		parent = parent,
 		message = _("Save patient's EMR as..."),
 		defaultDir = aDefDir,
 		defaultFile = fname,
 		wildcard = aWildcard,
-		style = wx.wxSAVE
+		style = wx.SAVE
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()
 	dlg.Destroy()
-	if choice == wx.wxID_OK:
+	if choice == wx.ID_OK:
 		_log.Log(gmLog.lData, 'exporting EMR to [%s]' % fname)
 		output_file = open(fname, 'wb')
 		# instantiate exporter
@@ -74,7 +74,7 @@ def export_emr_to_ascii(parent=None):
 		output_file.close()
 		gmGuiHelpers.gm_show_info('EMR successfully exported to file: %s' % fname, _('emr_dump'), gmLog.lInfo)
 #============================================================
-class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent, id=-1):
 		"""
@@ -84,13 +84,13 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		id - Wx widget id
 		"""
 		# Call parents constructors
-		wx.wxPanel.__init__ (
+		wx.Panel.__init__ (
 			self,
 			parent,
 			id,
-			wx.wxDefaultPosition,
-			wx.wxDefaultSize,
-			wx.wxNO_BORDER
+			wx.DefaultPosition,
+			wx.DefaultSize,
+			wx.NO_BORDER
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -110,27 +110,27 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		
 		# splitter window
-		self.__tree_narr_splitter = wx.wxSplitterWindow(self, -1)
+		self.__tree_narr_splitter = wx.SplitterWindow(self, -1)
 		# emr tree
-		self.__emr_tree = wx.wxTreeCtrl (
+		self.__emr_tree = wx.TreeCtrl (
 			self.__tree_narr_splitter,
 			-1,
-			style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
+			style=wx.TR_HAS_BUTTONS | wx.NO_BORDER
 		)
 		
 		# narrative details text control
-		self.__narr_TextCtrl = wx.wxTextCtrl (
+		self.__narr_TextCtrl = wx.TextCtrl (
 			self.__tree_narr_splitter,
 			-1,
-			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY | wx.wxTE_DONTWRAP
+			style = wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_DONTWRAP
 		)
 		# set up splitter
 		# FIXME: read/save value from/into backend
 		self.__tree_narr_splitter.SetMinimumPaneSize(20)
 		self.__tree_narr_splitter.SplitVertically(self.__emr_tree, self.__narr_TextCtrl)
 
-		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__szr_main.Add(self.__tree_narr_splitter, 1, wx.wxEXPAND, 0)
+		self.__szr_main = wx.BoxSizer(wx.VERTICAL)
+		self.__szr_main.Add(self.__tree_narr_splitter, 1, wx.EXPAND, 0)
 
 		self.SetAutoLayout(1)
 		self.SetSizer(self.__szr_main)
@@ -140,48 +140,48 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# make popup menus for later use
 
 		# - episodes
-		self.__epi_context_popup = wx.wxMenu()
-		menu_id = wx.wxNewId()
-		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
+		self.__epi_context_popup = wx.Menu()
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
-#		menu_id = wx.wxNewId()
-#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('close episode')))
+#		menu_id = wx.NewId()
+#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('close episode')))
 #		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__close_episode)
-#		menu_id = wx.wxNewId()
-#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('delete episode')))
+#		menu_id = wx.NewId()
+#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('delete episode')))
 #		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
-#		menu_id = wx.wxNewId()
-#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach episode to another health issue')))
+#		menu_id = wx.NewId()
+#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('attach episode to another health issue')))
 #		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode)
-#		menu_id = wx.wxNewId()
-#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach all encounters to another episode')))
+#		menu_id = wx.NewId()
+#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('attach all encounters to another episode')))
 #		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode_encounters)
 
 		# - encounters
-		self.__enc_context_popup = wx.wxMenu()
-		menu_id = wx.wxNewId()
-		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another episode')))
+		self.__enc_context_popup = wx.Menu()
+		menu_id = wx.NewId()
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another episode')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
-#		menu_id = wx.wxNewId()
-#		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another patient')))
+#		menu_id = wx.NewId()
+#		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another patient')))
 #		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter2patient)
-#		menu_id = wx.wxNewId()
-#		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('delete encounter')))
+#		menu_id = wx.NewId()
+#		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('delete encounter')))
 #		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__delete_encounter)
-#		menu_id = wx.wxNewId()
-#		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach all progress notes to another encounter')))
+#		menu_id = wx.NewId()
+#		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('attach all progress notes to another encounter')))
 #		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_notes2encounter)
 
 		# - health issues
-		self.__issue_context_popup = wx.wxMenu()
-		menu_id = wx.wxNewId()
-		self.__issue_context_popup.AppendItem(wx.wxMenuItem(self.__issue_context_popup, menu_id, _('rename health issue')))
+		self.__issue_context_popup = wx.Menu()
+		menu_id = wx.NewId()
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('rename health issue')))
 		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__rename_issue)
 		
 		# - root node
-		self.__root_context_popup = wx.wxMenu()
-		menu_id = wx.wxNewId()
-		self.__root_context_popup.AppendItem(wx.wxMenuItem(self.__root_context_popup, menu_id, _('create health issue')))
+		self.__root_context_popup = wx.Menu()
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('create health issue')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
 #		print " add new episode to issue"
 #		print " attach issue to another patient"
@@ -193,7 +193,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Configures enabled event signals
 		"""
-		# wx.wxPython events
+		# wx.Python events
 		wx.EVT_TREE_SEL_CHANGED(self.__emr_tree, self.__emr_tree.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK(self.__emr_tree, self.__emr_tree.GetId(), self.__on_tree_item_right_clicked)
 		# client internal signals
@@ -252,7 +252,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# FIXME: get position from tree item
 #		pos = (event.GetX(), event.GetY())
-		pos = wx.wxDefaultPosition
+		pos = wx.DefaultPosition
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__handle_issue_context(issue=node_data, pos=pos)
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
@@ -349,20 +349,20 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__custom_right_widget = None
 	#--------------------------------------------------------
 	# episodes
-	def __handle_episode_context(self, episode=None, pos=wx.wxDefaultPosition):
+	def __handle_episode_context(self, episode=None, pos=wx.DefaultPosition):
 		self.__selected_episode = episode
 		self.__epi_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
 	def __rename_episode(self, event):
-		dlg = wx.wxTextEntryDialog (
+		dlg = wx.TextEntryDialog (
 			parent = self,
 			message = _('Old: "%s"\nPlease type the new description:\n') % self.__selected_episode['description'],
 			caption = _('Renaming episode ...'),
 			defaultValue = ''
 		)
 		result = dlg.ShowModal()
-		if result == wx.wxID_CANCEL:
+		if result == wx.ID_CANCEL:
 			return
 		new_name = dlg.GetValue().strip()
 		if new_name == '':
@@ -395,7 +395,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print self.__selected_episode
 	#--------------------------------------------------------
 	# encounters
-	def __handle_encounter_context(self, encounter = None, pos=wx.wxDefaultPosition):
+	def __handle_encounter_context(self, encounter = None, pos=wx.DefaultPosition):
 		self.__selected_encounter = encounter
 		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
@@ -429,20 +429,20 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		self._on_episodes_modified()
 	#--------------------------------------------------------
 	# health issues
-	def __handle_issue_context(self, issue=None, pos=wx.wxDefaultPosition):
+	def __handle_issue_context(self, issue=None, pos=wx.DefaultPosition):
 		self.__selected_issue = issue
 #		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__issue_context_popup, pos)
 	#--------------------------------------------------------
 	def __rename_issue(self, event):
-		dlg = wx.wxTextEntryDialog (
+		dlg = wx.TextEntryDialog (
 			parent = self,
 			message = _('Old: "%s"\nPlease type the new description:\n') % self.__selected_issue['description'],
 			caption = _('Renaming health issue ...'),
 			defaultValue = ''
 		)
 		result = dlg.ShowModal()
-		if result == wx.wxID_CANCEL:
+		if result == wx.ID_CANCEL:
 			return
 		new_name = dlg.GetValue().strip()
 		if new_name == '':
@@ -459,7 +459,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		return
 	#--------------------------------------------------------
 	# health issues
-	def __handle_root_context(self, pos=wx.wxDefaultPosition):
+	def __handle_root_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__root_context_popup, pos)		
 	#--------------------------------------------------------
 	def __create_issue(self, event):
@@ -471,9 +471,9 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		ea = gmEMRStructWidgets.cHealthIssueEditArea (
 			self,
 			-1,
-			wx.wxDefaultPosition,
-			wx.wxDefaultSize,
-			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+			wx.DefaultPosition,
+			wx.DefaultSize,
+			wx.NO_BORDER | wx.TAB_TRAVERSAL
 		)
 			
 		popup = gmEditArea.cEditAreaPopup (
@@ -481,16 +481,16 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			id = -1,
 			title = _('Add health issue (pHx item)'),
 			size = (200,200),
-			pos = wx.wxDefaultPosition,
-			style = wx.wxCENTRE | wx.wxSTAY_ON_TOP | wx.wxCAPTION | wx.wxSUNKEN_BORDER,
+			pos = wx.DefaultPosition,
+			style = wx.CENTRE | wx.STAY_ON_TOP | wx.CAPTION | wx.SUNKEN_BORDER,
 			name ='',
 			edit_area = ea
 		)
 		result = popup.ShowModal()
 #================================================================
-class cEMRJournalPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, *args, **kwargs):
-		wx.wxPanel.__init__(self, *args, **kwargs)
+		wx.Panel.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__do_layout()
@@ -499,16 +499,16 @@ class cEMRJournalPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			raise gmExceptions.ConstructorError, 'cannot register interests'
 	#--------------------------------------------------------
 	def __do_layout(self):
-		self.__journal = wx.wxTextCtrl (
+		self.__journal = wx.TextCtrl (
 			self,
 			-1,
 			_('No EMR data loaded.'),
-			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY
+			style = wx.TE_MULTILINE | wx.TE_READONLY
 		)
-		self.__journal.SetFont(wx.wxFont(10, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
+		self.__journal.SetFont(wx.Font(10, wx.MODERN, wx.NORMAL, wx.NORMAL))
 		# arrange widgets
-		szr_outer = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_outer.Add(self.__journal, 1, wx.wxEXPAND, 0)
+		szr_outer = wx.BoxSizer(wx.VERTICAL)
+		szr_outer.Add(self.__journal, 1, wx.EXPAND, 0)
 		# and do layout
 		self.SetAutoLayout(1)
 		self.SetSizer(szr_outer)
@@ -580,7 +580,7 @@ if __name__ == '__main__':
 		gmPerson.set_active_patient(person = patient)
 
 		# display standalone browser
-		application = wx.wxPyWidgetTester(size=(800,600))
+		application = wx.PyWidgetTester(size=(800,600))
 		emr_browser = cEMRBrowserPanel(application.frame, -1)
 		emr_browser.refresh_tree()
 
@@ -607,7 +607,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.41  2005-09-26 18:01:50  ncq
+# Revision 1.42  2005-09-27 20:44:58  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.41  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

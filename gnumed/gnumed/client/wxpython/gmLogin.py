@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.23 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmLogin.py,v 1.24 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "H.Herb"
 
 import os.path, sys
@@ -35,7 +35,7 @@ def Login(max_attempts=3):
 	backend = None
 	#display the login dialog
 	dlg = gmLoginDialog.LoginDialog(None, -1)
-	dlg.Centre(wx.wxBOTH)
+	dlg.Centre(wx.BOTH)
 	while attempt < max_attempts:
 		dlg.ShowModal()
 		#get the login parameters
@@ -70,7 +70,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.23  2005-09-26 18:01:51  ncq
+# Revision 1.24  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.23  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

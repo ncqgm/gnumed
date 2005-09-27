@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.19 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmHorstSpace.py,v 1.20 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -61,7 +61,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			size = wxSize(320,240),
 			style = wxNB_BOTTOM
 		)
-		#nb_szr = wx.wxNotebookSizer(self.nb)
+		#nb_szr = wx.NotebookSizer(self.nb)
 		# plugins
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['horstspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
@@ -311,7 +311,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.19  2005-09-26 18:01:51  ncq
+# Revision 1.20  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.19  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

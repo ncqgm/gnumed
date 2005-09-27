@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.66 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmDemographicsWidgets.py,v 1.67 2005-09-27 20:44:58 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2885,7 +2885,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.66  2005-09-26 18:01:50  ncq
+# Revision 1.67  2005-09-27 20:44:58  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.66  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -3184,7 +3187,7 @@ if __name__ == "__main__":
 # - remove an extra sizer, waste less space
 # - translate strings
 # - from wxPython.wx import * -> from wxPython import wx
-#   Why ? Because we can then do a simple replace wx.wx -> wx. for 2.5 code.
+#   Why ? Because we can then do a simple replace wx. -> wx. for 2.5 code.
 #
 # Revision 1.40  2004/08/24 14:29:58  ncq
 # - some cleanup, not there yet, though

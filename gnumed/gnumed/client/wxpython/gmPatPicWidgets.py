@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.10 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPatPicWidgets.py,v 1.11 2005-09-27 20:44:59 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -33,14 +33,14 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_RefreshPhoto = wx.wxNewId()
-ID_AcquirePhoto = wx.wxNewId()
-ID_ImportPhoto = wx.wxNewId()
-ID_ExportPhoto = wx.wxNewId()
-ID_RemovePhoto = wx.wxNewId()
+ID_RefreshPhoto = wx.NewId()
+ID_AcquirePhoto = wx.NewId()
+ID_ImportPhoto = wx.NewId()
+ID_ExportPhoto = wx.NewId()
+ID_RemovePhoto = wx.NewId()
 
 #=====================================================================
-class cPatientPicture(wx.wxStaticBitmap):
+class cPatientPicture(wx.StaticBitmap):
 	"""A patient picture control ready for display.
 		with popup menu to import/export
 		remove or Acquire from a device
@@ -49,26 +49,26 @@ class cPatientPicture(wx.wxStaticBitmap):
 		self.__fallback_pic_name = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'bitmaps', 'empty-face-in-bust.png')
 		self.__pat = gmPerson.gmCurrentPatient()
 		# just in case
-		wx.wxImage_AddHandler(wx.wxPNGHandler())
-		wx.wxImage_AddHandler(wx.wxJPEGHandler())
-		wx.wxImage_AddHandler(wx.wxGIFHandler())
+		wx.Image_AddHandler(wx.PNGHandler())
+		wx.Image_AddHandler(wx.JPEGHandler())
+		wx.Image_AddHandler(wx.GIFHandler())
 		# load initial dummy bitmap
-		img_data = wx.wxImage(self.__fallback_pic_name, wx.wxBITMAP_TYPE_ANY)
-		bmp_data = wx.wxBitmapFromImage(img_data)
+		img_data = wx.Image(self.__fallback_pic_name, wx.BITMAP_TYPE_ANY)
+		bmp_data = wx.BitmapFromImage(img_data)
 		del img_data
 		# good default: 50x54
 		self.desired_width = width
 		self.desired_height = height
-		wx.wxStaticBitmap.__init__(
+		wx.StaticBitmap.__init__(
 			self,
 			parent,
 			id,
 			bmp_data,
-			wx.wxPoint(0, 0),
-			wx.wxSize(self.desired_width, self.desired_height)
+			wx.Point(0, 0),
+			wx.Size(self.desired_width, self.desired_height)
 		)
 		# pre-make menu
-		self.__photo_menu = wx.wxMenu()
+		self.__photo_menu = wx.Menu()
 		self.__photo_menu.Append(ID_RefreshPhoto, _('Refresh photo'))
 		self.__photo_menu.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
 		self.__photo_menu.Append(ID_ImportPhoto, _("Import from file"))
@@ -116,9 +116,9 @@ class cPatientPicture(wx.wxStaticBitmap):
 		if fname is None:
 			fname = self.__fallback_pic_name
 		try:
-			img_data = wx.wxImage(fname, wx.wxBITMAP_TYPE_ANY)
+			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
 			img_data.Rescale(self.desired_width, self.desired_height)
-			bmp_data = wx.wxBitmapFromImage(img_data)
+			bmp_data = wx.BitmapFromImage(img_data)
 		except:
 			_log.LogException('cannot set patient picture from [%s]' % fname, sys.exc_info())
 			return False
@@ -135,7 +135,7 @@ class cPatientPicture(wx.wxStaticBitmap):
 		imp_dlg.Centre()
 		usr_action = imp_dlg.ShowModal()
 
-		if usr_action != wx.wxID_OK:
+		if usr_action != wx.ID_OK:
 			print "No file selected"
 			return True
 
@@ -157,8 +157,8 @@ class cPatientPicture(wx.wxStaticBitmap):
 		return True
 	#-----------------------------------------------------------------
 	def _on_ExportPhoto(self, event):
-		exp_dlg = wx.wxFileDialog (self, style=wx.wxSAVE)
-		if exp_dlg.ShowModal() == wx.wxID_OK:
+		exp_dlg = wx.FileDialog (self, style=wx.SAVE)
+		if exp_dlg.ShowModal() == wx.ID_OK:
 			shutil.copyfile (self.__pic_name, exp_dlg.GetPath())
 	#-----------------------------------------------------------------
 	def _on_AcquirePhoto(self,event):
@@ -181,12 +181,15 @@ class cPatientPicture(wx.wxStaticBitmap):
 # main
 #----------------------------------------------------
 if __name__ == "__main__":
-	app = wx.wxPyWidgetTester(size = (200, 200))
+	app = wx.PyWidgetTester(size = (200, 200))
 	app.SetWidget(cPatientPicture, -1)
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.10  2005-09-26 18:01:51  ncq
+# Revision 1.11  2005-09-27 20:44:59  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.10  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

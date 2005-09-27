@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.14 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmEMRStructWidgets.py,v 1.15 2005-09-27 20:44:58 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -39,7 +39,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 
 	They correspond to Past History items.
 	"""
-	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=wx.wxNO_BORDER):
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.NO_BORDER):
 		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
 	#----------------------------------------------------
 	# public API
@@ -84,7 +84,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			parent = parent
 			, id = -1
 			, aMatchProvider = mp
-			, style = wx.wxSIMPLE_BORDER
+			, style = wx.SIMPLE_BORDER
 		)
 		gmEditArea._decorate_editarea_field(self.fld_condition)
 		self._add_field (
@@ -95,11 +95,11 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		)
 		self.fld_condition.SetFocus()
 		# Onset
-		label = wx.wxStaticText (
+		label = wx.StaticText (
 			parent = parent,
 			id = -1,
 			label = '%s: ' % _('Age'),
-			style = wx.wxALIGN_CENTRE
+			style = wx.ALIGN_CENTRE
 		)
 		self._add_field (
 			line = 2,
@@ -115,11 +115,11 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			widget = self.fld_age_onset,
 			weight = 2
 		)
-		label = wx.wxStaticText (
+		label = wx.StaticText (
 			parent = parent,
 			id = -1,
 			label = '%s: ' % _('Year'),
-			style = wx.wxALIGN_CENTRE
+			style = wx.ALIGN_CENTRE
 		)
 		self._add_field (
 			line = 2,
@@ -145,7 +145,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			parent = parent
 			, id = -1
 			, aMatchProvider = mp
-			, style = wx.wxSIMPLE_BORDER
+			, style = wx.SIMPLE_BORDER
 		)
 		gmEditArea._decorate_editarea_field(self.fld_progress_note)
 		self._add_field (
@@ -189,7 +189,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			emr.add_clin_narrative(note = self.fld_progress_note.GetValue(), episode=epi)
 		return True
 #============================================================
-class cEpisodeSelectorDlg(wx.wxDialog):
+class cEpisodeSelectorDlg(wx.Dialog):
 	"""
 	Pop up a episode picker dialog. Returns dialog_OK if an episode was
 	selected, dialog_CANCELLED else.
@@ -203,9 +203,9 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 					msg = '',
 					action_txt = _('UNDEFINED action'),					
 					pk_health_issue = None,
-				 	pos = wx.wxDefaultPosition,
-				 	size = wx.wxDefaultSize,
-				 	style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER
+				 	pos = wx.DefaultPosition,
+				 	size = wx.DefaultSize,
+				 	style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 				 ):
 		"""
 		Instantiate a new episode selector dialog.
@@ -220,7 +220,7 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 		@type pk_health_issue integer
 		"""
 		# build ui
-		wx.wxDialog.__init__(self, parent, id, caption, pos, size, style)
+		wx.Dialog.__init__(self, parent, id, caption, pos, size, style)
 		self.__episode_picker = cEpisodePicker(self, -1, msg, action_txt, pk_health_issue)
 		self.Fit()
 		# event handling
@@ -239,7 +239,7 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 		"""
 		self.EndModal(dialog_CANCELLED)
 #============================================================
-class cEpisodePicker(wx.wxPanel):
+class cEpisodePicker(wx.Panel):
 	"""
 	This widget allows the selection and addition of episodes.
 	
@@ -268,13 +268,13 @@ class cEpisodePicker(wx.wxPanel):
 		@type pk_health_issue integer		
 		"""
 		# parent class initialization
-		wx.wxPanel.__init__ (
+		wx.Panel.__init__ (
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxDefaultPosition,
-			size = wx.wxDefaultSize,
-			style = wx.wxNO_BORDER
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style = wx.NO_BORDER
 		)
 
 		# edited episodes' issue's PK
@@ -304,58 +304,58 @@ class cEpisodePicker(wx.wxPanel):
 		# instantiate and initialize widgets
 	
 		# status info
-		self.__STT_status = wx.wxStaticText(self, -1, msg)
+		self.__STT_status = wx.StaticText(self, -1, msg)
 		
 		# - episode editor
-		self.__STT_description = wx.wxStaticText(self, -1, _('Description'))
+		self.__STT_description = wx.StaticText(self, -1, _('Description'))
 		
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
 
 		# - buttons
 		action_msg = _('Create a new episode and %s') % action_txt
-		self.__BTN_add = wx.wxButton(self, -1, action_msg)
-		self.__BTN_cancel = wx.wxButton(self, -1, _('Cancel'))
+		self.__BTN_add = wx.Button(self, -1, action_msg)
+		self.__BTN_cancel = wx.Button(self, -1, _('Cancel'))
 
 		# layout input
-		szr_actions = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_actions.Add(self.__BTN_add, 0, wx.wxSHAPED)
-		szr_actions.Add(self.__BTN_cancel, 0, wx.wxSHAPED | wx.wxALIGN_RIGHT)
+		szr_actions = wx.BoxSizer(wx.HORIZONTAL)
+		szr_actions.Add(self.__BTN_add, 0, wx.SHAPED)
+		szr_actions.Add(self.__BTN_cancel, 0, wx.SHAPED | wx.ALIGN_RIGHT)
 		
-		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
+		szr_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
 		szr_input.AddGrowableCol(1)		
-		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED)
-		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
+		szr_input.Add(self.__STT_description, 0, wx.SHAPED)
+		szr_input.Add(self.__PRW_description, 1, wx.EXPAND)
 #		szr_input.AddSpacer(0,0)
-		szr_input.Add(szr_actions, 0, wx.wxALIGN_CENTER | wx.wxTOP, border = 4)
+		szr_input.Add(szr_actions, 0, wx.ALIGN_CENTER | wx.TOP, border = 4)
 		# - episodes list and new note for selected episode button
-		self.__LST_episodes = wx.wxListCtrl(
+		self.__LST_episodes = wx.ListCtrl(
 			self,
 			-1,
-			style = wx.wxLC_REPORT | wx.wxSUNKEN_BORDER | wx.wxLC_SINGLE_SEL
+			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_SINGLE_SEL
 		)
 		self.__LST_episodes.InsertColumn(0, _('Last renamed'))
-		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
+		self.__LST_episodes.InsertColumn(1, _('Description'), wx.LIST_FORMAT_RIGHT)
 		self.__LST_episodes.InsertColumn(2, _('Is open'))
 		# FIXME: dynamic calculation
 		self.__LST_episodes.SetColumnWidth(0, 100)
 		self.__LST_episodes.SetColumnWidth(1, 230)
 		self.__LST_episodes.SetColumnWidth(2, 70)
 		action_msg = _('Select and episode and %s') % action_txt
-		self.__BTN_action = wx.wxButton(self, -1, action_msg)
-		szr_list = wx.wxStaticBoxSizer (
-			wx.wxStaticBox(self, -1, _('Episode list')),
-			wx.wxVERTICAL
+		self.__BTN_action = wx.Button(self, -1, action_msg)
+		szr_list = wx.StaticBoxSizer (
+			wx.StaticBox(self, -1, _('Episode list')),
+			wx.VERTICAL
 		)
-		szr_list.Add(self.__LST_episodes, 1, wx.wxEXPAND | wx.wxTOP, border=4)
-		szr_list.Add(self.__BTN_action, 0, wx.wxSHAPED | wx.wxALIGN_CENTER, border=4)
+		szr_list.Add(self.__LST_episodes, 1, wx.EXPAND | wx.TOP, border=4)
+		szr_list.Add(self.__BTN_action, 0, wx.SHAPED | wx.ALIGN_CENTER, border=4)
 		szr_list.SetItemMinSize(self.__LST_episodes, 1, 100)
 		
 		# layout sizers
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__STT_status, 0, flag=wx.wxSHAPED | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
-		szr_main.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
-		szr_main.Add(szr_list, 2, wx.wxEXPAND)		
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(self.__STT_status, 0, flag=wx.SHAPED | wx.ALIGN_LEFT | wx.TOP, border=4)
+		szr_main.Add(szr_input, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, border=4)
+		szr_main.Add(szr_list, 2, wx.EXPAND)		
 
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
@@ -466,7 +466,7 @@ class cEpisodePicker(wx.wxPanel):
 		return self.__selected_episode
 
 #============================================================
-class cEpisodeEditorDlg(wx.wxDialog):
+class cEpisodeEditorDlg(wx.Dialog):
 	"""
 	Pop up an episode editor dialog.
 	Return CANCELLED by pressing close button or window closer (X).
@@ -477,9 +477,9 @@ class cEpisodeEditorDlg(wx.wxDialog):
 					id,
 					title = _('Episode editor'),
 					pk_health_issue=None,
-				 	pos = wx.wxDefaultPosition,
-				 	size = wx.wxDefaultSize,
-				 	style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER
+				 	pos = wx.DefaultPosition,
+				 	size = wx.DefaultSize,
+				 	style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 				 ):
 		"""
 		Instantiate a new episode editor dialog.
@@ -491,7 +491,7 @@ class cEpisodeEditorDlg(wx.wxDialog):
 		@type pk_health_issue integer
 		"""
 		# build ui
-		wx.wxDialog.__init__(self, parent, id, title, pos, size, style)
+		wx.Dialog.__init__(self, parent, id, title, pos, size, style)
 		self.__episode_picker = cEpisodeEditor(self, -1, pk_health_issue)
 		self.Fit()
 		# event handling
@@ -506,7 +506,7 @@ class cEpisodeEditorDlg(wx.wxDialog):
 		self.EndModal(dialog_CANCELLED)
 		
 #============================================================
-class cEpisodeEditor(wx.wxPanel):
+class cEpisodeEditor(wx.Panel):
 	"""
 	This widget allows the creation and addition of episodes.
 	
@@ -531,13 +531,13 @@ class cEpisodeEditor(wx.wxPanel):
 		@type pk_health_issue integer
 		"""
 		# parent class initialization
-		wx.wxPanel.__init__ (
+		wx.Panel.__init__ (
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxDefaultPosition,
-			size = wx.wxDefaultSize,
-			style = wx.wxNO_BORDER
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style = wx.NO_BORDER
 		)
 
 		# edited episodes' issue's PK
@@ -562,31 +562,31 @@ class cEpisodeEditor(wx.wxPanel):
 		"""
 
 		# - episode editor
-		self.__STT_description = wx.wxStaticText(self, -1, _('Description'))
+		self.__STT_description = wx.StaticText(self, -1, _('Description'))
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
+		szr_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
 		szr_input.AddGrowableCol(1)
-		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
+		szr_input.Add(self.__STT_description, 0, wx.SHAPED | wx.ALIGN_CENTER)
 		# FIXME: avoid phrasewheel to grow vertically
-		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
+		szr_input.Add(self.__PRW_description, 1, wx.EXPAND)
 
 		# - buttons		
-		self.__BTN_add = wx.wxButton(self, -1, _('Add episode'))
-		self.__BTN_clear = wx.wxButton(self, -1, _('Clear'))		
-		szr_actions = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_actions.Add(self.__BTN_add, 0, wx.wxSHAPED)
-		szr_actions.Add(self.__BTN_clear, 0, wx.wxSHAPED | wx.wxALIGN_RIGHT)
+		self.__BTN_add = wx.Button(self, -1, _('Add episode'))
+		self.__BTN_clear = wx.Button(self, -1, _('Clear'))		
+		szr_actions = wx.BoxSizer(wx.HORIZONTAL)
+		szr_actions.Add(self.__BTN_add, 0, wx.SHAPED)
+		szr_actions.Add(self.__BTN_clear, 0, wx.SHAPED | wx.ALIGN_RIGHT)
 
 		# instantiate and initialize widgets
 		# - episodes list
-		self.__LST_episodes = wx.wxListCtrl(
+		self.__LST_episodes = wx.ListCtrl(
 			self,
 			-1,
-			style = wx.wxLC_REPORT | wx.wxSUNKEN_BORDER | wx.wxLC_SINGLE_SEL
+			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_SINGLE_SEL
 		)
 		self.__LST_episodes.InsertColumn(0, _('Start date'))
-		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
+		self.__LST_episodes.InsertColumn(1, _('Description'), wx.LIST_FORMAT_RIGHT)
 #		self.__LST_episodes.InsertColumn(2, _('Category'))
 		self.__LST_episodes.InsertColumn(2, _('Is open'))
 #		self.__LST_episodes.InsertColumn(3, _('Is open'))
@@ -594,29 +594,29 @@ class cEpisodeEditor(wx.wxPanel):
 		self.__LST_episodes.SetColumnWidth(1, 230)
 		self.__LST_episodes.SetColumnWidth(2, 70)
 #		self.__LST_episodes.SetColumnWidth(3, 70)
-		self.__BTN_close = wx.wxButton(self, -1, _('Close'))
-		szr_list = wx.wxStaticBoxSizer (
-			wx.wxStaticBox(self, -1, _('Episode list')),
-			wx.wxVERTICAL
+		self.__BTN_close = wx.Button(self, -1, _('Close'))
+		szr_list = wx.StaticBoxSizer (
+			wx.StaticBox(self, -1, _('Episode list')),
+			wx.VERTICAL
 		)
-		szr_list.Add(self.__LST_episodes, 1, wx.wxEXPAND | wx.wxTOP, border=4)
-		szr_list.Add(self.__BTN_close, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
+		szr_list.Add(self.__LST_episodes, 1, wx.EXPAND | wx.TOP, border=4)
+		szr_list.Add(self.__BTN_close, 0, wx.SHAPED | wx.ALIGN_CENTER)
 		
 		# arrange widgets
 #		# FIXME: can we not simply merge szr_editor and szr_main ?
-#		szr_editor = wx.wxStaticBoxSizer (
-#			wx.wxStaticBox(self, -1, _('Episode editor')),
-#			wx.wxVERTICAL
+#		szr_editor = wx.StaticBoxSizer (
+#			wx.StaticBox(self, -1, _('Episode editor')),
+#			wx.VERTICAL
 #		)
-#		szr_editor.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
-#		szr_editor.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)
+#		szr_editor.Add(szr_input, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, border=4)
+#		szr_editor.Add(szr_actions, 1, wx.ALIGN_CENTER | wx.TOP, border = 10)
 
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
-		szr_main.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)
-		szr_main.Add(szr_list, 2, wx.wxEXPAND)
+		szr_main = wx.BoxSizer(wx.VERTICAL)
+		szr_main.Add(szr_input, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, border=4)
+		szr_main.Add(szr_actions, 1, wx.ALIGN_CENTER | wx.TOP, border = 10)
+		szr_main.Add(szr_list, 2, wx.EXPAND)
 		
-#		szr_main.Add(szr_editor, 1, wx.wxEXPAND | wx.wxTOP, border=4)
+#		szr_main.Add(szr_editor, 1, wx.EXPAND | wx.TOP, border=4)
 
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
@@ -739,12 +739,12 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
 	
-	ID_EPISODE_SELECTOR = wx.wxNewId()
-	ID_EPISODE_EDITOR = wx.wxNewId()
-	ID_EXIT = wx.wxNewId()
+	ID_EPISODE_SELECTOR = wx.NewId()
+	ID_EPISODE_EDITOR = wx.NewId()
+	ID_EXIT = wx.NewId()
 	
 	#================================================================	
-	class testapp (wx.wxApp):
+	class testapp (wx.App):
 			"""
 			Test application for testing EMR struct widgets
 			"""			
@@ -753,27 +753,27 @@ if __name__ == '__main__':
 				"""
 				Create test application UI
 				"""
-				frame = wx.wxFrame(
+				frame = wx.Frame(
 							None,
 							-4,
 							'Testing EMR struct widgets',
-							size=wx.wxSize(600, 400),
-							style=wx.wxDEFAULT_FRAME_STYLE | wx.wxNO_FULL_REPAINT_ON_RESIZE
+							size=wx.Size(600, 400),
+							style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE
 						)
-				filemenu= wx.wxMenu()
+				filemenu= wx.Menu()
 				filemenu.Append(ID_EPISODE_SELECTOR, "&Test episode selector","Testing episode selector")
 				filemenu.Append(ID_EPISODE_EDITOR, "&Test episode editor","Testing episode editor")				
 				filemenu.AppendSeparator()
 				filemenu.Append(ID_EXIT,"E&xit"," Terminate test application")
 				# Creating the menubar.
 	
-				menuBar = wx.wxMenuBar()
+				menuBar = wx.MenuBar()
 				menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBa
 	
 				frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
 	
-				txt = wx.wxStaticText( frame, -1, _("Select desired test option from the 'File' menu"),
-				wx.wxDefaultPosition, wx.wxDefaultSize, 0 )
+				txt = wx.StaticText( frame, -1, _("Select desired test option from the 'File' menu"),
+				wx.DefaultPosition, wx.DefaultSize, 0 )
 
 				# event handlers
 				wx.EVT_MENU(frame, ID_EPISODE_SELECTOR, self.OnEpisodeSelector)
@@ -880,7 +880,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.14  2005-09-26 18:01:50  ncq
+# Revision 1.15  2005-09-27 20:44:58  ncq
+# - wx.wx* -> wx.*
+#
+# Revision 1.14  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
