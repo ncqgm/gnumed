@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -202,7 +202,7 @@ class indexPnl(wxPanel):
             parent = self.PNL_main,
             label = _("1) select")
         )
-        self.lbl_left_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+        self.lbl_left_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
         #--- document ID phrase wheel ---------
         if __name__ == '__main__':
             self.lbl_doc_id_wheel = wxStaticText(
@@ -231,7 +231,7 @@ class indexPnl(wxPanel):
                 parent = self.PNL_main,
                 label = _("or")
             )
-            self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+            self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
             # -- select files button --------------
             self.BTN_select_files = wxButton(
                 id = wxID_BTN_select_files,
@@ -278,7 +278,7 @@ class indexPnl(wxPanel):
             parent = self.PNL_main,
             label = _("2) describe")
         )
-        self.lbl_middle_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+        self.lbl_middle_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
         #--------------------------------------
         if __name__ == '__main__':
             self.lbl_first_name = wxStaticText(
@@ -295,7 +295,7 @@ class indexPnl(wxPanel):
                 value = _("loading ..."),
                 style=wxTE_READONLY
             )
-            self.TBOX_first_name.Enable(false)
+            self.TBOX_first_name.Enable(False)
             self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
             self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
             #--------------------------------------
@@ -313,7 +313,7 @@ class indexPnl(wxPanel):
                 value = _("loading ..."),
                 style=wxTE_READONLY
             )
-            self.TBOX_last_name.Enable(false)
+            self.TBOX_last_name.Enable(False)
             self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
             self.TBOX_last_name.SetToolTipString(_('not editable, loaded from file'))
             #--------------------------------------
@@ -331,7 +331,7 @@ class indexPnl(wxPanel):
                 value = _("loading ..."), 
                 style=wxTE_READONLY
             )
-            self.TBOX_dob.Enable(false)
+            self.TBOX_dob.Enable(False)
             self.TBOX_dob.SetBackgroundColour(wxColour(255, 255, 255))
             self.TBOX_dob.SetToolTipString(_('not editable, loaded from file'))
         #--------------------------------------
@@ -388,7 +388,7 @@ class indexPnl(wxPanel):
             parent = self.PNL_main,
             label = _("3) save")
         )
-        self.lbl_right_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+        self.lbl_right_header.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
         # -- save data button -----------------
         self.BTN_save_data = wxButton(
             id = wxID_BTN_save_data,
@@ -1008,7 +1008,7 @@ else:
                 wxID_TB_BTN_select_files,
                 images_Archive_plugin1.getfoldersearchBitmap(),
                 shortHelpString=_("select files"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_select_files, widget.on_select_files)
                         
@@ -1031,7 +1031,7 @@ else:
                 wxID_TB_BTN_load_pages,
                 images_Archive_plugin.getcontentsBitmap(),
                 shortHelpString=_("load pages"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_load_pages, widget.on_load_pages)
                         
@@ -1047,7 +1047,7 @@ else:
                 wxID_TB_BTN_show_page,
                 images_Archive_plugin.getreportsBitmap(),
                 shortHelpString=_("show page"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_show_page, widget.on_show_page)
             
@@ -1055,7 +1055,7 @@ else:
                 wxID_TB_BTN_del_page,
                 images_Archive_plugin.getcontentsBitmap(),
                 shortHelpString=_("delete page"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_del_page, widget.on_del_page)
                         
@@ -1063,7 +1063,7 @@ else:
                 wxID_TB_BTN_save_data,
                 images_Archive_plugin.getsaveBitmap(),
                 shortHelpString=_("save document"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_save_data, widget.on_save_data)
         
@@ -1079,7 +1079,7 @@ else:
                 wxID_TB_BTN_aquire_docs,
                 images_Archive_plugin1.getfoldersearchBitmap(),
                 shortHelpString=_("aquire documents"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_aquire_docs, self.SetScanWidget)
             
@@ -1087,7 +1087,7 @@ else:
                 wxID_TB_BTN_show_dirs_in_repository,
                 images_Archive_plugin1.getfoldersearchBitmap(),
                 shortHelpString=_("show directories in repository"),
-                isToggle=false
+                isToggle=False
             )
             EVT_TOOL (tb, wxID_TB_BTN_show_dirs_in_repository, widget.on_show_doc_dirs)#(doc_dirs = self.panel.repository))
         # ---------------------------------------------
@@ -1098,7 +1098,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.18  2005-01-31 09:48:51  ncq
+# Revision 1.19  2005-09-27 20:22:43  ncq
+# - a few wx2.6 fixes
+#
+# Revision 1.18  2005/01/31 09:48:51  ncq
 # - cleanup
 #
 # Revision 1.17  2004/03/19 20:49:21  shilbert

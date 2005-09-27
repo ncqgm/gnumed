@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -1009,7 +1009,7 @@ else:
 				wxID_PNL_BTN_acquire_page,
 				images_Archive_plugin.getcontentsBitmap(),
 				shortHelpString=_("acquire image"),
-				isToggle=false
+				isToggle=False
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_acquire_page, widget.on_acquire_page)
 			
@@ -1018,7 +1018,7 @@ else:
 				wxID_PNL_BTN_save_doc,
 				images_Archive_plugin.getsaveBitmap(),
 				shortHelpString=_("save document"),
-				isToggle=false
+				isToggle=False
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_save_doc, widget.on_save_doc)
 			
@@ -1027,7 +1027,7 @@ else:
 				wxID_PNL_BTN_del_page,
 				images_Archive_plugin.getcontentsBitmap(),
 				shortHelpString=_("delete page"),
-				isToggle=false
+				isToggle=False
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
 			
@@ -1036,7 +1036,7 @@ else:
 				wxID_PNL_BTN_show_page,
 				images_Archive_plugin.getreportsBitmap(),
 				shortHelpString=_("show page"),
-				isToggle=false
+				isToggle=False
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_show_page, widget.on_show_page)
 	
@@ -1045,7 +1045,7 @@ else:
 				wxID_PNL_BTN_move_page,
 				images_Archive_plugin.getsort_A_ZBitmap(),
 				shortHelpString=_("move page"),
-				isToggle=false
+				isToggle=False
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_move_page, widget.on_move_page)
 		
@@ -1062,7 +1062,10 @@ else:
 	
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.4  2004-02-25 09:46:19  ncq
+# Revision 1.5  2005-09-27 20:22:44  ncq
+# - a few wx2.6 fixes
+#
+# Revision 1.4  2004/02/25 09:46:19  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.3  2003/11/09 16:15:34  shilbert
