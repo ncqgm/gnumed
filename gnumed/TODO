@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.13 2005-08-30 17:52:28 ncq Exp $
-$Revision: 1.13 $
+$Id: TODO,v 1.14 2005-09-27 20:21:20 ncq Exp $
+$Revision: 1.14 $
 ====================================================
 post-0.1
 
@@ -188,4 +188,66 @@ lab link
 ------------------------
 vaccination
  - allow linking lab results (immunity) to vaccination status
- 
+
+-------------------------
+multiple related edit fields:
+ - make enter move between them
+
+----------------------------
+search patient -> jump to add if not found 
+ - make optional
+ - list of matches -> check add-new button functionality
+ - check activate button
+
+------------------------------
+text boxes
+ - flashing cursor ?
+
+--------------------------------
+phrasewheel
+ - after selecting from list move focus to next widget
+ - allow TAB to select from dropdown list
+
+-------------------------------
+progress notes
+ - add to health issue
+ - ask for/derive episode title after the fact
+
+------------------------------------
+- consider psycopg:
+
+- results are tuples, not lists
+- mxdatetime not needed
+- date column results are iso-datestrings, not date objects
+
+------------------------------------
+emr tree
+
+- in issue info include
+  - #episodes
+  - whether open episode or not
+  - age of open episode
+
+- in issue tree item label include tags (open episode, active/inactive issue)
+
+- pre-open issues with open episodes and those episodes ?
+
+- allow displaying by encounter -> problem
+
+----------------------------------------
+schema trigger
+
+- update 
+
+-----------------------------------------
+EMR view:
+
+- issue -> progress notes
+
+------------------------------------------
+on auto-closing episodes: optional popup
+
+----------------------------------------
+RFE:
+- make it clin_encounter.rfe
+- copy into Soap upon opening a progress note editor
