@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.68 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmDemographicsWidgets.py,v 1.69 2005-09-28 19:47:01 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,10 +24,11 @@ import mx.DateTime as mxDT
 try:
 	import wxversion
 	import wx
+	import wx.wizard
 except ImportError:
 	from wxPython import wx
 	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
-	#from wxPython import wizard
+	from wxPython import wizard
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
@@ -1097,7 +1098,7 @@ class DemographicDetailWindow(wx.Panel):
 #============================================================
 # new patient wizard classes
 #============================================================
-class cBasicPatDetailsPage(wizard.wx.WizardPageSimple):
+class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
 	"""
@@ -1115,7 +1116,7 @@ class cBasicPatDetailsPage(wizard.wx.WizardPageSimple):
 		@param tile - The title of the page
 		@type title - A StringType instance				
 		"""
-		wizard.wx.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
+		wx.wizard.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 		self.__title = title
 		genders, idx = gmPerson.get_gender_list()
 		self.__gender_map = {}
@@ -1450,7 +1451,7 @@ class cBasicPatDetailsPage(wizard.wx.WizardPageSimple):
 		self.PRW_country.set_context(context='zip', val=zip_code)
 		return True				
 #============================================================
-class cNewPatientWizard(wizard.wx.Wizard):
+class cNewPatientWizard(wx.wizard.Wizard):
 	"""
 	Wizard to create a new patient.
 
@@ -1470,7 +1471,7 @@ class cNewPatientWizard(wizard.wx.Wizard):
 		@type parent - A wx.Window instance
 		"""
 		id_wiz = wx.NewId()
-		wizard.wx.Wizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
+		wx.wizard.Wizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 		self.__do_layout()
 	#--------------------------------------------------------
@@ -1479,7 +1480,7 @@ class cNewPatientWizard(wizard.wx.Wizard):
 
 		activate, too, if told to do so (and patient successfully created
 		"""
-		if not wizard.wx.Wizard.RunWizard(self, self.basic_pat_details):
+		if not wx.wizard.Wizard.RunWizard(self, self.basic_pat_details):
 			return False
 
 		# retrieve DTD and create patient
@@ -2885,7 +2886,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.68  2005-09-28 15:57:48  ncq
+# Revision 1.69  2005-09-28 19:47:01  ncq
+# - runs until login dialog
+#
+# Revision 1.68  2005/09/28 15:57:48  ncq
 # - a whole bunch of wxFoo -> wx.Foo
 #
 # Revision 1.67  2005/09/27 20:44:58  ncq

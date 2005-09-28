@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.37 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmResizingWidgets.py,v 1.38 2005-09-28 19:47:01 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -14,6 +14,7 @@ import sys
 try:
 	import wxversion
 	import wx
+	import wx.stc
 except ImportError:
 	from wxPython import wx
 	from wxPython import stc
@@ -241,7 +242,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		for line in self.__input_lines:
 			for widget in line:
 				if values.has_key(widget['ID']):
-					if isinstance(widget['instance'], stc.wx.StyledTextCtrl):
+					if isinstance(widget['instance'], wx.stc.StyledTextCtrl):
 						widget['instance'].SetText(values[widget['ID']])
 					elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):
 						widget['instance'].SetSelection(values[widget['ID']])
@@ -265,7 +266,7 @@ class cResizingWindow(wx.ScrolledWindow):
 				if isinstance(widget['instance'], cResizingSTC):
 					result.text = widget['instance'].GetText()
 					result.data = widget['instance'].GetData()
-				elif isinstance(widget['instance'], stc.wx.StyledTextCtrl):
+				elif isinstance(widget['instance'], wx.stc.StyledTextCtrl):
 					result.text = widget['instance'].GetText()
 				elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):
 					result.selection = widget['instance'].GetSelection()
@@ -280,7 +281,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		"""
 		for line in self.__input_lines:
 			for widget in line:
-				if isinstance (widget['instance'], stc.wx.StyledTextCtrl):
+				if isinstance (widget['instance'], wx.stc.StyledTextCtrl):
 					widget['instance'].ClearAll()
 				elif isinstance (widget['instance'], wx.TextCtrl):
 					widget['instance'].Clear()
@@ -352,7 +353,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		"""Gets a terse summary string for the data in the widget"""
 		return ""
 #====================================================================
-class cResizingSTC(stc.wx.StyledTextCtrl):
+class cResizingSTC(wx.stc.StyledTextCtrl):
 	"""
 	A StyledTextCrl that monitors the size of its internal text and
 	resizes the parent accordingly.
@@ -365,17 +366,17 @@ class cResizingSTC(stc.wx.StyledTextCtrl):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
 		self.__problem = problem
-		stc.wx.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
-		self.SetWrapMode (stc.wx.STC_WRAP_WORD)
+		wx.stc.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
+		self.SetWrapMode (wx.stc.STC_WRAP_WORD)
 		# FIXME: configure
 		self.StyleSetSpec (STYLE_ERROR, "fore:#7F11010,bold")
 		self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
 		self.StyleSetChangeable (STYLE_EMBED, 0)
 #		self.StyleSetHotSpot (STYLE_EMBED, 1)
-		self.SetEOLMode (stc.wx.STC_EOL_LF)
-		self.SetModEventMask (stc.wxSTC_MOD_INSERTTEXT | stc.wx.STC_MOD_DELETETEXT | stc.wx.STC_PERFORMED_USER)
+		self.SetEOLMode (wx.stc.STC_EOL_LF)
+		self.SetModEventMask (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_PERFORMED_USER)
 
-		stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
+		wx.stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
 		wx.EVT_KEY_DOWN (self, self.__on_key_down)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
 
@@ -409,7 +410,7 @@ class cResizingSTC(stc.wx.StyledTextCtrl):
 	#------------------------------------------------
 	def SetText(self, text):
 		self.__show_list = 0
-		stc.wx.StyledTextCtrl.SetText(self, text)
+		wx.stc.StyledTextCtrl.SetText(self, text)
 		self.__show_list = 1
 	#------------------------------------------------
 	def ReplaceText (self, start, end, text, style=-1, space=0):
@@ -455,7 +456,7 @@ class cResizingSTC(stc.wx.StyledTextCtrl):
 
 		- make sure that's visible, too
 		"""
-		stc.wx.StyledTextCtrl.SetFocus(self)
+		wx.stc.StyledTextCtrl.SetFocus(self)
 		# goto first line ?
 		if line == 1:
 			if x is None:
@@ -502,7 +503,7 @@ class cResizingSTC(stc.wx.StyledTextCtrl):
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
 		# did the user do anything of note to us ?
-		if not (event.GetModificationType() & (stc.wx.STC_MOD_INSERTTEXT | stc.wx.STC_MOD_DELETETEXT)):
+		if not (event.GetModificationType() & (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT)):
 			event.Skip()
 			return
 		last_char_pos = self.GetLength()
@@ -1073,7 +1074,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.37  2005-09-28 15:57:48  ncq
+# Revision 1.38  2005-09-28 19:47:01  ncq
+# - runs until login dialog
+#
+# Revision 1.37  2005/09/28 15:57:48  ncq
 # - a whole bunch of wxFoo -> wx.Foo
 #
 # Revision 1.36  2005/09/27 20:44:59  ncq

@@ -4,15 +4,15 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.8 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmTimer.py,v 1.9 2005-09-28 19:47:01 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
 # 3rd party
 try:
 	import wxversion
-	import wx.Timer
+	import wx
 except ImportError:
 	from wxPython.wx import wxTimer
 
@@ -93,7 +93,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.8  2005-09-28 15:57:48  ncq
+# Revision 1.9  2005-09-28 19:47:01  ncq
+# - runs until login dialog
+#
+# Revision 1.8  2005/09/28 15:57:48  ncq
 # - a whole bunch of wxFoo -> wx.Foo
 #
 # Revision 1.7  2005/09/27 20:44:59  ncq

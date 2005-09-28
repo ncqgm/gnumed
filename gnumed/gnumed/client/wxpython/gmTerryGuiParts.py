@@ -10,7 +10,7 @@ dependencies: wxPython (>= version 2.3.1)
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTerryGuiParts.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = 'Dr. Richard Terry'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -104,7 +104,7 @@ class cHeadingCaption(wx.Panel):
         default colours are purple panel, orange label with yellow capitalised
         words (sounds yuk doesn't it - but I like it and it works well!!!!!
     """
-    def __init__ (self, parent, id, text, bgC = wxColour (197,194,255), hdrC = wx.Colour (255, 129, 131), txtC = wx.Colour (255, 255, 0)):
+    def __init__ (self, parent, id, text, bgC = wx.Colour (197,194,255), hdrC = wx.Colour (255, 129, 131), txtC = wx.Colour (255, 255, 0)):
         self.text = text
         self.bgC = bgC
         self.hdrC = hdrC
@@ -155,7 +155,10 @@ if __name__ == "__main__":
 
 #===========================================================================
 # $Log: gmTerryGuiParts.py,v $
-# Revision 1.4  2005-09-28 15:57:48  ncq
+# Revision 1.5  2005-09-28 19:47:01  ncq
+# - runs until login dialog
+#
+# Revision 1.4  2005/09/28 15:57:48  ncq
 # - a whole bunch of wxFoo -> wx.Foo
 #
 # Revision 1.3  2005/09/26 18:01:51  ncq
