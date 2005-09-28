@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.51 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPlugin.py,v 1.52 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -29,9 +29,9 @@ _whoami = gmWhoAmI.cWhoAmI()
 
 
 #==============================================================================
-class cLoadProgressBar (wxProgressDialog):
+class cLoadProgressBar (wx.ProgressDialog):
 	def __init__(self, nr_plugins):
-		wxProgressDialog.__init__(
+		wx.ProgressDialog.__init__(
 			self,
 			title = _("GNUmed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
 			message = _("loading list of plugins                               "),
@@ -42,11 +42,11 @@ class cLoadProgressBar (wxProgressDialog):
 		# set window icon
 		gb = gmGuiBroker.GuiBroker()
 		png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'serpent.png')
-		icon = wxEmptyIcon()
+		icon = wx.EmptyIcon()
 		try:
-			icon.LoadFile(png_fname, wxBITMAP_TYPE_PNG)
+			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		except:
-			_log.Log(gmLog.lWarn, 'wxIcon.LoadFile() not supported')
+			_log.Log(gmLog.lWarn, 'wx.Icon.LoadFile() not supported')
 		self.SetIcon(icon)
 		self.idx = 0
 		self.nr_plugins = nr_plugins
@@ -59,7 +59,7 @@ class cLoadProgressBar (wxProgressDialog):
 			result = _("failed")
 		else:
 			result = _("success")
-		wxProgressDialog.Update (self, 
+		wx.ProgressDialog.Update (self, 
 				self.idx,
 				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
 					self.prev_plugin,
@@ -114,7 +114,7 @@ class cNotebookPlugin:
 		if menu_info is not None:
 			name_of_menu, menu_item_name = menu_info
 			menu = self.gb['main.%smenu' % name_of_menu]
-			self.menu_id = wxNewId()
+			self.menu_id = wx.NewId()
 			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
 			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_raise_by_menu)
@@ -179,7 +179,7 @@ class cNotebookPlugin:
 		if not pat.is_connected():
 			# FIXME: people want an optional red backgound here
 			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
-			wxBell()
+			wx.Bell()
 			return None
 		return 1
 	#-----------------------------------------------------
@@ -375,12 +375,12 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 		# among them find (the) one holding plugins
 		search_path = None
 		for candidate in candidates:
-			tmp = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
+			tmp = os.path.join(candidate, 'Gnumed', 'wx.python', plugin_dir)
 			if os.path.exists(tmp):
 				search_path = tmp
 				break
 		if search_path is None:
-			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
+			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wx.python/%s/]' % plugin_dir)
 			_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
 			return []
 		# now scan it
@@ -423,7 +423,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.51  2005-09-26 18:01:51  ncq
+# Revision 1.52  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.51  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -498,7 +501,7 @@ if __name__ == '__main__':
 # Revision 1.31  2004/07/24 17:21:49  ncq
 # - some cleanup, also re from wxPython import wx
 # - factored out Horst space layout manager into it's own
-#   wxPanel child class
+#   wx.Panel child class
 # - subsequently renamed
 # 	'main.notebook.plugins' -> 'horstspace.notebook.pages'
 # 	'modules.gui' -> 'horstspace.notebook.gui' (to be renamed horstspace.notebook.plugins later)

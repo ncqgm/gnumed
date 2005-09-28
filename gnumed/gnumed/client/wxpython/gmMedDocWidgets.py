@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -26,8 +26,8 @@ else:
 
 _log.Log(gmLog.lInfo, __version__)
 
-wxID_PNL_main = wxNewId()
-wxID_TB_BTN_show_page = wxNewId()
+wx.ID_PNL_main = wx.NewId()
+wx.ID_TB_BTN_show_page = wx.NewId()
 
 
 		# NOTE:	 For some reason tree items have to have a data object in
@@ -35,13 +35,13 @@ wxID_TB_BTN_show_page = wxNewId()
 		#		 we don't need any real data, so we'll just use None.
 
 #============================================================
-class cDocTree(wxTreeCtrl):
-	"""This wxTreeCtrl derivative displays a tree view of stored medical documents.
+class cDocTree(wx.TreeCtrl):
+	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 	"""
 	def __init__(self, parent, id):
 		"""Set up our specialised tree.
 		"""
-		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
+		wx.TreeCtrl.__init__(self, parent, id, style=wx.TR_NO_BUTTONS)
 		self.root = None
 		self.__pat = gmPerson.gmCurrentPatient()
 
@@ -280,23 +280,23 @@ class cDocTree(wxTreeCtrl):
 	def __handle_doc_context(self, doc=None):
 		# build menu
 		descriptions = doc.get_descriptions()
-		wxIDs_desc = []
-		desc_menu = wxMenu()
+		wx.IDs_desc = []
+		desc_menu = wx.Menu()
 		for desc in descriptions:
-			d_id = wxNewId()
-			wxIDs_desc.append(d_id)
+			d_id = wx.NewId()
+			wx.IDs_desc.append(d_id)
 			# contract string
 			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
 			tmp = ' '.join(tmp)
 			# but only use first 30 characters
 			tmp = "%s ..." % tmp[:30]
-			desc_menu.AppendItem(wxMenuItem(desc_menu, d_id, tmp))
+			desc_menu.AppendItem(wx.MenuItem(desc_menu, d_id, tmp))
 			# connect handler
 			EVT_MENU(desc_menu, d_id, self.__show_description)
-		wxID_load_submenu = wxNewId()
-		menu = wxMenu(title = _('document menu'))
-		menu.AppendMenu(wxID_load_submenu, _('descriptions ...'), desc_menu)
-		self.PopupMenu(menu, wxDefaultPosition)
+		wx.ID_load_submenu = wx.NewId()
+		menu = wx.Menu(title = _('document menu'))
+		menu.AppendMenu(wx.ID_load_submenu, _('descriptions ...'), desc_menu)
+		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
 	#--------------------------------------------------------
 	def __show_description(self, evt):
@@ -312,7 +312,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.13  2005-09-26 18:01:51  ncq
+# Revision 1.14  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.13  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

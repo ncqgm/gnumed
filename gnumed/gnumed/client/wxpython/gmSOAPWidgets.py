@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.57 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmSOAPWidgets.py,v 1.58 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1454,7 +1454,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
-		print "actually this would have to return a suitable wxWindow subclass instance"
+		print "actually this would have to return a suitable wx.Window subclass instance"
 		print "args:", args
 		print "kwd args:"
 		for key in kwargs.keys():
@@ -1463,7 +1463,7 @@ if __name__ == "__main__":
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (
 			"test keyword must have been typed...\n"
-			"actually this would have to return a suitable wxWindow subclass instance\n"
+			"actually this would have to return a suitable wx.Window subclass instance\n"
 		)
 		for arg in args:
 			msg = msg + "\narg ==> %s" % arg
@@ -1553,7 +1553,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.57  2005-09-27 20:44:59  ncq
+# Revision 1.58  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.57  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.56  2005/09/26 18:01:51  ncq

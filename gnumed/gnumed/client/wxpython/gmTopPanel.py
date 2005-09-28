@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.64 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmTopPanel.py,v 1.65 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -32,18 +32,18 @@ _log.Log(gmLog.lInfo, __version__)
 	ID_PREGMENU,
 	ID_LOCKBUTTON,
 	ID_LOCKMENU,
-] = map(lambda _init_ctrls: wxNewId(), range(8))
+] = map(lambda _init_ctrls: wx.NewId(), range(8))
 
 # FIXME: need a better name here !
-bg_col = wxColour(214,214,214)
-fg_col = wxColour(0,0,131)
-col_brightred = wxColour(255,0,0)
+bg_col = wx.Colour(214,214,214)
+fg_col = wx.Colour(0,0,131)
+col_brightred = wx.Colour(255,0,0)
 #===========================================================
-class cMainTopPanel(wxPanel):
+class cMainTopPanel(wx.Panel):
 
 	def __init__(self, parent, id):
 
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
 
 		self.__gb = gmGuiBroker.GuiBroker()
 
@@ -77,7 +77,7 @@ class cMainTopPanel(wxPanel):
 		# | details | patient  | age | allergies |
 		# | button  | selector |     |           |
 		# `--------------------------------------'
-		self.szr_top_row = wxBoxSizer(wxHORIZONTAL)
+		self.szr_top_row = wx.BoxSizer(wx.HORIZONTAL)
 
 		#  - details button
 #		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'binoculars_form.png')
@@ -106,31 +106,31 @@ class cMainTopPanel(wxPanel):
 #		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
 
 		#  - patient selector
-		lbl_pat = wxStaticText (self, -1, _('Patient'), style = wxALIGN_CENTER_VERTICAL)
-		lbl_pat.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
+		lbl_pat = wx.StaticText (self, -1, _('Patient'), style = wx.ALIGN_CENTER_VERTICAL)
+		lbl_pat.SetFont (wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
 		if self.__gb['main.slave_mode']:
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
-		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
-		self.szr_top_row.Add (lbl_pat, 0, wxALL, 3)
-		self.szr_top_row.Add (self.patient_selector, 5, wxBOTTOM, 3)
+		self.patient_selector.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.szr_top_row.Add (lbl_pat, 0, wx.ALL, 3)
+		self.szr_top_row.Add (self.patient_selector, 5, wx.BOTTOM, 3)
 		#  - age
-		self.txt_age = wxTextCtrl(self, -1, '', size = (50,-1), style = wxTE_READONLY)
-		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
+		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY)
+		self.txt_age.SetFont (wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
-		self.szr_top_row.Add (self.txt_age, 0, wxBOTTOM | wxLEFT | wxRIGHT, 3)
+		self.szr_top_row.Add (self.txt_age, 0, wxBOTTOM | wx.LEFT | wx.RIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
-		self.lbl_allergies = wxStaticText (self, -1, _('Caveat'), style = wxALIGN_CENTER_VERTICAL)
-		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
+		self.lbl_allergies = wx.StaticText (self, -1, _('Caveat'), style = wx.ALIGN_CENTER_VERTICAL)
+		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
-		self.txt_allergies = wxTextCtrl (self, -1, "", style = wxTE_READONLY)
-		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
+		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY)
+		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
 		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
-		self.szr_top_row.Add (self.lbl_allergies, 0, wxALL, 3)
-		self.szr_top_row.Add (self.txt_allergies, 6,wxBOTTOM, 3)
+		self.szr_top_row.Add (self.lbl_allergies, 0, wx.ALL, 3)
+		self.szr_top_row.Add (self.txt_allergies, 6,wx.BOTTOM, 3)
 
 		# - bottom row
 		# .----------------------------------------------------------.
@@ -140,21 +140,21 @@ class cMainTopPanel(wxPanel):
 		#self.tb_lock.AddControl(wxStaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 
 		# (holds most of the buttons)
-		self.szr_bottom_row = wxBoxSizer(wxHORIZONTAL)
-		self.pnl_bottom_row = wxPanel(self, -1)
-		self.szr_bottom_row.Add(self.pnl_bottom_row, 6, wxGROW, 0)
+		self.szr_bottom_row = wx.BoxSizer(wx.HORIZONTAL)
+		self.pnl_bottom_row = wx.Panel(self, -1)
+		self.szr_bottom_row.Add(self.pnl_bottom_row, 6, wx.GROW, 0)
 
 		# BMI calculator button
 		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'bmi_calculator.png')
-		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-		bmp = wxBitmapFromImage(img)
-		self.btn_bmi = wxBitmapButton (
+		img = wx.Image(fname, wx.BITMAP_TYPE_ANY)
+		bmp = wx.BitmapFromImage(img)
+		self.btn_bmi = wx.BitmapButton (
 			parent = self,
 			id = ID_BMITOOL,
 			bitmap = bmp,
-			style = wxBU_EXACTFIT | wxNO_BORDER
+			style = wx.BU_EXACTFIT | wx.NO_BORDER
 		)
-		self.btn_bmi.SetToolTip(wxToolTip(_("BMI Calculator")))
+		self.btn_bmi.SetToolTip(wx.ToolTip(_("BMI Calculator")))
 		self.szr_bottom_row.Add(self.btn_bmi, 0)
 
 #		tb = wxToolBar(self, -1, style=wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT)
@@ -179,20 +179,20 @@ class cMainTopPanel(wxPanel):
 #		self.szr_bottom_row.Add(self.btn_preg, 0)
 		
 		# consultation type selector
-		self.combo_consultation_type = wxComboBox (
+		self.combo_consultation_type = wx.ComboBox (
 			self,
 			ID_CBOX_consult_type,
 			self.DEF_CONSULT_TYPE,
-			wxDefaultPosition,
-			wxDefaultSize,
+			wx.DefaultPosition,
+			wx.DefaultSize,
 			self.__consultation_types,
-			wxCB_DROPDOWN | wxCB_READONLY
+			wx.CB_DROPDOWN | wx.CB_READONLY
 		)
-		self.combo_consultation_type.SetToolTip(wxToolTip(_('choose consultation type')))
+		self.combo_consultation_type.SetToolTip(wx.ToolTip(_('choose consultation type')))
 		self.szr_bottom_row.Add(self.combo_consultation_type, 1)
 
 		# - stack them atop each other
-		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
+		self.szr_stacked_rows = wx.BoxSizer(wx.VERTICAL)
 		# ??? (IMHO: space is at too much of a premium for such padding)
 		# FIXME: deuglify
 		try:
@@ -201,18 +201,18 @@ class cMainTopPanel(wxPanel):
 			self.szr_stacked_rows.Add((1, 1), 0)
 		
 		# 0 here indicates the sizer cannot change its heights - which is intended
-		self.szr_stacked_rows.Add(self.szr_top_row, 0, wxEXPAND)
-		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND|wxTOP, 5)
+		self.szr_stacked_rows.Add(self.szr_top_row, 0, wx.EXPAND)
+		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wx.EXPAND|wx.TOP, 5)
 
 		# create patient picture
 		self.patient_picture = gmPatPicWidgets.cPatientPicture(self, -1)
-		tt = wxToolTip(_('Patient picture.\nRight-click for context menu.'))
+		tt = wx.ToolTip(_('Patient picture.\nRight-click for context menu.'))
 		self.patient_picture.SetToolTip(tt)
 
 		# create main sizer
-		self.szr_main = wxBoxSizer(wxHORIZONTAL)
+		self.szr_main = wx.BoxSizer(wx.HORIZONTAL)
 		# - insert patient picture
-		self.szr_main.Add(self.patient_picture, 0, wxLEFT | wxTOP | wxRight, 5)
+		self.szr_main.Add(self.patient_picture, 0, wxLEFT | wx.TOP | wx.Right, 5)
 		# - insert stacked rows
 		self.szr_main.Add(self.szr_stacked_rows, 1)
 
@@ -280,13 +280,13 @@ class cMainTopPanel(wxPanel):
 	def _on_show_BMI(self, evt):
 		# FIXME: update patient ID ?
 		bmi = gmBMIWidgets.BMI_Frame(self)
-		bmi.Centre(wxBOTH)
+		bmi.Centre(wx.BOTH)
 		bmi.Show(1)
 	#----------------------------------------------
 	def _on_show_Preg_Calc(self, evt):
 		# FIXME: update patient ID ?
 		pc = gmPregWidgets.cPregCalcFrame(self)
-		pc.Centre(wxBOTH)
+		pc.Centre(wx.BOTH)
 		pc.Show(1)
 	#----------------------------------------------
 #	def _on_episode_selected(self, evt):
@@ -305,8 +305,8 @@ class cMainTopPanel(wxPanel):
 	def _on_patient_selected(self, **kwargs):
 		# needed because GUI stuff can't be called from a thread (and that's
 		# where we are coming from via backend listener -> dispatcher)
-		wxCallAfter(self.__on_patient_selected, **kwargs)
-		wxCallAfter(self.__update_allergies, **kwargs)
+		wx.CallAfter(self.__on_patient_selected, **kwargs)
+		wx.CallAfter(self.__update_allergies, **kwargs)
 	#----------------------------------------------
 	def __on_patient_selected(self, **kwargs):
 		ident = self.curr_pat.get_identity()
@@ -320,7 +320,7 @@ class cMainTopPanel(wxPanel):
 		print "display patient demographic window now"
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
-		wxCallAfter(self.__update_allergies)
+		wx.CallAfter(self.__update_allergies)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 		epr = self.curr_pat.get_clinical_record()
@@ -342,20 +342,20 @@ class cMainTopPanel(wxPanel):
 	def AddWidgetRightBottom (self, widget):
 		"""Insert a widget on the right-hand side of the bottom toolbar.
 		"""
-		self.szr_bottom_row.Add(widget, 0, wxRIGHT, 0)
+		self.szr_bottom_row.Add(widget, 0, wx.RIGHT, 0)
 	#-------------------------------------------------------
 	def AddWidgetLeftBottom (self, widget):
 		"""Insert a widget on the left-hand side of the bottom toolbar.
 		"""
-		self.szr_bottom_row.Prepend(widget, 0, wxALL, 0)
+		self.szr_bottom_row.Prepend(widget, 0, wx.ALL, 0)
 	#-------------------------------------------------------
 	def CreateBar(self):
 		"""Creates empty toolbar suited for adding to top panel."""
-		bar = wxToolBar (
+		bar = wx.ToolBar (
 			self.pnl_bottom_row,
 			-1,
 			size = self.pnl_bottom_row.GetClientSize(),
-			style = wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
+			style = wxTB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT
 		)
 		return bar
 	#-------------------------------------------------------
@@ -389,7 +389,7 @@ class cMainTopPanel(wxPanel):
 				th = nth
 		#import pdb
 		#pdb.set_trace ()
-		sz = wxSize (tw, th)
+		sz = wx.Size (tw, th)
 		self.pnl_bottom_row.SetSize(sz)
 		for i in self.subbars.values():
 			i.SetSize (sz)
@@ -421,7 +421,7 @@ class cMainTopPanel(wxPanel):
 
 #===========================================================	
 if __name__ == "__main__":
-	wxInitAllImageHandlers()
+	wx.InitAllImageHandlers()
 	gb = gmGuiBroker.GuiBroker()
 	gb['gnumed_dir'] = '..'
 	app = wxPyWidgetTester(size = (400, 200))
@@ -429,7 +429,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.64  2005-09-26 18:01:51  ncq
+# Revision 1.65  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.64  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

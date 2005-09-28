@@ -221,10 +221,10 @@ if __name__ == "__main__":
 					w.SetPosition( ( x, y + yc) )
 					
 
-	class REPanel(wxPanel):
+	class REPanel(wx.Panel):
 		def __init__(self, parent, id):
-			wxPanel.__init__(self, parent, id)
-			szr1 = wxBoxSizer(wxVERTICAL)
+			wx.Panel.__init__(self, parent, id)
+			szr1 = wx.BoxSizer(wx.VERTICAL)
 			self.wmap = {}
 			self.smap = {}
 			#for i in range(0,4):
@@ -240,15 +240,15 @@ if __name__ == "__main__":
 			
 
 		def getLine( self, text, szr):
-			szr2 = wxBoxSizer(wxHORIZONTAL)
-			szr2.Add(wxStaticText(self, -1, text) )
+			szr2 = wx.BoxSizer(wx.HORIZONTAL)
+			szr2.Add(wx.StaticText(self, -1, text) )
 			#ctrl = wxTextCtrl(self, -1, "")
-			ctrl = wxTextCtrl(self, -1, "\n", wxDefaultPosition,
-				wxDefaultSize, wxTE_MULTILINE  ) 
+			ctrl = wx.TextCtrl(self, -1, "\n", wx.DefaultPosition,
+				wx.DefaultSize, wx.TE_MULTILINE  ) 
 			self.wmap[text] = ctrl
-			szr2.Add(ctrl, 1, wxGROW )
+			szr2.Add(ctrl, 1, wx.GROW )
 			self.smap[text] = REWResizer(ctrl) # hold on so not garbage collected
-			szr.Add(szr2, 1, wxGROW)
+			szr.Add(szr2, 1, wx.GROW)
 			return szr
 			
 			
@@ -256,12 +256,12 @@ if __name__ == "__main__":
 					
 
 
-	class REFrame(wxFrame):
+	class REFrame(wx.Frame):
 		def __init__(self, parent, id, title):
-			wxFrame.__init__(self,parent, id, title)
+			wx.Frame.__init__(self,parent, id, title)
 			self.p = REPanel(self,-1)
 
-	class REApp(wxApp):
+	class REApp(wx.App):
 
 		def OnInit(self):
 			f = REFrame(None, -1, "Richards XPEditor")	

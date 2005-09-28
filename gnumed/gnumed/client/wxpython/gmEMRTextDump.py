@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.13 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmEMRTextDump.py,v 1.14 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -20,24 +20,24 @@ except ImportError:
 
 _log = gmLog.gmDefLog
 #============================================================
-class gmEMRDumpPanel(wxPanel):
+class gmEMRDumpPanel(wx.Panel):
 	def __init__(self, *args, **kwargs):
-		wxPanel.__init__(self, *args, **kwargs)
+		wx.Panel.__init__(self, *args, **kwargs)
 		self.__do_layout()
 
 		if not self.__register_events():
 			raise gmExceptions.ConstructorError, 'cannot register interests'
 	#--------------------------------------------------------
 	def __do_layout(self):
-		self.txt = wxTextCtrl(
+		self.txt = wx.TextCtrl(
 			self,
 			-1,
 			_('No EMR data loaded.'),
-			style = wxTE_MULTILINE | wxTE_READONLY 
+			style = wx.TE_MULTILINE | wx.TE_READONLY 
 		)
 		# arrange widgets
-		szr_outer = wxStaticBoxSizer(wxStaticBox(self, -1, _("EMR text dump")), wxVERTICAL)
-		szr_outer.Add(self.txt, 1, wxEXPAND, 0)
+		szr_outer = wxStaticBoxSizer(wx.StaticBox(self, -1, _("EMR text dump")), wx.VERTICAL)
+		szr_outer.Add(self.txt, 1, wx.EXPAND, 0)
 		# and do layout
 		self.SetAutoLayout(1)
 		self.SetSizer(szr_outer)
@@ -88,9 +88,9 @@ class gmEMRDumpPanel(wxPanel):
 		self.txt.SetValue(txt)
 		return True
 #============================================================
-class gmScrolledEMRTextDump(wxScrolledWindow):
+class gmScrolledEMRTextDump(wx.ScrolledWindow):
 	def __init__(self, parent):
-		wxScrolledWindow.__init__(
+		wx.ScrolledWindow.__init__(
 			self,
 			parent,
 			-1
@@ -103,14 +103,14 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 #			style = wxST_NO_AUTORESIZE
 #			style = wxALIGN_LEFT
 #		)
-		self.txt = wxTextCtrl(
+		self.txt = wx.TextCtrl(
 			self,
 			-1,
 			_('No EMR data loaded.'),
-			style = wxTE_MULTILINE | wxTE_READONLY 
+			style = wx.TE_MULTILINE | wx.TE_READONLY 
 		)
-		szr_vbox_main = wxBoxSizer(wxVERTICAL)
-		szr_vbox_main.Add(self.txt, 0, wxEXPAND | wxCENTER | wxALL, 5)
+		szr_vbox_main = wx.BoxSizer(wx.VERTICAL)
+		szr_vbox_main.Add(self.txt, 0, wxEXPAND | wx.CENTER | wx.ALL, 5)
 
 		self.SetAutoLayout(1)
 		self.SetSizer(szr_vbox_main)
@@ -122,12 +122,15 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 		# scroll back to top after initial events
 		self.EnableScrolling(0, 1)
 		self.SetScrollRate(0, 20)
-		wxCallAfter(self.Scroll, 0, 0)
+		wx.CallAfter(self.Scroll, 0, 0)
 
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.13  2005-09-26 18:01:50  ncq
+# Revision 1.14  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.13  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

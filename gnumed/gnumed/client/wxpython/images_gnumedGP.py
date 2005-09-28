@@ -19,10 +19,10 @@ def getAddData():
 \xf9\x08\x1d \xcbb\x01xda&\x90#\x8b\xdfd\neQ\xd23NY=\x00\x84\\\xc2\x0c' ))
 
 def getAddBitmap():
-    return wxBitmapFromXPMData(getAddData())
+    return wx.BitmapFromXPMData(getAddData())
 
 def getAddImage():
-    return wxImageFromBitmap(getAddBitmap())
+    return wx.ImageFromBitmap(getAddBitmap())
 
 #----------------------------------------------------------------------
 def getAllergiesData():
@@ -33,10 +33,10 @@ def getAllergiesData():
  @\xbe\x1e\xe9\x82 \x00\x16\x00\x01\x1a:\x1e\x1eJ0A=\x00\xc7\nY\x1d' ))
 
 def getAllergiesBitmap():
-    return wxBitmapFromXPMData(getAllergiesData())
+    return wx.BitmapFromXPMData(getAllergiesData())
 
 def getAllergiesImage():
-    return wxImageFromBitmap(getAllergiesBitmap())
+    return wx.ImageFromBitmap(getAllergiesBitmap())
 
 #----------------------------------------------------------------------
 def getBlood_TubeData():
@@ -49,10 +49,10 @@ def getBlood_TubeData():
 Ns\xf6\xa68\x98"\xf6\xf6A\xc4\x1f\x7f\xff\x1f\xe9\x05;\xb7V\x99' ))
 
 def getBlood_TubeBitmap():
-    return wxBitmapFromXPMData(getBlood_TubeData())
+    return wx.BitmapFromXPMData(getBlood_TubeData())
 
 def getBlood_TubeImage():
-    return wxImageFromBitmap(getBlood_TubeBitmap())
+    return wx.ImageFromBitmap(getBlood_TubeBitmap())
 
 #----------------------------------------------------------------------
 def getCalculatorData():
@@ -65,10 +65,10 @@ def getCalculatorData():
 \x83jd' ))
 
 def getCalculatorBitmap():
-    return wxBitmapFromXPMData(getCalculatorData())
+    return wx.BitmapFromXPMData(getCalculatorData())
 
 def getCalculatorImage():
-    return wxImageFromBitmap(getCalculatorBitmap())
+    return wx.ImageFromBitmap(getCalculatorBitmap())
 
 #----------------------------------------------------------------------
 def getFamily_HistoryData():
@@ -83,10 +83,10 @@ $p\x1bG}\xa6\xb5\x16\xf4CDf\xc4.Q4 \x10\x12\x9c\x12\x88\xa8Hmo\x92\x8bd)c\
 \x006\xb1`\xc1" ))
 
 def getFamily_HistoryBitmap():
-    return wxBitmapFromXPMData(getFamily_HistoryData())
+    return wx.BitmapFromXPMData(getFamily_HistoryData())
 
 def getFamily_HistoryImage():
-    return wxImageFromBitmap(getFamily_HistoryBitmap())
+    return wx.ImageFromBitmap(getFamily_HistoryBitmap())
 
 #----------------------------------------------------------------------
 def getImmunisationsData():
@@ -98,10 +98,10 @@ def getImmunisationsData():
 \x9b\xc2\xcf\n~\xebTH\xf5\xd2\x17\xb5!\xff\xe9\x0f\xa2E>9IF\x82' ))
 
 def getImmunisationsBitmap():
-    return wxBitmapFromXPMData(getImmunisationsData())
+    return wx.BitmapFromXPMData(getImmunisationsData())
 
 def getImmunisationsImage():
-    return wxImageFromBitmap(getImmunisationsBitmap())
+    return wx.ImageFromBitmap(getImmunisationsBitmap())
 
 #----------------------------------------------------------------------
 def getMeasurementsData():
@@ -116,10 +116,10 @@ t\x15\xc7\x13\xbc\xf7\x9f.\xb1?\xea\xc5"|_\xd2\xc4\xf8\xda\xbf]\xb54\xdd\x1b\
 QzJ\xd0\xbf\xa7\xbb\xc4c\x92~E\xd5oJ' ))
 
 def getMeasurementsBitmap():
-    return wxBitmapFromXPMData(getMeasurementsData())
+    return wx.BitmapFromXPMData(getMeasurementsData())
 
 def getMeasurementsImage():
-    return wxImageFromBitmap(getMeasurementsBitmap())
+    return wx.ImageFromBitmap(getMeasurementsBitmap())
 
 #----------------------------------------------------------------------
 def getPast_HistoryData():
@@ -134,8 +134,8 @@ D7\x0e\xdd\xb6\x0ep\xbbK\xc7\xb6\x7f\x0b\xf2\x82\xfa\xb7\xd4\x14\x0b&\xc5S\
 \xf8\x03\x05\x94\x87\xcb" ))
 
 def getPast_HistoryBitmap():
-    return wxBitmapFromXPMData(getPast_HistoryData())
+    return wx.BitmapFromXPMData(getPast_HistoryData())
 
 def getPast_HistoryImage():
-    return wxImageFromBitmap(getPast_HistoryBitmap())
+    return wx.ImageFromBitmap(getPast_HistoryBitmap())
 

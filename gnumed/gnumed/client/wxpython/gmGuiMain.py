@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.217 2005-09-27 20:44:58 ncq Exp $
-__version__ = "$Revision: 1.217 $"
+# $Id: gmGuiMain.py,v 1.218 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.218 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -799,7 +799,7 @@ class gmApp(wx.App):
 		"""Called:
 
 		- after destroying all application windows and controls
-		- before wxWindows internal cleanup
+		- before wx.Windows internal cleanup
 		"""
 		pass
 	#----------------------------------------------
@@ -933,7 +933,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.217  2005-09-27 20:44:58  ncq
+# Revision 1.218  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.217  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.216  2005/09/26 18:01:50  ncq
@@ -1112,7 +1115,7 @@ if __name__ == '__main__':
 # Revision 1.165  2004/07/24 17:21:49  ncq
 # - some cleanup, also re from wxPython import wx
 # - factored out Horst space layout manager into it's own
-#   wxPanel child class
+#   wx.Panel child class
 # - subsequently renamed
 # 	'main.notebook.plugins' -> 'horstspace.notebook.pages'
 # 	'modules.gui' -> 'horstspace.notebook.gui' (to be renamed horstspace.notebook.plugins later)

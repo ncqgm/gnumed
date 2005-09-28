@@ -25,10 +25,10 @@ def getTab_ScriptData():
 Q\x82H\x00\xaf *\xc0%\xa8\x07\x00\xe8\x8bh\xd4' ))
 
 def getTab_ScriptBitmap():
-    return wxBitmapFromXPMData(getTab_ScriptData())
+    return wx.BitmapFromXPMData(getTab_ScriptData())
 
 def getTab_ScriptImage():
-    return wxImageFromBitmap(getTab_ScriptBitmap())
+    return wx.ImageFromBitmap(getTab_ScriptBitmap())
 
 #----------------------------------------------------------------------
 def getTab_RequestsData():
@@ -42,10 +42,10 @@ s\xa6a\xe2n`\x19\x96 \xa5\xb5\x1a\xf6\xea\x0c\xab\xde\xb0\xea\x8d(\xa5.\xffx\
 \xad\xec\x0fZ\xcaQ\x82" ))
 
 def getTab_RequestsBitmap():
-    return wxBitmapFromXPMData(getTab_RequestsData())
+    return wx.BitmapFromXPMData(getTab_RequestsData())
 
 def getTab_RequestsImage():
-    return wxImageFromBitmap(getTab_RequestsBitmap())
+    return wx.ImageFromBitmap(getTab_RequestsBitmap())
 
 #----------------------------------------------------------------------
 def getTab_ReferralsData():
@@ -58,10 +58,10 @@ G$\x88\x925T\xb2\x86\xbdla/[\xa8e\t\x95\x04\xe8\x8b<\xbd\x1d\x9f\xfd\xf8%\
 \xbc\x017NM\x1b' ))
 
 def getTab_ReferralsBitmap():
-    return wxBitmapFromXPMData(getTab_ReferralsData())
+    return wx.BitmapFromXPMData(getTab_ReferralsData())
 
 def getTab_ReferralsImage():
-    return wxImageFromBitmap(getTab_ReferralsBitmap())
+    return wx.ImageFromBitmap(getTab_ReferralsBitmap())
 
 #----------------------------------------------------------------------
 def getTab_RecallsData():
@@ -74,10 +74,10 @@ def getTab_RecallsData():
 \x0b\x84\xb1Y\x9a" ))
 
 def getTab_RecallsBitmap():
-    return wxBitmapFromXPMData(getTab_RecallsData())
+    return wx.BitmapFromXPMData(getTab_RecallsData())
 
 def getTab_RecallsImage():
-    return wxImageFromBitmap(getTab_RecallsBitmap())
+    return wx.ImageFromBitmap(getTab_RecallsBitmap())
 
 #----------------------------------------------------------------------
 def getTab_Letters_ReceivedData():
@@ -90,10 +90,10 @@ ZC\xc6\x06\xd4\xff\x9f*KvcO=B\xc8=\xce\t\xe4~~\xe2\xb2\xf9\xf8tr=\\\xf4\xcb\
 \xf3qF\x94\x97\xcam\xfc\xd0\x98\x8e4e\xfcKW\x04\xe1\x0b\xdf\xc6j\xeb' ))
 
 def getTab_Letters_ReceivedBitmap():
-    return wxBitmapFromXPMData(getTab_Letters_ReceivedData())
+    return wx.BitmapFromXPMData(getTab_Letters_ReceivedData())
 
 def getTab_Letters_ReceivedImage():
-    return wxImageFromBitmap(getTab_Letters_ReceivedBitmap())
+    return wx.ImageFromBitmap(getTab_Letters_ReceivedBitmap())
 
 #----------------------------------------------------------------------
 def getTab_MeasurementsData():
@@ -105,8 +105,8 @@ def getTab_MeasurementsData():
 \x015\xdcI}\x95z\x00\x14u_\'' ))
 
 def getTab_MeasurementsBitmap():
-    return wxBitmapFromXPMData(getTab_MeasurementsData())
+    return wx.BitmapFromXPMData(getTab_MeasurementsData())
 
 def getTab_MeasurementsImage():
-    return wxImageFromBitmap(getTab_MeasurementsBitmap())
+    return wx.ImageFromBitmap(getTab_MeasurementsBitmap())
 

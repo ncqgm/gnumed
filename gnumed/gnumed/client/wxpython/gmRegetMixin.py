@@ -8,7 +8,7 @@ If it *is* visible it will immediately fetch and redisplay.
 
 You must call cRegetOnPaintMixin.__init__() in your own
 __init__() after calling __init__() on the appropriate
-wxWidgets class your widget inherits from.
+wx.Widgets class your widget inherits from.
 
 You must then make sure to call _schedule_data_reget()
 whenever you learn of backend data changes. This will
@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.22 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmRegetMixin.py,v 1.23 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -44,7 +44,7 @@ class cRegetOnPaintMixin:
 
 	Any code mixing in this class will gain the mechanism
 	to reget data on wxPaint events. The code must be an
-	instance of a wxWindow and must implement a
+	instance of a wx.Window and must implement a
 	_populate_with_data() method. It must also call
 	_schedule_data_reget() at appropriate times.
 	"""
@@ -128,7 +128,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.22  2005-09-27 20:44:59  ncq
+# Revision 1.23  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.22  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.21  2005/09/26 18:01:51  ncq

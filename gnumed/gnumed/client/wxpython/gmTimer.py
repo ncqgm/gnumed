@@ -1,18 +1,18 @@
-"""GnuMed wxTimer proxy object.
+"""GnuMed wx.Timer proxy object.
 
 @copyright: author(s)
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.7 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmTimer.py,v 1.8 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
 # 3rd party
 try:
 	import wxversion
-	import wx.Timer as wxTimer
+	import wx.Timer
 except ImportError:
 	from wxPython.wx import wxTimer
 
@@ -22,8 +22,8 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #===========================================================================
-class cTimer(wxTimer):
-	"""wxTimer proxy.
+class cTimer(wx.Timer):
+	"""wx.Timer proxy.
 
 	It would be quite useful to tune the delay
 	according to current network speed either at
@@ -48,12 +48,12 @@ class cTimer(wxTimer):
 		self.__callback = callback
 		self.__delay = delay
 
-		wxTimer.__init__(self)
+		wx.Timer.__init__(self)
 	#-----------------------------------------------------------------------
 	def Start(self, milliseconds=-1, oneShot=False):
 		if milliseconds == -1:
 			milliseconds = self.__delay
-		wxTimer.Start(self, milliseconds=milliseconds, oneShot=oneShot)
+		wx.Timer.Start(self, milliseconds=milliseconds, oneShot=oneShot)
 	#-----------------------------------------------------------------------
 	def Notify(self):
 		self.__callback(self.__cookie)
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 		print "timer <%s> fired" % cookie
 		return 1
 	#-----------------------------------------------------------------------
-	class cApp(wxApp):
+	class cApp(wx.App):
 		def OnInit(self):
 			print "setting up timer"
 			timer = cTimer(callback = cb_timer)
@@ -93,7 +93,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.7  2005-09-27 20:44:59  ncq
+# Revision 1.8  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.7  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.6  2005/09/26 18:01:51  ncq

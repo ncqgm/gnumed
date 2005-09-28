@@ -26,50 +26,50 @@ except ImportError:
 from Gnumed.wxpython import gmSQLListControl
 from Gnumed.pycommon import gmI18N
 
-ID_COMBO_SEARCHEXPR = wxNewId()
-ID_BUTTON_SEARCH = wxNewId()
-ID_CHECKBOX_CASEINSENSITIVE = wxNewId()
-ID_LISTCTRL = wxNewId()
+ID_COMBO_SEARCHEXPR = wx.NewId()
+ID_BUTTON_SEARCH = wx.NewId()
+ID_CHECKBOX_CASEINSENSITIVE = wx.NewId()
+ID_LISTCTRL = wx.NewId()
 
-class SQLSimpleSearch(wxPanel):
+class SQLSimpleSearch(wx.Panel):
 	"""
 	gmSQLSimpleSearch - a widget for simple database
 	search & selection interaction
 	"""
 	
 	def __init__(self, parent, id,
-		pos = wxDefaultPosition, size = wxDefaultSize,
-		style = wxTAB_TRAVERSAL, service = 'default' ):
+		pos = wx.DefaultPosition, size = wx.DefaultSize,
+		style = wx.TAB_TRAVERSAL, service = 'default' ):
 
 		self.selected = None
 
 		#the backend service to connect to
 		self.SetService(service)
 
-		wxPanel.__init__(self, parent, id, pos, size, style)
+		wx.Panel.__init__(self, parent, id, pos, size, style)
 
-		self.sizerTopVertical = wxBoxSizer( wxVERTICAL )
+		self.sizerTopVertical = wx.BoxSizer( wx.VERTICAL )
 
-		self.sizerSearchExpr = wxBoxSizer( wxHORIZONTAL )
+		self.sizerSearchExpr = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.comboSearchExpr = wxComboBox( self, ID_COMBO_SEARCHEXPR, "", wxDefaultPosition, wxSize(170,-1),
-			[''] , wxCB_DROPDOWN )
-		self.sizerSearchExpr.Add( self.comboSearchExpr, 1, wxALIGN_CENTRE|wxALL, 2 )
+		self.comboSearchExpr = wxComboBox( self, ID_COMBO_SEARCHEXPR, "", wx.DefaultPosition, wx.Size(170,-1),
+			[''] , wx.CB_DROPDOWN )
+		self.sizerSearchExpr.Add( self.comboSearchExpr, 1, wx.ALIGN_CENTRE|wx.ALL, 2 )
 
-		self.buttonSearch = wxButton( self, ID_BUTTON_SEARCH, _("&Search"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchExpr.Add( self.buttonSearch, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.buttonSearch = wxButton( self, ID_BUTTON_SEARCH, _("&Search"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerSearchExpr.Add( self.buttonSearch, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 
-		self.checkboxCaseInsensitive = wxCheckBox( self, ID_CHECKBOX_CASEINSENSITIVE, _("&Case insensitive"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchExpr.Add( self.checkboxCaseInsensitive, 0, wxALIGN_CENTRE|wxALL, 2 )
+		self.checkboxCaseInsensitive = wxCheckBox( self, ID_CHECKBOX_CASEINSENSITIVE, _("&Case insensitive"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerSearchExpr.Add( self.checkboxCaseInsensitive, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 
-		self.sizerTopVertical.AddSizer( self.sizerSearchExpr, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
+		self.sizerTopVertical.AddSizer( self.sizerSearchExpr, 0, wxGROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 2 )
 
-		self.sizerSearchResults = wxBoxSizer( wxHORIZONTAL )
+		self.sizerSearchResults = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.listctrlSearchResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRL, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES|wxLC_HRULES )
-		self.sizerSearchResults.Add( self.listctrlSearchResults, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 2 )
+		self.listctrlSearchResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRL, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxSUNKEN_BORDER|wx.LC_VRULES|wx.LC_HRULES )
+		self.sizerSearchResults.Add( self.listctrlSearchResults, 1, wxGROW|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 2 )
 
-		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
+		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 2 )
 
 		self.SetAutoLayout( True )
 		self.SetSizer( self.sizerTopVertical )
@@ -84,7 +84,7 @@ class SQLSimpleSearch(wxPanel):
 		EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnSearchResultItemSelected)
 		EVT_CHECKBOX(self, ID_CHECKBOX_CASEINSENSITIVE, self.OnCaseInsensitiveCheckbox)
 		EVT_BUTTON(self, ID_BUTTON_SEARCH, self.OnSearch)
-		EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
+		EVT_BUTTON(self, wx.ID_CANCEL, self.OnCancel)
 		EVT_CHAR(self, self.OnChar)
 		EVT_IDLE(self, self.OnIdle)
 

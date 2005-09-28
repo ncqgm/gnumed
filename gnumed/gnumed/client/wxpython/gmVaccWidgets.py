@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.20 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmVaccWidgets.py,v 1.21 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -67,7 +67,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			parent = parent
 			, id = -1
 			, aMatchProvider = mp
-			, style = wxSIMPLE_BORDER
+			, style = wx.SIMPLE_BORDER
 		)
 		gmEditArea._decorate_editarea_field(self.fld_vaccine)
 		self._add_field(
@@ -114,7 +114,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			parent = parent
 			, id = -1
 			, aMatchProvider = mp
-			, style = wxSIMPLE_BORDER
+			, style = wx.SIMPLE_BORDER
 		)
 		gmEditArea._decorate_editarea_field(self.fld_site_given)
 		self._add_field(
@@ -139,7 +139,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			parent = parent
 			, id = -1
 			, aMatchProvider = mp
-			, style = wxSIMPLE_BORDER
+			, style = wx.SIMPLE_BORDER
 		)
 		gmEditArea._decorate_editarea_field(self.fld_progress_note)
 		self._add_field(
@@ -260,17 +260,17 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		_log.Log(gmLog.lErr, 'do not know how to handle [%s:%s]' % (type(aVacc), str(aVacc)))
 		return False
 #======================================================================
-class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent, id):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pat = gmPerson.gmCurrentPatient()
 		# do this here so "import cImmunisationsPanel from gmVaccWidgets" works
-		self.ID_VaccinatedIndicationsList = wxNewId()
-		self.ID_VaccinationsPerRegimeList = wxNewId()
-		self.ID_MissingShots = wxNewId()
-		self.ID_ActiveSchedules = wxNewId()
+		self.ID_VaccinatedIndicationsList = wx.NewId()
+		self.ID_VaccinationsPerRegimeList = wx.NewId()
+		self.ID_MissingShots = wx.NewId()
+		self.ID_ActiveSchedules = wx.NewId()
 		self.__do_layout()
 		self.__register_interests()
 		self.__reset_ui_content()
@@ -280,7 +280,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# top part
 		#-----------------------------------------------
 		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("  IMMUNISATIONS  "))
-		self.editarea = cVaccinationEditArea(self, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
+		self.editarea = cVaccinationEditArea(self, -1, wxDefaultPosition, wx.DefaultSize, wx.NO_BORDER)
 
 		#-----------------------------------------------
 		# middle part
@@ -289,60 +289,60 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		indications_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Indications"))
 		vaccinations_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Vaccinations"))
 		schedules_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Active Schedules"))
-		szr_MiddleCap = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleCap.Add(indications_heading, 4, wxEXPAND)
-		szr_MiddleCap.Add(vaccinations_heading, 6, wxEXPAND)
-		szr_MiddleCap.Add(schedules_heading, 10, wxEXPAND)
+		szr_MiddleCap = wx.BoxSizer(wx.HORIZONTAL)
+		szr_MiddleCap.Add(indications_heading, 4, wx.EXPAND)
+		szr_MiddleCap.Add(vaccinations_heading, 6, wx.EXPAND)
+		szr_MiddleCap.Add(schedules_heading, 10, wx.EXPAND)
 
 		# left list: indications for which vaccinations have been given
-		self.LBOX_vaccinated_indications = wxListBox(
+		self.LBOX_vaccinated_indications = wx.ListBox(
 			parent = self,
 			id = self.ID_VaccinatedIndicationsList,
 			choices = [],
-			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
+			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_vaccinated_indications.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.LBOX_vaccinated_indications.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		# right list: when an indication has been selected on the left
 		# display the corresponding vaccinations on the right
-		self.LBOX_given_shots = wxListBox(
+		self.LBOX_given_shots = wx.ListBox(
 			parent = self,
 			id = self.ID_VaccinationsPerRegimeList,
 			choices = [],
-			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
+			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
-		self.LBOX_active_schedules = wxListBox (
+		self.LBOX_active_schedules = wx.ListBox (
 			parent = self,
 			id = self.ID_ActiveSchedules,
 			choices = [],
-			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
+			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_active_schedules.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.LBOX_active_schedules.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
-		szr_MiddleLists = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4, wxEXPAND)
-		szr_MiddleLists.Add(self.LBOX_given_shots, 6, wxEXPAND)
-		szr_MiddleLists.Add(self.LBOX_active_schedules, 10, wxEXPAND)
+		szr_MiddleLists = wx.BoxSizer(wx.HORIZONTAL)
+		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4, wx.EXPAND)
+		szr_MiddleLists.Add(self.LBOX_given_shots, 6, wx.EXPAND)
+		szr_MiddleLists.Add(self.LBOX_active_schedules, 10, wx.EXPAND)
 
 		#---------------------------------------------
 		# bottom part
 		#---------------------------------------------
 		missing_heading = gmTerryGuiParts.cDividerCaption(self, -1, _("Missing Immunisations"))
-		szr_BottomCap = wxBoxSizer(wxHORIZONTAL)
-		szr_BottomCap.Add(missing_heading, 1, wxEXPAND)
+		szr_BottomCap = wx.BoxSizer(wx.HORIZONTAL)
+		szr_BottomCap.Add(missing_heading, 1, wx.EXPAND)
 
-		self.LBOX_missing_shots = wxListBox (
+		self.LBOX_missing_shots = wx.ListBox (
 			parent = self,
 			id = self.ID_MissingShots,
 			choices = [],
-			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
+			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_missing_shots.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.LBOX_missing_shots.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
-		szr_BottomLists = wxBoxSizer(wxHORIZONTAL)
-		szr_BottomLists.Add(self.LBOX_missing_shots, 1, wxEXPAND)
+		szr_BottomLists = wx.BoxSizer(wx.HORIZONTAL)
+		szr_BottomLists.Add(self.LBOX_missing_shots, 1, wx.EXPAND)
 
 		# alert caption
 		pnl_AlertCaption = gmTerryGuiParts.cAlertCaption(self, -1, _('  Alerts  '))
@@ -350,14 +350,14 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#---------------------------------------------
 		# add all elements to the main background sizer
 		#---------------------------------------------
-		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.mainsizer.Add(pnl_UpperCaption, 0, wxEXPAND)
-		self.mainsizer.Add(self.editarea, 6, wxEXPAND)
-		self.mainsizer.Add(szr_MiddleCap, 0, wxEXPAND)
-		self.mainsizer.Add(szr_MiddleLists, 4, wxEXPAND)
-		self.mainsizer.Add(szr_BottomCap, 0, wxEXPAND)
-		self.mainsizer.Add(szr_BottomLists, 4, wxEXPAND)
-		self.mainsizer.Add(pnl_AlertCaption, 0, wxEXPAND)
+		self.mainsizer = wx.BoxSizer(wx.VERTICAL)
+		self.mainsizer.Add(pnl_UpperCaption, 0, wx.EXPAND)
+		self.mainsizer.Add(self.editarea, 6, wx.EXPAND)
+		self.mainsizer.Add(szr_MiddleCap, 0, wx.EXPAND)
+		self.mainsizer.Add(szr_MiddleLists, 4, wx.EXPAND)
+		self.mainsizer.Add(szr_BottomCap, 0, wx.EXPAND)
+		self.mainsizer.Add(szr_BottomLists, 4, wx.EXPAND)
+		self.mainsizer.Add(pnl_AlertCaption, 0, wx.EXPAND)
 
 		self.SetAutoLayout(True)
 		self.SetSizer(self.mainsizer)
@@ -530,7 +530,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.20  2005-09-26 18:01:51  ncq
+# Revision 1.21  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.20  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

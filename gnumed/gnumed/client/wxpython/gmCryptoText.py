@@ -42,15 +42,15 @@ except ImportError:
 
 import string, rotor, binascii
 
-ID_POP_ENCRYPT = wxNewId()
-ID_POP_DECRYPT = wxNewId()
-ID_POP_PASSPHRASE = wxNewId()
+ID_POP_ENCRYPT = wx.NewId()
+ID_POP_DECRYPT = wx.NewId()
+ID_POP_PASSPHRASE = wx.NewId()
 
-class gmTextctrlFileDropTarget(wxFileDropTarget):
+class gmTextctrlFileDropTarget(wx.FileDropTarget):
     """ a generic text control widget that accepts dropped files """
 
     def __init__(self, textwindow):
-        wxFileDropTarget.__init__(self)
+        wx.FileDropTarget.__init__(self)
         self.textwindow=textwindow
 
     def OnDropFiles(self, x, y, filenames):
@@ -59,7 +59,7 @@ class gmTextctrlFileDropTarget(wxFileDropTarget):
             self.textwindow.WriteText(string.join(open(file, 'r').readlines()))
 
 
-class gmCryptoText(wxTextCtrl):
+class gmCryptoText(wx.TextCtrl):
     """A special text widget that supports cryptography
 
     A right mouse click pops up a manu that allows to encrypt
@@ -69,10 +69,10 @@ class gmCryptoText(wxTextCtrl):
     position
     """
 
-    def __init__(self, parent, id, size=wxDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
+    def __init__(self, parent, id, size=wxDefaultSize, style=wx.TE_MULTILINE|wx.TE_RICH, defaulttext=None):
         #initialize parent class
-        wxTextCtrl.__init__(self, parent, id, size=size, style=style)
- 	self.SetDefaultStyle(wxTextAttr(wxRED))
+        wx.TextCtrl.__init__(self, parent, id, size=size, style=style)
+ 	self.SetDefaultStyle(wx.TextAttr(wx.RED))
 
         #will search for text tags within fuzzymargin characters
         self.fuzzymargin = 25
@@ -88,7 +88,7 @@ class gmCryptoText(wxTextCtrl):
 		self.WriteText(defaulttext)
 
         #a reserved ID for events related to this widget
-        self.aID = wxNewId()
+        self.aID = wx.NewId()
 
         #make this text widget a drop target for drag&dropped text files
         dt = gmTextctrlFileDropTarget(self)
@@ -107,7 +107,7 @@ class gmCryptoText(wxTextCtrl):
         self.selectionStart, self.selectionEnd = self.GetSelection()
 
         #create a popup menu
-        menu = wxMenu()
+        menu = wx.Menu()
         menu.Append(ID_POP_ENCRYPT, _("Encrypt"))
         menu.Append(ID_POP_DECRYPT, _("Decrypt"))
         menu.Append(ID_POP_PASSPHRASE, _("Set pass phrase"))
@@ -163,7 +163,7 @@ class gmCryptoText(wxTextCtrl):
             self.FuzzyScanSelection(self.selectionStart, self.selectionEnd, self.fuzzymargin)
         #is the selection tagged as encrypted ?
         if textselection[:2] != '<!' or textselection[-2:] != '!>':
-            wxMessageBox(_("This is not correctly encrypted text!"))
+            wx.MessageBox(_("This is not correctly encrypted text!"))
             return
         #get rid of the tags
         textselection = textselection[2:-2]
@@ -185,8 +185,8 @@ class gmCryptoText(wxTextCtrl):
 
     def AskForPassphrase(self):
         """asks for a pass phrase and returns it"""
-        dlg = wxTextEntryDialog(self, _("Please enter your pass phrase:"), _("Pass phrase expired"), style=wxOK|wxCANCEL|wxCENTRE|wxTE_PASSWORD)
-        if dlg.ShowModal() == wxID_OK:
+        dlg = wxTextEntryDialog(self, _("Please enter your pass phrase:"), _("Pass phrase expired"), style=wxOK|wxCANCEL|wx.CENTRE|wx.TE_PASSWORD)
+        if dlg.ShowModal() == wx.ID_OK:
             retval = dlg.GetValue()
         else:
             retval = None
@@ -244,7 +244,7 @@ class gmCryptoText(wxTextCtrl):
             left = string.rindex(fulltext, '<', start, frompos)
             right = string.index(fulltext, '>', topos, finish)+1
         except ValueError:
-            wxLogMessage("FuzzyScan went wrong")
+            wx.LogMessage("FuzzyScan went wrong")
             return ''
         return fulltext[left:right], left,right
  

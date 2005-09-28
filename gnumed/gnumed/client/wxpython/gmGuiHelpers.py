@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.24 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmGuiHelpers.py,v 1.25 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,11 +52,11 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	print "-" * len(aTitle)
 	print aMessage
 
-	dlg = wxMessageDialog (
+	dlg = wx.MessageDialog (
 		parent = NULL,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wxICON_ERROR | wxSTAY_ON_TOP
+		style = wxOK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -74,11 +74,11 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 	if aTitle is None:
 		aTitle = _('generic info message')
 
-	dlg = wxMessageDialog (
+	dlg = wx.MessageDialog (
 		parent = NULL,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wxICON_INFORMATION | wxSTAY_ON_TOP
+		style = wxOK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -96,11 +96,11 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 	if aTitle is None:
 		aTitle = _('generic warning message')
 
-	dlg = wxMessageDialog (
+	dlg = wx.MessageDialog (
 		parent = NULL,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wxICON_EXCLAMATION | wxSTAY_ON_TOP
+		style = wxOK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -113,16 +113,16 @@ def gm_show_question(aMessage = None, aTitle = None):
 	if aTitle is None:
 		aTitle = _('generic user question dialog')
 
-	dlg = wxMessageDialog(
+	dlg = wx.MessageDialog(
 		NULL,
 		aMessage,
 		aTitle,
-		wxYES_NO | wxICON_QUESTION | wxSTAY_ON_TOP
+		wxYES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
 
-	if btn_pressed == wxID_YES:
+	if btn_pressed == wx.ID_YES:
 		return True
 	else:
 		return False
@@ -137,7 +137,7 @@ def gm_beep_statustext(aMessage=None, aLogLevel=None):
 		log_msg = string.replace(log_msg, '\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
-	wxBell()
+	wx.Bell()
 
 	# only now and here can we assume that wxWindows
 	# is sufficiently initialized
@@ -159,31 +159,31 @@ def gm_icon (name):
 	Hint: run names through gettext ()
 	"""
 	fname = os.path.join(gmGuiBroker.GuiBroker ()['gnumed_dir'], 'bitmaps', '%s.png' % name)
-	img = wxImage(fname, wxBITMAP_TYPE_ANY)
-	return wxBitmapFromImage(img)
+	img = wx.Image(fname, wx.BITMAP_TYPE_ANY)
+	return wx.BitmapFromImage(img)
 #----------------------------------------------------------------------
 def makePageTitle(wizPg, title):
 	"""
 	Utility function to create the main sizer of a wizard's page.
 	
 	@param wizPg The wizard page widget
-	@type wizPg A wxWizardPageSimple instance	
+	@type wizPg A wx.WizardPageSimple instance	
 	@param title The wizard page's descriptive title
 	@type title A StringType instance		
 	"""
-	sizer = wxBoxSizer(wxVERTICAL)
+	sizer = wx.BoxSizer(wx.VERTICAL)
 	wizPg.SetSizer(sizer)
-	title = wxStaticText(wizPg, -1, title)
-	title.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD))
-	sizer.Add(title, 0, wxALIGN_CENTRE|wxALL, 2)
-	sizer.Add(wxStaticLine(wizPg, -1), 0, wxEXPAND|wxALL, 2)
+	title = wx.StaticText(wizPg, -1, title)
+	title.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.BOLD))
+	sizer.Add(title, 0, wx.ALIGN_CENTRE|wx.ALL, 2)
+	sizer.Add(wxStaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
 	return sizer	
 #============================================================
-class cTextObjectValidator(wxPyValidator):
+class cTextObjectValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered any value
-	into the input object (wxTextControl, gmPhraseWheel, gmDateInput,
-	wxCombo). Any wxWindow control with a GetValue method returning
+	into the input object (wx.TextControl, gmPhraseWheel, gmDateInput,
+	wx.Combo). Any wx.Window control with a GetValue method returning
 	a StringType.
 	"""
 	#--------------------------------------------------------
@@ -196,7 +196,7 @@ class cTextObjectValidator(wxPyValidator):
 		@param only_digits - When true, only digits are valid entries
 		@type only_digits - BooleanType
 		"""
-		wxPyValidator.__init__(self)
+		wx.PyValidator.__init__(self)
 		
 		self.__required = required
 		self.__only_digits = only_digits
@@ -235,7 +235,7 @@ class cTextObjectValidator(wxPyValidator):
 					return False
 		else:
 			textCtrl.SetBackgroundColour(
-			wxSystemSettings_GetColour(wxSYS_COLOUR_WINDOW))
+			wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			textCtrl.Refresh()
 			return True
 	#--------------------------------------------------------
@@ -262,7 +262,7 @@ class cTextObjectValidator(wxPyValidator):
 		Callback function invoked on key press.
 		
 		@param event - The event object containing context information
-		@type event - wxEvent
+		@type event - wx.Event
 		"""
 		key = event.KeyCode()
 		if key < WXK_SPACE or key == WXK_DELETE or key > 255:
@@ -272,15 +272,18 @@ class cTextObjectValidator(wxPyValidator):
 			event.Skip()
 			return
 
-		if not wxValidator_IsSilent():
-			wxBell()
+		if not wx.Validator_IsSilent():
+			wx.Bell()
 
 		# Returning without calling even.Skip eats the event before it
 		# gets to the text control
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.24  2005-09-26 18:01:50  ncq
+# Revision 1.25  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.24  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

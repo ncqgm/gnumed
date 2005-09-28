@@ -32,7 +32,7 @@ _log = gmLog.gmDefLog
 def LabelListControl(listctrl, labellist):
     """Set the labels of a list box control
 
-    listctrl: a wxListCtrl
+    listctrl: a wx.ListCtrl
     labellist: a list of strings
     """
     for i in range(len(labellist)):
@@ -41,7 +41,7 @@ def LabelListControl(listctrl, labellist):
     #listctrl.SetSingleStyle(wxLC_HRULES)
 
 
-class SQLListControl(wxListCtrl):
+class SQLListControl(wx.ListCtrl):
 	"Intelligent list control able to display SQL query results in a formatted way"
 
 	__querystr = ''
@@ -57,8 +57,8 @@ class SQLListControl(wxListCtrl):
 
 
 
-	def __init__(self, parent, id, pos=wxDefaultPosition, size=wxDefaultSize, style=wxLC_REPORT, feedback=True, hideid=False):
-		wxListCtrl.__init__(self, parent, id, pos, size, style)
+	def __init__(self, parent, id, pos=wxDefaultPosition, size=wx.DefaultSize, style=wx.LC_REPORT, feedback=True, hideid=False):
+		wx.ListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
 		self.__hide_id=hideid # first column is assumed to be id field
 
@@ -149,7 +149,7 @@ class SQLListControl(wxListCtrl):
 		#clear results from previous query
 		self.ClearAll()
 		#workaround for mysterious wxGTK bug
-		wxYield()
+		wx.Yield()
 		#time needed for database AND gui handling
         	t1f = time.time()
         	#time needed for database query
@@ -192,7 +192,7 @@ class SQLListControl(wxListCtrl):
 
 		#adjust column width according to the query results
 		for w in range(0, len(self.__labels)):
-			self.SetColumnWidth(w, wxLIST_AUTOSIZE)
+			self.SetColumnWidth(w, wx.LIST_AUTOSIZE)
 
 		t2f = time.time()
 		self.__SetStatusText("%d records found; retrieved and displayed in %1.3f sec." % (cursor.rowcount, t2f-t1f))

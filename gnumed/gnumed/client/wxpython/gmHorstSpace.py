@@ -1,6 +1,6 @@
 """GnuMed Horst-space inner-frame layout manager.
 
-This implements the simple wxNotebook based layout as
+This implements the simple wx.Notebook based layout as
 originally suggested by Horst Herb.
 
 This source code is protected by the GPL licensing scheme.
@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.20 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmHorstSpace.py,v 1.21 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -36,7 +36,7 @@ _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
 		  
 #==============================================================================
-class cHorstSpaceLayoutMgr(wxPanel):
+class cHorstSpaceLayoutMgr(wx.Panel):
 	"""GnuMed inner-frame layout manager.
 
 	This implements a Horst-space notebook-only
@@ -44,22 +44,22 @@ class cHorstSpaceLayoutMgr(wxPanel):
 	"""
 	def __init__(self, parent, id):
 		# main panel
-		wxPanel.__init__(
+		wx.Panel.__init__(
 			self,
 			parent = parent,
 			id = id,
-			pos = wxDefaultPosition,
-			size = wxDefaultSize,
-			style = wxNO_BORDER,
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style = wx.NO_BORDER,
 			name = 'HorstSpace.LayoutMgrPnl'
 		)
 		# notebook
-		self.ID_NOTEBOOK = wxNewId()
-		self.nb = wxNotebook (
+		self.ID_NOTEBOOK = wx.NewId()
+		self.nb = wx.Notebook (
 			parent=self,
 			id = self.ID_NOTEBOOK,
-			size = wxSize(320,240),
-			style = wxNB_BOTTOM
+			size = wx.Size(320,240),
+			style = wx.NB_BOTTOM
 		)
 		#nb_szr = wx.NotebookSizer(self.nb)
 		# plugins
@@ -77,9 +77,9 @@ class cHorstSpaceLayoutMgr(wxPanel):
 		self.__load_plugins()
 		
 		# layout handling
-		self.main_szr = wxBoxSizer(wx.VERTICAL)
-		self.main_szr.Add(self.top_panel, 0, wxEXPAND)
-		self.main_szr.Add(self.nb, 1, wxEXPAND)
+		self.main_szr = wx.BoxSizer(wx.VERTICAL)
+		self.main_szr.Add(self.top_panel, 0, wx.EXPAND)
+		self.main_szr.Add(self.nb, 1, wx.EXPAND)
 		self.SetSizer(self.main_szr)
 #		self.SetSizerAndFit(self.main_szr)
 #		self.Layout()
@@ -104,7 +104,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			_log.Log(gmLog.lWarn, "no plugins to load")
 			return True
 
-		wxBeginBusyCursor()
+		wx.BeginBusyCursor()
 		nr_plugins = len(plugin_list)
 
 		#  set up a progress bar
@@ -134,7 +134,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			prev_plugin = curr_plugin
 
 		progress_bar.Destroy()
-		wxEndBusyCursor()
+		wx.EndBusyCursor()
 
 		# force-refresh first notebook page
 		page = self.nb.GetPage(0)
@@ -176,7 +176,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
 			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
 			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' % (sys.platform, wxPlatform))
+			_log.Log(gmLog.lData, 'sys: [%s] wx.: [%s]' % (sys.platform, wxPlatform))
 			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
 			# but let's do a basic check, at least
 			pat = gmPerson.gmCurrentPatient()
@@ -254,7 +254,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 		return
 	#----------------------------------------------
 	def _on_right_click(self, evt):
-		load_menu = wxMenu()
+		load_menu = wx.Menu()
 		any_loadable = 0
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
 		plugin = None
@@ -272,19 +272,19 @@ class cHorstSpaceLayoutMgr(wxPanel):
 				plugin = None
 				continue
 			# add to load menu
-			nid = wxNewId()
-			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.name()))
+			nid = wx.NewId()
+			load_menu.AppendItem(wx.MenuItem(load_menu, nid, plugin.name()))
 			EVT_MENU(load_menu, nid, plugin.on_load)
 			any_loadable = 1
 		# make menus
-		menu = wxMenu()
-		ID_LOAD = wxNewId()
-		ID_DROP = wxNewId()
+		menu = wx.Menu()
+		ID_LOAD = wx.NewId()
+		ID_DROP = wx.NewId()
 		if any_loadable:
 			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
 		plugins = self.guibroker['horstspace.notebook.gui']
 		raised_plugin = plugins[self.nb.GetSelection()].name()
-		menu.AppendItem(wxMenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
+		menu.AppendItem(wx.MenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
 		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
 		self.PopupMenu(menu, evt.GetPosition())
 		menu.Destroy()
@@ -306,12 +306,15 @@ class cHorstSpaceLayoutMgr(wxPanel):
 		page.unregister()
 #==============================================================================
 if __name__ == '__main__':
-	wxInitAllImageHandlers()
+	wx.InitAllImageHandlers()
 	pgbar = gmPluginLoadProgressBar(3)
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.20  2005-09-27 20:44:59  ncq
+# Revision 1.21  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.20  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.19  2005/09/26 18:01:51  ncq

@@ -29,11 +29,11 @@ A\xf5\xf6\x04$$\xe3\xce\xd2\x9c>\xd7 \x8c\xd6\x11\xf6\x05=Y\xdf\xbe\xedg>\
 \x10\x00\x00\x00\x00IEND\xaeB`\x82\x1fL\x8d\xc0' )
 
 def getfolderBitmap():
-    return wxBitmapFromImage(getfolderImage())
+    return wx.BitmapFromImage(getfolderImage())
 
 def getfolderImage():
     stream = cStringIO.StringIO(getfolderData())
-    return wxImageFromStream(stream)
+    return wx.ImageFromStream(stream)
 
 #----------------------------------------------------------------------
 def getfoldersearchData():
@@ -54,11 +54,11 @@ def getfoldersearchData():
 \x1f\xfa\x88+' )
 
 def getfoldersearchBitmap():
-    return wxBitmapFromImage(getfoldersearchImage())
+    return wx.BitmapFromImage(getfoldersearchImage())
 
 def getfoldersearchImage():
     stream = cStringIO.StringIO(getfoldersearchData())
-    return wxImageFromStream(stream)
+    return wx.ImageFromStream(stream)
 
 """#----------------------------------------------------------------------
 def getvertical_separatorData():
@@ -68,11 +68,11 @@ def getvertical_separatorData():
 (cT\x90\x12A=\x00\x90*Cr' )
 
 def getvertical_separatorBitmap():
-    return wxBitmapFromImage(getvertical_separatorImage())
+    return wx.BitmapFromImage(getvertical_separatorImage())
 
 def getvertical_separatorImage():
     stream = cStringIO.StringIO(getvertical_separatorData())
-    return wxImageFromStream(stream)
+    return wx.ImageFromStream(stream)
 
 #----------------------------------------------------------------------
 def getvertical_separator_thinData():
@@ -82,9 +82,9 @@ def getvertical_separator_thinData():
 \xfe/P' )
 
 def getvertical_separator_thinBitmap():
-    return wxBitmapFromImage(getvertical_separator_thinImage())
+    return wx.BitmapFromImage(getvertical_separator_thinImage())
 
 def getvertical_separator_thinImage():
     stream = cStringIO.StringIO(getvertical_separator_thinData())
-    return wxImageFromStream(stream)
+    return wx.ImageFromStream(stream)
 """

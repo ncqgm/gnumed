@@ -8,12 +8,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: gmMultiSash.py,v 1.5 2005-09-26 18:01:51 ncq Exp $
+# RCS-ID:		$Id: gmMultiSash.py,v 1.6 2005-09-28 15:57:48 ncq Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMultiSash.py,v $
-# $Id: gmMultiSash.py,v 1.5 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMultiSash.py,v 1.6 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
 
@@ -30,12 +30,12 @@ SH_SIZE = 5
 CR_SIZE = SH_SIZE * 3
 
 #----------------------------------------------------------------------
-class cMultiSash(wxWindow):
+class cMultiSash(wx.Window):
 	"""
 	Main multisash widget. Dynamically displays a stack of child widgets.	
 	"""	
 	def __init__(self, *_args,**_kwargs):
-		apply(wxWindow.__init__,(self,) + _args,_kwargs)
+		apply(wx.Window.__init__,(self,) + _args,_kwargs)
 		#self._defChild = cEmptyChild
 		self.child = cMultiSashSplitter(self,self,wxPoint(0,0),self.GetSize())
 		
@@ -68,7 +68,7 @@ class cMultiSash(wxWindow):
 		child of the bottom leaf.
 		
 		@param content The new content widget to add.
-		@type content Any wxWindow derived object.
+		@type content Any wx.Window derived object.
 		"""
 		successful, errno = self.bottom_leaf.AddLeaf(direction = MV_VER, pos = 100)
 		if successful:
@@ -101,7 +101,7 @@ class cMultiSash(wxWindow):
 		obtained. Typically, after leaf destruction.
 		
 		@param bottom_leaf The leaf to be set as bottom one
-		@type bottom_leaf wxMultiViewLeaf
+		@type bottom_leaf wx.MultiViewLeaf
 		"""
 		if bottom_leaf is None:
 			self.bottom_leaf = self.__find_bottom_leaf(self.child)
@@ -168,7 +168,7 @@ class cMultiSash(wxWindow):
 	def _unselect(self):
 		self.child._unselect()						
 #----------------------------------------------------------------------
-class cMultiSashSplitter(wxWindow):
+class cMultiSashSplitter(wx.Window):
 	"""
 	Basic split windows container of the multisash widget.
 	Has references to two leafs or splitted windows (typically, first leaf
@@ -176,13 +176,13 @@ class cMultiSashSplitter(wxWindow):
 	widget).
 	"""
 	def __init__(self, top_parent, parent, pos, size, leaf1 = None):
-		wxWindow.__init__ (
+		wx.Window.__init__ (
 			self,
 			id = -1,
 			parent = parent,
 			pos = pos,
 			size = size,
-			style = wxCLIP_CHILDREN
+			style = wx.CLIP_CHILDREN
 		)
 		self.top_parent = top_parent
 		self.leaf2 = None
@@ -246,8 +246,8 @@ class cMultiSashSplitter(wxWindow):
 				w1,h1 = (w,h-pos)
 				w2,h2 = (w,pos)
 			self.leaf2 = cMultiSashLeaf(self.top_parent,self,
-										 wxPoint(x,y),wxSize(w1,h1))									 
-			self.leaf1.SetSize(wxSize(w2,h2))
+										 wxPoint(x,y),wx.Size(w1,h1))									 
+			self.leaf1.SetSize(wx.Size(w2,h2))
 			self.leaf2.OnSize(None)
 			# Gnumed: register added leaf content
 			self.top_parent.displayed_leafs.append(self.leaf2)
@@ -399,14 +399,14 @@ class cMultiSashSplitter(wxWindow):
 		self.leaf2.OnSize(None)
 		
 #----------------------------------------------------------------------
-class cMultiSashLeaf(wxWindow):
+class cMultiSashLeaf(wx.Window):
 	"""
 	A leaf represent a split window, one instance of the displayed content
 	widget.
 	"""	
 	def __init__(self,top_parent,parent,pos,size):
-		wxWindow.__init__(self,id = -1,parent = parent,pos = pos,size = size,
-						  style = wxCLIP_CHILDREN)
+		wx.Window.__init__(self,id = -1,parent = parent,pos = pos,size = size,
+						  style = wx.CLIP_CHILDREN)
 		self.top_parent = top_parent
 
 		self.sizerHor = cMultiSizer(self,MV_HOR)
@@ -436,7 +436,7 @@ class cMultiSashLeaf(wxWindow):
 		Sets the as content child of this leaf.
 		
 		@param content The new content widget to set..
-		@type content Any wxWindow derived object.
+		@type content Any wx.Window derived object.
 		"""				
 		self.content.set_new_content(content)
 
@@ -504,19 +504,19 @@ class cMultiSashLeaf(wxWindow):
 		self.closer.OnSize(evt)
 
 #----------------------------------------------------------------------
-class cMultiSashLeafContent(wxWindow):
+class cMultiSashLeafContent(wx.Window):
 	"""
 	Widget that encapsulate contents of a leaf or split window.
 	"""	
 	def __init__(self,parent):
 		w,h = self.CalcSize(parent)
-		wxWindow.__init__ (
+		wx.Window.__init__ (
 			self,
 			id = -1,
 			parent = parent,
 			pos = wxPoint(0,0),
-			size = wxSize(w,h),
-			style = wxCLIP_CHILDREN | wxSUNKEN_BORDER
+			size = wx.Size(w,h),
+			style = wx.CLIP_CHILDREN | wx.SUNKEN_BORDER
 		)
 		self.child = cEmptyChild(self)
 		self.child.MoveXY(2,2)
@@ -531,7 +531,7 @@ class cMultiSashLeafContent(wxWindow):
 		Sets the as content child of this widget.
 		
 		@param content The new content widget to set..
-		@type content Any wxWindow derived object.
+		@type content Any wx.Window derived object.
 		"""
 		# Gnumed: avoid yellow blinking during widget replacement
 		self.SetBackgroundColour(self.__normal_colour)
@@ -573,7 +573,7 @@ class cMultiSashLeafContent(wxWindow):
 		self.selected = True
 		if parent.top_parent.focussed_leaf != parent:
 			parent.set_focus()
-		self.SetBackgroundColour(wxColour(255,255,0)) # Yellow
+		self.SetBackgroundColour(wx.Colour(255,255,0)) # Yellow
 		self.Refresh()
 
 	def CalcSize(self,parent):
@@ -586,19 +586,19 @@ class cMultiSashLeafContent(wxWindow):
 		w,h = self.CalcSize(self.GetParent())
 		self.SetDimensions(0,0,w,h)
 		w,h = self.GetClientSizeTuple()
-		self.child.SetSize(wxSize(w-4,h-4))
+		self.child.SetSize(wx.Size(w-4,h-4))
 #----------------------------------------------------------------------
-class cMultiSizer(wxWindow):
+class cMultiSizer(wx.Window):
 	"""
 	Leaf's sash bar
 	"""	
 	def __init__(self,parent,side):
 		self.side = side
 		x,y,w,h = self.CalcSizePos(parent)
-		wxWindow.__init__(self,id = -1,parent = parent,
+		wx.Window.__init__(self,id = -1,parent = parent,
 						  pos = wxPoint(x,y),
-						  size = wxSize(w,h),
-						  style = wxCLIP_CHILDREN)
+						  size = wx.Size(w,h),
+						  style = wx.CLIP_CHILDREN)
 
 		self.px = None					# Previous X
 		self.py = None					# Previous Y
@@ -630,15 +630,15 @@ class cMultiSizer(wxWindow):
 		self.SetDimensions(x,y,w,h)
 
 	def OnLeave(self,evt):
-		self.SetCursor(wxStockCursor(wxCURSOR_ARROW))
+		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
 	def OnEnter(self,evt):
 		if not self.GetParent().CanSize(not self.side):
 			return
 		if self.side == MV_HOR:
-			self.SetCursor(wxStockCursor(wxCURSOR_SIZENS))
+			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
 		else:
-			self.SetCursor(wxStockCursor(wxCURSOR_SIZEWE))
+			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZEWE))
 
 	def OnMouseMove(self,evt):
 		if self.isDrag:
@@ -676,17 +676,17 @@ class cMultiSizer(wxWindow):
 			evt.Skip()
 
 #----------------------------------------------------------------------
-class cMultiCreator(wxWindow):
+class cMultiCreator(wx.Window):
 	"""
 	Sash bar's creator element
 	"""	
 	def __init__(self,parent,side):
 		self.side = side
 		x,y,w,h = self.CalcSizePos(parent)
-		wxWindow.__init__(self,id = -1,parent = parent,
+		wx.Window.__init__(self,id = -1,parent = parent,
 						  pos = wxPoint(x,y),
-						  size = wxSize(w,h),
-						  style = wxCLIP_CHILDREN)
+						  size = wx.Size(w,h),
+						  style = wx.CLIP_CHILDREN)
 
 		self.px = None					# Previous X
 		self.py = None					# Previous Y
@@ -718,13 +718,13 @@ class cMultiCreator(wxWindow):
 		self.SetDimensions(x,y,w,h)
 
 	def OnLeave(self,evt):
-		self.SetCursor(wxStockCursor(wxCURSOR_ARROW))
+		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 
 	def OnEnter(self,evt):
 		if self.side == MV_HOR:
-			self.SetCursor(wxStockCursor(wxCURSOR_HAND))
+			self.SetCursor(wx.StockCursor(wx.CURSOR_HAND))
 		else:
-			self.SetCursor(wxStockCursor(wxCURSOR_POINT_LEFT))
+			self.SetCursor(wx.StockCursor(wx.CURSOR_POINT_LEFT))
 
 	def OnMouseMove(self,evt):
 		if self.isDrag:
@@ -760,14 +760,14 @@ class cMultiCreator(wxWindow):
 
 	def OnPaint(self,evt):
 		dc = wxPaintDC(self)
-		dc.SetBackground(wxBrush(self.GetBackgroundColour(),wxSOLID))
+		dc.SetBackground(wx.Brush(self.GetBackgroundColour(),wx.SOLID))
 		dc.Clear()
 
-		highlight = wxPen(wxSystemSettings_GetSystemColour(
-			wxSYS_COLOUR_BTNHIGHLIGHT),1,wxSOLID)
-		shadow = wxPen(wxSystemSettings_GetSystemColour(
-			wxSYS_COLOUR_BTNSHADOW),1,wxSOLID)
-		black = wxPen(wxBLACK,1,wxSOLID)
+		highlight = wxPen(wx.SystemSettings_GetSystemColour(
+			wx.SYS_COLOUR_BTNHIGHLIGHT),1,wx.SOLID)
+		shadow = wxPen(wx.SystemSettings_GetSystemColour(
+			wx.SYS_COLOUR_BTNSHADOW),1,wx.SOLID)
+		black = wxPen(wx.BLACK,1,wx.SOLID)
 		w,h = self.GetSizeTuple()
 		w -= 1
 		h -= 1
@@ -783,16 +783,16 @@ class cMultiCreator(wxWindow):
 		dc.DrawLine(w-1,2,w-1,h)
 
 #----------------------------------------------------------------------
-class cMultiCloser(wxWindow):
+class cMultiCloser(wx.Window):
 	"""
 	Sash bar's destroyer element
 	"""	
 	def __init__(self,parent):
 		x,y,w,h = self.CalcSizePos(parent)
-		wxWindow.__init__(self,id = -1,parent = parent,
+		wx.Window.__init__(self,id = -1,parent = parent,
 						  pos = wxPoint(x,y),
-						  size = wxSize(w,h),
-						  style = wxCLIP_CHILDREN)
+						  size = wx.Size(w,h),
+						  style = wx.CLIP_CHILDREN)
 
 		self.down = False
 		self.entered = False
@@ -804,11 +804,11 @@ class cMultiCloser(wxWindow):
 		EVT_ENTER_WINDOW(self,self.OnEnter)
 
 	def OnLeave(self,evt):
-		self.SetCursor(wxStockCursor(wxCURSOR_ARROW))
+		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 		self.entered = False
 
 	def OnEnter(self,evt):
-		self.SetCursor(wxStockCursor(wxCURSOR_BULLSEYE))
+		self.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
 		self.entered = True
 
 	def OnPress(self,evt):
@@ -824,7 +824,7 @@ class cMultiCloser(wxWindow):
 
 	def OnPaint(self,evt):
 		dc = wxPaintDC(self)
-		dc.SetBackground(wxBrush(wxRED,wxSOLID))
+		dc.SetBackground(wxBrush(wx.RED,wx.SOLID))
 		dc.Clear()
 
 	def CalcSizePos(self,parent):
@@ -843,19 +843,19 @@ class cMultiCloser(wxWindow):
 #----------------------------------------------------------------------
 
 
-class cEmptyChild(wxWindow):
+class cEmptyChild(wx.Window):
 	def __init__(self,parent):
-		wxWindow.__init__(self,parent,-1, style = wxCLIP_CHILDREN)
+		wx.Window.__init__(self,parent,-1, style = wx.CLIP_CHILDREN)
 
 
 #----------------------------------------------------------------------
 
 
 def DrawSash(win,x,y,direction):
-	dc = wxScreenDC()
+	dc = wx.ScreenDC()
 	dc.StartDrawingOnTopWin(win)
-	bmp = wxEmptyBitmap(8,8)
-	bdc = wxMemoryDC()
+	bmp = wx.EmptyBitmap(8,8)
+	bdc = wx.MemoryDC()
 	bdc.SelectObject(bmp)
 	bdc.DrawRectangle(-1,-1,10,10)
 	for i in range(8):
@@ -863,11 +863,11 @@ def DrawSash(win,x,y,direction):
 			if ((i + j) & 1):
 				bdc.DrawPoint(i,j)
 
-	brush = wxBrush(wxColour(0,0,0))
+	brush = wx.Brush(wx.Colour(0,0,0))
 	brush.SetStipple(bmp)
 
 	dc.SetBrush(brush)
-	dc.SetLogicalFunction(wxXOR)
+	dc.SetLogicalFunction(wx.XOR)
 
 	body_w,body_h = win.GetClientSizeTuple()
 
@@ -898,7 +898,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: gmMultiSash.py,v $
-# Revision 1.5  2005-09-26 18:01:51  ncq
+# Revision 1.6  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.5  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

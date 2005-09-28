@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -22,45 +22,45 @@ except ImportError:
 	from wxPython import wx
 
 #  talkback
-ID_BUTTON_CANCEL = wxNewId()
-ID_BUTTON_SEND = wxNewId()
+ID_BUTTON_CANCEL = wx.NewId()
+ID_BUTTON_SEND = wx.NewId()
 #=========================================================================
-class cTalkbackFrame(wxFrame):
+class cTalkbackFrame(wx.Frame):
 	def __init__(self, *args, **kwds):
-		kwds["style"] = wxCAPTION|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wxSYSTEM_MENU|wxRESIZE_BORDER
-		wxFrame.__init__(self, *args, **kwds)
-		self.szr_main = wxBoxSizer(wxVERTICAL)
+		kwds["style"] = wxCAPTION|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER
+		wx.Frame.__init__(self, *args, **kwds)
+		self.szr_main = wx.BoxSizer(wx.VERTICAL)
 
-		self.szr_btns = wxBoxSizer(wxHORIZONTAL)
-		self.btn_CANCEL = wxButton(self, ID_BUTTON_CANCEL, _("Don't send"), size=(-1, -1))
-		self.btn_SEND = wxButton(self, ID_BUTTON_SEND, _("Send"), size=(-1, -1))
+		self.szr_btns = wx.BoxSizer(wx.HORIZONTAL)
+		self.btn_CANCEL = wx.Button(self, ID_BUTTON_CANCEL, _("Don't send"), size=(-1, -1))
+		self.btn_SEND = wx.Button(self, ID_BUTTON_SEND, _("Send"), size=(-1, -1))
 
-		self.szr_adr = wxBoxSizer(wxHORIZONTAL)
-		self.field_to = wxTextCtrl(self, -1, "fixme@gnumed.net", size=(-1, -1), style=0)
-		self.label_to = wxStaticText(self, -1, _("Send to"), size=(-1, -1), style=wxALIGN_RIGHT)
-		self.field_from = wxTextCtrl(self, -1, "", size=(-1, -1), style=0)
-		self.label_from = wxStaticText(self, -1, _("Your email address"), size=(-1, -1), style=wxALIGN_RIGHT)
+		self.szr_adr = wx.BoxSizer(wx.HORIZONTAL)
+		self.field_to = wx.TextCtrl(self, -1, "fixme@gnumed.net", size=(-1, -1), style=0)
+		self.label_to = wx.StaticText(self, -1, _("Send to"), size=(-1, -1), style=wx.ALIGN_RIGHT)
+		self.field_from = wx.TextCtrl(self, -1, "", size=(-1, -1), style=0)
+		self.label_from = wx.StaticText(self, -1, _("Your email address"), size=(-1, -1), style=wx.ALIGN_RIGHT)
 
-		self.szr_desc = wxBoxSizer(wxHORIZONTAL)
-		self.field_desc = wxTextCtrl(self, -1, _("I hit the big red button and ..."), size=(-1, -1), style=wxTE_MULTILINE)
-		self.label_desc = wxStaticText(self, -1, _("Description/  \nComment  "), size=(-1, -1), style=wxALIGN_RIGHT)
+		self.szr_desc = wx.BoxSizer(wx.HORIZONTAL)
+		self.field_desc = wx.TextCtrl(self, -1, _("I hit the big red button and ..."), size=(-1, -1), style=wx.TE_MULTILINE)
+		self.label_desc = wx.StaticText(self, -1, _("Description/  \nComment  "), size=(-1, -1), style=wx.ALIGN_RIGHT)
 
-		self.szr_hint = wxBoxSizer(wxHORIZONTAL)
-		self.label_hint = wxStaticText(
+		self.szr_hint = wx.BoxSizer(wx.HORIZONTAL)
+		self.label_hint = wx.StaticText(
 			self,
 			-1,
 			_("An error occured in GnuMed. You can send a bug report from the window below."),
 			size=(-1, -1),
-			style=wxALIGN_CENTER
+			style=wx.ALIGN_CENTER
 		)
 
-		self.szr_title = wxBoxSizer(wxHORIZONTAL)
-		self.label_title = wxStaticText(
+		self.szr_title = wx.BoxSizer(wx.HORIZONTAL)
+		self.label_title = wx.StaticText(
 			self,
 			-1,
 			_("GnuMed Talkback Facility"),
 			size=(-1, -1),
-			style=wxALIGN_CENTER
+			style=wx.ALIGN_CENTER
 		)
 
 		EVT_BUTTON(self, ID_BUTTON_CANCEL, self.onNoSend)
@@ -74,29 +74,29 @@ class cTalkbackFrame(wxFrame):
 	#-----------------------------------------------
 	def __set_properties(self):
 		self.SetTitle(_("GNUmed Talkback"))
-		self.label_title.SetFont(wxFont(16, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
+		self.label_title.SetFont(wxFont(16, wxSWISS, wx.NORMAL, wx.NORMAL, 0, ""))
 	#-----------------------------------------------
 	def __do_layout(self):
-		self.szr_title.Add(self.label_title, 1, wxBOTTOM|wxRIGHT|wxTOP|wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxALIGN_CENTER_VERTICAL, 5)
-		self.szr_main.Add(self.szr_title, 1, wxALIGN_CENTER_HORIZONTAL, 0)
+		self.szr_title.Add(self.label_title, 1, wxBOTTOM|wxRIGHT|wxTOP|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
+		self.szr_main.Add(self.szr_title, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-		self.szr_hint.Add(self.label_hint, 0, wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxALIGN_CENTER_VERTICAL, 6)
-		self.szr_main.Add(self.szr_hint, 1, wxEXPAND, 0)
+		self.szr_hint.Add(self.label_hint, 0, wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 6)
+		self.szr_main.Add(self.szr_hint, 1, wx.EXPAND, 0)
 
-		self.szr_desc.Add(self.label_desc, 0, wxALIGN_RIGHT|wxLEFT, 6)
-		self.szr_desc.Add(self.field_desc, 3, wxBOTTOM|wxRIGHT|wxEXPAND, 8)
-		self.szr_main.Add(self.szr_desc, 3, wxEXPAND, 0)
+		self.szr_desc.Add(self.label_desc, 0, wx.ALIGN_RIGHT|wx.LEFT, 6)
+		self.szr_desc.Add(self.field_desc, 3, wxBOTTOM|wx.RIGHT|wx.EXPAND, 8)
+		self.szr_main.Add(self.szr_desc, 3, wx.EXPAND, 0)
 
-		self.szr_adr.Add(self.label_from, 0, wxRIGHT|wxALIGN_RIGHT|wxLEFT, 5)
+		self.szr_adr.Add(self.label_from, 0, wxRIGHT|wx.ALIGN_RIGHT|wx.LEFT, 5)
 		self.szr_adr.Add(self.field_from, 1, 0, 0)
-		self.szr_adr.Add(self.label_to, 0, wxRIGHT|wxLEFT, 5)
-		self.szr_adr.Add(self.field_to, 2, wxRIGHT, 8)
-		self.szr_main.Add(self.szr_adr, 1, wxEXPAND, 0)
+		self.szr_adr.Add(self.label_to, 0, wx.RIGHT|wx.LEFT, 5)
+		self.szr_adr.Add(self.field_to, 2, wx.RIGHT, 8)
+		self.szr_main.Add(self.szr_adr, 1, wx.EXPAND, 0)
 
-		self.szr_btns.Add(self.btn_CANCEL, 0, wxALIGN_CENTER_HORIZONTAL, 0)
-		self.szr_btns.Add((20, 20), 0, wxEXPAND, 0)
+		self.szr_btns.Add(self.btn_CANCEL, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		self.szr_btns.Add((20, 20), 0, wx.EXPAND, 0)
 		self.szr_btns.Add(self.btn_SEND, 0, 0, 0)
-		self.szr_main.Add(self.szr_btns, 1, wxALIGN_CENTER_HORIZONTAL, 0)
+		self.szr_main.Add(self.szr_btns, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
 		self.SetAutoLayout(1)
 		self.SetSizer(self.szr_main)
@@ -112,9 +112,9 @@ class cTalkbackFrame(wxFrame):
 		self.mail_logger.flush()
 		self.Close(True)
 #=========================================================================
-class cTalkbackApp(wxApp):
+class cTalkbackApp(wx.App):
 	def OnInit(self):
-		self.frame = cTalkbackFrame(NULL, -1, "GNUmed Talks Back", wxDefaultPosition, size=wxSize(-1,-1), style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
+		self.frame = cTalkbackFrame(NULL, -1, "GNUmed Talks Back", wxDefaultPosition, size=wxSize(-1,-1), style= wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE)
 		self.frame.Show (True)
 		self.SetTopWindow(self.frame)
 		return True
@@ -139,7 +139,10 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.9  2005-09-26 18:01:51  ncq
+# Revision 1.10  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.9  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

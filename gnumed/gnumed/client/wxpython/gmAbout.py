@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.19 2005-09-27 20:44:58 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmAbout.py,v 1.20 2005-09-28 15:57:47 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -15,10 +15,10 @@ except ImportError:
 
 import zlib, cPickle
 
-ID_MENU = wxNewId()
-ID_EXIT = wxNewId()
+ID_MENU = wx.NewId()
+ID_EXIT = wx.NewId()
 #====================================================================
-class ScrollTxtWin (wxWindow):
+class ScrollTxtWin (wx.Window):
 	"""
 	Scrolling Text!
 	"""
@@ -48,16 +48,16 @@ class ScrollTxtWin (wxWindow):
 	__delay_ctr=1
 
 	def __init__ (self, parent):
-		wxWindow.__init__(self, parent, -1, size=(230,20), style=wxSUNKEN_BORDER)
-		self.SetBackgroundColour(wxColour(255, 255, 255))
+		wx.Window.__init__(self, parent, -1, size=(230,20), style=wx.SUNKEN_BORDER)
+		self.SetBackgroundColour(wx.Colour(255, 255, 255))
 		self.__delay_ctr_reset=self.__delay*self.__scroll_speed
 
-		self.moving_txt=wxStaticText(self, -1, "", size=(230,20), style=wxALIGN_CENTRE | wxST_NO_AUTORESIZE)
-		self.moving_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
+		self.moving_txt=wxStaticText(self, -1, "", size=(230,20), style=wx.ALIGN_CENTRE | wx.ST_NO_AUTORESIZE)
+		self.moving_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
 		self.moving_txt.SetLabel(self.name_list[0])
 
 		EVT_TIMER(self, -1, self.OnTimer)
-		self.timer = wxTimer(self, -1)
+		self.timer = wx.Timer(self, -1)
 		#self.timer.Start(self.__scroll_speed)
 		self.timer.Start(milliseconds = 1./self.__scroll_speed)
 
@@ -79,7 +79,7 @@ class ScrollTxtWin (wxWindow):
 			if(self.__name_ctr>len(self.name_list)-1):
 				self.__name_ctr=0
 
-class AboutFrame (wxFrame):
+class AboutFrame (wx.Frame):
 	"""
 	About GNUmed
 	"""
@@ -92,59 +92,59 @@ class AboutFrame (wxFrame):
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
 
-	def __init__(self, parent, ID, title, pos=wxDefaultPosition, size=wxDefaultSize, style=wxDEFAULT_FRAME_STYLE):
-		wxFrame.__init__(self, parent, ID, title, pos, size, style)
+	def __init__(self, parent, ID, title, pos=wxDefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
+		wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
-		icon = wxEmptyIcon()
-		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent))))
+		icon = wx.EmptyIcon()
+		icon.CopyFromBitmap(wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent))))
 		self.SetIcon(icon)
 
-		box = wxBoxSizer(wxVERTICAL)
+		box = wx.BoxSizer(wx.VERTICAL)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 2)
 		else:
 			box.Add((0,0), 2)
-		intro_txt=wxStaticText(self, -1, _("Monty the Serpent && the FSF Present"))
-		intro_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,False,''))
-		box.Add(intro_txt, 0, wxALIGN_CENTRE)
+		intro_txt=wx.StaticText(self, -1, _("Monty the Serpent && the FSF Present"))
+		intro_txt.SetFont(wxFont(10,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		box.Add(intro_txt, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 3)
 		else:
 			box.Add((0,0), 3)
-		gm_txt=wxStaticText(self, -1, "GNUmed")
-		gm_txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
-		box.Add(gm_txt, 0, wxALIGN_CENTRE)
+		gm_txt=wx.StaticText(self, -1, "GNUmed")
+		gm_txt.SetFont(wxFont(30, wxSWISS, wx.NORMAL, wx.NORMAL))
+		box.Add(gm_txt, 0, wx.ALIGN_CENTRE)
 
-		motto_txt=wxStaticText(self, -1, _("Free eMedicine"))
-		motto_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,False,''))
-		box.Add(motto_txt, 0, wxALIGN_CENTRE)
+		motto_txt=wx.StaticText(self, -1, _("Free eMedicine"))
+		motto_txt.SetFont(wxFont(10,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		box.Add(motto_txt, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
-		ver_txt=wxStaticText(self, -1, _("Version 0.1 brought to you by"))
-		ver_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
-		box.Add(ver_txt, 0, wxALIGN_CENTRE)
+		ver_txt=wx.StaticText(self, -1, _("Version 0.1 brought to you by"))
+		ver_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
-		admins_txt=wxStaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert"))
-		admins_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
-		box.Add(admins_txt, 0, wxALIGN_CENTRE)
+		admins_txt=wx.StaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert"))
+		admins_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		box.Add(admins_txt, 0, wx.ALIGN_CENTRE)
 
 		self.win=ScrollTxtWin(self)
-		box.Add(self.win, 0, wxALIGN_CENTRE)
+		box.Add(self.win, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
-		info_txt=wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
-		info_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
-		box.Add(info_txt, 0, wxALIGN_CENTRE)
+		info_txt=wx.StaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
+		info_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		box.Add(info_txt, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
-		btn = wxButton(self, ID_MENU , _("Close"))
-		box.Add(btn,0, wxALIGN_CENTRE)
+		btn = wx.Button(self, ID_MENU , _("Close"))
+		box.Add(btn,0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
@@ -220,9 +220,9 @@ Andreas Tille
 #====================================================================
 if __name__ == '__main__':
 	# set up dummy app
-	class TestApp (wxApp):
+	class TestApp (wx.App):
 		def OnInit (self):
-			frame = AboutFrame(None, -1, "About GNUmed", size=wxSize(300, 250))
+			frame = AboutFrame(None, -1, "About GNUmed", size=wx.Size(300, 250))
 			frame.Show(1)
 			return 1
 	#---------------------
@@ -232,7 +232,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.19  2005-09-27 20:44:58  ncq
+# Revision 1.20  2005-09-28 15:57:47  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.19  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.18  2005/09/26 18:01:50  ncq

@@ -4,28 +4,28 @@ try:
 except ImportError:
 	from wxPython import wx
 
-class HabitsRiskFactors(wxPanel):
+class HabitsRiskFactors(wx.Panel):
     def __init__(self, parent,id):
-	wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, 0 )
-	sizer = wxBoxSizer(wxVERTICAL)
+	wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, 0 )
+	sizer = wx.BoxSizer(wx.VERTICAL)
 	
 	#captions for the two columns
 	#habit_caption = gmTerryGuiParts..cDividerCaption(self,-1,"Habits")
 	#risk_caption = gmTerryGuiParts.cDividerCaption(self,-1,"Risk Factors")
 	
 	#text controls for each column      
-	txt_habits = wxTextCtrl(self, 30,
+	txt_habits = wx.TextCtrl(self, 30,
                         "Smoker - 30/day.\n"
 			"Alcohol - 30gm/day (Previously very heavy.\n",
-                              wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
+                              wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
 	txt_habits.SetInsertionPoint(0)
 	
-	txt_riskfactors = wxTextCtrl(self,30,
+	txt_riskfactors = wx.TextCtrl(self,30,
 			     "Hypercholesterolaemia \n"
 			     "Current Smoker \n"
 			     "NIDDM \n"
                              "No exercise data recorded\n",
-			      wxDefaultPosition,wxDefaultSize, style = wxTE_MULTILINE)
+			      wxDefaultPosition,wx.DefaultSize, style = wx.TE_MULTILINE)
 	txt_riskfactors.SetInsertionPoint(0)
 	#heading sizer- add headings
 	#heading_sizer = wxBoxSizer(wxHORIZONTAL)
@@ -34,9 +34,9 @@ class HabitsRiskFactors(wxPanel):
 	#self.SetSizer(heading_sizer)  #set the sizer 
 	#heading_sizer.Fit(self)             #set
 	##text sizer - add text
-        text_sizer = wxBoxSizer(wxHORIZONTAL)
-	text_sizer.Add(txt_habits,1,wxEXPAND)
-	text_sizer.Add(txt_riskfactors,1,wxEXPAND)
+        text_sizer = wx.BoxSizer(wx.HORIZONTAL)
+	text_sizer.Add(txt_habits,1,wx.EXPAND)
+	text_sizer.Add(txt_riskfactors,1,wx.EXPAND)
 	self.SetSizer(text_sizer)  #set the sizer 
 	text_sizer.Fit(self)             #set
 	self.SetAutoLayout(True)                 #tell frame to use the sizer

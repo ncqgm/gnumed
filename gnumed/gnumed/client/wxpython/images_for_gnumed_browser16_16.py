@@ -43,10 +43,10 @@ Bps{\xab\xb6\xb71\x1f\xdc\t\x9b\x91n\xc5sA{\xf1\xd5\xcb\xd7\xe0\xf5\xdf`\xfd\
 \xf4b9\x18dG\xff\t\xf2g\x83\x8d\xbf\xc1\xb97w' ))
 
 def get1leftarrowBitmap():
-    return wxBitmapFromXPMData(get1leftarrowData())
+    return wx.BitmapFromXPMData(get1leftarrowData())
 
 def get1leftarrowImage():
-    return wxImageFromBitmap(get1leftarrowBitmap())
+    return wx.ImageFromBitmap(get1leftarrowBitmap())
 
 #----------------------------------------------------------------------
 def get1rightarrowData():
@@ -76,10 +76,10 @@ def get1rightarrowData():
 \xff\xd9\xd2\xdf\x8f66\xfe\x01\xae\xeb?\x05' ))
 
 def get1rightarrowBitmap():
-    return wxBitmapFromXPMData(get1rightarrowData())
+    return wx.BitmapFromXPMData(get1rightarrowData())
 
 def get1rightarrowImage():
-    return wxImageFromBitmap(get1rightarrowBitmap())
+    return wx.ImageFromBitmap(get1rightarrowBitmap())
 
 #----------------------------------------------------------------------
 def getbabelfishData():
@@ -134,10 +134,10 @@ d\x1d\xae\xb7\xb5\xb5\xb7\xfb@=\x92x1\xad\xd1\t-\xc7\xf7\x134O\x83\xf1\xdd_\
 \xfd/\xca\x1f\xb5krF+\xdc\xfa\x0f\x01$\xfe\x17\xac\x95\xa1\xc9' ))
 
 def getbabelfishBitmap():
-    return wxBitmapFromXPMData(getbabelfishData())
+    return wx.BitmapFromXPMData(getbabelfishData())
 
 def getbabelfishImage():
-    return wxImageFromBitmap(getbabelfishBitmap())
+    return wx.ImageFromBitmap(getbabelfishBitmap())
 
 #----------------------------------------------------------------------
 def getbookmark_addData():
@@ -173,10 +173,10 @@ X.gtV\x87a\xd17\x03W^R\x99jX\xadV\x07\xcff\xa8\xdd\xe0UF\xbf\x84a"\xf5\xf6\
 \x191}*\xde\xc4\xfeu\xe9\xe8\xd0zp)\xf7\x17\x1d6\x83d' ))
 
 def getbookmark_addBitmap():
-    return wxBitmapFromXPMData(getbookmark_addData())
+    return wx.BitmapFromXPMData(getbookmark_addData())
 
 def getbookmark_addImage():
-    return wxImageFromBitmap(getbookmark_addBitmap())
+    return wx.ImageFromBitmap(getbookmark_addBitmap())
 
 #----------------------------------------------------------------------
 def getbookmarkData():
@@ -199,10 +199,10 @@ def getbookmarkData():
 {[\xd5\x7f[\xba\x95\xf9_\xf3\x07\xde\xd5' ))
 
 def getbookmarkBitmap():
-    return wxBitmapFromXPMData(getbookmarkData())
+    return wx.BitmapFromXPMData(getbookmarkData())
 
 def getbookmarkImage():
-    return wxImageFromBitmap(getbookmarkBitmap())
+    return wx.ImageFromBitmap(getbookmarkBitmap())
 
 #----------------------------------------------------------------------
 def getconfigureData():
@@ -230,10 +230,10 @@ def getconfigureData():
 \x9dN\xcb\xf3\xdf>wF\x17}\x01\xfb\x05\x0f\x1a' ))
 
 def getconfigureBitmap():
-    return wxBitmapFromXPMData(getconfigureData())
+    return wx.BitmapFromXPMData(getconfigureData())
 
 def getconfigureImage():
-    return wxImageFromBitmap(getconfigureBitmap())
+    return wx.ImageFromBitmap(getconfigureBitmap())
 
 #----------------------------------------------------------------------
 def getcontentsData():
@@ -276,10 +276,10 @@ Dw\x99\xa0%<\xc5\x0b<\xc1\x06\x06\x84<\xc7c\xdc\xa6\xdf7\xa8b\xbf\xf0\x06\
 :\x06\xff=\x082\xbf\x01\xb5i\xfa\xf6' ))
 
 def getcontentsBitmap():
-    return wxBitmapFromXPMData(getcontentsData())
+    return wx.BitmapFromXPMData(getcontentsData())
 
 def getcontentsImage():
-    return wxImageFromBitmap(getcontentsBitmap())
+    return wx.ImageFromBitmap(getcontentsBitmap())
 
 #----------------------------------------------------------------------
 def getdecryptedData():
@@ -301,10 +301,10 @@ f\x9c\xe4\xa5\x8b\xabbR\xfd\x96\xfa=\xff\\\x99\xb2\x99\xee\x0f\xad\xb2\nQ\
 \xdcl" ))
 
 def getdecryptedBitmap():
-    return wxBitmapFromXPMData(getdecryptedData())
+    return wx.BitmapFromXPMData(getdecryptedData())
 
 def getdecryptedImage():
-    return wxImageFromBitmap(getdecryptedBitmap())
+    return wx.ImageFromBitmap(getdecryptedBitmap())
 
 #----------------------------------------------------------------------
 def geteditcopyData():
@@ -325,10 +325,10 @@ y\xbb0we\xa1%\xd7\xa5\xbb\x95\xd9a(/{{\xbc\x95YVX\n\x8a&\x8e\x0b\xfe+\xe9`\
 \xc9\x07' ))
 
 def geteditcopyBitmap():
-    return wxBitmapFromXPMData(geteditcopyData())
+    return wx.BitmapFromXPMData(geteditcopyData())
 
 def geteditcopyImage():
-    return wxImageFromBitmap(geteditcopyBitmap())
+    return wx.ImageFromBitmap(geteditcopyBitmap())
 
 #----------------------------------------------------------------------
 def geteditcutData():
@@ -361,10 +361,10 @@ Y\xdb\xb2\x9e\xbb\xec:?\x06p\xc5\xbf\xa2\xe6V\x99\xdb\xcf#?\xee\xd5c\xecH^K~\
 \x8b\xc5(\xaa\xd2\xd7\xf8%\xfe\xfaJq\xe7\x1f\xe6SW>' ))
 
 def geteditcutBitmap():
-    return wxBitmapFromXPMData(geteditcutData())
+    return wx.BitmapFromXPMData(geteditcutData())
 
 def geteditcutImage():
-    return wxImageFromBitmap(geteditcutBitmap())
+    return wx.ImageFromBitmap(geteditcutBitmap())
 
 #----------------------------------------------------------------------
 def geteditdeleteData():
@@ -416,10 +416,10 @@ J_\xba\x08\xdcp\x05\xf4L\xe22\x13\x81\xd1\x08\x14&\xb7N\x80o\xd1e\xc9\xf5M[\
 \x8ev\xc2\x91\xc4\xff\x02\xdf\xdfvJ" ))
 
 def geteditdeleteBitmap():
-    return wxBitmapFromXPMData(geteditdeleteData())
+    return wx.BitmapFromXPMData(geteditdeleteData())
 
 def geteditdeleteImage():
-    return wxImageFromBitmap(geteditdeleteBitmap())
+    return wx.ImageFromBitmap(geteditdeleteBitmap())
 
 #----------------------------------------------------------------------
 def geteditdeleteData():
@@ -471,16 +471,16 @@ J_\xba\x08\xdcp\x05\xf4L\xe22\x13\x81\xd1\x08\x14&\xb7N\x80o\xd1e\xc9\xf5M[\
 \x8ev\xc2\x91\xc4\xff\x02\xdf\xdfvJ" ))
 
 def geteditdeleteBitmap():
-    return wxBitmapFromXPMData(geteditdeleteData())
+    return wx.BitmapFromXPMData(geteditdeleteData())
 
 def geteditdeleteImage():
-    return wxImageFromBitmap(geteditdeleteBitmap())
+    return wx.ImageFromBitmap(geteditdeleteBitmap())
 
 #----------------------------------------------------------------------
 def geteditData():
     return cPickle.loads(zlib.decompress(
 'x\xdaM\x94\xdbV\xea0\x10\x86\xef}\n\xd6b\xa3.*\xae\x94\xa6m\x00eQ\xd2\xe2\
-\x01\x11\x15\xcfwxF\xaa\x05\x15Q\x9e~73\x7f\xbaw\x86\x9bo\xfeI:\x93\xcc\xb0\
+\x01\x11\x15\xcfwx.F\xaa\x05\x15Q\x9e~73\x7f\xbaw\x86\x9bo\xfeI:\x93\xcc\xb0\
 \x99\xce\xdc\xb5\xd1\x86\x1b\x94\xf2_\xa8J\xee\xc6\xdax\xb41)\xdd\x97\xca\
 \x89Jt\xa2\x88\xd7\x99{\xa2\'\x88\xb5\xe1\x9e\xd0\xba\xcb|`\xb8!B\x1d2\x97\
 \x0cG\xa2\xab4s\xc5pN:f\xde2\x1c\x8a\x86\x8c\xf8\xfc}:_4\x14\xf6?\x18\x96"\
@@ -509,10 +509,10 @@ a3F|\xcb\xc3\x1c\xdb\xf8\x1b\xe8\x12zL\x97G\x8bX\x825\xd8\xe3\xe1\x8e\xec0\
 ' ))
 
 def geteditBitmap():
-    return wxBitmapFromXPMData(geteditData())
+    return wx.BitmapFromXPMData(geteditData())
 
 def geteditImage():
-    return wxImageFromBitmap(geteditBitmap())
+    return wx.ImageFromBitmap(geteditBitmap())
 
 #----------------------------------------------------------------------
 def getencryptedData():
@@ -535,10 +535,10 @@ def getencryptedData():
 \x933\x96\xf1?\x19\xb5\xdci' ))
 
 def getencryptedBitmap():
-    return wxBitmapFromXPMData(getencryptedData())
+    return wx.BitmapFromXPMData(getencryptedData())
 
 def getencryptedImage():
-    return wxImageFromBitmap(getencryptedBitmap())
+    return wx.ImageFromBitmap(getencryptedBitmap())
 
 #----------------------------------------------------------------------
 def getfilefindData():
@@ -579,7 +579,7 @@ B/9\xb3\xedk_\\y"\x90\xb3/\xa1\r,\x90h\xd5\xc3\xa4\xaa\xc9\x0b3\xb1I\x9e\xb5\
 Lc\x1eU\xd4PG\x8e\x06\x9a(\xe0\xd0B\x86\xd3\x01i\x16W\xd8\xc6\x19.p\x83K\xec\
 \x07\xe7\'\xd8\xc49\xb6\xb0sWi\x17{8\xc0!\x8e"\xe9\x16\xd7!\xb5\x1f\xf8\x8a\
 \xe3\xbbJ\xdf\xf1\x1c+\xe8\xe0M y\xbcG\x1b\xeb\xe8b\xf9\xdf\xa4\x87x\x84\'!\
-\xfc\xa3@{\x1ah\xd7x\x865<\xc6\xeb\xbb\xa4wx\x85\x97\xe8\x85\x98n\xf1\x16/0\
+\xfc\xa3@{\x1ah\xd7x\x865<\xc6\xeb\xbb\xa4wx.\x85\x97\xe8\x85\x98n\xf1\x16/0\
 \x84?\xf8\x84\x07wH\xc3\xb3\x98\x08\xd9\xdd\xc7g|A%\xa8\x0c\xe1#>\xe0\'~\xd3\
 \xdd\xb0*\x85\x9d\x14\x91\r\xe9\xcb\xaaL\xc9\x92\x8c\xc8\xa8\x8c\xc9\xb8\x1c\
 \xdf\xcd\xee\x17&eAfdNfeQ\xa6e^\xaaR\x93\xba\x84\xaf\x81\x01\xa9!M)\xc4\xc9\
@@ -588,10 +588,10 @@ Lc\x1eU\xd4PG\x8e\x06\x9a(\xe0\xd0B\x86\xd3\x01i\x16W\xd8\xc6\x19.p\x83K\xec\
 \x8eH\xc83|\xc5\x94\xd9\xc9?\xa6\xf9m:' ))
 
 def getfilefindBitmap():
-    return wxBitmapFromXPMData(getfilefindData())
+    return wx.BitmapFromXPMData(getfilefindData())
 
 def getfilefindImage():
-    return wxImageFromBitmap(getfilefindBitmap())
+    return wx.ImageFromBitmap(getfilefindBitmap())
 
 #----------------------------------------------------------------------
 def getfileopenData():
@@ -619,10 +619,10 @@ def getfileopenData():
 \xd5\x1a\xc2' ))
 
 def getfileopenBitmap():
-    return wxBitmapFromXPMData(getfileopenData())
+    return wx.BitmapFromXPMData(getfileopenData())
 
 def getfileopenImage():
-    return wxImageFromBitmap(getfileopenBitmap())
+    return wx.ImageFromBitmap(getfileopenBitmap())
 
 #----------------------------------------------------------------------
 def getfindData():
@@ -663,10 +663,10 @@ V\x02oh\x92\xbb\xf3)\x03&v\x8d\x99\xd66\x82\xb7\xd9\x9d|\x02\xd7\xcdi\xa4\
 \x8e$\xf5\xbf\x9f%\xc9\xa9\xa3\x89\x17\x7f\x00\xef\xcf\xcf\x11' ))
 
 def getfindBitmap():
-    return wxBitmapFromXPMData(getfindData())
+    return wx.BitmapFromXPMData(getfindData())
 
 def getfindImage():
-    return wxImageFromBitmap(getfindBitmap())
+    return wx.ImageFromBitmap(getfindBitmap())
 
 #----------------------------------------------------------------------
 def getgohomeData():
@@ -719,10 +719,10 @@ I\xba\xb2"A\xd6\xa4\x94\xbe\xf4dA\x9e\xc8Sy\xfeoO/\xe4\xa5\xbc\x8a\xa4g\xf1\
 \x0f\xba\xa6e\xfc\\i_{F\xd2\x7f\x00L\xca\xa8\x83' ))
 
 def getgohomeBitmap():
-    return wxBitmapFromXPMData(getgohomeData())
+    return wx.BitmapFromXPMData(getgohomeData())
 
 def getgohomeImage():
-    return wxImageFromBitmap(getgohomeBitmap())
+    return wx.ImageFromBitmap(getgohomeBitmap())
 
 #----------------------------------------------------------------------
 def getgotoData():
@@ -774,10 +774,10 @@ i[\xce\xa1\x0b3\xfd\xd4\xa2\xf09\xb2v\xcf\x8ei\x99&h\x91\x06\x83\x814D\xc3}6\
 \xc1\xfb\x90\xef\xf8&\xd8F\xf8}\x15\xf4\xb6\x95\xc4\x7f\x01\xc2\xde~\xea' ))
 
 def getgotoBitmap():
-    return wxBitmapFromXPMData(getgotoData())
+    return wx.BitmapFromXPMData(getgotoData())
 
 def getgotoImage():
-    return wxImageFromBitmap(getgotoBitmap())
+    return wx.ImageFromBitmap(getgotoBitmap())
 
 #----------------------------------------------------------------------
 def gethelpData():
@@ -822,10 +822,10 @@ z\xee\xcb\xed\xe1%^\x04\x9f\x03<\xf3\xc8]\xfc\xc1\x1b\xdcWhl\x1a\xf7\xf0\x16\
 \x94\xdcwf\xb4\xfe\x19\x15\xf9\x0b\x95rS\xd0' ))
 
 def gethelpBitmap():
-    return wxBitmapFromXPMData(gethelpData())
+    return wx.BitmapFromXPMData(gethelpData())
 
 def gethelpImage():
-    return wxImageFromBitmap(gethelpBitmap())
+    return wx.ImageFromBitmap(gethelpBitmap())
 
 #----------------------------------------------------------------------
 def gethistoryData():
@@ -861,10 +861,10 @@ def gethistoryData():
 \xfa\x8f\xd4" ))
 
 def gethistoryBitmap():
-    return wxBitmapFromXPMData(gethistoryData())
+    return wx.BitmapFromXPMData(gethistoryData())
 
 def gethistoryImage():
-    return wxImageFromBitmap(gethistoryBitmap())
+    return wx.ImageFromBitmap(gethistoryBitmap())
 
 #----------------------------------------------------------------------
 def getmail_genericData():
@@ -887,10 +887,10 @@ def getmail_genericData():
 \x0f" ))
 
 def getmail_genericBitmap():
-    return wxBitmapFromXPMData(getmail_genericData())
+    return wx.BitmapFromXPMData(getmail_genericData())
 
 def getmail_genericImage():
-    return wxImageFromBitmap(getmail_genericBitmap())
+    return wx.ImageFromBitmap(getmail_genericBitmap())
 
 #----------------------------------------------------------------------
 def getmail_replyallData():
@@ -936,10 +936,10 @@ R\xc4ct\xb1\x8b>\xb6p\x05Wq\x1d7&I7q\x1b\xd7p\x1f\x8fp\x0fw1\xc0C\xdc\xc1E\
 \x02\x0c\xc5"\x0b' ))
 
 def getmail_replyallBitmap():
-    return wxBitmapFromXPMData(getmail_replyallData())
+    return wx.BitmapFromXPMData(getmail_replyallData())
 
 def getmail_replyallImage():
-    return wxImageFromBitmap(getmail_replyallBitmap())
+    return wx.ImageFromBitmap(getmail_replyallBitmap())
 
 #----------------------------------------------------------------------
 def getmail_replyData():
@@ -982,10 +982,10 @@ c\xeb\x08\x10\xc6\x9aaH\x94M\xc0\xed\xa4a}\xfc.\xc0\x89\x04\x0cb\x08\x81G\tX\
 \xb8\xc0\xfc\x02+\x89\xf0!' ))
 
 def getmail_replyBitmap():
-    return wxBitmapFromXPMData(getmail_replyData())
+    return wx.BitmapFromXPMData(getmail_replyData())
 
 def getmail_replyImage():
-    return wxImageFromBitmap(getmail_replyBitmap())
+    return wx.ImageFromBitmap(getmail_replyBitmap())
 
 #----------------------------------------------------------------------
 def getmail_sendData():
@@ -1022,10 +1022,10 @@ VXp\x9c\xeffs\xa8\xd9\xdbwph\xaf\\\xf8}\xf7\xfd\xbd\xcf\xfc\xee\x05\x16~\x91\
 \xba\xf0\x8f,\xd5~\x00F\x9c\x8b/' ))
 
 def getmail_sendBitmap():
-    return wxBitmapFromXPMData(getmail_sendData())
+    return wx.BitmapFromXPMData(getmail_sendData())
 
 def getmail_sendImage():
-    return wxImageFromBitmap(getmail_sendBitmap())
+    return wx.ImageFromBitmap(getmail_sendBitmap())
 
 #----------------------------------------------------------------------
 def getreloadData():
@@ -1053,10 +1053,10 @@ K\xce\xd7\x12\xf9\xc2\xf2`\xb9\x98yx\x849\\~70\x8a\xcd\xfc2HR\x18n\xca\xc5\
 \x8a\xce\xffw!\xbb\xc1\xf6\x1f\xab\x11&<' ))
 
 def getreloadBitmap():
-    return wxBitmapFromXPMData(getreloadData())
+    return wx.BitmapFromXPMData(getreloadData())
 
 def getreloadImage():
-    return wxImageFromBitmap(getreloadBitmap())
+    return wx.ImageFromBitmap(getreloadBitmap())
 
 #----------------------------------------------------------------------
 def getspellcheckData():
@@ -1087,10 +1087,10 @@ n6\xae\xa5\xf1\xbb\x92\xa5\xe7\xdf\xe7\xf7\n\xff_\x16\x83\x1d\xe5\xc7\xc3#\
 \xbd7\xf5\x97\xd2}\xb9\xb2\xf2\x0b\xcd\x1b>\x8c' ))
 
 def getspellcheckBitmap():
-    return wxBitmapFromXPMData(getspellcheckData())
+    return wx.BitmapFromXPMData(getspellcheckData())
 
 def getspellcheckImage():
-    return wxImageFromBitmap(getspellcheckBitmap())
+    return wx.ImageFromBitmap(getspellcheckBitmap())
 
 #----------------------------------------------------------------------
 def getviewmagData():
@@ -1130,10 +1130,10 @@ x2\xae+C\xe7\xd2\x18\x02l\xf2M\x19\x94\xefib\xcf\xd8\xd3\xb6\xeb\x88Kg\x08t\
 \x12\xc7\xcd\xc4U$ .\xaa\x89?\xd2)q\xf3\x0fI\xa8\xe1\x0b" ))
 
 def getviewmagBitmap():
-    return wxBitmapFromXPMData(getviewmagData())
+    return wx.BitmapFromXPMData(getviewmagData())
 
 def getviewmagImage():
-    return wxImageFromBitmap(getviewmagBitmap())
+    return wx.ImageFromBitmap(getviewmagBitmap())
 
 #----------------------------------------------------------------------
 def getviewmagData():
@@ -1167,7 +1167,7 @@ L\xe7\xf7\x92#/U-\x8bF\x94\x9fL\xde\nf\x89\x13\x96:f\x94\xe1\xc8\x98U\x86#\
 \xed\xa5\xa3.:\xc2-\x8c\x19\x02<\xe2\xe31~L\x91\x8f\xc1v\xb4\x1161y\xce\x90\
 \xd2ia\r\rLc\xe6\xff\xa4Y\xccc\x05\x8b\xe8\xff\x8b\xd4\xc3*\x16p\x05m,a\xf9_\
 $\x87\x02%:\xf0\xe8\xc2N\x92\xe2w\x13\xc7\xd8\xc5W\x1c\xe2\'\x8e\xf0\x01\x07\
-\xd8\xc1\xb7\xf3\xa47x\x8bwx\x8f\x8f\xf8\x84=\xfc\xc2\x8f\xd8\xfd\xf7\xe8r\
+\xd8\xc1\xb7\xf3\xa47x\x8bwx.\x8f\x8f\xf8\x84=\xfc\xc2\x8f\xd8\xfd\xf7\xe8r\
 \x8et\x84W\xd8\xc7g\xdc\xc6\x06j<D\xc0\x13T\x93\xa4-\x0c\xb0\x8e\xab\xb8\x86\
 \x1b\xb8\x89[\xb8\x83\xebx0Iz\x8c\xfb\xb8\x87!\x1e\xe1..\xe2\x0f\x9e\xe32\
 \xe6&HS\xc0%\xbc\xc0\xcbhM<\xc3S\x9c\xe0\x14\xf1{m\\l\'\x9d)\x1d\x811\xdbfd6\
@@ -1176,10 +1176,10 @@ M\xcb\xac\x99\x86\x9963\xe6w\x8c\xe6\xce\xcf\xc9\x98\xe3\xe8\xd7\xc3\xac\xe9\
 \x10\xab\xff#\x01\x0b1Y\xfc&\xa7t\xe6/\x12\xe7\xfb\xfc' ))
 
 def getviewmagBitmap():
-    return wxBitmapFromXPMData(getviewmagData())
+    return wx.BitmapFromXPMData(getviewmagData())
 
 def getviewmagImage():
-    return wxImageFromBitmap(getviewmagBitmap())
+    return wx.ImageFromBitmap(getviewmagBitmap())
 
 #----------------------------------------------------------------------
 def getwindow_newData():
@@ -1201,10 +1201,10 @@ def getwindow_newData():
 \xbd\x88\xc1\xcb\xb1b\xb7q\x9c\x7f\xb6\xf4.z?\xaa\x8e\xdc\xa0' ))
 
 def getwindow_newBitmap():
-    return wxBitmapFromXPMData(getwindow_newData())
+    return wx.BitmapFromXPMData(getwindow_newData())
 
 def getwindow_newImage():
-    return wxImageFromBitmap(getwindow_newBitmap())
+    return wx.ImageFromBitmap(getwindow_newBitmap())
 
 #----------------------------------------------------------------------
 def getcustomseparatorData():
@@ -1214,10 +1214,10 @@ def getcustomseparatorData():
 \xf9+Q' ))
 
 def getcustomseparatorBitmap():
-    return wxBitmapFromXPMData(getcustomseparatorData())
+    return wx.BitmapFromXPMData(getcustomseparatorData())
 
 def getcustomseparatorImage():
-    return wxImageFromBitmap(getcustomseparatorBitmap())
+    return wx.ImageFromBitmap(getcustomseparatorBitmap())
 
 #----------------------------------------------------------------------
 def getprinterData():
@@ -1258,10 +1258,10 @@ C\xde7\x15=\xc2\x16.s\xacp\x9c\xb3\xeb\x0e\x9e\xe3:f\xd8w\x16/T4\xf5\x12k\
 \x01A\x1f\xdf\x0c' ))
 
 def getprinterBitmap():
-    return wxBitmapFromXPMData(getprinterData())
+    return wx.BitmapFromXPMData(getprinterData())
 
 def getprinterImage():
-    return wxImageFromBitmap(getprinterBitmap())
+    return wx.ImageFromBitmap(getprinterBitmap())
 
 #----------------------------------------------------------------------
 def getviewsourceData():
@@ -1307,8 +1307,8 @@ C=\xdbPyl\xd3D\x03D\xbb\xac\x1a\xb9\xb5\xb0i\x1a\x1e\x1a[\xd0\xa8<6a\xd4aM\
  ))
 
 def getviewsourceBitmap():
-    return wxBitmapFromXPMData(getviewsourceData())
+    return wx.BitmapFromXPMData(getviewsourceData())
 
 def getviewsourceImage():
-    return wxImageFromBitmap(getviewsourceBitmap())
+    return wx.ImageFromBitmap(getviewsourceBitmap())
 

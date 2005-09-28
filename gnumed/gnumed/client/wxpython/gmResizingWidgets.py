@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.36 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmResizingWidgets.py,v 1.37 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -241,7 +241,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		for line in self.__input_lines:
 			for widget in line:
 				if values.has_key(widget['ID']):
-					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
+					if isinstance(widget['instance'], stc.wx.StyledTextCtrl):
 						widget['instance'].SetText(values[widget['ID']])
 					elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):
 						widget['instance'].SetSelection(values[widget['ID']])
@@ -265,7 +265,7 @@ class cResizingWindow(wx.ScrolledWindow):
 				if isinstance(widget['instance'], cResizingSTC):
 					result.text = widget['instance'].GetText()
 					result.data = widget['instance'].GetData()
-				elif isinstance(widget['instance'], stc.wxStyledTextCtrl):
+				elif isinstance(widget['instance'], stc.wx.StyledTextCtrl):
 					result.text = widget['instance'].GetText()
 				elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):
 					result.selection = widget['instance'].GetSelection()
@@ -280,7 +280,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		"""
 		for line in self.__input_lines:
 			for widget in line:
-				if isinstance (widget['instance'], stc.wxStyledTextCtrl):
+				if isinstance (widget['instance'], stc.wx.StyledTextCtrl):
 					widget['instance'].ClearAll()
 				elif isinstance (widget['instance'], wx.TextCtrl):
 					widget['instance'].Clear()
@@ -352,7 +352,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		"""Gets a terse summary string for the data in the widget"""
 		return ""
 #====================================================================
-class cResizingSTC(stc.wxStyledTextCtrl):
+class cResizingSTC(stc.wx.StyledTextCtrl):
 	"""
 	A StyledTextCrl that monitors the size of its internal text and
 	resizes the parent accordingly.
@@ -365,15 +365,15 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
 		self.__problem = problem
-		stc.wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
-		self.SetWrapMode (stc.wxSTC_WRAP_WORD)
+		stc.wx.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
+		self.SetWrapMode (stc.wx.STC_WRAP_WORD)
 		# FIXME: configure
 		self.StyleSetSpec (STYLE_ERROR, "fore:#7F11010,bold")
 		self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
 		self.StyleSetChangeable (STYLE_EMBED, 0)
 #		self.StyleSetHotSpot (STYLE_EMBED, 1)
-		self.SetEOLMode (stc.wxSTC_EOL_LF)
-		self.SetModEventMask (stc.wxSTC_MOD_INSERTTEXT | stc.wxSTC_MOD_DELETETEXT | stc.wxSTC_PERFORMED_USER)
+		self.SetEOLMode (stc.wx.STC_EOL_LF)
+		self.SetModEventMask (stc.wxSTC_MOD_INSERTTEXT | stc.wx.STC_MOD_DELETETEXT | stc.wx.STC_PERFORMED_USER)
 
 		stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
 		wx.EVT_KEY_DOWN (self, self.__on_key_down)
@@ -409,12 +409,12 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 	#------------------------------------------------
 	def SetText(self, text):
 		self.__show_list = 0
-		stc.wxStyledTextCtrl.SetText(self, text)
+		stc.wx.StyledTextCtrl.SetText(self, text)
 		self.__show_list = 1
 	#------------------------------------------------
 	def ReplaceText (self, start, end, text, style=-1, space=0):
 		"""
-		Oddly, the otherwise very rich wxSTC API does not provide an
+		Oddly, the otherwise very rich wx.STC API does not provide an
 		easy way to replace text, so we provide it here.
 
 		@param start: the position in the text to start from
@@ -455,7 +455,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 		- make sure that's visible, too
 		"""
-		stc.wxStyledTextCtrl.SetFocus(self)
+		stc.wx.StyledTextCtrl.SetFocus(self)
 		# goto first line ?
 		if line == 1:
 			if x is None:
@@ -502,7 +502,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
 		# did the user do anything of note to us ?
-		if not (event.GetModificationType() & (stc.wxSTC_MOD_INSERTTEXT | stc.wxSTC_MOD_DELETETEXT)):
+		if not (event.GetModificationType() & (stc.wx.STC_MOD_INSERTTEXT | stc.wx.STC_MOD_DELETETEXT)):
 			event.Skip()
 			return
 		last_char_pos = self.GetLength()
@@ -828,7 +828,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
-			_log.Log(gmLog.lErr, 'the result (%s) is not a wxDialog subclass instance, however' % str(popup))
+			_log.Log(gmLog.lErr, 'the result (%s) is not a wx.Dialog subclass instance, however' % str(popup))
 			return False
 
 		# display widget
@@ -889,7 +889,7 @@ if __name__ == '__main__':
 
 	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
-		print "actually this would have to return a suitable wxWindow subclass instance"
+		print "actually this would have to return a suitable wx.Window subclass instance"
 		print "args:", args
 		print "kwd args:"
 		for key in kwargs.keys():
@@ -898,7 +898,7 @@ if __name__ == '__main__':
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (
 			"test keyword must have been typed...\n"
-			"actually this would have to return a suitable wxWindow subclass instance\n"
+			"actually this would have to return a suitable wx.Window subclass instance\n"
 		)
 		for arg in args:
 			msg = msg + "\narg ==> %s" % arg
@@ -920,8 +920,8 @@ if __name__ == '__main__':
 				style
 			)
 			self.__completion_callback = completion_callback
-			self._wxID_BTN_OK = wx.NewId()
-			self._wxID_BTN_Cancel = wx.NewId()
+			self._wx.ID_BTN_OK = wx.NewId()
+			self._wx.ID_BTN_Cancel = wx.NewId()
 			self.__do_layout()
 			self.__register_interests()
 			self.Show()
@@ -931,9 +931,9 @@ if __name__ == '__main__':
 			msg = "test keyword popup"
 			text = wx.StaticText (self, -1, msg)
 			# buttons
-			self.btn_OK = wx.Button(self, self._wxID_BTN_OK, _("OK"))
+			self.btn_OK = wx.Button(self, self._wx.ID_BTN_OK, _("OK"))
 			self.btn_OK.SetToolTipString(_('dismiss popup and embed data'))
-			self.btn_Cancel = wx.Button(self, self._wxID_BTN_Cancel, _("Cancel"))
+			self.btn_Cancel = wx.Button(self, self._wx.ID_BTN_Cancel, _("Cancel"))
 			self.btn_Cancel.SetToolTipString(_('dismiss popup and throw away data'))
 			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 			szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
@@ -949,8 +949,8 @@ if __name__ == '__main__':
 			szr_main.Fit(self)
 
 		def __register_interests(self):
-			wx.EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_ok)
-			wx.EVT_BUTTON(self.btn_Cancel, self._wxID_BTN_Cancel, self._on_cancel)
+			wx.EVT_BUTTON(self.btn_OK, self._wx.ID_BTN_OK, self._on_ok)
+			wx.EVT_BUTTON(self.btn_Cancel, self._wx.ID_BTN_Cancel, self._on_cancel)
 
 		def _on_ok(self, event):
 			self.__completion_callback(was_cancelled = False)
@@ -1073,7 +1073,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.36  2005-09-27 20:44:59  ncq
+# Revision 1.37  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.36  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.35  2005/09/26 18:01:51  ncq

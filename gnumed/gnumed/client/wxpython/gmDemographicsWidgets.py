@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.67 2005-09-27 20:44:58 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmDemographicsWidgets.py,v 1.68 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1097,7 +1097,7 @@ class DemographicDetailWindow(wx.Panel):
 #============================================================
 # new patient wizard classes
 #============================================================
-class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
+class cBasicPatDetailsPage(wizard.wx.WizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
 	"""
@@ -1111,11 +1111,11 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		"""
 		Creates a new instance of BasicPatDetailsPage
 		@param parent - The parent widget
-		@type parent - A wxWindow instance
+		@type parent - A wx.Window instance
 		@param tile - The title of the page
 		@type title - A StringType instance				
 		"""
-		wizard.wxWizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
+		wizard.wx.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 		self.__title = title
 		genders, idx = gmPerson.get_gender_list()
 		self.__gender_map = {}
@@ -1450,7 +1450,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_country.set_context(context='zip', val=zip_code)
 		return True				
 #============================================================
-class cNewPatientWizard(wizard.wxWizard):
+class cNewPatientWizard(wizard.wx.Wizard):
 	"""
 	Wizard to create a new patient.
 
@@ -1467,10 +1467,10 @@ class cNewPatientWizard(wizard.wxWizard):
 		"""
 		Creates a new instance of NewPatientWizard
 		@param parent - The parent widget
-		@type parent - A wxWindow instance
+		@type parent - A wx.Window instance
 		"""
 		id_wiz = wx.NewId()
-		wizard.wxWizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
+		wizard.wx.Wizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 		self.__do_layout()
 	#--------------------------------------------------------
@@ -1479,7 +1479,7 @@ class cNewPatientWizard(wizard.wxWizard):
 
 		activate, too, if told to do so (and patient successfully created
 		"""
-		if not wizard.wxWizard.RunWizard(self, self.basic_pat_details):
+		if not wizard.wx.Wizard.RunWizard(self, self.basic_pat_details):
 			return False
 
 		# retrieve DTD and create patient
@@ -1885,7 +1885,7 @@ class cPatIdentityPanel(wx.Panel):
 		"""
 		Creates a new instance of cPatIdentityPanel
 		@param parent - The parent widget
-		@type parent - A wxWindow instance
+		@type parent - A wx.Window instance
 		@param id - The widget id
 		@type id - An integer
 		@param dtd The object containing the data model.
@@ -2161,7 +2161,7 @@ class cPatContactsPanel(wx.Panel):
 		"""
 		Creates a new instance of BasicPatDetailsPanel
 		@param parent - The parent widget
-		@type parent - A wxWindow instance
+		@type parent - A wx.Window instance
 		@param id - The widget id
 		@type id - An integer
 		@param dtd The object containing the data model.
@@ -2478,7 +2478,7 @@ class cPatOccupationsPanel(wx.Panel):
 		"""
 		Creates a new instance of BasicPatDetailsPage
 		@param parent - The parent widget
-		@type parent - A wxWindow instance
+		@type parent - A wx.Window instance
 		@param id - The widget id
 		@type id - An integer
 		@param dtd The object containing the data model.
@@ -2852,7 +2852,7 @@ class TestWizardPanel(wx.Panel):
 		"""
 		Create a new instance of TestPanel.
 		@param parent The parent widget
-		@type parent A wxWindow instance
+		@type parent A wx.Window instance
 		"""
 		wx.Panel.__init__(self, parent, id)
 		wizard = cNewPatientWizard(self)
@@ -2885,7 +2885,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.67  2005-09-27 20:44:58  ncq
+# Revision 1.68  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.67  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.66  2005/09/26 18:01:50  ncq

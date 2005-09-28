@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -21,7 +21,7 @@ try:
 	import wx
 except ImportError:
 	from wxPython import wx
-	from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+	from wxPython.lib.mixins.listctrl import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
 	from wxPython import grid
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider, gmGuiBroker
@@ -36,34 +36,34 @@ _log.Log(gmLog.lInfo, __version__)
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
 
-[	wxID_LAB_GRID,
-	wxID_NB_LabJournal,
-	wxID_LBOX_pending_results,
-	wxID_PHRWH_labs,
-	wxID_TextCtrl_req_id,
-	wxID_BTN_save_request_ID,
-	wxID_BTN_select_all,
-	wxID_BTN_mark_reviewed,
-	wxID_pending_requests,
-	wxID_lbox_errors,
-	wxID_grid_unreviewed_results
-] = map(lambda _init_ctrls: wxNewId(), range(11))
+[	wx.ID_LAB_GRID,
+	wx.ID_NB_LabJournal,
+	wx.ID_LBOX_pending_results,
+	wx.ID_PHRWH_labs,
+	wx.ID_TextCtrl_req_id,
+	wx.ID_BTN_save_request_ID,
+	wx.ID_BTN_select_all,
+	wx.ID_BTN_mark_reviewed,
+	wx.ID_pending_requests,
+	wx.ID_lbox_errors,
+	wx.ID_grid_unreviewed_results
+] = map(lambda _init_ctrls: wx.NewId(), range(11))
 #=========================================================
 class cLabDataGridCellRenderer(wxPyGridCellRenderer):
     def __init__(self):
         wxPyGridCellRenderer.__init__(self)
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
-        dc.SetBackgroundMode(wxSOLID)
-        dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
-        dc.SetPen(wxTRANSPARENT_PEN)
+        dc.SetBackgroundMode(wx.SOLID)
+        dc.SetBrush(wxBrush(wx.BLACK, wx.SOLID))
+        dc.SetPen(wx.TRANSPARENT_PEN)
         dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
 
-        dc.SetBackgroundMode(wxTRANSPARENT)
+        dc.SetBackgroundMode(wx.TRANSPARENT)
         dc.SetFont(attr.GetFont())
 
         text = grid.GetCellValue(row, col)
-        colors = [wxRED, wxWHITE, wxCYAN]
+        colors = [wxRED, wx.WHITE, wx.CYAN]
         x = rect.x + 1
         y = rect.y + 1
         for ch in text:
@@ -79,7 +79,7 @@ class cLabDataGridCellRenderer(wxPyGridCellRenderer):
         text = grid.GetCellValue(row, col)
         dc.SetFont(attr.GetFont())
         w, h = dc.GetTextExtent(text)
-        return wxSize(w, h)
+        return wx.Size(w, h)
 
 
     def Clone(self):
@@ -90,15 +90,15 @@ class cLabJournalCellRenderer(wxPyGridCellRenderer):
 		wxPyGridCellRenderer.__init__(self)
 
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
-		dc.SetBackgroundMode(wxSOLID)
-		dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
-		dc.SetPen(wxTRANSPARENT_PEN)
+		dc.SetBackgroundMode(wx.SOLID)
+		dc.SetBrush(wxBrush(wx.BLACK, wx.SOLID))
+		dc.SetPen(wx.TRANSPARENT_PEN)
 		dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
-		dc.SetBackgroundMode(wxTRANSPARENT)
+		dc.SetBackgroundMode(wx.TRANSPARENT)
 		dc.SetFont(attr.GetFont())
 
 		text = grid.GetCellValue(row, col)
-		colors = [wxRED, wxWHITE, wxCYAN]
+		colors = [wxRED, wx.WHITE, wx.CYAN]
 		x = rect.x + 1
 		y = rect.y + 1
 		for ch in text:
@@ -110,19 +110,19 @@ class cLabJournalCellRenderer(wxPyGridCellRenderer):
 				break
 
 #=========================================================
-class cLabReviewGrid(wxGrid):
-	"""This wxGrid derivative displays lab data that has not yet been reviewed by a clinician.
+class cLabReviewGrid(wx.Grid):
+	"""This wx.Grid derivative displays lab data that has not yet been reviewed by a clinician.
 	"""
 	def __init__(self, parent, id):
 		"""Set up our specialised grid.
 		"""
-		wxGrid.__init__(
+		wx.Grid.__init__(
 			self,
 			parent,
 			id,
-			pos = wxDefaultPosition,
-			size = wxDefaultSize,
-			style= wxWANTS_CHARS
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style= wx.WANTS_CHARS
 		)
 #=========================================================
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
@@ -139,30 +139,30 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			parent = parent,
 			id = -1,
 			aMatchProvider = self.mp,
-			size = wxDefaultSize,
-			pos = wxDefaultPosition
+			size = wx.DefaultSize,
+			pos = wx.DefaultPosition
 		)
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
 #=========================================================
 # FIXME: is this really lab specific ?
-class cLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
-	def __init__(self, parent, id, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
-		wxListCtrl.__init__(self, parent, id, pos, size, style)
-		wxListCtrlAutoWidthMixin.__init__(self)
+class cLabIDListCtrl(wx.ListCtrl, wx.ListCtrlAutoWidthMixin):
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
+		wx.ListCtrl.__init__(self, parent, id, pos, size, style)
+		wx.ListCtrlAutoWidthMixin.__init__(self)
 
 #=========================================================
-class cLabJournalNB(wxNotebook):
-	"""This wxNotebook derivative displays 'records still due' and lab-import related errors.
+class cLabJournalNB(wx.Notebook):
+	"""This wx.Notebook derivative displays 'records still due' and lab-import related errors.
 	"""
 	def __init__(self, parent, id):
 		"""Set up our specialised notebook.
 		"""
-		wxNotebook.__init__(
+		wx.Notebook.__init__(
 			self,
 			parent,
 			id,
-			wxDefaultPosition,
-			wxDefaultSize,
+			wx.DefaultPosition,
+			wx.DefaultSize,
 			0
 		)
 
@@ -176,11 +176,11 @@ class cLabJournalNB(wxNotebook):
 		self.__register_events()
 	#------------------------------------------------------------------------
 	def __do_layout_config_page(self):
-		pnl_page = wxPanel(self, -1)
+		pnl_page = wx.Panel(self, -1)
 
 
 
-		szr_page = wxBoxSizer(wxVERTICAL)
+		szr_page = wx.BoxSizer(wx.VERTICAL)
 #		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
 #		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
@@ -193,19 +193,19 @@ class cLabJournalNB(wxNotebook):
 	#------------------------------------------------------------------------
 	def __do_layout_requests_page(self):
 		# notebook tab with pending requests
-		pnl_page = wxPanel(self, -1)
+		pnl_page = wx.Panel(self, -1)
 
 		# -- add request area --
-		hbszr = wxStaticBoxSizer(
-			wxStaticBox(
+		hbszr = wx.StaticBoxSizer(
+			wx.StaticBox(
 				pnl_page,
 				-1,
 				_("add new request for current patient")
 			),
-			wxHORIZONTAL
+			wx.HORIZONTAL
 		)
 		# label
-		lab_label = wxStaticText(
+		lab_label = wx.StaticText(
 			name = 'lablabel',
 			parent = pnl_page,
 			id = -1,
@@ -216,42 +216,42 @@ class cLabJournalNB(wxNotebook):
 		self.lab_wheel.on_resize (None)
 		self.lab_wheel.add_callback_on_selection(self.on_lab_selected)
 		# label
-		req_id_label = wxStaticText(
+		req_id_label = wx.StaticText(
 			name = 'req_id_label',
 			parent = pnl_page,
 			id = -1,
 			label = _("Specimen ID")
 		)
 		# request_id field
-		self.fld_request_id = wxTextCtrl (
+		self.fld_request_id = wx.TextCtrl (
 			pnl_page,
-			wxID_TextCtrl_req_id,
+			wx.ID_TextCtrl_req_id,
 			"",
-			wxDefaultPosition,
-			wxSize(80,-1),
+			wx.DefaultPosition,
+			wx.Size(80,-1),
 			0
 		)
 		# "save request id" button
-		self.BTN_save_request_ID = wxButton(
+		self.BTN_save_request_ID = wx.Button(
 			name = 'BTN_save_request_ID',
 			parent = pnl_page,
-			id = wxID_BTN_save_request_ID,
+			id = wx.ID_BTN_save_request_ID,
 			label = _("save lab request")
 		)
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 
-		hbszr.Add(lab_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.Add(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.Add(req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
-		hbszr.Add(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5)
-		hbszr.Add(self.BTN_save_request_ID, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.Add(lab_label, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+		hbszr.Add(self.lab_wheel, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+		hbszr.Add(req_id_label, 0, wx.ALIGN_CENTER | wx.ALL, 5)
+		hbszr.Add(self.fld_request_id, 0, wx.ALIGN_CENTER| wx.ALL, 5)
+		hbszr.Add(self.BTN_save_request_ID, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
 		# -- add list of pending requests --
 		self.lbox_pending = cLabIDListCtrl(
 			pnl_page,
-			wxID_pending_requests,
-			size = wxDefaultSize,
-			style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES
+			wx.ID_pending_requests,
+			size = wx.DefaultSize,
+			style = wxLC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
 		)
 
 		self.lbox_pending.InsertColumn(0, _("date"))
@@ -260,9 +260,9 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_pending.InsertColumn(3, _("patient"))
 		self.lbox_pending.InsertColumn(4, _("status"))
 
-		szr_page = wxBoxSizer(wxVERTICAL)
-		szr_page.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
-		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		szr_page = wx.BoxSizer(wx.VERTICAL)
+		szr_page.Add(hbszr,0, wx.ALIGN_LEFT | wx.ALL, 5)
+		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
 #		szr_page.Add(self.lbox_pending, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
@@ -273,21 +273,21 @@ class cLabJournalNB(wxNotebook):
 		self.AddPage(pnl_page, _("pending requests"))
 	#------------------------------------------------------------------------
 	def __do_layout_errors_page(self):
-		pnl_page = wxPanel( self, -1)
+		pnl_page = wx.Panel( self, -1)
 
 		self.lbox_errors = cLabIDListCtrl (
 			parent = pnl_page,
-			id = wxID_lbox_errors,
-			size = wxDefaultSize,
-			style = wxLC_REPORT | wxSUNKEN_BORDER | wxLC_VRULES
+			id = wx.ID_lbox_errors,
+			size = wx.DefaultSize,
+			style = wxLC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
 		)
 		self.lbox_errors.InsertColumn(0, _("noticed when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
 		self.lbox_errors.InsertColumn(2, _("solution"))
 		self.lbox_errors.InsertColumn(3, _("context"))
 
-		szr_page = wxBoxSizer(wxVERTICAL)
-		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
+		szr_page = wx.BoxSizer(wx.VERTICAL)
+		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wx.ALIGN_CENTER | wx.ALL, 5)
 #		szr_page.Add(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
 
 		pnl_page.SetAutoLayout(True)
@@ -298,15 +298,15 @@ class cLabJournalNB(wxNotebook):
 		self.AddPage(pnl_page, _("lab errors"))
 	#------------------------------------------------------------------------
 	def __do_layout_review_page(self):
-		pnl_page = wxPanel( self, -1)
+		pnl_page = wx.Panel( self, -1)
 
 		# -- create new grid --
 		self.__grid_unreviewed_results = cLabReviewGrid(
 			pnl_page,
-			wxID_grid_unreviewed_results
+			wx.ID_grid_unreviewed_results
 		)
-		self.__grid_unreviewed_results.CreateGrid(0, 8, wxGrid.wxGridSelectCells)
-		self.__grid_unreviewed_results.SetDefaultCellAlignment(wxALIGN_LEFT, wxALIGN_CENTRE)
+		self.__grid_unreviewed_results.CreateGrid(0, 8, wx.Grid.wx.GridSelectCells)
+		self.__grid_unreviewed_results.SetDefaultCellAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
 		# there is a bug in wxGTK for this method...
 		self.__grid_unreviewed_results.AutoSizeColumns(True)
 		self.__grid_unreviewed_results.AutoSizeRows(True)
@@ -338,30 +338,30 @@ class cLabJournalNB(wxNotebook):
 
 		# -- add buttons --
 		# "select all requests"
-		self.BTN_select_all = wxButton(
+		self.BTN_select_all = wx.Button(
 			name = 'BTN_select_all',
 			parent = pnl_page,
-			id = wxID_BTN_select_all,
+			id = wx.ID_BTN_select_all,
 			label = _("select all requests")
 		)
 		self.BTN_select_all.SetToolTipString(_('select all requests'))
 		# "mark selected as reviewed"
-		self.BTN_mark_reviewed = wxButton(
+		self.BTN_mark_reviewed = wx.Button(
 			name = 'BTN_mark_reviewed',
 			parent = pnl_page,
-			id = wxID_BTN_mark_reviewed,
+			id = wx.ID_BTN_mark_reviewed,
 			label = _("mark selected requests as reviewed")
 		)
 		self.BTN_mark_reviewed.SetToolTipString(_('mark selected requests as reviewed'))
 
-		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.BTN_select_all, 0, wxALIGN_CENTER_VERTICAL, 1)
-		szr_buttons.Add(self.BTN_mark_reviewed, 0, wxALIGN_CENTER_VERTICAL, 1)
+		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		szr_buttons.Add(self.BTN_select_all, 0, wx.ALIGN_CENTER_VERTICAL, 1)
+		szr_buttons.Add(self.BTN_mark_reviewed, 0, wx.ALIGN_CENTER_VERTICAL, 1)
 
 		# -- do layout --
-		szr_page = wxBoxSizer(wxVERTICAL)
-		szr_page.Add(self.__grid_unreviewed_results, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
-		szr_page.Add(szr_buttons, 0, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
+		szr_page = wx.BoxSizer(wx.VERTICAL)
+		szr_page.Add(self.__grid_unreviewed_results, 1, wxEXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
+		szr_page.Add(szr_buttons, 0, wxEXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
 
 		pnl_page.SetAutoLayout(True)
 		pnl_page.SetSizer(szr_page)
@@ -371,9 +371,9 @@ class cLabJournalNB(wxNotebook):
 		self.AddPage(pnl_page, _("unreviewed results"))
 	#------------------------------------------------------------------------
 	def __register_events(self):
-		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
-		EVT_BUTTON(self.BTN_select_all, wxID_BTN_select_all, self.on_select_all)
-		EVT_BUTTON(self.BTN_mark_reviewed, wxID_BTN_mark_reviewed, self._on_mark_reviewed)
+		EVT_BUTTON(self.BTN_save_request_ID, wx.ID_BTN_save_request_ID, self.on_save_request_ID)
+		EVT_BUTTON(self.BTN_select_all, wx.ID_BTN_select_all, self.on_select_all)
+		EVT_BUTTON(self.BTN_mark_reviewed, wx.ID_BTN_mark_reviewed, self._on_mark_reviewed)
 
 		EVT_GRID_CELL_LEFT_CLICK(self.__grid_unreviewed_results, self.OnLeftSClick)
 		EVT_GRID_CELL_LEFT_DCLICK(self.__grid_unreviewed_results, self.OnLeftDClick)
@@ -404,7 +404,7 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_pending.DeleteAllItems()
 		# FIXME: make use of too_many
 		for request in pending_requests:
-			item_idx = self.lbox_pending.InsertItem(info=wxListItem())
+			item_idx = self.lbox_pending.InsertItem(info=wx.ListItem())
 			# request date
 			self.lbox_pending.SetStringItem(index = item_idx, col=0, label=request['sampled_when'].date)
 			# request lab
@@ -424,7 +424,7 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_errors.DeleteAllItems()
 		# populate list
 		for lab_error in lab_errors:
-			item_idx = self.lbox_errors.InsertItem(info=wxListItem())
+			item_idx = self.lbox_errors.InsertItem(info=wx.ListItem())
 			# when was error reported
 			self.lbox_errors.SetStringItem(index = item_idx, col=0, label=lab_error[1].date)
 			# error
@@ -450,7 +450,7 @@ class cLabJournalNB(wxNotebook):
 			result = self.dict_unreviewed_results[item_idx]
 
 			# boolean renderer for first and second column
-			renderer = apply(wxGridCellBoolRenderer, ())
+			renderer = apply(wx.GridCellBoolRenderer, ())
 			self.__grid_unreviewed_results.SetCellRenderer(item_idx, 0 , renderer)
 			self.__grid_unreviewed_results.SetCellRenderer(item_idx, 1 , renderer)
 			# set all cells read only
@@ -472,12 +472,12 @@ class cLabJournalNB(wxNotebook):
 			self.__grid_unreviewed_results.SetCellValue(item_idx, 1, '0')
 			# abnormal ? -> display in red
 			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
-				self.__grid_unreviewed_results.SetCellTextColour(item_idx,2,wxRED)
-				self.__grid_unreviewed_results.SetCellTextColour(item_idx,3,wxRED)
-				self.__grid_unreviewed_results.SetCellTextColour(item_idx,4,wxRED)
-				self.__grid_unreviewed_results.SetCellTextColour(item_idx,5,wxRED)
-				self.__grid_unreviewed_results.SetCellTextColour(item_idx,6,wxRED)
-				self.__grid_unreviewed_results.SetCellTextColour(item_idx,7,wxRED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,2,wx.RED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,3,wx.RED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,4,wx.RED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,5,wx.RED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,6,wx.RED)
+				self.__grid_unreviewed_results.SetCellTextColour(item_idx,7,wx.RED)
 				# abnormal status from lab
 				info = '(%s)' % result['abnormal']
 				# technically abnormal -> defaults to relevant = true
@@ -666,8 +666,8 @@ class cLabJournalNB(wxNotebook):
 		self.lab =  data
 
 #=========================================================
-class cLabDataGrid(wxGrid):
-	"""This wxGrid derivative displays a grid view of stored lab data.
+class cLabDataGrid(wx.Grid):
+	"""This wx.Grid derivative displays a grid view of stored lab data.
 	"""
 	def __init__(self, parent, id):
 		"""Set up our specialised grid.
@@ -685,13 +685,13 @@ class cLabDataGrid(wxGrid):
 			aDBAPI = gmPG.dbapi
 		)
 		
-		wxGrid.__init__(
+		wx.Grid.__init__(
 			self,
 			parent,
 			id,
-			pos = wxDefaultPosition,
-			size = wxDefaultSize,
-			style= wxWANTS_CHARS
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style= wx.WANTS_CHARS
 			)
 		
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -699,8 +699,8 @@ class cLabDataGrid(wxGrid):
 		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
 		
 		# create new grid
-		self.__grid_unreviewed_results = self.CreateGrid(0, 0, wxGrid.wxGridSelectCells )
-		self.SetDefaultCellAlignment(wxALIGN_RIGHT,wxALIGN_CENTRE)
+		self.__grid_unreviewed_results = self.CreateGrid(0, 0, wx.Grid.wx.GridSelectCells )
+		self.SetDefaultCellAlignment(wx.ALIGN_RIGHT,wx.ALIGN_CENTRE)
 		#renderer = apply(wxGridCellStringRenderer, ())
 		renderer = apply(cLabDataGridCellRenderer, ())
 		self.SetDefaultRenderer(renderer)
@@ -712,7 +712,7 @@ class cLabDataGrid(wxGrid):
 		# in one spot, and reuse them if needed
 		font = self.GetFont()
 		#font.SetWeight(wxBOLD)
-		attr = wxGridCellAttr()
+		attr = wx.GridCellAttr()
 		attr.SetFont(font)
 		#attr.SetBackgroundColour(wxLIGHT_GREY)
 		attr.SetReadOnly(True)
@@ -868,7 +868,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.14  2005-09-26 18:01:51  ncq
+# Revision 1.15  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.14  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

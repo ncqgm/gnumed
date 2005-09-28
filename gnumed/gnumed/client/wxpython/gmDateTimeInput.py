@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.28 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmDateTimeInput.py,v 1.29 2005-09-28 15:57:47 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -200,7 +200,7 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 #		EVT_KILL_FOCUS(self, self.__on_lose_focus)
 		#EVT_KEY_DOWN (self, self.__on_key_pressed)
 
-		if globals ().has_key ('wxUSE_UNICODE') and wxUSE_UNICODE:
+		if globals ().has_key ('wx.USE_UNICODE') and wx.USE_UNICODE:
 			self.__tooltip = _(
 				u"""------------------------------------------------------------------------------
 				Date input field
@@ -220,7 +220,7 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 				+/- X d/w/m:     X days/weeks/months ago/from now
 				------------------------------------------------------------------------------
 """)
-		self.SetToolTip(wxToolTip(self.__tooltip))
+		self.SetToolTip(wx.ToolTip(self.__tooltip))
 	#----------------------------------------------
 	def on_list_item_selected (self):
 		"""Gets called when user selected a list item."""
@@ -286,7 +286,7 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 			return False
 			
 		# valid date		
-		self.SetBackgroundColour(wxSystemSettings_GetColour(wxSYS_COLOUR_WINDOW))
+		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.Refresh()
 		return True
 	#--------------------------------------------------------
@@ -335,12 +335,12 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 	#----------------------------------------------
 		pass
 #==================================================
-class gmTimeInput(wxTextCtrl):
+class gmTimeInput(wx.TextCtrl):
 	def __init__(self, parent, *args, **kwargs):
 		if len(args) < 2:
 			if not kwargs.has_key('value'):
 				kwargs['value'] = _('enter time here')
-		wxTextCtrl.__init__(
+		wx.TextCtrl.__init__(
 			self,
 			parent,
 			*args,
@@ -355,15 +355,15 @@ if __name__ == '__main__':
 	def clicked (data):
 		print "Selected :%s" % data
 	#----------------------------------------------------
-	class TestApp (wxApp):
+	class TestApp (wx.App):
 		def OnInit (self):
 
-			frame = wxFrame (
+			frame = wx.Frame (
 				None,
 				-4,
 				"date input wheel test for GNUmed",
-				size=wxSize(300, 350),
-				style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
+				size=wx.Size(300, 350),
+				style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE
 			)
 
 			date_wheel = gmDateInput(
@@ -387,7 +387,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.28  2005-09-26 18:01:50  ncq
+# Revision 1.29  2005-09-28 15:57:47  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.28  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

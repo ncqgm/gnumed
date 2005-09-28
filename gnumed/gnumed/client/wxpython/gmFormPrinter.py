@@ -1,13 +1,13 @@
 # GnuMed form printer design study
 
 __doc__ = """
-Module to print a form using the wx toolkit.
+Module to print a form using the wx. toolkit.
 includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.6 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmFormPrinter.py,v 1.7 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Ian Haywood"
 
 try:
@@ -82,9 +82,9 @@ class FormPrinter:
             # use PostScript
             # FIXME: how do we print under Mac??
             dc = wxPostScriptDC (pd)
-        font = wxFont (fontsize, wxDEFAULT, wxNORMAL, wxNORMAL)
+        font = wxFont (fontsize, wxDEFAULT, wx.NORMAL, wx.NORMAL)
         dc.SetFont (font)
-        dc.SetBrush (wxBLACK_BRUSH)
+        dc.SetBrush (wx.BLACK_BRUSH)
         dc.StartDoc ("")
         dc.StartPage ()
         for (x, y, wraparound, service, query, page) in curs.fetchall ():
@@ -138,26 +138,26 @@ class FormPrinter:
             # return new y position
             return y
 
-class gmPrinterSetupDialog (wxDialog):
+class gmPrinterSetupDialog (wx.Dialog):
     def __init__(self, formprinter):
         # begin wxGlade: __init__
-        wxDialog.__init__(self, None, -1, _("Printer Setup"))
+        wx.Dialog.__init__(self, None, -1, _("Printer Setup"))
         self.formprinter = formprinter
-        self.label_1 = wxStaticText(self, -1, "Horiz. Offset")
-        self.horiz_off_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0)
-        self.label_2 = wxStaticText(self, -1, "Vert. Offset")
-        self.vert_off_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0, style=wxSP_ARROW_KEYS)
-        self.label_3 = wxStaticText(self, -1, "Horiz. Scaling")
-        self.horiz_scale_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0, style=wxSP_ARROW_KEYS)
-        self.label_4 = wxStaticText(self, -1, "Vert. Scaling")
-        self.vert_scale_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0)
-        REPRINT_ID = wxNewId ()
-        self.reprint_button = wxButton(self, REPRINT_ID, "Re-print")
-        CALIB_ID = wxNewId ()
-        self.calib_button = wxButton(self, CALIB_ID, "Re-calibrate")
-        DISMISS_ID = wxNewId ()
-        self.dismiss_button = wxButton(self, DISMISS_ID, "Dismiss")
-        self.text_ctrl_1 = wxTextCtrl(self, -1, "You need to enter parameters so forms print properly on this printer", style=wxTE_MULTILINE|wxTE_READONLY)
+        self.label_1 = wx.StaticText(self, -1, "Horiz. Offset")
+        self.horiz_off_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
+        self.label_2 = wx.StaticText(self, -1, "Vert. Offset")
+        self.vert_off_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0, style=wx.SP_ARROW_KEYS)
+        self.label_3 = wx.StaticText(self, -1, "Horiz. Scaling")
+        self.horiz_scale_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0, style=wx.SP_ARROW_KEYS)
+        self.label_4 = wx.StaticText(self, -1, "Vert. Scaling")
+        self.vert_scale_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
+        REPRINT_ID = wx.NewId ()
+        self.reprint_button = wx.Button(self, REPRINT_ID, "Re-print")
+        CALIB_ID = wx.NewId ()
+        self.calib_button = wx.Button(self, CALIB_ID, "Re-calibrate")
+        DISMISS_ID = wx.NewId ()
+        self.dismiss_button = wx.Button(self, DISMISS_ID, "Dismiss")
+        self.text_ctrl_1 = wxTextCtrl(self, -1, "You need to enter parameters so forms print properly on this printer", style=wx.TE_MULTILINE|wx.TE_READONLY)
 
         self.__set_properties()
         self.__do_layout()
@@ -206,7 +206,7 @@ class gmPrinterSetupDialog (wxDialog):
             dc = wxPostScriptDC (pd)
         dc.StartDoc ("")
         dc.StartPage ()
-        dc.SetBrush (wxBLACK_BRUSH)
+        dc.SetBrush (wx.BLACK_BRUSH)
         dc.DrawRectangle (1000, 1000, 200, 200)
         dc.DrawRectangle (2000, 2000, 200, 200)
         dc.EndPage ()
@@ -239,31 +239,31 @@ class gmPrinterSetupDialog (wxDialog):
 
     def __do_layout(self):
         # begin wxGlade: __do_layout
-        sizer_1 = wxBoxSizer(wxHORIZONTAL)
-        sizer_2 = wxBoxSizer(wxVERTICAL)
-        sizer_3 = wxBoxSizer(wxVERTICAL)
-        sizer_7 = wxBoxSizer(wxHORIZONTAL)
-        sizer_6 = wxBoxSizer(wxHORIZONTAL)
-        sizer_5 = wxBoxSizer(wxHORIZONTAL)
-        sizer_4 = wxBoxSizer(wxHORIZONTAL)
-        sizer_4.Add(self.label_1, 0, wxALL, 10)
-        sizer_4.Add(self.horiz_off_spin, 0, wxALL, 10)
-        sizer_3.Add(sizer_4, 1, wxEXPAND, 0)
-        sizer_5.Add(self.label_2, 0, wxALL, 10)
-        sizer_5.Add(self.vert_off_spin, 0, wxALL, 10)
-        sizer_3.Add(sizer_5, 1, wxEXPAND, 0)
-        sizer_6.Add(self.label_3, 0, wxALL, 10)
-        sizer_6.Add(self.horiz_scale_spin, 0, wxALL, 10)
-        sizer_3.Add(sizer_6, 1, wxEXPAND, 0)
-        sizer_7.Add(self.label_4, 0, wxALL, 10)
-        sizer_7.Add(self.vert_scale_spin, 0, wxALL, 10)
-        sizer_3.Add(sizer_7, 1, wxEXPAND, 0)
-        sizer_1.Add(sizer_3, 1, wxEXPAND, 0)
-        sizer_2.Add(self.reprint_button, 0, wxALL|wxEXPAND, 10)
-        sizer_2.Add(self.calib_button, 0, wxALL|wxEXPAND, 10)
-        sizer_2.Add(self.dismiss_button, 0, wxALL|wxEXPAND, 10)
-        sizer_2.Add(self.text_ctrl_1, 1, wxEXPAND, 0)
-        sizer_1.Add(sizer_2, 1, wxALL|wxEXPAND|wxALIGN_RIGHT, 30)
+        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_2 = wx.BoxSizer(wx.VERTICAL)
+        sizer_3 = wx.BoxSizer(wx.VERTICAL)
+        sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_4.Add(self.label_1, 0, wx.ALL, 10)
+        sizer_4.Add(self.horiz_off_spin, 0, wx.ALL, 10)
+        sizer_3.Add(sizer_4, 1, wx.EXPAND, 0)
+        sizer_5.Add(self.label_2, 0, wx.ALL, 10)
+        sizer_5.Add(self.vert_off_spin, 0, wx.ALL, 10)
+        sizer_3.Add(sizer_5, 1, wx.EXPAND, 0)
+        sizer_6.Add(self.label_3, 0, wx.ALL, 10)
+        sizer_6.Add(self.horiz_scale_spin, 0, wx.ALL, 10)
+        sizer_3.Add(sizer_6, 1, wx.EXPAND, 0)
+        sizer_7.Add(self.label_4, 0, wx.ALL, 10)
+        sizer_7.Add(self.vert_scale_spin, 0, wx.ALL, 10)
+        sizer_3.Add(sizer_7, 1, wx.EXPAND, 0)
+        sizer_1.Add(sizer_3, 1, wx.EXPAND, 0)
+        sizer_2.Add(self.reprint_button, 0, wx.ALL|wx.EXPAND, 10)
+        sizer_2.Add(self.calib_button, 0, wx.ALL|wx.EXPAND, 10)
+        sizer_2.Add(self.dismiss_button, 0, wx.ALL|wx.EXPAND, 10)
+        sizer_2.Add(self.text_ctrl_1, 1, wx.EXPAND, 0)
+        sizer_1.Add(sizer_2, 1, wxALL|wx.EXPAND|wx.ALIGN_RIGHT, 30)
         self.SetAutoLayout(1)
         self.SetSizer(sizer_1)
         sizer_1.Fit(self)
@@ -272,23 +272,23 @@ class gmPrinterSetupDialog (wxDialog):
 
 # end of class Printer
 
-class gmCalibrationDialog(wxDialog):
+class gmCalibrationDialog(wx.Dialog):
     def __init__(self):
         # begin wxGlade: __init__
         #kwds["style"] = wxDIALOG_MODAL|wxCAPTION
-        wxDialog.__init__(self, None, -1, _("Calibration"))
-        self.label_9 = wxStaticText(self, -1, """Calibration Page now printing.\n
+        wx.Dialog.__init__(self, None, -1, _("Calibration"))
+        self.label_9 = wx.StaticText(self, -1, """Calibration Page now printing.\n
 Measure the position of the boxes and enter""")
-        self.label_5 = wxStaticText(self, -1, "Distance of first box from top of page")
-        self.first_top_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0)
-        self.label_6 = wxStaticText(self, -1, "Distance of first box from left of page")
-        self.first_left_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0)
-        self.label_7 = wxStaticText(self, -1, "Distance of second box of top of page")
-        self.sec_top_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0)
-        self.label_8 = wxStaticText(self, -1, "Distance of second box from left of page")
-        self.sec_left_spin = wxSpinCtrl(self, -1, min=0, max=100, initial=0)
-        ID = wxNewId ()
-        self.ok_button = wxButton(self, ID, "OK")
+        self.label_5 = wx.StaticText(self, -1, "Distance of first box from top of page")
+        self.first_top_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
+        self.label_6 = wx.StaticText(self, -1, "Distance of first box from left of page")
+        self.first_left_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
+        self.label_7 = wx.StaticText(self, -1, "Distance of second box of top of page")
+        self.sec_top_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
+        self.label_8 = wx.StaticText(self, -1, "Distance of second box from left of page")
+        self.sec_left_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
+        ID = wx.NewId ()
+        self.ok_button = wx.Button(self, ID, "OK")
         EVT_BUTTON (self, ID, self.OnOK)
         self.__set_properties()
         self.__do_layout()
@@ -302,9 +302,9 @@ Measure the position of the boxes and enter""")
 
     def __do_layout(self):
         # begin wxGlade: __do_layout
-        sizer_8 = wxBoxSizer(wxVERTICAL)
-        grid_sizer_2 = wxFlexGridSizer(4, 2, 0, 0)
-        sizer_8.Add(self.label_9, 0, wxALL|wxEXPAND, 10)
+        sizer_8 = wx.BoxSizer(wx.VERTICAL)
+        grid_sizer_2 = wx.FlexGridSizer(4, 2, 0, 0)
+        sizer_8.Add(self.label_9, 0, wx.ALL|wx.EXPAND, 10)
         grid_sizer_2.Add(self.label_5, 0, 0, 0)
         grid_sizer_2.Add(self.first_top_spin, 0, 0, 0)
         grid_sizer_2.Add(self.label_6, 0, 0, 0)
@@ -318,8 +318,8 @@ Measure the position of the boxes and enter""")
         grid_sizer_2.AddGrowableRow(2)
         grid_sizer_2.AddGrowableRow(3)
         grid_sizer_2.AddGrowableCol(0)
-        sizer_8.Add(grid_sizer_2, 1, wxEXPAND, 0)
-        sizer_8.Add(self.ok_button, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 10)
+        sizer_8.Add(grid_sizer_2, 1, wx.EXPAND, 0)
+        sizer_8.Add(self.ok_button, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 10)
         self.SetAutoLayout(1)
         self.SetSizer(sizer_8)
         sizer_8.Fit(self)
@@ -342,7 +342,10 @@ psd = gmPrinterSetupDialog (fp)
 
 #=================================================
 # $Log: gmFormPrinter.py,v $
-# Revision 1.6  2005-09-26 18:01:50  ncq
+# Revision 1.7  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.6  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

@@ -8,8 +8,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.17 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPatientHolder.py,v 1.18 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
@@ -34,7 +34,7 @@ class PatientHolder:
 	#------------------------------------------------
 	def _on_patient_selected( self, **kwds):
 		try:
-			wxCallAfter(self._updateUI_wrapper)
+			wx.CallAfter(self._updateUI_wrapper)
 		except:
 			gmLog.gmDefLog.LogException( "updateUI problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 	#------------------------------------------------
@@ -76,7 +76,10 @@ class PatientHolder:
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.17  2005-09-26 18:01:51  ncq
+# Revision 1.18  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.17  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

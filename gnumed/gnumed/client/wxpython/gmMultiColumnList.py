@@ -7,9 +7,9 @@ except ImportError:
 
 EXTRA_ROW_SPACE = 40
 
-class MultiColumnList( wxGrid):
+class MultiColumnList( wx.Grid):
 	def __init__(self, parent, id = -1):
-		wxGrid.__init__(self, parent, id)
+		wx.Grid.__init__(self, parent, id)
 		self.CreateGrid( 10, 1)
 		self.SetData( { 1: "2000 AMI",  2 : "2000 Stroke", 3 : "1987 Asthma", 4 : "2002 Thin bones", 5 : "2002 cough" } , 4)
 

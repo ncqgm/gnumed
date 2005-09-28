@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.11 2005-09-26 18:01:50 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmGP_PatientPicture.py,v 1.12 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -24,7 +24,7 @@ current_patient = -1
 current_photo = None
 
 #====================================================
-class cPatientPicture (wxStaticBitmap):
+class cPatientPicture (wx.StaticBitmap):
 	"""A patient picture control ready for display.
 	"""
 	
@@ -36,23 +36,23 @@ class cPatientPicture (wxStaticBitmap):
 			self.default_photo = "../bitmaps/any_body2.png"
 
 		# just in case
-		wxImage_AddHandler(wxPNGHandler())
-		wxImage_AddHandler(wxJPEGHandler ())
+		wx.Image_AddHandler(wxPNGHandler())
+		wx.Image_AddHandler(wx.JPEGHandler ())
 		if not current_photo:
 			current_photo = self.default_photo
-		img_data = wxImage(current_photo, wxBITMAP_TYPE_ANY)
-		bmp_data = wxBitmapFromImage(img_data)
+		img_data = wx.Image(current_photo, wx.BITMAP_TYPE_ANY)
+		bmp_data = wx.BitmapFromImage(img_data)
 		self.x = bmp_data.GetWidth ()
 		self.y = bmp_data.GetHeight ()
 		del img_data
 
-		wxStaticBitmap.__init__(
+		wx.StaticBitmap.__init__(
 			self,
 			parent,
 			id,
 			bmp_data,
 			wxPoint(0, 0),
-			wxSize(self.x, self.y)
+			wx.Size(self.x, self.y)
 		)
 
 		gmDispatcher.connect(receiver=self._on_patient_selected, signal=gmSignals.patient_selected())
@@ -90,9 +90,9 @@ class cPatientPicture (wxStaticBitmap):
 		"""
 		Manually set the photograph to be photo in file fname
 		"""
-		img_data = wxImage (fname, wxBITMAP_TYPE_ANY)
+		img_data = wx.Image (fname, wx.BITMAP_TYPE_ANY)
 		img_data.Rescale (self.x, self.y)
-		bmp_data = wxBitmapFromImage (img = img_data)
+		bmp_data = wx.BitmapFromImage (img = img_data)
 		self.SetBitmap (bmp_data)
 		del img_data
 
@@ -108,7 +108,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.11  2005-09-26 18:01:50  ncq
+# Revision 1.12  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.11  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -154,6 +157,6 @@ if __name__ == "__main__":
 #
 # Revision 1.2  2003/03/29 13:43:30  ncq
 # - make standalone work, CVS keywords, general cleanup
-# - change from wxPanel to wxStaticBitmap; load PNG, BMP, GIP automagically
+# - change from wx.Panel to wxStaticBitmap; load PNG, BMP, GIP automagically
 # - alleviate sizer hell
 #

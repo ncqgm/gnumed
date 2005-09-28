@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.11 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPatPicWidgets.py,v 1.12 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -186,7 +186,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.11  2005-09-27 20:44:59  ncq
+# Revision 1.12  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.11  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.10  2005/09/26 18:01:51  ncq
@@ -269,6 +272,6 @@ if __name__ == "__main__":
 #
 # Revision 1.2  2003/03/29 13:43:30  ncq
 # - make standalone work, CVS keywords, general cleanup
-# - change from wxPanel to wxStaticBitmap; load PNG, BMP, GIP automagically
+# - change from wx.Panel to wxStaticBitmap; load PNG, BMP, GIP automagically
 # - alleviate sizer hell
 #

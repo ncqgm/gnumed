@@ -15,18 +15,18 @@ if __name__== "__main__":
 # This code is shit and needs fixing, here for gui development only
 # TODO: almost everything
 #--------------------------------------------------------------------
-class ActiveProblems(wxPanel):
+class ActiveProblems(wx.Panel):
 	def __init__(self, parent,id):
-		wxPanel.__init__(
+		wx.Panel.__init__(
 			self,
 			parent,
 			id,
-			wxDefaultPosition,
-			wxDefaultSize,
+			wx.DefaultPosition,
+			wx.DefaultSize,
 			0
 		)
 		activeproblemsamplelist = { 1:'1980 Hypertension',2:'1982 Acute myocardial infartion', 3:'1992 NIDDM',4: "another list"}
-		sizer = wxBoxSizer(wxVERTICAL)
+		sizer = wx.BoxSizer(wx.VERTICAL)
 		#activeproblems_listbox = wxListBox(
 		#	self,
 		#	-1,
@@ -38,9 +38,9 @@ class ActiveProblems(wxPanel):
 		activeproblems_listbox = gmMultiColumnList.MultiColumnList( self, -1)
 
 
-		sizer.Add(activeproblems_listbox,100,wxEXPAND)
-		activeproblems_listbox.SetBackgroundColour(wxColor(255,255,197))
-		activeproblems_listbox.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		sizer.Add(activeproblems_listbox,100,wx.EXPAND)
+		activeproblems_listbox.SetBackgroundColour(wx.Color(255,255,197))
+		activeproblems_listbox.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 		self.SetSizer(sizer)  #set the sizer 
 		sizer.Fit(self)             #set to minimum size as calculated by sizer
 		self.SetAutoLayout(True)                 #tell frame to use the sizer

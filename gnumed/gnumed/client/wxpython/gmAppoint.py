@@ -8,8 +8,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2005-09-26 18:01:50 $
-# @version $Revision: 1.13 $ $Date: 2005-09-26 18:01:50 $ $Author: ncq $
+# @Date: $Date: 2005-09-28 15:57:47 $
+# @version $Revision: 1.14 $ $Date: 2005-09-28 15:57:47 $ $Author: ncq $
 #      
 #               
 #
@@ -42,18 +42,18 @@ ID_BUTTON1=110
 ID_EXIT=200
 
 
-class MainWindow(wxPanel):
+class MainWindow(wx.Panel):
     def __init__(self,parent,id, a):
-        wxPanel.__init__ (self, parent, id)
+        wx.Panel.__init__ (self, parent, id)
         # colour to mark free times. FIXME: set from configuration system.
-        self.freecolour = wxGREEN
-        self.bookedcolour = wxBLUE
-        self.nobookcolour = wxWHITE
+        self.freecolour = wx.GREEN
+        self.bookedcolour = wx.BLUE
+        self.nobookcolour = wx.WHITE
         # setup calendar
-        cID = wxNewId ()
-        self.calendar = wxCalendarCtrl(self, cID,
-                                       style=wxCAL_MONDAY_FIRST |
-                                       wxCAL_SHOW_HOLIDAYS)
+        cID = wx.NewId ()
+        self.calendar = wx.CalendarCtrl(self, cID,
+                                       style=wx.CAL_MONDAY_FIRST |
+                                       wx.CAL_SHOW_HOLIDAYS)
         EVT_CALENDAR_DAY (self.calendar, cID, self.OnDayChange)
 
         # get database connection
@@ -61,8 +61,8 @@ class MainWindow(wxPanel):
         self.doctors = self.GetDoctors ()
 
         # setup booking grid
-        lID = wxNewId ()
-        self.grid = wxGrid (self, lID)
+        lID = wx.NewId ()
+        self.grid = wx.Grid (self, lID)
         self.cell_selected_active = 0
         EVT_GRID_SELECT_CELL (self.grid, self.onCellSelected)
         EVT_GRID_CELL_LEFT_DCLICK (self.grid, self.onCellDClicked)
@@ -73,46 +73,46 @@ class MainWindow(wxPanel):
         for i in range (0,len(self.doctors)):
             self.grid.SetColLabelValue (i, self.doctors[i][1])
         self.grid.AutoSizeColumns ()
-        self.grid.SetDefaultCellBackgroundColour (wxWHITE)
-        self.grid.SetDefaultCellTextColour (wxBLACK)
+        self.grid.SetDefaultCellBackgroundColour (wx.WHITE)
+        self.grid.SetDefaultCellTextColour (wx.BLACK)
 
 
         EVT_CHAR (self, self.onChar)
 
         # buttons and controls in left lower corner
-        self.namectrl = wxTextCtrl (self, -1, style=wxTE_READONLY)
-        buttonid= wxNewId ()
-        self.bookbutton = wxButton (self, buttonid, "Book...")
+        self.namectrl = wx.TextCtrl (self, -1, style=wx.TE_READONLY)
+        buttonid= wx.NewId ()
+        self.bookbutton = wx.Button (self, buttonid, "Book...")
         EVT_BUTTON (self.bookbutton, buttonid, self.onBooking)
-        buttonid = wxNewId ()
-        self.cancelbutton = wxButton (self, buttonid, "Cancel....")
+        buttonid = wx.NewId ()
+        self.cancelbutton = wx.Button (self, buttonid, "Cancel....")
         EVT_BUTTON (self.cancelbutton, buttonid, self.onBookCancel)
-        buttonid= wxNewId ()
-        self.findbutton = wxButton (self, buttonid, "Find...")
+        buttonid= wx.NewId ()
+        self.findbutton = wx.Button (self, buttonid, "Find...")
         EVT_BUTTON (self.findbutton, buttonid, self.onFindPatient)
-        buttonid= wxNewId ()
-        self.sessionbutton = wxButton (self, buttonid, "Sessions...")
+        buttonid= wx.NewId ()
+        self.sessionbutton = wx.Button (self, buttonid, "Sessions...")
         EVT_BUTTON (self.sessionbutton, buttonid, self.onSessionsEdit)
 
 
         # button rows
-        row1 = wxBoxSizer (wxHORIZONTAL)
-        row1.Add (wxStaticText (self, -1, "Patient: "))
-        row1.Add (self.namectrl, 1, wxEXPAND)
-        buttonbox = wxGridSizer (2)
-        buttonbox.Add (self.bookbutton, 1, wxEXPAND)
-        buttonbox.Add (self.cancelbutton, 1, wxEXPAND)
-        buttonbox.Add (self.findbutton, 1, wxEXPAND)
-        buttonbox.Add (self.sessionbutton, 1, wxEXPAND)
+        row1 = wx.BoxSizer (wx.HORIZONTAL)
+        row1.Add (wx.StaticText (self, -1, "Patient: "))
+        row1.Add (self.namectrl, 1, wx.EXPAND)
+        buttonbox = wx.GridSizer (2)
+        buttonbox.Add (self.bookbutton, 1, wx.EXPAND)
+        buttonbox.Add (self.cancelbutton, 1, wx.EXPAND)
+        buttonbox.Add (self.findbutton, 1, wx.EXPAND)
+        buttonbox.Add (self.sessionbutton, 1, wx.EXPAND)
 
-        leftsizer = wxBoxSizer (wxVERTICAL)
+        leftsizer = wx.BoxSizer (wx.VERTICAL)
         leftsizer.Add (self.calendar)
-        leftsizer.Add (row1, 0, wxEXPAND)
-        leftsizer.Add (buttonbox, 1, wxEXPAND)
+        leftsizer.Add (row1, 0, wx.EXPAND)
+        leftsizer.Add (buttonbox, 1, wx.EXPAND)
 
-        self.sizer = wxBoxSizer(wxHORIZONTAL)
-        self.sizer.Add (leftsizer, 0, wxALL, 5)
-        self.sizer.Add (self.grid, 1, wxEXPAND)
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer.Add (leftsizer, 0, wx.ALL, 5)
+        self.sizer.Add (self.grid, 1, wx.EXPAND)
 
         #Layout sizers
         self.SetSizer(self.sizer)
@@ -213,21 +213,21 @@ ORDER BY time""" % (select, date))
 # for making bookings
 
 
-class appointapp (wxApp):
+class appointapp (wx.App):
 
     def OnInit (self):  
-        frame = wxFrame(None,-4, "Appointments Book", size=wxSize (900, 400),
-                        style=wxDEFAULT_FRAME_STYLE|  
-                        wxNO_FULL_REPAINT_ON_RESIZE)
+        frame = wx.Frame(None,-4, "Appointments Book", size=wx.Size (900, 400),
+                        style=wx.DEFAULT_FRAME_STYLE|  
+                        wx.NO_FULL_REPAINT_ON_RESIZE)
         mainwindow = MainWindow (frame, -1, self)
         EVT_CLOSE (frame, self.OnCloseWindow)
         # Setting up the menu.  
-        filemenu= wxMenu()     
+        filemenu= wx.Menu()     
         filemenu.Append(ID_ABOUT, "&About"," Information about this program")  
         filemenu.AppendSeparator()
         filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
         # Creating the menubar.  
-        menuBar = wxMenuBar()  
+        menuBar = wx.MenuBar()  
         menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBa
         frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
         EVT_MENU(frame, ID_ABOUT, self.OnAbout)
@@ -236,8 +236,8 @@ class appointapp (wxApp):
         return 1
 
     def OnAbout(self,e):
-        d= wxMessageDialog( self, " A drug database editor",
-                            "About Drug DB", wxOK)
+        d= wx.MessageDialog( self, " A drug database editor",
+                            "About Drug DB", wx.OK)
         # Create a message dialog box
         d.ShowModal() # Shows it
         d.Destroy() # finally destroy it when finished.
@@ -259,7 +259,10 @@ if __name__ == '__main__':
 
 #=================================================================
 # $Log: gmAppoint.py,v $
-# Revision 1.13  2005-09-26 18:01:50  ncq
+# Revision 1.14  2005-09-28 15:57:47  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.13  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

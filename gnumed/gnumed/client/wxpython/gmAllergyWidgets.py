@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,7 +22,7 @@ from Gnumed.business import gmPerson, gmAllergy
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_ALLERGY_LIST = wxNewId()
+ID_ALLERGY_LIST = wx.NewId()
 
 #======================================================================
 class gmAllergyEditArea(gmEditArea.cEditArea):
@@ -35,7 +35,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 		self.fld_date_noted = gmDateTimeInput.gmDateInput(
 			parent = parent,
 			id = -1,
-			style = wxSIMPLE_BORDER
+			style = wx.SIMPLE_BORDER
 		)
 		self._add_field(
 			line = 1,
@@ -59,11 +59,11 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 			widget = self.fld_generic,
 			weight = 6
 		)
-		self.fld_generic_specific = wxCheckBox(
+		self.fld_generic_specific = wx.CheckBox(
 			parent,
 			-1,
 			_("generics specific"),
-			style = wxNO_BORDER
+			style = wx.NO_BORDER
 		)
 		self._add_field(
 			line = 3,
@@ -89,25 +89,25 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 			weight = 1
 		)
 		# line 6
-		self.fld_is_allergy = wxRadioButton(parent, -1, _("Allergy"))
+		self.fld_is_allergy = wx.RadioButton(parent, -1, _("Allergy"))
 		self._add_field(
 			line = 6,
 			pos = 1,
 			widget = self.fld_is_allergy,
 			weight = 2
 		)
-		self.fld_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"))
+		self.fld_is_sensitivity = wx.RadioButton(parent, -1, _("Sensitivity"))
 		self._add_field(
 			line = 6,
 			pos = 2,
 			widget = self.fld_is_sensitivity,
 			weight = 2
 		)
-		self.fld_is_definite_allergy = wxCheckBox (
+		self.fld_is_definite_allergy = wx.CheckBox (
 			parent,
 			-1,
 			_("Definite"),
-			style = wxNO_BORDER
+			style = wx.NO_BORDER
 		)
 		self._add_field(
 			line = 6,
@@ -133,7 +133,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 	def _save_new_entry(self):
 		emr = self._patient.get_clinical_record()
 		if emr is None:
-			wxBell()
+			wx.Bell()
 			_gb['main.statustext'](_('Cannot create allergy: %s') % data)
 			return False
 		# create new allergy entry
@@ -146,7 +146,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 			allg_type = allgtype
 		)
 		if allg is None:
-			wxBell()
+			wx.Bell()
 			_gb['main.statustext'](_('Cannot create allergy: %s') % data)
 			return False
 		# and update it with known data
@@ -159,7 +159,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 		allg['reaction'] = self.fld_reaction.GetValue()
 		successfull, err = allg.save_payload()
 		if not successfull:
-			wxBell()
+			wx.Bell()
 			_gb['main.statustext'](_('Cannot update allergy: %s') % err)
 			return False
 		_gb['main.statustext'](_('Allergy saved.'))
@@ -226,7 +226,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 		_log.Log(gmLog.lErr, 'cannot handle [%s:%s]' % (type(allergy), str(allergy)))
 		return False
 #========================================================
-class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""Allergy details panel.
 
 		This panel will hold all the allergy details and
@@ -234,7 +234,7 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	#----------------------------------------------------
 	def __init__(self, parent, id=-1):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__do_layout()
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -251,14 +251,14 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		pnl_MiddleCaption = gmTerryGuiParts.cDividerCaption(self, -1, _("Allergy and Sensitivity - Summary"))
 #		self.sizer_divider_drug_generic = wxBoxSizer(wxHORIZONTAL)
 #		self.sizer_divider_drug_generic.Add(pnl_MiddleCaption, 1, wxEXPAND)
-		self.LCTRL_allergies = wxListCtrl (
+		self.LCTRL_allergies = wx.ListCtrl (
 			parent = self,
 			id = ID_ALLERGY_LIST,
-			pos = wxDefaultPosition,
-			size = wxDefaultSize,
-			style = wxLC_SINGLE_SEL | wxLC_REPORT | wxSUNKEN_BORDER | wxLC_HRULES | wxLC_VRULES | wxVSCROLL
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			style = wxLC_SINGLE_SEL | wxLC_REPORT | wxSUNKEN_BORDER | wxLC_HRULES | wx.LC_VRULES | wx.VSCROLL
 		)
-		self.LCTRL_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.LCTRL_allergies.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 		self.LCTRL_allergies.InsertColumn(0, _("Type"))
 		self.LCTRL_allergies.InsertColumn(1, _("Status"))
 		self.LCTRL_allergies.InsertColumn(2, _("ATC/Class"))
@@ -270,24 +270,24 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		pnl_LowerCaption = gmTerryGuiParts.cDividerCaption(self, -1, _('Class notes'))
 		#add a richtext control or a wxTextCtrl multiline to display the class text information
 		#e.g. would contain say information re the penicillins
-		self.class_notes = wxTextCtrl (
+		self.class_notes = wx.TextCtrl (
 			self,
 			-1,
 			"A member of a new class of nonsteroidal anti-inflammatory agents (COX-2 selective NSAIDs) which have a mechanism of action that inhibits prostaglandin synthesis primarily by inhibition of cyclooxygenase 2 (COX-2). At therapeutic doses these have no effect on prostanoids synthesised by activation of COX-1 thereby not interfering with normal COX-1 related physiological processes in tissues, particularly the stomach, intestine and platelets.",
 			size = (200, 100),
-			style = wxTE_MULTILINE | wxTE_READONLY
+			style = wx.TE_MULTILINE | wx.TE_READONLY
 		)
-		self.class_notes.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.class_notes.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		# -- add elements to main background sizer --
-		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.mainsizer.Add(pnl_UpperCaption, 0, wxEXPAND)
-		self.mainsizer.Add(self.editarea, 6, wxEXPAND)
+		self.mainsizer = wx.BoxSizer(wx.VERTICAL)
+		self.mainsizer.Add(pnl_UpperCaption, 0, wx.EXPAND)
+		self.mainsizer.Add(self.editarea, 6, wx.EXPAND)
 #		self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
-		self.mainsizer.Add(pnl_MiddleCaption, 0, wxEXPAND)
-		self.mainsizer.Add(self.LCTRL_allergies, 5, wxEXPAND)
-		self.mainsizer.Add(pnl_LowerCaption, 0, wxEXPAND)
-		self.mainsizer.Add(self.class_notes, 4, wxEXPAND)
+		self.mainsizer.Add(pnl_MiddleCaption, 0, wx.EXPAND)
+		self.mainsizer.Add(self.LCTRL_allergies, 5, wx.EXPAND)
+		self.mainsizer.Add(pnl_LowerCaption, 0, wx.EXPAND)
+		self.mainsizer.Add(self.class_notes, 4, wx.EXPAND)
 
 		self.SetAutoLayout(True)
 		self.SetSizer(self.mainsizer)
@@ -330,7 +330,7 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.LCTRL_allergies.SetStringItem(list_line, 5, allg['reaction'])
 			self.LCTRL_allergies.SetItemData(list_line, allg['pk_allergy'])
 		for col in range(5):
-			self.LCTRL_allergies.SetColumnWidth(col, wxLIST_AUTOSIZE)
+			self.LCTRL_allergies.SetColumnWidth(col, wx.LIST_AUTOSIZE)
 		# FIXME: resize event needed ?
 		return True
 	#-----------------------------------------------
@@ -348,7 +348,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.9  2005-09-26 18:01:50  ncq
+# Revision 1.10  2005-09-28 15:57:47  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.9  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

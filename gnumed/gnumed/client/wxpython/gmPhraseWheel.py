@@ -1,5 +1,5 @@
 """
-A class, extending wxTextCtrl, which has a drop-down pick list,
+A class, extending wx.TextCtrl, which has a drop-down pick list,
 automatically filled based on the inital letters typed. Based on the
 interface of Richard Terry's Visual Basic client
 
@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.58 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmPhraseWheel.py,v 1.59 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 _log.Log(gmLog.lInfo, __version__)
 
 #============================================================
-class cPhraseWheel (wxTextCtrl):
+class cPhraseWheel (wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
 
 	default_phrase_separators = re.compile('[;/|]+')
@@ -70,7 +70,7 @@ class cPhraseWheel (wxTextCtrl):
 			self.add_callback_on_selection(kwargs['id_callback'])
 			del kwargs['id_callback']
 
-		wxTextCtrl.__init__ (self, parent, id, **kwargs)
+		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
 		# unnecessary as we are using styles
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
 
@@ -81,9 +81,9 @@ class cPhraseWheel (wxTextCtrl):
 		tmp = kwargs.copy()
 		width, height = self.GetSize()
 		x, y = self.GetPosition()
-		self.__picklist_win = wxWindow(parent, -1, pos=(x, y+ height), size=(width, height*6))
-		self.__picklist_pnl = wxPanel(self.__picklist_win, -1)
-		self._picklist = wxListBox(self.__picklist_pnl, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
+		self.__picklist_win = wx.Window(parent, -1, pos=(x, y+ height), size=(width, height*6))
+		self.__picklist_pnl = wx.Panel(self.__picklist_win, -1)
+		self._picklist = wxListBox(self.__picklist_pnl, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
 		self._picklist.Clear()
 		self.__picklist_win.Hide ()
 		self.__picklist_visible = False
@@ -152,7 +152,7 @@ class cPhraseWheel (wxTextCtrl):
 		return self.data
 	#---------------------------------------------------------
 	def SetValue (self, value):
-		wxTextCtrl.SetValue (self, value)
+		wx.TextCtrl.SetValue (self, value)
 		self._is_modified = False
 		if self.selection_only:
 			stat, matches = self.__matcher.getMatches(aFragment = value)
@@ -162,7 +162,7 @@ class cPhraseWheel (wxTextCtrl):
 					self.input_was_selected = True
 	#-------------------------------------------------------
 	def IsModified (self):
-		return wxTextCtrl.IsModified (self) or self._is_modified
+		return wx.TextCtrl.IsModified (self) or self._is_modified
 	#--------------------------------------------------------
 	def set_context (self, context, val):
 		if self.__real_matcher:
@@ -302,9 +302,9 @@ class cPhraseWheel (wxTextCtrl):
 		# update our display
 		selection_idx = self._picklist.GetSelection()
 		if self.__handle_multiple_phrases:
-			wxTextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
+			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
 		else:
-			wxTextCtrl.SetValue (self, self._picklist.GetString(selection_idx))
+			wx.TextCtrl.SetValue (self, self._picklist.GetString(selection_idx))
 		self._is_modified = True
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
@@ -460,7 +460,7 @@ class cPhraseWheel (wxTextCtrl):
 			# programmers better make sure the turnaround time is limited
 			self._updateMatches()
 			if len(self.__currMatches) > 0:
-				wxTextCtrl.SetValue(self, self.__currMatches[0]['label'])
+				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
 				self.input_was_selected = True
 				self._is_modified = False
@@ -502,15 +502,15 @@ if __name__ == '__main__':
 	def clicked (data):
 		print "Selected :%s" % data
 	#----------------------------------------------------
-	class TestApp (wxApp):
+	class TestApp (wx.App):
 		def OnInit (self):
 
-			frame = wxFrame (
+			frame = wx.Frame (
 				None,
 				-4,
 				"phrase wheel test for GNUmed",
-				size=wxSize(300, 350),
-				style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
+				size=wx.Size(300, 350),
+				style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE
 			)
 
 			items = [	{'data':1, 'label':"Bloggs", 	'weight':5},
@@ -565,7 +565,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.58  2005-09-26 18:01:51  ncq
+# Revision 1.59  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.58  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

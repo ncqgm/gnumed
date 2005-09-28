@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.42 2005-09-27 20:44:58 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmEMRBrowser.py,v 1.43 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -35,7 +35,7 @@ def export_emr_to_ascii(parent=None):
 	"""
 	Dump the patient's EMR from GUI client
 	@param parent - The parent widget
-	@type parent - A wxWindow instance
+	@type parent - A wx.Window instance
 	"""
 	# sanity checks
 	pat = gmPerson.gmCurrentPatient()
@@ -233,7 +233,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			epi = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
 			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj)
 		else:
-			txt = _('Summary') + '=======\n\n' + self.__exporter.get_summary_info(0)
+			txt = _('Summary') + '\n=======\n\n' + self.__exporter.get_summary_info(0)
 
 		self.__narr_TextCtrl.Clear()
 		self.__narr_TextCtrl.WriteText(txt)
@@ -607,7 +607,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.42  2005-09-27 20:44:58  ncq
+# Revision 1.43  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.42  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.41  2005/09/26 18:01:50  ncq

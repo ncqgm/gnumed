@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.4 2005-09-26 18:01:51 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPlugin_Patient.py,v 1.5 2005-09-28 15:57:48 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -27,7 +27,7 @@ _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
 
 #------------------------------------------------------------------
-class wxBasePlugin:
+class wx.BasePlugin:
 	"""Base class for all plugins providing wxPython widgets.
 
 	Plugins must have a class descending of this class in
@@ -71,7 +71,7 @@ class wxBasePlugin:
 		if icon_data is None:
 			return None
 		else:
-			return wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
+			return wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
 	#-----------------------------------------------------
 	def GetIconData(self, anIconID = None):
 		# FIXME: in overriding methods need to be very careful about the
@@ -125,12 +125,12 @@ class wxBasePlugin:
 	def name(self):
 		return 'plugin %s' % self.__class__.__name__
 #------------------------------------------------------------------
-class wxPatientPlugin (wxBasePlugin):
+class wxPatientPlugin (wx.BasePlugin):
 	"""
 	A 'small page', sits inside the patient view, with the side visible
 	"""
 	def register (self):
-		wxBasePlugin.register (self)
+		wx.BasePlugin.register (self)
 		self.mwm = self.gb['clinical.manager']
 
 		# FIXME: do proper config check for shadowing
@@ -144,7 +144,7 @@ class wxPatientPlugin (wxBasePlugin):
 		if icon is not None:
 			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
 			#tb2.AddSeparator()
-			self.tool_id = wxNewId ()
+			self.tool_id = wx.NewId ()
 			tool1 = tb2.AddTool(
 				self.tool_id,
 				icon,
@@ -153,7 +153,7 @@ class wxPatientPlugin (wxBasePlugin):
 			EVT_TOOL (tb2, self.tool_id, self.OnTool)
 		menuname = self.name ()
 		menu = self.gb['clinical.submenu']
-		self.menu_id = wxNewId ()
+		self.menu_id = wx.NewId ()
 		menu.Append (self.menu_id, menuname)
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
 	#-----------------------------------------------------
@@ -168,7 +168,7 @@ class wxPatientPlugin (wxBasePlugin):
 		self.mwm.Display (self.__class__.__name__)
 	#-----------------------------------------------------
 	def unregister (self):
-		wxBasePlugin.unregister (self)
+		wx.BasePlugin.unregister (self)
 		self.mwm.Unregister (self.__class__.__name__)
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
@@ -185,7 +185,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.4  2005-09-26 18:01:51  ncq
+# Revision 1.5  2005-09-28 15:57:48  ncq
+# - a whole bunch of wxFoo -> wx.Foo
+#
+# Revision 1.4  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -196,7 +199,7 @@ if __name__ == '__main__':
 # Revision 1.2  2004/07/24 17:21:49  ncq
 # - some cleanup, also re from wxPython import wx
 # - factored out Horst space layout manager into it's own
-#   wxPanel child class
+#   wx.Panel child class
 # - subsequently renamed
 # 	'main.notebook.plugins' -> 'horstspace.notebook.pages'
 # 	'modules.gui' -> 'horstspace.notebook.gui' (to be renamed horstspace.notebook.plugins later)
