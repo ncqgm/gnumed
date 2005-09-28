@@ -23,22 +23,22 @@ but that approach may not be fool-proof.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/sitecustomize.py,v $
-# $Id: sitecustomize.py,v 1.4 2005-06-20 20:55:00 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: sitecustomize.py,v 1.5 2005-09-28 21:18:36 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys
 
 # flip this flag if you need to set the encoding explicitely
-do_set_encoding = False
+do_set_encoding = True
 
 # - most European countries but shouldn't
 #   hurt in US-ASCII countries, either
-def_encoding = 'iso8859-1'
+#def_encoding = 'iso8859-1'
 
 # - if you need the EURO symbol
-#def_encoding = 'iso8859-15'
+def_encoding = 'iso8859-15'
 
 # - might work, too
 #def_encoding = 'latin1'
@@ -48,7 +48,7 @@ def_encoding = 'iso8859-1'
 #==============================================================
 if __name__ == '__main__':
 	print "------------------------------------------------"
-	print "This file is note intended to be run standalone."
+	print "This file is not intended to be run standalone."
 	print "It is used in the Python/GNUmed startup process."
 	print "Please consult the Python docs for details."
 	print "------------------------------------------------"
@@ -68,7 +68,11 @@ if do_set_encoding:
 
 #==============================================================
 # $Log: sitecustomize.py,v $
-# Revision 1.4  2005-06-20 20:55:00  ncq
+# Revision 1.5  2005-09-28 21:18:36  ncq
+# - need to explicitely set encoding on our reference platform
+#   (Debian Sarge with wx2.6 from testing)
+#
+# Revision 1.4  2005/06/20 20:55:00  ncq
 # - apparently wxPython or something messes with the encoding so
 #   while testing the encoding works the same code fails after
 #   wxPython startup, so don't test, use explicit flag, default False
