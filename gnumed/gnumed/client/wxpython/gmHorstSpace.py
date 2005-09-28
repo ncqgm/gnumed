@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.21 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmHorstSpace.py,v 1.22 2005-09-28 21:21:35 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -113,6 +113,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		#  and load them
 		prev_plugin = ""
 		first_plugin = None
+		plugin = None
 		result = -1
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
@@ -274,7 +275,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			# add to load menu
 			nid = wx.NewId()
 			load_menu.AppendItem(wx.MenuItem(load_menu, nid, plugin.name()))
-			EVT_MENU(load_menu, nid, plugin.on_load)
+			wx.EVT_MENU(load_menu, nid, plugin.on_load)
 			any_loadable = 1
 		# make menus
 		menu = wx.Menu()
@@ -285,7 +286,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		plugins = self.guibroker['horstspace.notebook.gui']
 		raised_plugin = plugins[self.nb.GetSelection()].name()
 		menu.AppendItem(wx.MenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
-		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
+		wx.EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
 		self.PopupMenu(menu, evt.GetPosition())
 		menu.Destroy()
 		evt.Skip()
@@ -311,8 +312,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.21  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.22  2005-09-28 21:21:35  ncq
+# - non-initialized variable plugin in plugin loading
+# - wx2.6 fixing
+#
+# Revision 1.21  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.20  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
