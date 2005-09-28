@@ -10,7 +10,7 @@ dependencies: wxPython (>= version 2.3.1)
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTerryGuiParts.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = 'Dr. Richard Terry'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -47,7 +47,7 @@ class cAlertCaption(wx.Panel):
 		caption = wx.StaticText(captionpanel,-1, title,style = wx.ALIGN_CENTRE_VERTICAL)   # static text for the caption
 		caption.SetForegroundColour(wx.Colour(0,0,0))	                           #black as... 
 		#SetCaptionForegroundColor()                                               #set caption text colour rgb TODO
-		caption.SetFont(wxFont(10,wxSWISS,wx.NORMAL, wx.BOLD,False,''))
+		caption.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
 		sizer.Add(captionpanel,1,wx.EXPAND|wx.ALL,2)
                 sizer.Add(0,9,6)
 		self.SetSizer(sizer)                                               #set the sizer 
@@ -81,7 +81,7 @@ class cDividerCaption(wx.Panel):
 		caption = wx.StaticText(self,-1, title,style = wx.ALIGN_CENTRE)              #static text control for the caption
 		caption.SetForegroundColour(wx.WHITE)	                                   #white foreground text colour
 		#SetCaptionForegroundColor()                                              #set caption text colour to rgb
-		caption.SetFont(wxFont(13,wxSWISS,wx.NORMAL, wx.BOLD,False,''))         #TODO implement font size parameter
+		caption.SetFont(wx.Font(13,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))         #TODO implement font size parameter
 		sizer.Add(caption,1,wx.EXPAND)                                      #add caption to the sizer
 		self.SetSizer(sizer)                                               #set the sizer
 		sizer.Fit(self)                                                    #set to minimum size as calculated by sizer
@@ -110,8 +110,8 @@ class cHeadingCaption(wx.Panel):
         self.hdrC = hdrC
         self.txtC = txtC
         wx.Panel.__init__(self, parent, id)
-        EVT_PAINT (self, self.OnPaint)
-        EVT_SIZE (self, self.OnSize)
+        wx.EVT_PAINT (self, self.OnPaint)
+        wx.EVT_SIZE (self, self.OnSize)
         self.w = 0
         self.h = 0
 
@@ -126,7 +126,7 @@ class cHeadingCaption(wx.Panel):
         dc.SetPen (wx.TRANSPARENT_PEN)
         dc.DrawRectangle (0, 0, self.w, self.h)
         dc.SetTextBackground (self.hdrC)
-        dc.SetFont (wxFont (12, wxSWISS, wx.NORMAL, wx.BOLD))
+        dc.SetFont (wx.Font (12, wx.SWISS, wx.NORMAL, wx.BOLD))
         dc.SetTextForeground (self.txtC)
         txtw, txth = dc.GetTextExtent (self.text)
         bufx = txtw / 10 # buffer to left of text
@@ -155,11 +155,14 @@ if __name__ == "__main__":
 
 #===========================================================================
 # $Log: gmTerryGuiParts.py,v $
-# Revision 1.5  2005-09-28 19:47:01  ncq
+# Revision 1.6  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.5  2005/09/28 19:47:01  ncq
 # - runs until login dialog
 #
 # Revision 1.4  2005/09/28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.3  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

@@ -30,16 +30,16 @@ class CharValidator:
 
 
 	def setSingleSpace(self, control):
-		EVT_CHAR( control, self.allow_single_spaces)
+		wx.EVT_CHAR( control, self.allow_single_spaces)
 
 	def setUpperAlpha(self, control):
-		EVT_CHAR( control, self.allow_upper_only_exclusive)
+		wx.EVT_CHAR( control, self.allow_upper_only_exclusive)
 
 	def setCapitalize(self, control):
-		EVT_CHAR( control, self.capitalize_exclusive)
+		wx.EVT_CHAR( control, self.capitalize_exclusive)
 			
 	def setDigits(self, control):
-		EVT_CHAR( control, self.allow_digits_only)
+		wx.EVT_CHAR( control, self.allow_digits_only)
 
 	def allow_single_spaces(self, keyEvent):
 		"""wrapper for handling single space input"""
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 	class REWResizer:
 		def __init__(self, txtCtrl):
 			self.c = txtCtrl
-			EVT_TEXT( txtCtrl, txtCtrl.GetId(), self.checkSize)
+			wx.EVT_TEXT( txtCtrl, txtCtrl.GetId(), self.checkSize)
 
 		def checkSize(self, event):
 			#print self.c, self.c.GetNumberOfLines(), self.c.GetTextExtent('A')

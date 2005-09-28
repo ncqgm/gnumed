@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.64 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmLoginDialog.py,v 1.65 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -471,7 +471,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.64  2005-09-27 20:44:59  ncq
+# Revision 1.65  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.64  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.63  2005/09/26 18:01:51  ncq
@@ -532,7 +535,7 @@ if __name__ == '__main__':
 # - improve faceName/Mac OSX fix
 #
 # Revision 1.46  2004/05/28 09:09:34  shilbert
-# - remove faceName option from wxFont on wxMac or else no go
+# - remove faceName option from wx.Font on wxMac or else no go
 #
 # Revision 1.45  2004/05/26 20:35:23  ncq
 # - don't inherit from LoginDialog in OptionWindow, it barks on MacOSX

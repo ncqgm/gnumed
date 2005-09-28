@@ -6,7 +6,7 @@ try:
 	import wx
 except ImportError:
 	from wxPython import wx
-	#from wxPython.wx import wxImageFromStream, wxBitmapFromImage
+	#from wxPython.wx import wxImageFromStream, wx.BitmapFromImage
 
 import cStringIO, zlib
 

@@ -1,5 +1,5 @@
 # a simple wrapper for the cryptowidget
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  someone before me :-)>"
@@ -36,13 +36,16 @@ class gmPython (gmPlugin.cNotebookPluginOld):
 
 #======================================================
 # $Log: gmPython.py,v $
-# Revision 1.11  2005-09-26 18:01:52  ncq
+# Revision 1.12  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.11  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
 #
 # Revision 1.10  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

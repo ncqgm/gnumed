@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.23 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPatSearchWidgets.py,v 1.24 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -251,12 +251,12 @@ class cPatientPickList(wx.Dialog):
 #		self.szrButtons.AddWindow(btnOK, 1, wxALIGN_CENTRE, 5)
 #		self.szrButtons.Add(btnOK, 1, wxALIGN_CENTRE, 5)
 
-#		btnNew = wxButton (
+#		btnNew = wx.Button (
 #			self,
 #			ID_NEW,
 #			_("&New"),
-#			wxDefaultPosition,
-#			wxDefaultSize,
+#			wx.DefaultPosition,
+#			wx.DefaultSize,
 #			0
 #		)
 #		self.szrButtons.AddWindow(btnNew, 1, wxALIGN_CENTRE, 5)
@@ -734,7 +734,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.23  2005-09-27 20:44:59  ncq
+# Revision 1.24  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.23  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.22  2005/09/26 18:01:51  ncq
@@ -822,7 +825,7 @@ if __name__ == "__main__":
 # - later wxWidgets version don't support parent=NULL anymore
 #
 # Revision 1.43  2004/08/02 18:53:36  ncq
-# - used wxBegin/EndBusyCursor() around setting the active patient
+# - used wx.Begin/EndBusyCursor() around setting the active patient
 #
 # Revision 1.42  2004/07/18 19:51:12  ncq
 # - cleanup, use True/False, not true/false

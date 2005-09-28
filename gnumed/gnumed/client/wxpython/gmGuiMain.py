@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.218 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.218 $"
+# $Id: gmGuiMain.py,v 1.219 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.219 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -426,11 +426,11 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def OnFileExit(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
-		# calls EVT_CLOSE handler
+		# calls wx.EVT_CLOSE handler
 		self.Close()
 	#----------------------------------------------
 	def OnClose(self, event):
-		"""EVT_CLOSE handler.
+		"""wx.EVT_CLOSE handler.
 
 		- framework still functional
 		"""
@@ -713,7 +713,7 @@ class gmTopLevelFrame(wx.Frame):
 #	def OnSashDrag (self, event):
 #		if event.GetDragStatus() == wx.SASH_STATUS_OUT_OF_RANGE:
 #			return
-#		self.leftbox.SetDefaultSize(wxSize(event.GetDragRect().width, 1000))
+#		self.leftbox.SetDefaultSize(wx.Size(event.GetDragRect().width, 1000))
 #		self.bar_width = event.GetDragRect().width
 #		wx.LayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
 #		self.nb.Refresh()
@@ -933,8 +933,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.218  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.219  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.218  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.217  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
@@ -990,7 +993,7 @@ if __name__ == '__main__':
 # - cleanup
 #
 # Revision 1.201  2005/06/21 04:59:40  rterry
-# Fix to allow running gmAbout.py under wxpython26 wxSize > wx.Size
+# Fix to allow running gmAbout.py under wxpython26 wx.Size > wx.Size
 #
 # Revision 1.200  2005/06/19 16:38:03  ncq
 # - set encoding of gmGuiMain.py to latin1
@@ -1342,7 +1345,7 @@ if __name__ == '__main__':
 # - show_error/quesion() helper
 #
 # Revision 1.105  2003/06/19 15:27:53  ncq
-# - also process EVT_NOTEBOOK_PAGE_CHANGING
+# - also process wx.EVT_NOTEBOOK_PAGE_CHANGING
 #   - veto() page change if can_receive_focus() is false
 #
 # Revision 1.104  2003/06/17 22:30:41  ncq

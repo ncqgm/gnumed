@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.59 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPhraseWheel.py,v 1.60 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -83,7 +83,7 @@ class cPhraseWheel (wx.TextCtrl):
 		x, y = self.GetPosition()
 		self.__picklist_win = wx.Window(parent, -1, pos=(x, y+ height), size=(width, height*6))
 		self.__picklist_pnl = wx.Panel(self.__picklist_win, -1)
-		self._picklist = wxListBox(self.__picklist_pnl, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
+		self._picklist = wx.ListBox(self.__picklist_pnl, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
 		self._picklist.Clear()
 		self.__picklist_win.Hide ()
 		self.__picklist_visible = False
@@ -100,15 +100,15 @@ class cPhraseWheel (wx.TextCtrl):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# 1) entered text changed
-		EVT_TEXT (self, self.GetId(), self.__on_text_update)
+		wx.EVT_TEXT (self, self.GetId(), self.__on_text_update)
 		# - user pressed <enter>
-		EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
+		wx.EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
 		# 2) a key was pressed
-		EVT_KEY_DOWN (self, self.__on_key_pressed)
+		wx.EVT_KEY_DOWN (self, self.__on_key_pressed)
 		# 3) evil user wants to resize widget
-		EVT_SIZE (self, self.on_resize)
-		EVT_SET_FOCUS(self, self._on_set_focus)
-		EVT_KILL_FOCUS(self, self._on_lose_focus)
+		wx.EVT_SIZE (self, self.on_resize)
+		wx.EVT_SET_FOCUS(self, self._on_set_focus)
+		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -391,7 +391,7 @@ class cPhraseWheel (wx.TextCtrl):
 			return
 	#--------------------------------------------------------
 	def __on_text_update (self, event):
-		"""Internal handler for EVT_TEXT (called when text has changed)"""
+		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
 		# dirty "selected" flag
 		self.input_was_selected = False
@@ -565,8 +565,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.59  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.60  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.59  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.58  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

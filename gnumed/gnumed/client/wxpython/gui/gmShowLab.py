@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -30,9 +30,9 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLoginInfo
 	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
 
-	wxID_btn_quit = wxNewId()
+	wxID_btn_quit = wx.NewId()
 
-	class cStandalonePanel(wxPanel):
+	class cStandalonePanel(wx.Panel):
 
 		def __init__(self, parent, id):
 			# get patient from file
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 				raise
 
 			# make main panel
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			wx.Panel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 			self.SetTitle(_("Stored lab data"))
 
 			# make patient panel
@@ -100,24 +100,24 @@ if __name__ == '__main__':
 				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
 				style = wxALIGN_CENTER
 			)
-			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
+			self.pat_panel.SetFont(wxFont(25, wxSWISS, wx.NORMAL, wx.NORMAL, 0, ""))
 
 			# make lab record grid 
 			self.grid = gmLabWidgets.cLabDataGrid(self, -1)
 			self.grid.update()
 
 			# buttons
-			btn_quit = wxButton(
+			btn_quit = wx.Button(
 				parent = self,
 				id = wxID_btn_quit,
 				label = _('Quit')
 			)
-			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
-			szr_buttons = wxBoxSizer(wxHORIZONTAL)
+			wx.EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
+			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
 
 			# layout
-			szr_main = wxBoxSizer(wxVERTICAL)
+			szr_main = wx.BoxSizer(wx.VERTICAL)
 			#szr_grid = wxGridSizer(0,wxEXPAND,0)
 			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
 			szr_main.Add(self.grid, 1,wxEXPAND, 1)
@@ -158,16 +158,16 @@ if __name__ == '__main__':
 #== classes for plugin use ======================================
 else:
 
-	class cPluginGridPanel(wxPanel):
+	class cPluginGridPanel(wx.Panel):
 		def __init__(self, parent, id):
 			# set up widgets
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			wx.Panel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 
 			# make grid
 			self.grid = gmLabWidgets.cLabDataGrid(self, -1)
 
 			# just one vertical sizer
-			sizer = wxBoxSizer(wxVERTICAL)
+			sizer = wx.BoxSizer(wx.VERTICAL)
 			sizer.Add(self.grid, 1,wxEXPAND, 1)
 			self.SetAutoLayout(1)
 			self.SetSizer(sizer)
@@ -230,7 +230,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.17  2005-09-26 18:01:52  ncq
+# Revision 1.18  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.17  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -239,7 +242,7 @@ else:
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.15  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

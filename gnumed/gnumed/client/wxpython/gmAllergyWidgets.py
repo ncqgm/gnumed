@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -234,7 +234,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	#----------------------------------------------------
 	def __init__(self, parent, id=-1):
-		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
+		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__do_layout()
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -249,16 +249,16 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		# -- middle part --
 		# divider headings below edit area
 		pnl_MiddleCaption = gmTerryGuiParts.cDividerCaption(self, -1, _("Allergy and Sensitivity - Summary"))
-#		self.sizer_divider_drug_generic = wxBoxSizer(wxHORIZONTAL)
+#		self.sizer_divider_drug_generic = wx.BoxSizer(wxHORIZONTAL)
 #		self.sizer_divider_drug_generic.Add(pnl_MiddleCaption, 1, wxEXPAND)
 		self.LCTRL_allergies = wx.ListCtrl (
 			parent = self,
 			id = ID_ALLERGY_LIST,
 			pos = wx.DefaultPosition,
 			size = wx.DefaultSize,
-			style = wxLC_SINGLE_SEL | wxLC_REPORT | wxSUNKEN_BORDER | wxLC_HRULES | wx.LC_VRULES | wx.VSCROLL
+			style = wx.LC_SINGLE_SEL | wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_HRULES | wx.LC_VRULES | wx.VSCROLL
 		)
-		self.LCTRL_allergies.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		self.LCTRL_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 		self.LCTRL_allergies.InsertColumn(0, _("Type"))
 		self.LCTRL_allergies.InsertColumn(1, _("Status"))
 		self.LCTRL_allergies.InsertColumn(2, _("ATC/Class"))
@@ -277,7 +277,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			size = (200, 100),
 			style = wx.TE_MULTILINE | wx.TE_READONLY
 		)
-		self.class_notes.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		self.class_notes.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		# -- add elements to main background sizer --
 		self.mainsizer = wx.BoxSizer(wx.VERTICAL)
@@ -294,7 +294,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.mainsizer.Fit(self)
 	#-----------------------------------------------
 	def __register_interests(self):
-		EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
+		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
@@ -348,8 +348,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.10  2005-09-28 15:57:47  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.11  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.10  2005/09/28 15:57:47  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.9  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4

@@ -6,8 +6,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.15 2005-09-26 18:01:52 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmSnellen.py,v 1.16 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,8 +22,8 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N
 #from Gnumed.wxpython import gmPlugin
 
-ID_SNELLENMENU = wx.wxNewId()
-ID_SNELLENBUTTON = wx.wxNewId()
+ID_SNELLENMENU = wx.wx.NewId()
+ID_SNELLENBUTTON = wx.wx.NewId()
 
 #============================================================================
 class cSnellenChart(wx.wxFrame):
@@ -297,7 +297,7 @@ class cSnellenChart(wx.wxFrame):
 		CRT in cm.
 		"""
 		wx.wxFrame.__init__ (self, parent, -1, _("Snellen Chart"))
-		wx.EVT_CLOSE (self, self.OnClose)
+		wx.wx.EVT_CLOSE (self, self.OnClose)
 		# width/Y is screen size (X/Y in cm)
 		# distance is distance in metres between CRT and the "average" patient
 		self.width = width
@@ -305,11 +305,11 @@ class cSnellenChart(wx.wxFrame):
 		self.distances = [3, 5, 6, 7.5, 9, 12, 15, 18, 24, 30, 48, 60]
 		self.mirror = mirr
 		self.alphabet = alpha
-		wx.EVT_KEY_DOWN (self, self.OnKeyUp)
-		wx.EVT_LEFT_UP (self, self.OnLeftDown)
-		wx.EVT_RIGHT_UP (self, self.OnRightDown)
-		wx.EVT_LEFT_DCLICK (self, self.OnDClick)
-		wx.EVT_PAINT (self, self.OnPaint)
+		wx.wx.EVT_KEY_DOWN (self, self.OnKeyUp)
+		wx.wx.EVT_LEFT_UP (self, self.OnLeftDown)
+		wx.wx.EVT_RIGHT_UP (self, self.OnRightDown)
+		wx.wx.EVT_LEFT_DCLICK (self, self.OnDClick)
+		wx.wx.EVT_PAINT (self, self.OnPaint)
 		self.ShowFullScreen (1)
 		self.screen_x, self.screen_y = self.GetClientSizeTuple ()
 		gmLog.gmDefLog.Log (gmLog.lInfo, 'I think the screen size is %d x %d' % (self.screen_x, self.screen_y))
@@ -372,10 +372,10 @@ class cSnellenChart(wx.wxFrame):
 
 
 	def setup_DC (self):
-		self.dc.SetFont (wx.wxFont (36, wx.wxROMAN, wx.wxNORMAL, wx.wxNORMAL))
-		self.dc.SetBrush (wx.wxBLACK_BRUSH)
+		self.dc.SetFont (wx.wxFont (36, wx.wxROMAN, wx.wx.NORMAL, wx.wx.NORMAL))
+		self.dc.SetBrush (wx.wx.BLACK_BRUSH)
 		self.dc.SetBackground (wx.wxWHITE_BRUSH)
-		self.dc.SetPen (wx.wxTRANSPARENT_PEN)
+		self.dc.SetPen (wx.wx.TRANSPARENT_PEN)
 
 
 	def OnPaint (self, event):
@@ -422,21 +422,21 @@ class cSnellenCfgDlg (wx.wxDialog):
 			wx.wxDefaultPosition,
 			wx.wxSize(350, 200)
 		)
-		vbox = wx.wxBoxSizer (wx.wxVERTICAL)
-		hbox1 = wx.wxBoxSizer (wx.wxHORIZONTAL)
+		vbox = wx.wx.BoxSizer (wx.wx.VERTICAL)
+		hbox1 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
 		hbox1.Add (wx.wxStaticText(self, -1, _("Screen Height (cm): ")), 0, wx.wxALL, 15)
 		self.height_ctrl = wx.wxSpinCtrl (self, -1, value = "25", min = 10, max = 100)
-		hbox1.Add (self.height_ctrl, 1, wx.wxTOP, 15)
+		hbox1.Add (self.height_ctrl, 1, wx.wx.TOP, 15)
 		vbox.Add (hbox1, 1, wx.wxEXPAND)
-		hbox2 = wx.wxBoxSizer (wx.wxHORIZONTAL)
+		hbox2 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
 		hbox2.Add (wx.wxStaticText(self, -1, _("Screen Width (cm): ")), 0, wx.wxALL, 15)
 		self.width_ctrl = wx.wxSpinCtrl (self, -1, value = "30", min = 10, max = 100)
-		hbox2.Add (self.width_ctrl, 1, wx.wxTOP, 15)
+		hbox2.Add (self.width_ctrl, 1, wx.wx.TOP, 15)
 		vbox.Add (hbox2, 1, wx.wxEXPAND)
-		hbox3 = wx.wxBoxSizer (wx.wxHORIZONTAL)
+		hbox3 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
 		hbox3.Add (wx.wxStaticText(self, -1, _("Alphabet: ")), 0, wx.wxALL, 15)
 		self.alpha_ctrl = wx.wxChoice (self, -1, choices=cSnellenChart.alphabets.keys ())
-		hbox3.Add (self.alpha_ctrl, 1, wx.wxTOP, 15)
+		hbox3.Add (self.alpha_ctrl, 1, wx.wx.TOP, 15)
 		vbox.Add (hbox3, 1, wx.wxEXPAND)
 		self.mirror_ctrl = wx.wxCheckBox (self, -1, label = _("Mirror"))
 		vbox.Add (self.mirror_ctrl, 0, wx.wxALL, 15)
@@ -445,20 +445,20 @@ _("""Control Snellen chart using mouse:
 left-click increases text
 right-click decreases text
 double-click ends""")), 0, wx.wxALL, 15)
-		hbox5 = wx.wxBoxSizer (wx.wxHORIZONTAL)
-		ok = wx.wxButton(self, wx.wxID_OK, _(" OK "), size=wx.wxDefaultSize)
-		cancel = wx.wxButton (self, wx.wxID_CANCEL, _(" Cancel "),
+		hbox5 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
+		ok = wx.wx.Button(self, wx.wxID_OK, _(" OK "), size=wx.wxDefaultSize)
+		cancel = wx.wx.Button (self, wx.wxID_CANCEL, _(" Cancel "),
 						   size=wx.wxDefaultSize)
-		hbox5.Add (ok, 1, wx.wxTOP, 15)
-		hbox5.Add (cancel, 1, wx.wxTOP, 15)
+		hbox5.Add (ok, 1, wx.wx.TOP, 15)
+		hbox5.Add (cancel, 1, wx.wx.TOP, 15)
 		vbox.Add (hbox5, 1, wx.wxEXPAND)
 		self.SetSizer (vbox)
 		self.SetAutoLayout (1)
 		vbox.Fit (self)
 
-		wx.EVT_BUTTON (ok, wx.wxID_OK, self.OnOK)
-		wx.EVT_BUTTON (cancel, wx.wxID_CANCEL, self.OnCancel)
-		wx.EVT_CLOSE (self, self.OnClose )
+		wx.wx.EVT_BUTTON (ok, wx.wxID_OK, self.OnOK)
+		wx.wx.EVT_BUTTON (cancel, wx.wxID_CANCEL, self.OnCancel)
+		wx.wx.EVT_CLOSE (self, self.OnClose )
 		self.Show(1)
 #		self.parent = parent
 
@@ -484,7 +484,7 @@ double-click ends""")), 0, wx.wxALL, 15)
 
 #============================================================================
 # FIXME needn't be a plugin, rewrite to not be one
-#class gmSnellen (gmPlugin.wxBasePlugin):
+#class gmSnellen (gmPlugin.wx.BasePlugin):
 #	tab_name = _('Snellen Chart')
 
 #	def name (self):
@@ -493,7 +493,7 @@ double-click ends""")), 0, wx.wxALL, 15)
 #	def register (self):
 #		menu = self.gb['main.toolsmenu']
 #		menu.Append (ID_SNELLENMENU, "Snellen", "Snellen Chart")
-#		wx.EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
+#		wx.wx.EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
 
 #	def unregister (self):
 #		menu = self.gb['main.toolsmenu']
@@ -522,7 +522,7 @@ if __name__ == '__main__':
 			print "now showing frame"
 #			frame.Show (1)
 
-			frame.CentreOnScreen(wx.wxBOTH)
+			frame.CentreOnScreen(wx.wx.BOTH)
 			self.SetTopWindow(frame)
 			frame.Show(True)
 			return 1
@@ -534,7 +534,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.15  2005-09-26 18:01:52  ncq
+# Revision 1.16  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.15  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

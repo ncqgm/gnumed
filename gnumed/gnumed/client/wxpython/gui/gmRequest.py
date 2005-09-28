@@ -37,22 +37,22 @@ try:
 except ImportError:
 	from wxPython import wx
 
-class RequestsPanel(wxPanel):
+class RequestsPanel(wx.Panel):
     def __init__(self, *args, **kwds):
         # begin wxGlade: RequestsPanel.__init__
-        kwds["style"] = wxTAB_TRAVERSAL
-        wxPanel.__init__(self, *args, **kwds)
+        kwds["style"] = wx.TAB_TRAVERSAL
+        wx.Panel.__init__(self, *args, **kwds)
         self.label_1 = wxStaticText(self, -1, _("Type"))
         self.wheel_type = cPhraseWheel(self, -1, "")
         self.label_2 = wxStaticText(self, -1, _("Form"))
         self.wheel_form = cPhraseWheel(self, -1, "")
         self.label_3 = wxStaticText(self, -1, _("Request"))
-        self.text_ctrl_request = wxTextCtrl(self, -1, "")
+        self.text_ctrl_request = wx.TextCtrl(self, -1, "")
         self.label_4 = wxStaticText(self, -1, _("Clinical"))
-        self.text_ctrl_clinical = wxTextCtrl(self, -1, "", style=wxTE_PROCESS_ENTER|wxTE_MULTILINE)
+        self.text_ctrl_clinical = wx.TextCtrl(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.TE_MULTILINE)
         self.label_5 = wxStaticText(self, -1, _("Instructions"))
-        self.text_ctrl_instructions = wxTextCtrl(self, -1, "", style=wxTE_PROCESS_ENTER|wxTE_MULTILINE)
-        self.button_OK = wxButton(self, -1, _("OK"))
+        self.text_ctrl_instructions = wx.TextCtrl(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.TE_MULTILINE)
+        self.button_OK = wx.Button(self, -1, _("OK"))
 
         self.__set_properties()
         self.__do_layout()
@@ -65,7 +65,7 @@ class RequestsPanel(wxPanel):
 
     def __do_layout(self):
         # begin wxGlade: RequestsPanel.__do_layout
-        sizer_1 = wxBoxSizer(wxVERTICAL)
+        sizer_1 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_1 = wxFlexGridSizer(5, 2, 0, 0)
         grid_sizer_1.Add(self.label_1, 0, 0, 0)
         grid_sizer_1.Add(self.wheel_type, 0, wxEXPAND, 0)
@@ -101,7 +101,7 @@ class cActiveRequestsPanel (RequestsPanel):
         RequestsPanel.__init__ (self, parent, id)
         self.wheel_type.setMatchProvider (gmForms.FormTypeMP ())
         self.wheel_form.setMatchProvider (gmForms.FormMP ())
-        EVT_BUTTON (self.button_OK, self.button_OK.GetId (), self._ok_pressed)
+        wx.EVT_BUTTON (self.button_OK, self.button_OK.GetId (), self._ok_pressed)
 
     def _ok_pressed (self, event):
         form_id = self.wheel_form.getData ()

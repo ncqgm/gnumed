@@ -37,8 +37,8 @@ def LabelListControl(listctrl, labellist):
     """
     for i in range(len(labellist)):
         listctrl.InsertColumn(i, labellist[i])
-    #listctrl.SetSingleStyle(wxLC_VRULES)
-    #listctrl.SetSingleStyle(wxLC_HRULES)
+    #listctrl.SetSingleStyle(wx.LC_VRULES)
+    #listctrl.SetSingleStyle(wx.LC_HRULES)
 
 
 class SQLListControl(wx.ListCtrl):
@@ -57,7 +57,7 @@ class SQLListControl(wx.ListCtrl):
 
 
 
-	def __init__(self, parent, id, pos=wxDefaultPosition, size=wx.DefaultSize, style=wx.LC_REPORT, feedback=True, hideid=False):
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.LC_REPORT, feedback=True, hideid=False):
 		wx.ListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
 		self.__hide_id=hideid # first column is assumed to be id field

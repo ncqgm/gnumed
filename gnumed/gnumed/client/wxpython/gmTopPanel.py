@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.65 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmTopPanel.py,v 1.66 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -43,7 +43,7 @@ class cMainTopPanel(wx.Panel):
 
 	def __init__(self, parent, id):
 
-		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
+		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
 
 		self.__gb = gmGuiBroker.GuiBroker()
 
@@ -81,52 +81,52 @@ class cMainTopPanel(wx.Panel):
 
 		#  - details button
 #		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'binoculars_form.png')
-#		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-#		bmp = wxBitmapFromImage(img)
-#		self.btn_pat_demographics = wxBitmapButton (
+#		img = wxImage(fname, wx.BITMAP_TYPE_ANY)
+#		bmp = wx.BitmapFromImage(img)
+#		self.btn_pat_demographics = wx.BitmapButton (
 #			parent = self,
 #			id = ID_BTN_pat_demographics,
 #			bitmap = bmp,
-#			style = wxBU_EXACTFIT | wxNO_BORDER
+#			style = wx.BU_EXACTFIT | wxNO_BORDER
 #		)
 #		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
-#		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
+#		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wx.BOTTOM, 3)
 
 		# padlock button - Dare I say HIPAA ?
 #		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'padlock_closed.png')
-#		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-#		bmp = wxBitmapFromImage(img)
-#		self.btn_lock = wxBitmapButton (
+#		img = wxImage(fname, wx.BITMAP_TYPE_ANY)
+#		bmp = wx.BitmapFromImage(img)
+#		self.btn_lock = wx.BitmapButton (
 #			parent = self,
 #			id = ID_LOCKBUTTON,
 #			bitmap = bmp,
-#			style = wxBU_EXACTFIT | wxNO_BORDER
+#			style = wx.BU_EXACTFIT | wxNO_BORDER
 #		)
 #		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
 #		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
 
 		#  - patient selector
 		lbl_pat = wx.StaticText (self, -1, _('Patient'), style = wx.ALIGN_CENTER_VERTICAL)
-		lbl_pat.SetFont (wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
+		lbl_pat.SetFont (wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
 		if self.__gb['main.slave_mode']:
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
-		self.patient_selector.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.patient_selector.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.szr_top_row.Add (lbl_pat, 0, wx.ALL, 3)
 		self.szr_top_row.Add (self.patient_selector, 5, wx.BOTTOM, 3)
 		#  - age
 		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY)
-		self.txt_age.SetFont (wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.txt_age.SetFont (wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
-		self.szr_top_row.Add (self.txt_age, 0, wxBOTTOM | wx.LEFT | wx.RIGHT, 3)
+		self.szr_top_row.Add (self.txt_age, 0, wx.BOTTOM | wx.LEFT | wx.RIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wx.StaticText (self, -1, _('Caveat'), style = wx.ALIGN_CENTER_VERTICAL)
-		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.lbl_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
 		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY)
-		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.txt_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
 		self.szr_top_row.Add (self.lbl_allergies, 0, wx.ALL, 3)
@@ -137,7 +137,7 @@ class cMainTopPanel(wx.Panel):
 		# | plugin toolbar | bmi | edc |          | encounter | lock |
 		# |                |     |     |          | type sel  |      |
 		# `----------------------------------------------------------'
-		#self.tb_lock.AddControl(wxStaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+		#self.tb_lock.AddControl(wx.StaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wx.DefaultPosition, wx.DefaultSize))
 
 		# (holds most of the buttons)
 		self.szr_bottom_row = wx.BoxSizer(wx.HORIZONTAL)
@@ -167,13 +167,13 @@ class cMainTopPanel(wx.Panel):
 
 		# pregnancy calculator button
 #		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'preg_calculator.png')
-#		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-#		bmp = wxBitmapFromImage(img)
-#		self.btn_preg = wxBitmapButton (
+#		img = wxImage(fname, wx.BITMAP_TYPE_ANY)
+#		bmp = wx.BitmapFromImage(img)
+#		self.btn_preg = wx.BitmapButton (
 #			parent = self,
 #			id = ID_PREGTOOL,
 #			bitmap = bmp,
-#			style = wxBU_EXACTFIT | wxNO_BORDER
+#			style = wx.BU_EXACTFIT | wxNO_BORDER
 #		)
 #		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
 #		self.szr_bottom_row.Add(self.btn_preg, 0)
@@ -212,7 +212,7 @@ class cMainTopPanel(wx.Panel):
 		# create main sizer
 		self.szr_main = wx.BoxSizer(wx.HORIZONTAL)
 		# - insert patient picture
-		self.szr_main.Add(self.patient_picture, 0, wxLEFT | wx.TOP | wx.Right, 5)
+		self.szr_main.Add(self.patient_picture, 0, wx.LEFT | wx.TOP | wx.Right, 5)
 		# - insert stacked rows
 		self.szr_main.Add(self.szr_stacked_rows, 1)
 
@@ -248,25 +248,25 @@ class cMainTopPanel(wx.Panel):
 	#-------------------------------------------------------
 	def __register_interests(self):
 		# events
-		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
+		wx.EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
 
 		tools_menu = self.__gb['main.toolsmenu']
 		main_frame = self.__gb['main.frame']
 
 		# - BMI calculator
-		EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
+		wx.EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
 		tools_menu.Append(ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
-		EVT_MENU(main_frame, ID_BMIMENU, self._on_show_BMI)
+		wx.EVT_MENU(main_frame, ID_BMIMENU, self._on_show_BMI)
 
 		# - pregnancy calculator
-#		EVT_BUTTON(self, ID_PREGTOOL, self._on_show_Preg_Calc)
+#		wx.EVT_BUTTON(self, ID_PREGTOOL, self._on_show_Preg_Calc)
 #		tools_menu.Append(ID_PREGMENU, _("EDC"), _("Pregnancy Calculator"))
-#		EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
+#		wx.EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
 
 		# - lock button
-		EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
+		wx.EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
 		tools_menu.Append(ID_LOCKMENU, _("lock client"), _("locks client and hides data"))
-		EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
+		wx.EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
@@ -429,8 +429,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.65  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.66  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.65  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.64  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -37,11 +37,11 @@ _log.Log(gmLog.lInfo, __version__)
 	ButtonParamRevertID,
 	DescriptionBoxID,
 	ConfigDescriptionTextID
-] = map(lambda _init_ctrls: wxNewId(), range(8))
+] = map(lambda _init_ctrls: wx.NewId(), range(8))
 
 #================================================================
-class cConfTree(wxTreeCtrl):
-	"""This wxTreeCtrl derivative displays a tree view of configuration 
+class cConfTree(wx.TreeCtrl):
+	"""This wx.TreeCtrl derivative displays a tree view of configuration 
 	parameter names.
 	"""
 	def __init__(self, parent, id, aConn = None,size=wxDefaultSize,pos=wxDefaultPosition,
@@ -53,7 +53,7 @@ class cConfTree(wxTreeCtrl):
 		self.mConfSources = configSources
 		self.rootLabel = rootLabel
 
-		wxTreeCtrl.__init__(self, parent, id, pos, size, style)
+		wx.TreeCtrl.__init__(self, parent, id, pos, size, style)
 
 		self.root = None
 		self.param_list = None
@@ -62,8 +62,8 @@ class cConfTree(wxTreeCtrl):
 		self.currSelSubtree = None
 
 		# connect handler
-		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
-		EVT_RIGHT_DOWN(self,self.OnRightDown)
+		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+		wx.EVT_RIGHT_DOWN(self,self.OnRightDown)
 
 	#------------------------------------------------------------------------
 	def update(self):
@@ -307,7 +307,7 @@ class cConfTree(wxTreeCtrl):
 		(item,flags) = self.HitTest(position)
 #DEBUG
 		_log.Log(gmLog.lInfo, "clicked item (%s %s)" % (str(item),str(flags)))
-#		if flags & (wxTREE_HITTEST_ONITEMLABEL) == True:
+#		if flags & (wx.TREE_HITTEST_ONITEMLABEL) == True:
 		self.SelectItem(item)
 
 
@@ -324,9 +324,9 @@ class cConfTree(wxTreeCtrl):
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
 ###############################################################################
-class cParamCtrl(wxTextCtrl):
+class cParamCtrl(wx.TextCtrl):
 	def __init__(self, parent, id,value,pos,size,style,type ):
-		wxTextCtrl.__init__(self, parent, -1, value="",style=style)		
+		wx.TextCtrl.__init__(self, parent, -1, value="",style=style)		
 		self.parent = parent
 
 	def ShowParam(self,aParam=None,aType=None,aValue=None):
@@ -371,12 +371,12 @@ class cParamCtrl(wxTextCtrl):
 ###############################################################################
 # TODO: -a MenuBar allowing for import, export and options
 # 		-open a connection to backend via gmCfg
-class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, parent, aUser,aWorkplace, plugin = 1):
 		"""aUser and aWorkplace can be set such that an admin
 		   could potentially edit another user ...
 		"""
-		wxPanel.__init__(self, parent, -1)
+		wx.Panel.__init__(self, parent, -1)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		
 		self.currUser = aUser
@@ -412,48 +412,48 @@ class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		except:
 			pass
 # main sizers
-		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
-		self.rightSizer = wxBoxSizer(wxVERTICAL)
+		self.mainSizer = wx.BoxSizer(wx.HORIZONTAL)
+		self.rightSizer = wx.BoxSizer(wx.VERTICAL)
 
 # selected parameter
 		self.configEntryParamBox = wxStaticBox( self, ParamBoxID, _("Parameters") )
-		self.configEntryParamBoxSizer = wxStaticBoxSizer( self.configEntryParamBox, wxHORIZONTAL )
+		self.configEntryParamBoxSizer = wxStaticBoxSizer( self.configEntryParamBox, wx.HORIZONTAL )
 
 		self.configEntryParamCtrl = cParamCtrl( parent = self, 
 						id = ConfigEntryParamCtrlID, 
 						pos = wxDefaultPosition, 
 						size = wxSize(250,200),
 						value = "" , 
-						style = wxLB_SINGLE,
+						style = wx.LB_SINGLE,
 						type = None)
 		
-		self.paramButtonSizer = wxBoxSizer(wxHORIZONTAL)
-		self.paramCtrlSizer = wxBoxSizer(wxVERTICAL)
-		self.buttonApply = wxButton(parent=self,
+		self.paramButtonSizer = wx.BoxSizer(wx.HORIZONTAL)
+		self.paramCtrlSizer = wx.BoxSizer(wx.VERTICAL)
+		self.buttonApply = wx.Button(parent=self,
 					id = ButtonParamApplyID,
 					label = "Apply changes" )
-		self.buttonRevert = wxButton(parent=self,
+		self.buttonRevert = wx.Button(parent=self,
 					id = ButtonParamRevertID,
 					label = "Revert to saved" )
 		
-		EVT_BUTTON(self,ButtonParamApplyID,self.ApplyChanges)
-		EVT_BUTTON(self,ButtonParamRevertID,self.RevertChanges)
+		wx.EVT_BUTTON(self,ButtonParamApplyID,self.ApplyChanges)
+		wx.EVT_BUTTON(self,ButtonParamRevertID,self.RevertChanges)
 
 
 # parameter description
 		self.configEntryDescriptionBox = wxStaticBox( self, DescriptionBoxID, _("Parameter Description") )
-		self.configEntryDescriptionBoxSizer = wxStaticBoxSizer( self.configEntryDescriptionBox, wxHORIZONTAL )
+		self.configEntryDescriptionBoxSizer = wxStaticBoxSizer( self.configEntryDescriptionBox, wx.HORIZONTAL )
 
-		self.configEntryDescription = wxTextCtrl(parent = self, 
+		self.configEntryDescription = wx.TextCtrl(parent = self, 
 							id = ConfigDescriptionTextID,
 							pos = wxDefaultPosition, 
 							size = wxSize(250,100),
-							style = wxTE_READONLY | wxLB_SINGLE,
+							style = wx.TE_READONLY | wx.LB_SINGLE,
 							value ="" )
 		self.configEntryDescriptionBoxSizer.Add( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
 # static box for config tree
 		self.configTreeBox = wxStaticBox( self, ConfigTreeBoxID, _("Config Options") )
-		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wxHORIZONTAL )
+		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wx.HORIZONTAL )
 		
 # config tree        
 		rootLabel = "%s@%s" % (self.currUser,self.currWorkplace)
@@ -461,7 +461,7 @@ class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 						id = ConfigTreeCtrlID ,
 						pos = wxPoint(0, 0), 
 						size = wxSize(200, 300),
-						style = wxTR_HAS_BUTTONS|wxTAB_TRAVERSAL,
+						style = wx.TR_HAS_BUTTONS|wx.TAB_TRAVERSAL,
 						configSources = self.mConfSources,
 						rootLabel = rootLabel,
 						paramWidgets=(self.configEntryParamCtrl,self.configEntryDescription)
@@ -552,7 +552,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.30  2005-09-26 18:01:52  ncq
+# Revision 1.31  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.30  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -571,7 +574,7 @@ else:
 # - improve tree root node naming
 #
 # Revision 1.25  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

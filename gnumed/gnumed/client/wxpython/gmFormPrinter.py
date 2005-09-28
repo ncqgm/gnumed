@@ -6,8 +6,8 @@ includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.7 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmFormPrinter.py,v 1.8 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Ian Haywood"
 
 try:
@@ -82,7 +82,7 @@ class FormPrinter:
             # use PostScript
             # FIXME: how do we print under Mac??
             dc = wxPostScriptDC (pd)
-        font = wxFont (fontsize, wxDEFAULT, wx.NORMAL, wx.NORMAL)
+        font = wx.Font (fontsize, wxDEFAULT, wx.NORMAL, wx.NORMAL)
         dc.SetFont (font)
         dc.SetBrush (wx.BLACK_BRUSH)
         dc.StartDoc ("")
@@ -172,9 +172,9 @@ class gmPrinterSetupDialog (wx.Dialog):
             self.horiz_scale_spin.SetValue (28.3)
             self.vert_off_spin.SetValue (0) # this is a sensible value on UNIX
             self.vert_scale_spin.SetValue (28.3)
-        EVT_BUTTON (self, REPRINT_ID, self.OnReprint)
-        EVT_BUTTON (self, CALIB_ID, self.OnRecalibrate)
-        EVT_BUTTON (self, DISMISS_ID, self.OnDismiss)
+        wx.EVT_BUTTON (self, REPRINT_ID, self.OnReprint)
+        wx.EVT_BUTTON (self, CALIB_ID, self.OnRecalibrate)
+        wx.EVT_BUTTON (self, DISMISS_ID, self.OnDismiss)
         self.Show ()
 
     def OnDismiss (self, event):
@@ -289,7 +289,7 @@ Measure the position of the boxes and enter""")
         self.sec_left_spin = wx.SpinCtrl(self, -1, min=0, max=100, initial=0)
         ID = wx.NewId ()
         self.ok_button = wx.Button(self, ID, "OK")
-        EVT_BUTTON (self, ID, self.OnOK)
+        wx.EVT_BUTTON (self, ID, self.OnOK)
         self.__set_properties()
         self.__do_layout()
         # end wxGlade
@@ -342,8 +342,11 @@ psd = gmPrinterSetupDialog (fp)
 
 #=================================================
 # $Log: gmFormPrinter.py,v $
-# Revision 1.7  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.8  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.7  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.6  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4

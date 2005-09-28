@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.58 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmSOAPWidgets.py,v 1.59 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1553,8 +1553,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.58  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.59  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.58  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.57  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*

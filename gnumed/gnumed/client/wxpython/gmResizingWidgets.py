@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.38 2005-09-28 19:47:01 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmResizingWidgets.py,v 1.39 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -87,11 +87,11 @@ class cPickList(wx.ListBox):
 		wx.ListBox.Destroy (self)
 #====================================================================
 # according to Ian there isn't really a particular reason
-# why we do not use wxMiniFrame instead of wxFrame or even a wxWindow
+# why we do not use wxMiniFrame instead of wx.Frame or even a wxWindow
 class cPopupFrame(wx.Frame):
-#	def __init__ (self, embed_header, widget_class, originator=None, pos=wxDefaultPosition):
-#		wxFrame.__init__(self, None, wxNewId(), widget_class.__name__, pos=pos, style=wxSIMPLE_BORDER)
-#		self.win = widget_class(self, -1, pos = pos, size = wxSize(300, 150), complete = self.OnOK)
+#	def __init__ (self, embed_header, widget_class, originator=None, pos=wx.DefaultPosition):
+#		wx.Frame.__init__(self, None, wxNewId(), widget_class.__name__, pos=pos, style=wx.SIMPLE_BORDER)
+#		self.win = widget_class(self, -1, pos = pos, size = wx.Size(300, 150), complete = self.OnOK)
 	def __init__ (self, embed_header, widget, originator=None, pos=wx.DefaultPosition):
 		wx.Frame.__init__(self, None, wx.NewId(), widget.__class__.__name__, pos=pos, style=wx.SIMPLE_BORDER)
 		widget.set_completion_callback(self.OnOK)
@@ -101,8 +101,8 @@ class cPopupFrame(wx.Frame):
 
 		self.__do_layout()
 
-		EVT_BUTTON(self.__BTN_OK, self.__BTN_OK.GetId(), self.OnOK)
-		EVT_BUTTON(self.__BTN_Cancel, self.__BTN_Cancel.GetId(), self._on_close)
+		wx.EVT_BUTTON(self.__BTN_OK, self.__BTN_OK.GetId(), self.OnOK)
+		wx.EVT_BUTTON(self.__BTN_Cancel, self.__BTN_Cancel.GetId(), self._on_close)
 		self.win.SetFocus ()
 	#------------------------------------------------
 	def __do_layout(self):
@@ -376,7 +376,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.SetEOLMode (wx.stc.STC_EOL_LF)
 		self.SetModEventMask (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_PERFORMED_USER)
 
-		wx.stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
+		wx.stc.wx.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
 		wx.EVT_KEY_DOWN (self, self.__on_key_down)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
 
@@ -852,7 +852,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 #				self,
 #				-1,
 #				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
-#				size = wxSize(300, 150)
+#				size = wx.Size(300, 150)
 #			)
 #			cPopupFrame (
 #				embed_header = text,
@@ -1074,11 +1074,14 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.38  2005-09-28 19:47:01  ncq
+# Revision 1.39  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.38  2005/09/28 19:47:01  ncq
 # - runs until login dialog
 #
 # Revision 1.37  2005/09/28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.36  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
@@ -1254,7 +1257,7 @@ if __name__ == '__main__':
 #
 # revision 1.4
 # date: 2004/11/08 09:36:28;  author: ihaywood;	 state: Exp;  lines: +86 -77
-# fixed the crashing bu proper use of wxSize.SetItemMinSize (when all else
+# fixed the crashing bu proper use of wx.Size.SetItemMinSize (when all else
 # fails, read the docs ;-)
 #
 # revision 1.3

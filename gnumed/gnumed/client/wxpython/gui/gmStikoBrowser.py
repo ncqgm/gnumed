@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -42,36 +42,36 @@ ID_STIKOADDBOOKMARK,
 ID_STIKOVIEWSOURCE,
 ID_STIKORELOAD,
 ID_VIEWSOURCE
-] = map(lambda _init_ctrls: wxNewId(), range(12))
+] = map(lambda _init_ctrls: wx.NewId(), range(12))
 
 #----------------------------------------------------------------------
 
 
-class StikoHtmlWindow(wxHtmlWindow):
+class StikoHtmlWindow(wx.HtmlWindow):
 	def __init__(self, parent, id):
-		wxHtmlWindow.__init__(self, parent, id)
+		wx.HtmlWindow.__init__(self, parent, id)
 		self.parent = parent
 
 	def OnSetTitle(self, title):
 		self.parent.ShowTitle(title)
 
 
-class StikoHtmlPanel(wxPanel):
+class StikoHtmlPanel(wx.Panel):
 	def __init__(self, parent, frame):
-		wxPanel.__init__(self, parent, -1)
+		wx.Panel.__init__(self, parent, -1)
 		self.frame = frame
 		# CHANGED CODE Haywood 26/2/02
 		# get base directory for manuals from broker
 		# Ideally this should be something like "/usr/doc/gnumed/"
 		self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
-		self.printer = wxHtmlEasyPrinting()
+		self.printer = wx.HtmlEasyPrinting()
 
-		self.box = wxBoxSizer(wxVERTICAL)
+		self.box = wx.BoxSizer(wx.VERTICAL)
 
-		infobox = wxBoxSizer(wxHORIZONTAL)
-		n = wxNewId()
-		self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
-		self.infoline.SetBackgroundColour(wxLIGHT_GREY)
+		infobox = wx.BoxSizer(wx.HORIZONTAL)
+		n = wx.NewId()
+		self.infoline = wx.TextCtrl(self, n, style=wx.TE_READONLY)
+		self.infoline.SetBackgroundColour(wx.LIGHT_GREY)
 		infobox.Add(self.infoline, 1, wxGROW|wxALL)
 		self.box.Add(infobox, 0, wxGROW)
 
@@ -154,7 +154,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Table of Content"),
 			isToggle=True
 		)
-		EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
+		wx.EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
 
 		tool1 = tb.AddTool(
 			ID_STIKOOPENFILE, 
@@ -162,7 +162,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Open File"),
 			isToggle=True
 		)
-		EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
+		wx.EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
 
 		tool1 = tb.AddTool(
 			ID_STIKOBACK, 
@@ -170,7 +170,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Back"),
 			isToggle=False
 		)
-		EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
+		wx.EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
 
 		tool1 = tb.AddTool(
 			ID_STIKOFORWARD, 
@@ -178,7 +178,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Forward"),
 			isToggle=True
 		)
-		EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
+		wx.EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
 
 		tool1 = tb.AddTool(
 			ID_STIKORELOAD, 
@@ -195,7 +195,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Home"),
 			isToggle=True
 		)
-		EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
+		wx.EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
 
 		tb.AddSeparator()
 
@@ -205,7 +205,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Translate text"), 
 			isToggle=False
 		)
-		#EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
+		#wx.EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
 		
 		tb.AddSeparator()
 
@@ -215,7 +215,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Bookmarks"), 
 			isToggle=True
 		)
-		#EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
+		#wx.EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
 		
 		tool1 = tb.AddTool(
 			ID_STIKOADDBOOKMARK, 
@@ -223,7 +223,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Add Bookmark"), 
 			isToggle=True
 		)
-		#EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
+		#wx.EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
 
 		tool1 = tb.AddTool(
 			ID_VIEWSOURCE, 
@@ -231,7 +231,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("View Source"), 
 			isToggle=True
 		)
-		EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
+		wx.EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
 		tool1 = tb.AddTool(
 			ID_STIKOPRINTER, 
@@ -239,11 +239,14 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Print Page"), 
 			isToggle=True
 		)
-		EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
+		wx.EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.18  2005-09-26 18:01:52  ncq
+# Revision 1.19  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.18  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -255,7 +258,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 # - converted spaces to tabs, hopefully this won't break it
 #
 # Revision 1.15  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
@@ -301,5 +304,5 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 # synced and commiting.
 #
 # Revision 1.4  2003/11/07 23:19:54  shilbert
-# - removed repetitive calls to wxNewId()
+# - removed repetitive calls to wx.NewId()
 #

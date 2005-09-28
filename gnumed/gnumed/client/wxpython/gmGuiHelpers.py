@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.25 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmGuiHelpers.py,v 1.26 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -53,10 +53,10 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	print aMessage
 
 	dlg = wx.MessageDialog (
-		parent = NULL,
+		parent = None,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wx.ICON_ERROR | wx.STAY_ON_TOP
+		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -75,10 +75,10 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 		aTitle = _('generic info message')
 
 	dlg = wx.MessageDialog (
-		parent = NULL,
+		parent = None,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
+		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -97,10 +97,10 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 		aTitle = _('generic warning message')
 
 	dlg = wx.MessageDialog (
-		parent = NULL,
+		parent = None,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
+		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -114,7 +114,7 @@ def gm_show_question(aMessage = None, aTitle = None):
 		aTitle = _('generic user question dialog')
 
 	dlg = wx.MessageDialog(
-		NULL,
+		None,
 		aMessage,
 		aTitle,
 		wxYES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
@@ -174,9 +174,9 @@ def makePageTitle(wizPg, title):
 	sizer = wx.BoxSizer(wx.VERTICAL)
 	wizPg.SetSizer(sizer)
 	title = wx.StaticText(wizPg, -1, title)
-	title.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.BOLD))
+	title.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
 	sizer.Add(title, 0, wx.ALIGN_CENTRE|wx.ALL, 2)
-	sizer.Add(wxStaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
+	sizer.Add(wx.StaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
 	return sizer	
 #============================================================
 class cTextObjectValidator(wx.PyValidator):
@@ -201,7 +201,7 @@ class cTextObjectValidator(wx.PyValidator):
 		self.__required = required
 		self.__only_digits = only_digits
 		if self.__only_digits:
-			EVT_CHAR(self, self.OnChar)
+			wx.EVT_CHAR(self, self.OnChar)
 	#--------------------------------------------------------
 	def Clone(self):
 		"""
@@ -280,8 +280,11 @@ class cTextObjectValidator(wx.PyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.25  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.26  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.25  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.24  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
@@ -298,7 +301,7 @@ class cTextObjectValidator(wx.PyValidator):
 # Validator fix
 #
 # Revision 1.20  2005/05/05 06:27:52  ncq
-# - add wxSTAY_ON_TOP in an effort to keep popups up front
+# - add wx.STAY_ON_TOP in an effort to keep popups up front
 #
 # Revision 1.19  2005/04/24 14:48:57  ncq
 # - improved wording

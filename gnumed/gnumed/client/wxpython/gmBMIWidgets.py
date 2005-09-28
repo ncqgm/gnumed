@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.9 2005-09-28 15:57:47 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmBMIWidgets.py,v 1.10 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -37,7 +37,7 @@ class BMI_Colour_Scale(wx.Window):
 
 	def __init__(self, parent, color=wx.RED_BRUSH):
 		wx.Window.__init__(self, parent, -1, wx.DefaultPosition,size = (324,25))
-		EVT_PAINT(self, self.OnPaint)
+		wx.EVT_PAINT(self, self.OnPaint)
 
 	def OnPaint(self, event):
 		self.Draw(wxPaintDC(self))
@@ -49,7 +49,7 @@ class BMI_Colour_Scale(wx.Window):
 		#------------------------------------------------
 		#draw the graphics for underneath the BMI buttons
 		#------------------------------------------------
-		dc.SetBrush(wxBrush(wx.Colour(194,194,197), wx.SOLID)) #222,222,222
+		dc.SetBrush(wx.Brush(wx.Colour(194,194,197), wx.SOLID)) #222,222,222
 		dc.SetPen(wxPen(wx.Color(194,197,194), 1))
 		dc.DrawRectangle(0, 0, 324, 30)
 		#----------------------------------------------------------
@@ -61,28 +61,28 @@ class BMI_Colour_Scale(wx.Window):
 		#Add text to foreground of the elipse in black
 		#----------------------------------------------------------
 		dc.SetPen(wxPen(wx.Color(0,0,0), 1))
-		dc.SetBrush(wxBrush(wx.Colour(255,255,0), wx.SOLID))   #yellow
+		dc.SetBrush(wx.Brush(wx.Colour(255,255,0), wx.SOLID))   #yellow
 		dc.DrawEllipse(6, 5, 80,15)
-		dc.SetFont(wxFont(8, wxSWISS, wx.NORMAL, wx.NORMAL))
+		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
 		te = dc.GetTextExtent(_("Underweight"))
 		dc.DrawText(_("Underweight"), 20,9)
 		#------------------------------------------
 		#add the green elipse = normal mass range
 		#------------------------------------------
-		dc.SetBrush(wxBrush(wx.Colour(0,194,0), wx.SOLID)) #green
+		dc.SetBrush(wx.Brush(wx.Colour(0,194,0), wx.SOLID)) #green
 		dc.DrawEllipse(87, 5, 80,15)
-		dc.SetBrush(wxBrush(wx.Colour(0,192,0), wx.SOLID))
-		dc.SetFont(wxFont(8, wxSWISS, wx.NORMAL, wx.NORMAL))
+		dc.SetBrush(wx.Brush(wx.Colour(0,192,0), wx.SOLID))
+		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
 		te = dc.GetTextExtent(_("63< Normal >79"))
 		dc.DrawText(_("63 - Normal - 79"),95,8)
 		#------------------------------------------
 		#add the orange elipse = overweight range
 		#------------------------------------------
-		dc.SetBrush(wxBrush(wx.Colour(255,128,0), wx.SOLID))   #orange
+		dc.SetBrush(wx.Brush(wx.Colour(255,128,0), wx.SOLID))   #orange
 		dc.DrawEllipse(168, 5, 80,15)
-		dc.SetFont(wxFont(8, wxSWISS, wx.NORMAL, wx.NORMAL))
+		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
 		te = dc.GetTextExtent(_("Overweight"))
 		dc.DrawText(_("Overweight"), 180,9)
@@ -90,9 +90,9 @@ class BMI_Colour_Scale(wx.Window):
 		#add the red elipse = overweight range
 		#------------------------------------------
 
-		dc.SetBrush(wxBrush(wx.Colour(192,0,0), wx.SOLID)) #red
+		dc.SetBrush(wx.Brush(wx.Colour(192,0,0), wx.SOLID)) #red
 		dc.DrawEllipse(250, 5, 60,15)
-		dc.SetFont(wxFont(8, wxSWISS, wx.NORMAL, wx.NORMAL))
+		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
 		te = dc.GetTextExtent(_("Obese"))
 		dc.DrawText(_("Obese"), 267,9)
@@ -129,7 +129,7 @@ class BMICalc_Panel(wx.Panel):
 			wx.DefaultSize,
 			style = wx.ALIGN_CENTRE
 		)
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wx.BOLD,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 		szr_upper_heading = wx.BoxSizer(wx.HORIZONTAL)
 		szr_upper_heading.Add(label,1,0)
@@ -137,15 +137,15 @@ class BMICalc_Panel(wx.Panel):
 		#sizer holding the height stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("Height (cm)"),size = (1,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
 		self.txtheight = wx.TextCtrl(self,-1,"",size=(100,20))
-		self.txtheight.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtheight.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
-		EVT_TEXT(self, self.txtheight.GetId(), self.EvtText_height)
-		EVT_SET_FOCUS(self.txtheight, self.OnSetFocus_height)
-		EVT_CHAR(self.txtheight, self.EvtChar_height)
+		wx.EVT_TEXT(self, self.txtheight.GetId(), self.EvtText_height)
+		wx.EVT_SET_FOCUS(self.txtheight, self.OnSetFocus_height)
+		wx.EVT_CHAR(self.txtheight, self.EvtChar_height)
 
 		szr_height = wx.BoxSizer(wx.HORIZONTAL)
 		szr_height.Add((10,1),0,0)
@@ -155,15 +155,15 @@ class BMICalc_Panel(wx.Panel):
 		#sizer holding the mass stuff -- some people incorrectly call this stuff "weight"
 		#------------------------------
 		label = wx.StaticText(self,-1,_("Mass (kg)"),size = (20,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
 		self.txtmass = wx.TextCtrl(self,-1,"",size=(100,20))
-		self.txtmass.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtmass.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
-		EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
-		EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
-		EVT_CHAR(self.txtmass, self.EvtChar_mass)
+		wx.EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
+		wx.EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
+		wx.EVT_CHAR(self.txtmass, self.EvtChar_mass)
 
 		szr_mass = wx.BoxSizer(wx.HORIZONTAL)
 		szr_mass.Add((10,1),0,0)
@@ -174,12 +174,12 @@ class BMICalc_Panel(wx.Panel):
 		#sizer holding the BMI stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("BMI"),size = (100,20))
-		label.SetFont(wxFont(13,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(13,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
   		self.txtbmi = wx.TextCtrl(self,-1,"",size=(100,20), style = wx.TE_READONLY)
 		self.txtbmi.Enable(False)
-		self.txtbmi.SetFont(wxFont(13,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtbmi.SetFont(wx.Font(13,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
 		szr_bmi = wx.BoxSizer(wx.HORIZONTAL)
 		szr_bmi.Add((10,1),0,0)
@@ -198,10 +198,10 @@ class BMICalc_Panel(wx.Panel):
 		#-----------------------------------------------------
 		self.slider = wx.Slider(self, -1, 15, 15, 34, wxPoint(30, 60),
 					wx.Size(324, -1),
-					wxSL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS )
+					wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS )
 		self.slider.SetTickFreq(1, 1)
-		EVT_SCROLL(self.slider, self.SLIDER_EVT)
-		EVT_CHAR(self.slider, self.EvtChar_slider)
+		wx.EVT_SCROLL(self.slider, self.SLIDER_EVT)
+		wx.EVT_CHAR(self.slider, self.EvtChar_slider)
 
 		szr_slider = wx.BoxSizer(wx.HORIZONTAL)
 		szr_slider.Add(self.slider,1,wx.EXPAND)
@@ -217,7 +217,7 @@ class BMICalc_Panel(wx.Panel):
 			wx.DefaultSize,
 			style = wx.ALIGN_CENTRE
 		)  #add underline
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wx.BOLD,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
 		szr_lower_heading = wx.BoxSizer(wx.HORIZONTAL)
@@ -226,15 +226,15 @@ class BMICalc_Panel(wx.Panel):
 		#Put in the goal mass
 		#----------------------
 		label = wx.StaticText(self,-1,_("Goal mass"),size = (30,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
 		self.txtgoal= wx.TextCtrl(self,-1,"",size=(100,20))
-		self.txtgoal.SetFont(wxFont(14,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtgoal.SetFont(wx.Font(14,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
-		EVT_TEXT(self, self.txtgoal.GetId(), self.EvtText_goal)
-		EVT_SET_FOCUS(self.txtgoal, self.OnSetFocus_goal)
-		EVT_CHAR(self.txtgoal, self.EvtChar_goal)
+		wx.EVT_TEXT(self, self.txtgoal.GetId(), self.EvtText_goal)
+		wx.EVT_SET_FOCUS(self.txtgoal, self.OnSetFocus_goal)
+		wx.EVT_CHAR(self.txtgoal, self.EvtChar_goal)
 
 		szr_goal_mass = wx.BoxSizer(wx.HORIZONTAL)
 		szr_goal_mass.Add((10,1),0,0)
@@ -244,15 +244,15 @@ class BMICalc_Panel(wx.Panel):
 		#and the amount to loose in Kg
 		#-----------------------------
 		label = wx.StaticText(self,-1,_("kg to loose"),size = (30,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
 		self.txtloss= wx.TextCtrl(self,-1,"",size=(100,20))
-		self.txtloss.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtloss.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
-		EVT_TEXT(self, self.txtloss.GetId(), self.EvtText_loss)
-		EVT_SET_FOCUS(self.txtloss, self.OnSetFocus_loss)
-		EVT_CHAR(self.txtloss, self.EvtChar_loss)
+		wx.EVT_TEXT(self, self.txtloss.GetId(), self.EvtText_loss)
+		wx.EVT_SET_FOCUS(self.txtloss, self.OnSetFocus_loss)
+		wx.EVT_CHAR(self.txtloss, self.EvtChar_loss)
 
 		szr_to_loose = wx.BoxSizer(wx.HORIZONTAL)
 		szr_to_loose.Add((10,1),0,0)
@@ -425,7 +425,7 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 
 	def __init__(self, parent):
 		# default frame style - maximize box + float on parent + centering + tabbing
-		# wxFRAME_FLOAT_ON_PARENT makes it modal
+		# wx.FRAME_FLOAT_ON_PARENT makes it modal
 		wx.Frame.__init__(
 			self,
 			parent,
@@ -433,7 +433,7 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 			_("BMI Calculator"),
 			style = wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxRESIZE_BORDER | wxCAPTION | wxALIGN_CENTER | wxALIGN_CENTER_VERTICAL | wx.TAB_TRAVERSAL | wx.STAY_ON_TOP
 		)
-		EVT_CLOSE(self, self.OnCloseWindow)
+		wx.EVT_CLOSE(self, self.OnCloseWindow)
 
 		#-----------------------------------------------------
 		#create an instance of the BMICalc_Panel
@@ -469,15 +469,15 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 		gszr_right_buttons.AddMany([
 			(wx.Button(self, 1010, _('&Reset')), 0, wx.EXPAND)
 #			,
-#			(wxButton(self, 1011, _('&Print')), 0, wxEXPAND),
-#			(wxButton(self, 1012, _('&Save')), 0, wxEXPAND),
-#			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND)
+#			(wx.Button(self, 1011, _('&Print')), 0, wxEXPAND),
+#			(wx.Button(self, 1012, _('&Save')), 0, wxEXPAND),
+#			(wx.Button(self, 1013, _('&Handout')), 0, wxEXPAND)
 		])
 
-		EVT_BUTTON(self,1010,self.EvtReset)
-#		EVT_BUTTON(self,1011,self.EvtPrint)
-#		EVT_BUTTON(self,1012,self.EvtSave)
-#		EVT_BUTTON(self,1013,self.EvtHandout)
+		wx.EVT_BUTTON(self,1010,self.EvtReset)
+#		wx.EVT_BUTTON(self,1011,self.EvtPrint)
+#		wx.EVT_BUTTON(self,1012,self.EvtSave)
+#		wx.EVT_BUTTON(self,1013,self.EvtHandout)
 
 		# arrange them
 		szr_right_col = wx.BoxSizer(wx.VERTICAL)
@@ -553,8 +553,11 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.9  2005-09-28 15:57:47  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.10  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.9  2005/09/28 15:57:47  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.8  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4

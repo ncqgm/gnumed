@@ -26,31 +26,31 @@ from Gnumed.wxpython import gmPlugin
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmI18N
 
 #----------------------------------------------------------------------
-class GuidelinesHtmlWindow(wxHtmlWindow):
+class GuidelinesHtmlWindow(wx.HtmlWindow):
     def __init__(self, parent, id):
-        wxHtmlWindow.__init__(self, parent, id)
+        wx.HtmlWindow.__init__(self, parent, id)
         self.parent = parent
 
     def OnSetTitle(self, title):
         self.parent.ShowTitle(title)
 
 
-class GuidelinesHtmlPanel(wxPanel):
+class GuidelinesHtmlPanel(wx.Panel):
     def __init__(self, parent, frame):
-        wxPanel.__init__(self, parent, -1)
+        wx.Panel.__init__(self, parent, -1)
         self.frame = frame
         # CHANGED CODE Haywood 26/2/02
         # get base directory for manuals from broker
         # Ideally this should be something like "/usr/doc/gnumed/"
         self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
-        self.printer = wxHtmlEasyPrinting()
+        self.printer = wx.HtmlEasyPrinting()
 
-        self.box = wxBoxSizer(wxVERTICAL)
+        self.box = wx.BoxSizer(wx.VERTICAL)
 
-        infobox = wxBoxSizer(wxHORIZONTAL)
-        n = wxNewId()
-        self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
-        self.infoline.SetBackgroundColour(wxLIGHT_GREY)
+        infobox = wx.BoxSizer(wx.HORIZONTAL)
+        n = wx.NewId()
+        self.infoline = wx.TextCtrl(self, n, style=wx.TE_READONLY)
+        self.infoline.SetBackgroundColour(wx.LIGHT_GREY)
         infobox.Add(self.infoline, 1, wxGROW|wxALL)
         self.box.Add(infobox, 0, wxGROW)
 
@@ -59,35 +59,35 @@ class GuidelinesHtmlPanel(wxPanel):
         self.html.SetRelatedStatusBar(0)
         self.box.Add(self.html, 1, wxGROW)
 
-        subbox = wxBoxSizer(wxHORIZONTAL)
-        n = wxNewId()
-        btn = wxButton(self, n, _("?button?"))
-        EVT_BUTTON(self, n, self.OnShowDefault)
+        subbox = wx.BoxSizer(wx.HORIZONTAL)
+        n = wx.NewId()
+        btn = wx.Button(self, n, _("?button?"))
+        wx.EVT_BUTTON(self, n, self.OnShowDefault)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
-        n = wxNewId()
-        btn = wxButton(self, n, _("Load File"))
-        EVT_BUTTON(self, n, self.OnLoadFile)
+        n = wx.NewId()
+        btn = wx.Button(self, n, _("Load File"))
+        wx.EVT_BUTTON(self, n, self.OnLoadFile)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
-        n = wxNewId()
-        btn = wxButton(self, n, _("Back"))
-        EVT_BUTTON(self, n, self.OnBack)
+        n = wx.NewId()
+        btn = wx.Button(self, n, _("Back"))
+        wx.EVT_BUTTON(self, n, self.OnBack)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
-        n = wxNewId()
-        btn = wxButton(self, n, _("Forward"))
-        EVT_BUTTON(self, n, self.OnForward)
+        n = wx.NewId()
+        btn = wx.Button(self, n, _("Forward"))
+        wx.EVT_BUTTON(self, n, self.OnForward)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
-        n = wxNewId()
-        btn = wxButton(self, n, _("Print"))
-        EVT_BUTTON(self, n, self.OnPrint)
+        n = wx.NewId()
+        btn = wx.Button(self, n, _("Print"))
+        wx.EVT_BUTTON(self, n, self.OnPrint)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
-        n = wxNewId()
-        btn = wxButton(self, n, _("View Source"))
-        EVT_BUTTON(self, n, self.OnViewSource)
+        n = wx.NewId()
+        btn = wx.Button(self, n, _("View Source"))
+        wx.EVT_BUTTON(self, n, self.OnViewSource)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
         self.box.Add(subbox, 0, wxGROW)

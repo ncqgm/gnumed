@@ -13,10 +13,10 @@ class MultiColumnList( wx.Grid):
 		self.CreateGrid( 10, 1)
 		self.SetData( { 1: "2000 AMI",  2 : "2000 Stroke", 3 : "1987 Asthma", 4 : "2002 Thin bones", 5 : "2002 cough" } , 4)
 
-		EVT_SIZE( self, self._resizeData)
+		wx.EVT_SIZE( self, self._resizeData)
 
 		self.EnableEditing(0)
-		EVT_GRID_CELL_LEFT_DCLICK( self, self._cellDoubleClicked)
+		wx.EVT_GRID_CELL_LEFT_DCLICK( self, self._cellDoubleClicked)
 		self.listeners = []
 		
 	

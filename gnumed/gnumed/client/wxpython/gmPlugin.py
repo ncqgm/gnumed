@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.52 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPlugin.py,v 1.53 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -37,7 +37,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
-			style = wxPD_ELAPSED_TIME
+			style = wx.PD_ELAPSED_TIME
 			)
 		# set window icon
 		gb = gmGuiBroker.GuiBroker()
@@ -117,7 +117,7 @@ class cNotebookPlugin:
 			self.menu_id = wx.NewId()
 			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
 			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
-			EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_raise_by_menu)
+			wx.EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_raise_by_menu)
 
 		# so notebook can find this widget
 		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
@@ -189,7 +189,7 @@ class cNotebookPlugin:
 		return 1
 	#-----------------------------------------------------
 	def receive_focus(self):
-		"""We *are* receiving focus via EVT_NotebookPageChanged."""
+		"""We *are* receiving focus via wx.EVT_NotebookPageChanged."""
 		pass
 	#-----------------------------------------------------
 	def Raise(self):
@@ -423,8 +423,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.52  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.53  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.52  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.51  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
@@ -563,7 +566,7 @@ if __name__ == '__main__':
 # - moved here from python-common
 #
 # Revision 1.68  2004/02/12 23:54:39  ncq
-# - add wxBell to can_receive_focus()
+# - add wx.Bell to can_receive_focus()
 # - move raise_plugin out of class gmPlugin
 #
 # Revision 1.67  2004/01/17 10:37:24  ncq

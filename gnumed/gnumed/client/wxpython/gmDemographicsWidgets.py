@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.69 2005-09-28 19:47:01 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmDemographicsWidgets.py,v 1.70 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -27,7 +27,7 @@ try:
 	import wx.wizard
 except ImportError:
 	from wxPython import wx
-	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wx.ListCtrlAutoWidthMixin
 	from wxPython import wizard
 
 # GnuMed specific
@@ -2886,11 +2886,14 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.69  2005-09-28 19:47:01  ncq
+# Revision 1.70  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.69  2005/09/28 19:47:01  ncq
 # - runs until login dialog
 #
 # Revision 1.68  2005/09/28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.67  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
@@ -3387,7 +3390,7 @@ if __name__ == "__main__":
 # Revision 1.18  2003/02/09 12:05:02  sjtan
 #
 #
-# wxBasePlugin is unnecessarily specific.
+# wx.BasePlugin is unnecessarily specific.
 #
 # Revision 1.17  2003/02/09 11:57:42  ncq
 # - cleanup, cvs keywords

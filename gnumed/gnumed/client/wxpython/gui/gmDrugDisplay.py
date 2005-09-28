@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 try:
@@ -57,24 +57,24 @@ _whoami = gmWhoAmI.cWhoAmI()
 #============================================================
 # These constants are used when referring to menu items below
 #============================================================
-ID_ABOUT = wxNewId()
-ID_CONTENTS = wxNewId()
-ID_EXIT  =  wxNewId()
-ID_OPEN= wxNewId()
-ID_HELP =  wxNewId()
-ID_TEXTCTRL =  wxNewId()
-ID_TEXT = wxNewId()
-ID_COMBO_PRODUCT = wxNewId()
-ID_RADIOBUTTON_BYANY = wxNewId()
-ID_RADIOBUTTON_BYBRAND = wxNewId()
-ID_RADIOBUTTON_BYGENERIC = wxNewId()
-ID_RADIOBUTTON_BYINDICATION = wxNewId()
-ID_LISTBOX_JUMPTO = wxNewId()
-ID_LISTCTRL_DRUGCHOICE = wxNewId()
-ID_BUTTON_PRESCRIBE = wxNewId()
-ID_BUTTON_DISPLAY = wxNewId()
-ID_BUTTON_PRINT = wxNewId()
-ID_BUTTON_BOOKMARK = wxNewId()
+ID_ABOUT = wx.NewId()
+ID_CONTENTS = wx.NewId()
+ID_EXIT  =  wx.NewId()
+ID_OPEN= wx.NewId()
+ID_HELP =  wx.NewId()
+ID_TEXTCTRL =  wx.NewId()
+ID_TEXT = wx.NewId()
+ID_COMBO_PRODUCT = wx.NewId()
+ID_RADIOBUTTON_BYANY = wx.NewId()
+ID_RADIOBUTTON_BYBRAND = wx.NewId()
+ID_RADIOBUTTON_BYGENERIC = wx.NewId()
+ID_RADIOBUTTON_BYINDICATION = wx.NewId()
+ID_LISTBOX_JUMPTO = wx.NewId()
+ID_LISTCTRL_DRUGCHOICE = wx.NewId()
+ID_BUTTON_PRESCRIBE = wx.NewId()
+ID_BUTTON_DISPLAY = wx.NewId()
+ID_BUTTON_PRINT = wx.NewId()
+ID_BUTTON_BOOKMARK = wx.NewId()
 
 MODE_BRAND = 0
 MODE_GENERIC = 1
@@ -82,16 +82,16 @@ MODE_INDICATION = 2
 MODE_ANY = 3	# search for brand name and generic name
 
 #============================================================
-class DrugDisplay(wxPanel):
+class DrugDisplay(wx.Panel):
 	"""displays drug information in a convenience widget"""
 
 	NoDrugFoundMessageHTML	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("No matching drug found.") + "</FONT></BODY></HTML>"
 	WelcomeMessageHTML 	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("Please enter at least three digits of the drug name.") + "</FONT></BODY></HTML>"
 
 	def __init__(self, parent, id, pos = wxDefaultPosition, 
-				 size = wxDefaultSize, style = wxTAB_TRAVERSAL):
+				 size = wxDefaultSize, style = wx.TAB_TRAVERSAL):
 
-		wxPanel.__init__(self, parent, id, pos, size, style)
+		wx.Panel.__init__(self, parent, id, pos, size, style)
 		
 		# if we are not inside gnumed we won't get a definite answer on
 		# who and where we are. in this case try to get config source 
@@ -130,7 +130,7 @@ class DrugDisplay(wxPanel):
 						
 		self.mode = MODE_BRAND
 		self.previousMode = MODE_BRAND
-		self.printer = wxHtmlEasyPrinting()		#printer object to print html page
+		self.printer = wx.HtmlEasyPrinting()		#printer object to print html page
 		self.mId = None
 		self.drugProductInfo = None            
 		self.__mListCtrlItems = {}		# array holding data on every row in the list
@@ -148,21 +148,21 @@ class DrugDisplay(wxPanel):
 		# handler declarations for DrugDisplay
 		# note handlers for menu in Menus_Create()
 		#--------------------------------------------------------------
-		EVT_BUTTON(self, ID_BUTTON_PRINT, self.OnPrint)
-		EVT_BUTTON(self, ID_BUTTON_DISPLAY, self.OnDisplay)
-		EVT_BUTTON(self, ID_BUTTON_PRESCRIBE, self.OnPrescribe)
-		EVT_LISTBOX_DCLICK(self, ID_LISTBOX_JUMPTO, self.OnJumpToDblClick)
-		EVT_LISTBOX(self, ID_LISTBOX_JUMPTO, self.OnJumpToSelected)
-		EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL_DRUGCHOICE, self.OnDrugChoiceDblClick)
-		EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYINDICATION, self.OnSearchByIndication)
-		EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYGENERIC, self.OnSearchByGeneric)
-		EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYBRAND, self.OnSearchByBrand)
-		EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYANY, self.OnSearchByAny)
-		EVT_TEXT(self, ID_COMBO_PRODUCT, self.OnProductKeyPressed)
-		EVT_COMBOBOX(self, ID_COMBO_PRODUCT, self.OnProductSelected)
-		EVT_BUTTON(self, wxID_OK, self.OnOk)
-		EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
-		EVT_BUTTON(self,ID_BUTTON_BOOKMARK, self.OnBookmark)
+		wx.EVT_BUTTON(self, ID_BUTTON_PRINT, self.OnPrint)
+		wx.EVT_BUTTON(self, ID_BUTTON_DISPLAY, self.OnDisplay)
+		wx.EVT_BUTTON(self, ID_BUTTON_PRESCRIBE, self.OnPrescribe)
+		wx.EVT_LISTBOX_DCLICK(self, ID_LISTBOX_JUMPTO, self.OnJumpToDblClick)
+		wx.EVT_LISTBOX(self, ID_LISTBOX_JUMPTO, self.OnJumpToSelected)
+		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL_DRUGCHOICE, self.OnDrugChoiceDblClick)
+		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYINDICATION, self.OnSearchByIndication)
+		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYGENERIC, self.OnSearchByGeneric)
+		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYBRAND, self.OnSearchByBrand)
+		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYANY, self.OnSearchByAny)
+		wx.EVT_TEXT(self, ID_COMBO_PRODUCT, self.OnProductKeyPressed)
+		wx.EVT_COMBOBOX(self, ID_COMBO_PRODUCT, self.OnProductSelected)
+		wx.EVT_BUTTON(self, wxID_OK, self.OnOk)
+		wx.EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
+		wx.EVT_BUTTON(self,ID_BUTTON_BOOKMARK, self.OnBookmark)
 #-----------------------------------------------------------------------------------------------------------------------
 
 	def GuiElements_Init(self):
@@ -172,7 +172,7 @@ class DrugDisplay(wxPanel):
 		#   user will type the name of drug into
 		#--------------------------------------------------
 		finddrug = wxStaticText( self, -1, _("   Find   "), wxDefaultPosition, wxDefaultSize, 0 )
-		finddrug.SetFont( wxFont( 14, wxSWISS, wxNORMAL, wxNORMAL ) )
+		finddrug.SetFont( wxFont( 14, wxSWISS, wx.NORMAL, wx.NORMAL ) )
 		
 		self.comboProduct = wxComboBox(
 			self,
@@ -183,8 +183,8 @@ class DrugDisplay(wxPanel):
 			[] , 
 			wxCB_DROPDOWN 
 		)
-		self.comboProduct.SetToolTip( wxToolTip(_("Enter the name of the drug you are interested in")) )
-		self.btnBookmark = wxButton( 
+		self.comboProduct.SetToolTip( wx.ToolTip(_("Enter the name of the drug you are interested in")) )
+		self.btnBookmark = wx.Button( 
 			self, 
 			ID_BUTTON_BOOKMARK, 
 			_("&Bookmark"), 
@@ -196,7 +196,7 @@ class DrugDisplay(wxPanel):
 		# create a sizer at topleft of screen to hold these controls
 		# and add them to it
 		#-----------------------------------------------------------
-		self.sizertopleft = wxBoxSizer(wxHORIZONTAL)
+		self.sizertopleft = wx.BoxSizer(wx.HORIZONTAL)
 		self.sizertopleft.Add( finddrug, 0, wxALIGN_CENTER_VERTICAL, 5 )
 		self.sizertopleft.Add( self.comboProduct, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 		self.sizertopleft.Add( self.btnBookmark, 0, wxALIGN_CENTER_VERTICAL, 5 )
@@ -204,7 +204,7 @@ class DrugDisplay(wxPanel):
 		# next create the left sizer which will hold the drug list box 
 		# and the html viewer
 		#---------------------------------------------------------------
-		self.sizer_left = wxBoxSizer( wxVERTICAL )
+		self.sizer_left = wx.BoxSizer( wx.VERTICAL )
 		self.sizer_left.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		self.sizer_left.AddSizer( self.sizertopleft, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5)
 		self.sizer_left.AddSpacer( 1, 1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
@@ -215,19 +215,19 @@ class DrugDisplay(wxPanel):
 		self.html_viewer.SetPage(self.WelcomeMessageHTML)
         
 		#------------------------------------------------------------------------
-		# the search by option buttons sit on a wxStaticBoxSizer with wxVertical
+		# the search by option buttons sit on a wxStaticBoxSizer with wx.Vertical
 		# 1) create a wxStaticBox = bordered box with title search by
 		# 2) add this to the sizerSearchBy sizer
 		# 3) Add four radio buttons to this sizer
 		#------------------------------------------------------------------------
 		sboxSearchBy = wxStaticBox( self, -1, _("Search by") )
-		self.sizerSearchBy = wxStaticBoxSizer( sboxSearchBy, wxVERTICAL )
-		sboxSearchBy.SetFont( wxFont( 10, wxSWISS, wxNORMAL, wxNORMAL ) )
+		self.sizerSearchBy = wxStaticBoxSizer( sboxSearchBy, wx.VERTICAL )
+		sboxSearchBy.SetFont( wxFont( 10, wxSWISS, wx.NORMAL, wx.NORMAL ) )
 		
 		self.rbtnSearchAny = wxRadioButton( self, ID_RADIOBUTTON_BYANY, _("Any"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.Add( self.rbtnSearchAny, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		self.rbtnSearchBrand = wxRadioButton( self, ID_RADIOBUTTON_BYBRAND, _("Brand name"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.Add( self.rbtnSearchBrand, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP, 1 )
+		self.sizerSearchBy.Add( self.rbtnSearchBrand, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wx.TOP, 1 )
 		self.rbtnSearchGeneric = wxRadioButton( self, ID_RADIOBUTTON_BYGENERIC, _("Generic name"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerSearchBy.Add( self.rbtnSearchGeneric, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
 		self.rbtnSearchIndication = wxRadioButton( self, ID_RADIOBUTTON_BYINDICATION, _("Indication"), wxDefaultPosition, wxDefaultSize, 0 )
@@ -240,7 +240,7 @@ class DrugDisplay(wxPanel):
 		#    to its own sizer
 		# 3) add a spacer below this and above the list box underneath
 		#-------------------------------------------------------------------------
-		self.sizerVInteractionSidebar = wxBoxSizer( wxVERTICAL )
+		self.sizerVInteractionSidebar = wx.BoxSizer( wx.VERTICAL )
 		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 12 )
 		self.sizerVInteractionSidebar.AddSizer( self.sizerSearchBy, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
@@ -248,24 +248,24 @@ class DrugDisplay(wxPanel):
 		# 4) create a listbox that will be populated with labels to jump to within the
 		#    product info text and add to the vertical side bar
 		#--------------------------------------------------------------------------
-		self.listbox_jumpto = wxListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
-			[] , wxLB_SINGLE )
+		self.listbox_jumpto = wx.ListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
+			[] , wx.LB_SINGLE )
 		self.sizerVInteractionSidebar.Add( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
 		#--------------------------------------------------------------------------
 		# 5) Add another spacer underneath this listbox
 		#--------------------------------------------------------------------------
 		self.sizerVInteractionSidebar.AddSpacer( 20, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
-		self.btnPrescribe = wxButton( self, ID_BUTTON_PRESCRIBE, _("&Prescribe"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.btnPrescribe = wx.Button( self, ID_BUTTON_PRESCRIBE, _("&Prescribe"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerVInteractionSidebar.Add( self.btnPrescribe, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.btnDisplay = wxButton( self, ID_BUTTON_DISPLAY, _("&Display"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.btnDisplay = wx.Button( self, ID_BUTTON_DISPLAY, _("&Display"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerVInteractionSidebar.Add( self.btnDisplay, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.btnPrint = wxButton( self, ID_BUTTON_PRINT, _("&Print"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.btnPrint = wx.Button( self, ID_BUTTON_PRINT, _("&Print"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.sizerVInteractionSidebar.Add( self.btnPrint, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		#-----------------------------------------------
 		# finally create the main sizer to hold the rest
 		# and all the sizers to the main sizer
 		#---------------------------------------------
-		self.sizermain = wxBoxSizer(wxHORIZONTAL)
+		self.sizermain = wx.BoxSizer(wx.HORIZONTAL)
 		self.sizermain.AddSizer(self.sizer_left, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 7)
 		self.sizermain.AddSizer(self.sizerVInteractionSidebar, 0, wxGROW|wxALIGN_LEFT|wxALL, 8)
 		self.SetAutoLayout( True )
@@ -320,7 +320,7 @@ class DrugDisplay(wxPanel):
 			if self.listctrl_drugchoice is not None:
 				self.sizer_left.Remove(self.listctrl_drugchoice)
 				self.listctrl_drugchoice = None
-			self.html_viewer = wxHtmlWindow(self, -1, size=(400, 200))			
+			self.html_viewer = wx.HtmlWindow(self, -1, size=(400, 200))			
 			self.sizer_left.Add( self.html_viewer, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="html_viewer"
@@ -330,7 +330,7 @@ class DrugDisplay(wxPanel):
 			if self.html_viewer is not None:
 				self.sizer_left.Remove(self.html_viewer)
 				self.html_viewer = None
-			self.listctrl_drugchoice = wxListCtrl(self, ID_LISTCTRL_DRUGCHOICE, wxDefaultPosition, wxSize(400,200), style=wxLC_SINGLE_SEL | wxLC_REPORT )
+			self.listctrl_drugchoice = wx.ListCtrl(self, ID_LISTCTRL_DRUGCHOICE, wxDefaultPosition, wxSize(400,200), style=wx.LC_SINGLE_SEL | wx.LC_REPORT )
 			self.sizer_left.Add( self.listctrl_drugchoice, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="listctrl_drugchoice"
@@ -488,10 +488,10 @@ class DrugDisplay(wxPanel):
 				col_no += 1
 		# finally set column widths to AUTOSIZE
 		for i in range(0,len(columns)):
-			self.listctrl_drugchoice.SetColumnWidth(i, wxLIST_AUTOSIZE)
+			self.listctrl_drugchoice.SetColumnWidth(i, wx.LIST_AUTOSIZE)
 		# set focus to first item
-		firstItemState=self.listctrl_drugchoice.GetItemState(0,wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED)
-		self.listctrl_drugchoice.SetItemState(0,wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED, wxLIST_STATE_FOCUSED | wxLIST_STATE_SELECTED)
+		firstItemState=self.listctrl_drugchoice.GetItemState(0,wx.LIST_STATE_FOCUSED | wx.LIST_STATE_SELECTED)
+		self.listctrl_drugchoice.SetItemState(0,wx.LIST_STATE_FOCUSED | wx.LIST_STATE_SELECTED, wx.LIST_STATE_FOCUSED | wx.LIST_STATE_SELECTED)
 		# show the listctrl
 		self.listctrl_drugchoice.Show()
 		# save data for further use 
@@ -645,7 +645,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.27  2005-09-26 18:01:52  ncq
+# Revision 1.28  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.27  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -664,7 +667,7 @@ else:
 # - getFirstMatchingDBSet() -> getDBParam()
 #
 # Revision 1.22  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

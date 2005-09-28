@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -65,7 +65,7 @@ ID_REPORTS,
 ID_SAVE,
 ID_ORGPERSON_SELECTED
 
-] = map(lambda _init_ctrls: wx.wxNewId(), range(23))
+] = map(lambda _init_ctrls: wx.wx.NewId(), range(23))
 
 divisionTypes = [_('Head Office'),_('Branch'),_('Department')]
 
@@ -76,7 +76,7 @@ divisionTypes = [_('Head Office'),_('Branch'),_('Department')]
 class BlueLabel(wx.wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wx.wxStaticText.__init__(self,parent, id,prompt, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_LEFT)
-		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
+		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
 		self.SetForegroundColour(wx.wxColour(0,0,131))
 
 class DarkBlueHeading(wx.wxStaticText):
@@ -85,8 +85,8 @@ class DarkBlueHeading(wx.wxStaticText):
 		self.SetFont(wx.wxFont(
 			pointSize = 12,
 			family = wx.wxSWISS,
-			style = wx.wxNORMAL,
-			weight = wx.wxBOLD,
+			style = wx.wx.NORMAL,
+			weight = wx.wx.BOLD,
 			underline = False
 			)
 		)
@@ -94,26 +94,26 @@ class DarkBlueHeading(wx.wxStaticText):
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
 #------------------------------------------------------------
-class TextBox_RedBold(wx.wxTextCtrl):
+class TextBox_RedBold(wx.wx.TextCtrl):
 	def __init__ (self, parent, id): #, wx.wxDefaultPostion, wx.wxDefaultSize):
-		wx.wxTextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
+		wx.wx.TextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
 		self.SetForegroundColour(wx.wxColor(255,0,0))
-		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
-class TextBox_BlackNormal(wx.wxTextCtrl):
+		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
+class TextBox_BlackNormal(wx.wx.TextCtrl):
 	def __init__ (self, parent, id): #, wx.wxDefaultPostion, wx.wxDefaultSize):
-		wx.wxTextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
+		wx.wx.TextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
 		self.SetForegroundColour(wx.wxColor(0,0,0))
-		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
+		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
 
-class cContactsPanel(wx.wxPanel):
+class cContactsPanel(wx.wx.Panel):
 	def __init__(self, parent,id):
-		wx.wxPanel.__init__(self, parent, id, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxNO_BORDER| wx.wxTAB_TRAVERSAL)
+		wx.wx.Panel.__init__(self, parent, id, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wx.NO_BORDER| wx.wx.TAB_TRAVERSAL)
 		#-----------------------------------------------------------------
 		#create top list box which will show organisations, employees, etc
 		#-----------------------------------------------------------------
-		self.list_organisations = wx.wxListCtrl(self, ID_ORGANISATIONSLIST,  wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxLC_REPORT| wx.wxLC_NO_HEADER| wx.wxSUNKEN_BORDER)
+		self.list_organisations = wx.wx.ListCtrl(self, ID_ORGANISATIONSLIST,  wx.wxDefaultPosition, wx.wxDefaultSize, wx.wx.LC_REPORT| wx.wx.LC_NO_HEADER| wx.wxSUNKEN_BORDER)
 		self.list_organisations.SetForegroundColour(wx.wxColor(74,76,74))
-		self.list_organisations.SetFont(wx.wxFont(10, wx.wxSWISS, wx.wxNORMAL, wx.wxNORMAL, False, ''))
+		self.list_organisations.SetFont(wx.wxFont(10, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
 		#----------------------------------------
 		# add some dummy data to the allergy list
 		self.list_organisations.InsertColumn(0,_( "Organisation"))
@@ -138,11 +138,11 @@ class cContactsPanel(wx.wxPanel):
 			self.list_organisations.SetStringItem(x, 3, data[3])
 			self.list_organisations.SetStringItem(x, 4, data[4])
 		self.list_organisations.SetItemData(x, key)
-		self.list_organisations.SetColumnWidth(0, wx.wxLIST_AUTOSIZE)
-		self.list_organisations.SetColumnWidth(1, wx.wxLIST_AUTOSIZE)
-		self.list_organisations.SetColumnWidth(2, wx.wxLIST_AUTOSIZE)
-		self.list_organisations.SetColumnWidth(3, wx.wxLIST_AUTOSIZE)
-		self.list_organisations.SetColumnWidth(4, wx.wxLIST_AUTOSIZE)
+		self.list_organisations.SetColumnWidth(0, wx.wx.LIST_AUTOSIZE)
+		self.list_organisations.SetColumnWidth(1, wx.wx.LIST_AUTOSIZE)
+		self.list_organisations.SetColumnWidth(2, wx.wx.LIST_AUTOSIZE)
+		self.list_organisations.SetColumnWidth(3, wx.wx.LIST_AUTOSIZE)
+		self.list_organisations.SetColumnWidth(4, wx.wx.LIST_AUTOSIZE)
 	
 		#--------------------
 		#create static labels
@@ -154,7 +154,7 @@ class cContactsPanel(wx.wxPanel):
 		self.lbl_org_suburb = BlueLabel(self,-1,_("Suburb"))
 		self.lbl_org_state = BlueLabel(self,-1,_("State"))                   #eg NSW
 		self.lbl_org_zip = wx.wxStaticText(self,id,_("Zip"), wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_CENTRE)
-		self.lbl_org_zip.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
+		self.lbl_org_zip.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
 		self.lbl_org_zip.SetForegroundColour(wx.wxColour(0,0,131))
 		#self.lbl_org_zip = BlueLabel(self,-1,"Zip")
 		self.lbl_org_category = BlueLabel(self,-1,_("Category"))
@@ -176,15 +176,15 @@ class cContactsPanel(wx.wxPanel):
 		self.txt_org_type = TextBox_RedBold(self,-1)       #head office, branch or department
 		#self.txt_org_number = TextBox_RedBold(self, -1)
 		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize )
-		self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxNORMAL, False, ''))
+		self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
 		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize , id_callback= self.__urb_selected)
 		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
 	
-		#self.txt_org_street = wx.wxTextCtrl(self, 30,"", wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wxTE_MULTILINE| wx.wxNO_3D| wx.wxSIMPLE_BORDER)
+		#self.txt_org_street = wx.wx.TextCtrl(self, 30,"", wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wx.TE_MULTILINE| wx.wx.NO_3D| wx.wxSIMPLE_BORDER)
 	
 		#self.txt_org_street.SetForegroundColour(wx.wxColor(255,0,0))
-		#self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
+		#self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
 		#self.txt_org_suburb = TextBox_RedBold(self,-1)
 		#self.txt_org_zip = TextBox_RedBold(self,-1)
 		self.txt_org_state = TextBox_RedBold(self,-1) #for user defined fields later
@@ -198,19 +198,19 @@ class cContactsPanel(wx.wxPanel):
 		self.txt_org_mobile = TextBox_BlackNormal(self,-1)
 		self.txt_org_email = TextBox_BlackNormal(self,-1)
 		self.txt_org_internet = TextBox_BlackNormal(self,-1)
-		self.txt_org_memo = wx.wxTextCtrl(self, 30,
+		self.txt_org_memo = wx.wx.TextCtrl(self, 30,
 				"This company never pays its bills \n"
 				"Insist on pre-payment before sending report",
-				wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wxTE_MULTILINE| wx.wxNO_3D| wx.wxSIMPLE_BORDER)
+				wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wx.TE_MULTILINE| wx.wx.NO_3D| wx.wxSIMPLE_BORDER)
 		self.txt_org_memo.SetInsertionPoint(0)
-		self.txt_org_memo.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxNORMAL, False, ''))
+		self.txt_org_memo.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
 		self.combo_type = wx.wxComboBox(self, ID_COMBOTYPE, "", wx.wxDefaultPosition, wx.wxDefaultSize,  divisionTypes , wx.wxCB_READONLY ) # wx.wxCB_DROPDOWN)
 		self.combo_type.SetForegroundColour(wx.wxColor(255,0,0))
-		self.combo_type.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
+		self.combo_type.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
 		#----------------------
 		#create the check boxes
 		#----------------------
-		self.chbx_postaladdress = wx.wxCheckBox(self, -1,_( " Postal Address "), wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxNO_BORDER)
+		self.chbx_postaladdress = wx.wxCheckBox(self, -1,_( " Postal Address "), wx.wxDefaultPosition, wx.wxDefaultSize, wx.wx.NO_BORDER)
 	
 		self.input_fields = {
 			'name': self.txt_org_name,
@@ -233,19 +233,19 @@ class cContactsPanel(wx.wxPanel):
 		#-------------------------------------------
 		#create the sizers for each line of controls
 		#-------------------------------------------
-		self.sizer_line0 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line1 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line1a = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line2 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line3 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line4 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line5 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line6 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line7 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line8 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line9 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line10 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line11 = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.sizer_line0 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line1 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line1a = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line2 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line3 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line4 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line5 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line6 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line7 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line8 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line9 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line10 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
+		self.sizer_line11 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
 		self.sizer_line0.Add((0,10),1)
 		#--------------------------------------
 		#Heading at top of the left hand column
@@ -303,11 +303,11 @@ class cContactsPanel(wx.wxPanel):
 		# -----------------------------------------------------------
 		# street stuff on sizerline2 | spacer | sizer_line2_rightside|
 		#------------------------------------------------------------
-		self.sizer_line2_rightside = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.sizer_line2_forphone = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.sizer_line2_rightside = wx.wx.BoxSizer(wx.wx.VERTICAL)
+		self.sizer_line2_forphone = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
 		self.sizer_line2_forphone.Add(self.lbl_org_phone,8, wx.wxGROW, wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line2_forphone.Add(self.txt_org_phone,36, wx.wxEXPAND)
-		self.sizer_line2_forfax = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.sizer_line2_forfax = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
 		self.sizer_line2_forfax.Add(self.lbl_org_fax,8, wx.wxGROW, wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line2_forfax.Add(self.txt_org_fax,36, wx.wxEXPAND)
 		self.sizer_line2_rightside.AddSizer(self.sizer_line2_forphone,2, wx.wxEXPAND)
@@ -335,7 +335,7 @@ class cContactsPanel(wx.wxPanel):
 		#-----------------------------------------------
 		self.sizer_line4.Add(self.lbl_org_state,4, wx.wxEXPAND| wx.wxALIGN_CENTER)
 		self.sizer_line4.Add(self.txt_org_state,20, wx.wxEXPAND)
-		self.sizer_line4.Add(self.lbl_org_zip,10, wx.wxGROW| wx.wxTOP,5)
+		self.sizer_line4.Add(self.lbl_org_zip,10, wx.wxGROW| wx.wx.TOP,5)
 		self.sizer_line4.Add(self.txt_org_zip,10, wx.wxEXPAND)
 		if wx.wxPlatform == '__WXMAC__':
 			self.sizer_line4.Add((0,0),4)
@@ -367,16 +367,16 @@ class cContactsPanel(wx.wxPanel):
 		#-----------------------------------------------
 		#line seven: user1
 		#-----------------------------------------------
-		self.sizer_line7_user1 = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.sizer_line7_user1 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
 		self.sizer_line7_user1.Add(self.lbl_org_user1,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_user1.Add(self.txt_org_user1,18, wx.wxEXPAND)
-		self.sizer_line7_user2 = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.sizer_line7_user2 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
 		self.sizer_line7_user2.Add(self.lbl_org_user2,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_user2.Add(self.txt_org_user2,18, wx.wxEXPAND)
-		self.sizer_line7_user3 = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.sizer_line7_user3 = wx.wx.BoxSizer(wx.wx.HORIZONTAL)
 		self.sizer_line7_user3.Add(self.lbl_org_user3,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_user3.Add(self.txt_org_user3,18, wx.wxEXPAND)
-		self.sizer_line7_right = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.sizer_line7_right = wx.wx.BoxSizer(wx.wx.VERTICAL)
 		self.sizer_line7_right.AddSizer(self.sizer_line7_user1,0, wx.wxEXPAND)
 		self.sizer_line7_right.AddSizer(self.sizer_line7_user2,0, wx.wxEXPAND)
 		self.sizer_line7_right.AddSizer(self.sizer_line7_user3,0, wx.wxEXPAND)
@@ -389,7 +389,7 @@ class cContactsPanel(wx.wxPanel):
 		else:
 			self.sizer_line7.Add(0,0,4)
 		self.sizer_line7.AddSizer(self.sizer_line7_right,44, wx.wxEXPAND)
-		self.nextsizer=  wx.wxBoxSizer(wx.wxVERTICAL)
+		self.nextsizer=  wx.wx.BoxSizer(wx.wx.VERTICAL)
 		self.nextsizer.Add(self.list_organisations,3, wx.wxEXPAND)
 		if wx.wxPlatform == '__WXMAC__':
 			self.nextsizer.Add((0,10),0)
@@ -404,7 +404,7 @@ class cContactsPanel(wx.wxPanel):
 		self.nextsizer.Add(self.sizer_line5,0, wx.wxEXPAND)
 		self.nextsizer.Add(self.sizer_line6,0, wx.wxEXPAND)
 		self.nextsizer.Add(self.sizer_line7,0, wx.wxEXPAND)
-		self.mainsizer = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.mainsizer = wx.wx.BoxSizer(wx.wx.VERTICAL)
 		self.mainsizer.AddSizer(self.nextsizer,1, wx.wxEXPAND| wx.wxALL,10)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
@@ -460,7 +460,7 @@ class cContactsPanel(wx.wxPanel):
 
 
 	def _connectDrag(self):
-		wx.EVT_LIST_BEGIN_DRAG(self.list_organisations, self.list_organisations.GetId(), self._doDrag)
+		wx.wx.EVT_LIST_BEGIN_DRAG(self.list_organisations, self.list_organisations.GetId(), self._doDrag)
 	
 	def _doDrag(self, event):
 		dragSource = wx.wxDropSource(self)
@@ -474,7 +474,7 @@ class cContactsPanel(wx.wxPanel):
 		
 
 	def _connectCutPaste(self):
-		wx.EVT_KEY_DOWN(self.list_organisations, self._checkForCutPaste)
+		wx.wx.EVT_KEY_DOWN(self.list_organisations, self._checkForCutPaste)
 
 	def _checkForCutPaste(self, keyEvent):
 		#print "control down is ", keyEvent.ControlDown()
@@ -507,7 +507,7 @@ class cContactsPanel(wx.wxPanel):
 
 	def _doCopyToClipboard(self):
 		
-		board = wx.wxTheClipboard
+		board = wx.wx.TheClipboard
 		if not board.Open():
 			print "unable to get ownership of clipboard yet."
 			return False
@@ -525,11 +525,11 @@ class cContactsPanel(wx.wxPanel):
 				print "No current org or person to copy to clipboard"
 				#</DEBUG>
 				return None		
-		return wx.wxTextDataObject( p.getHelper().getClipboardText(p) )
+		return wx.wx.TextDataObject( p.getHelper().getClipboardText(p) )
 
 	def _connect_list(self):
 		"""allow list selection to update the org edit area"""
-		wx.EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
+		wx.wx.EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
 
 	def __urb_selected(self, id):
 		self.input_field['postcode'].SetValue (gmOrganization.getPostcodeForUrbId(id))
@@ -662,7 +662,7 @@ class cContactsPanel(wx.wxPanel):
 	def load_all_orgs(self):
 		"""clears the list control, displays the example data, and then 
 		the real data, from _helper.findAllOrganizations() """
-		#pos = self.list_organisations.GetScrollPos(wx.wxVERTICAL)
+		#pos = self.list_organisations.GetScrollPos(wx.wx.VERTICAL)
 		self.list_organisations.DeleteAllItems()
 		#self._insert_example_data()   , removing this as it is confusing
 		if self._isPersonIndex <> {}:
@@ -675,7 +675,7 @@ class cContactsPanel(wx.wxPanel):
 		for org in orgs:
 			self.add_org(org)
 			
-		#self.list_organisations.SetScrollPos(wx.wxVERTICAL, pos)
+		#self.list_organisations.SetScrollPos(wx.wx.VERTICAL, pos)
 		#self.list_organisations.Refresh()
 		self._ensureCurrentVisible()
 	
@@ -830,12 +830,12 @@ class cContactsPanel(wx.wxPanel):
 			self.lbl_Type.SetLabel(_('occupation'))
 			self._loadOccupations()
 			parent = self.getCurrent()
-			self.input_fields['name'].SetToolTip(wx.wxToolTip(_("'Title. first LAST-IN-CAPITAL',   or \n'Title. Last, first' \n- the dot is required to separate title; comma indicates the order of the names is last names, first names.")) )
+			self.input_fields['name'].SetToolTip(wx.wx.ToolTip(_("'Title. first LAST-IN-CAPITAL',   or \n'Title. Last, first' \n- the dot is required to separate title; comma indicates the order of the names is last names, first names.")) )
 		else:
 			self.lbl_Type.SetLabel(_('subdivision'))
 			self._loadDivisionTypes()
 			parent = self.getCurrent().getParent()
-			self.input_fields['name'].SetToolTip(wx.wxToolTip(_("The organization's name.") ) )
+			self.input_fields['name'].SetToolTip(wx.wx.ToolTip(_("The organization's name.") ) )
 		
 	
 		dependent = not parent is None
@@ -935,7 +935,7 @@ class gmContacts (gmPlugin.cNotebookPluginOld):
 	def populate_toolbar (self, tb, widget):
 		tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),
 					shortHelpString=_("Global Search Of Contacts Database"), isToggle=False)
-		tb.AddControl(wx.wxTextCtrl(tb, ID_SEARCHGLOBAL, name =_("txtGlobalSearch"),size =(100,-1),style = 0, value = ''))
+		tb.AddControl(wx.wx.TextCtrl(tb, ID_SEARCHGLOBAL, name =_("txtGlobalSearch"),size =(100,-1),style = 0, value = ''))
 		tool1 = tb.AddTool(ID_ORGANISATIONDISPLAY, images_contacts_toolbar16_16.getorganisationBitmap(),
 					shortHelpString=_("Display Organisations"),)
 		tool1 = tb.AddTool(ID_GENERALPRACTICESDISPLAY, images_contacts_toolbar16_16.getgeneralpracticesBitmap(),
@@ -983,11 +983,11 @@ class gmContacts (gmPlugin.cNotebookPluginOld):
 		self.__connect_commands(tb)
 
 	def __connect_commands(self, toolbar):
-		wx.EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.addOrg)
-		wx.EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.addEmployee)
-		wx.EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.addBranchDept)
-		wx.EVT_TOOL(toolbar, ID_ORGANISATIONDISPLAY, self.displayOrg)
-		wx.EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
+		wx.wx.EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.addOrg)
+		wx.wx.EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.addEmployee)
+		wx.wx.EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.addBranchDept)
+		wx.wx.EVT_TOOL(toolbar, ID_ORGANISATIONDISPLAY, self.displayOrg)
+		wx.wx.EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
 
 	def addEmployee(self, event):
 		print "doEmployeeAdd"
@@ -1041,13 +1041,16 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.41  2005-09-26 18:01:52  ncq
+# Revision 1.42  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.41  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
 #
 # Revision 1.40  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

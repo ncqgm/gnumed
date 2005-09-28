@@ -56,7 +56,7 @@ class SQLSimpleSearch(wx.Panel):
 			[''] , wx.CB_DROPDOWN )
 		self.sizerSearchExpr.Add( self.comboSearchExpr, 1, wx.ALIGN_CENTRE|wx.ALL, 2 )
 
-		self.buttonSearch = wxButton( self, ID_BUTTON_SEARCH, _("&Search"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonSearch = wx.Button( self, ID_BUTTON_SEARCH, _("&Search"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sizerSearchExpr.Add( self.buttonSearch, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 
 		self.checkboxCaseInsensitive = wxCheckBox( self, ID_CHECKBOX_CASEINSENSITIVE, _("&Case insensitive"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -66,7 +66,7 @@ class SQLSimpleSearch(wx.Panel):
 
 		self.sizerSearchResults = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.listctrlSearchResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRL, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxSUNKEN_BORDER|wx.LC_VRULES|wx.LC_HRULES )
+		self.listctrlSearchResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRL, wx.DefaultPosition, wx.Size(160,120), wx.LC_REPORT|wx.SUNKEN_BORDER|wx.LC_VRULES|wx.LC_HRULES )
 		self.sizerSearchResults.Add( self.listctrlSearchResults, 1, wxGROW|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 2 )
 
 		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 2 )
@@ -77,16 +77,16 @@ class SQLSimpleSearch(wx.Panel):
 		#	sizerTopVertical.Fit( self )
 		#	sizerTopVertical.SetSizeHints( self )
 
-		EVT_LIST_KEY_DOWN(self, ID_LISTCTRL, self.OnSearchResultKeyDown)
-		EVT_LIST_ITEM_RIGHT_CLICK(self, ID_LISTCTRL, self.OnSearchResultItemRightClicked)
-		EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL, self.OnSearchResultItemActivated)
-		EVT_LIST_ITEM_DESELECTED(self, ID_LISTCTRL, self.OnSearchResultItemDeselected)
-		EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnSearchResultItemSelected)
-		EVT_CHECKBOX(self, ID_CHECKBOX_CASEINSENSITIVE, self.OnCaseInsensitiveCheckbox)
-		EVT_BUTTON(self, ID_BUTTON_SEARCH, self.OnSearch)
-		EVT_BUTTON(self, wx.ID_CANCEL, self.OnCancel)
-		EVT_CHAR(self, self.OnChar)
-		EVT_IDLE(self, self.OnIdle)
+		wx.EVT_LIST_KEY_DOWN(self, ID_LISTCTRL, self.OnSearchResultKeyDown)
+		wx.EVT_LIST_ITEM_RIGHT_CLICK(self, ID_LISTCTRL, self.OnSearchResultItemRightClicked)
+		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL, self.OnSearchResultItemActivated)
+		wx.EVT_LIST_ITEM_DESELECTED(self, ID_LISTCTRL, self.OnSearchResultItemDeselected)
+		wx.EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnSearchResultItemSelected)
+		wx.EVT_CHECKBOX(self, ID_CHECKBOX_CASEINSENSITIVE, self.OnCaseInsensitiveCheckbox)
+		wx.EVT_BUTTON(self, ID_BUTTON_SEARCH, self.OnSearch)
+		wx.EVT_BUTTON(self, wx.ID_CANCEL, self.OnCancel)
+		wx.EVT_CHAR(self, self.OnChar)
+		wx.EVT_IDLE(self, self.OnIdle)
 
 
 	def SetService(self, service):

@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.23 2005-09-26 18:01:52 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.24 2005-09-28 21:27:30 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ =	"I.Haywood"
 
 import sys
@@ -37,26 +37,26 @@ from Gnumed.wxpython import gmPlugin, gmShadow
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 #==================================================
-class gmClinicalPanel (wxPanel):
+class gmClinicalPanel (wx.Panel):
 
 	def __init__ (self, parent):
-		wxPanel.__init__ (self, parent, -1)
-		EVT_SIZE (self, self.OnSize)
+		wx.Panel.__init__ (self, parent, -1)
+		wx.EVT_SIZE (self, self.OnSize)
 		self.__gb = gmGuiBroker.GuiBroker ()
 		self.wholescreen = {}
 		self.lefthalf = {}
 		self.visible_plugin = '' # plugin currently visible in left or whole screen
 		self.default = '' # set by one plugin!
 		self.righthalf = {}
-		self.sizer = wxBoxSizer (wxHORIZONTAL)
+		self.sizer = wx.BoxSizer (wx.HORIZONTAL)
 		self.SetSizer (self.sizer)
 		#FIXME: use proper config to check for shadowing options
 		if 1: 
 			self.righthalfshadow = gmShadow.Shadow (self, -1)
-			self.righthalfpanel = wxPanel (self.righthalfshadow, -1)
+			self.righthalfpanel = wx.Panel (self.righthalfshadow, -1)
 			self.righthalfshadow.SetContents (self.righthalfpanel)
 		else:
-			self.righthalfpanel = wxPanel (self, -1)
+			self.righthalfpanel = wx.Panel (self, -1)
 			self.righthalfshadow = self.righthalfpanel
 	#----------------------------------------------
 	def OnSize (self, event):
@@ -70,7 +70,7 @@ class gmClinicalPanel (wxPanel):
 		self.Display (self.default)
 	#----------------------------------------------
 	def RegisterWholeScreen (self, name, panel):
-		"""Receives a wxPanel which is to fill the whole screen.
+		"""Receives a wx.Panel which is to fill the whole screen.
 
 		Client must NOT do Show () on the panel!
 		"""
@@ -165,7 +165,7 @@ class gmClinicalPanel (wxPanel):
 				self.wholescreen[self.visible_plugin].Show (0)
 			self.lefthalf[name].Show (1)
 			self.sizer.Add (self.lefthalf[name], 2, wxEXPAND, 0)
-			self.vbox = wxBoxSizer (wxVERTICAL)
+			self.vbox = wx.BoxSizer (wx.VERTICAL)
 			pos = 1
 			done = 0
 			while done < len (self.righthalf.values ()):
@@ -208,7 +208,7 @@ class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 		ourmenu = wxMenu()
 		self.gb['clinical.submenu'] = ourmenu
 		menu = self.gb['main.viewmenu']
-		self.menu_id = wxNewId ()
+		self.menu_id = wx.NewId ()
 		menu.AppendMenu (self.menu_id, _('&Clinical'), ourmenu, self.name ())
 		# FIXME: "patient" needs fixing
 #		plugin_list = gmPlugin.GetPluginLoadList('patient')
@@ -244,7 +244,10 @@ class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.23  2005-09-26 18:01:52  ncq
+# Revision 1.24  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.23  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -253,7 +256,7 @@ class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 # - prepare to use a separate GetPluginLoadList()
 #
 # Revision 1.21  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

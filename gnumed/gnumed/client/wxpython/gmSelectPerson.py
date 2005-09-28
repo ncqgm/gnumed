@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 
 import string
 
@@ -56,19 +56,19 @@ class DlgSelectPerson(SQLSimpleSearch):
 		self.checkboxCaseInsensitive.SetValue(True)
 		self.sizerButtons = wx.BoxSizer( wx.HORIZONTAL )
 		#add a "select patient" button
-		self.buttonSelect = wxButton( self, ID_BUTTON_SELECT, _("&Select"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonSelect = wx.Button( self, ID_BUTTON_SELECT, _("&Select"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sizerButtons.Add( self.buttonSelect, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 		#edit this patient
-		self.buttonEdit = wxButton( self, ID_BUTTON_EDIT, _("&Edit"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonEdit = wx.Button( self, ID_BUTTON_EDIT, _("&Edit"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sizerButtons.Add( self.buttonEdit, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 		#add a new patient
-		self.buttonNew = wxButton( self, ID_BUTTON_NEW, _("&New"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonNew = wx.Button( self, ID_BUTTON_NEW, _("&New"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sizerButtons.Add( self.buttonNew, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 		#add patient to this family / address button
-		self.buttonAdd = wxButton( self, ID_BUTTON_ADD, _("&Add"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonAdd = wx.Button( self, ID_BUTTON_ADD, _("&Add"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sizerButtons.Add( self.buttonAdd, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 		#merge two or more atient entries into one
-		self.buttonMerge = wxButton( self, ID_BUTTON_MERGE, _("&Merge"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonMerge = wx.Button( self, ID_BUTTON_MERGE, _("&Merge"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sizerButtons.Add( self.buttonMerge, 0, wx.ALIGN_CENTRE|wx.ALL, 2 )
 
 		self.sizerTopVertical.AddSizer( self.sizerButtons, 0, wxGROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 2 )
@@ -77,8 +77,8 @@ class DlgSelectPerson(SQLSimpleSearch):
 
 	
 	def __connect_commands(self):
-		EVT_BUTTON( self.buttonNew, self.buttonNew.GetId(), self.__newButtonPressed)
-		EVT_BUTTON( self.buttonAdd, self.buttonAdd.GetId(), self.__addButtonPressed)
+		wx.EVT_BUTTON( self.buttonNew, self.buttonNew.GetId(), self.__newButtonPressed)
+		wx.EVT_BUTTON( self.buttonAdd, self.buttonAdd.GetId(), self.__addButtonPressed)
 
 	
 	def __newButtonPressed(self, event):

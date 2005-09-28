@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -63,8 +63,8 @@ class cTalkbackFrame(wx.Frame):
 			style=wx.ALIGN_CENTER
 		)
 
-		EVT_BUTTON(self, ID_BUTTON_CANCEL, self.onNoSend)
-		EVT_BUTTON(self, ID_BUTTON_SEND, self.onSend)
+		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.onNoSend)
+		wx.EVT_BUTTON(self, ID_BUTTON_SEND, self.onSend)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -74,17 +74,17 @@ class cTalkbackFrame(wx.Frame):
 	#-----------------------------------------------
 	def __set_properties(self):
 		self.SetTitle(_("GNUmed Talkback"))
-		self.label_title.SetFont(wxFont(16, wxSWISS, wx.NORMAL, wx.NORMAL, 0, ""))
+		self.label_title.SetFont(wx.Font(16, wx.SWISS, wx.NORMAL, wx.NORMAL, 0, ""))
 	#-----------------------------------------------
 	def __do_layout(self):
-		self.szr_title.Add(self.label_title, 1, wxBOTTOM|wxRIGHT|wxTOP|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
+		self.szr_title.Add(self.label_title, 1, wx.BOTTOM|wxRIGHT|wxTOP|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
 		self.szr_main.Add(self.szr_title, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
 		self.szr_hint.Add(self.label_hint, 0, wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 6)
 		self.szr_main.Add(self.szr_hint, 1, wx.EXPAND, 0)
 
 		self.szr_desc.Add(self.label_desc, 0, wx.ALIGN_RIGHT|wx.LEFT, 6)
-		self.szr_desc.Add(self.field_desc, 3, wxBOTTOM|wx.RIGHT|wx.EXPAND, 8)
+		self.szr_desc.Add(self.field_desc, 3, wx.BOTTOM|wx.RIGHT|wx.EXPAND, 8)
 		self.szr_main.Add(self.szr_desc, 3, wx.EXPAND, 0)
 
 		self.szr_adr.Add(self.label_from, 0, wxRIGHT|wx.ALIGN_RIGHT|wx.LEFT, 5)
@@ -114,7 +114,7 @@ class cTalkbackFrame(wx.Frame):
 #=========================================================================
 class cTalkbackApp(wx.App):
 	def OnInit(self):
-		self.frame = cTalkbackFrame(NULL, -1, "GNUmed Talks Back", wxDefaultPosition, size=wxSize(-1,-1), style= wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE)
+		self.frame = cTalkbackFrame(None, -1, "GNUmed Talks Back", wx.DefaultPosition, size=wx.Size(-1,-1), style= wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE)
 		self.frame.Show (True)
 		self.SetTopWindow(self.frame)
 		return True
@@ -139,8 +139,11 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.10  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.11  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.10  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.9  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

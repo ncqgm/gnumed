@@ -4,7 +4,7 @@ A module to add shadowing to an arbitrary widget.
 """
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmShadow.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "H.Berger <Hilmar.Berger@gmx.de>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, R.Terry <rterry@gnumed.net>"
 
 try:
@@ -21,8 +21,8 @@ class Shadow (wx.Panel):
 		"""
 		wx.Panel.__init__ (self, parent, id)
 		self.sh_width = gmGuiBroker.config['main.shadow.width']
-		EVT_SIZE (self, self.OnSize)
-		EVT_PAINT (self, self.OnPaint)
+		wx.EVT_SIZE (self, self.OnSize)
+		wx.EVT_PAINT (self, self.OnPaint)
 	#-----------------------------------------------------
 	def SetContents (self, widget):
 		"""Marry a widget and a shadow.
@@ -40,12 +40,12 @@ class Shadow (wx.Panel):
 		w, h = self.GetClientSizeTuple ()
 		dc.SetPen (wx.TRANSPARENT_PEN)
 		#dc.SetBrush (wxWHITE_BRUSH)
-		dc.SetBrush (wxBrush (wx.Colour (240, 240, 240), wx.SOLID))
+		dc.SetBrush (wx.Brush (wx.Colour (240, 240, 240), wx.SOLID))
 		# draw white bars
 		dc.DrawRectangle (0, h-self.sh_width, w, self.sh_width)
 		dc.DrawRectangle (w-self.sh_width, 0, self.sh_width, h)
 		r, g, b = gmGuiBroker.config['main.shadow.colour']
-		dc.SetBrush (wxBrush (wx.Colour (r, g, b), wx.SOLID))
+		dc.SetBrush (wx.Brush (wx.Colour (r, g, b), wx.SOLID))
 		# draw grey bars half as thick
 		dc.DrawRectangle (
 			self.sh_width/2,
@@ -61,8 +61,11 @@ class Shadow (wx.Panel):
 		)
 #=======================================================================
 # $Log: gmShadow.py,v $
-# Revision 1.12  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.13  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.12  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.11  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

@@ -6,7 +6,7 @@ try:
 	import wx
 except ImportError:
 	from wxPython import wx
-	#from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+	#from wxPython.wx import wx.BitmapFromXPMData, wxImageFromBitmap
 
 import cPickle, zlib
 #----------------------------------------------------------------------

@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -55,7 +55,7 @@ class cLabDataGridCellRenderer(wxPyGridCellRenderer):
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         dc.SetBackgroundMode(wx.SOLID)
-        dc.SetBrush(wxBrush(wx.BLACK, wx.SOLID))
+        dc.SetBrush(wx.Brush(wx.BLACK, wx.SOLID))
         dc.SetPen(wx.TRANSPARENT_PEN)
         dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
 
@@ -91,7 +91,7 @@ class cLabJournalCellRenderer(wxPyGridCellRenderer):
 
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
 		dc.SetBackgroundMode(wx.SOLID)
-		dc.SetBrush(wxBrush(wx.BLACK, wx.SOLID))
+		dc.SetBrush(wx.Brush(wx.BLACK, wx.SOLID))
 		dc.SetPen(wx.TRANSPARENT_PEN)
 		dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
 		dc.SetBackgroundMode(wx.TRANSPARENT)
@@ -251,7 +251,7 @@ class cLabJournalNB(wx.Notebook):
 			pnl_page,
 			wx.ID_pending_requests,
 			size = wx.DefaultSize,
-			style = wxLC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
+			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
 		)
 
 		self.lbox_pending.InsertColumn(0, _("date"))
@@ -279,7 +279,7 @@ class cLabJournalNB(wx.Notebook):
 			parent = pnl_page,
 			id = wx.ID_lbox_errors,
 			size = wx.DefaultSize,
-			style = wxLC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
+			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
 		)
 		self.lbox_errors.InsertColumn(0, _("noticed when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
@@ -319,7 +319,7 @@ class cLabJournalNB(wx.Notebook):
 #		font.SetWeight(wxNORMAL)
 #		attr = wxGridCellAttr()
 #		attr.SetFont(font)
-		#attr.SetBackgroundColour(wxLIGHT_GREY)
+		#attr.SetBackgroundColour(wx.LIGHT_GREY)
 #		attr.SetReadOnly(True)
 		#attr.SetAlignment(wxRIGHT, -1)
 #		self.__grid_unreviewed_results.SetLabelFont(font)
@@ -371,14 +371,14 @@ class cLabJournalNB(wx.Notebook):
 		self.AddPage(pnl_page, _("unreviewed results"))
 	#------------------------------------------------------------------------
 	def __register_events(self):
-		EVT_BUTTON(self.BTN_save_request_ID, wx.ID_BTN_save_request_ID, self.on_save_request_ID)
-		EVT_BUTTON(self.BTN_select_all, wx.ID_BTN_select_all, self.on_select_all)
-		EVT_BUTTON(self.BTN_mark_reviewed, wx.ID_BTN_mark_reviewed, self._on_mark_reviewed)
+		wx.EVT_BUTTON(self.BTN_save_request_ID, wx.ID_BTN_save_request_ID, self.on_save_request_ID)
+		wx.EVT_BUTTON(self.BTN_select_all, wx.ID_BTN_select_all, self.on_select_all)
+		wx.EVT_BUTTON(self.BTN_mark_reviewed, wx.ID_BTN_mark_reviewed, self._on_mark_reviewed)
 
-		EVT_GRID_CELL_LEFT_CLICK(self.__grid_unreviewed_results, self.OnLeftSClick)
-		EVT_GRID_CELL_LEFT_DCLICK(self.__grid_unreviewed_results, self.OnLeftDClick)
-		#EVT_GRID_SELECT_CELL(self.__grid_unreviewed_results, self.OnSelectCell)
-		EVT_KEY_UP(self.__grid_unreviewed_results, self.OnKeyPressed)
+		wx.EVT_GRID_CELL_LEFT_CLICK(self.__grid_unreviewed_results, self.OnLeftSClick)
+		wx.EVT_GRID_CELL_LEFT_DCLICK(self.__grid_unreviewed_results, self.OnLeftDClick)
+		#wx.EVT_GRID_SELECT_CELL(self.__grid_unreviewed_results, self.OnSelectCell)
+		wx.EVT_KEY_UP(self.__grid_unreviewed_results, self.OnKeyPressed)
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.__pat['pk'] is None:
@@ -696,7 +696,7 @@ class cLabDataGrid(wx.Grid):
 		
 		self.__pat = gmPerson.gmCurrentPatient()
 
-		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
+		#wx.EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
 		
 		# create new grid
 		self.__grid_unreviewed_results = self.CreateGrid(0, 0, wx.Grid.wx.GridSelectCells )
@@ -711,10 +711,10 @@ class cLabDataGrid(wx.Grid):
 		# attribute objects let you keep a set of formatting values
 		# in one spot, and reuse them if needed
 		font = self.GetFont()
-		#font.SetWeight(wxBOLD)
+		#font.SetWeight(wx.BOLD)
 		attr = wx.GridCellAttr()
 		attr.SetFont(font)
-		#attr.SetBackgroundColour(wxLIGHT_GREY)
+		#attr.SetBackgroundColour(wx.LIGHT_GREY)
 		attr.SetReadOnly(True)
 		#attr.SetAlignment(wxRIGHT, -1)
 		#attr.IncRef()
@@ -868,8 +868,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.15  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.16  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.15  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.14  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

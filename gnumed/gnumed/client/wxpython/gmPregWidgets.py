@@ -13,8 +13,8 @@ ideally, tool should query backend for parity, race, etc. for exact measurement
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPregWidgets.py,v $
-# $Id: gmPregWidgets.py,v 1.5 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPregWidgets.py,v 1.6 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 __licence__ = "GPL"
 
@@ -95,17 +95,17 @@ class cPregCalcFrame (wx.Frame):
 		# sizer holding the 'LMP' stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("LMP"),size = (50,20))	#label Lmp
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
 		self.txt_lmp = wx.TextCtrl(self,-1,"",size=(100,20))  	# text for lmp
-		self.txt_lmp.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txt_lmp.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txt_lmp.SetToolTip(wx.ToolTip(_("Click on calendar to enter the last menstrual period date")))
 		tiplmp=self.txt_lmp.GetToolTip()
 
 		szr_row1 = wx.BoxSizer(wx.HORIZONTAL)
 		szr_row1.Add(self.txt_lmp,1,wx.EXPAND|wx.ALL,2)
-		EVT_SET_FOCUS(self.txt_lmp, self.OnSetFocus_lmp)
+		wx.EVT_SET_FOCUS(self.txt_lmp, self.OnSetFocus_lmp)
 
 		szr_lmp = wx.BoxSizer(wx.HORIZONTAL)
 		szr_lmp.Add(label, 1, 0, 0)
@@ -116,12 +116,12 @@ class cPregCalcFrame (wx.Frame):
 		# sizer holding the 'Gest.' stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("Gest."),size = (50,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
 		self.txtgest = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtgest.Enable(False)
-		self.txtgest.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtgest.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txtgest_szr  = wx.BoxSizer(wx.HORIZONTAL)
 		self.txtgest_szr.Add(self.txtgest,1,wx.EXPAND|wx.ALL,2)
 
@@ -135,12 +135,12 @@ class cPregCalcFrame (wx.Frame):
 		# sizer holding the 'EDC' stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("EDC"),size = (50,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
   		self.txtedc = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtedc.Enable(False)
-		self.txtedc.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtedc.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		szr_txtedc = wx.BoxSizer(wx.HORIZONTAL)
 		szr_txtedc.Add(self.txtedc,1,wx.EXPAND|wx.ALL,2)
 		szr_edc = wx.BoxSizer(wx.HORIZONTAL)
@@ -153,7 +153,7 @@ class cPregCalcFrame (wx.Frame):
 		# "Ultrasound Scan" label
 		#------------------------------
 		us_label = wx.StaticText(self,-1,_("18 Week Ultrasound Scan"),size = (200,20))
-		us_label.SetFont(wxFont(10,wxSWISS,wx.NORMAL,wx.BOLD,False,''))
+		us_label.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.BOLD,False,''))
 		us_label.SetForegroundColour(wx.Colour(50,50,204))
 		szr_backgrnd_18WkScanDue = wx.BoxSizer(wx.VERTICAL)
 		szr_backgrnd_18WkScanDue.Add((1,3), 0)
@@ -163,12 +163,12 @@ class cPregCalcFrame (wx.Frame):
 		# sizer holding the 'Due' stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("Due"),size = (100,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
   		self.txtdue = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtdue.Enable(False)
-		self.txtdue.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtdue.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtdue  = wx.BoxSizer(wx.HORIZONTAL)
 		self.szr_txtdue.Add(self.txtdue,1,wx.EXPAND|wx.ALL,2)
 		szr_due = wx.BoxSizer(wx.HORIZONTAL)
@@ -181,7 +181,7 @@ class cPregCalcFrame (wx.Frame):
 		# "Ultrasound Scan - Revised EDC" label
 		#------------------------------
 		rev_edc_label = wx.StaticText(self,-1,_("Ultrasound Scan - Revised EDC"),size = (300,20))
-		rev_edc_label.SetFont(wxFont(10,wxSWISS,wx.NORMAL,wx.BOLD,False,''))
+		rev_edc_label.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.BOLD,False,''))
 		rev_edc_label.SetForegroundColour(wx.Colour(50,50,204))
 		szr_backgrnd_RevEDCLabel = wx.BoxSizer(wx.VERTICAL)
 		szr_backgrnd_RevEDCLabel.Add((1,3), 0)
@@ -192,16 +192,16 @@ class cPregCalcFrame (wx.Frame):
 		# sizer holding the 'newedc' stuff
 		#------------------------------
 		label1 = wx.StaticText(self,-1,_("Scan Date"),size = (25,20))
-		label1.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label1.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label1.SetForegroundColour(wx.Colour(0,0,0))
   		self.txtdate = wx.TextCtrl(self,-1,"",size=(25,20))
-		self.txtdate.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtdate.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.txtdate.SetToolTip(wx.ToolTip(_("Click on this field and then the ultrasound scan date on the calendar")))
 		tipdue=self.txtdate.GetToolTip()
 		wx.ToolTip_Enable(1)
 		self.szr_txtdate  = wx.BoxSizer(wx.HORIZONTAL)
 		self.szr_txtdate.Add(self.txtdate,1,wx.EXPAND|wx.ALL,2)
-		EVT_SET_FOCUS(self.txtdate, self.OnSetFocus_USDate)
+		wx.EVT_SET_FOCUS(self.txtdate, self.OnSetFocus_USDate)
 
 		szr_label1 = wx.BoxSizer(wx.HORIZONTAL)
 		szr_label1.Add(label1,1,0,0)
@@ -212,20 +212,20 @@ class cPregCalcFrame (wx.Frame):
 		#------------------------------
 
 		label2 = wx.StaticText(self,-1,_("Weeks"),size = (25,20))
-		label2.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label2.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label2.SetForegroundColour(wx.Colour(0,0,0))
 		self.txtweeks = wx.SpinCtrl (self, -1, value = "0", min = 0, max = 42)
-		EVT_SPINCTRL (self.txtweeks ,self.txtweeks.GetId(), self.EvtText_calcnewedc)
-		self.txtweeks.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		wx.EVT_SPINCTRL (self.txtweeks ,self.txtweeks.GetId(), self.EvtText_calcnewedc)
+		self.txtweeks.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtweeks  = wx.BoxSizer(wx.HORIZONTAL)
 		self.szr_txtweeks.Add(self.txtweeks,1,wx.EXPAND|wx.ALL,2)
 
 		label3 = wx.StaticText(self,-1,_("Days"),size = (25,20))
-		label3.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label3.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label3.SetForegroundColour(wx.Colour(0,0,0))
 		self.txtdays = wx.SpinCtrl (self, -1, value = "0", min = 0, max = 6)
-		EVT_SPINCTRL (self.txtdays ,self.txtdays.GetId(), self.EvtText_calcnewedc)
-		self.txtdays.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		wx.EVT_SPINCTRL (self.txtdays ,self.txtdays.GetId(), self.EvtText_calcnewedc)
+		self.txtdays.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtdays  = wx.BoxSizer(wx.HORIZONTAL)
 		self.szr_txtdays.Add(self.txtdays,1,wx.EXPAND|wx.ALL,2)
 
@@ -245,12 +245,12 @@ class cPregCalcFrame (wx.Frame):
 		# sizer holding the new (or revised) 'EDC' stuff
 		#------------------------------
 		label = wx.StaticText(self,-1,_("Rev EDC"),size = (100,20))
-		label.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,0))
 
   		self.txtnewedc = wx.TextCtrl(self,-1,"",size=(100,20))
 		self.txtnewedc.Enable(False)
-		self.txtnewedc.SetFont(wxFont(12,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.txtnewedc.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.szr_txtnewedc  = wx.BoxSizer(wx.HORIZONTAL)
 		self.szr_txtnewedc.Add(self.txtnewedc,1,wx.EXPAND|wx.ALL,2)
 		szr_label=wx.BoxSizer(wx.HORIZONTAL)
@@ -269,14 +269,14 @@ class cPregCalcFrame (wx.Frame):
 		#------------------------------
 		szr_main_rt = wx.BoxSizer(wx.VERTICAL)
 		szr_main_rt.Add(szr_rc)
-		EVT_BUTTON(self,1010,self.EvtReset)
-		EVT_BUTTON(self,1011,self.EvtPrint)
-		EVT_BUTTON(self,1012,self.EvtSave)
+		wx.EVT_BUTTON(self,1010,self.EvtReset)
+		wx.EVT_BUTTON(self,1011,self.EvtPrint)
+		wx.EVT_BUTTON(self,1012,self.EvtSave)
 		#------------------------------
 		# Add calendar (stuff on the left)
 		#------------------------------
 		self.lmp_cal = wx.CalendarCtrl (self, ID_LMP,style = wx.RAISED_BORDER)
-		EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
+		wx.EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
 
 		szr_main_lf = wx.BoxSizer(wx.VERTICAL)
 		szr_main_lf.Add(self.lmp_cal,0,wx.ALIGN_CENTRE_HORIZONTAL)
@@ -302,7 +302,7 @@ class cPregCalcFrame (wx.Frame):
 		self.SetAutoLayout (1)
 		szr_main.Fit (self)
 
-		EVT_CLOSE (self, self.OnClose )
+		wx.EVT_CLOSE (self, self.OnClose )
 
 	#-----------------------------------------
 	def OnCalcByLMP (self, event):
@@ -449,8 +449,11 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmPregWidgets.py,v $
-# Revision 1.5  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.6  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.5  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.4  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

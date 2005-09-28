@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.5 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPlugin_Patient.py,v 1.6 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -150,12 +150,12 @@ class wxPatientPlugin (wx.BasePlugin):
 				icon,
 				shortHelpString = self.name()
 			)
-			EVT_TOOL (tb2, self.tool_id, self.OnTool)
+			wx.EVT_TOOL (tb2, self.tool_id, self.OnTool)
 		menuname = self.name ()
 		menu = self.gb['clinical.submenu']
 		self.menu_id = wx.NewId ()
 		menu.Append (self.menu_id, menuname)
-		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
+		wx.EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
 	#-----------------------------------------------------
 	def OnTool (self, event):
 		self.ReceiveFocus()
@@ -185,8 +185,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.5  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.6  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.5  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.4  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

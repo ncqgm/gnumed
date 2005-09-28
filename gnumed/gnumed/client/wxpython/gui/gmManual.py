@@ -12,15 +12,19 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.29 2005-09-26 18:01:52 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmManual.py,v 1.30 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
 
-from   wxPython.wx		   import *
-from   wxPython.html	   import *
-import wxPython.lib.wxpTag
+try:
+	import wxversion
+	import wx
+except ImportError:
+	from wxPython.wx import *
+	from wxPython.html import *
+	import wxPython.lib.wxpTag
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
@@ -29,30 +33,30 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _manual_path = 'user-manual/index.html'
 
-ID_MANUALCONTENTS = wxNewId()
-ID_MANUALBACK = wxNewId()
-ID_MANUALFORWARD = wxNewId()
-ID_MANUALHOME = wxNewId()
-ID_MANUALBABELFISH = wxNewId()
-ID_MANUALPRINTER  = wxNewId()
-ID_MANUALOPENFILE = wxNewId()
-ID_MANUALBOOKMARKS = wxNewId()
-ID_MANUALADDBOOKMARK = wxNewId()
-ID_MANUALVIEWSOURCE = wxNewId()
-ID_MANUALRELOAD = wxNewId()
-ID_VIEWSOURCE  = wxNewId()
+ID_MANUALCONTENTS = wx.NewId()
+ID_MANUALBACK = wx.NewId()
+ID_MANUALFORWARD = wx.NewId()
+ID_MANUALHOME = wx.NewId()
+ID_MANUALBABELFISH = wx.NewId()
+ID_MANUALPRINTER  = wx.NewId()
+ID_MANUALOPENFILE = wx.NewId()
+ID_MANUALBOOKMARKS = wx.NewId()
+ID_MANUALADDBOOKMARK = wx.NewId()
+ID_MANUALVIEWSOURCE = wx.NewId()
+ID_MANUALRELOAD = wx.NewId()
+ID_VIEWSOURCE  = wx.NewId()
 #===========================================================
-class ManualHtmlWindow(wxHtmlWindow):
+class ManualHtmlWindow(wx.HtmlWindow):
 	def __init__(self, parent, id):
-		wxHtmlWindow.__init__(self, parent, id)
+		wx.HtmlWindow.__init__(self, parent, id)
 		self.parent = parent
 
 	def OnSetTitle(self, title):
 		self.parent.ShowTitle(title)
 #===========================================================
-class ManualHtmlPanel(wxPanel):
+class ManualHtmlPanel(wx.Panel):
 	def __init__(self, parent, frame):
-		wxPanel.__init__(self, parent, -1)
+		wx.Panel.__init__(self, parent, -1)
 		self.frame = frame
 		# get base directory for manuals from broker
 		# Ideally this should be something like "/usr/doc/gnumed/"
@@ -64,14 +68,14 @@ class ManualHtmlPanel(wxPanel):
 			self.docdir = os.getcwd() + '\doc'
 		else:
 			self.docdir = '/usr/share/doc/gnumed/client/'
-		self.printer = wxHtmlEasyPrinting()
+		self.printer = wx.HtmlEasyPrinting()
 
-		self.box = wxBoxSizer(wxVERTICAL)
+		self.box = wx.BoxSizer(wx.VERTICAL)
 
-		infobox = wxBoxSizer(wxHORIZONTAL)
-		n = wxNewId()
-		self.infoline = wxTextCtrl(self, n, style=wxTE_READONLY)
-		self.infoline.SetBackgroundColour(wxLIGHT_GREY)
+		infobox = wx.BoxSizer(wx.HORIZONTAL)
+		n = wx.NewId()
+		self.infoline = wx.TextCtrl(self, n, style=wx.TE_READONLY)
+		self.infoline.SetBackgroundColour(wx.LIGHT_GREY)
 		infobox.Add(self.infoline, 1, wxGROW|wxALL)
 		self.box.Add(infobox, 0, wxGROW)
 
@@ -163,7 +167,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("GNUmed manual contents"),
 			isToggle=False
 		)
-		EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
+		wx.EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
 
 #		tool1 = tb.AddTool(
 #			ID_MANUALOPENFILE,
@@ -171,7 +175,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 #			shortHelpString="Open File",
 #			isToggle=True
 #		)
-#		EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
+#		wx.EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
 
 		tool1 = tb.AddTool(
 			ID_MANUALBACK,
@@ -179,7 +183,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Back"),
 			isToggle=False
 		)
-		EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
+		wx.EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
 
 		tool1 = tb.AddTool(
 			ID_MANUALFORWARD,
@@ -187,7 +191,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			shortHelpString=_("Forward"),
 			isToggle=False
 		)
-		EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
+		wx.EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
 
 		#tool1 = tb.AddTool(
 		#	ID_MANUALRELOAD,
@@ -204,7 +208,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		#	shortHelpString=_("Home"),
 		#	isToggle=True
 		#)
-		#EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
+		#wx.EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
 
 		#tb.AddSeparator()
 
@@ -214,7 +218,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		#	shortHelpString=_("Translate text"),
 		#	isToggle=False
 		#)
-		#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
+		#wx.EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
 
 		#tb.AddSeparator()
 
@@ -224,7 +228,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		#	shortHelpString=_("Bookmarks"),
 		#	isToggle=True
 		#)
-		#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
+		#wx.EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
 
 		#tool1 = tb.AddTool(
 		#	ID_MANUALADDBOOKMARK,
@@ -232,7 +236,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		#	shortHelpString=_("Add Bookmark"),
 		#	isToggle=True
 		#)
-		#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
+		#wx.EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
 
 #		tool1 = tb.AddTool(
 #			ID_VIEWSOURCE,
@@ -240,7 +244,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 #			shortHelpString="View Source",
 #			isToggle=True
 #		)
-#		EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
+#		wx.EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
 		tool1 = tb.AddTool(
 			ID_MANUALPRINTER,
@@ -248,10 +252,13 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			shortHelpString = _("Print manual page"),
 			isToggle=False
 		)
-		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
+		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.29  2005-09-26 18:01:52  ncq
+# Revision 1.30  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.29  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -272,7 +279,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 # - added some missing _() for i18n
 #
 # Revision 1.23  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

@@ -69,7 +69,7 @@ class gmCryptoText(wx.TextCtrl):
     position
     """
 
-    def __init__(self, parent, id, size=wxDefaultSize, style=wx.TE_MULTILINE|wx.TE_RICH, defaulttext=None):
+    def __init__(self, parent, id, size=wx.DefaultSize, style=wx.TE_MULTILINE|wx.TE_RICH, defaulttext=None):
         #initialize parent class
         wx.TextCtrl.__init__(self, parent, id, size=size, style=style)
  	self.SetDefaultStyle(wx.TextAttr(wx.RED))
@@ -95,11 +95,11 @@ class gmCryptoText(wx.TextCtrl):
         self.SetDropTarget(dt)
 
         #bugger... this one for wxGTK
-        EVT_RIGHT_UP(self,self.OnRightClick)
-        EVT_RIGHT_DOWN(self, self.OnRightDown)
+        wx.EVT_RIGHT_UP(self,self.OnRightClick)
+        wx.EVT_RIGHT_DOWN(self, self.OnRightDown)
 
         #...and this one for wxMSW (hope this inconsistency is fixed soon
-        #EVT_COMMAND_RIGHT_CLICK(self, self.aID, self.OnRightClick)
+        #wx.EVT_COMMAND_RIGHT_CLICK(self, self.aID, self.OnRightClick)
 
     def OnRightClick(self, event):
         "A right mouse click triggers a popup menu for cryptographic functionality"
@@ -113,9 +113,9 @@ class gmCryptoText(wx.TextCtrl):
         menu.Append(ID_POP_PASSPHRASE, _("Set pass phrase"))
 
         #connect the events to event handler functions
-        EVT_MENU(self, ID_POP_ENCRYPT, self.OnEncrypt)
-        EVT_MENU(self, ID_POP_DECRYPT, self.OnDecrypt)
-        EVT_MENU(self, ID_POP_PASSPHRASE, self.OnSetPassphrase)
+        wx.EVT_MENU(self, ID_POP_ENCRYPT, self.OnEncrypt)
+        wx.EVT_MENU(self, ID_POP_DECRYPT, self.OnDecrypt)
+        wx.EVT_MENU(self, ID_POP_PASSPHRASE, self.OnSetPassphrase)
 
         #show the menu
         self.PopupMenu(menu, wxPoint(event.GetX(), event.GetY()))

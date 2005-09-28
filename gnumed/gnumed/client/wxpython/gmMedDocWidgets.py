@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -47,23 +47,23 @@ class cDocTree(wx.TreeCtrl):
 
 		self.__register_events()
 
-#		self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
+#		self.tree = MyTreeCtrl(self, tID, wx.DefaultPosition, wx.DefaultSize,
 #								wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
 #								, self.log)
 
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect handlers
-		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
-		EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
+		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
+		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
 
-#		 EVT_TREE_ITEM_EXPANDED	 (self, tID, self.OnItemExpanded)
-#		 EVT_TREE_ITEM_COLLAPSED (self, tID, self.OnItemCollapsed)
-#		 EVT_TREE_SEL_CHANGED	 (self, tID, self.OnSelChanged)
-#		 EVT_TREE_BEGIN_LABEL_EDIT(self, tID, self.OnBeginEdit)
-#		 EVT_TREE_END_LABEL_EDIT (self, tID, self.OnEndEdit)
+#		 wx.EVT_TREE_ITEM_EXPANDED	 (self, tID, self.OnItemExpanded)
+#		 wx.EVT_TREE_ITEM_COLLAPSED (self, tID, self.OnItemCollapsed)
+#		 wx.EVT_TREE_SEL_CHANGED	 (self, tID, self.OnSelChanged)
+#		 wx.EVT_TREE_BEGIN_LABEL_EDIT(self, tID, self.OnBeginEdit)
+#		 wx.EVT_TREE_END_LABEL_EDIT (self, tID, self.OnEndEdit)
 
-#		 EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
+#		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
@@ -292,7 +292,7 @@ class cDocTree(wx.TreeCtrl):
 			tmp = "%s ..." % tmp[:30]
 			desc_menu.AppendItem(wx.MenuItem(desc_menu, d_id, tmp))
 			# connect handler
-			EVT_MENU(desc_menu, d_id, self.__show_description)
+			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
 		wx.ID_load_submenu = wx.NewId()
 		menu = wx.Menu(title = _('document menu'))
 		menu.AppendMenu(wx.ID_load_submenu, _('descriptions ...'), desc_menu)
@@ -312,8 +312,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.14  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.15  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.14  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.13  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

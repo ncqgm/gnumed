@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.29 2005-09-28 15:57:47 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmDateTimeInput.py,v 1.30 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -196,9 +196,9 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 		self.SetValue(self.__default_text)
 		self.SetSelection (-1,-1)
 
-		EVT_CHAR(self, self.__on_char)
-#		EVT_KILL_FOCUS(self, self.__on_lose_focus)
-		#EVT_KEY_DOWN (self, self.__on_key_pressed)
+		wx.EVT_CHAR(self, self.__on_char)
+#		wx.EVT_KILL_FOCUS(self, self.__on_lose_focus)
+		#wx.EVT_KEY_DOWN (self, self.__on_key_pressed)
 
 		if globals ().has_key ('wx.USE_UNICODE') and wx.USE_UNICODE:
 			self.__tooltip = _(
@@ -387,8 +387,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.29  2005-09-28 15:57:47  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.30  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.29  2005/09/28 15:57:47  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.28  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4

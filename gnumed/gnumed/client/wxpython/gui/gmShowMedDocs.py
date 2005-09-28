@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -40,10 +40,10 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmLoginInfo, gmPG, gmExceptions, gmCfg
 	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
 
-	wxID_btn_quit = wxNewId()
+	wxID_btn_quit = wx.NewId()
 	_cfg = gmCfg.gmDefCfgFile
 
-	class cStandalonePanel(wxPanel):
+	class cStandalonePanel(wx.Panel):
 
 		def __init__(self, parent, id):
 			# get patient from file
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise
 
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			wx.Panel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 			self.SetTitle(_("stored medical documents"))
 			self.__do_layout()
 			self.tree.refresh()
@@ -116,22 +116,22 @@ if __name__ == '__main__':
 				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
 				style = wxALIGN_CENTER
 			)
-			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
+			self.pat_panel.SetFont(wxFont(25, wxSWISS, wx.NORMAL, wx.NORMAL, 0, ""))
 
 			# make document tree
 			self.tree = gmMedDocWidgets.cDocTree(self, -1)
 
 			# buttons
-			btn_quit = wxButton(
+			btn_quit = wx.Button(
 				parent = self,
 				id = wxID_btn_quit,
 				label = _('Quit')
 			)
-			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
-			szr_buttons = wxBoxSizer(wxHORIZONTAL)
+			wx.EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
+			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
 
-			szr_main = wxBoxSizer(wxVERTICAL)
+			szr_main = wx.BoxSizer(wx.VERTICAL)
 			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
 			szr_main.Add(self.tree, 1, wxEXPAND, 9)
 			szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
@@ -171,12 +171,12 @@ else:
 	from Gnumed.pycommon import gmDispatcher, gmSignals
 	from Gnumed.business import gmPerson
 
-	wxID_TB_BTN_show_page = wxNewId()
+	wxID_TB_BTN_show_page = wx.NewId()
 
-	class cPluginTreePanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+	class cPluginTreePanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		def __init__(self, parent, id):
 			# set up widgets
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			wx.Panel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 			gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 			self.__do_layout()
 			self.Layout()
@@ -187,7 +187,7 @@ else:
 			self.__doc_tree = gmMedDocWidgets.cDocTree(self, -1)
 
 			# just one vertical sizer
-			sizer = wxBoxSizer(wxVERTICAL)
+			sizer = wx.BoxSizer(wx.VERTICAL)
 			sizer.Add(self.__doc_tree, 1, wxEXPAND, 0)
 
 			self.SetAutoLayout(1)
@@ -231,7 +231,7 @@ else:
 				shortHelpString=_("show document"),
 				isToggle=False
 			)
-			EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree._on_activate)
+			wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree._on_activate)
 	
 			tb.AddControl(wxStaticBitmap(
 				tb,
@@ -263,7 +263,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.61  2005-09-26 18:01:52  ncq
+# Revision 1.62  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.61  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
@@ -295,7 +298,7 @@ if __name__ == '__main__':
 # - convert to use cRegetMixin so it plays really nice with xdt connector
 #
 # Revision 1.53  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

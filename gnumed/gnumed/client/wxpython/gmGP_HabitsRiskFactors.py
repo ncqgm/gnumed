@@ -17,7 +17,7 @@ class HabitsRiskFactors(wx.Panel):
 	txt_habits = wx.TextCtrl(self, 30,
                         "Smoker - 30/day.\n"
 			"Alcohol - 30gm/day (Previously very heavy.\n",
-                              wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
+                              wx.DefaultPosition,wx.DefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
 	txt_habits.SetInsertionPoint(0)
 	
 	txt_riskfactors = wx.TextCtrl(self,30,
@@ -25,10 +25,10 @@ class HabitsRiskFactors(wx.Panel):
 			     "Current Smoker \n"
 			     "NIDDM \n"
                              "No exercise data recorded\n",
-			      wxDefaultPosition,wx.DefaultSize, style = wx.TE_MULTILINE)
+			      wx.DefaultPosition,wx.DefaultSize, style = wx.TE_MULTILINE)
 	txt_riskfactors.SetInsertionPoint(0)
 	#heading sizer- add headings
-	#heading_sizer = wxBoxSizer(wxHORIZONTAL)
+	#heading_sizer = wx.BoxSizer(wxHORIZONTAL)
 	#heading_sizer.Add(habit_caption,1,wxEXPAND)
 	#heading_sizer.Add(risk_caption,1,wxEXPAND)
 	#self.SetSizer(heading_sizer)  #set the sizer 

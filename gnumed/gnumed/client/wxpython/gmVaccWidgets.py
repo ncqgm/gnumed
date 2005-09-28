@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.21 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmVaccWidgets.py,v 1.22 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -263,7 +263,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent, id):
-		wx.Panel.__init__(self, parent, id, wxDefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
+		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pat = gmPerson.gmCurrentPatient()
 		# do this here so "import cImmunisationsPanel from gmVaccWidgets" works
@@ -280,7 +280,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		# top part
 		#-----------------------------------------------
 		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("  IMMUNISATIONS  "))
-		self.editarea = cVaccinationEditArea(self, -1, wxDefaultPosition, wx.DefaultSize, wx.NO_BORDER)
+		self.editarea = cVaccinationEditArea(self, -1, wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER)
 
 		#-----------------------------------------------
 		# middle part
@@ -299,9 +299,9 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			parent = self,
 			id = self.ID_VaccinatedIndicationsList,
 			choices = [],
-			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
+			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_vaccinated_indications.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		self.LBOX_vaccinated_indications.SetFont(wx.Font(12,wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		# right list: when an indication has been selected on the left
 		# display the corresponding vaccinations on the right
@@ -309,17 +309,17 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			parent = self,
 			id = self.ID_VaccinationsPerRegimeList,
 			choices = [],
-			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
+			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		self.LBOX_given_shots.SetFont(wx.Font(12,wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		self.LBOX_active_schedules = wx.ListBox (
 			parent = self,
 			id = self.ID_ActiveSchedules,
 			choices = [],
-			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
+			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_active_schedules.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		self.LBOX_active_schedules.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		szr_MiddleLists = wx.BoxSizer(wx.HORIZONTAL)
 		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4, wx.EXPAND)
@@ -337,9 +337,9 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			parent = self,
 			id = self.ID_MissingShots,
 			choices = [],
-			style = wxLB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
+			style = wx.LB_HSCROLL | wx.LB_NEEDED_SB | wx.SUNKEN_BORDER
 		)
-		self.LBOX_missing_shots.SetFont(wxFont(12, wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		self.LBOX_missing_shots.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 
 		szr_BottomLists = wx.BoxSizer(wx.HORIZONTAL)
 		szr_BottomLists.Add(self.LBOX_missing_shots, 1, wx.EXPAND)
@@ -365,11 +365,11 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#----------------------------------------------------
 	def __register_interests(self):
 		# wxPython events
-		EVT_SIZE(self, self.OnSize)
-		EVT_LISTBOX(self, self.ID_VaccinatedIndicationsList, self._on_vaccinated_indication_selected)
-		EVT_LISTBOX_DCLICK(self, self.ID_VaccinationsPerRegimeList, self._on_given_shot_selected)
-		EVT_LISTBOX_DCLICK(self, self.ID_MissingShots, self._on_missing_shot_selected)
-#		EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
+		wx.EVT_SIZE(self, self.OnSize)
+		wx.EVT_LISTBOX(self, self.ID_VaccinatedIndicationsList, self._on_vaccinated_indication_selected)
+		wx.EVT_LISTBOX_DCLICK(self, self.ID_VaccinationsPerRegimeList, self._on_given_shot_selected)
+		wx.EVT_LISTBOX_DCLICK(self, self.ID_MissingShots, self._on_missing_shot_selected)
+#		wx.EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
@@ -530,8 +530,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.21  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.22  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.21  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.20  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4
@@ -592,7 +595,7 @@ if __name__ == "__main__":
 # - what used to be v_vacc_regimes now is v_vacc_defs4reg
 #
 # Revision 1.4  2004/07/28 15:40:53  ncq
-# - convert to EVT_PAINT framework
+# - convert to wx.EVT_PAINT framework
 #
 # Revision 1.3  2004/07/18 20:12:03  ncq
 # - vacc business object primary key is named pk_vaccination in view

@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.18 2005-09-26 18:01:52 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmXdtViewer.py,v 1.19 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -31,7 +31,7 @@ try:
 	import wx
 except ImportError:
 	from wxPython import wx
-	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wx.ListCtrlAutoWidthMixin
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmI18N
@@ -43,22 +43,22 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 #=============================================================================
-class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
+class gmXdtListCtrl(wx.ListCtrl, wx.ListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
-		wxListCtrl.__init__(self, parent, ID, pos, size, style)
-		wxListCtrlAutoWidthMixin.__init__(self)
+		wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
+		wx.ListCtrlAutoWidthMixin.__init__(self)
 #=============================================================================
-class gmXdtViewerPanel(wxPanel):
+class gmXdtViewerPanel(wx.Panel):
 	def __init__(self, parent, aFileName = None):
-		wxPanel.__init__(self, parent, -1, style=wxWANTS_CHARS)
+		wx.Panel.__init__(self, parent, -1, style=wxWANTS_CHARS)
 
 		# our actual list
-		tID = wxNewId()
+		tID = wx.NewId()
 		self.list = gmXdtListCtrl(
 			self,
 			tID,
-			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
-		)#|wxLC_HRULES)
+			style=wx.LC_REPORT|wxSUNKEN_BORDER|wx.LC_VRULES
+		)#|wx.LC_HRULES)
 
 		self.list.InsertColumn(0, _("XDT field"))
 		self.list.InsertColumn(1, _("XDT field content"))
@@ -66,26 +66,26 @@ class gmXdtViewerPanel(wxPanel):
 		self.filename = aFileName
 
 		# set up events
-		EVT_SIZE(self, self.OnSize)
+		wx.EVT_SIZE(self, self.OnSize)
 
-		EVT_LIST_ITEM_SELECTED(self, tID, self.OnItemSelected)
-		EVT_LIST_ITEM_DESELECTED(self, tID, self.OnItemDeselected)
-		EVT_LIST_ITEM_ACTIVATED(self, tID, self.OnItemActivated)
-		EVT_LIST_DELETE_ITEM(self, tID, self.OnItemDelete)
+		wx.EVT_LIST_ITEM_SELECTED(self, tID, self.OnItemSelected)
+		wx.EVT_LIST_ITEM_DESELECTED(self, tID, self.OnItemDeselected)
+		wx.EVT_LIST_ITEM_ACTIVATED(self, tID, self.OnItemActivated)
+		wx.EVT_LIST_DELETE_ITEM(self, tID, self.OnItemDelete)
 
-		EVT_LIST_COL_CLICK(self, tID, self.OnColClick)
-		EVT_LIST_COL_RIGHT_CLICK(self, tID, self.OnColRightClick)
-#		EVT_LIST_COL_BEGIN_DRAG(self, tID, self.OnColBeginDrag)
-#		EVT_LIST_COL_DRAGGING(self, tID, self.OnColDragging)
-#		EVT_LIST_COL_END_DRAG(self, tID, self.OnColEndDrag)
+		wx.EVT_LIST_COL_CLICK(self, tID, self.OnColClick)
+		wx.EVT_LIST_COL_RIGHT_CLICK(self, tID, self.OnColRightClick)
+#		wx.EVT_LIST_COL_BEGIN_DRAG(self, tID, self.OnColBeginDrag)
+#		wx.EVT_LIST_COL_DRAGGING(self, tID, self.OnColDragging)
+#		wx.EVT_LIST_COL_END_DRAG(self, tID, self.OnColEndDrag)
 
-		EVT_LEFT_DCLICK(self.list, self.OnDoubleClick)
-		EVT_RIGHT_DOWN(self.list, self.OnRightDown)
+		wx.EVT_LEFT_DCLICK(self.list, self.OnDoubleClick)
+		wx.EVT_RIGHT_DOWN(self.list, self.OnRightDown)
 
 		if wxPlatform == '__WXMSW__':
-			EVT_COMMAND_RIGHT_CLICK(self.list, tID, self.OnRightClick)
+			wx.EVT_COMMAND_RIGHT_CLICK(self.list, tID, self.OnRightClick)
 		elif wxPlatform == '__WXGTK__':
-			EVT_RIGHT_UP(self.list, self.OnRightClick)
+			wx.EVT_RIGHT_UP(self.list, self.OnRightClick)
 
 	#-------------------------------------------------------------------------
 	def Populate(self):
@@ -94,21 +94,21 @@ class gmXdtViewerPanel(wxPanel):
 		items = self.__decode_xdt()
 		for item_idx in range(len(items),0,-1):
 			data = items[item_idx]
-			idx = self.list.InsertItem(info=wxListItem())
+			idx = self.list.InsertItem(info=wx.ListItem())
 			self.list.SetStringItem(index=idx, col=0, label=data[0])
 			self.list.SetStringItem(index=idx, col=1, label=data[1])
 			#self.list.SetItemData(item_idx, item_idx)
 
 		# reaspect
-		self.list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		self.list.SetColumnWidth(1, wxLIST_AUTOSIZE)
+		self.list.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+		self.list.SetColumnWidth(1, wx.LIST_AUTOSIZE)
 
 		# show how to select an item
-		#self.list.SetItemState(5, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED)
+		#self.list.SetItemState(5, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 
 		# show how to change the colour of a couple items
 		#item = self.list.GetItem(1)
-		#item.SetTextColour(wxBLUE)
+		#item.SetTextColour(wx.BLUE)
 		#self.list.SetItem(item)
 		#item = self.list.GetItem(4)
 		#item.SetTextColour(wxRED)
@@ -150,7 +150,7 @@ class gmXdtViewerPanel(wxPanel):
 		self.x = event.GetX()
 		self.y = event.GetY()
 		item, flags = self.list.HitTest((self.x, self.y))
-		if flags & wxLIST_HITTEST_ONITEM:
+		if flags & wx.LIST_HITTEST_ONITEM:
 			self.list.Select(item)
 		event.Skip()
 	#-------------------------------------------------------------------------
@@ -166,7 +166,7 @@ class gmXdtViewerPanel(wxPanel):
 
 		# Show how to reselect something we don't want deselected
 #		if evt.m_itemIndex == 11:
-#			wxCallAfter(self.list.SetItemState, 11, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED)
+#			wxCallAfter(self.list.SetItemState, 11, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 	#-------------------------------------------------------------------------
 	def OnItemActivated(self, event):
 		self.currentItem = event.m_itemIndex
@@ -210,11 +210,11 @@ class gmXdtViewerPanel(wxPanel):
 		menu.Append(tPopupID3, "ClearAll and repopulate")
 		menu.Append(tPopupID4, "DeleteAllItems")
 		menu.Append(tPopupID5, "GetItem")
-		EVT_MENU(self, tPopupID1, self.OnPopupOne)
-		EVT_MENU(self, tPopupID2, self.OnPopupTwo)
-		EVT_MENU(self, tPopupID3, self.OnPopupThree)
-		EVT_MENU(self, tPopupID4, self.OnPopupFour)
-		EVT_MENU(self, tPopupID5, self.OnPopupFive)
+		wx.EVT_MENU(self, tPopupID1, self.OnPopupOne)
+		wx.EVT_MENU(self, tPopupID2, self.OnPopupTwo)
+		wx.EVT_MENU(self, tPopupID3, self.OnPopupThree)
+		wx.EVT_MENU(self, tPopupID4, self.OnPopupFour)
+		wx.EVT_MENU(self, tPopupID5, self.OnPopupFive)
 		self.PopupMenu(menu, wxPoint(self.x, self.y))
 		menu.Destroy()
 		event.Skip()
@@ -335,13 +335,16 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.18  2005-09-26 18:01:52  ncq
+# Revision 1.19  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.18  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
 #
 # Revision 1.17  2004/08/04 17:16:02  ncq
-# - wxNotebookPlugin -> cNotebookPlugin
+# - wx.NotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
 #   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour

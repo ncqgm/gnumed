@@ -8,8 +8,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.18 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPatientHolder.py,v 1.19 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
@@ -76,8 +76,11 @@ class PatientHolder:
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.18  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.19  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.18  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.17  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

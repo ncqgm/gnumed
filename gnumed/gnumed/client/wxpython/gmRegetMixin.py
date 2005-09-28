@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.23 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmRegetMixin.py,v 1.24 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -40,7 +40,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #===========================================================================
 class cRegetOnPaintMixin:
-	"""Mixin to add redisplay_data-on-EVT_PAINT aspect.
+	"""Mixin to add redisplay_data-on-wx.EVT_PAINT aspect.
 
 	Any code mixing in this class will gain the mechanism
 	to reget data on wxPaint events. The code must be an
@@ -128,8 +128,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.23  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.24  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.23  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.22  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*

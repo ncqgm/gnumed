@@ -15,9 +15,9 @@ class FamilyHistorySummary(wx.Panel):
 	sizer = wx.BoxSizer(wx.VERTICAL)
 	txt_family_history = wx.TextCtrl(self, 30,
                         "FAMILY HISTORY: Stroke(father-died72yrs);NIDDM(general - maternal).\n",
-                         wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
+                         wx.DefaultPosition,wx.DefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
         txt_family_history.SetInsertionPoint(0)
-	txt_family_history.SetFont(wxFont(12,wxSWISS,wx.NORMAL, wx.NORMAL, False,'xselfont'))
+	txt_family_history.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.NORMAL, False,'xselfont'))
 	txt_family_history.SetForegroundColour(wx.Colour(1, 1, 255))
         sizer.Add(txt_family_history,100,wx.EXPAND)
         self.SetSizer(sizer)  #set the sizer 

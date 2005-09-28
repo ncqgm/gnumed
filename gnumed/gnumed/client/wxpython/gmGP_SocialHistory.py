@@ -19,10 +19,10 @@ class SocialHistory(wx.Panel):
                         "then worked in industry for 10ys. At 22yrs age married Joan, two children"
                         "Peter b1980 and Rachaelb1981. Retired in 1990 due to receiving a fortune.",
                         #"previously unknown great aunt. Interests include surfing, fishing, carpentry",                       ,
-                       wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
+                       wx.DefaultPosition,wx.DefaultSize, style=wxTE_MULTILINE|wx.NO_3D|wx.SIMPLE_BORDER)
         txt_social_history.SetInsertionPoint(0)
-	txt_social_history.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, 'xselfont'))
-	#self.textCtrl1.SetFont(wxFont(14, wxSWISS, wxNORMAL, wxBOLD, False, 'verdana'))
+	txt_social_history.SetFont(wx.Font(12,wx.SWISS, wx.NORMAL, wx.NORMAL, False, 'xselfont'))
+	#self.textCtrl1.SetFont(wx.Font(14, wx.SWISS, wxNORMAL, wx.BOLD, False, 'verdana'))
         sizer.Add(txt_social_history,100,wx.EXPAND)
         self.SetSizer(sizer)  #set the sizer 
 	sizer.Fit(self)             #set to minimum size as calculated by sizer

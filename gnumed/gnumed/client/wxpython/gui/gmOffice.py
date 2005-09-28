@@ -28,4 +28,4 @@ class gmOffice (gmPlugin.cNotebookPluginOld):
 		return ("view", _("&Office"))
 
 	def GetWidget (self, parent):
-		return wx.wxPanel(parent, -1)
+		return wx.wx.Panel(parent, -1)

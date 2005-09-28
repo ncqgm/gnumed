@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmRichardSpace.py,v $
-# $Id: gmRichardSpace.py,v 1.7 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmRichardSpace.py,v 1.8 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 K. Hilbert <Karsten.Hilbert@gmx.net>,\
 I. Haywood <ihaywood@gnu.org>>\
@@ -139,8 +139,11 @@ class cLayoutMgr(wx.Panel):
 
 #==============================================================================
 # $Log: gmRichardSpace.py,v $
-# Revision 1.7  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.8  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.7  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.6  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

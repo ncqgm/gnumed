@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.14 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmEMRTextDump.py,v 1.15 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -36,7 +36,7 @@ class gmEMRDumpPanel(wx.Panel):
 			style = wx.TE_MULTILINE | wx.TE_READONLY 
 		)
 		# arrange widgets
-		szr_outer = wxStaticBoxSizer(wx.StaticBox(self, -1, _("EMR text dump")), wx.VERTICAL)
+		szr_outer = wx.StaticBoxSizer(wx.StaticBox(self, -1, _("EMR text dump")), wx.VERTICAL)
 		szr_outer.Add(self.txt, 1, wx.EXPAND, 0)
 		# and do layout
 		self.SetAutoLayout(1)
@@ -96,11 +96,11 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 			-1
 		)
 
-#		self.txt = wxStaticText(
+#		self.txt = wx.StaticText(
 #			self,
 #			-1,
 #			_('No EMR data loaded.'),
-#			style = wxST_NO_AUTORESIZE
+#			style = wx.ST_NO_AUTORESIZE
 #			style = wxALIGN_LEFT
 #		)
 		self.txt = wx.TextCtrl(
@@ -127,8 +127,11 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.14  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.15  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.14  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.13  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4

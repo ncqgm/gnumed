@@ -22,7 +22,7 @@ ID_INBOX = wx.NewId()
 class Inbox(wx.Panel):
     def __init__(self, parent,id):
 	wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, 0 )
-	list_inbox = wxListCtrl(self, ID_INBOX,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wx.LC_NO_HEADER|wx.SUNKEN_BORDER)
+	list_inbox = wx.ListCtrl(self, ID_INBOX,  wx.DefaultPosition, wx.DefaultSize,wx.LC_REPORT|wx.LC_NO_HEADER|wx.SUNKEN_BORDER)
 	list_inbox.InsertColumn(0, "From")
 	list_inbox.InsertColumn(1, "Message", wx.LIST_FORMAT_LEFT)
 	self.list_inbox = list_inbox
@@ -57,8 +57,11 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGP_Inbox.py,v $
-# Revision 1.9  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.10  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.9  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.8  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4

@@ -8,12 +8,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: gmMultiSash.py,v 1.6 2005-09-28 15:57:48 ncq Exp $
+# RCS-ID:		$Id: gmMultiSash.py,v 1.7 2005-09-28 21:27:30 ncq Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMultiSash.py,v $
-# $Id: gmMultiSash.py,v 1.6 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMultiSash.py,v 1.7 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
 
@@ -44,7 +44,7 @@ class cMultiSash(wx.Window):
 		self.bottom_leaf = self.child.leaf1
 		self.displayed_leafs = []
 
-		EVT_SIZE(self,self._on_size)
+		wx.EVT_SIZE(self,self._on_size)
 	#---------------------------------------------
 	# public API
 	#---------------------------------------------
@@ -199,7 +199,7 @@ class cMultiSashSplitter(wx.Window):
 			)
 		self.direction = None
 
-		EVT_SIZE(self,self.OnSize)
+		wx.EVT_SIZE(self,self.OnSize)
 	#---------------------------------------------
 	def _unselect(self):
 		if self.leaf1:
@@ -417,7 +417,7 @@ class cMultiSashLeaf(wx.Window):
 		self.content = cMultiSashLeafContent(self)
 		self.closer = cMultiCloser(self)
 
-		EVT_SIZE(self,self.OnSize)
+		wx.EVT_SIZE(self,self.OnSize)
 	#-----------------------------------------------------								
 	def set_focus(self):
 		"""
@@ -523,8 +523,8 @@ class cMultiSashLeafContent(wx.Window):
 		self.__normal_colour = self.GetBackgroundColour()
 		self.selected = False
 
-		EVT_SET_FOCUS(self, self._on_set_focus)
-		EVT_CHILD_FOCUS(self, self._on_child_focus)
+		wx.EVT_SET_FOCUS(self, self._on_set_focus)
+		wx.EVT_CHILD_FOCUS(self, self._on_child_focus)
 	#---------------------------------------------
 	def set_new_content(self,content):
 		"""
@@ -559,7 +559,7 @@ class cMultiSashLeafContent(wx.Window):
 		self._on_set_focus(evt)
 ##		  from Funcs import FindFocusedChild
 ##		  child = FindFocusedChild(self)
-##		  EVT_KILL_FOCUS(child,self.OnChildKillFocus)
+##		  wx.EVT_KILL_FOCUS(child,self.OnChildKillFocus)
 
 	#---------------------------------------------
 	def Select(self):
@@ -605,11 +605,11 @@ class cMultiSizer(wx.Window):
 		self.isDrag = False				# In Dragging
 		self.dragTarget = None			# View being sized
 
-		EVT_LEAVE_WINDOW(self,self.OnLeave)
-		EVT_ENTER_WINDOW(self,self.OnEnter)
-		EVT_MOTION(self,self.OnMouseMove)
-		EVT_LEFT_DOWN(self,self.OnPress)
-		EVT_LEFT_UP(self,self.OnRelease)
+		wx.EVT_LEAVE_WINDOW(self,self.OnLeave)
+		wx.EVT_ENTER_WINDOW(self,self.OnEnter)
+		wx.EVT_MOTION(self,self.OnMouseMove)
+		wx.EVT_LEFT_DOWN(self,self.OnPress)
+		wx.EVT_LEFT_UP(self,self.OnRelease)
 
 	def CalcSizePos(self,parent):
 		pw,ph = parent.GetSizeTuple()
@@ -692,12 +692,12 @@ class cMultiCreator(wx.Window):
 		self.py = None					# Previous Y
 		self.isDrag = False			  # In Dragging
 
-		EVT_LEAVE_WINDOW(self,self.OnLeave)
-		EVT_ENTER_WINDOW(self,self.OnEnter)
-		EVT_MOTION(self,self.OnMouseMove)
-		EVT_LEFT_DOWN(self,self.OnPress)
-		EVT_LEFT_UP(self,self.OnRelease)
-		EVT_PAINT(self,self.OnPaint)
+		wx.EVT_LEAVE_WINDOW(self,self.OnLeave)
+		wx.EVT_ENTER_WINDOW(self,self.OnEnter)
+		wx.EVT_MOTION(self,self.OnMouseMove)
+		wx.EVT_LEFT_DOWN(self,self.OnPress)
+		wx.EVT_LEFT_UP(self,self.OnRelease)
+		wx.EVT_PAINT(self,self.OnPaint)
 
 	def CalcSizePos(self,parent):
 		pw,ph = parent.GetSizeTuple()
@@ -797,11 +797,11 @@ class cMultiCloser(wx.Window):
 		self.down = False
 		self.entered = False
 
-		EVT_LEFT_DOWN(self,self.OnPress)
-		EVT_LEFT_UP(self,self.OnRelease)
-		EVT_PAINT(self,self.OnPaint)
-		EVT_LEAVE_WINDOW(self,self.OnLeave)
-		EVT_ENTER_WINDOW(self,self.OnEnter)
+		wx.EVT_LEFT_DOWN(self,self.OnPress)
+		wx.EVT_LEFT_UP(self,self.OnRelease)
+		wx.EVT_PAINT(self,self.OnPaint)
+		wx.EVT_LEAVE_WINDOW(self,self.OnLeave)
+		wx.EVT_ENTER_WINDOW(self,self.OnEnter)
 
 	def OnLeave(self,evt):
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
@@ -824,7 +824,7 @@ class cMultiCloser(wx.Window):
 
 	def OnPaint(self,evt):
 		dc = wxPaintDC(self)
-		dc.SetBackground(wxBrush(wx.RED,wx.SOLID))
+		dc.SetBackground(wx.Brush(wx.RED,wx.SOLID))
 		dc.Clear()
 
 	def CalcSizePos(self,parent):
@@ -898,8 +898,11 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: gmMultiSash.py,v $
-# Revision 1.6  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.7  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.6  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.5  2005/09/26 18:01:51  ncq
 # - use proper way to import wx26 vs wx2.4

@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.12 2005-09-28 15:57:48 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPatPicWidgets.py,v 1.13 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -186,8 +186,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.12  2005-09-28 15:57:48  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.13  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.12  2005/09/28 15:57:48  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.11  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
@@ -224,7 +227,7 @@ if __name__ == "__main__":
 #
 # Revision 1.2  2004/08/19 14:07:54  ncq
 # - cleanup
-# - add tooltip but doesn't work with wxBitmap
+# - add tooltip but doesn't work with wx.Bitmap
 #
 # Revision 1.1  2004/08/18 10:15:26  ncq
 # - Richard is improving the patient picture
@@ -246,7 +249,7 @@ if __name__ == "__main__":
 # - comments improved
 #
 # Revision 1.8  2004/05/28 08:57:08  shilbert
-# - bugfix for wxBitmapFromImage()
+# - bugfix for wx.BitmapFromImage()
 #
 # Revision 1.7  2004/03/04 19:46:54  ncq
 # - switch to package based import: from Gnumed.foo import bar
@@ -272,6 +275,6 @@ if __name__ == "__main__":
 #
 # Revision 1.2  2003/03/29 13:43:30  ncq
 # - make standalone work, CVS keywords, general cleanup
-# - change from wx.Panel to wxStaticBitmap; load PNG, BMP, GIP automagically
+# - change from wx.Panel to wx.StaticBitmap; load PNG, BMP, GIP automagically
 # - alleviate sizer hell
 #

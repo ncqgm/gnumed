@@ -27,20 +27,20 @@ class ActiveProblems(wx.Panel):
 		)
 		activeproblemsamplelist = { 1:'1980 Hypertension',2:'1982 Acute myocardial infartion', 3:'1992 NIDDM',4: "another list"}
 		sizer = wx.BoxSizer(wx.VERTICAL)
-		#activeproblems_listbox = wxListBox(
+		#activeproblems_listbox = wx.ListBox(
 		#	self,
 		#	-1,
-		#	wxDefaultPosition,
-		#	wxDefaultSize,
+		#	wx.DefaultPosition,
+		#	wx.DefaultSize,
 		#	activeproblemsamplelist,
-		#	wxLB_SINGLE
+		#	wx.LB_SINGLE
 		#)
 		activeproblems_listbox = gmMultiColumnList.MultiColumnList( self, -1)
 
 
 		sizer.Add(activeproblems_listbox,100,wx.EXPAND)
 		activeproblems_listbox.SetBackgroundColour(wx.Color(255,255,197))
-		activeproblems_listbox.SetFont(wxFont(12,wxSWISS, wx.NORMAL, wx.NORMAL, False, ''))
+		activeproblems_listbox.SetFont(wx.Font(12,wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
 		self.SetSizer(sizer)  #set the sizer 
 		sizer.Fit(self)             #set to minimum size as calculated by sizer
 		self.SetAutoLayout(True)                 #tell frame to use the sizer

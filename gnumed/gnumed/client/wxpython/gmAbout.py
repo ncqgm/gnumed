@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.20 2005-09-28 15:57:47 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmAbout.py,v 1.21 2005-09-28 21:27:30 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -52,11 +52,11 @@ class ScrollTxtWin (wx.Window):
 		self.SetBackgroundColour(wx.Colour(255, 255, 255))
 		self.__delay_ctr_reset=self.__delay*self.__scroll_speed
 
-		self.moving_txt=wxStaticText(self, -1, "", size=(230,20), style=wx.ALIGN_CENTRE | wx.ST_NO_AUTORESIZE)
-		self.moving_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		self.moving_txt=wx.StaticText(self, -1, "", size=(230,20), style=wx.ALIGN_CENTRE | wx.ST_NO_AUTORESIZE)
+		self.moving_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.moving_txt.SetLabel(self.name_list[0])
 
-		EVT_TIMER(self, -1, self.OnTimer)
+		wx.EVT_TIMER(self, -1, self.OnTimer)
 		self.timer = wx.Timer(self, -1)
 		#self.timer.Start(self.__scroll_speed)
 		self.timer.Start(milliseconds = 1./self.__scroll_speed)
@@ -92,7 +92,7 @@ class AboutFrame (wx.Frame):
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
 
-	def __init__(self, parent, ID, title, pos=wxDefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
+	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
 		wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
 		icon = wx.EmptyIcon()
@@ -105,29 +105,29 @@ class AboutFrame (wx.Frame):
 		else:
 			box.Add((0,0), 2)
 		intro_txt=wx.StaticText(self, -1, _("Monty the Serpent && the FSF Present"))
-		intro_txt.SetFont(wxFont(10,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		intro_txt.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		box.Add(intro_txt, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 3)
 		else:
 			box.Add((0,0), 3)
 		gm_txt=wx.StaticText(self, -1, "GNUmed")
-		gm_txt.SetFont(wxFont(30, wxSWISS, wx.NORMAL, wx.NORMAL))
+		gm_txt.SetFont(wx.Font(30, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(gm_txt, 0, wx.ALIGN_CENTRE)
 
 		motto_txt=wx.StaticText(self, -1, _("Free eMedicine"))
-		motto_txt.SetFont(wxFont(10,wxSWISS,wx.NORMAL,wx.NORMAL,False,''))
+		motto_txt.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		box.Add(motto_txt, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
 		ver_txt=wx.StaticText(self, -1, _("Version 0.1 brought to you by"))
-		ver_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
 		admins_txt=wx.StaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert"))
-		admins_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		admins_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(admins_txt, 0, wx.ALIGN_CENTRE)
 
 		self.win=ScrollTxtWin(self)
@@ -137,7 +137,7 @@ class AboutFrame (wx.Frame):
 		else:
 			box.Add((0,0), 1)
 		info_txt=wx.StaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
-		info_txt.SetFont(wxFont(10, wxSWISS, wx.NORMAL, wx.NORMAL))
+		info_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(info_txt, 0, wx.ALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
@@ -149,7 +149,7 @@ class AboutFrame (wx.Frame):
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
-		EVT_BUTTON(btn, ID_MENU, self.OnClose)
+		wx.EVT_BUTTON(btn, ID_MENU, self.OnClose)
 
 		self.SetAutoLayout(True)
  		self.SetSizer(box)
@@ -232,8 +232,11 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.20  2005-09-28 15:57:47  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.21  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.20  2005/09/28 15:57:47  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.19  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*

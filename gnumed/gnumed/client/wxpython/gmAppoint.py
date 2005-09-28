@@ -8,8 +8,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2005-09-28 15:57:47 $
-# @version $Revision: 1.14 $ $Date: 2005-09-28 15:57:47 $ $Author: ncq $
+# @Date: $Date: 2005-09-28 21:27:30 $
+# @version $Revision: 1.15 $ $Date: 2005-09-28 21:27:30 $ $Author: ncq $
 #      
 #               
 #
@@ -54,7 +54,7 @@ class MainWindow(wx.Panel):
         self.calendar = wx.CalendarCtrl(self, cID,
                                        style=wx.CAL_MONDAY_FIRST |
                                        wx.CAL_SHOW_HOLIDAYS)
-        EVT_CALENDAR_DAY (self.calendar, cID, self.OnDayChange)
+        wx.EVT_CALENDAR_DAY (self.calendar, cID, self.OnDayChange)
 
         # get database connection
         self.db = gmPG.ConnectionPool ()
@@ -64,10 +64,10 @@ class MainWindow(wx.Panel):
         lID = wx.NewId ()
         self.grid = wx.Grid (self, lID)
         self.cell_selected_active = 0
-        EVT_GRID_SELECT_CELL (self.grid, self.onCellSelected)
-        EVT_GRID_CELL_LEFT_DCLICK (self.grid, self.onCellDClicked)
-        EVT_GRID_CELL_RIGHT_CLICK (self.grid, self.onCellGetFloatMenu)
-        EVT_GRID_LABEL_LEFT_DCLICK (self.grid, self.onDoctorClicked)
+        wx.EVT_GRID_SELECT_CELL (self.grid, self.onCellSelected)
+        wx.EVT_GRID_CELL_LEFT_DCLICK (self.grid, self.onCellDClicked)
+        wx.EVT_GRID_CELL_RIGHT_CLICK (self.grid, self.onCellGetFloatMenu)
+        wx.EVT_GRID_LABEL_LEFT_DCLICK (self.grid, self.onDoctorClicked)
         self.grid.EnableEditing (0)
         self.grid.CreateGrid (0, len(self.doctors))
         for i in range (0,len(self.doctors)):
@@ -77,22 +77,22 @@ class MainWindow(wx.Panel):
         self.grid.SetDefaultCellTextColour (wx.BLACK)
 
 
-        EVT_CHAR (self, self.onChar)
+        wx.EVT_CHAR (self, self.onChar)
 
         # buttons and controls in left lower corner
         self.namectrl = wx.TextCtrl (self, -1, style=wx.TE_READONLY)
         buttonid= wx.NewId ()
         self.bookbutton = wx.Button (self, buttonid, "Book...")
-        EVT_BUTTON (self.bookbutton, buttonid, self.onBooking)
+        wx.EVT_BUTTON (self.bookbutton, buttonid, self.onBooking)
         buttonid = wx.NewId ()
         self.cancelbutton = wx.Button (self, buttonid, "Cancel....")
-        EVT_BUTTON (self.cancelbutton, buttonid, self.onBookCancel)
+        wx.EVT_BUTTON (self.cancelbutton, buttonid, self.onBookCancel)
         buttonid= wx.NewId ()
         self.findbutton = wx.Button (self, buttonid, "Find...")
-        EVT_BUTTON (self.findbutton, buttonid, self.onFindPatient)
+        wx.EVT_BUTTON (self.findbutton, buttonid, self.onFindPatient)
         buttonid= wx.NewId ()
         self.sessionbutton = wx.Button (self, buttonid, "Sessions...")
-        EVT_BUTTON (self.sessionbutton, buttonid, self.onSessionsEdit)
+        wx.EVT_BUTTON (self.sessionbutton, buttonid, self.onSessionsEdit)
 
 
         # button rows
@@ -220,7 +220,7 @@ class appointapp (wx.App):
                         style=wx.DEFAULT_FRAME_STYLE|  
                         wx.NO_FULL_REPAINT_ON_RESIZE)
         mainwindow = MainWindow (frame, -1, self)
-        EVT_CLOSE (frame, self.OnCloseWindow)
+        wx.EVT_CLOSE (frame, self.OnCloseWindow)
         # Setting up the menu.  
         filemenu= wx.Menu()     
         filemenu.Append(ID_ABOUT, "&About"," Information about this program")  
@@ -230,8 +230,8 @@ class appointapp (wx.App):
         menuBar = wx.MenuBar()  
         menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBa
         frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
-        EVT_MENU(frame, ID_ABOUT, self.OnAbout)
-        EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
+        wx.EVT_MENU(frame, ID_ABOUT, self.OnAbout)
+        wx.EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
         frame.Show(1)
         return 1
 
@@ -259,8 +259,11 @@ if __name__ == '__main__':
 
 #=================================================================
 # $Log: gmAppoint.py,v $
-# Revision 1.14  2005-09-28 15:57:47  ncq
-# - a whole bunch of wxFoo -> wx.Foo
+# Revision 1.15  2005-09-28 21:27:30  ncq
+# - a lot of wx2.6-ification
+#
+# Revision 1.14  2005/09/28 15:57:47  ncq
+# - a whole bunch of wx.Foo -> wx.Foo
 #
 # Revision 1.13  2005/09/26 18:01:50  ncq
 # - use proper way to import wx26 vs wx2.4
