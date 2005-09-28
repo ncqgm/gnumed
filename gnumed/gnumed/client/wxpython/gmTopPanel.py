@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.66 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmTopPanel.py,v 1.67 2005-09-28 21:38:11 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -157,7 +157,7 @@ class cMainTopPanel(wx.Panel):
 		self.btn_bmi.SetToolTip(wx.ToolTip(_("BMI Calculator")))
 		self.szr_bottom_row.Add(self.btn_bmi, 0)
 
-#		tb = wxToolBar(self, -1, style=wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT)
+#		tb = wxToolBar(self, -1, style=wx.TB_HORIZONTAL | wxNO_BORDER | wx.TB_FLAT)
 #		tb.AddTool (
 #			ID_BMITOOL,
 #			gmImgTools.xpm2bmp(bmicalculator.get_xpm()),
@@ -355,7 +355,7 @@ class cMainTopPanel(wx.Panel):
 			self.pnl_bottom_row,
 			-1,
 			size = self.pnl_bottom_row.GetClientSize(),
-			style = wxTB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT
+			style = wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT
 		)
 		return bar
 	#-------------------------------------------------------
@@ -429,7 +429,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.66  2005-09-28 21:27:30  ncq
+# Revision 1.67  2005-09-28 21:38:11  ncq
+# - more 2.6-ification
+#
+# Revision 1.66  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.65  2005/09/28 15:57:48  ncq

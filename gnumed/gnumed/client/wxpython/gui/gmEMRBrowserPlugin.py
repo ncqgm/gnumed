@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -45,11 +45,11 @@ if __name__ == "__main__":
 
     import sys
 
-	try:
-		import wxversion
-		import wx
-	except ImportError:
-		from wxPython import wx
+    try:
+        import wxversion
+        import wx
+    except ImportError:
+        from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
     from Gnumed.exporters import gmPatientExporter
@@ -102,7 +102,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.7  2005-09-26 18:01:52  ncq
+# Revision 1.8  2005-09-28 21:38:11  ncq
+# - more 2.6-ification
+#
+# Revision 1.7  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
