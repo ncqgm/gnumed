@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -44,7 +44,7 @@ class cConfTree(wx.TreeCtrl):
 	"""This wx.TreeCtrl derivative displays a tree view of configuration 
 	parameter names.
 	"""
-	def __init__(self, parent, id, aConn = None,size=wxDefaultSize,pos=wxDefaultPosition,
+	def __init__(self, parent, id, aConn = None,size=wx.DefaultSize,pos=wx.DefaultPosition,
 				style=None,configSources = None,rootLabel = "",paramWidgets=None):
 		"""Set up our specialised tree."""
 
@@ -416,13 +416,13 @@ class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.rightSizer = wx.BoxSizer(wx.VERTICAL)
 
 # selected parameter
-		self.configEntryParamBox = wxStaticBox( self, ParamBoxID, _("Parameters") )
-		self.configEntryParamBoxSizer = wxStaticBoxSizer( self.configEntryParamBox, wx.HORIZONTAL )
+		self.configEntryParamBox = wx.StaticBox( self, ParamBoxID, _("Parameters") )
+		self.configEntryParamBoxSizer = wx.StaticBoxSizer( self.configEntryParamBox, wx.HORIZONTAL )
 
 		self.configEntryParamCtrl = cParamCtrl( parent = self, 
 						id = ConfigEntryParamCtrlID, 
-						pos = wxDefaultPosition, 
-						size = wxSize(250,200),
+						pos = wx.DefaultPosition, 
+						size = wx.Size(250,200),
 						value = "" , 
 						style = wx.LB_SINGLE,
 						type = None)
@@ -441,47 +441,47 @@ class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 
 # parameter description
-		self.configEntryDescriptionBox = wxStaticBox( self, DescriptionBoxID, _("Parameter Description") )
-		self.configEntryDescriptionBoxSizer = wxStaticBoxSizer( self.configEntryDescriptionBox, wx.HORIZONTAL )
+		self.configEntryDescriptionBox = wx.StaticBox( self, DescriptionBoxID, _("Parameter Description") )
+		self.configEntryDescriptionBoxSizer = wx.StaticBoxSizer( self.configEntryDescriptionBox, wx.HORIZONTAL )
 
 		self.configEntryDescription = wx.TextCtrl(parent = self, 
 							id = ConfigDescriptionTextID,
-							pos = wxDefaultPosition, 
-							size = wxSize(250,100),
+							pos = wx.DefaultPosition, 
+							size = wx.Size(250,100),
 							style = wx.TE_READONLY | wx.LB_SINGLE,
 							value ="" )
-		self.configEntryDescriptionBoxSizer.Add( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+		self.configEntryDescriptionBoxSizer.Add( self.configEntryDescription, 1, wx.ALIGN_CENTRE|wx.ALL|wx.EXPAND, 2 )
 # static box for config tree
-		self.configTreeBox = wxStaticBox( self, ConfigTreeBoxID, _("Config Options") )
-		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wx.HORIZONTAL )
+		self.configTreeBox = wx.StaticBox( self, ConfigTreeBoxID, _("Config Options") )
+		self.configTreeBoxSizer = wx.StaticBoxSizer( self.configTreeBox, wx.HORIZONTAL )
 		
 # config tree        
 		rootLabel = "%s@%s" % (self.currUser,self.currWorkplace)
 		self.configTree = cConfTree( parent = self,
 						id = ConfigTreeCtrlID ,
-						pos = wxPoint(0, 0), 
-						size = wxSize(200, 300),
+						pos = wx.Point(0, 0), 
+						size = wx.Size(200, 300),
 						style = wx.TR_HAS_BUTTONS|wx.TAB_TRAVERSAL,
 						configSources = self.mConfSources,
 						rootLabel = rootLabel,
 						paramWidgets=(self.configEntryParamCtrl,self.configEntryDescription)
 						)
 		self.configTree.SetFocus()
-		self.configTreeBoxSizer.Add( self.configTree, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 5 )
+		self.configTreeBoxSizer.Add( self.configTree, 1, wx.ALIGN_CENTRE|wx.ALL|wx.EXPAND, 5 )
 
-		self.paramCtrlSizer.Add(self.configEntryParamCtrl,1,wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
-		self.paramButtonSizer.Add(self.buttonApply,1,wxALIGN_LEFT|wxALL|wxEXPAND, 2 )
-		self.paramButtonSizer.Add(self.buttonRevert,1,wxALIGN_RIGHT|wxALL|wxEXPAND, 2 )
-		self.paramCtrlSizer.Add(self.paramButtonSizer,0,wxALIGN_BOTTOM, 2 )
-		self.configEntryParamBoxSizer.Add(self.paramCtrlSizer , 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+		self.paramCtrlSizer.Add(self.configEntryParamCtrl,1,wx.ALIGN_CENTRE|wx.ALL|wx.EXPAND, 2 )
+		self.paramButtonSizer.Add(self.buttonApply,1,wx.ALIGN_LEFT|wx.ALL|wx.EXPAND, 2 )
+		self.paramButtonSizer.Add(self.buttonRevert,1,wx.ALIGN_RIGHT|wx.ALL|wx.EXPAND, 2 )
+		self.paramCtrlSizer.Add(self.paramButtonSizer,0,wx.ALIGN_BOTTOM, 2 )
+		self.configEntryParamBoxSizer.Add(self.paramCtrlSizer , 1, wx.ALIGN_CENTRE|wx.ALL|wx.EXPAND, 2 )
 
 # add right panels to right sizer
-		self.rightSizer.Add(self.configEntryParamBoxSizer, 1, wxEXPAND, 0)
-		self.rightSizer.Add(self.configEntryDescriptionBoxSizer, 1, wxEXPAND, 0)
+		self.rightSizer.Add(self.configEntryParamBoxSizer, 1, wx.EXPAND, 0)
+		self.rightSizer.Add(self.configEntryDescriptionBoxSizer, 1, wx.EXPAND, 0)
 
 # add widgets to main sizer		
-		self.mainSizer.Add(self.configTreeBoxSizer, 1, wxEXPAND, 0)
-		self.mainSizer.Add(self.rightSizer, 1, wxEXPAND, 0)
+		self.mainSizer.Add(self.configTreeBoxSizer, 1, wx.EXPAND, 0)
+		self.mainSizer.Add(self.rightSizer, 1, wx.EXPAND, 0)
 		self.SetAutoLayout(1)
 		self.SetSizer(self.mainSizer)
 		self.mainSizer.Fit(self)
@@ -506,13 +506,13 @@ class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.wxpython import gmPlugin
+	from Gnumed.wx.python import gmPlugin
 	_log.Log (gmLog.lInfo, "starting config browser")
 	
 	workplace = raw_input("Please enter a workplace name: ")
 	# catch all remaining exceptions
 	try:
-		application = wxPyWidgetTester(size=(640,480))
+		application = wx.PyWidgetTester(size=(640,480))
 		application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
 		application.MainLoop()
 	except:
@@ -552,11 +552,14 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.31  2005-09-28 21:27:30  ncq
-# - a lot of wx2.6-ification
+# Revision 1.32  2005-10-02 11:38:03  sjtan
+# import wx fixup. import wx.html
+#
+# Revision 1.31  2005/09/28 21:27:30  ncq
+# - a lot of wx.2.6-ification
 #
 # Revision 1.30  2005/09/26 18:01:52  ncq
-# - use proper way to import wx26 vs wx2.4
+# - use proper way to import wx.26 vs wx.2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
 #
@@ -567,7 +570,7 @@ else:
 # added Setup method for Richard-Space
 #
 # Revision 1.27  2005/03/06 14:54:19  ncq
-# - szr.AddWindow() -> Add() such that wx2.5 works
+# - szr.AddWindow() -> Add() such that wx.2.5 works
 # - 'demographic record' -> get_identity()
 #
 # Revision 1.26  2004/09/25 13:11:40  ncq
