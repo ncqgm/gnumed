@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.39 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmResizingWidgets.py,v 1.40 2005-10-03 13:52:57 sjtan Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -376,7 +376,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.SetEOLMode (wx.stc.STC_EOL_LF)
 		self.SetModEventMask (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_PERFORMED_USER)
 
-		wx.stc.wx.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
+		wx.stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
 		wx.EVT_KEY_DOWN (self, self.__on_key_down)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
 
@@ -1074,7 +1074,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.39  2005-09-28 21:27:30  ncq
+# Revision 1.40  2005-10-03 13:52:57  sjtan
+# module path error
+#
+# Revision 1.39  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.38  2005/09/28 19:47:01  ncq
