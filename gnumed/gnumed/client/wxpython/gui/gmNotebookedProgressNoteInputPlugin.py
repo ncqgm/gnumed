@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -46,10 +46,10 @@ if __name__ == "__main__":
 
     import sys
 
-	try:
+    try:
 		import wxversion
 		import wx
-	except ImportError:
+    except ImportError:
 		from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
@@ -101,7 +101,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.6  2005-09-26 18:01:52  ncq
+# Revision 1.7  2005-10-03 13:59:59  sjtan
+# indentation errors
+#
+# Revision 1.6  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
