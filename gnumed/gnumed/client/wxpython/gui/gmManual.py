@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.30 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmManual.py,v 1.31 2005-10-03 13:49:21 sjtan Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -21,6 +21,7 @@ import os
 try:
 	import wxversion
 	import wx
+	import wx.html
 except ImportError:
 	from wxPython.wx import *
 	from wxPython.html import *
@@ -46,9 +47,9 @@ ID_MANUALVIEWSOURCE = wx.NewId()
 ID_MANUALRELOAD = wx.NewId()
 ID_VIEWSOURCE  = wx.NewId()
 #===========================================================
-class ManualHtmlWindow(wx.HtmlWindow):
+class ManualHtmlWindow(wx.html.HtmlWindow):
 	def __init__(self, parent, id):
-		wx.HtmlWindow.__init__(self, parent, id)
+		wx.html.HtmlWindow.__init__(self, parent, id)
 		self.parent = parent
 
 	def OnSetTitle(self, title):
@@ -68,7 +69,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.docdir = os.getcwd() + '\doc'
 		else:
 			self.docdir = '/usr/share/doc/gnumed/client/'
-		self.printer = wx.HtmlEasyPrinting()
+		self.printer = wx.html.HtmlEasyPrinting()
 
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
@@ -76,13 +77,13 @@ class ManualHtmlPanel(wx.Panel):
 		n = wx.NewId()
 		self.infoline = wx.TextCtrl(self, n, style=wx.TE_READONLY)
 		self.infoline.SetBackgroundColour(wx.LIGHT_GREY)
-		infobox.Add(self.infoline, 1, wxGROW|wxALL)
-		self.box.Add(infobox, 0, wxGROW)
+		infobox.Add(self.infoline, 1, wx.GROW|wx.ALL)
+		self.box.Add(infobox, 0, wx.GROW)
 
 		self.html = ManualHtmlWindow(self, -1)
 		self.html.SetRelatedFrame(frame, "")
 		self.html.SetRelatedStatusBar(0)
-		self.box.Add(self.html, 1, wxGROW)
+		self.box.Add(self.html, 1, wx.GROW)
 
 		self.SetSizer(self.box)
 		self.SetAutoLayout(True)
@@ -107,7 +108,7 @@ class ManualHtmlPanel(wx.Panel):
 
 
 	def OnLoadFile(self, event):
-		dlg = wxFileDialog(self, wildcard = '*.htm*', style=wxOPEN)
+		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.OPEN)
 		if dlg.ShowModal():
 			path = dlg.GetPath()
 			self.html.LoadPage(path)
@@ -127,9 +128,9 @@ class ManualHtmlPanel(wx.Panel):
 	def OnViewSource(self, event):
 		xxx
 		# FIXME:
-		from wxPython.lib.dialogs import wxScrolledMessageDialog
+		#from wxPython.lib.dialogs import wx.ScrolledMessageDialog
 		source = self.html.GetParser().GetSource()
-		dlg = wxScrolledMessageDialog(self, source, _('HTML Source'))
+		dlg = wx.ScrolledMessageDialog(self, source, _('HTML Source'))
 		dlg.ShowModal()
 		dlg.Destroy()
 
@@ -255,7 +256,10 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.30  2005-09-28 21:27:30  ncq
+# Revision 1.31  2005-10-03 13:49:21  sjtan
+# using new wx. temporary debugging to stdout(easier to read). where is rfe ?
+#
+# Revision 1.30  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.29  2005/09/26 18:01:52  ncq

@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -217,7 +217,7 @@ class cLogger:
 		for key in self.__targets.keys():
 			self.__targets[key].writeDelimiter()
 	#---------------------------
-	def LogException(self, aMsg, exception, verbose=1, **kwargs):
+	def LogException(self, aMsg, exception = None , verbose=1, **kwargs):
 		"""Log an exception.
 
 		'exception' is a tuple as returned by sys.exc_info()
@@ -232,9 +232,19 @@ class cLogger:
 				level1 = lWarn
 				level2 = lData
 			# split the tuple
-			exc_type, exc_val, exc_traceback = exception
+			exc_type, exc_val, exc_traceback = sys.exc_info()
 			# FIXME: I wonder if the following back-and-forth reversing is necessary
 			# trace back to root caller
+			
+			print "DEBUG temporary for debugging when used to normal traceback"
+			print "DEBUG sys.exc_info()[0:2]" 
+			print exc_type, " : ", exc_val
+			print "DEBUG traceback.print_tb(sys.exc_info()[2])"
+			traceback.print_tb(exc_traceback)
+			print "DEBUG END"
+			print
+
+			
 			tb = exc_traceback
 			while 1:
 				if not tb.tb_next:
@@ -820,7 +830,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.11  2005-07-14 21:25:06  ncq
+# Revision 1.12  2005-10-03 13:49:21  sjtan
+# using new wx. temporary debugging to stdout(easier to read). where is rfe ?
+#
+# Revision 1.11  2005/07/14 21:25:06  ncq
 # - cleanup
 #
 # Revision 1.10  2004/10/20 12:18:11  ncq

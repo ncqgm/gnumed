@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.65 2005-09-11 17:28:20 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPatientExporter.py,v 1.66 2005-10-03 13:49:21 sjtan Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -52,6 +52,7 @@ class cEmrExport:
         self.__target = fileout
         self.__patient = patient
         self.lab_new_encounter = True
+	self.__filtered_items = []
     #--------------------------------------------------------
     def set_constraints(self, constraints = None):
         """Sets exporter constraints.
@@ -616,10 +617,13 @@ class cEmrExport:
         if (encounter['description'] is not None) and (len(encounter['description']) > 0):
             txt += ' (%s)' % encounter['description']
         txt += '\n\n'
+	
         # rfe
-        rfes = encounter.get_rfes()
-        for rfe in rfes:
-            txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), rfe['rfe'])
+	#DEBUG get_rfes() is gone, where is it?
+        #rfes = encounter.get_rfes()
+        #for rfe in rfes:
+        #    txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), rfe['rfe'])
+
         # soap
         soap_cat_labels = {
             's': _('Subjective'),
@@ -1147,7 +1151,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.65  2005-09-11 17:28:20  ncq
+# Revision 1.66  2005-10-03 13:49:21  sjtan
+# using new wx. temporary debugging to stdout(easier to read). where is rfe ?
+#
+# Revision 1.65  2005/09/11 17:28:20  ncq
 # - tree widget now display provider sign, not database account
 #
 # Revision 1.64  2005/09/09 13:50:07  ncq
