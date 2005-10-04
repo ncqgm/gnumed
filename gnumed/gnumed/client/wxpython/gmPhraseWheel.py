@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.60 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPhraseWheel.py,v 1.61 2005-10-04 00:04:45 sjtan Exp $
+__version__ = "$Revision: 1.61 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -375,18 +375,18 @@ class cPhraseWheel (wx.TextCtrl):
 		key.Skip()
 
 		# user moved down
-		if key.GetKeyCode() == WXK_DOWN:
+		if key.GetKeyCode() == wx.WXK_DOWN:
 			self.__on_down_arrow(key)
 			return
 		# user moved up
-		if key.GetKeyCode() == WXK_UP:
+		if key.GetKeyCode() == wx.WXK_UP:
 			self.__on_up_arrow(key)
 			return
 
 		# FIXME: need PAGE UP/DOWN//POS1/END here
 
 		# user pressed <ENTER>
-		if key.GetKeyCode() == WXK_RETURN:
+		if key.GetKeyCode() == wx.WXK_RETURN:
 			self.__on_enter()
 			return
 	#--------------------------------------------------------
@@ -565,7 +565,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.60  2005-09-28 21:27:30  ncq
+# Revision 1.61  2005-10-04 00:04:45  sjtan
+# convert to wx.; catch some transitional errors temporarily
+#
+# Revision 1.60  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.59  2005/09/28 15:57:48  ncq

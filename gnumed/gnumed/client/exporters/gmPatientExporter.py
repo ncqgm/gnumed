@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.66 2005-10-03 13:49:21 sjtan Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmPatientExporter.py,v 1.67 2005-10-04 00:04:45 sjtan Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -645,21 +645,33 @@ class cEmrExport:
                 continue
             txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             for soap_entry in soap_cat_narratives:
+	    	#DEBUG remove 
+	        try:
+			provider = soap_entry['provider']
+		except:
+			_log.LogException('soap_entry %s doesnt have "provider" attribute' % str(soap_entry) )
+			provider = "TO BE DONE near  "+ str( sys.exc_info()[1]) 
+		#FIXME
+
                 txt += (
                     (' ' * (left_margin+3)) +
-                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % soap_entry['provider'] +
+                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % provider  +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )
 
         # aoe
-        aoes = encounter.get_aoes()               
-        for aoe in aoes:
-            txt += left_margin*' ' + 'AOE: ' + aoe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  aoe['aoe'] + '\n'
-            if aoe.is_diagnosis():
-                diagnosis = aoe.get_diagnosis()
-                for a_code in diagnosis.get_codes():
-                    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n'
+	try:
+		aoes = encounter.get_aoes()               
+		for aoe in aoes:
+		    txt += left_margin*' ' + 'AOE: ' + aoe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  aoe['aoe'] + '\n'
+		    if aoe.is_diagnosis():
+			diagnosis = aoe.get_diagnosis()
+			for a_code in diagnosis.get_codes():
+			    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n'
+        except:
+		_log.LogException('encounter.get_aoes() failed. ')
+
         # items
         for an_item     in self.__filtered_items:
             if an_item['pk_encounter'] == encounter['pk_encounter']:
@@ -1151,7 +1163,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.66  2005-10-03 13:49:21  sjtan
+# Revision 1.67  2005-10-04 00:04:45  sjtan
+# convert to wx.; catch some transitional errors temporarily
+#
+# Revision 1.66  2005/10/03 13:49:21  sjtan
 # using new wx. temporary debugging to stdout(easier to read). where is rfe ?
 #
 # Revision 1.65  2005/09/11 17:28:20  ncq

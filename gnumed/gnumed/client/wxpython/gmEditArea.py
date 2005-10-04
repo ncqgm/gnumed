@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.99 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmEditArea.py,v 1.100 2005-10-04 00:04:45 sjtan Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -275,8 +275,11 @@ class cEditAreaPopup(wx.Dialog):
 		if not isinstance(edit_area, cEditArea2):
 			raise gmExceptions.ConstructorError, '<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area)
 		wx.Dialog.__init__(self, parent, id, title, pos, size, style, name)
-		self.__wx.ID_BTN_SAVE = wx.NewId()
-		self.__wx.ID_BTN_RESET = wx.NewId()
+		global ID_BTN_SAVE, ID_BTN_RESET
+		#self.__wx.ID_BTN_SAVE = wx.NewId()
+		ID_BTN_SAVE = wx.NewId()
+		#self.__wx.ID_BTN_RESET = wx.NewId()
+		ID_BTN_RESET = wx.NewId()
 		self.__editarea = edit_area
 		self.__do_layout()
 		self.__register_events()
@@ -289,9 +292,9 @@ class cEditAreaPopup(wx.Dialog):
 	def __do_layout(self):
 		self.__editarea.Reparent(self)
 
-		self.__btn_SAVE = wx.Button(self, self.__wx.ID_BTN_SAVE, _("Save"))
+		self.__btn_SAVE = wx.Button(self, ID_BTN_SAVE, _("Save"))
 		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
-		self.__btn_RESET = wx.Button(self, self.__wx.ID_BTN_RESET, _("Reset"))
+		self.__btn_RESET = wx.Button(self, ID_BTN_RESET, _("Reset"))
 		self.__btn_RESET.SetToolTipString(_('reset entry'))
 		self.__btn_CANCEL = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
@@ -311,8 +314,8 @@ class cEditAreaPopup(wx.Dialog):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect standard buttons
-		wx.EVT_BUTTON(self.__btn_SAVE, self.__wx.ID_BTN_SAVE, self._on_SAVE_btn_pressed)
-		wx.EVT_BUTTON(self.__btn_RESET, self.__wx.ID_BTN_RESET, self._on_RESET_btn_pressed)
+		wx.EVT_BUTTON(self.__btn_SAVE, ID_BTN_SAVE, self._on_SAVE_btn_pressed)
+		wx.EVT_BUTTON(self.__btn_RESET, ID_BTN_RESET, self._on_RESET_btn_pressed)
 		wx.EVT_BUTTON(self.__btn_CANCEL, wx.ID_CANCEL, self._on_CANCEL_btn_pressed)
 
 		wx.EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
@@ -369,9 +372,9 @@ class cEditArea2(wx.Panel):
 		self._long_error = None
 		self._summary = None
 		self._patient = gmPerson.gmCurrentPatient()
-
-		self._wx.ID_BTN_OK = wx.NewId()
-		self._wx.ID_BTN_Clear = wx.NewId()
+		global ID_BTN_OK, ID_BTN_CLEAR
+		ID_BTN_OK = wx.NewId()
+		ID_BTN_CLEAR = wx.NewId()
 		self.__do_layout()
 		self.__register_events()
 		self.Show()
@@ -580,9 +583,9 @@ class cEditArea2(wx.Panel):
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
-		self.btn_OK = wx.Button(parent, self._wx.ID_BTN_OK, _("OK"))
+		self.btn_OK = wx.Button(parent, ID_BTN_OK, _("OK"))
 		self.btn_OK.SetToolTipString(_('save entry into medical record'))
-		self.btn_Clear = wx.Button(parent, self._wx.ID_BTN_Clear, _("Clear"))
+		self.btn_Clear = wx.Button(parent, ID_BTN_CLEAR, _("Clear"))
 		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
@@ -591,8 +594,8 @@ class cEditArea2(wx.Panel):
 		szr_buttons.Add(self.btn_Clear, 1, wx.EXPAND | wx.ALL, 1)
 
 		# connect standard buttons
-		wx.EVT_BUTTON(self.btn_OK, self._wx.ID_BTN_OK, self._on_OK_btn_pressed)
-		wx.EVT_BUTTON(self.btn_Clear, self._wx.ID_BTN_Clear, self._on_clear_btn_pressed)
+		wx.EVT_BUTTON(self.btn_OK, ID_BTN_OK, self._on_OK_btn_pressed)
+		wx.EVT_BUTTON(self.btn_Clear, ID_BTN_CLEAR, self._on_clear_btn_pressed)
 
 		return szr_buttons
 #====================================================================
@@ -617,8 +620,8 @@ class cEditArea(wx.Panel):
 		self.fields = {}
 		self.prompts = {}
 
-		self._wx.ID_BTN_OK = wx.NewId()
-		self._wx.ID_BTN_Clear = wx.NewId()
+		ID_BTN_OK = wx.NewId()
+		ID_BTN_CLEAR = wx.NewId()
 
 		self.__do_layout()
 
@@ -793,9 +796,9 @@ class cEditArea(wx.Panel):
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
-		self.btn_OK = wx.Button(parent, self._wx.ID_BTN_OK, _("OK"))
+		self.btn_OK = wx.Button(parent, ID_BTN_OK, _("OK"))
 		self.btn_OK.SetToolTipString(_('save entry into medical record'))
-		self.btn_Clear = wx.Button(parent, self._wx.ID_BTN_Clear, _("Clear"))
+		self.btn_Clear = wx.Button(parent, ID_BTN_CLEAR, _("Clear"))
 		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
@@ -817,8 +820,8 @@ class cEditArea(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect standard buttons
-		wx.EVT_BUTTON(self.btn_OK, self._wx.ID_BTN_OK, self._on_OK_btn_pressed)
-		wx.EVT_BUTTON(self.btn_Clear, self._wx.ID_BTN_Clear, self._on_clear_btn_pressed)
+		wx.EVT_BUTTON(self.btn_OK, ID_BTN_OK, self._on_OK_btn_pressed)
+		wx.EVT_BUTTON(self.btn_Clear, ID_BTN_CLEAR, self._on_clear_btn_pressed)
 
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
@@ -2345,7 +2348,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.99  2005-09-28 21:27:30  ncq
+# Revision 1.100  2005-10-04 00:04:45  sjtan
+# convert to wx.; catch some transitional errors temporarily
+#
+# Revision 1.99  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.98  2005/09/28 15:57:48  ncq

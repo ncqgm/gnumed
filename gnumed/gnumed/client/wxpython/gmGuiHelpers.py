@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.26 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmGuiHelpers.py,v 1.27 2005-10-04 00:04:45 sjtan Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -265,7 +265,7 @@ class cTextObjectValidator(wx.PyValidator):
 		@type event - wx.Event
 		"""
 		key = event.KeyCode()
-		if key < WXK_SPACE or key == WXK_DELETE or key > 255:
+		if key < wx.WXK_SPACE or key == wx.WXK_DELETE or key > 255:
 			event.Skip()
 			return
 		if self.__only_digits and chr(key) in string.digits:
@@ -280,7 +280,10 @@ class cTextObjectValidator(wx.PyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.26  2005-09-28 21:27:30  ncq
+# Revision 1.27  2005-10-04 00:04:45  sjtan
+# convert to wx.; catch some transitional errors temporarily
+#
+# Revision 1.26  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.25  2005/09/28 15:57:48  ncq
