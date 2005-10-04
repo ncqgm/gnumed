@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.44 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmEMRBrowser.py,v 1.45 2005-10-04 13:09:49 sjtan Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -371,7 +371,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			return
 		if self.__selected_episode.rename(new_name):
 			return
-		gmGuiHelpers.gm_show_err (
+		gmGuiHelpers.gm_show_error(
 			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_episode['description'], new_name),
 			_('Error renaming episode ...'),
 			gmLog.lErr
@@ -451,7 +451,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			return
 		if self.__selected_issue.rename(new_name):
 			return
-		gmGuiHelpers.gm_show_err (
+		gmGuiHelpers.gm_show_error (
 			_('Cannot rename health issue from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_issue['description'], new_name),
 			_('Error renaming health issue ...'),
 			gmLog.lErr
@@ -607,7 +607,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.44  2005-09-28 21:27:30  ncq
+# Revision 1.45  2005-10-04 13:09:49  sjtan
+# correct syntax errors; get soap entry working again.
+#
+# Revision 1.44  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.43  2005/09/28 15:57:48  ncq

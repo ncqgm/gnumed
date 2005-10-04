@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.59 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmSOAPWidgets.py,v 1.60 2005-10-04 13:09:49 sjtan Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1214,7 +1214,7 @@ class cResizingSoapPanel(wx.Panel):
 					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
 				else:
 					# either error or non-expired open episode exists
-					open_epis = emr.get_episodes(issue = [issue['id']], open_status = True)
+					open_epis = emr.get_episodes( [issue['id']], open_status = True)
 					if len(open_epis) > 1:
 						_log.Log(gmLog.lErr, 'there is more than one open episode for health issue [%s]' % str(issue))
 						for e in open_epis:
@@ -1553,7 +1553,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.59  2005-09-28 21:27:30  ncq
+# Revision 1.60  2005-10-04 13:09:49  sjtan
+# correct syntax errors; get soap entry working again.
+#
+# Revision 1.59  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.58  2005/09/28 15:57:48  ncq

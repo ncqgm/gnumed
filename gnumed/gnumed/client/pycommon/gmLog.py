@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -246,8 +246,10 @@ class cLogger:
 
 			
 			tb = exc_traceback
+			if not tb:
+				return
 			while 1:
-				if not tb.tb_next:
+				if  not tb.tb_next:
 					break
 				tb = tb.tb_next
 			# and put the frames on a stack
@@ -830,7 +832,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.12  2005-10-03 13:49:21  sjtan
+# Revision 1.13  2005-10-04 13:09:49  sjtan
+# correct syntax errors; get soap entry working again.
+#
+# Revision 1.12  2005/10/03 13:49:21  sjtan
 # using new wx. temporary debugging to stdout(easier to read). where is rfe ?
 #
 # Revision 1.11  2005/07/14 21:25:06  ncq

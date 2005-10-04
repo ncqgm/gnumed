@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.27 2005-10-04 00:04:45 sjtan Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmGuiHelpers.py,v 1.28 2005-10-04 13:09:49 sjtan Exp $
+__version__ = "$Revision: 1.28 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -51,6 +51,8 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	print aTitle
 	print "-" * len(aTitle)
 	print aMessage
+
+	_log.LogException(aMessage)
 
 	dlg = wx.MessageDialog (
 		parent = None,
@@ -280,7 +282,10 @@ class cTextObjectValidator(wx.PyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.27  2005-10-04 00:04:45  sjtan
+# Revision 1.28  2005-10-04 13:09:49  sjtan
+# correct syntax errors; get soap entry working again.
+#
+# Revision 1.27  2005/10/04 00:04:45  sjtan
 # convert to wx.; catch some transitional errors temporarily
 #
 # Revision 1.26  2005/09/28 21:27:30  ncq
