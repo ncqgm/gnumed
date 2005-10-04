@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.182 2005-09-22 15:45:11 ncq Exp $
-__version__ = "$Revision: 1.182 $"
+# $Id: gmClinicalRecord.py,v 1.183 2005-10-04 19:31:45 sjtan Exp $
+__version__ = "$Revision: 1.183 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -251,7 +251,7 @@ class cClinicalRecord:
 		return data
 	#--------------------------------------------------------
 	def get_clin_narrative(self, since=None, until=None, encounters=None,
-		episodes=None, issues=None, soap_cats=None, exclude_rfe_aoe=False):
+		episodes=None, issues=None, soap_cats=None, exclude_rfe_aoe=False, invalidate_cache =False):
 		"""Get SOAP notes pertinent to this encounter.
 
 			since
@@ -270,7 +270,11 @@ class cClinicalRecord:
 				-  when True, filter out RFE and AOE narrative
 		"""
 		try:
+			if invalidate_cache:
+				raise KeyError
+
 			self.__db_cache['narrative']
+
 		except KeyError:
 			self.__db_cache['narrative'] = []
 			cmd = "select * from v_pat_narrative where pk_patient=%s order by date"
@@ -1706,7 +1710,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.182  2005-09-22 15:45:11  ncq
+# Revision 1.183  2005-10-04 19:31:45  sjtan
+# allow for flagged invalidation of cache and cache reloading.
+#
+# Revision 1.182  2005/09/22 15:45:11  ncq
 # - clin_encounter.fk_provider removed
 #
 # Revision 1.181  2005/09/12 15:05:44  ncq
