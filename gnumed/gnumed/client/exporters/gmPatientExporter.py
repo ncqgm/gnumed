@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.67 2005-10-04 00:04:45 sjtan Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmPatientExporter.py,v 1.68 2005-10-04 19:22:37 sjtan Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -492,6 +492,14 @@ class cEmrExport:
             })
         # existing issues        
         for a_health_issue in h_issues:
+		self.add_health_issue_branch( emr_tree, a_health_issue)
+
+
+
+    def add_health_issue_branch( self, emr_tree, a_health_issue):
+            """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
+            emr = self.__patient.get_clinical_record()
+            root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
@@ -509,6 +517,7 @@ class cEmrExport:
                     label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].Format('%Y-%m-%d'))
                     encounter_node = emr_tree.AppendItem(episode_node, label)
                     emr_tree.SetPyData(encounter_node, an_encounter)
+		    
     #--------------------------------------------------------  
     def get_summary_info(self, left_margin = 0):
         """
@@ -603,7 +612,7 @@ class cEmrExport:
         )
         return txt
     #--------------------------------------------------------
-    def get_encounter_info(self, episode, encounter, left_margin = 0):
+    def get_encounter_info(self, episode, encounter, left_margin = 0, refresh_cache = False):
         """
         Dumps encounter specific data (title, rfe, aoe and soap)
         """
@@ -637,7 +646,8 @@ class cEmrExport:
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
                 soap_cats = [soap_cat],
-                exclude_rfe_aoe = True
+                exclude_rfe_aoe = True, 
+		invalidate_cache = refresh_cache
             )            
             if soap_cat_narratives is None:
                 continue
@@ -1163,7 +1173,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.67  2005-10-04 00:04:45  sjtan
+# Revision 1.68  2005-10-04 19:22:37  sjtan
+# allow a refetch of part of the cache, so that don't have to completely collapse tree view to view after change.
+#
+# Revision 1.67  2005/10/04 00:04:45  sjtan
 # convert to wx.; catch some transitional errors temporarily
 #
 # Revision 1.66  2005/10/03 13:49:21  sjtan
