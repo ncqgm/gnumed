@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.25 2005-06-15 22:26:20 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmBusinessDBObject.py,v 1.26 2005-10-04 11:39:58 sjtan Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -260,14 +260,19 @@ class cBusinessDBObject:
 			pass
 		# 3) subtable
 		try:
-			# FIXME: there is no collision detection on <attribute> between subtables and getters
 			query = self._subtable_dml_templates[attribute]['select']
+
 			rows, idx = gmPG.run_ro_query(self.__class__._service, query, True, self.pk_obj)
 			if rows is not None:
 				self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
 				return self._ext_cache[attribute]
 			_log.Log(gmLog.lErr, '[%s:%s]: error getting subtable attribute [%s]' % (self.__class__.__name__, self.pk_obj, attribute))
 		except KeyError:
+			pass
+		except AttributeError:
+			#?self._subtable_dml_templates doesn't exist
+			_log.LogException('[%s:%s]: error finding instance attribute %s' % (self.__class__.__name__, self.pk_obj, attribute ))
+
 			pass
 		# 4) getters providing extensions
 		getter = getattr(self, 'get_%s' % attribute, None)
@@ -549,7 +554,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.25  2005-06-15 22:26:20  ncq
+# Revision 1.26  2005-10-04 11:39:58  sjtan
+# catch missing attribute error.
+#
+# Revision 1.25  2005/06/15 22:26:20  ncq
 # - CAVEAT regarding XMIN vs. savepoints
 #
 # Revision 1.24  2005/05/04 08:54:00  ncq
