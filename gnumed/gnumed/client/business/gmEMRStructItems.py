@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -62,14 +62,19 @@ class cHealthIssue(gmClinItem.cClinItem):
 			- a string instance
 		"""
 		# sanity check
-		if not isinstance(description, types.StringType) or description.strip() == '':
+		print "DEBUG description = ", description, "type is ", type(description)
+		
+		if not type(description) in [str, unicode] or description.strip() == '':
 			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
 			return False
 		# update the issue description
 		old_description = self._payload[self._idx['description']]
 		self._payload[self._idx['description']] = description.strip()
 		self._is_modified = True
-		successful, data = self.save_payload()
+
+		successful, data = gmClinItem.cClinItem.save_payload(self)
+		
+		#successful, data = self.save_payload()
 		if not successful:
 			_log.Log(gmLog.lErr, 'cannot rename health issue [%s] with [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
@@ -89,8 +94,8 @@ update clin_episode set is_open = false where pk in (
 			fk_health_issue = %('issue')s and
 			age(modified_when) < (%('ttl')s || ' days')::interval
 )"""
-		args = {'issue': self.pk_obj, 'ttl': tll}
-		success, msg = gmGP.run_commit2 ('historica', [(cmd, [args])])
+		args = {'issue': self.pk_obj, 'ttl': ttl}
+		success, msg = gmPG.run_commit2 ('historica', [(cmd, [args])])
 		if success:
 			return True
 		return False
@@ -180,7 +185,7 @@ class cEpisode(gmClinItem.cClinItem):
 			- a string instance
 		"""
 		# sanity check
-		if not isinstance(description, types.StringType) or description.strip() == '':
+		if not type(description) in [str, unicode]  or description.strip() == '':
 			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
 			return False
 		# update the episode description
@@ -537,7 +542,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.64  2005-09-25 01:00:47  ihaywood
+# Revision 1.65  2005-10-04 19:21:31  sjtan
+# unicode and str are different but printable types.
+#
+# Revision 1.64  2005/09/25 01:00:47  ihaywood
 # bugfixes
 #
 # remember 2.6 uses "import wx" not "from wxPython import wx"
