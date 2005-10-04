@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.45 2005-10-04 13:09:49 sjtan Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmEMRBrowser.py,v 1.46 2005-10-04 19:24:53 sjtan Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -30,6 +30,8 @@ _log.Log(gmLog.lInfo, __version__)
 # module level constants
 dialog_CANCELLED = -1
 dialog_OK = -2
+MAX_EXPANSION_HISTORY = 2
+
 #============================================================
 def export_emr_to_ascii(parent=None):
 	"""
@@ -103,6 +105,10 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__do_layout()
 		self.__register_interests()
 		self.__reset_ui_content()
+
+		self.__invalidated = None # for get_encounter_info() to bypass cache when an episode has moved
+		
+		self.expansion_history = ExpansionHistory(self, self.__emr_tree)
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""
@@ -210,7 +216,10 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
 		"""Episode changed."""
-		self._schedule_data_reget()
+		#less drastic ui update more usable
+		#self._schedule_data_reget()
+		pass
+		
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		"""
@@ -231,7 +240,8 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			txt = self.__exporter.get_episode_summary(episode=sel_item_obj)
 		elif isinstance(sel_item_obj, gmEMRStructItems.cEncounter):
 			epi = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
-			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj)
+			is_invalidated = sel_item_obj == self.__invalidated
+			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj, refresh_cache = is_invalidated )
 		else:
 			txt = _('Summary') + '\n=======\n\n' + self.__exporter.get_summary_info(0)
 
@@ -283,6 +293,9 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		Updates EMR browser data
 		"""
 		
+
+		self.expansion_history.remember_expansion()
+		
 		# clear previous contents
 		self.__emr_tree.DeleteAllItems()
 		
@@ -292,8 +305,11 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		ident = self.__pat.get_identity()
 		root_item = self.__emr_tree.AddRoot(_('%s EMR') % ident['description'])
 
+
 		# Obtain all the tree from exporter
 		self.__exporter.get_historical_tree(self.__emr_tree)
+
+
 
 		# Expand root node and display patient summary info
 		self.__emr_tree.Expand(root_item)
@@ -305,8 +321,15 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		# Set sash position
 		self.__tree_narr_splitter.SetSashPosition(self.__tree_narr_splitter.GetSizeTuple()[0]/3, True)
 
+		self.expansion_history.restore_expansion()
+		
+		
+
 		# FIXME: error handling
 		return True
+
+			
+
 	#--------------------------------------------------------
 	def get_selection(self):
 		"""
@@ -333,7 +356,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Clear all information displayed in browser (tree and details area)
 		"""
-		self.__emr_tree.DeleteAllItems()
+		#self.__emr_tree.DeleteAllItems()    # need this not to be done until expansion of tree recorded
 		self.__narr_TextCtrl.Clear()
 	#--------------------------------------------------------
 	def __display_narrative_on_right_pane(self):
@@ -370,6 +393,8 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		if new_name == self.__selected_episode['description']:
 			return
 		if self.__selected_episode.rename(new_name):
+			#avoid collapsing view
+			self.__emr_tree.SetItemText( self.__selected_node, new_name)
 			return
 		gmGuiHelpers.gm_show_error(
 			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_episode['description'], new_name),
@@ -416,17 +441,71 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			pk_health_issue = curr_episode['pk_health_issue']
 		)
 		retval = episode_selector.ShowModal() # Shows it
-
+		episode_selector.Destroy() # finally destroy it when finished.
+		
 		if retval == dialog_OK:
 			target = episode_selector.get_selected_episode()
+
+			target_episode_node = self.find_node( self.__emr_tree, self.__emr_tree.GetRootItem(),  target)
+			if target_episode_node and target_episode_node.IsOk():
+				print "DEBUG trying to move node ", node, " to ", target_episode_node
+				self.move_node(self.__emr_tree, node, target_episode_node) 
+			else:
+				print "No target episode node found"
+
 			self.__selected_encounter.transfer_clinical_data(from_episode = curr_episode, to_episode = target)
+			self.__invalidated = self.__selected_encounter
+			
 		elif retval == dialog_CANCELLED:
 			pass
 		else:
 			raise Exception('Invalid dialog return code [%s]' % retval)
-		episode_selector.Destroy() # finally destroy it when finished.
+		
 		# FIXME: GNUmed internal signal
+		
 #		self._on_episodes_modified()
+
+
+	#FIXME refactor move to exporter ?
+	def find_node(self,tree, root,  data_object):
+	
+		nodes = []
+		id , cookie = tree.GetFirstChild( root)
+
+		#print "DEBUG id , cookie", id, cookie
+		#print "DEBUG id dict is ", id.__dict__.keys()	
+		while id.IsOk() :
+			nodes.append(id)
+			id, cookie = tree.GetNextChild( root, cookie)
+			
+
+		l = [x for x in nodes if tree.GetPyData( x) == data_object] 
+		if l == []:
+			print "DEBUG looking further in ", nodes
+			if nodes == []:
+				return None
+			else:
+				for x in nodes:
+					val = self.find_node(tree, x, data_object)
+					if val:
+						return val
+				
+		else:
+			return l[0]
+
+	def move_node( self, tree, node, target_node):
+		new_node = tree.AppendItem( target_node, tree.GetItemText(node))
+		tree.SetPyData( new_node,  tree.GetPyData(node) )
+		id, cookie = tree.GetFirstChild( node)
+		while id.IsOk():
+			self.move_node(tree, id, new_node)
+			id, cookie = tree.GetNextChild( node)
+		
+		tree.Delete(node)
+		
+
+		
+		
 	#--------------------------------------------------------
 	# health issues
 	def __handle_issue_context(self, issue=None, pos=wx.DefaultPosition):
@@ -450,6 +529,8 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		if new_name == self.__selected_issue['description']:
 			return
 		if self.__selected_issue.rename(new_name):
+			#DEBUG why doesn't a refresh occur ?
+			self.__emr_tree.SetItemText(self.__selected_node,  new_name)
 			return
 		gmGuiHelpers.gm_show_error (
 			_('Cannot rename health issue from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_issue['description'], new_name),
@@ -487,6 +568,10 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			edit_area = ea
 		)
 		result = popup.ShowModal()
+		if ea._health_issue :
+			self.__exporter.add_health_issue_branch( self.__emr_tree, ea._health_issue)
+
+
 #================================================================
 class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, *args, **kwargs):
@@ -552,6 +637,87 @@ class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__journal.SetValue(txt.getvalue())
 		txt.close()
 		return True
+
+
+#================================================================
+
+class ExpansionHistory:
+	def __init__(self, emr_browser, tree):
+		self._browser =emr_browser
+		self._tree = tree
+
+		
+		self._expansion_history = {} # for remembering expansion states of previously visited histories
+		self.__last_pat_desc = None
+		self._selected_node = None
+		
+	def remember_expansion(self):
+		ix = self.__last_pat_desc
+		if ix is None:
+			return
+		print "\nDEBUG Remembering with index",ix 
+		print
+		l = []
+		
+		#if cache full resize 
+		if not self._expansion_history.has_key(ix) and  len( self._expansion_history) > MAX_EXPANSION_HISTORY:
+				i = MAX_EXPANSION_HISTORY / 4
+				for k in self._expansion_history.keys():
+					del (self._expansion_history[k])
+					i -= 1
+					if i < 1:
+						break
+				
+		self._expansion_history[ix] = l
+		self._record_expansion(self._tree, self._tree.GetRootItem(), l)
+		
+
+	def _record_expansion(self,tree,  root, l):
+		id, cookie = tree.GetFirstChild( root)
+		print "id", id, " is Ok", id.IsOk()
+		while id.IsOk():
+			expanded = tree.IsExpanded(id)
+			print "id expanded = ", expanded
+			l2 = [tree.IsSelected(id)]
+			
+			if expanded:
+				self._record_expansion(tree, id, l2)
+			print "expansion at ", id , " is ",  l2
+			l.append(l2)
+			id, cookie = tree.GetNextChild(root,  cookie)
+		
+	def restore_expansion(self):
+		ix = gmPerson.gmCurrentPatient().get_identity()['description']
+		self.__last_pat_desc  = ix 
+
+		print "DEBUG restoring with ",ix 
+		if self._expansion_history.has_key(ix):
+			l = self._expansion_history[ix]
+			self._restore_expand( self._tree, self._tree.GetRootItem(), l)
+		if self.__selected_node:		
+			self._tree.SelectItem( self.__selected_node)	
+
+	
+	
+	def _restore_expand(self, tree, root, l):
+		id, cookie = tree.GetFirstChild(root)
+		for x in l:
+			if not id.IsOk():
+				break
+			selected = x[0]
+			if selected:
+				self.__selected_node = id	
+			x = x[1:]
+			if x <>  []:
+				tree.Expand( id)
+				self._restore_expand( tree, id, x)
+			id, cookie = tree.GetNextChild(root, cookie)
+	
+			
+
+	
+
+		
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -607,7 +773,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.45  2005-10-04 13:09:49  sjtan
+# Revision 1.46  2005-10-04 19:24:53  sjtan
+# browser now remembers expansion state and select state between change of patients, between health issue rename, episode rename or encounter relinking. This helps when reviewing the record more than once in a day.
+#
+# Revision 1.45  2005/10/04 13:09:49  sjtan
 # correct syntax errors; get soap entry working again.
 #
 # Revision 1.44  2005/09/28 21:27:30  ncq

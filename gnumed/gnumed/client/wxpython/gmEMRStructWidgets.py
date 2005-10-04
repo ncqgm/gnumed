@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.15 2005-09-27 20:44:58 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmEMRStructWidgets.py,v 1.16 2005-10-04 19:24:53 sjtan Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -164,6 +164,10 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		# create issue
 		condition = self.fld_condition.GetValue()
 		new_issue = emr.add_health_issue(issue_name = condition)
+
+		#FIXME: use this for non-collapsing update of EMRBrowser
+		self._health_issue = new_issue
+
 		if new_issue is False:
 			self._short_error = _('Health issue [%s] already exists. Cannot add duplicate.') % condition
 			# FIXME: ask whether should update existing issue
@@ -178,6 +182,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			new_issue['age_noted'] = age_onset
 			# FIXME: error handling
 			new_issue.save_payload()
+			
 		# FIXME: handle fld_year_onset
 		# progress note
 		epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['id'])
@@ -880,7 +885,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.15  2005-09-27 20:44:58  ncq
+# Revision 1.16  2005-10-04 19:24:53  sjtan
+# browser now remembers expansion state and select state between change of patients, between health issue rename, episode rename or encounter relinking. This helps when reviewing the record more than once in a day.
+#
+# Revision 1.15  2005/09/27 20:44:58  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.14  2005/09/26 18:01:50  ncq
