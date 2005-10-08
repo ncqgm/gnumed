@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -91,8 +91,8 @@ update clin_episode set is_open = false where pk in (
 	except
 		select pk from clin_episode where
 			is_open and
-			fk_health_issue = %('issue')s and
-			age(modified_when) < (%('ttl')s || ' days')::interval
+			fk_health_issue = %(issue)s and
+			age(modified_when) < (%(ttl)s || ' days')::interval
 )"""
 		args = {'issue': self.pk_obj, 'ttl': ttl}
 		success, msg = gmPG.run_commit2 ('historica', [(cmd, [args])])
@@ -203,7 +203,7 @@ class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_clin_encounter from v_pat_encounters
+		select *, coalesce((select vs.lastnames || ', ' || vs.firstnames from v_staff vs where vs.pk_staff = v_pat_encounters.pk_provider) , 'Anonymous' ) as provider ,  xmin_clin_encounter from v_pat_encounters
 		where pk_encounter=%s"""
 	_cmds_lock_rows_for_update = [
 		"""select 1 from clin_encounter where id=%(pk_encounter)s and xmin=%(xmin_clin_encounter)s for update"""
@@ -251,7 +251,7 @@ class cEncounter(gmClinItem.cClinItem):
 			return False
 		return True
 	#--------------------------------------------------------
-	def transfer_clinical_data(self, from_episode, to_episode):
+	def transfer_clinical_data(self, from_episode, to_episode, emr):
 		"""
 		Moves every element currently linked to the current encounter
 		and the from_episode onto to_episode.
@@ -281,6 +281,14 @@ class cEncounter(gmClinItem.cClinItem):
 			))
 			err, msg = data
 			return (False, msg)
+
+		#also relink cNarratives
+		narratives = emr.get_clin_narrative( episodes= [from_episode['pk_episode'] ])
+		for n in narratives:
+			n['pk_episode'] = to_episode['pk_episode']
+
+		#relink other clin_item subtypes in emr?
+														
 		return (True, True)
 #============================================================		
 class cProblem(gmClinItem.cClinItem):
@@ -415,7 +423,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		return (False, _('internal error, check log'))
 	return (True, episode)
 #-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
+def create_encounter(fk_patient=None, fk_location=-1, enc_type=None, emr = None):
 	"""Creates a new encounter for a patient.
 
 	fk_patient - patient PK
@@ -460,6 +468,8 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate encounter [%s]' % (result[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
+	if emr:
+		emr.update_cache('encounter', encounter)
 	return (True, encounter)
 #============================================================
 # main - unit testing
@@ -542,7 +552,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.65  2005-10-04 19:21:31  sjtan
+# Revision 1.66  2005-10-08 12:33:09  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.65  2005/10/04 19:21:31  sjtan
 # unicode and str are different but printable types.
 #
 # Revision 1.64  2005/09/25 01:00:47  ihaywood

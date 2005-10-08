@@ -7,6 +7,7 @@ import exceptions
 import types
 import sys
 import weakref
+import traceback
 
 connections = {}
 senders = {}
@@ -165,6 +166,10 @@ def send(signal, sender=None, **kwds):
 			typ, val, tb = sys.exc_info()
 			print 'DISPATCHER ERROR: %s <%s>' % (typ, val)
 			print 'DISPATCHER ERROR: calling <%s> failed' % str(receiver)
+			print "DEBUG"
+			print type
+			print val
+			traceback.print_tb(tb)
 	return responses
 #---------------------------------------------------------------------
 def safeRef(object):
@@ -265,7 +270,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.5  2005-04-03 20:09:20  ncq
+# Revision 1.6  2005-10-08 12:33:08  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.5  2005/04/03 20:09:20  ncq
 # - it's rather stupid to try to remove a signal that we just tested to not exist,
 #   hence refrain from doing so
 #

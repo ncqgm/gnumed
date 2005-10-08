@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.68 2005-10-04 19:22:37 sjtan Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmPatientExporter.py,v 1.69 2005-10-08 12:33:09 sjtan Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -464,7 +464,19 @@ class cEmrExport:
             self.lab_new_encounter = False
         return txt
     #--------------------------------------------------------             
-    def get_historical_tree(self, emr_tree):
+    def refresh_historical_tree(self, emr_tree):
+    	"""
+	checks a emr_tree constructed with this.get_historical_tree() 
+	and sees if any new items need to be inserted.
+	"""
+    	self._traverse_health_issues( emr_tree, self._update_health_issue_branch)
+	
+    #--------------------------------------------------------             
+    def get_historical_tree( self, emr_tree):
+    	self._traverse_health_issues( emr_tree, self._add_health_issue_branch)
+	
+    #--------------------------------------------------------             
+    def _traverse_health_issues(self, emr_tree, health_issue_action):
         """
         Retrieves patient's historical in form of a wx tree of health issues
                                                                                         -> episodes
@@ -482,7 +494,6 @@ class cEmrExport:
         unlinked_episodes = emr.get_episodes(issues = [None])
         h_issues = []
         h_issues.extend(emr.get_health_issues(id_list = self.__constraints['issues']))
-        root_node = emr_tree.GetRootItem()
         # build the tree
         # unlinked episodes
         if len(unlinked_episodes) > 0:
@@ -492,20 +503,42 @@ class cEmrExport:
             })
         # existing issues        
         for a_health_issue in h_issues:
-		self.add_health_issue_branch( emr_tree, a_health_issue)
+		health_issue_action( emr_tree, a_health_issue)
 
-
-
-    def add_health_issue_branch( self, emr_tree, a_health_issue):
+    #--------------------------------------------------------             
+    def _add_health_issue_branch( self, emr_tree, a_health_issue):
             """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
             emr = self.__patient.get_clinical_record()
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
-            for an_episode in episodes:       
+            for an_episode in episodes:
+	       self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
+
+
+    #--------------------------------------------------------             
+    def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
                episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
                emr_tree.SetPyData(episode_node, an_episode)
+	       encounters = self._get_encounters( a_health_issue, an_episode, emr )
+	       self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
+	       return episode_node
+	       
+    #--------------------------------------------------------             
+    def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
+               for an_encounter in encounters:
+                    label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].Format('%Y-%m-%d'))
+                    encounter_node = emr_tree.AppendItem(episode_node, label)
+		    #import threading
+		    #def added():
+		    #	print "added ", label
+		    #threading.Timer(2, added).start() 
+                    emr_tree.SetPyData(encounter_node, an_encounter)
+		   
+		   
+    #--------------------------------------------------------             
+    def _get_encounters ( self, a_health_issue, an_episode, emr ):
                encounters = emr.get_encounters (
                    since = self.__constraints['since'],
                    until = self.__constraints['until'],
@@ -513,11 +546,85 @@ class cEmrExport:
                    episodes = [an_episode['pk_episode']],
                    issues = [a_health_issue['id']]
                )
-               for an_encounter in encounters:
-                    label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].Format('%Y-%m-%d'))
-                    encounter_node = emr_tree.AppendItem(episode_node, label)
-                    emr_tree.SetPyData(encounter_node, an_encounter)
-		    
+	       return encounters
+	       
+    #--------------------------------------------------------             
+    def  _update_health_issue_branch(self, emr_tree, a_health_issue):
+            emr = self.__patient.get_clinical_record()
+            root_node = emr_tree.GetRootItem()
+	    id, cookie = emr_tree.GetFirstChild( root_node)
+	    found = False
+	    while id.IsOk():
+	        #try:
+	    	#  _log.Log(gmLog.lErr, "emr_tree.GetItemText(id)  a_health_issue['description']\n\t\t: %s %s\n" % ( emr_tree.GetItemText(id)  , a_health_issue['description'] ) )
+		#except:
+		#  print sys.exc_info()[0], sys.exc_info()[1]
+		#  traceback.print_tb( sys.exc_info()[2])
+
+	    	if emr_tree.GetItemText(id)  ==  a_health_issue['description'] :
+			found = True
+			break
+		id,cookie = emr_tree.GetNextChild( root_node, cookie)
+	    
+	    if not found:
+	    	_log.Log(gmLog.lErr, "health issue %s should exist in tree already" %  a_health_issue['description'] )
+		return
+	    issue_node= id
+	    episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
+	    
+	    #check for removed episode and update tree
+	    tree_episodes = {} 
+	    id_episode, cookie = emr_tree.GetFirstChild(issue_node)
+	    while id_episode.IsOk():
+		    	tree_episodes[ emr_tree.GetPyData(id_episode)['pk_episode'] ]= id_episode
+			id_episode,cookie = emr_tree.GetNextChild( issue_node, cookie)
+	
+	    existing_episode_pk = [ e['pk_episode'] for e in episodes]
+	    missing_tree_pk = [ pk for pk in tree_episodes.keys() if pk not in existing_episode_pk]
+	    for pk in missing_tree_pk:
+		emr_tree.Remove( tree_episodes[pk] )
+	
+	    added_episode_pk = [pk for pk in existing_episode_pk if pk not in tree_episodes.keys()]
+	    add_episodes = [ e for e in episodes if e['pk_episode'] in added_episode_pk]
+	   
+	    #check for added episodes and update tree
+	    for an_episode in add_episodes:
+			node = self._add_episode_to_tree( emr, emr_tree, issue_node, a_health_issue, an_episode)
+			tree_episodes[an_episode['pk_episode']] = node
+			
+			
+            for an_episode in episodes:
+			# found episode, check for encounter change
+			try:
+			  #print "getting id_episode of ", an_episode['pk_episode']
+			  id_episode = tree_episodes[an_episode['pk_episode']]	
+			except:
+			  import pdb
+			  pdb.set_trace()
+			# get a map of encounters in the tree by pk_encounter as key
+			tree_enc = {}
+			id_encounter, cookie = emr_tree.GetFirstChild(id_episode)
+			while id_encounter.IsOk():
+				tree_enc[ emr_tree.GetPyData(id_encounter)['pk_encounter'] ] = id_encounter
+				id_encounter,cookie = emr_tree.GetNextChild(id_episode, cookie)
+				
+			# remove encounters in tree not in existing encounters in episode
+			encounters = self._get_encounters( a_health_issue, an_episode, emr )
+			existing_enc_pk = [ enc['pk_encounter'] for enc in encounters]
+			missing_enc_pk = [ pk  for pk in tree_enc.keys() if pk not in existing_enc_pk]
+			for pk in missing_enc_pk:
+				emr_tree.Remove( tree_enc[pk] )
+					
+			# check for added encounter
+			added_enc_pk = [ pk for pk in existing_enc_pk if pk not in tree_enc.keys() ]
+			add_encounters = [ enc for enc in encounters if enc['pk_encounter'] in added_enc_pk]
+			if add_encounters != []:
+				#print "DEBUG found encounters to add"
+				self._add_encounters_to_tree( add_encounters, emr_tree, id_episode)
+				
+
+				
+    	
     #--------------------------------------------------------  
     def get_summary_info(self, left_margin = 0):
         """
@@ -570,12 +677,12 @@ class cEmrExport:
         if first_encounter is None or last_encounter is None:
             txt += _('%s%s episode(s)\n\n%sNo encounters found for this health issue.\n') % (
                 left_margin * ' ' +
-                no_epis,
+                str(no_epis),
                 left_margin * ' ')
             return txt
         txt += _('%s%s episode(s) between %s and %s\n') % (
             left_margin * ' ',
-            no_epis,
+            str(no_epis),
             first_encounter['started'].Format('%m/%Y'),
             last_encounter['last_affirmed'].Format('%m/%Y')
         )
@@ -612,7 +719,7 @@ class cEmrExport:
         )
         return txt
     #--------------------------------------------------------
-    def get_encounter_info(self, episode, encounter, left_margin = 0, refresh_cache = False):
+    def get_encounter_info(self, episode, encounter, left_margin = 0):
         """
         Dumps encounter specific data (title, rfe, aoe and soap)
         """
@@ -646,9 +753,9 @@ class cEmrExport:
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
                 soap_cats = [soap_cat],
-                exclude_rfe_aoe = True, 
-		invalidate_cache = refresh_cache
-            )            
+                exclude_rfe_aoe = True
+            )
+
             if soap_cat_narratives is None:
                 continue
             if len(soap_cat_narratives) == 0:
@@ -659,7 +766,7 @@ class cEmrExport:
 	        try:
 			provider = soap_entry['provider']
 		except:
-			_log.LogException('soap_entry %s doesnt have "provider" attribute' % str(soap_entry) )
+			_log.Log(gmLog.lInfo, 'soap_entry %s doesnt have "provider" attribute' % str(soap_entry) )
 			provider = "TO BE DONE near  "+ str( sys.exc_info()[1]) 
 		#FIXME
 
@@ -680,7 +787,7 @@ class cEmrExport:
 			for a_code in diagnosis.get_codes():
 			    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n'
         except:
-		_log.LogException('encounter.get_aoes() failed. ')
+		_log.Log(gmLog.lInfo, 'encounter.get_aoes() failed. ')
 
         # items
         for an_item     in self.__filtered_items:
@@ -1173,7 +1280,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.68  2005-10-04 19:22:37  sjtan
+# Revision 1.69  2005-10-08 12:33:09  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.68  2005/10/04 19:22:37  sjtan
 # allow a refetch of part of the cache, so that don't have to completely collapse tree view to view after change.
 #
 # Revision 1.67  2005/10/04 00:04:45  sjtan

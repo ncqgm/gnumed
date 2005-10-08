@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -114,6 +114,9 @@ select tgargs from pg_trigger where
 		select oid from pg_class where relname=%s
 	)
 """
+# a handy return to dbapi simplicity
+description = None
+
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -1026,6 +1029,8 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	# run the query
 	try:
 		curs.execute(aQuery, *args)
+		global description
+		description = curs.description
 	except:
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery[:250], str(args)[:250], link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
 		__log_PG_settings(curs)
@@ -1182,7 +1187,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.54 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.55 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1406,7 +1411,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.54  2005-09-25 17:22:42  ncq
+# Revision 1.55  2005-10-08 12:33:07  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.54  2005/09/25 17:22:42  ncq
 # - cleanup
 #
 # Revision 1.53  2005/09/25 01:00:47  ihaywood

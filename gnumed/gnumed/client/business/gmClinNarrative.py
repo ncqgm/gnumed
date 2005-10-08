@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -76,7 +76,7 @@ class cNarrative(gmClinItem.cClinItem):
 		Represents one clinical free text entry
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_clin_narrative from v_pat_narrative where pk_narrative=%s"""
+		select * , coalesce( (select lastnames ||', '|| firstnames from v_staff where v_staff.pk_staff = v_pat_narrative.pk_provider), 'Anon') as provider,  xmin_clin_narrative from v_pat_narrative where pk_narrative=%s"""
 	_cmds_lock_rows_for_update = [
 		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
 	]
@@ -92,7 +92,8 @@ class cNarrative(gmClinItem.cClinItem):
 	_updatable_fields = [
 		'narrative',
 		'date',
-		'soap_cat'
+		'soap_cat',
+		'pk_episode'  # from relink episode
 	]
 	#--------------------------------------------------------
 	def get_codes(self):
@@ -123,7 +124,7 @@ class cNarrative(gmClinItem.cClinItem):
 #============================================================
 # convenience functions
 #============================================================
-def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, encounter_id=None):
+def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, encounter_id=None, emr=None):
 	"""
 		Creates a new clinical narrative entry
 		
@@ -166,7 +167,9 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate narrative' % (data[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
-
+	if emr:	
+		emr.update_cache( 'narrative', narrative)
+	
 	return (True, narrative)
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
@@ -218,7 +221,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.17  2005-09-19 16:32:02  ncq
+# Revision 1.18  2005-10-08 12:33:09  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.17  2005/09/19 16:32:02  ncq
 # - remove is_rfe/is_aoe/cRFE/cAOE
 #
 # Revision 1.16  2005/06/09 21:29:16  ncq

@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.183 2005-10-04 19:31:45 sjtan Exp $
-__version__ = "$Revision: 1.183 $"
+# $Id: gmClinicalRecord.py,v 1.184 2005-10-08 12:33:08 sjtan Exp $
+__version__ = "$Revision: 1.184 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -28,7 +28,7 @@ __license__ = "GPL"
 #===================================================
 
 # standard libs
-import sys, string, time, copy
+import sys, string, time, copy, traceback
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -243,15 +243,38 @@ class cClinicalRecord:
 			narrative = note,
 			soap_cat = soap_cat,
 			episode_id = episode['pk_episode'],
-			encounter_id = self.__encounter['pk_encounter']
+			encounter_id = self.__encounter['pk_encounter'], emr = self
 		)
 		if not status:
 			_log.Log(gmLog.lErr, str(data))
 			return None
 		return data
 	#--------------------------------------------------------
+
+	def _add_narrative_from_rows(self, rows, idx):
+			existing_pk = dict( [ ( narr['pk_narrative'],1)  for narr in self.__db_cache['narrative'] ] )
+			for row in rows:
+				if existing_pk.has_key( row[idx['pk_narrative']]) :
+					continue
+				narr_row = {
+					'pk_field': 'pk_narrative',
+					'idx': idx,
+					'data': row
+					
+				}
+				try:
+					narr = gmClinNarrative.cNarrative(row=narr_row)
+					self.__db_cache['narrative'].append(narr)
+				except gmExceptions.ConstructorError:
+					_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
+   
+   
+   	_CMD_GET_V_PAT_NARRATIVE= "select coalesce( (select lastnames||', '||firstnames from v_staff  where v_staff.pk_staff = v_pat_narrative.pk_provider), 'Not recorded') as provider, * from v_pat_narrative where pk_patient=%s order by date"
+
+   
+	
 	def get_clin_narrative(self, since=None, until=None, encounters=None,
-		episodes=None, issues=None, soap_cats=None, exclude_rfe_aoe=False, invalidate_cache =False):
+		episodes=None, issues=None, soap_cats=None, exclude_rfe_aoe=False):
 		"""Get SOAP notes pertinent to this encounter.
 
 			since
@@ -270,31 +293,22 @@ class cClinicalRecord:
 				-  when True, filter out RFE and AOE narrative
 		"""
 		try:
-			if invalidate_cache:
-				raise KeyError
-
 			self.__db_cache['narrative']
+			print "DEBUG using cache in  self.__db_cache['narrative']"
 
 		except KeyError:
+			print "DEBUG NO CACHE in self.__db_cache['narrative'] : refetching CLIN_NARRATIVE"
 			self.__db_cache['narrative'] = []
-			cmd = "select * from v_pat_narrative where pk_patient=%s order by date"
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
+			
+			rows, idx = gmPG.run_ro_query('historica', self._CMD_GET_V_PAT_NARRATIVE, True, self.pk_patient)
+
+	
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load narrative for patient [%s]' % self.pk_patient)
 				del self.__db_cache['narrative']
 				return None
 			# Instantiate narrative items and keep cache
-			for row in rows:
-				narr_row = {
-					'pk_field': 'pk_narrative',
-					'idx': idx,
-					'data': row
-				}
-				try:
-					narr = gmClinNarrative.cNarrative(row=narr_row)
-					self.__db_cache['narrative'].append(narr)
-				except gmExceptions.ConstructorError:
-					_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
+			self._add_narrative_from_rows( rows, idx)
 
 		# ok, let's constrain our list
 		filtered_narrative = []
@@ -307,8 +321,10 @@ class cClinicalRecord:
 			filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
 		if episodes is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
+			
 		if encounters is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
+			
 		if soap_cats is not None:
 			soap_cats = map(lambda c:string.lower(c), soap_cats)
 			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
@@ -1252,7 +1268,7 @@ where
 		if self.__activate_fairly_recent_encounter():
 			return True
 		# 3) no encounter yet or too old, create new one
-		successful, enc = gmEMRStructItems.create_encounter (fk_patient = self.pk_patient)
+		successful, enc = gmEMRStructItems.create_encounter (fk_patient = self.pk_patient, emr=self)
 		if not successful:
 			return False
 		self.__encounter = enc
@@ -1388,6 +1404,20 @@ where
 #		return True
 		pass
 	#--------------------------------------------------------
+	
+	def _load_encounter_rows(self, rows, description):
+			for a_row in rows:
+				try:
+					row_map = { 
+						'data': a_row,
+						'pk_field' : 'pk_encounter',
+						'idx':	dict ( [ (field[0], pos)  for (field, pos) in zip( description, xrange(0,len(description) )  )   ])
+						}
+					self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row= row_map) )
+				except gmExceptions.ConstructorError, msg:
+					_log.LogException(str(msg), sys.exc_info(), verbose=0)					
+
+	
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
 		"""
 		Retrieves patient's encounters
@@ -1403,17 +1433,14 @@ where
 		except KeyError:
 			# fetch all encounters for patient
 			self.__db_cache['encounters'] = []
-			cmd = "select id from clin_encounter where fk_patient=%s order by started"
+			cmd = "select *  from v_pat_encounters where pk_patient=%s order by started"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for patient [%s]' % self.pk_patient)
 				del self.__db_cache['encounters']
 				return None
-			for row in rows:
-				try:
-					self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(aPK_obj=row[0]))
-				except gmExceptions.ConstructorError, msg:
-					_log.LogException(str(msg), sys.exc_info(), verbose=0)					
+			self._load_encounter_rows(  rows, gmPG.description)
+
 		# we've got the encounters, start filtering
 		filtered_encounters = []
 		filtered_encounters.extend(self.__db_cache['encounters'])
@@ -1594,6 +1621,18 @@ where pk_episode in %s and pk_patient = %s"""
 		"""
 		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], text, form_id])])
 
+
+	def update_cache( self, key, obj):
+		if not type(obj) is list:
+			obj = [ obj ]
+		try:
+			if not self.__db_cache.has_key(key):
+				self.__db_cache[key] = []
+			self.__db_cache[key].extend(obj)
+		except:
+			print sys.exc_info()[0], sys.exc_info()[1]
+			traceback.print_tb(sys.exc_info()[2])
+
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -1710,7 +1749,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.183  2005-10-04 19:31:45  sjtan
+# Revision 1.184  2005-10-08 12:33:08  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.183  2005/10/04 19:31:45  sjtan
 # allow for flagged invalidation of cache and cache reloading.
 #
 # Revision 1.182  2005/09/22 15:45:11  ncq

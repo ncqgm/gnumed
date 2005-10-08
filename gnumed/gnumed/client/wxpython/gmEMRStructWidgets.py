@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.16 2005-10-04 19:24:53 sjtan Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmEMRStructWidgets.py,v 1.17 2005-10-08 12:33:09 sjtan Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -145,7 +145,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			parent = parent
 			, id = -1
 			, aMatchProvider = mp
-			, style = wx.SIMPLE_BORDER
+			, style = wx.SIMPLE_BORDER | wx.TE_MULTILINE
 		)
 		gmEditArea._decorate_editarea_field(self.fld_progress_note)
 		self._add_field (
@@ -372,14 +372,25 @@ class cEpisodePicker(wx.Panel):
 		self.__BTN_action.Enable(False)
 
 		# populate table and cache episode list
+
+		
 		emr = self.__pat.get_clinical_record()
+		
+
+	        issues = emr.get_health_issues()
+	        issue_map = {}
+		for issue in issues:
+			issue_map[issue['id']] = issue['description']
+
+		
 		episodes = emr.get_episodes()
 		self.__episodes = {}
+
 		for idx in range(len(episodes)):
 			epi = episodes[idx]
 			# FIXME: this is NOT the proper date to show !
 			self.__LST_episodes.InsertStringItem(idx,  str(epi['episode_modified_when']))
-			self.__LST_episodes.SetStringItem(idx, 1, epi['description'])
+			self.__LST_episodes.SetStringItem(idx, 1, issue_map.get(epi['pk_health_issue'],'')+ ':' + epi['description'])
 			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
 			self.__episodes[idx] = epi
 			self.__LST_episodes.SetItemData(idx, idx)
@@ -885,7 +896,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.16  2005-10-04 19:24:53  sjtan
+# Revision 1.17  2005-10-08 12:33:09  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.16  2005/10/04 19:24:53  sjtan
 # browser now remembers expansion state and select state between change of patients, between health issue rename, episode rename or encounter relinking. This helps when reviewing the record more than once in a day.
 #
 # Revision 1.15  2005/09/27 20:44:58  ncq

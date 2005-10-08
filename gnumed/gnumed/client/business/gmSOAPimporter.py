@@ -45,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.7 2005-05-17 08:03:30 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmSOAPimporter.py,v 1.8 2005-10-08 12:33:08 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -57,7 +57,7 @@ import sys, re
 import mx.DateTime as mxDT
 
 # GnuMed
-from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmWhoAmI
+from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmWhoAmI, gmDispatcher, gmSignals
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmClinNarrative, gmPerson, gmVaccination
 
@@ -122,6 +122,7 @@ class cSOAPImporter:
 				_log.Log(gmLog.lErr, 'skipping soap entry')
 				continue
 			_log.Log(gmLog.lInfo, "embedded data imported OK")
+		gmDispatcher.send( gmSignals.clin_item_updated())
 
 		return True
 	#-----------------------------------------------------------
@@ -141,11 +142,11 @@ class cSOAPImporter:
 			_log.Log(gmLog.lErr, 'cannot verify soap entry')
 			return False
 		# obtain clinical context information
+		emr = self.__pat.get_clinical_record()
 		epi_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		try:
 			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
 		except KeyError:
-			emr = self.__pat.get_clinical_record()
 			enc = emr.get_active_encounter()
 			enc_id = enc['pk_encounter']
 
@@ -154,7 +155,7 @@ class cSOAPImporter:
 			narrative = soap_entry[soap_bundle_TEXT_KEY],
 			soap_cat = soap_entry[soap_bundle_SOAP_CAT_KEY],
 			episode_id = epi_id,
-			encounter_id = enc_id
+			encounter_id = enc_id, emr=emr
 		)
 
 		# attach types
@@ -365,7 +366,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.7  2005-05-17 08:03:30  ncq
+# Revision 1.8  2005-10-08 12:33:08  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.7  2005/05/17 08:03:30  ncq
 # - cleanup
 #
 # Revision 1.6  2005/04/12 09:59:16  ncq

@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.46 2005-10-04 19:24:53 sjtan Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmEMRBrowser.py,v 1.47 2005-10-08 12:33:10 sjtan Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -106,8 +106,6 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__register_interests()
 		self.__reset_ui_content()
 
-		self.__invalidated = None # for get_encounter_info() to bypass cache when an episode has moved
-		
 		self.expansion_history = ExpansionHistory(self, self.__emr_tree)
 	#--------------------------------------------------------
 	def __do_layout(self):
@@ -205,6 +203,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
+		gmDispatcher.connect(signal=gmSignals.clin_item_updated(), receiver = self._on_clin_item_updated)
 	#--------------------------------------------------------
 	def __on_dump_emr(self, event):
 		"""Dump EMR to file."""		   
@@ -218,7 +217,12 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Episode changed."""
 		#less drastic ui update more usable
 		#self._schedule_data_reget()
-		pass
+		print "DEBUG ======================SIGNALLED EPISODE_MODIFIED==============="
+		self.__exporter.refresh_historical_tree( self.__emr_tree)
+
+	def _on_clin_item_updated(self):
+		self.__exporter.refresh_historical_tree( self.__emr_tree)
+
 		
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
@@ -240,8 +244,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			txt = self.__exporter.get_episode_summary(episode=sel_item_obj)
 		elif isinstance(sel_item_obj, gmEMRStructItems.cEncounter):
 			epi = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
-			is_invalidated = sel_item_obj == self.__invalidated
-			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj, refresh_cache = is_invalidated )
+			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj)
 		else:
 			txt = _('Summary') + '\n=======\n\n' + self.__exporter.get_summary_info(0)
 
@@ -450,11 +453,15 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			if target_episode_node and target_episode_node.IsOk():
 				print "DEBUG trying to move node ", node, " to ", target_episode_node
 				self.move_node(self.__emr_tree, node, target_episode_node) 
+				self.__emr_tree.EnsureVisible(target_episode_node)
 			else:
 				print "No target episode node found"
 
-			self.__selected_encounter.transfer_clinical_data(from_episode = curr_episode, to_episode = target)
-			self.__invalidated = self.__selected_encounter
+			self.__selected_encounter.transfer_clinical_data(from_episode = curr_episode, 
+									 to_episode = target, 
+									 emr = self.__exporter.get_patient().get_clinical_record()
+									 )
+			
 			
 		elif retval == dialog_CANCELLED:
 			pass
@@ -465,10 +472,10 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		
 #		self._on_episodes_modified()
 
-
+		
+	
 	#FIXME refactor move to exporter ?
 	def find_node(self,tree, root,  data_object):
-	
 		nodes = []
 		id , cookie = tree.GetFirstChild( root)
 
@@ -569,7 +576,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		result = popup.ShowModal()
 		if ea._health_issue :
-			self.__exporter.add_health_issue_branch( self.__emr_tree, ea._health_issue)
+			self.__exporter._add_health_issue_branch( self.__emr_tree, ea._health_issue)
 
 
 #================================================================
@@ -649,14 +656,14 @@ class ExpansionHistory:
 		
 		self._expansion_history = {} # for remembering expansion states of previously visited histories
 		self.__last_pat_desc = None
-		self._selected_node = None
+		self.__selected_node = None
 		
 	def remember_expansion(self):
 		ix = self.__last_pat_desc
 		if ix is None:
 			return
-		print "\nDEBUG Remembering with index",ix 
-		print
+		#print "\nDEBUG Remembering with index",ix 
+		#print
 		l = []
 		
 		#if cache full resize 
@@ -674,15 +681,15 @@ class ExpansionHistory:
 
 	def _record_expansion(self,tree,  root, l):
 		id, cookie = tree.GetFirstChild( root)
-		print "id", id, " is Ok", id.IsOk()
+		#print "id", id, " is Ok", id.IsOk()
 		while id.IsOk():
 			expanded = tree.IsExpanded(id)
-			print "id expanded = ", expanded
+			#print "id expanded = ", expanded
 			l2 = [tree.IsSelected(id)]
 			
 			if expanded:
 				self._record_expansion(tree, id, l2)
-			print "expansion at ", id , " is ",  l2
+			#print "expansion at ", id , " is ",  l2
 			l.append(l2)
 			id, cookie = tree.GetNextChild(root,  cookie)
 		
@@ -693,7 +700,9 @@ class ExpansionHistory:
 		print "DEBUG restoring with ",ix 
 		if self._expansion_history.has_key(ix):
 			l = self._expansion_history[ix]
+		        self.__selected_node = None
 			self._restore_expand( self._tree, self._tree.GetRootItem(), l)
+
 		if self.__selected_node:		
 			self._tree.SelectItem( self.__selected_node)	
 
@@ -773,7 +782,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.46  2005-10-04 19:24:53  sjtan
+# Revision 1.47  2005-10-08 12:33:10  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.46  2005/10/04 19:24:53  sjtan
 # browser now remembers expansion state and select state between change of patients, between health issue rename, episode rename or encounter relinking. This helps when reviewing the record more than once in a day.
 #
 # Revision 1.45  2005/10/04 13:09:49  sjtan

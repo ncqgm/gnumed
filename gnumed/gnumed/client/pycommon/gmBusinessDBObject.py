@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.26 2005-10-04 11:39:58 sjtan Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmBusinessDBObject.py,v 1.27 2005-10-08 12:33:08 sjtan Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -185,6 +185,7 @@ class cBusinessDBObject:
 		else:
 			self._init_from_row_data(row=row)
 		self._is_modified = False
+		self._flagged = False
 	#--------------------------------------------------------
 	def __init_from_pk(self, aPK_obj=None):
 		"""Creates a new clinical item instance by its PK.
@@ -342,6 +343,8 @@ class cBusinessDBObject:
 		if self._is_modified:
 			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 			return False
+
+		_log.Log(gmLog.lInfo, "Fetching with %s %s" %  (self.__class__._cmd_fetch_payload , self.pk_obj))
 		data, self._idx = gmPG.run_ro_query (
 			self.__class__._service,
 			self.__class__._cmd_fetch_payload,
@@ -526,6 +529,7 @@ class cBusinessDBObject:
 		for i in table_cache:
 			if not i.has_key('__same'):
 				self.del_from_subtable (table, i)
+
 #============================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -554,7 +558,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.26  2005-10-04 11:39:58  sjtan
+# Revision 1.27  2005-10-08 12:33:08  sjtan
+# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
+#
+# Revision 1.26  2005/10/04 11:39:58  sjtan
 # catch missing attribute error.
 #
 # Revision 1.25  2005/06/15 22:26:20  ncq
