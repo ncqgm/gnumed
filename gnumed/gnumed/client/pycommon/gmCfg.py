@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -662,7 +662,7 @@ class cCfgFile:
 		try:
 			os.remove(bak_name)
 		except:
-			_log.LogException("Problem backing up config file !", sys.exc_info(), verbose=0)
+			_log.Log (gmLog.lInfo, "can't delete %s.gmCfg.bak as it doesn't exist. Continuing")
 
 		try:
 			shutil.copyfile(self.cfgName, bak_name)
@@ -1257,7 +1257,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.27  2005-08-14 15:35:31  ncq
+# Revision 1.28  2005-10-08 09:24:09  ihaywood
+# lack of a backup config file is now an warning only.
+#
+# Revision 1.27  2005/08/14 15:35:31  ncq
 # - cleanup
 #
 # Revision 1.26  2005/02/05 10:58:09  ihaywood
