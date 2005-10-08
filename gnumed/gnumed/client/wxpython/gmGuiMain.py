@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.219 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.219 $"
+# $Id: gmGuiMain.py,v 1.220 2005-10-08 12:37:25 sjtan Exp $
+__version__ = "$Revision: 1.220 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -397,7 +397,7 @@ class gmTopLevelFrame(wx.Frame):
 			for epi in epis:
 				enc_summary += '%s; ' % epi['description']
 		# - make this an optional modal dialog
-		if ('auto-created' in enc['description']) or (len(enc['description'].strip()) == 0):
+		if  enc and (enc['description'] is None or  (enc['description'].find('auto-created') >= 0) or (len(enc['description'].strip()) == 0) ): 
 			enc['description'] = enc_summary
 			if not enc.save_payload():
 				gmGuiHelpers.gm_beep_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
@@ -933,7 +933,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.219  2005-09-28 21:27:30  ncq
+# Revision 1.220  2005-10-08 12:37:25  sjtan
+# enc['description'] can return None
+#
+# Revision 1.219  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.218  2005/09/28 15:57:48  ncq
