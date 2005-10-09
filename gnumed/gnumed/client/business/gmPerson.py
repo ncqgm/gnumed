@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.55 2005-09-25 01:00:47 ihaywood Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmPerson.py,v 1.56 2005-10-09 12:22:54 ihaywood Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -129,7 +129,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if attribute == 'dob':
 			if type(value) != type(mxDT.now()):
 				raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob]' % (self.__class__.__name__, type(value), value)
-		gmBusinessDBObject.cBusinessDBObject(self, attribute, value)
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def cleanup(self):
 		pass
@@ -1502,7 +1502,12 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.55  2005-09-25 01:00:47  ihaywood
+# Revision 1.56  2005-10-09 12:22:54  ihaywood
+# new rich text
+# widget
+# bugfix to gmperson.py
+#
+# Revision 1.55  2005/09/25 01:00:47  ihaywood
 # bugfixes
 #
 # remember 2.6 uses "import wx" not "from wxPython import wx"
