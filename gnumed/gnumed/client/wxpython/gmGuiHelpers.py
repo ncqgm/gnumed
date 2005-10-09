@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.28 2005-10-04 13:09:49 sjtan Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmGuiHelpers.py,v 1.29 2005-10-09 08:07:56 ihaywood Exp $
+__version__ = "$Revision: 1.29 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -279,10 +279,32 @@ class cTextObjectValidator(wx.PyValidator):
 
 		# Returning without calling even.Skip eats the event before it
 		# gets to the text control
-		return			
+		return
+
+
+
+class cReturnTraversalTextCtrl (wx.TextCtrl):
+	"""
+	Acts exactly like a plain TextCtrl except that RETURN also
+	calls wxWindow.Navigate ()
+
+	FIXME: detect 2.4 and then make self.Navigate a no-op
+	"""
+
+
+	def __init__ (self, *args):
+		wx.TextCtrl.__init__ (self, *args)
+		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
+
+	def __on_enter (self, event):
+		self.Navigate ()
+	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.28  2005-10-04 13:09:49  sjtan
+# Revision 1.29  2005-10-09 08:07:56  ihaywood
+# a textctrl that uses return for navigation wx 2.6 only
+#
+# Revision 1.28  2005/10/04 13:09:49  sjtan
 # correct syntax errors; get soap entry working again.
 #
 # Revision 1.27  2005/10/04 00:04:45  sjtan
