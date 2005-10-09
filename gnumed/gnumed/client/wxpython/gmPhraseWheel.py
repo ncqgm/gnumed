@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.62 2005-10-09 02:19:40 ihaywood Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPhraseWheel.py,v 1.63 2005-10-09 08:15:21 ihaywood Exp $
+__version__ = "$Revision: 1.63 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -62,7 +62,6 @@ class cPhraseWheel (wx.TextCtrl):
 		self._is_modified  = False
 
 		self._on_selection_callbacks = []
-		self._on_enter_callbacks = []
 		self._on_lose_focus_callbacks = []
 		self.notified_listeners = False
 
@@ -132,12 +131,6 @@ class cPhraseWheel (wx.TextCtrl):
 			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
 			return False
 		self._on_selection_callbacks.append(callback)
-	#---------------------------------------------------------
-	def add_callback_on_enter(self, callback=None):	
-		if not callable(callback):
-			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
-			return False
-		self._on_enter_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
 		if not callable(callback):
@@ -307,6 +300,7 @@ class cPhraseWheel (wx.TextCtrl):
 			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
 		else:
 			wx.TextCtrl.SetValue (self, self._picklist.GetString(selection_idx))
+			self.Navigate ()
 		self._is_modified = True
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
@@ -325,15 +319,12 @@ class cPhraseWheel (wx.TextCtrl):
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
-		for callback in self._on_enter_callbacks:
-			try:
-				callback()
-			except:
-				print "error calling", callback
 		# if we have a pick list
 		if self.__picklist_visible:
 			# tell the input field about it
 			self.on_list_item_selected()
+		else:
+			self.Navigate ()
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
 		# if we already have a pick list go to next item
@@ -567,7 +558,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.62  2005-10-09 02:19:40  ihaywood
+# Revision 1.63  2005-10-09 08:15:21  ihaywood
+# SetValue () has optional second parameter to set data.
+#
+# Revision 1.62  2005/10/09 02:19:40  ihaywood
 # the address widget now has the appropriate widget order and behaviour for australia
 # when os.environ["LANG"] == 'en_AU' (is their a more graceful way of doing this?)
 #
