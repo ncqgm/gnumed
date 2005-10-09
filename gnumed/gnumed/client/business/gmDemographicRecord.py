@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.75 2005-10-09 02:19:40 ihaywood Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmDemographicRecord.py,v 1.76 2005-10-09 08:11:48 ihaywood Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -221,7 +221,7 @@ def getCountry (country_code):
 		return row_list[0][0]
 #-------------------------------------------------------------------------------
 def get_town_data (town):
-	row_list = gmPG.run_ro_query ('personalia', "select urb.postcode, state.id, state.name, country.code, country.name from urb, state, country where urb.name = %s and urb.id_state = state.id and state.country = country.code", None, town)
+	row_list = gmPG.run_ro_query ('personalia', "select urb.postcode, state.code, state.name, country.code, country.name from urb, state, country where urb.name = %s and urb.id_state = state.id and state.country = country.code", None, town)
 	if not row_list:
 		return (None, None, None, None, None)
 	else:
@@ -403,7 +403,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.75  2005-10-09 02:19:40  ihaywood
+# Revision 1.76  2005-10-09 08:11:48  ihaywood
+# introducing get_town_data (), a convience method to get info that can be inferred from a town's name (in AU)
+#
+# Revision 1.75  2005/10/09 02:19:40  ihaywood
 # the address widget now has the appropriate widget order and behaviour for australia
 # when os.environ["LANG"] == 'en_AU' (is their a more graceful way of doing this?)
 #
