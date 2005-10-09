@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.71 2005-10-09 02:19:40 ihaywood Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmDemographicsWidgets.py,v 1.72 2005-10-09 08:10:22 ihaywood Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2178,29 +2178,36 @@ class cPatContactsPanel(wx.Panel):
 		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
-	def __do_layout(self):
-		# FIXME: main panel, required for a correct propagation of validator calls.
-		# If this panel doesn't exists and the validator is set
-		# direclty to self, calling self.transferDataFromWindow
-		# just returns true without the method in validator being
-		# called. It seems that works for the children of self.
-		PNL_form = wx.Panel(self, -1)
+	def __do_number (self):
 		
+		# address number
+		STT_address_number = wx.StaticText(self.PNL_form, -1, _('Number'))
+		self.TTC_address_number = wx.TextCtrl(self.PNL_form, -1)
+		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
+		self.SZR_input.Add(STT_address_number, 0, wx.SHAPED)
+		self.SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
+
+	def __do_zip (self):
+			
 		# zip code
-		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
+		STT_zip_code = wx.StaticText(self.PNL_form, -1, _('Zip code'))
 		queries = []
 		queries.append("select distinct postcode, postcode from street where postcode %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
+			parent = self.PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
+		self.SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
+		self.SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
 
+	def __do_street (self):
+				
 		# street
-		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
+		STT_street = wx.StaticText(self.PNL_form, -1, _('Street'))
 		queries = []
 		queries.append("""
 		select distinct on (s1,s2) s1, s2 from (
@@ -2214,20 +2221,20 @@ class cPatContactsPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_street = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
+			parent = self.PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_street.set_context(context='zip', val='%')
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
+		self.SZR_input.Add(STT_street, 0, wx.SHAPED)
+		self.SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
 
-		# address number
-		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
-		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
-		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
 
+	def __do_town (self):
+		
 		# town
-		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
+		STT_town = wx.StaticText(self.PNL_form, -1, _('Town'))
 		queries = []
 		queries.append("""
 		select distinct on (u1,u2) u1, u2 from (
@@ -2241,16 +2248,20 @@ class cPatContactsPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
+			parent = self.PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_town.set_context(context='zip', val='%')
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
+		
+		self.SZR_input.Add(STT_town, 0, wx.SHAPED)
+		self.SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 
+	def __do_state_country (self):
 		# state
 		# FIXME: default in config
-		STT_state = wx.StaticText(PNL_form, -1, _('State'))
+		STT_state = wx.StaticText(self.PNL_form, -1, _('State'))
 		queries = []
 		queries.append("""
 		select distinct on (code,name) code, name from (
@@ -2264,7 +2275,7 @@ class cPatContactsPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
+			parent = self.PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			selection_only = True
@@ -2275,7 +2286,7 @@ class cPatContactsPanel(wx.Panel):
 
 		# country
 		# FIXME: default in config
-		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
+		STT_country = wx.StaticText(self.PNL_form, -1, _('Country'))
 		queries = []
 		queries.append("""
 		select distinct on (code,name) code, name from (
@@ -2289,59 +2300,61 @@ class cPatContactsPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
+			parent = self.PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			selection_only = True
 		)
 		self.PRW_country.set_context(context='zip', val='%')
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
+		self.SZR_input.Add(STT_state, 0, wx.SHAPED)
+		self.SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
+		self.SZR_input.Add(STT_country, 0, wx.SHAPED)
+		self.SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 
+	def __do_phones (self):
+		
 		# phone
-		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
-		self.TTC_phone = wx.TextCtrl(PNL_form, -1,
+		STT_phone = wx.StaticText(self.PNL_form, -1, _('Phone'))
+		self.TTC_phone = wx.TextCtrl(self.PNL_form, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
+		self.SZR_input.Add(STT_phone, 0, wx.SHAPED)
+		self.SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 
-		# Set validator for identity form
-		PNL_form.SetValidator(cPatContactsPanelValidator(dtd = self.__dtd))
-				
+	def __do_layout(self):
+		# FIXME: main panel, required for a correct propagation of validator calls.
+		# If this panel doesn't exists and the validator is set
+		# direclty to self, calling self.transferDataFromWindow
+		# just returns true without the method in validator being
+		# called. It seems that works for the children of self.
+
+		self.PNL_form = wx.Panel(self, -1)
 		# layout input widgets
-		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
-		SZR_input.AddGrowableCol(1)
+		self.SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
+		self.SZR_input.AddGrowableCol(1)
 		if self.locale[:5] == 'en_AU':
-			SZR_input.Add(STT_address_number, 0, wx.SHAPED)
-			SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
-			SZR_input.Add(STT_street, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
-			SZR_input.Add(STT_town, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
-			SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
-			SZR_input.Add(STT_state, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
-			SZR_input.Add(STT_country, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
+			self.__do_number ()
+			self.__do_street ()
+			self.__do_town ()
+			self.__do_zip ()
+			self.__do_state_country ()
+			self.__do_phones ()
 		else:
-			SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
-			SZR_input.Add(STT_street, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
-			SZR_input.Add(STT_address_number, 0, wx.SHAPED)
-			SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
-			SZR_input.Add(STT_town, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
-			SZR_input.Add(STT_state, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
-			SZR_input.Add(STT_country, 0, wx.SHAPED)
-			SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
-		SZR_input.Add(STT_phone, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
-		PNL_form.SetSizerAndFit(SZR_input)
+			self.__do_zip ()
+			self.__do_street ()
+			self.__do_number ()
+			self.__do_town ()
+			self.__do_state_country ()
+			self.__do_phones ()
+		# Set validator for identity form
+		self.PNL_form.SetValidator(cPatContactsPanelValidator(dtd = self.__dtd))
+		
+		self.PNL_form.SetSizerAndFit(self.SZR_input)
 		
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(PNL_form, 1, wx.EXPAND)
+		SZR_main.Add(self.PNL_form, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)
 	#--------------------------------------------------------
 	# event handling
@@ -2808,7 +2821,7 @@ def link_contacts_from_dtd(identity, dtd=None):
 	input_urb = capitalize_first(dtd['town'])
 	input_state = dtd['state']
 	input_country = dtd['country']
-	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and len(input_state) > 0 and\
+	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and len (input_state) > 0 and \
 	 len(input_country) > 0 and len(input_urb) > 0 and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
 	 input_postcode != addresses[last_idx]['postcode'] or input_urb  != addresses[last_idx]['urb'] or
 	 input_state != addresses[last_idx]['state_code'] or input_country != addresses[last_idx]['country_code'])):
@@ -2918,7 +2931,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.71  2005-10-09 02:19:40  ihaywood
+# Revision 1.72  2005-10-09 08:10:22  ihaywood
+# ok, re-order the address widgets "the hard way" so tab-traversal works correctly.
+#
+# minor bugfixes so saving address actually works now
+#
+# Revision 1.71  2005/10/09 02:19:40  ihaywood
 # the address widget now has the appropriate widget order and behaviour for australia
 # when os.environ["LANG"] == 'en_AU' (is their a more graceful way of doing this?)
 #
