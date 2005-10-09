@@ -8,13 +8,13 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.70 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmDemographicsWidgets.py,v 1.71 2005-10-09 02:19:40 ihaywood Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys
+import time, string, sys, os
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -2171,6 +2171,10 @@ class cPatContactsPanel(wx.Panel):
 		wx.Panel.__init__(self, parent, id)		
 		self.__dtd = dtd
 		self.__ident = ident
+		if os.environ.has_key ("LANG"):
+			self.locale = os.environ['LANG']
+		else:
+			self.locale = 'unknown'
 		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -2305,18 +2309,32 @@ class cPatContactsPanel(wx.Panel):
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
-		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
-		SZR_input.Add(STT_street, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
-		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
-		SZR_input.Add(STT_town, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
-		SZR_input.Add(STT_state, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
-		SZR_input.Add(STT_country, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
+		if self.locale[:5] == 'en_AU':
+			SZR_input.Add(STT_address_number, 0, wx.SHAPED)
+			SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
+			SZR_input.Add(STT_street, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
+			SZR_input.Add(STT_town, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
+			SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
+			SZR_input.Add(STT_state, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
+			SZR_input.Add(STT_country, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
+		else:
+			SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
+			SZR_input.Add(STT_street, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
+			SZR_input.Add(STT_address_number, 0, wx.SHAPED)
+			SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
+			SZR_input.Add(STT_town, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
+			SZR_input.Add(STT_state, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
+			SZR_input.Add(STT_country, 0, wx.SHAPED)
+			SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
@@ -2333,8 +2351,11 @@ class cPatContactsPanel(wx.Panel):
 		Configure enabled event signals
 		"""
 		# custom
-		self.PRW_country.add_callback_on_selection(self.on_country_selected)
-		self.PRW_zip_code.add_callback_on_lose_focus(self.on_zip_set)
+		if self.locale[:5] == 'en_AU':
+			self.PRW_town.add_callback_on_selection (self.on_town_set)
+		else:
+			self.PRW_country.add_callback_on_selection(self.on_country_selected)
+			self.PRW_zip_code.add_callback_on_lose_focus(self.on_zip_set)
 	#--------------------------------------------------------
 	def on_country_selected(self, data):
 		"""
@@ -2357,6 +2378,17 @@ class cPatContactsPanel(wx.Panel):
 		self.PRW_country.set_context(context='zip', val=zip_code)
 		#print "zip [%s]-> street, town, state, country" % zip_code
 		return True
+	#--------------------------------------------------------
+	def on_town_set (self, data):
+		"""
+		Set postcode, country and state in accordance with the town
+		"""
+		zip, state_id, state, country_id, country = gmDemographicRecord.get_town_data (self.PRW_town.GetValue ())
+		if zip:
+			self.PRW_state.SetValue (state, state_id)
+			self.PRW_zip_code.SetValue (zip)
+			self.PRW_country.SetValue (country, country_id)
+			self.TTC_phone.SetFocus ()
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------			
@@ -2886,7 +2918,13 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.70  2005-09-28 21:27:30  ncq
+# Revision 1.71  2005-10-09 02:19:40  ihaywood
+# the address widget now has the appropriate widget order and behaviour for australia
+# when os.environ["LANG"] == 'en_AU' (is their a more graceful way of doing this?)
+#
+# Remember our postcodes work very differently.
+#
+# Revision 1.70  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.69  2005/09/28 19:47:01  ncq

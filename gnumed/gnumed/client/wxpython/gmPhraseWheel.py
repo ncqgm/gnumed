@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.61 2005-10-04 00:04:45 sjtan Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPhraseWheel.py,v 1.62 2005-10-09 02:19:40 ihaywood Exp $
+__version__ = "$Revision: 1.62 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -151,15 +151,17 @@ class cPhraseWheel (wx.TextCtrl):
 		"""
 		return self.data
 	#---------------------------------------------------------
-	def SetValue (self, value):
+	def SetValue (self, value, data = None):
 		wx.TextCtrl.SetValue (self, value)
 		self._is_modified = False
-		if self.selection_only:
+		if self.selection_only and data is None:
 			stat, matches = self.__matcher.getMatches(aFragment = value)
 			for item in matches:
 				if item['label'] == value:
 					self.data = item['data']
 					self.input_was_selected = True
+		else:
+			self.data = data
 	#-------------------------------------------------------
 	def IsModified (self):
 		return wx.TextCtrl.IsModified (self) or self._is_modified
@@ -565,7 +567,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.61  2005-10-04 00:04:45  sjtan
+# Revision 1.62  2005-10-09 02:19:40  ihaywood
+# the address widget now has the appropriate widget order and behaviour for australia
+# when os.environ["LANG"] == 'en_AU' (is their a more graceful way of doing this?)
+#
+# Remember our postcodes work very differently.
+#
+# Revision 1.61  2005/10/04 00:04:45  sjtan
 # convert to wx.; catch some transitional errors temporarily
 #
 # Revision 1.60  2005/09/28 21:27:30  ncq

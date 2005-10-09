@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.74 2005-06-07 10:15:47 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmDemographicRecord.py,v 1.75 2005-10-09 02:19:40 ihaywood Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -220,6 +220,13 @@ def getCountry (country_code):
 	else:
 		return row_list[0][0]
 #-------------------------------------------------------------------------------
+def get_town_data (town):
+	row_list = gmPG.run_ro_query ('personalia', "select urb.postcode, state.id, state.name, country.code, country.name from urb, state, country where urb.name = %s and urb.id_state = state.id and state.country = country.code", None, town)
+	if not row_list:
+		return (None, None, None, None, None)
+	else:
+		return tuple (row_list[0])
+#-------------------------------------------------------------------------------
 class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of valid postcodes,
 	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
@@ -396,7 +403,13 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.74  2005-06-07 10:15:47  ncq
+# Revision 1.75  2005-10-09 02:19:40  ihaywood
+# the address widget now has the appropriate widget order and behaviour for australia
+# when os.environ["LANG"] == 'en_AU' (is their a more graceful way of doing this?)
+#
+# Remember our postcodes work very differently.
+#
+# Revision 1.74  2005/06/07 10:15:47  ncq
 # - setContext -> set_context
 #
 # Revision 1.73  2005/04/25 08:26:48  ncq
