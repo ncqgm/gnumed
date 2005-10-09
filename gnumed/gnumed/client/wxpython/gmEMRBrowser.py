@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.47 2005-10-08 12:33:10 sjtan Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmEMRBrowser.py,v 1.48 2005-10-09 06:42:02 sjtan Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -216,12 +216,13 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def _on_episodes_modified(self):
 		"""Episode changed."""
 		#less drastic ui update more usable
-		#self._schedule_data_reget()
+		self._schedule_data_reget()
 		print "DEBUG ======================SIGNALLED EPISODE_MODIFIED==============="
-		self.__exporter.refresh_historical_tree( self.__emr_tree)
+		#self.__exporter.refresh_historical_tree( self.__emr_tree)
 
 	def _on_clin_item_updated(self):
-		self.__exporter.refresh_historical_tree( self.__emr_tree)
+		#self.__exporter.refresh_historical_tree( self.__emr_tree)
+		self._schedule_data_reget()
 
 		
 	#--------------------------------------------------------
@@ -782,7 +783,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.47  2005-10-08 12:33:10  sjtan
+# Revision 1.48  2005-10-09 06:42:02  sjtan
+# timely cache update means a complete tree reconstruct can be done quite fast ( currently sized records anyway),
+# so don't use refresh_historical_tree() - need to debug this anyway.
+#
+# Revision 1.47  2005/10/08 12:33:10  sjtan
 # tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
 #
 # Revision 1.46  2005/10/04 19:24:53  sjtan
