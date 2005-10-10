@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.27 2005-10-08 12:33:08 sjtan Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmBusinessDBObject.py,v 1.28 2005-10-10 17:40:57 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -141,7 +141,8 @@ class cBusinessDBObject:
 		self.__class__._cmd_fetch_payload
 			# must fetch xmin ! (and the view must support that ...)
 		self.__class__._cmds_lock_rows_for_update
-			# must do "select for update" and use xmin in where clause, each query must return exactly 1 row
+			# must do "select for update" and use xmin in where clause,
+			# each query must return exactly 1 row
 		self.__class__._cmds_store_payload
 			# one or multiple "update ... set ..." statements which
 			# actually update the database from the data in self._payload,
@@ -185,7 +186,7 @@ class cBusinessDBObject:
 		else:
 			self._init_from_row_data(row=row)
 		self._is_modified = False
-		self._flagged = False
+#		self._flagged = False
 	#--------------------------------------------------------
 	def __init_from_pk(self, aPK_obj=None):
 		"""Creates a new clinical item instance by its PK.
@@ -262,18 +263,13 @@ class cBusinessDBObject:
 		# 3) subtable
 		try:
 			query = self._subtable_dml_templates[attribute]['select']
-
 			rows, idx = gmPG.run_ro_query(self.__class__._service, query, True, self.pk_obj)
 			if rows is not None:
 				self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
 				return self._ext_cache[attribute]
 			_log.Log(gmLog.lErr, '[%s:%s]: error getting subtable attribute [%s]' % (self.__class__.__name__, self.pk_obj, attribute))
-		except KeyError:
-			pass
-		except AttributeError:
-			#?self._subtable_dml_templates doesn't exist
-			_log.LogException('[%s:%s]: error finding instance attribute %s' % (self.__class__.__name__, self.pk_obj, attribute ))
-
+		except KeyError, AttributeError:
+			_log.LogException('[%s:%s]: subtable support error' % (self.__class__.__name__, self.pk_obj), sys.exc_info(), verbose=0)
 			pass
 		# 4) getters providing extensions
 		getter = getattr(self, 'get_%s' % attribute, None)
@@ -343,8 +339,6 @@ class cBusinessDBObject:
 		if self._is_modified:
 			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 			return False
-
-		_log.Log(gmLog.lInfo, "Fetching with %s %s" %  (self.__class__._cmd_fetch_payload , self.pk_obj))
 		data, self._idx = gmPG.run_ro_query (
 			self.__class__._service,
 			self.__class__._cmd_fetch_payload,
@@ -558,7 +552,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.27  2005-10-08 12:33:08  sjtan
+# Revision 1.28  2005-10-10 17:40:57  ncq
+# - slightly enhance Syans fixes on AttributeError
+#
+# Revision 1.27  2005/10/08 12:33:08  sjtan
 # tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
 #
 # Revision 1.26  2005/10/04 11:39:58  sjtan
