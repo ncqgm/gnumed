@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -134,7 +134,7 @@ class cLogger:
 
 		in case there's no target given open a dummy target
 	"""
-		if aTarget == None:
+		if aTarget is None:
 			aTarget = cLogTargetDummy()
 		self.AddTarget (aTarget)
 	#---------------------------
@@ -217,7 +217,7 @@ class cLogger:
 		for key in self.__targets.keys():
 			self.__targets[key].writeDelimiter()
 	#---------------------------
-	def LogException(self, aMsg, exception = None , verbose=1, **kwargs):
+	def LogException(self, aMsg, exception=None, verbose=1, **kwargs):
 		"""Log an exception.
 
 		'exception' is a tuple as returned by sys.exc_info()
@@ -235,16 +235,6 @@ class cLogger:
 			exc_type, exc_val, exc_traceback = sys.exc_info()
 			# FIXME: I wonder if the following back-and-forth reversing is necessary
 			# trace back to root caller
-			
-			print "DEBUG temporary for debugging when used to normal traceback"
-			print "DEBUG sys.exc_info()[0:2]" 
-			print exc_type, " : ", exc_val
-			print "DEBUG traceback.print_tb(sys.exc_info()[2])"
-			traceback.print_tb(exc_traceback)
-			print "DEBUG END"
-			print
-
-			
 			tb = exc_traceback
 			if not tb:
 				return
@@ -302,11 +292,6 @@ class cLogger:
 			return AsciiName[ord(aChar)]
 		except IndexError:
 			return aChar
-
-#		if ord(aChar) in range(0,32):
-#			return AsciiName[ord(aChar)]
-#		else:
-#			return aChar
 #---------------------------------------------------------------
 class cLogTarget:
 	"""Base class for actual log target implementations.
@@ -832,7 +817,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.13  2005-10-04 13:09:49  sjtan
+# Revision 1.14  2005-10-10 18:18:14  ncq
+# - some cleanup only, really
+#
+# Revision 1.13  2005/10/04 13:09:49  sjtan
 # correct syntax errors; get soap entry working again.
 #
 # Revision 1.12  2005/10/03 13:49:21  sjtan
