@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.69 2005-10-08 12:33:09 sjtan Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmPatientExporter.py,v 1.70 2005-10-11 21:51:07 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -721,7 +721,7 @@ class cEmrExport:
     #--------------------------------------------------------
     def get_encounter_info(self, episode, encounter, left_margin = 0):
         """
-        Dumps encounter specific data (title, rfe, aoe and soap)
+        Dumps encounter specific data (rfe, aoe and soap)
         """
         emr = self.__patient.get_clinical_record()
         # general
@@ -733,12 +733,10 @@ class cEmrExport:
         if (encounter['description'] is not None) and (len(encounter['description']) > 0):
             txt += ' (%s)' % encounter['description']
         txt += '\n\n'
-	
-        # rfe
-	#DEBUG get_rfes() is gone, where is it?
-        #rfes = encounter.get_rfes()
-        #for rfe in rfes:
-        #    txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), rfe['rfe'])
+
+        # rfe/aoe
+        txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), encounter['rfe'])
+        txt += (' ' * left_margin) + '%s: %s\n' % (_('AOE'), encounter['aoe'])
 
         # soap
         soap_cat_labels = {
@@ -752,8 +750,7 @@ class cEmrExport:
             soap_cat_narratives = emr.get_clin_narrative (
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
-                soap_cats = [soap_cat],
-                exclude_rfe_aoe = True
+                soap_cats = [soap_cat]
             )
 
             if soap_cat_narratives is None:
@@ -762,35 +759,16 @@ class cEmrExport:
                 continue
             txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             for soap_entry in soap_cat_narratives:
-	    	#DEBUG remove 
-	        try:
-			provider = soap_entry['provider']
-		except:
-			_log.Log(gmLog.lInfo, 'soap_entry %s doesnt have "provider" attribute' % str(soap_entry) )
-			provider = "TO BE DONE near  "+ str( sys.exc_info()[1]) 
-		#FIXME
-
                 txt += (
                     (' ' * (left_margin+3)) +
                     soap_entry['date'].Format(_('%H:%M %.7s: ')) % provider  +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )
-
-        # aoe
-	try:
-		aoes = encounter.get_aoes()               
-		for aoe in aoes:
-		    txt += left_margin*' ' + 'AOE: ' + aoe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +  aoe['aoe'] + '\n'
-		    if aoe.is_diagnosis():
-			diagnosis = aoe.get_diagnosis()
-			for a_code in diagnosis.get_codes():
-			    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n'
-        except:
-		_log.Log(gmLog.lInfo, 'encounter.get_aoes() failed. ')
+		#FIXME: add diagnoses
 
         # items
-        for an_item     in self.__filtered_items:
+        for an_item in self.__filtered_items:
             if an_item['pk_encounter'] == encounter['pk_encounter']:
                 txt += self.get_item_output(an_item, left_margin)
         return txt      
@@ -1280,7 +1258,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.69  2005-10-08 12:33:09  sjtan
+# Revision 1.70  2005-10-11 21:51:07  ncq
+# - rfe/aoe handling changes so adapt to that
+#
+# Revision 1.69  2005/10/08 12:33:09  sjtan
 # tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
 #
 # Revision 1.68  2005/10/04 19:22:37  sjtan
