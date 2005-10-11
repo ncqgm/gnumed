@@ -20,6 +20,7 @@ class RichTextCtrl (wx.TextCtrl):
             self.keywords = kwargs['keywords']
             del kwargs['keywords']
         wx.TextCtrl.__init__ (self, parent, id, **kwargs)
+        self.original_font = self.unwrap (self.GetDefaultStyle ())
         if value:
             self.SetValue (value)
 
@@ -37,6 +38,7 @@ class RichTextCtrl (wx.TextCtrl):
         self.__add_text (value)
         
     def SetValue (self, value):
+        self.Clear ()
         self.func = wx.TextCtrl.AppendText
         self.__add_text (value)
 
@@ -93,7 +95,7 @@ class RichTextCtrl (wx.TextCtrl):
                     font.SetStyle (wx.FONTSTYLE_NORMAL)
                     style.SetFont (font)
                     self.SetDefaultStyle (style)
-                elif content == 'p' or content == '/p':
+                elif content == 'p' or content == 'p/':
                     self.func (self, '\n')
                 elif content == 'center' or content == 'centre':
                     style.SetAlignment (wx.TEXT_ALIGNMENT_CENTER)
@@ -102,7 +104,7 @@ class RichTextCtrl (wx.TextCtrl):
                     style.SetAlignment (wx.TEXT_ALIGNMENT_DEFAULT)
                     self.SetDefaultStyle (style)
                 elif content[:4] == 'font':
-                    fontstack.append ((self.GetFont ().GetPointSize (), self.GetFont ().GetFamily (), self.as_triplet (self.GetDefaultStyle ().GetTextColour ()), self.as_triplet (self.GetDefaultStyle ().GetBackgroundColour ())))
+                    fontstack.append (self.unwrap (style))
                     for i in content[4:].split ():
                         i = i.split ('=')
                         if i[0] == 'size':
@@ -114,30 +116,94 @@ class RichTextCtrl (wx.TextCtrl):
                             style.SetBackgroundColour(self.makecolour (i[1]))
                         elif i[0] == 'face':
                             size = font.GetPointSize ()
+                            bold = font.GetWeight ()
+                            italic = font.GetStyle ()
                             if i[1] == 'sans-serif' or i[1] == 'arial':
-                                font = wx.Font (size, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                                font = wx.Font (size, wx.FONTFAMILY_SWISS, italic, bold)
                             elif i[1] == 'serif' or i[1] == 'roman':
-                                font = wx.Font (size, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                                font = wx.Font (size, wx.FONTFAMILY_ROMAN, italic, bold)
                             elif i[1] == 'monospace' or i[1] == 'typewriter' or i[1] == 'courier':
-                                font = wx.Font (size, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                                font = wx.Font (size, wx.FONTFAMILY_TELETYPE, italic, bold)
                             elif i[1] == 'cursive':
-                                font = wx.Font (size, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                                font = wx.Font (size, wx.FONTFAMILY_SCRIPT, italic, bold)
                             elif i[1] == 'fantasy':
-                                font = wx.Font (size, wx.FONTFAMILY_DECORATIVE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                                font = wx.Font (size, wx.FONTFAMILY_DECORATIVE, italic, bold)
                             elif i[1] == 'modern':
-                                font = wx.Font (size, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                                font = wx.Font (size, wx.FONTFAMILY_MODERN, italic, bold)
                             style.SetFont (font)
                     self.SetDefaultStyle (style)
                 elif content == '/font':
                     size, face, color, bgcolor = fontstack[-1]
-                    font = wx.Font (size, face,  wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                    bold = font.GetWeight ()
+                    italic = font.GetStyle ()
+                    font = wx.Font (size, face,  italic, bold)
                     style.SetFont (font)
                     style.SetTextColour (wx.Colour (*color))
                     style.SetBackgroundColour (wx.Colour (*bgcolor))
                     self.SetDefaultStyle (style)
                     del fontstack[-1]
-                 
-                          
+
+    def unwrap (self, style):
+        return (style.GetFont ().GetPointSize (), style.GetFont ().GetFamily (), self.as_triplet (style.GetTextColour ()), self.as_triplet (style.GetBackgroundColour ()))
+
+    def GetValue (self):
+        text = wx.TextCtrl.GetValue (self)
+        buf = ''
+        old_italic = False
+        old_bold = False
+        style = self.GetDefaultStyle ()
+        fontstack = [self.original_font]
+        for i in range (0, len (text)):
+            self.GetStyle (i, style)
+            new_italic = style.GetFont ().GetStyle () == wx.FONTSTYLE_ITALIC
+            new_bold = style.GetFont ().GetWeight () == wx.FONTWEIGHT_BOLD
+            ustyle = self.unwrap (style)
+            if len (fontstack) > 1 and fontstack[-2] == style:
+                buf += '</font>'
+                del fontstack[-1]
+            elif fontstack[-1] != ustyle:
+                buf += '<font '
+                nsize, nfamily, ncolor, nbgcolor = ustyle
+                osize, ofamily, ocolor, obgcolor = fontstack[-1]
+                fontstack.append (ustyle)
+                if nsize != osize:
+                    buf += ' size=%d' % nsize
+                if ofamily != nfamily:
+                    pass
+                if ncolor != ocolor:
+                    buf += ' color=#%.2x%.2x%.2x' % ncolor
+                if nbgcolor != obgcolor:
+                    buf == ' bgcolor=#%.2x%.2x%.2x' % nbgcolor
+                buf += '>'
+            if new_bold and not old_bold:
+                buf += '<b>'
+            if not new_bold and old_bold:
+                buf += '</b>'
+            if new_italic and not old_italic:
+                buf += '<i>'
+            if not new_italic and old_italic:
+                buf += '</i>'
+
+            if text[i] == '<':
+                buf += '&lt;'
+            elif text[i] == '>':
+                buf += '&gt;'
+            elif text[i] == '&':
+                buf += '&amp;'
+            elif text[i] == '\n':
+                buf += '<p/>\n'
+            else:
+                buf += text[i]
+            old_italic = new_italic
+                old_bold = new_bold
+        if old_italic:
+            buf += '</i>'
+        if old_bold:
+            buf += '</b>'
+        if len (fontstack) > 1:
+            buf += '</font>'
+        return buf
+            
 if __name__ == '__main__':
     	class TestApp (wx.App):
 		def OnInit (self):
@@ -145,16 +211,21 @@ if __name__ == '__main__':
 			frame = wx.Frame (
 				None,
 				-1,
-				"phrase wheel test for GNUmed",
+				"Rich Text Widget",
 				size=wx.Size(300, 350),
 				style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE
 			)
 
-                        RichTextCtrl (frame, -1,
-"<font size=14><font face=monospace><p>Some text<p><font face=roman>Some text<p><font face=sans-serif>Some text<p><font face=cursive>Some text<p><font face=modern>Some text</font>", size = wx.Size (299, 249), style=wx.TE_MULTILINE) 
+                        self.rtc = RichTextCtrl (frame, -1,
+"<font size=14><font face=monospace><p>Some text<p><font face=roman>Some text<p><font face=sans-serif>Some text<p><b><font face=cursive>Some text<p><font face=modern>Some text</font>", size = wx.Size (299, 249), style=wx.TE_MULTILINE) 
 
 			frame.Show (1)
+                        wx.EVT_CLOSE (frame, self.OnClose)
 			return 1
+                    
+                def OnClose (self, event):
+                    print repr (self.rtc.GetValue ())
+                    event.Skip ()
 	#--------------------------------------------------------
 	app = TestApp ()
 	app.MainLoop ()
