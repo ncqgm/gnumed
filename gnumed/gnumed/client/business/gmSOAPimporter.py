@@ -45,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.8 2005-10-08 12:33:08 sjtan Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmSOAPimporter.py,v 1.9 2005-10-11 21:50:33 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -155,7 +155,7 @@ class cSOAPImporter:
 			narrative = soap_entry[soap_bundle_TEXT_KEY],
 			soap_cat = soap_entry[soap_bundle_SOAP_CAT_KEY],
 			episode_id = epi_id,
-			encounter_id = enc_id, emr=emr
+			encounter_id = enc_id
 		)
 
 		# attach types
@@ -366,7 +366,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.8  2005-10-08 12:33:08  sjtan
+# Revision 1.9  2005-10-11 21:50:33  ncq
+# - create_clin_narrative() should not be aware of emr object
+#
+# Revision 1.8  2005/10/08 12:33:08  sjtan
 # tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
 #
 # Revision 1.7  2005/05/17 08:03:30  ncq
