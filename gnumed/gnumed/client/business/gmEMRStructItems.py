@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -423,7 +423,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		return (False, _('internal error, check log'))
 	return (True, episode)
 #-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, enc_type=None, emr = None):
+def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
 
 	fk_patient - patient PK
@@ -468,8 +468,6 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None, emr = None)
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate encounter [%s]' % (result[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
-	if emr:
-		emr.update_cache('encounter', encounter)
 	return (True, encounter)
 #============================================================
 # main - unit testing
@@ -552,7 +550,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.66  2005-10-08 12:33:09  sjtan
+# Revision 1.67  2005-10-11 21:49:36  ncq
+# - make create_encounter oblivious of emr object again
+#
+# Revision 1.66  2005/10/08 12:33:09  sjtan
 # tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
 #
 # Revision 1.65  2005/10/04 19:21:31  sjtan
