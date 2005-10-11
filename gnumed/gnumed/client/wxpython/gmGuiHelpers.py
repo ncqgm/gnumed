@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.29 2005-10-09 08:07:56 ihaywood Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmGuiHelpers.py,v 1.30 2005-10-11 21:14:10 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -51,8 +51,6 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	print aTitle
 	print "-" * len(aTitle)
 	print aMessage
-
-	_log.LogException(aMessage)
 
 	dlg = wx.MessageDialog (
 		parent = None,
@@ -301,7 +299,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.29  2005-10-09 08:07:56  ihaywood
+# Revision 1.30  2005-10-11 21:14:10  ncq
+# - remove out-of-place LogException() call
+#
+# Revision 1.29  2005/10/09 08:07:56  ihaywood
 # a textctrl that uses return for navigation wx 2.6 only
 #
 # Revision 1.28  2005/10/04 13:09:49  sjtan
