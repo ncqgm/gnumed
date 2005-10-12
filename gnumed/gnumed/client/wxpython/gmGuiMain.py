@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.220 2005-10-08 12:37:25 sjtan Exp $
-__version__ = "$Revision: 1.220 $"
+# $Id: gmGuiMain.py,v 1.221 2005-10-12 22:32:22 ncq Exp $
+__version__ = "$Revision: 1.221 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -391,14 +391,14 @@ class gmTopLevelFrame(wx.Frame):
 		# - work out suitable default
 		epis = emr.get_episodes_by_encounter()
 		if len(epis) == 0:
-			enc_summary = enc['description']
+			enc_summary = enc['aoe']
 		else:
 			enc_summary = ''
 			for epi in epis:
 				enc_summary += '%s; ' % epi['description']
 		# - make this an optional modal dialog
-		if  enc and (enc['description'] is None or  (enc['description'].find('auto-created') >= 0) or (len(enc['description'].strip()) == 0) ): 
-			enc['description'] = enc_summary
+		if enc['aoe'] is None or (enc['aoe'].find('auto-created') >= 0) or (len(enc['aoe'].strip()) == 0):
+			enc['aoe'] = enc_summary
 			if not enc.save_payload():
 				gmGuiHelpers.gm_beep_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
 		return True
@@ -933,7 +933,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.220  2005-10-08 12:37:25  sjtan
+# Revision 1.221  2005-10-12 22:32:22  ncq
+# - encounter['description'] -> encounter['aoe']
+#
+# Revision 1.220  2005/10/08 12:37:25  sjtan
 # enc['description'] can return None
 #
 # Revision 1.219  2005/09/28 21:27:30  ncq
