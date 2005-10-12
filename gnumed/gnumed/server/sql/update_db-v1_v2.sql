@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -196,11 +196,6 @@ update clin_encounter set
 	rfe = 'xxxDEFAULTxxx'
 	where rfe is null;
 
--- now forbid nulls
-alter table clin_encounter
-	alter column rfe
-		set not null;
-
 -- -- AOE --
 alter table clin_encounter
 	rename column description to aoe;
@@ -283,11 +278,14 @@ alter table gm_schema_revision
 
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: update_db-v1_v2.sql,v $';
-insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.6 $');
+insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.6  2005-09-25 17:51:14  ncq
+-- Revision 1.7  2005-10-12 19:24:25  ncq
+-- - clin_encounter.rfe can be null
+--
+-- Revision 1.6  2005/09/25 17:51:14  ncq
 -- - include country zones
 -- - drop last_act_episode
 -- - if a health issue has several open episodes merge them
