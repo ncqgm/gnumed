@@ -8,12 +8,14 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCountryZones.sql,v $
--- $Id: gmCountryZones.sql,v 1.1 2005-09-25 17:45:16 ncq Exp $
+-- $Id: gmCountryZones.sql,v 1.2 2005-10-12 22:29:11 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
+set client_encoding to latin1;
+
 -- country AD
 INSERT INTO state(code, country, name) VALUES ('AN','AD',i18n('Andorra'));
 INSERT INTO state(code, country, name) VALUES ('CA','AD',i18n('Canillo'));
@@ -502,6 +504,7 @@ INSERT INTO state(code, country, name) VALUES ('CC-1','CC',i18n('Cocos (Keeling)
 INSERT INTO state(code, country, name) VALUES ('CF-1','CF',i18n('Central African Republic territory'));
 -- country CG
 INSERT INTO state(code, country, name) VALUES ('CG-1','CG',i18n('Congo territory'));
+
 -- country CH
 INSERT INTO state(code, country, name) VALUES ('AG','CH',i18n('Aargau'));
 INSERT INTO state(code, country, name) VALUES ('AR','CH',i18n('Appenzell Ausserrhoden'));
@@ -797,25 +800,25 @@ INSERT INTO state(code, country, name) VALUES ('WE','FR',i18n('Western Loire Val
 INSERT INTO state(code, country, name) VALUES ('GA-1','GA',i18n('Gabon territory'));
 -- country GB
 INSERT INTO state(code, country, name) VALUES ('AB','GB',i18n('Aberdeen'));
-INSERT INTO state(code, country, name) VALUES ('AB','GB',i18n('Aberdeenshire'));
+--INSERT INTO state(code, country, name) VALUES ('AB','GB',i18n('Aberdeenshire'));
 INSERT INTO state(code, country, name) VALUES ('AN','GB',i18n('Anglesey'));
 INSERT INTO state(code, country, name) VALUES ('AG','GB',i18n('Angus'));
 INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('Argyll and Bute'));
 INSERT INTO state(code, country, name) VALUES ('BE','GB',i18n('Bedfordshire'));
-INSERT INTO state(code, country, name) VALUES ('BE','GB',i18n('Berkshire'));
+--INSERT INTO state(code, country, name) VALUES ('BE','GB',i18n('Berkshire'));
 INSERT INTO state(code, country, name) VALUES ('BL','GB',i18n('Blaenau Gwent'));
 INSERT INTO state(code, country, name) VALUES ('BR','GB',i18n('Bridgend'));
 INSERT INTO state(code, country, name) VALUES ('BS','GB',i18n('Bristol'));
 INSERT INTO state(code, country, name) VALUES ('BU','GB',i18n('Buckinghamshire'));
 INSERT INTO state(code, country, name) VALUES ('CA','GB',i18n('Caerphilly'));
-INSERT INTO state(code, country, name) VALUES ('CA','GB',i18n('Cambridgeshire'));
+--INSERT INTO state(code, country, name) VALUES ('CA','GB',i18n('Cambridgeshire'));
+--INSERT INTO state(code, country, name) VALUES ('CA','GB',i18n('Carmarthenshire'));
 INSERT INTO state(code, country, name) VALUES ('CD','GB',i18n('Cardiff'));
-INSERT INTO state(code, country, name) VALUES ('CA','GB',i18n('Carmarthenshire'));
-INSERT INTO state(code, country, name) VALUES ('CD','GB',i18n('Ceredigion'));
+--INSERT INTO state(code, country, name) VALUES ('CD','GB',i18n('Ceredigion'));
 INSERT INTO state(code, country, name) VALUES ('CH','GB',i18n('Cheshire'));
 INSERT INTO state(code, country, name) VALUES ('CL','GB',i18n('Clackmannanshire'));
 INSERT INTO state(code, country, name) VALUES ('CO','GB',i18n('Conwy'));
-INSERT INTO state(code, country, name) VALUES ('CO','GB',i18n('Cornwall'));
+--INSERT INTO state(code, country, name) VALUES ('CO','GB',i18n('Cornwall'));
 INSERT INTO state(code, country, name) VALUES ('DN','GB',i18n('Denbighshire'));
 INSERT INTO state(code, country, name) VALUES ('DE','GB',i18n('Derbyshire'));
 INSERT INTO state(code, country, name) VALUES ('DV','GB',i18n('Devon'));
@@ -823,8 +826,8 @@ INSERT INTO state(code, country, name) VALUES ('DO','GB',i18n('Dorset'));
 INSERT INTO state(code, country, name) VALUES ('DG','GB',i18n('Dumfries and Galloway'));
 INSERT INTO state(code, country, name) VALUES ('DU','GB',i18n('Dundee'));
 INSERT INTO state(code, country, name) VALUES ('DH','GB',i18n('Durham'));
-INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('East Ayrshire'));
-INSERT INTO state(code, country, name) VALUES ('DU','GB',i18n('East Dunbartonshire'));
+--INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('East Ayrshire'));
+--INSERT INTO state(code, country, name) VALUES ('DU','GB',i18n('East Dunbartonshire'));
 INSERT INTO state(code, country, name) VALUES ('LO','GB',i18n('East Lothian'));
 INSERT INTO state(code, country, name) VALUES ('RE','GB',i18n('East Renfrewshire'));
 INSERT INTO state(code, country, name) VALUES ('ER','GB',i18n('East Riding of Yorkshire'));
@@ -835,7 +838,7 @@ INSERT INTO state(code, country, name) VALUES ('FA','GB',i18n('Falkirk'));
 INSERT INTO state(code, country, name) VALUES ('FF','GB',i18n('Fife'));
 INSERT INTO state(code, country, name) VALUES ('FL','GB',i18n('Flintshire'));
 INSERT INTO state(code, country, name) VALUES ('GL','GB',i18n('Glasgow'));
-INSERT INTO state(code, country, name) VALUES ('GL','GB',i18n('Gloucestershire'));
+--INSERT INTO state(code, country, name) VALUES ('GL','GB',i18n('Gloucestershire'));
 INSERT INTO state(code, country, name) VALUES ('LD','GB',i18n('Greater London'));
 INSERT INTO state(code, country, name) VALUES ('MC','GB',i18n('Greater Manchester'));
 INSERT INTO state(code, country, name) VALUES ('GD','GB',i18n('Gwynedd'));
@@ -857,30 +860,30 @@ INSERT INTO state(code, country, name) VALUES ('MO','GB',i18n('Moray'));
 INSERT INTO state(code, country, name) VALUES ('NP','GB',i18n('Neath Port Talbot'));
 INSERT INTO state(code, country, name) VALUES ('NE','GB',i18n('Newport'));
 INSERT INTO state(code, country, name) VALUES ('NO','GB',i18n('Norfolk'));
-INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('North Ayrshire'));
-INSERT INTO state(code, country, name) VALUES ('LA','GB',i18n('North Lanarkshire'));
+--INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('North Ayrshire'));
+--INSERT INTO state(code, country, name) VALUES ('LA','GB',i18n('North Lanarkshire'));
 INSERT INTO state(code, country, name) VALUES ('YS','GB',i18n('North Yorkshire'));
 INSERT INTO state(code, country, name) VALUES ('NH','GB',i18n('Northamptonshire'));
 INSERT INTO state(code, country, name) VALUES ('NL','GB',i18n('Northumberland'));
-INSERT INTO state(code, country, name) VALUES ('NO','GB',i18n('Nottinghamshire'));
+--INSERT INTO state(code, country, name) VALUES ('NO','GB',i18n('Nottinghamshire'));
 INSERT INTO state(code, country, name) VALUES ('OR','GB',i18n('Orkney Islands'));
 INSERT INTO state(code, country, name) VALUES ('OF','GB',i18n('Oxfordshire'));
 INSERT INTO state(code, country, name) VALUES ('PE','GB',i18n('Pembrokeshire'));
-INSERT INTO state(code, country, name) VALUES ('PE','GB',i18n('Perth and Kinross'));
+--INSERT INTO state(code, country, name) VALUES ('PE','GB',i18n('Perth and Kinross'));
 INSERT INTO state(code, country, name) VALUES ('PW','GB',i18n('Powys'));
-INSERT INTO state(code, country, name) VALUES ('RE','GB',i18n('Renfrewshire'));
+--INSERT INTO state(code, country, name) VALUES ('RE','GB',i18n('Renfrewshire'));
 INSERT INTO state(code, country, name) VALUES ('RH','GB',i18n('Rhondda Cynon Taff'));
 INSERT INTO state(code, country, name) VALUES ('RU','GB',i18n('Rutland'));
 INSERT INTO state(code, country, name) VALUES ('BO','GB',i18n('Scottish Borders'));
 INSERT INTO state(code, country, name) VALUES ('SH','GB',i18n('Shetland Islands'));
 INSERT INTO state(code, country, name) VALUES ('SP','GB',i18n('Shropshire'));
 INSERT INTO state(code, country, name) VALUES ('SO','GB',i18n('Somerset'));
-INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('South Ayrshire'));
-INSERT INTO state(code, country, name) VALUES ('LA','GB',i18n('South Lanarkshire'));
-INSERT INTO state(code, country, name) VALUES ('YS','GB',i18n('South Yorkshire'));
+--INSERT INTO state(code, country, name) VALUES ('AR','GB',i18n('South Ayrshire'));
+--INSERT INTO state(code, country, name) VALUES ('LA','GB',i18n('South Lanarkshire'));
+--INSERT INTO state(code, country, name) VALUES ('YS','GB',i18n('South Yorkshire'));
 INSERT INTO state(code, country, name) VALUES ('SF','GB',i18n('Staffordshire'));
 INSERT INTO state(code, country, name) VALUES ('ST','GB',i18n('Stirling'));
-INSERT INTO state(code, country, name) VALUES ('SF','GB',i18n('Suffolk'));
+--INSERT INTO state(code, country, name) VALUES ('SF','GB',i18n('Suffolk'));
 INSERT INTO state(code, country, name) VALUES ('SR','GB',i18n('Surrey'));
 INSERT INTO state(code, country, name) VALUES ('SW','GB',i18n('Swansea'));
 INSERT INTO state(code, country, name) VALUES ('TO','GB',i18n('Torfaen'));
@@ -890,10 +893,10 @@ INSERT INTO state(code, country, name) VALUES ('WA','GB',i18n('Warwickshire'));
 INSERT INTO state(code, country, name) VALUES ('WD','GB',i18n('West Dunbartonshire'));
 INSERT INTO state(code, country, name) VALUES ('WL','GB',i18n('West Lothian'));
 INSERT INTO state(code, country, name) VALUES ('WM','GB',i18n('West Midlands'));
-INSERT INTO state(code, country, name) VALUES ('SX','GB',i18n('West Sussex'));
-INSERT INTO state(code, country, name) VALUES ('YS','GB',i18n('West Yorkshire'));
+--INSERT INTO state(code, country, name) VALUES ('SX','GB',i18n('West Sussex'));
+--INSERT INTO state(code, country, name) VALUES ('YS','GB',i18n('West Yorkshire'));
 INSERT INTO state(code, country, name) VALUES ('WI','GB',i18n('Western Isles'));
-INSERT INTO state(code, country, name) VALUES ('WL','GB',i18n('Wiltshire'));
+--INSERT INTO state(code, country, name) VALUES ('WL','GB',i18n('Wiltshire'));
 INSERT INTO state(code, country, name) VALUES ('WO','GB',i18n('Worcestershire'));
 INSERT INTO state(code, country, name) VALUES ('WR','GB',i18n('Wrexham'));
 -- country GD
@@ -2229,7 +2232,7 @@ INSERT INTO state(code, country, name) VALUES ('ZH','UA',i18n('Zhytomyrs''ka'));
 -- country UG
 INSERT INTO state(code, country, name) VALUES ('UG-1','UG',i18n('StateNameStub'));
 -- country UM
-INSERT INTO state(code, country, name) VALUES ('UM-1','UM',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('UM-1','UM',i18n('StateNameStub'));
 -- country US
 INSERT INTO state(code, country, name) VALUES ('AL','US',i18n('Alabama'));
 INSERT INTO state(code, country, name) VALUES ('AK','US',i18n('Alaska'));
@@ -2296,7 +2299,10 @@ INSERT INTO state(code, country, name) VALUES ('WA','US',i18n('Washington'));
 INSERT INTO state(code, country, name) VALUES ('WV','US',i18n('West Virginia'));
 INSERT INTO state(code, country, name) VALUES ('WI','US',i18n('Wisconsin'));
 INSERT INTO state(code, country, name) VALUES ('WY','US',i18n('Wyoming'));
+
 -- country UY
+insert into country(code, name) values('UY', i18n('Uruguay'));
+
 INSERT INTO state(code, country, name) VALUES ('AR','UY',i18n('Artigas'));
 INSERT INTO state(code, country, name) VALUES ('CA','UY',i18n('Canelones'));
 INSERT INTO state(code, country, name) VALUES ('CL','UY',i18n('Cerro Largo'));
@@ -2317,12 +2323,15 @@ INSERT INTO state(code, country, name) VALUES ('SO','UY',i18n('Soriano'));
 INSERT INTO state(code, country, name) VALUES ('TA','UY',i18n('Tacuarembo'));
 INSERT INTO state(code, country, name) VALUES ('TT','UY',i18n('Treinta y Tres'));
 -- country UZ
-INSERT INTO state(code, country, name) VALUES ('UZ-1','UZ',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('UZ-1','UZ',i18n('StateNameStub'));
 -- country VA
 INSERT INTO state(code, country, name) VALUES ('VA-1','VA',i18n('StateNameStub'));
 -- country VC
 INSERT INTO state(code, country, name) VALUES ('VC-1','VC',i18n('StateNameStub'));
+
 -- country VE
+insert into country(code, name) values('VE', i18n('Venezuelas'));
+
 INSERT INTO state(code, country, name) VALUES ('AM','VE',i18n('Amazonas'));
 INSERT INTO state(code, country, name) VALUES ('AN','VE',i18n('Anzoategui'));
 INSERT INTO state(code, country, name) VALUES ('AP','VE',i18n('Apure'));
@@ -2348,18 +2357,21 @@ INSERT INTO state(code, country, name) VALUES ('TR','VE',i18n('Trujillo'));
 INSERT INTO state(code, country, name) VALUES ('YA','VE',i18n('Yaracuy'));
 INSERT INTO state(code, country, name) VALUES ('ZU','VE',i18n('Zulia'));
 -- country VG
-INSERT INTO state(code, country, name) VALUES ('VG-1','VG',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('VG-1','VG',i18n('StateNameStub'));
 -- country VI
-INSERT INTO state(code, country, name) VALUES ('VI-1','VI',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('VI-1','VI',i18n('StateNameStub'));
 -- country VN
-INSERT INTO state(code, country, name) VALUES ('VN-1','VN',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('VN-1','VN',i18n('StateNameStub'));
 -- country VU
-INSERT INTO state(code, country, name) VALUES ('VU-1','VU',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('VU-1','VU',i18n('StateNameStub'));
 -- country WF
-INSERT INTO state(code, country, name) VALUES ('WF-1','WF',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('WF-1','WF',i18n('StateNameStub'));
 -- country WS
-INSERT INTO state(code, country, name) VALUES ('WS-1','WS',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('WS-1','WS',i18n('StateNameStub'));
+
 -- country YE
+insert into country(code, name) values('YE', i18n('Yemen'));
+
 INSERT INTO state(code, country, name) VALUES ('AD','YE',i18n('Adan'));
 INSERT INTO state(code, country, name) VALUES ('AT','YE',i18n('Ataq'));
 INSERT INTO state(code, country, name) VALUES ('AB','YE',i18n('Abyan'));
@@ -2378,12 +2390,12 @@ INSERT INTO state(code, country, name) VALUES ('SA','YE',i18n('Sa''dah'));
 INSERT INTO state(code, country, name) VALUES ('SN','YE',i18n('San''a|'));
 INSERT INTO state(code, country, name) VALUES ('TA','YE',i18n('Ta''izz'));
 -- country YT
-INSERT INTO state(code, country, name) VALUES ('YT-1','YT',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('YT-1','YT',i18n('StateNameStub'));
 -- country YU
-INSERT INTO state(code, country, name) VALUES ('KO','YU',i18n('Kosovo'));
-INSERT INTO state(code, country, name) VALUES ('MO','YU',i18n('Montenegro'));
-INSERT INTO state(code, country, name) VALUES ('SE','YU',i18n('Serbia'));
-INSERT INTO state(code, country, name) VALUES ('VO','YU',i18n('Vojvodina'));
+--INSERT INTO state(code, country, name) VALUES ('KO','YU',i18n('Kosovo'));
+--INSERT INTO state(code, country, name) VALUES ('MO','YU',i18n('Montenegro'));
+--INSERT INTO state(code, country, name) VALUES ('SE','YU',i18n('Serbia'));
+--INSERT INTO state(code, country, name) VALUES ('VO','YU',i18n('Vojvodina'));
 -- country ZA
 INSERT INTO state(code, country, name) VALUES ('EC','ZA',i18n('Eastern Cape'));
 INSERT INTO state(code, country, name) VALUES ('FS','ZA',i18n('Free State'));
@@ -2394,7 +2406,10 @@ INSERT INTO state(code, country, name) VALUES ('NW','ZA',i18n('North-West'));
 INSERT INTO state(code, country, name) VALUES ('NC','ZA',i18n('Northern Cape'));
 INSERT INTO state(code, country, name) VALUES ('NP','ZA',i18n('Northern Province'));
 INSERT INTO state(code, country, name) VALUES ('WC','ZA',i18n('Western Cape'));
+
 -- country ZM
+insert into country(code, name) values('ZM', i18n('Zambia'));
+
 INSERT INTO state(code, country, name) VALUES ('CE','ZM',i18n('Central'));
 INSERT INTO state(code, country, name) VALUES ('CO','ZM',i18n('Copperbelt'));
 INSERT INTO state(code, country, name) VALUES ('EA','ZM',i18n('Eastern'));
@@ -2404,9 +2419,13 @@ INSERT INTO state(code, country, name) VALUES ('NW','ZM',i18n('North-Western'));
 INSERT INTO state(code, country, name) VALUES ('NO','ZM',i18n('Northern'));
 INSERT INTO state(code, country, name) VALUES ('SO','ZM',i18n('Southern'));
 INSERT INTO state(code, country, name) VALUES ('WE','ZM',i18n('Western'));
+
 -- country ZR
-INSERT INTO state(code, country, name) VALUES ('ZR-1','ZR',i18n('StateNameStub'));
+--INSERT INTO state(code, country, name) VALUES ('ZR-1','ZR',i18n('StateNameStub'));
+
 -- country ZW
+insert into country(code, name) values('ZW', i18n('Zimbabwe'));
+
 INSERT INTO state(code, country, name) VALUES ('BU','ZW',i18n('Bulawayo'));
 INSERT INTO state(code, country, name) VALUES ('HA','ZW',i18n('Harare'));
 INSERT INTO state(code, country, name) VALUES ('MA','ZW',i18n('Manicaland'));
@@ -2420,11 +2439,14 @@ INSERT INTO state(code, country, name) VALUES ('MI','ZW',i18n('Midlands'));
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmCountryZones.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmCountryZones.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmCountryZones.sql,v $
--- Revision 1.1  2005-09-25 17:45:16  ncq
+-- Revision 1.2  2005-10-12 22:29:11  ncq
+-- - comment out states/add in countries which (would) error out
+--
+-- Revision 1.1  2005/09/25 17:45:16  ncq
 -- - we now got states for pretty much every country
 --
 --
