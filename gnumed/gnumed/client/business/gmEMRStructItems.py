@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -203,8 +203,7 @@ class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
 	"""
 	_cmd_fetch_payload = """
-		select *, coalesce((select vs.lastnames || ', ' || vs.firstnames from v_staff vs where vs.pk_staff = v_pat_encounters.pk_provider) , 'Anonymous' ) as provider ,  xmin_clin_encounter from v_pat_encounters
-		where pk_encounter=%s"""
+		select *, xmin_clin_encounter from v_pat_encounters where pk_encounter=%s"""
 	_cmds_lock_rows_for_update = [
 		"""select 1 from clin_encounter where id=%(pk_encounter)s and xmin=%(xmin_clin_encounter)s for update"""
 	]
@@ -428,14 +427,10 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 
 	fk_patient - patient PK
 	fk_location - encounter location
-	description - name or description for the encounter
 	enc_type - type of encounter
 
 	FIXME: we don't deal with location yet
 	"""
-	# sanity check:
-	#if description is None:
-	#	description = _('auto-created %s') % mxDT.now().Format('%A %Y-%m-%d %H:%M')
 	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
 		enc_type = 'in surgery'
@@ -550,7 +545,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.67  2005-10-11 21:49:36  ncq
+# Revision 1.68  2005-10-12 22:31:13  ncq
+# - encounter['rfe'] not mandatory anymore, hence don't need default
+# - encounters don't have a provider
+#
+# Revision 1.67  2005/10/11 21:49:36  ncq
 # - make create_encounter oblivious of emr object again
 #
 # Revision 1.66  2005/10/08 12:33:09  sjtan
