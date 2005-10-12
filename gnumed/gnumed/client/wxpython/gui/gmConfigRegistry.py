@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -119,9 +119,6 @@ class cConfTree(wx.TreeCtrl):
 		Adds a subtree of parameter names to an existing tree. 
 		Returns resulting tree.
 		"""
-#DEBUG
-#		_log.Log(gmLog.lInfo, "subTree %s" % str(aSubTree))
-		
 		# check if subtree is empty
 		if aSubTree[1] == {}:
 			return None
@@ -137,8 +134,6 @@ class cConfTree(wx.TreeCtrl):
 		for subTreeNode in childrenList:
 			nodeEntry = aSubTree[1][subTreeNode]
 			nodeName = nodeEntry[2]						
-#DEBUG
-#			_log.Log(gmLog.lInfo, "Node: %s Name: %s" % (str(aNode),nodeName) )
 			node = self.AppendItem(aNode, nodeName)
 			self.SetPyData(node, nodeEntry[0])
 			self.SetItemHasChildren(node, False)
@@ -162,8 +157,6 @@ class cConfTree(wx.TreeCtrl):
 		if tmpParamList is None:
 			return None
 
-#DEBUG
-#		_log.Log(gmLog.lInfo, "paramList %s" % str(tmpParamList))
 		# convert name list to a tree structure
 		currSubTree = [None,{},""]
 		# add each item 
@@ -270,8 +263,6 @@ class cConfTree(wx.TreeCtrl):
 	def OnActivate (self, event):
 		item = event.GetItem()
 		data = self.GetPyData(item)
-#DEBUG
-#		_log.Log(gmLog.lInfo, "ItemData %s" % str(data))
 
 		self.paramDescription.Clear()
 		self.paramTextCtrl.SetEditable(0)
@@ -302,15 +293,9 @@ class cConfTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def OnRightDown(self,event):
 		position = event.GetPosition()
-#DEBUG
-		_log.Log(gmLog.lInfo, "Right clicked (x:%s y:%s)" % (str(position.x),str(position.y)))
 		(item,flags) = self.HitTest(position)
-#DEBUG
-		_log.Log(gmLog.lInfo, "clicked item (%s %s)" % (str(item),str(flags)))
 #		if flags & (wx.TREE_HITTEST_ONITEMLABEL) == True:
 		self.SelectItem(item)
-
-
 	#------------------------------------------------------------------------
 	def __show_parameter(self,aSubtree=None, aParam=None):	
 			# get the parameter value
@@ -318,8 +303,6 @@ class cConfTree(wx.TreeCtrl):
 			currType = self.mConfSources[aSubtree].getParamType(aParam)
 			# get description
 			description = self.mConfSources[aSubtree].getDescription(aParam)
-#DEBUG
-#			_log.Log(gmLog.lInfo, "VALUE %s" % str(confData))
 			self.paramTextCtrl.ShowParam(aParam,currType,value)
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
@@ -333,9 +316,6 @@ class cParamCtrl(wx.TextCtrl):
 		self.Clear()
 		if aParam is None:
 			return
-#DEBUG
-#		_log.Log(gmLog.lInfo, "Param %s VALUE %s Type %s" % (aParam,aValue,aType))
-#DEBUG			
 		# store current parameter for later use
 		self.currParam = aParam
 		self.value = aValue
@@ -552,7 +532,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.32  2005-10-02 11:38:03  sjtan
+# Revision 1.33  2005-10-12 15:42:17  ncq
+# - cleanup
+#
+# Revision 1.32  2005/10/02 11:38:03  sjtan
 # import wx fixup. import wx.html
 #
 # Revision 1.31  2005/09/28 21:27:30  ncq
