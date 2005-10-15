@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 import sys
 
@@ -31,7 +31,10 @@ try:
 	print "   - version selection support detected:", wxversion.getInstalled()
 	try:
 		import wx
-		print "   - active version:", wx.VERSION_STRING, wx.PlatformInfo
+		print "   - active version:", wx.VERSION_STRING
+		try:
+			print "   - platform info:", wx.PlatformInfo
+		except: pass
 		print "=> found"
 	except ImportError:
 		print "ERROR: wxPython is not properly installed"
@@ -59,7 +62,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.6  2005-09-24 09:11:46  ncq
+# Revision 1.7  2005-10-15 11:29:14  ncq
+# - some wxPythons don't support wx.PlatformInfo so don't error on it
+#
+# Revision 1.6  2005/09/24 09:11:46  ncq
 # - enhance wxPython checks
 #
 # Revision 1.5  2005/07/11 08:31:23  ncq
