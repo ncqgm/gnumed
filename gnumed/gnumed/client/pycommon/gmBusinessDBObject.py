@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.28 2005-10-10 17:40:57 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmBusinessDBObject.py,v 1.29 2005-10-15 18:17:06 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -262,14 +262,23 @@ class cBusinessDBObject:
 			pass
 		# 3) subtable
 		try:
-			query = self._subtable_dml_templates[attribute]['select']
-			rows, idx = gmPG.run_ro_query(self.__class__._service, query, True, self.pk_obj)
-			if rows is not None:
-				self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
-				return self._ext_cache[attribute]
-			_log.Log(gmLog.lErr, '[%s:%s]: error getting subtable attribute [%s]' % (self.__class__.__name__, self.pk_obj, attribute))
+			subtable = self._subtable_dml_templates[attribute]
+			try:
+				query = subtable['select']
+				rows, idx = gmPG.run_ro_query(self.__class__._service, query, True, self.pk_obj)
+				if rows is not None:
+					self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
+					return self._ext_cache[attribute]
+				_log.Log(gmLog.lErr, '[%s:%s]: error getting subtable [%s] values' % (self.__class__.__name__, self.pk_obj, attribute))
+				# FIXME: should actually fail and return appropriate error
+			except KeyError:
+				_log.LogException('[%s:%s]: subtable support error, no "select" for subtable [%s]' % (self.__class__.__name__, self.pk_obj, attribute), sys.exc_info(), verbose=0)
+				# FIXME: should actually fail and return appropriate error
+				pass
 		except KeyError, AttributeError:
-			_log.LogException('[%s:%s]: subtable support error' % (self.__class__.__name__, self.pk_obj), sys.exc_info(), verbose=0)
+			# either
+			# - no subtable support (no attribute _subtable_dml_templates)
+			# - or no known subtable <attribute>
 			pass
 		# 4) getters providing extensions
 		getter = getattr(self, 'get_%s' % attribute, None)
@@ -377,7 +386,7 @@ class cBusinessDBObject:
 
 		# try to lock rows
 		for query in self.__class__._cmds_lock_rows_for_update:
-			successful, result = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])])
+			successful, result = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])], extra_verbose = True)
 			# error
 			if not successful:
 				conn.rollback()
@@ -552,7 +561,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.28  2005-10-10 17:40:57  ncq
+# Revision 1.29  2005-10-15 18:17:06  ncq
+# - error detection in subtable support much improved
+#
+# Revision 1.28  2005/10/10 17:40:57  ncq
 # - slightly enhance Syans fixes on AttributeError
 #
 # Revision 1.27  2005/10/08 12:33:08  sjtan
