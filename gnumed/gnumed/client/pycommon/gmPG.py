@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -702,7 +702,9 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 					conn.close()
 					return (False, (2, 'l'))
 				# FIXME: handle more types of errors
-				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], service), exc_info)
+				_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
+				_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+				_log.LogException("query failed on link [%s]" % service, exc_info)
 				if extra_verbose:
 					__log_PG_settings(curs)
 				curs.close()
@@ -714,7 +716,9 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 			# apparently succeeded
 			if extra_verbose:
 				duration = time.time() - t1
-				_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], service))
+				_log.Log(gmLog.lData, 'query: %s'  % query[:2048])
+				_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+				_log.Log(gmLog.lData, 'query succeeded on link [%s]' % service)
 				_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 		# done with queries
 		break # out of retry loop
@@ -722,7 +726,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	# did we get result rows in the last query ?
 	data = None
 	idx = {}
-	# now, the DB-API is ambigous about wether cursor.description
+	# now, the DB-API is ambigous about whether cursor.description
 	# and cursor.rowcount apply to the most recent query in a cursor
 	# (does this statement make any sense in the first place ?) or
 	# to the entire lifetime of said cursor, pyPgSQL thinks the
@@ -771,7 +775,9 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 					conn.conn.toggleShowQuery
 				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
-			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], conn), exc_info)
+			_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
+			_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+			_log.LogException("query failed on link [%s]" % conn, exc_info)
 			if extra_verbose:
 				__log_PG_settings(curs)
 			curs.close()
@@ -784,7 +790,9 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 		# apparently succeeded
 		if extra_verbose:
 			duration = time.time() - t1
-			_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], conn))
+			_log.Log(gmLog.lData, 'query: %s'  % query[:2048])
+			_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+			_log.Log(gmLog.lData, 'query succeeded on link [%s]' % conn)
 			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 	# done with queries
 	if extra_verbose:
@@ -814,7 +822,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 	curs.close()
 	return (True, (data, idx))
 #---------------------------------------------------
-def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=False):
+def __commit2cursor(cursor=None, queries=None, extra_verbose=False, get_col_idx=False):
 	# run queries
 	for query, args in queries:
 		if extra_verbose:
@@ -831,7 +839,9 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 				_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
-			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], cursor), exc_info)
+			_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
+			_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+			_log.LogException("query failed on link [%s]" % cursor, exc_info)
 			if extra_verbose:
 				__log_PG_settings(curs)
 			tmp = str(val).replace('ERROR:', '')
@@ -841,7 +851,9 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 		# apparently succeeded
 		if extra_verbose:
 			duration = time.time() - t1
-			_log.Log(gmLog.lData, 'query >>>%s<<< with args >>>%s<<< succeeded on link [%s]' % (query[:250], str(args)[:250], cursor))
+			_log.Log(gmLog.lData, 'query: %s'  % query[:2048])
+			_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+			_log.Log(gmLog.lData, 'query succeeded on link [%s]' % cursor)
 			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 
 	# did we get result rows in the last query ?
@@ -934,7 +946,7 @@ def run_commit(link_obj = None, queries = None, return_err_msg = None):
 		except:
 			rollback()
 			exc_info = sys.exc_info()
-			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], link_obj), exc_info, verbose = _query_logging_verbosity)
+			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:1024], str(args)[:1024], link_obj), exc_info, verbose = _query_logging_verbosity)
 			__log_PG_settings(curs)
 			close_cursor()
 			close_conn()
@@ -1187,7 +1199,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.56 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.57 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1411,7 +1423,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.56  2005-10-10 18:24:00  ncq
+# Revision 1.57  2005-10-15 18:18:19  ncq
+# - improved query logging in case of failure or --debug
+#
+# Revision 1.56  2005/10/10 18:24:00  ncq
 # - IF we create shortcuts into the DB-API do it properly
 #
 # Revision 1.55  2005/10/08 12:33:07  sjtan
