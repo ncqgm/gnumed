@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.185 2005-10-11 21:03:13 ncq Exp $
-__version__ = "$Revision: 1.185 $"
+# $Id: gmClinicalRecord.py,v 1.186 2005-10-15 18:19:23 ncq Exp $
+__version__ = "$Revision: 1.186 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1254,10 +1254,11 @@ where
 		if self.__activate_fairly_recent_encounter():
 			return True
 		# 3) no encounter yet or too old, create new one
-		successful, enc = gmEMRStructItems.create_encounter (fk_patient = self.pk_patient)
+		successful, enc = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient)
 		if not successful:
 			return False
 		self.__encounter = enc
+		_log.Log(gmLog.lData, 'new encounter [%s] initiated' % enc['pk_encounter'])
 		return True
 	#------------------------------------------------------------------
 	def __activate_very_recent_encounter(self):
@@ -1292,6 +1293,7 @@ where
 			_log.LogException(str(msg), sys.exc_info(), verbose=0)
 			return False
 		self.__encounter.set_active(staff_id = _whoami.get_staff_ID())
+		_log.Log(gmLog.lData, '"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
 	def __activate_fairly_recent_encounter(self):
@@ -1347,13 +1349,21 @@ where
 		msg = _(
 			'A fairly recent encounter exists for patient:\n'
 			' %s\n'
-			'started    : %s\n'
-			'affirmed   : %s\n'
-			'type       : %s\n'
-			'description: %s\n\n'
+			'started  : %s\n'
+			'type     : %s\n'
+			'RFE      : %s\n'
+			'affirmed : %s\n'
+			'AOE      : %s\n\n'
 			'Do you want to reactivate this encounter ?\n'
 			'Hitting "No" will start a new one.'
-		) % (pat_str, encounter['started'], encounter['last_affirmed'], encounter['l10n_type'], encounter['description'])
+		) % (
+			pat_str,
+			encounter['started'],
+			encounter['l10n_type'],
+			encounter['rfe'],
+			encounter['last_affirmed'],
+			encounter['aoe']
+		)
 		title = _('recording patient encounter')
 		attach = False
 		try:
@@ -1366,31 +1376,12 @@ where
 		# attach to existing
 		self.__encounter = encounter
 		self.__encounter.set_active(staff_id = _whoami.get_staff_ID())
+		_log.Log(gmLog.lData, '"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
 	def get_active_encounter(self):
 		return self.__encounter
 	#------------------------------------------------------------------
-	def attach_to_encounter(self, anID = None):
-#		"""Attach to an encounter but do not activate it.
-#		"""
-		# FIXME: this is the correct implementation but I
-		# think the concept of attach_to_encounter is flawed,
-		# eg we don't need it
-#		if anID is None:
-#			return False
-#		encounter = gmEMRStructItems.cEncounter(aPK_obj= anID)
-#		if encounter is None:
-#			_log.Log(gmLog.lWarn, 'cannot instantiante encounter [%s]' % anID)
-#			return False
-#		if not encounter.set_attached_to(staff_id = _whoami.get_staff_ID()):
-#		    _log.Log(gmLog.lWarn, 'cannot attach to encounter [%s]' % anID)
-#		    return False
-#		self.encounter = encounter
-#		return True
-		pass
-	#--------------------------------------------------------
-#	def _build_encounter_cache_from_rows(self, rows, description):
 	def _build_encounter_cache_from_rows(self, rows, idx):
 		for a_row in rows:
 			try:
@@ -1398,10 +1389,6 @@ where
 					'data': a_row,
 					'pk_field': 'pk_encounter',
 					'idx': idx
-#					'idx': dict ([
-#						(field[0], pos) for (field, pos) in
-#							zip(description, xrange(0, len(description)))
-#					])
 				}
 				self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row = row_map))
 			except gmExceptions.ConstructorError, msg:
@@ -1424,7 +1411,7 @@ where
 		except KeyError:
 			# fetch all encounters for patient
 			self.__db_cache['encounters'] = []
-			cmd = "select *  from v_pat_encounters where pk_patient=%s order by started"
+			cmd = "select * from v_pat_encounters where pk_patient=%s order by started"
 			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for patient [%s]' % self.pk_patient)
@@ -1742,7 +1729,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.185  2005-10-11 21:03:13  ncq
+# Revision 1.186  2005-10-15 18:19:23  ncq
+# - cleanup
+# - improved logging when initiating active encounter
+#
+# Revision 1.185  2005/10/11 21:03:13  ncq
 # - a bit of cleanup re Syan's changes
 #
 # Revision 1.184  2005/10/08 12:33:08  sjtan
