@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.70 2005-10-11 21:51:07 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmPatientExporter.py,v 1.71 2005-10-15 18:16:24 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -730,8 +730,8 @@ class cEmrExport:
             encounter['last_affirmed'].Format('%H:%M'),
             encounter['l10n_type']
         )
-        if (encounter['description'] is not None) and (len(encounter['description']) > 0):
-            txt += ' (%s)' % encounter['description']
+        if (encounter['aoe'] is not None) and (len(encounter['aoe']) > 0):
+            txt += ' (%s)' % encounter['aoe']
         txt += '\n\n'
 
         # rfe/aoe
@@ -813,7 +813,7 @@ class cEmrExport:
                             an_encounter['l10n_type'],
                             an_encounter['started'].Format('%A, %Y-%m-%d %H:%M'),
                             an_encounter['last_affirmed'].Format('%m-%d %H:%M'),
-                            an_encounter['description']
+                            an_encounter['aoe']
                         )
                     )
                     self.__target.write(self.get_encounter_info(an_episode, an_encounter, 12))
@@ -1258,7 +1258,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.70  2005-10-11 21:51:07  ncq
+# Revision 1.71  2005-10-15 18:16:24  ncq
+# - encounter['description'] is gone, use 'aoe'
+#
+# Revision 1.70  2005/10/11 21:51:07  ncq
 # - rfe/aoe handling changes so adapt to that
 #
 # Revision 1.69  2005/10/08 12:33:09  sjtan
