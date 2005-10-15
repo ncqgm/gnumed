@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -62,8 +62,6 @@ class cHealthIssue(gmClinItem.cClinItem):
 			- a string instance
 		"""
 		# sanity check
-		print "DEBUG description = ", description, "type is ", type(description)
-		
 		if not type(description) in [str, unicode] or description.strip() == '':
 			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
 			return False
@@ -71,10 +69,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 		old_description = self._payload[self._idx['description']]
 		self._payload[self._idx['description']] = description.strip()
 		self._is_modified = True
-
-		successful, data = gmClinItem.cClinItem.save_payload(self)
-		
-		#successful, data = self.save_payload()
+		successful, data = self.save_payload()
 		if not successful:
 			_log.Log(gmLog.lErr, 'cannot rename health issue [%s] with [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
@@ -108,7 +103,6 @@ class cEpisode(gmClinItem.cClinItem):
 		"""select 1 from clin_episode where pk=%(pk_episode)s and xmin=%(xmin_clin_episode)s for update"""
 	]
 	_cmds_store_payload = [
-#		"""select %(pk_episode)s""",
 		"""update clin_episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
@@ -151,30 +145,6 @@ class cEpisode(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_description(self):
 		return self._payload[self._idx['description']]
-#	#--------------------------------------------------------
-#	def set_active(self):
-#		# if no patient get it from health issue
-#		if self._payload[self._idx['pk_patient']] is None:
-#			fragment = '(select id_patient from clin_health_issue where id=%s)'
-#			val = self._payload[self._idx['pk_health_issue']]
-#		else:
-#			fragment = '%s'
-#			val = self._payload[self._idx['pk_patient']]
-#		cmd1 = """
-#			delete from last_act_episode
-#			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
-#		cmd2 = """
-#			insert into last_act_episode(fk_episode, id_patient)
-#			values (%%s, %s)""" % fragment
-#		success, msg = gmPG.run_commit('historica', [
-#			(cmd1, [self._payload[self._idx['pk_health_issue']]]),
-#			(cmd2, [self.pk_obj, val])
-#		], True)
-#		if not success:
-#			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['pk_health_issue']]))
-#			_log.Log(gmLog.lErr, str(msg))
-#			return False
-#		return True
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
@@ -209,23 +179,19 @@ class cEncounter(gmClinItem.cClinItem):
 	]
 	_cmds_store_payload = [
 		"""update clin_encounter set
-				description=%(description)s,
 				started=%(started)s,
 				last_affirmed=%(last_affirmed)s,
-				pk_location=%(pk_location)s,
-				pk_provider=%(pk_provider)s,
-				pk_type=%(pk_type)s,
+				fk_location=%(pk_location)s,
+				fk_type=%(pk_type)s,
 				rfe=%(rfe)s,
 				aoe=%(aoe)s
 			where id=%(pk_encounter)s""",
 		"""select xmin_clin_encounter from v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
 	_updatable_fields = [
-		'description',
 		'started',
 		'last_affirmed',
 		'pk_location',
-		'pk_provider',
 		'pk_type',
 		'rfe',
 		'aoe'
@@ -240,17 +206,14 @@ class cEncounter(gmClinItem.cClinItem):
 
 		staff_id - Provider's primary key
 		"""
-		cmd = """update clin_encounter set
-					last_affirmed=now()
-				where id=%s"""
-		success, msg = gmPG.run_commit('historica', [(cmd, [self.pk_obj])], True)
-		if not success:
+		self._payload[self._idx['last_affirmed']] = mxDT.now()
+		if not self.save_payload():
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
 			_log.Log(gmLog.lErr, str(msg))
 			return False
 		return True
 	#--------------------------------------------------------
-	def transfer_clinical_data(self, from_episode, to_episode, emr):
+	def transfer_clinical_data(self, from_episode, to_episode):
 		"""
 		Moves every element currently linked to the current encounter
 		and the from_episode onto to_episode.
@@ -262,8 +225,10 @@ class cEncounter(gmClinItem.cClinItem):
 		"""
 		# sanity check
 		if from_episode['pk_episode'] == to_episode['pk_episode']:
-			return
+			return (True, True)
 		queries = []
+		# FIXME: this will work but it will not invalidate the cache,
+		# FIXME: hence the next save_payload will fail (because xmin is now different)
 		cmd = """
 			UPDATE clin_root_item SET fk_episode = %s 
  			WHERE fk_encounter = %s AND fk_episode = %s
@@ -280,14 +245,6 @@ class cEncounter(gmClinItem.cClinItem):
 			))
 			err, msg = data
 			return (False, msg)
-
-		#also relink cNarratives
-		narratives = emr.get_clin_narrative( episodes= [from_episode['pk_episode'] ])
-		for n in narratives:
-			n['pk_episode'] = to_episode['pk_episode']
-
-		#relink other clin_item subtypes in emr?
-														
 		return (True, True)
 #============================================================		
 class cProblem(gmClinItem.cClinItem):
@@ -392,8 +349,6 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		return (True, episode)
 	except gmExceptions.ConstructorError:
 		pass
-	#, msg:
-#		_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
 	# generate queries
 	queries = []
 	# insert episode
@@ -545,7 +500,15 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.68  2005-10-12 22:31:13  ncq
+# Revision 1.69  2005-10-15 18:15:37  ncq
+# - cleanup
+# - clin_encounter has fk_*, not pk_*
+# - remove clin_encounter.pk_provider support
+# - fix cEncounter.set_active()
+# - comment on that transfer_clinical_data will work but will not
+#   notify others about its changes
+#
+# Revision 1.68  2005/10/12 22:31:13  ncq
 # - encounter['rfe'] not mandatory anymore, hence don't need default
 # - encounters don't have a provider
 #
