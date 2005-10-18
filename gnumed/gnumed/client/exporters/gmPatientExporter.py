@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.71 2005-10-15 18:16:24 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmPatientExporter.py,v 1.72 2005-10-18 13:34:01 sjtan Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -469,6 +469,8 @@ class cEmrExport:
 	checks a emr_tree constructed with this.get_historical_tree() 
 	and sees if any new items need to be inserted.
 	"""
+	#TODO , caching eliminates tree update time, so don't really need this
+	
     	self._traverse_health_issues( emr_tree, self._update_health_issue_branch)
 	
     #--------------------------------------------------------             
@@ -761,7 +763,7 @@ class cEmrExport:
             for soap_entry in soap_cat_narratives:
                 txt += (
                     (' ' * (left_margin+3)) +
-                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % provider  +
+                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % soap_entry['provider']  +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )
@@ -1258,7 +1260,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.71  2005-10-15 18:16:24  ncq
+# Revision 1.72  2005-10-18 13:34:01  sjtan
+# after running; small diffs
+#
+# Revision 1.71  2005/10/15 18:16:24  ncq
 # - encounter['description'] is gone, use 'aoe'
 #
 # Revision 1.70  2005/10/11 21:51:07  ncq

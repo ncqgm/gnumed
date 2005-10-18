@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.48 2005-10-09 06:42:02 sjtan Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmEMRBrowser.py,v 1.49 2005-10-18 13:34:00 sjtan Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -681,6 +681,8 @@ class ExpansionHistory:
 		
 
 	def _record_expansion(self,tree,  root, l):
+		if not root or not root.IsOk():
+			return
 		id, cookie = tree.GetFirstChild( root)
 		#print "id", id, " is Ok", id.IsOk()
 		while id.IsOk():
@@ -783,7 +785,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.48  2005-10-09 06:42:02  sjtan
+# Revision 1.49  2005-10-18 13:34:00  sjtan
+# after running; small diffs
+#
+# Revision 1.48  2005/10/09 06:42:02  sjtan
 # timely cache update means a complete tree reconstruct can be done quite fast ( currently sized records anyway),
 # so don't use refresh_historical_tree() - need to debug this anyway.
 #
