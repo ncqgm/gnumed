@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -416,6 +416,7 @@ class db_server:
 		activate_lang_cmd = tmp[0]
 
 		cursor = self.conn.cursor()
+		# FIXME: do not fail if call handler function already exists
 		if not _run_query(cursor, call_handler_cmd):
 			cursor.close()
 			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
@@ -1429,7 +1430,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.10  2005-09-24 23:28:41  ihaywood
+# Revision 1.11  2005-10-19 11:23:47  ncq
+# - comment on proc lang creation
+#
+# Revision 1.10  2005/09/24 23:28:41  ihaywood
 # make __db_exists () work on my box
 # please test this.
 #
