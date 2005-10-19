@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.72 2005-10-09 08:10:22 ihaywood Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmDemographicsWidgets.py,v 1.73 2005-10-19 09:12:40 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,9 +18,7 @@ import time, string, sys, os
 
 # 3rd party
 import mx.DateTime as mxDT
-# FIXME: (RSN) use "proper" way for importing wx2.6, eg wxversion etc
-# FIXME: please do not just "fix" "bugs" appearing in your build environment
-# FIMXE: but rather try to first understand the implications
+
 try:
 	import wxversion
 	import wx
@@ -2931,7 +2929,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.72  2005-10-09 08:10:22  ihaywood
+# Revision 1.73  2005-10-19 09:12:40  ncq
+# - cleanup
+#
+# Revision 1.72  2005/10/09 08:10:22  ihaywood
 # ok, re-order the address widgets "the hard way" so tab-traversal works correctly.
 #
 # minor bugfixes so saving address actually works now

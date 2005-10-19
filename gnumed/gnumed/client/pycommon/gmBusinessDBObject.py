@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.29 2005-10-15 18:17:06 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmBusinessDBObject.py,v 1.30 2005-10-19 09:12:00 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -386,7 +386,7 @@ class cBusinessDBObject:
 
 		# try to lock rows
 		for query in self.__class__._cmds_lock_rows_for_update:
-			successful, result = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])], extra_verbose = True)
+			successful, result = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])], extra_verbose = False)
 			# error
 			if not successful:
 				conn.rollback()
@@ -561,7 +561,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.29  2005-10-15 18:17:06  ncq
+# Revision 1.30  2005-10-19 09:12:00  ncq
+# - cleanup
+#
+# Revision 1.29  2005/10/15 18:17:06  ncq
 # - error detection in subtable support much improved
 #
 # Revision 1.28  2005/10/10 17:40:57  ncq
