@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.40 2005-10-03 13:52:57 sjtan Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmResizingWidgets.py,v 1.41 2005-10-19 09:13:29 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -139,7 +139,6 @@ class cResizingWindow(wx.ScrolledWindow):
 	"""A vertically-scrolled window which allows subwindows
 	   to change their size, and adjusts accordingly.
 	"""
-#	def __init__ (self, parent, id, pos = wx.DefaultPosition, size = wx.DefaultSize, complete = None):
 	def __init__ (self, parent, id, pos = wx.DefaultPosition, size = wx.DefaultSize):
 
 		wx.ScrolledWindow.__init__(self, parent, id, pos = pos, size = size, style=wx.VSCROLL)
@@ -362,10 +361,9 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 	FIXME: override standard STC popup menu
 	"""
-	def __init__ (self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, data=None, problem=None):
+	def __init__ (self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, data=None):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
-		self.__problem = problem
 		wx.stc.StyledTextCtrl.__init__ (self, parent, id, pos, size, style)
 		self.SetWrapMode (wx.stc.STC_WRAP_WORD)
 		# FIXME: configure
@@ -813,8 +811,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				parent = top_parent,
 				pos = best_pos,
 				size = wx.Size(400, 300),
-				style = wx.SUNKEN_BORDER,
-				problem = self.__problem
+				style = wx.SUNKEN_BORDER
 			)
 		except StandardError:
 			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
@@ -1074,7 +1071,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.40  2005-10-03 13:52:57  sjtan
+# Revision 1.41  2005-10-19 09:13:29  ncq
+# - cleanup, don't pass problem to STCs
+#
+# Revision 1.40  2005/10/03 13:52:57  sjtan
 # module path error
 #
 # Revision 1.39  2005/09/28 21:27:30  ncq
