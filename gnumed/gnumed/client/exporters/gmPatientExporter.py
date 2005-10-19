@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.72 2005-10-18 13:34:01 sjtan Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmPatientExporter.py,v 1.73 2005-10-19 09:06:39 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -754,7 +754,6 @@ class cEmrExport:
                 encounters = [encounter['pk_encounter']],
                 soap_cats = [soap_cat]
             )
-
             if soap_cat_narratives is None:
                 continue
             if len(soap_cat_narratives) == 0:
@@ -763,7 +762,7 @@ class cEmrExport:
             for soap_entry in soap_cat_narratives:
                 txt += (
                     (' ' * (left_margin+3)) +
-                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % soap_entry['provider']  +
+                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % soap_entry['provider'] +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )
@@ -1260,7 +1259,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.72  2005-10-18 13:34:01  sjtan
+# Revision 1.73  2005-10-19 09:06:39  ncq
+# - resolve merge conflict: just whitespace diff
+#
+# Revision 1.72  2005/10/18 13:34:01  sjtan
 # after running; small diffs
 #
 # Revision 1.71  2005/10/15 18:16:24  ncq
