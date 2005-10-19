@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.186 2005-10-15 18:19:23 ncq Exp $
-__version__ = "$Revision: 1.186 $"
+# $Id: gmClinicalRecord.py,v 1.187 2005-10-19 09:16:29 ncq Exp $
+__version__ = "$Revision: 1.187 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -251,12 +251,7 @@ class cClinicalRecord:
 		return data
 	#--------------------------------------------------------
 	def _build_narrative_cache_from_rows(self, rows, idx):
-		existing_pks = dict (
-			[ ( narr['pk_narrative'], 1) for narr in self.__db_cache['narrative'] ]
-		)
 		for row in rows:
-			if existing_pks.has_key(row[idx['pk_narrative']]):
-				continue
 			narr_row = {
 				'pk_field': 'pk_narrative',
 				'idx': idx,
@@ -269,7 +264,7 @@ class cClinicalRecord:
 				_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
 				del self.__db_cache['narrative']
 				return False
-			return True
+		return True
 	#--------------------------------------------------------
 	def get_clin_narrative(self, since=None, until=None, encounters=None,
 		episodes=None, issues=None, soap_cats=None):
@@ -298,7 +293,8 @@ class cClinicalRecord:
 				_log.Log(gmLog.lErr, 'cannot load narrative for patient [%s]' % self.pk_patient)
 				del self.__db_cache['narrative']
 				return None
-			self._build_narrative_cache_from_rows(rows, idx)
+			if not self._build_narrative_cache_from_rows(rows, idx):
+				return None
 
 		# ok, let's constrain our list
 		filtered_narrative = []
@@ -314,7 +310,7 @@ class cClinicalRecord:
 		if encounters is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
 		if soap_cats is not None:
-			soap_cats = map(lambda c:string.lower(c), soap_cats)
+			soap_cats = map(lambda c: c.lower(), soap_cats)
 			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 		return filtered_narrative
@@ -1729,7 +1725,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.186  2005-10-15 18:19:23  ncq
+# Revision 1.187  2005-10-19 09:16:29  ncq
+# - cleanup, return to well-defined state re narrative
+#   cache rebuild, to be fixed later
+#
+# Revision 1.186  2005/10/15 18:19:23  ncq
 # - cleanup
 # - improved logging when initiating active encounter
 #
