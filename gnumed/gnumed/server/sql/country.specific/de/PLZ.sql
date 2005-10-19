@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -11,7 +11,7 @@
 
 set client_encoding to 'LATIN1';
 -- ===================================================================
-delete from urb where id_state = (select id from state where code='SN');
+delete from urb where id_state = (select id from state where code='SN' and country='DE');
 delete from state where country='DE';
 
 -- Deutschland (Bundesl‰nder)
@@ -60,7 +60,7 @@ select gm_upd_default_states();
 -- Groﬂ S‰rchen --
 ------------------
 insert into urb (id_state, name, postcode) values (
-	(select id from state where code = 'SN'),
+	(select id from state where code = 'SN' and country='DE'),
 	'Groﬂ S‰rchen',
 	'02999'
 );
@@ -70,13 +70,13 @@ insert into urb (id_state, name, postcode) values (
 -------------
 -- no street
 insert into urb (id_state, postcode, name) values (
-	(select id from state where code = 'SN'),
+	(select id from state where code = 'SN' and country = 'DE'),
 	'04318',
 	'Leipzig'
 );
 
 insert into urb (id_state, postcode, name) values (
-	(select id from state where code = 'SN'),
+	(select id from state where code = 'SN' and country = 'DE'),
 	'04317',
 	'Leipzig'
 );
@@ -148,14 +148,29 @@ insert into street (id_urb, name, postcode) values (
 	'04317'
 );
 
+insert into street (
+	id_urb,
+	name,
+	suburb,
+	postcode
+) values (
+	(select id from urb where name='Leipzig' limit 1),
+	'Cunnersdorfer Straﬂe',
+	'Sellerhausen',
+	'04318'
+);
+
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.10  2005-09-25 17:52:09  ncq
+-- Revision 1.11  2005-10-19 11:29:09  ncq
+-- - when selecting state pks must give country, too, or else duplicates exist
+--
+-- Revision 1.10  2005/09/25 17:52:09  ncq
 -- - add commented out alternative state information for AT
 --
 -- Revision 1.9  2005/09/19 16:26:07  ncq
