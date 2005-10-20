@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.17 2005-10-08 12:33:09 sjtan Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmEMRStructWidgets.py,v 1.18 2005-10-20 07:42:27 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -37,10 +37,13 @@ dialog_OK = -2
 class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	"""Edit Area for Health Issues.
 
-	They correspond to Past History items.
+	They correspond to "Past History" items.
 	"""
-	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.NO_BORDER):
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.NO_BORDER, data_sink=None):
 		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
+		# this edit area will ignore data_sink for now as
+		# it seems reasonable to save back new health issues
+		# immediately
 	#----------------------------------------------------
 	# public API
 	#----------------------------------------------------
@@ -184,14 +187,17 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			new_issue.save_payload()
 			
 		# FIXME: handle fld_year_onset
+
 		# progress note
-		epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['id'])
-		epi['episode_open'] = False
-		epi.save_payload()
-		# FIXME: error handling
-		if epi is not None:
+		narr = self.fld_progress_note.GetValue().strip()
+		if narr != '':
+			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['id'])
+			epi['episode_open'] = False
+			epi.save_payload()
 			# FIXME: error handling
-			emr.add_clin_narrative(note = self.fld_progress_note.GetValue(), episode=epi)
+			if epi is not None:
+				# FIXME: error handling
+				emr.add_clin_narrative(note = narr, episode=epi)
 		return True
 #============================================================
 class cEpisodeSelectorDlg(wx.Dialog):
@@ -896,7 +902,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.17  2005-10-08 12:33:09  sjtan
+# Revision 1.18  2005-10-20 07:42:27  ncq
+# - somewhat improved edit area for issue
+#
+# Revision 1.17  2005/10/08 12:33:09  sjtan
 # tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
 #
 # Revision 1.16  2005/10/04 19:24:53  sjtan
