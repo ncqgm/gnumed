@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.41 2005-10-19 09:13:29 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmResizingWidgets.py,v 1.42 2005-10-20 07:43:02 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -384,7 +384,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.__parent = parent
 
 		self.__popup_keywords = {}
-#		self.__popup = None
+
 		# FIXME: delay configurable
 		self.__timer = gmTimer.cTimer (
 			callback = self._on_timer_fired,
@@ -811,7 +811,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				parent = top_parent,
 				pos = best_pos,
 				size = wx.Size(400, 300),
-				style = wx.SUNKEN_BORDER
+				style = wx.SUNKEN_BORDER,
+				data_sink = self.__popup_keywords[kwd]['widget_data_sink']
 			)
 		except StandardError:
 			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
@@ -830,10 +831,6 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			return False
 
 		# display widget
-		# FIXME: the embed_header business needs to go away, eg. be dealt
-		# FIXME: with later by calling widget_to_show.get_embed_string()
-		# FIXME: same with originator
-
 		result = popup.ShowModal()
 		if result == wx.ID_OK:
 			summary = popup.get_summary()
@@ -1071,7 +1068,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.41  2005-10-19 09:13:29  ncq
+# Revision 1.42  2005-10-20 07:43:02  ncq
+# - infrastructure for new way of handling popup data
+#
+# Revision 1.41  2005/10/19 09:13:29  ncq
 # - cleanup, don't pass problem to STCs
 #
 # Revision 1.40  2005/10/03 13:52:57  sjtan
