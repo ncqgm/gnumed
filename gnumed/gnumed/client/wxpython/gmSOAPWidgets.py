@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.61 2005-10-20 07:44:44 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmSOAPWidgets.py,v 1.62 2005-10-21 09:25:52 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -51,14 +51,14 @@ def create_issue_popup(parent, pos, size, style, data_sink):
 	)
 	return popup
 #============================================================
-def create_vacc_popup(parent, pos, size, style, problem):
+def create_vacc_popup(parent, pos, size, style, data_sink):
 	ea = gmVaccWidgets.cVaccinationEditArea (
 		parent = parent,
 		id = -1,
       	pos = pos,
 		size = size,
 		style = style,
-		problem = problem
+		data_sink = data_sink
 	)
 	popup = gmEditArea.cEditAreaPopup (
 		parent = parent,
@@ -476,17 +476,20 @@ class cPopupDataHolder:
 	def __init__(self):
 		self.__data = {}
 	#--------------------------------------------------------
-	def store_data(self, popup_type=None, originating_soap=None, desc=None, data=None, old_desc=None):
+	def store_data(self, popup_type=None, desc=None, data=None, old_desc=None):
 		# FIXME: do fancy validations
 
 		print "storing popup data:", desc
 		print "type", popup_type
-		print "soap", originating_soap
 		print "data", data
 
+		# verify structure
+		try:
+			self.__data[popup_type]
+		except KeyError:
+			self.__data[popup_type] = {}
 		# store new data
 		self.__data[popup_type][desc] = {
-			'originating_soap': originating_soap,
 			'data': data
 		}
 		# remove old data if necessary
@@ -494,6 +497,7 @@ class cPopupDataHolder:
 			del self.__data[popup_type][old_desc]
 		except:
 			pass
+		return True
 	#--------------------------------------------------------
 	def save(self):
 		print "saving popup data"
@@ -537,6 +541,12 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		if input_defs is None or len(input_defs) == 0:
 			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % input_defs
 
+		# FIXME: *actually* this should be a session-local
+		# FIXME: holding store at the cClinicalRecord level
+		self.__embedded_data_holder = cPopupDataHolder()
+
+		self.__input_defs = input_defs
+
 		gmResizingWidgets.cResizingWindow.__init__(self, parent, id=-1, size=size)
 
 		self.__problem = problem
@@ -544,11 +554,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			self.__problem = emr.episode2problem(episode = problem)
 		elif isinstance(problem, gmEMRStructItems.cHealthIssue):
 			self.__problem = emr.health_issue2problem(issue = problem)
-		self.__input_defs = input_defs
 		self.__pat = gmPerson.gmCurrentPatient()
-		# FIXME: *actually* this should be a session-local
-		# FIXME: holding store at the cClinicalRecord level
-		self.__embedded_data_holder = cPopupDataHolder()
 	#--------------------------------------------------------
 	# cResizingWindow API
 	#--------------------------------------------------------
@@ -556,10 +562,10 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		"""Visually display input note according to user defined labels.
 		"""
 		# configure keywords
-		for soap_cat in 'soap':
-			for kwds in progress_note_keywords[soap_cat]:
-				for kwd in kwds:
-					kwd['widget_data_sink'] = self.__embedded_data_holder.store_data
+		for soap_cat in progress_note_keywords.keys():
+			category = progress_note_keywords[soap_cat]
+			for kwd in category.keys():
+				category[kwd]['widget_data_sink'] = self.__embedded_data_holder.store_data
 		input_fields = []
 		# add fields to edit widget
 		# note: this may produce identically labelled lines
@@ -681,7 +687,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			return False
 
 		# dump embedded data to backend
-		if not self.__embedded_data_holder.save()
+		if not self.__embedded_data_holder.save():
 			gmGuiHelpers.gm_show_error (
 				_('Error saving progress note.'),
 				_('saving progress note'),
@@ -1077,7 +1083,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.61  2005-10-20 07:44:44  ncq
+# Revision 1.62  2005-10-21 09:25:52  ncq
+# - verify input structure in store_data()
+# - reorder __init__ so cSoapWin does not fail
+# - better recursion in data_sink setting for keywords
+#
+# Revision 1.61  2005/10/20 07:44:44  ncq
 # - cleanup++, some refactoring for clarity
 # - new way of handling popup data
 #
