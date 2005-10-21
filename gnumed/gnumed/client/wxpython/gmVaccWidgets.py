@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.22 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmVaccWidgets.py,v 1.23 2005-10-21 09:27:11 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,12 +21,13 @@ except ImportError:
 
 import mx.DateTime as mxDT
 
-from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin
+from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
 from Gnumed.business import gmPerson, gmVaccination
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider, gmWhoAmI
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+_whoami = gmWhoAmI.cWhoAmI()
 #======================================================================
 class cVaccinationEditArea(gmEditArea.cEditArea2):
 	"""
@@ -34,9 +35,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 	- ask if "missing" (= previous, non-recorded) vaccinations
 	  should be estimated and saved (add note "auto-generated")
 	"""
-	def __init__(self, parent, id, pos, size, style, problem):
+	def __init__(self, parent, id, pos, size, style, data_sink=None):
 		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
-		self.__problem = problem
+		self.__data_sink = data_sink
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 #		# regime/disease
@@ -157,29 +158,50 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self._add_prompt(line = 4, label = _("Site injected"))
 		self._add_prompt(line = 5, label = _("Progress Note"))
 	#----------------------------------------------------
-	def _save_new_entry(self):
+	def _save_new_entry(self, episode):
 		# FIXME: validation ?
-		import pdb
-		pdb.set_trace ()
-		emr = self._patient.get_clinical_record()
-		# create new vaccination
-		successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue(), episode=self.__problem)
-		if not successfull:
-			gmGuiHelpers.gm_beep_status_text(_('Cannot save vaccination: %s') % data)
-			return False
-		# update it with known data
-		data['pk_provider'] = _whoami.get_staff_ID()
-		data['date'] = self.fld_date_given.GetValue()
-		data['narrative'] = self.fld_progress_note.GetValue()
-		data['site'] = self.fld_site_given.GetValue()
-		data['batch_no'] = self.fld_batch_no.GetValue()
-		successfull, err = data.save_payload()
-		if not successfull:
-			gmGuiHelpers.gm_beep_status_text(_('Cannot save new vaccination: %s') % err)
-			return False
-		_gb['main.statustext'](_('Vaccination saved.'))
-		self.data = data
-		return True
+		if self.__data_sink is None:
+			# save directly into database
+			emr = self._patient.get_clinical_record()
+			# create new vaccination
+			successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue(), episode=episode)
+			if not successfull:
+				gmGuiHelpers.gm_beep_statustext(_('Cannot save vaccination: %s') % data)
+				return False
+			# update it with known data
+			data['pk_provider'] = _whoami.get_staff_ID()
+			data['date'] = self.fld_date_given.GetValue()
+			data['narrative'] = self.fld_progress_note.GetValue()
+			data['site'] = self.fld_site_given.GetValue()
+			data['batch_no'] = self.fld_batch_no.GetValue()
+			successful, err = data.save_payload()
+			if not successful:
+				gmGuiHelpers.gm_beep_statustext(_('Cannot save new vaccination: %s') % err)
+				return False
+			gmGuiHelpers.gm_beep_statustext(_('Vaccination saved.'))
+			self.data = data
+			return True
+		else:
+			# pump into data sink
+			data = {
+				'vaccine': self.fld_vaccine.GetValue(),
+				'pk_provider': _whoami.get_staff_ID(),
+				'date': self.fld_date_given.GetValue(),
+				'narrative': self.fld_progress_note.GetValue(),
+				'site': self.fld_site_given.GetValue(),
+				'batch_no': self.fld_batch_no.GetValue()
+			}
+			# FIXME: old_desc
+			successful = self.__data_sink (
+				popup_type = 'vaccination',
+				data = data,
+				desc = _('shot: %s, %s, %s') % (data['date'], data['vaccine'], data['site'])
+			)
+			if not successful:
+				gmGuiHelpers.gm_beep_statustext(_('Cannot queue new vaccination.'))
+				return False
+			gmGuiHelpers.gm_beep_statustext(_('Vaccination queued for saving.'))
+			return True
 	#----------------------------------------------------
 	def _save_modified_entry(self):
 		"""Update vaccination object and persist to backend.
@@ -191,16 +213,16 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self.data['narrative'] = self.fld_progress_note.GetValue()
 		successfull, data = self.data.save_payload()
 		if not successfull:
-			gmGuiHelpers.gm_beep_status_text(_('Cannot update vaccination: %s') % err)
+			gmGuiHelpers.gm_beep_statustext(_('Cannot update vaccination: %s') % err)
 			return False
-		_gb['main.statustext'](_('Vaccination updated.'))
+		gmGuiHelpers.gm_beep_statustext(_('Vaccination updated.'))
 		return True
 	#----------------------------------------------------
-	def save_data (self):
+	def save_data(self, episode=None):
 		if self.data is None:
-			return self._save_new_entry ()
+			return self._save_new_entry(episode=episode)
 		else:
-			return self._save_modified_entry ()
+			return self._save_modified_entry()
 	#----------------------------------------------------
 	def set_data(self, aVacc = None):
 		"""Set edit area fields with vaccination object data.
@@ -530,7 +552,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.22  2005-09-28 21:27:30  ncq
+# Revision 1.23  2005-10-21 09:27:11  ncq
+# - propagate new way of popup data saving
+#
+# Revision 1.22  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.21  2005/09/28 15:57:48  ncq
