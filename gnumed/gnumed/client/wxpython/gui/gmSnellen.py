@@ -6,8 +6,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.16 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmSnellen.py,v 1.17 2005-10-23 11:31:45 ihaywood Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,11 +22,11 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N
 #from Gnumed.wxpython import gmPlugin
 
-ID_SNELLENMENU = wx.wx.NewId()
-ID_SNELLENBUTTON = wx.wx.NewId()
+ID_SNELLENMENU = wx.NewId()
+ID_SNELLENBUTTON = wx.NewId()
 
 #============================================================================
-class cSnellenChart(wx.wxFrame):
+class cSnellenChart(wx.Frame):
 
 	def convert (self, X,Y):
 		"""Converts a pair of co-ordinates from block co-ords to real.
@@ -35,9 +35,9 @@ class cSnellenChart(wx.wxFrame):
 		"""
 		if self.mirror:
 			X = 5-X
-		return wx.wxPoint(
-			(X * self.blockX) + self.startX,
-			(Y * self.blockY) + self.startY
+		return wx.Point(
+			int ((X * self.blockX) + self.startX),
+			int ((Y * self.blockY) + self.startY)
 		)
 
 	def rect (self, x1, y1, x2, y2):
@@ -267,7 +267,7 @@ class cSnellenChart(wx.wxFrame):
 			x = 2.5 + math.sin (theta)
 			y = 2.5 - math.cos (theta)
 			list.append (self.convert (x, y)) 
-		self.dc.DrawPolygon (list, fill_style = wx.wxWINDING_RULE)
+		self.dc.DrawPolygon (list, fill_style = wx.WINDING_RULE)
 
 	latin = [A, C,
 			 C, E, F, G,
@@ -296,8 +296,8 @@ class cSnellenChart(wx.wxFrame):
 		Initialise. width and height define the physical size of the
 		CRT in cm.
 		"""
-		wx.wxFrame.__init__ (self, parent, -1, _("Snellen Chart"))
-		wx.wx.EVT_CLOSE (self, self.OnClose)
+		wx.Frame.__init__ (self, parent, -1, _("Snellen Chart"))
+		wx.EVT_CLOSE (self, self.OnClose)
 		# width/Y is screen size (X/Y in cm)
 		# distance is distance in metres between CRT and the "average" patient
 		self.width = width
@@ -305,17 +305,19 @@ class cSnellenChart(wx.wxFrame):
 		self.distances = [3, 5, 6, 7.5, 9, 12, 15, 18, 24, 30, 48, 60]
 		self.mirror = mirr
 		self.alphabet = alpha
-		wx.wx.EVT_KEY_DOWN (self, self.OnKeyUp)
-		wx.wx.EVT_LEFT_UP (self, self.OnLeftDown)
-		wx.wx.EVT_RIGHT_UP (self, self.OnRightDown)
-		wx.wx.EVT_LEFT_DCLICK (self, self.OnDClick)
-		wx.wx.EVT_PAINT (self, self.OnPaint)
-		self.ShowFullScreen (1)
-		self.screen_x, self.screen_y = self.GetClientSizeTuple ()
-		gmLog.gmDefLog.Log (gmLog.lInfo, 'I think the screen size is %d x %d' % (self.screen_x, self.screen_y))
-		self.set_distance (2)
+		wx.EVT_KEY_DOWN (self, self.OnKeyUp)
+		wx.EVT_LEFT_UP (self, self.OnLeftDown)
+		wx.EVT_RIGHT_UP (self, self.OnRightDown)
+		wx.EVT_LEFT_DCLICK (self, self.OnDClick)
+		wx.EVT_PAINT (self, self.OnPaint)
+		wx.EVT_WINDOW_CREATE (self, self.OnCreate)
 		screensizes = {_("14 inch"):(28, 21), _("16 inch"):(30, 23)}
+		self.screen_x = 0
+		self.screen_y = 0
 
+	def OnCreate (self, event):
+		self.ShowFullScreen (1)
+		
 	def set_distance (self, n):
 		"""
 		Sets standard viewing distance, against which patient is
@@ -372,24 +374,28 @@ class cSnellenChart(wx.wxFrame):
 
 
 	def setup_DC (self):
-		self.dc.SetFont (wx.wxFont (36, wx.wxROMAN, wx.wx.NORMAL, wx.wx.NORMAL))
-		self.dc.SetBrush (wx.wx.BLACK_BRUSH)
-		self.dc.SetBackground (wx.wxWHITE_BRUSH)
-		self.dc.SetPen (wx.wx.TRANSPARENT_PEN)
+		self.dc.SetFont (wx.Font (36, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+		self.dc.SetBrush (wx.BLACK_BRUSH)
+		self.dc.SetBackground (wx.WHITE_BRUSH)
+		self.dc.SetPen (wx.TRANSPARENT_PEN)
 
 
 	def OnPaint (self, event):
-		self.dc = wx.wxPaintDC (self)
+		self.dc = wx.PaintDC (self)
+		if self.screen_x == 0:
+			self.screen_x, self.screen_y = self.GetClientSizeTuple ()
+			self.set_distance (2)
+			gmLog.gmDefLog.Log (gmLog.lInfo, 'I think the screen size is %d x %d' % (self.screen_x, self.screen_y))
 		self.setup_DC ()
 		self.draw ()
 		self.dc = None 
 
 	def OnKeyUp (self, key):
-		if key.GetKeyCode () == wx.WXK_UP and self.distance < len (self.distances)-1:
+		if key.GetKeyCode () == wx.K_UP and self.distance < len (self.distances)-1:
 			self.set_distance (self.distance+1)
-		if key.GetKeyCode () == wx.WXK_DOWN and self.distance > 0:
+		if key.GetKeyCode () == wx.K_DOWN and self.distance > 0:
 			self.set_distance (self.distance-1)
-		if key.GetKeyCode () == wx.WXK_ESCAPE:
+		if key.GetKeyCode () == wx.K_ESCAPE:
 			self.Destroy ()
 
 	def OnLeftDown (self, key):
@@ -408,65 +414,69 @@ class cSnellenChart(wx.wxFrame):
 	def OnClose (self, event):
 		self.Destroy()
 
+	def DestroyWhenApp (self):
+		import sys
+		sys.exit (0)
+
 #============================================================================
-class cSnellenCfgDlg (wx.wxDialog):
+class cSnellenCfgDlg (wx.Dialog):
 	"""
 	Dialogue class to get Snellen chart settings.
 	"""
 	def __init__ (self):
-		wx.wxDialog.__init__(
+		wx.Dialog.__init__(
 			self,
 			None,
 			-1,
 			_("Snellen Chart Setup"),
-			wx.wxDefaultPosition,
-			wx.wxSize(350, 200)
+			wx.DefaultPosition,
+			wx.Size(350, 200)
 		)
-		vbox = wx.wx.BoxSizer (wx.wx.VERTICAL)
-		hbox1 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
-		hbox1.Add (wx.wxStaticText(self, -1, _("Screen Height (cm): ")), 0, wx.wxALL, 15)
-		self.height_ctrl = wx.wxSpinCtrl (self, -1, value = "25", min = 10, max = 100)
-		hbox1.Add (self.height_ctrl, 1, wx.wx.TOP, 15)
-		vbox.Add (hbox1, 1, wx.wxEXPAND)
-		hbox2 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
-		hbox2.Add (wx.wxStaticText(self, -1, _("Screen Width (cm): ")), 0, wx.wxALL, 15)
-		self.width_ctrl = wx.wxSpinCtrl (self, -1, value = "30", min = 10, max = 100)
-		hbox2.Add (self.width_ctrl, 1, wx.wx.TOP, 15)
-		vbox.Add (hbox2, 1, wx.wxEXPAND)
-		hbox3 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
-		hbox3.Add (wx.wxStaticText(self, -1, _("Alphabet: ")), 0, wx.wxALL, 15)
-		self.alpha_ctrl = wx.wxChoice (self, -1, choices=cSnellenChart.alphabets.keys ())
-		hbox3.Add (self.alpha_ctrl, 1, wx.wx.TOP, 15)
-		vbox.Add (hbox3, 1, wx.wxEXPAND)
-		self.mirror_ctrl = wx.wxCheckBox (self, -1, label = _("Mirror"))
-		vbox.Add (self.mirror_ctrl, 0, wx.wxALL, 15)
-		vbox.Add (wx.wxStaticText (self, -1,
+		vbox = wx.BoxSizer (wx.VERTICAL)
+		hbox1 = wx.BoxSizer (wx.HORIZONTAL)
+		hbox1.Add (wx.StaticText(self, -1, _("Screen Height (cm): ")), 0, wx.ALL, 15)
+		self.height_ctrl = wx.SpinCtrl (self, -1, value = "25", min = 10, max = 100)
+		hbox1.Add (self.height_ctrl, 1, wx.TOP, 15)
+		vbox.Add (hbox1, 1, wx.EXPAND)
+		hbox2 = wx.BoxSizer (wx.HORIZONTAL)
+		hbox2.Add (wx.StaticText(self, -1, _("Screen Width (cm): ")), 0, wx.ALL, 15)
+		self.width_ctrl = wx.SpinCtrl (self, -1, value = "30", min = 10, max = 100)
+		hbox2.Add (self.width_ctrl, 1, wx.TOP, 15)
+		vbox.Add (hbox2, 1, wx.EXPAND)
+		hbox3 = wx.BoxSizer (wx.HORIZONTAL)
+		hbox3.Add (wx.StaticText(self, -1, _("Alphabet: ")), 0, wx.ALL, 15)
+		self.alpha_ctrl = wx.Choice (self, -1, choices=cSnellenChart.alphabets.keys ())
+		hbox3.Add (self.alpha_ctrl, 1, wx.TOP, 15)
+		vbox.Add (hbox3, 1, wx.EXPAND)
+		self.mirror_ctrl = wx.CheckBox (self, -1, label = _("Mirror"))
+		vbox.Add (self.mirror_ctrl, 0, wx.ALL, 15)
+		vbox.Add (wx.StaticText (self, -1,
 _("""Control Snellen chart using mouse:
 left-click increases text
 right-click decreases text
-double-click ends""")), 0, wx.wxALL, 15)
-		hbox5 = wx.wx.BoxSizer (wx.wx.HORIZONTAL)
-		ok = wx.wx.Button(self, wx.wxID_OK, _(" OK "), size=wx.wxDefaultSize)
-		cancel = wx.wx.Button (self, wx.wxID_CANCEL, _(" Cancel "),
-						   size=wx.wxDefaultSize)
-		hbox5.Add (ok, 1, wx.wx.TOP, 15)
-		hbox5.Add (cancel, 1, wx.wx.TOP, 15)
-		vbox.Add (hbox5, 1, wx.wxEXPAND)
+double-click ends""")), 0, wx.ALL, 15)
+		hbox5 = wx.BoxSizer (wx.HORIZONTAL)
+		ok = wx.Button(self, wx.ID_OK, _(" OK "), size=wx.DefaultSize)
+		cancel = wx.Button (self, wx.ID_CANCEL, _(" Cancel "),
+						   size=wx.DefaultSize)
+		hbox5.Add (ok, 1, wx.TOP, 15)
+		hbox5.Add (cancel, 1, wx.TOP, 15)
+		vbox.Add (hbox5, 1, wx.EXPAND)
 		self.SetSizer (vbox)
 		self.SetAutoLayout (1)
 		vbox.Fit (self)
 
-		wx.wx.EVT_BUTTON (ok, wx.wxID_OK, self.OnOK)
-		wx.wx.EVT_BUTTON (cancel, wx.wxID_CANCEL, self.OnCancel)
-		wx.wx.EVT_CLOSE (self, self.OnClose )
+		wx.EVT_BUTTON (ok, wx.ID_OK, self.OnOK)
+		wx.EVT_BUTTON (cancel, wx.ID_CANCEL, self.OnCancel)
+		wx.EVT_CLOSE (self, self.OnClose )
 		self.Show(1)
 #		self.parent = parent
 
 	def OnClose (self, event):
-		self.Destroy ()
+		self.EndModal (1)
 
 	def OnCancel (self, event):
-		self.Destroy ()
+		self.EndModal (1)
 
 	def OnOK (self, event):
 		if self.Validate() and self.TransferDataFromWindow():
@@ -478,9 +488,9 @@ double-click ends""")), 0, wx.wxALL, 15)
 			height = self.height_ctrl.GetValue ()
 			width = self.width_ctrl.GetValue ()
 			mirr = self.mirror_ctrl.GetValue()
-
-#			self.Destroy()
-			return (width, height, alpha, mirr)
+			self.vals = (width, height, alpha, mirr)
+			self.EndModal(0)
+			
 
 #============================================================================
 # FIXME needn't be a plugin, rewrite to not be one
@@ -493,7 +503,7 @@ double-click ends""")), 0, wx.wxALL, 15)
 #	def register (self):
 #		menu = self.gb['main.toolsmenu']
 #		menu.Append (ID_SNELLENMENU, "Snellen", "Snellen Chart")
-#		wx.wx.EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
+#		wx.EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
 
 #	def unregister (self):
 #		menu = self.gb['main.toolsmenu']
@@ -507,24 +517,21 @@ double-click ends""")), 0, wx.wxALL, 15)
 # main
 #----------------------------------------------------------------------------
 if __name__ == '__main__':
-	class TestApp (wx.wxApp):
+	class TestApp (wx.App):
 		def OnInit (self):
 			cfg = cSnellenCfgDlg()
-			print cfg
-			print "now doing frame"
-			frame = cSnellenChart (
-				width = cfg[0],
-				height = cfg[1],
-				alpha = cfg[2],
-				mirr = cfg[3],
-				parent = None
-			)
-			print "now showing frame"
-#			frame.Show (1)
-
-			frame.CentreOnScreen(wx.wx.BOTH)
-			self.SetTopWindow(frame)
-			frame.Show(True)
+			if cfg.ShowModal () == 0:
+				frame = cSnellenChart (
+					width = cfg.vals[0],
+					height = cfg.vals[1],
+					alpha = cfg.vals[2],
+					mirr = cfg.vals[3],
+					parent = None
+					)
+				frame.CentreOnScreen(wx.BOTH)
+				self.SetTopWindow(frame)
+				frame.Destroy = frame.DestroyWhenApp
+				frame.Show(True)
 			return 1
 
 	def main ():
@@ -534,7 +541,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.16  2005-09-28 21:27:30  ncq
+# Revision 1.17  2005-10-23 11:31:45  ihaywood
+# Snellen now works again (with Andreas' packages, on wx2.4)
+#
+# Revision 1.16  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.15  2005/09/26 18:01:52  ncq
