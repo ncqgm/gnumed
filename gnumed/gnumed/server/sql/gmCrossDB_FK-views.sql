@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FK-views.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -12,11 +12,7 @@
 -- ===================================================================
 -- remote foreign keys definition
 -- -------------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function add_x_db_fk_def (name, name, text, name, name);
-\set ON_ERROR_STOP 1
-
-create function add_x_db_fk_def (name, name, text, name, name) returns unknown as '
+create or replace function add_x_db_fk_def (name, name, text, name, name) returns unknown as '
 DECLARE
 	src_table ALIAS FOR $1;
 	src_col ALIAS FOR $2;
@@ -91,11 +87,7 @@ create view v_x_db_fk_violation as
 	;
 
 -- -------------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function log_x_db_fk_violation (integer, text, text, text);
-\set ON_ERROR_STOP 1
-
-create function log_x_db_fk_violation (integer, text, text, text) returns unknown as '
+create or replace function log_x_db_fk_violation (integer, text, text, text) returns unknown as '
 DECLARE
 	fk_def_id alias for $1;
 	viol_pk alias for $2;
@@ -124,11 +116,14 @@ END;' language 'plpgsql';
 
 -- =============================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FK-views.sql,v $', '$Revision: 1.3 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FK-views.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FK-views.sql,v $
--- Revision 1.3  2005-09-19 16:38:51  ncq
+-- Revision 1.4  2005-10-24 19:17:04  ncq
+-- - use ... or replace ... on functions
+--
+-- Revision 1.3  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.2  2005/07/14 21:31:42  ncq
