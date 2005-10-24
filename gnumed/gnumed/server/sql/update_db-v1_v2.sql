@@ -1,13 +1,26 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- == cross-service =======================================
+
+-- audited_tables.schema
+alter table audited_tables
+	alter column "schema"
+		set default 'public';
+
+update audited_tables set "schema" = DEFAULT where "schema" is null;
+
+alter table audited_tables
+	alter column "schema"
+		set not null;
 
 -- == service default =====================================
 
@@ -268,21 +281,46 @@ drop table last_act_episode;
 alter table gm_schema_revision
 	drop column is_core cascade;
 
+-- == service blobs ==================================================
+-- 1) create tables in schema "blobs"
+\i gmBlobs.sql
+
+-- 2) move data from public schema
+insert into blobs.doc_type select * from public.doc_type;
+insert into blobs.doc_med select * from public.doc_med;
+insert into blobs.doc_obj select * from public.doc_obj;
+insert into blobs.doc_desc select * from public.doc_desc;
+
+-- 3) drop tables in public schema
+drop table public.doc_desc cascade;
+drop table public.doc_obj cascade;
+drop table public.doc_med cascade;
+drop table public.doc_type cascade;
+
 -- ===================================================================
 -- add tables, data, etc
 \i gmWaitingList.sql
 \i gmCountryZones.sql
 
+-- == cleanup debris =================================================
+\unset ON_ERROR_STOP
+drop function calc_db_identity_hash();
+drop function log_script_insertion(text, text, boolean);
+\set ON_ERROR_STOP 1
+
 -- ===================================================================
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename='$RCSfile: update_db-v1_v2.sql,v $';
-insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.7 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.7  2005-10-12 19:24:25  ncq
+-- Revision 1.8  2005-10-24 19:30:23  ncq
+-- - require schema in audited_tables - default to public
+-- - move blobs service into schema "blobs"
+--
+-- Revision 1.7  2005/10/12 19:24:25  ncq
 -- - clin_encounter.rfe can be null
 --
 -- Revision 1.6  2005/09/25 17:51:14  ncq
