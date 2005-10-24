@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.46 $
+-- $Revision: 1.47 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -212,8 +212,7 @@ create table test_result (
 	fk_type integer
 		not null
 		references test_type(pk),
-	val_num numeric
---	val_num float
+	val_num numeric		-- consider contrib/seg.sql
 		default null
 		check (
 			((val_num is not null) or (val_alpha is not null))
@@ -455,11 +454,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.46 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.47 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.46  2005-09-19 16:38:51  ncq
+-- Revision 1.47  2005-10-24 19:10:18  ncq
+-- - cleanup, remove 7.1ism
+--
+-- Revision 1.46  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.45  2005/07/14 21:31:42  ncq
