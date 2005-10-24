@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -909,8 +909,8 @@ class gmService:
 		*  0 = no, please import
 		* -1 = not sure: error or yes, but different version
 		"""
-		# we need the GNUmed name of the service late, so we store it here
-		self.name = _cfg.get(self.section, "name")
+		# we need the GNUmed name of the service later, so we store it here
+		self.name = _cfg.get(self.section, 'name')
 
 		curs = self.db.conn.cursor()
 
@@ -938,7 +938,7 @@ class gmService:
 			_log.Log(gmLog.lErr, "Need to know service name.")
 			curs.close()
 			return -1
-		cmd = "select exists(select id from gm_services where name = '%s' limit 1)" % self.name
+		cmd = "select exists(select id from public.gm_services where name = '%s' limit 1)" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -955,7 +955,7 @@ class gmService:
 			_log.Log(gmLog.lErr, "Need to know service version.")
 			curs.close()
 			return -1
-		cmd = "select version, created from gm_services where name = '%s' limit 1)" % self.name
+		cmd = "select version, created from public.gm_services where name = '%s' limit 1)" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -1016,7 +1016,7 @@ class gmService:
 
 		curs = coreDB.conn.cursor()
 		# check for presence of service name in core database (service config)
-		cmd = "select id from distributed_db where name='%s' limit 1" % self.name
+		cmd = "select id from public.distributed_db where name='%s' limit 1" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -1049,7 +1049,7 @@ class gmService:
 			return True
 		# if not, insert database definition in table db
 		else:
-			cmd = "select id from db where name='%s' limit 1" % self.db.name
+			cmd = "select id from public.db where name='%s' limit 1" % self.db.name
 			try:
 				curs.execute(cmd)
 			except:
@@ -1064,7 +1064,7 @@ class gmService:
 				_log.Log(gmLog.lInfo, "Storing database definition for [%s]." % self.db.name)
 				_log.Log(gmLog.lInfo, "name=%s, host=%s, port=%s" % (self.db.name,self.db.server.port,self.db.server.name))
 	
-				cmd = "INSERT INTO db (name,port,host) VALUES ('%s',%s,'%s')" % (self.db.name,self.db.server.port,self.db.server.name)
+				cmd = "INSERT INTO public.db (name,port,host) VALUES ('%s',%s,'%s')" % (self.db.name,self.db.server.port,self.db.server.name)
 				try:
 					curs.execute(cmd)
 				except:
@@ -1075,7 +1075,7 @@ class gmService:
 				coreDB.conn.commit()
 
 				# get the database id for the created entry
-				cmd = "select id from db where name='%s' limit 1" % self.db.name
+				cmd = "select id from public.db where name='%s' limit 1" % self.db.name
 				try:
 					curs.execute(cmd)
 				except:
@@ -1099,7 +1099,7 @@ class gmService:
 			# xxxDEFAULTxxx user, upon client startup if not "user" config exists
 			# the xxxDEFAULTxxx config will be read, confirmed by the current user
 			# and stored for her ...
-			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
+			cmd = "INSERT INTO public.config (username,db,ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
 			try:
 				curs.execute(cmd)
 			except:
@@ -1430,7 +1430,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.11  2005-10-19 11:23:47  ncq
+# Revision 1.12  2005-10-24 19:36:27  ncq
+# - some explicit use of public.* schema qualification
+#
+# Revision 1.11  2005/10/19 11:23:47  ncq
 # - comment on proc lang creation
 #
 # Revision 1.10  2005/09/24 23:28:41  ihaywood
