@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -12,7 +12,7 @@
 -- ===================================================================
 create table audited_tables (
 	id serial primary key,
-	schema name default null,
+	schema name default 'public',
 	table_name name unique not null
 );
 
@@ -21,34 +21,6 @@ comment on table audited_tables is
 	 recorded in this table. Audit triggers will be
 	 generated automatically for all tables recorded
 	 here.';
-
--- ===================================================================
-\unset ON_ERROR_STOP
-drop function add_table_for_audit (name);
-\set ON_ERROR_STOP 1
-
-create function add_table_for_audit (name) returns unknown as '
-DECLARE
-	tbl_name ALIAS FOR $1;
-	dummy RECORD;
-BEGIN
-	-- does table exist ?
-	select relname into dummy from pg_class where relname = tbl_name;
-	if not found then
-		raise exception ''add_table_for_audit: Table [%] does not exist.'', tbl_name;
-		return false;
-	end if;
-	-- add definition
-	insert into audited_tables (
-		table_name
-	) values (
-		tbl_name
-	);
-	return true;
-END;' language 'plpgsql';
-
-comment on function add_table_for_audit (name) is
-	'sanity-checking convenience function for marking tables for auditing';
 
 -- ===================================================================
 create table audit_fields (
@@ -66,32 +38,6 @@ comment on COLUMN audit_fields.modified_when is
 	'when has this row been committed (created/modified)';
 comment on COLUMN audit_fields.modified_by is
 	'by whom has this row been committed (created/modified)';
-
--- ---------------------------------------------
--- protect from direct inserts/updates/deletes which the
--- inheritance system can't handle properly
-\unset ON_ERROR_STOP
-drop rule audit_fields_no_ins on audit_fields cascade;
-drop rule audit_fields_no_ins;
-drop rule audit_fields_no_upd on audit_fields cascade;
-drop rule audit_fields_no_upd;
-drop rule audit_fields_no_del on audit_fields cascade;
-drop rule audit_fields_no_del;
-\set ON_ERROR_STOP 1
-
--- FIXME: those should actually use PL/pgSQL and raise
---        an exception...
-create rule audit_fields_no_ins as
-	on insert to audit_fields
-	do instead nothing;
-
-create rule audit_fields_no_upd as
-	on update to audit_fields
-	do instead nothing;
-
-create rule audit_fields_no_del as
-	on delete to audit_fields
-	do instead nothing;
 
 -- ===================================================================
 create table audit_trail (
@@ -124,49 +70,17 @@ comment on column audit_trail.audit_when is
 comment on column audit_trail.audit_by is
 	'committed to this table for auditing by whom';
 
--- ---------------------------------------------
--- protect from direct inserts/updates/deletes which the
--- inheritance system can't handle properly
-\unset ON_ERROR_STOP
-drop rule audit_trail_no_ins on audit_trail cascade;
-drop rule audit_trail_no_ins;
-drop rule audit_trail_no_upd on audit_trail cascade;
-drop rule audit_trail_no_upd;
-drop rule audit_trail_no_del on audit_trail cascade;
-drop rule audit_trail_no_del;
-\set ON_ERROR_STOP 1
-
--- FIXME: those should actually use PL/pgSQL and raise
---        an exception...
-create rule audit_trail_no_ins as
-	on insert to audit_trail
-	do instead nothing;
-
-create rule audit_trail_no_upd as
-	on update to audit_trail
-	do instead nothing;
-
-create rule audit_trail_no_del as
-	on delete to audit_trail
-	do instead nothing;
-
--- ===================================================================
--- FIXME: actually this should be done by giving "creator"
--- rights to the audit trigger functions
-grant SELECT, UPDATE, INSERT, DELETE on
-	"audit_fields",
-	"audit_fields_pk_audit_seq",
-	"audit_trail",
-	"audit_trail_pk_audit_seq"
-to group "gm-doctors";
-
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.12 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.11  2005-09-19 16:38:51  ncq
+-- Revision 1.12  2005-10-24 19:08:11  ncq
+-- - re-runnables factored out
+-- - set default for audited_tables.schema to public
+--
+-- Revision 1.11  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.10  2005/07/14 21:31:42  ncq
