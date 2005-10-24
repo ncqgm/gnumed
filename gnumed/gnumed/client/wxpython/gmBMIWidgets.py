@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.10 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmBMIWidgets.py,v 1.11 2005-10-24 10:47:09 ihaywood Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -40,7 +40,7 @@ class BMI_Colour_Scale(wx.Window):
 		wx.EVT_PAINT(self, self.OnPaint)
 
 	def OnPaint(self, event):
-		self.Draw(wxPaintDC(self))
+		self.Draw(wx.PaintDC(self))
 
 	def Draw(self,dc):
 		dc.BeginDrawing()
@@ -50,7 +50,7 @@ class BMI_Colour_Scale(wx.Window):
 		#draw the graphics for underneath the BMI buttons
 		#------------------------------------------------
 		dc.SetBrush(wx.Brush(wx.Colour(194,194,197), wx.SOLID)) #222,222,222
-		dc.SetPen(wxPen(wx.Color(194,197,194), 1))
+		dc.SetPen(wx.Pen(wx.Color(194,197,194), 1))
 		dc.DrawRectangle(0, 0, 324, 30)
 		#----------------------------------------------------------
 		#draw the coloured elipses for each of the mass divisions
@@ -60,7 +60,7 @@ class BMI_Colour_Scale(wx.Window):
 		#Brush= fill in the elipse = yellow (255,255,0)
 		#Add text to foreground of the elipse in black
 		#----------------------------------------------------------
-		dc.SetPen(wxPen(wx.Color(0,0,0), 1))
+		dc.SetPen(wx.Pen(wx.Color(0,0,0), 1))
 		dc.SetBrush(wx.Brush(wx.Colour(255,255,0), wx.SOLID))   #yellow
 		dc.DrawEllipse(6, 5, 80,15)
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
@@ -196,7 +196,7 @@ class BMICalc_Panel(wx.Panel):
 		#-----------------------------------------------------
 		#put a slider control under the bmi colour range scale
 		#-----------------------------------------------------
-		self.slider = wx.Slider(self, -1, 15, 15, 34, wxPoint(30, 60),
+		self.slider = wx.Slider(self, -1, 15, 15, 34, wx.Point(30, 60),
 					wx.Size(324, -1),
 					wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS )
 		self.slider.SetTickFreq(1, 1)
@@ -243,7 +243,7 @@ class BMICalc_Panel(wx.Panel):
 		#-----------------------------
 		#and the amount to loose in Kg
 		#-----------------------------
-		label = wx.StaticText(self,-1,_("kg to loose"),size = (30,20))
+		label = wx.StaticText(self,-1,_("kg to lose"),size = (30,20))
 		label.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
@@ -343,7 +343,6 @@ class BMICalc_Panel(wx.Panel):
 		try:
 			self.low_norm_mass=20.*((eval(self.txtheight.GetValue())/100.)**2)
 			self.upp_norm_mass=25.*((eval(self.txtheight.GetValue())/100.)**2)
-			print self.low_norm_mass, self.upp_norm_mass	# test
 
 			# FIXME - display upp_norm_mass & low_norm_mass
 			#bmi_colour_scale = BMI_Colour_Scale(self)
@@ -360,7 +359,7 @@ class BMICalc_Panel(wx.Panel):
 				# initialize slider
 				# round twice -- so slider value is the rounded value of "txtbmi" ***
 				self.NEWBMI=round(round(eval(self.txtmass.GetValue())/((eval(self.txtheight.GetValue())/100.)**2),1),0)
-				self.slider.SetValue(self.NEWBMI)
+				self.slider.SetValue(int (self.NEWBMI))
 
 				# *** If values are entered into loss or goal the BMI slider slider values don't always match the
 				#     calculated BMI values in self.txtbmi (due to rounding)  -- FIX ME
@@ -375,7 +374,7 @@ class BMICalc_Panel(wx.Panel):
 	#-----------------------------------------
 	def CalcNEWBMI(self):
 		self.NEWBMI=round(eval(self.txtgoal.GetValue())/((eval(self.txtheight.GetValue())/100.)**2),0)
-		self.slider.SetValue(self.NEWBMI)
+		self.slider.SetValue(int (self.NEWBMI))
 	#-----------------------------------------
 	def SLIDER_EVT(self, event):
 		self.NEWBMI=self.slider.GetValue()
@@ -431,7 +430,7 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 			parent,
 			-1,
 			_("BMI Calculator"),
-			style = wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxRESIZE_BORDER | wxCAPTION | wxALIGN_CENTER | wxALIGN_CENTER_VERTICAL | wx.TAB_TRAVERSAL | wx.STAY_ON_TOP
+			style = wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.RESIZE_BORDER | wx.CAPTION | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL | wx.TAB_TRAVERSAL | wx.STAY_ON_TOP
 		)
 		wx.EVT_CLOSE(self, self.OnCloseWindow)
 
@@ -553,7 +552,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.10  2005-09-28 21:27:30  ncq
+# Revision 1.11  2005-10-24 10:47:09  ihaywood
+# works properly now, again using Andreas' packages, with wx 2.4
+#
+# Revision 1.10  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.9  2005/09/28 15:57:47  ncq
