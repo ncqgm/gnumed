@@ -4,11 +4,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.49 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
+-- $Revision: 1.50 $ $Date: 2005-10-24 19:09:43 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- =============================================
+create schema blobs authorization "gm-dbo";
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -18,10 +21,10 @@ create table xlnk_identity (
 	xfk_identity integer unique not null,
 	pupic text unique not null,
 	data text unique default null
-) inherits (audit_fields);
+) inherits (public.audit_fields);
 
-select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
-select add_table_for_audit('xlnk_identity');
+--select public.add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
+select public.add_table_for_audit('public', 'xlnk_identity');
 
 comment on table xlnk_identity is
 	'this is the one table with the unresolved identity(pk)
@@ -31,23 +34,26 @@ comment on table xlnk_identity is
 	 is in the same database as "historica")';
 
 \set ON_ERROR_STOP 1
+
 -- =============================================
-CREATE TABLE doc_type (
+CREATE TABLE blobs.doc_type (
 	pk serial primary key,
 	name text unique
 );
 
+-- FIXME: add comment
+
 -- =============================================
-CREATE TABLE doc_med (
+CREATE TABLE blobs.doc_med (
 	id serial primary key,
 	patient_id integer
 		not null
-		references xlnk_identity(xfk_identity)
+		references public.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete cascade,
 	type integer
 		not null
-		references doc_type(pk)
+		references blobs.doc_type(pk)
 		on update cascade
 		on delete restrict,
 	comment text,
@@ -57,31 +63,31 @@ CREATE TABLE doc_med (
 	ext_ref text
 );
 
-COMMENT ON TABLE doc_med IS
+COMMENT ON TABLE blobs.doc_med IS
 	'a medical document object possibly containing several
 	 data objects such as several pages of a paper document';
-COMMENT ON COLUMN doc_med.patient_id IS
+COMMENT ON COLUMN blobs.doc_med.patient_id IS
 	'the patient this document belongs to';
-COMMENT ON COLUMN doc_med.type IS
+COMMENT ON COLUMN blobs.doc_med.type IS
 	'semantic type of document (not type of file or mime
 	 type), such as >referral letter<, >discharge summary<, etc.';
-COMMENT ON COLUMN doc_med.comment IS
+COMMENT ON COLUMN blobs.doc_med.comment IS
 	'additional short comment such as "abdominal", "ward 3,
 	 Dr. Stein", etc.';
-COMMENT ON COLUMN doc_med.date IS
+COMMENT ON COLUMN blobs.doc_med.date IS
 	'date of document content creation (such as exam date),
 	 NOT date of document creation or date of import; may
 	 be imprecise such as "7/99"';
-COMMENT ON COLUMN doc_med.ext_ref IS
+COMMENT ON COLUMN blobs.doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
 
 -- =============================================
-CREATE TABLE doc_obj (
+CREATE TABLE blobs.doc_obj (
 	id serial primary key,
 	doc_id integer
 		not null
-		references doc_med(id)
+		references blobs.doc_med(id)
 		on update cascade
 		on delete restrict,
 	seq_idx integer
@@ -90,16 +96,16 @@ CREATE TABLE doc_obj (
 	data bytea
 );
 
-COMMENT ON TABLE doc_obj IS
+COMMENT ON TABLE blobs.doc_obj IS
 	'possibly several of these form a medical document
 	 such as multiple scanned pages/images';
-COMMENT ON COLUMN doc_obj.seq_idx IS
+COMMENT ON COLUMN blobs.doc_obj.seq_idx IS
 	'index of this object in the sequence
 	 of objects for this document';
-COMMENT ON COLUMN doc_obj.comment IS
+COMMENT ON COLUMN blobs.doc_obj.comment IS
 	'optional tiny comment for this
 	 object, such as "page 1"';
-COMMENT ON COLUMN doc_obj.data IS
+COMMENT ON COLUMN blobs.doc_obj.data IS
 	'actual binary object data;
 	 here is why we use bytea:
 == --------------------------------------------------
@@ -130,24 +136,24 @@ impossible to secure, etc.
 	 ';
 
 -- =============================================
-CREATE TABLE doc_desc (
+CREATE TABLE blobs.doc_desc (
 	id serial primary key,
 	doc_id integer
-		references doc_med(id)
+		references blobs.doc_med(id)
 		on delete cascade
 		on update cascade,
 	"text" text,
 	unique(doc_id, "text")
 );
 
-COMMENT ON TABLE doc_desc is
+COMMENT ON TABLE blobs.doc_desc is
 	'A textual description of the content such
 	 as a result summary. Several of these may
 	 belong to one document object.';
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.49 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.50 $');
 
 -- =============================================
 -- questions:
@@ -167,7 +173,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.49  2005-09-19 16:38:51  ncq
+-- Revision 1.50  2005-10-24 19:09:43  ncq
+-- - explicit "blobs." qualifying
+--
+-- Revision 1.49  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.48  2005/09/04 07:27:03  ncq

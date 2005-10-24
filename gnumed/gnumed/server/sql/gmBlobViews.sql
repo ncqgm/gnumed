@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.11 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
+-- $Revision: 1.12 $ $Date: 2005-10-24 19:09:43 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -12,20 +12,20 @@
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop view v_doc_type cascade;
+drop view blobs.v_doc_type cascade;
 \set ON_ERROR_STOP 1
 
-create view v_doc_type as
+create view blobs.v_doc_type as
 select
 	dt.pk as pk_doc_type,
 	dt.name as type,
 	_(dt.name) as l10n_type
 from
-	doc_type dt
+	blobs.doc_type dt
 ;
 
 -- =============================================
-create view v_doc_med as
+create view blobs.v_doc_med as
 select
 	dm.patient_id as pk_patient,
 	dm.id as pk_doc,
@@ -37,14 +37,14 @@ select
 	dm.type as pk_type,
 	dm.xmin as xmin_doc_med
 from
-	doc_med dm,
-	v_doc_type vdt
+	blobs.doc_med dm,
+	blobs.v_doc_type vdt
 where
 	vdt.pk_doc_type = dm.type
 ;
 
 -- =============================================
-create view v_obj4doc as
+create view blobs.v_obj4doc as
 select
 	vdm.pk_patient as pk_patient,
 	dobj.id as pk_obj,
@@ -61,14 +61,14 @@ select
 	vdm.pk_type as pk_type,
 	dobj.xmin as xmin_doc_obj
 from
-	v_doc_med vdm,	
-	doc_obj dobj
+	blobs.v_doc_med vdm,	
+	blobs.doc_obj dobj
 where
 	vdm.pk_doc = dobj.doc_id
 ;
 
 -- =============================================
-create view v_latest_mugshot as
+create view blobs.v_latest_mugshot as
 select
 	vo4d.pk_patient as pk_patient,
 	vo4d.doc_comment as doc_comment,
@@ -80,13 +80,13 @@ select
 	vo4d.pk_obj as pk_obj,
 	vo4d.object as image
 from
-	v_obj4doc vo4d
+	blobs.v_obj4doc vo4d
 where
 	vo4d.type = 'patient photograph'
 		and
 	vo4d.seq_idx = (
 		select max(vo4d1.seq_idx)
-		from v_obj4doc vo4d1
+		from blobs.v_obj4doc vo4d1
 		where
 			vo4d1.pk_patient = vo4d.pk_patient
 				and
@@ -116,35 +116,40 @@ where
 --FROM v_outgoing_path o LEFT OUTER JOIN v_incoming_path i ON (o.id = i.reply_to)
 --ORDER BY i.date; -- always get the latest report
 
+-- =============================================
+-- schema
+grant usage on schema blobs to group "gm-doctors";
 
 -- tables
-GRANT SELECT, INSERT, UPDATE, DELETE ON
-	doc_desc
-	, doc_desc_id_seq
-	, doc_obj
-	, doc_obj_id_seq
-	, doc_med
-	, doc_med_id_seq
-	, doc_type
-	, doc_type_pk_seq
+GRANT SELECT, INSERT, UPDATE, DELETE on
+	blobs.doc_desc
+	, blobs.doc_desc_id_seq
+	, blobs.doc_obj
+	, blobs.doc_obj_id_seq
+	, blobs.doc_med
+	, blobs.doc_med_id_seq
+	, blobs.doc_type
+	, blobs.doc_type_pk_seq
 TO GROUP "gm-doctors";
 
 -- views
 GRANT SELECT ON
-	v_doc_type
-	, v_doc_med
-	, v_obj4doc
-	, v_latest_mugshot
+	blobs.v_doc_type
+	, blobs.v_doc_med
+	, blobs.v_obj4doc
+	, blobs.v_latest_mugshot
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.11 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.11  2005-09-19 16:38:51  ncq
+-- Revision 1.12  2005-10-24 19:09:43  ncq
+-- - explicit "blobs." qualifying
+--
+-- Revision 1.11  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.10  2005/09/13 11:55:46  ncq
