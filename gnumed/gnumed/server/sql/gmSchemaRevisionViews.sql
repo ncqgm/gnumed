@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevisionViews.sql,v $
--- $Id: gmSchemaRevisionViews.sql,v 1.1 2005-09-19 16:15:28 ncq Exp $
+-- $Id: gmSchemaRevisionViews.sql,v 1.2 2005-10-24 19:28:37 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -16,14 +16,10 @@
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.1 $');
+-- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
-\set ON_ERROR_STOP 1
-
-\unset ON_ERROR_STOP
-drop function calc_db_identity_hash();
 \set ON_ERROR_STOP 1
 
 -- ---------------------------------------------
@@ -58,10 +54,6 @@ end;
 ';
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop function log_script_insertion(text, text, boolean);
-\set ON_ERROR_STOP 1
-
 create or replace function log_script_insertion(text, text) returns text as '
 declare
 	_filename alias for $1;
@@ -88,7 +80,10 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevisionViews.sql,v $
--- Revision 1.1  2005-09-19 16:15:28  ncq
+-- Revision 1.2  2005-10-24 19:28:37  ncq
+-- - move drop function ... to update*.sql
+--
+-- Revision 1.1  2005/09/19 16:15:28  ncq
 -- - factor out re-doable stuff
 --
 --
