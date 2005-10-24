@@ -1,7 +1,7 @@
 -- GNUmed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -12,7 +12,7 @@
 -- ===================================================================
 create or replace function add_table_for_audit(name, name) returns unknown as '
 DECLARE
-	_relnamespace alias for $1
+	_relnamespace alias for $1;
 	_relname ALIAS FOR $2;
 	dummy RECORD;
 	tmp text;
@@ -20,10 +20,10 @@ BEGIN
 	-- does table exist ?
 	select relname into dummy from pg_class where
 		relname = _relname and
-		relnamespace = (select oid from pg_namespace where name = _relnamespace)
+		relnamespace = (select oid from pg_namespace where nspname = _relnamespace)
 	;
 	if not found then
-		tmp := _relnamespace || \'.\' || _relname
+		tmp := _relnamespace || \'.\' || _relname;
 		raise exception ''add_table_for_audit: Table [%] does not exist.'', tmp;
 		return false;
 	end if;
@@ -112,10 +112,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmAudit-dynamic.sql,v $
--- Revision 1.1  2005-10-24 17:56:33  ncq
+-- Revision 1.2  2005-10-24 19:06:51  ncq
+-- - missing ";"
+-- - wrong column for pg_namespace
+--
+-- Revision 1.1  2005/10/24 17:56:33  ncq
 -- - factor out re-runnables for auditing
 --
