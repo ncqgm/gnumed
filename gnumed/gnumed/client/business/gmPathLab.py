@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.50 2005-04-27 12:37:32 sjtan Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPathLab.py,v 1.51 2005-10-26 21:16:26 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -45,14 +45,11 @@ class cLabResult(gmClinItem.cClinItem):
 				val_target_min=%(val_target_min)s,
 				val_target_max=%(val_target_max)s,
 				val_target_range=%(val_target_range)s,
-				technically_abnormal=%(abnormal)s,
+				abnormality_indicator=%(abnormal)s,
 				norm_ref_group=%(ref_group)s,
 				note_provider=%(note_provider)s,
 				material=%(material)s,
-				material_detail=%(material_detail)s,
-				reviewed_by_clinician=%(reviewed)s::bool,
-				fk_reviewer=%(pk_reviewer)s,
-				clinically_relevant=%(relevant)s::bool
+				material_detail=%(material_detail)s
 			where pk=%(pk_result)s""",
 		"""select xmin_test_result from v_results4lab_req where pk_result=%(pk_result)s"""
 		]
@@ -73,10 +70,7 @@ class cLabResult(gmClinItem.cClinItem):
 		'ref_group',
 		'note_provider',
 		'material',
-		'material_detail',
-		'reviewed',
-		'pk_reviewer',
-		'relevant'
+		'material_detail'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
@@ -350,7 +344,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.50 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.51 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -437,7 +431,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.50 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.51 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -693,7 +687,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.50  2005-04-27 12:37:32  sjtan
+# Revision 1.51  2005-10-26 21:16:26  ncq
+# - adjust to changes in reviewed status handling
+#
+# Revision 1.50  2005/04/27 12:37:32  sjtan
 #
 # id_patient -> pk_patient
 #
