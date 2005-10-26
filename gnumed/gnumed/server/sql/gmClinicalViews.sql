@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.155 2005-09-25 17:49:24 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.156 2005-10-26 21:33:25 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -417,9 +417,9 @@ select
 	tr.val_target_min,
 	tr.val_target_max,
 	tr.val_target_range,
-	tr.reviewed_by_clinician,
-	tr.clinically_relevant,
-	tr.technically_abnormal,
+--	tr.reviewed_by_clinician,
+--	tr.clinically_relevant,
+	tr.abnormality_indicator,
 	tr.norm_ref_group,
 	tr.note_provider,
 	tr.material,
@@ -440,7 +440,7 @@ select
 	tr.fk_episode as pk_episode,
 	-- test_result
 	tr.fk_type as pk_test_type,
-	tr.fk_reviewer as pk_reviewer,
+--	tr.fk_reviewer as pk_reviewer,
 	tr.modified_when,
 	tr.modified_by,
 	tr.xmin as xmin_test_result,
@@ -528,8 +528,7 @@ select
 	vtr.val_target_range,
 	vtr.val_target_min,
 	vtr.val_target_max,
-	vtr.technically_abnormal as abnormal,
-	vtr.clinically_relevant as relevant,
+	vtr.abnormality_indicator as abnormal,
 	vtr.note_provider,
 	lr.request_status as request_status,
 	vtr.norm_ref_group as ref_group,
@@ -537,8 +536,6 @@ select
 	lr.lab_request_id,
 	vtr.material,
 	vtr.material_detail,
-	vtr.reviewed_by_clinician as reviewed,
-	vtr.pk_reviewer,
 	vtr.pk_test_type,
 	lr.pk as pk_request,
 	lr.fk_test_org as pk_test_org,
@@ -1104,11 +1101,8 @@ select
 from
 	clin_narrative cn,
 	v_pat_items vpi
---	,v_pat_encounters vpe
 where
 	cn.pk_item = vpi.pk_item
---		and
---	vpi.pk_encounter = vpe.pk_encounter
 ;
 
 comment on view v_pat_narrative is
@@ -1842,11 +1836,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.155 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.156 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.155  2005-09-25 17:49:24  ncq
+-- Revision 1.156  2005-10-26 21:33:25  ncq
+-- - review status tracking
+--
+-- Revision 1.155  2005/09/25 17:49:24  ncq
 -- - add start of current/previous encounter to waiting list view
 --
 -- Revision 1.154  2005/09/24 09:07:02  ncq

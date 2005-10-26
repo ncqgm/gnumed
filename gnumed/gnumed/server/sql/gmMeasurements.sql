@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.47 $
+-- $Revision: 1.48 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -208,7 +208,6 @@ comment on column test_result_unmatched.data is
 -- ====================================
 create table test_result (
 	pk serial primary key,
-	fk_doc integer, -- references gmBlobs.med_doc.id
 	fk_type integer
 		not null
 		references test_type(pk),
@@ -229,27 +228,12 @@ create table test_result (
 	val_target_min numeric,
 	val_target_max numeric,
 	val_target_range text,
-	technically_abnormal text
-		default null
-		check (
-			(reviewed_by_clinician is false)
-				or
-			(reviewed_by_clinician is true) and (technically_abnormal is not null)
-		),
+	abnormality_indicator text
+		default null,
 	norm_ref_group text,
 	note_provider text,
 	material text,
-	material_detail text,
-	reviewed_by_clinician boolean   -- IMHO this should move to gmBlobs.doc_med, as all documents need this 
-		not null
-		default false,
-	fk_reviewer integer
-		default null
-		references xlnk_identity(xfk_identity)
-		check(((reviewed_by_clinician is false) and (fk_reviewer is null)) or (fk_reviewer is not null)),
-	clinically_relevant boolean
-		default null
-		check (((reviewed_by_clinician=false) and (clinically_relevant is null)) or (clinically_relevant is not null))
+	material_detail text
 ) inherits (clin_root_item);
 
 alter table test_result add foreign key (fk_encounter)
@@ -283,8 +267,6 @@ comment on column test_result.narrative is
 	'clinical comment, progress note';
 comment on column test_result.fk_type is
 	'the type of test this result is from';
-comment on column test_result.fk_doc is
-	'the document used to generate these results';
 comment on column test_result.val_num is
 	'numeric value if any,
 	 HL7: OBX.observation_results if OBX.value_type == NM';
@@ -314,8 +296,8 @@ comment on column test_result.val_target_max is
 comment on column test_result.val_target_range is
 	'range of target values if alphanumerical
 	 as defined by clinician caring for this patient';
-comment on column test_result.technically_abnormal is
-	'whether test provider flagged this result as abnormal,
+comment on column test_result.abnormality_indicator is
+	'how the test provider flagged this result as abnormal,
 	 *not* a clinical assessment but rather a technical one
 	 LDT: 8422';
 comment on column test_result.norm_ref_group is
@@ -333,19 +315,6 @@ comment on column test_result.material is
 comment on column test_result.material_detail is
 	'details re the material, eg. site taken from, etc.
 	 LDT: 8431';
-comment on column test_result.reviewed_by_clinician is
-	'whether a clinician has seen this result yet,
-	 depending on the use case this need to simply get
-	 set by any read access but may follow specific
-	 business rules such as "set as SEEN when treating/
-	 requesting doctor has reviewed the item"';
-comment on column test_result.fk_reviewer is
-	'who has reviewed the item';
-comment on column test_result.clinically_relevant is
-	'whether this result is considered relevant clinically,
-	 need not correspond to the value of "techically_abnormal"
-	 since abnormal values may be irrelevant while normal
-	 ones can be of significance';
 
 -- ====================================
 create table lab_request (
@@ -454,11 +423,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.47 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.48 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.47  2005-10-24 19:10:18  ncq
+-- Revision 1.48  2005-10-26 21:31:09  ncq
+-- - review status tracking
+--
+-- Revision 1.47  2005/10/24 19:10:18  ncq
 -- - cleanup, remove 7.1ism
 --
 -- Revision 1.46  2005/09/19 16:38:51  ncq

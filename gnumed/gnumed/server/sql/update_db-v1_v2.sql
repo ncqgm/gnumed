@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -271,10 +271,10 @@ alter table clin_narrative
 alter table clin_narrative
 	drop column is_aoe cascade;
 
--- curr_encounter --------------------------------------
+-- curr_encounter --
 drop table curr_encounter;
 
--- last_act_episode ------------------------------------
+-- last_act_episode --
 drop table last_act_episode;
 
 -- gm_schema_revision ----------------------------------
@@ -298,6 +298,52 @@ drop table public.doc_med cascade;
 drop table public.doc_type cascade;
 
 -- ===================================================================
+-- review tables/views --
+\i gmReviewedStatus-static.sql
+
+-- test_result --
+alter table test_result
+	drop column fk_doc cascade;
+
+--alter table test_result
+--	drop constraint test_result_technically_abnormal;
+--alter table test_result
+--	drop constraint test_result_fk_reviewer;
+--alter table test_result
+--	drop constraint test_result_clinically_relevant;
+
+insert into reviewed_test_results (
+	fk_reviewed_row,
+	fk_reviewer,
+	is_technically_abnormal,
+	clinically_relevant,
+	comment
+) select
+	tr.pk,
+	tr.fk_reviewer,
+	case when tr.technically_abnormal is null
+		then false
+		else true
+	end as is_abnormal,
+	tr.clinically_relevant,
+	'v1 - v2 database update'
+from
+	test_result tr
+where
+	tr.reviewed_by_clinician is true
+;
+
+alter table test_result
+	drop column clinically_relevant cascade;
+alter table test_result
+	drop column fk_reviewer cascade;
+alter table test_result
+	drop column reviewed_by_clinician cascade;
+
+alter table test_result
+	rename column technically_abnormal to abnormality_indicator;
+
+-- ===================================================================
 -- add tables, data, etc
 \i gmWaitingList.sql
 \i gmCountryZones.sql
@@ -312,11 +358,14 @@ drop function log_script_insertion(text, text, boolean);
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.8 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.8  2005-10-24 19:30:23  ncq
+-- Revision 1.9  2005-10-26 21:31:09  ncq
+-- - review status tracking
+--
+-- Revision 1.8  2005/10/24 19:30:23  ncq
 -- - require schema in audited_tables - default to public
 -- - move blobs service into schema "blobs"
 --

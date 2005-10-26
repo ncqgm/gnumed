@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.50 $ $Date: 2005-10-24 19:09:43 $ $Author: ncq $
+-- $Revision: 1.51 $ $Date: 2005-10-26 21:33:25 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -14,26 +14,26 @@
 create schema blobs authorization "gm-dbo";
 
 -- =============================================
-\unset ON_ERROR_STOP
+--\unset ON_ERROR_STOP
 
-create table xlnk_identity (
-	pk serial primary key,
-	xfk_identity integer unique not null,
-	pupic text unique not null,
-	data text unique default null
-) inherits (public.audit_fields);
+--create table xlnk_identity (
+--	pk serial primary key,
+--	xfk_identity integer unique not null,
+--	pupic text unique not null,
+--	data text unique default null
+--) inherits (public.audit_fields);
 
 --select public.add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
-select public.add_table_for_audit('public', 'xlnk_identity');
+--select public.add_table_for_audit('public', 'xlnk_identity');
 
-comment on table xlnk_identity is
-	'this is the one table with the unresolved identity(pk)
-	 foreign key, all other tables in this service link to
-	 this table, depending upon circumstances one can add
-	 dblink() verification or a true FK constraint (if "personalia"
-	 is in the same database as "historica")';
+--comment on table xlnk_identity is
+--	'this is the one table with the unresolved identity(pk)
+--	 foreign key, all other tables in this service link to
+--	 this table, depending upon circumstances one can add
+--	 dblink() verification or a true FK constraint (if "personalia"
+--	 is in the same database as "historica")';
 
-\set ON_ERROR_STOP 1
+--\set ON_ERROR_STOP 1
 
 -- =============================================
 CREATE TABLE blobs.doc_type (
@@ -153,7 +153,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.50 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.51 $');
 
 -- =============================================
 -- questions:
@@ -173,7 +173,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.50  2005-10-24 19:09:43  ncq
+-- Revision 1.51  2005-10-26 21:33:25  ncq
+-- - review status tracking
+--
+-- Revision 1.50  2005/10/24 19:09:43  ncq
 -- - explicit "blobs." qualifying
 --
 -- Revision 1.49  2005/09/19 16:38:51  ncq
