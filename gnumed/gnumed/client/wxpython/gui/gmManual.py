@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.31 2005-10-03 13:49:21 sjtan Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmManual.py,v 1.32 2005-10-27 21:55:09 shilbert Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -69,8 +69,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.docdir = os.getcwd() + '\doc'
 		else:
 			self.docdir = '/usr/share/doc/gnumed/client/'
-		self.printer = wx.html.HtmlEasyPrinting()
-
+		
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
 		infobox = wx.BoxSizer(wx.HORIZONTAL)
@@ -256,7 +255,11 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.31  2005-10-03 13:49:21  sjtan
+# Revision 1.32  2005-10-27 21:55:09  shilbert
+# wxHTMLEasyPrinting caused gmManual to hang
+# needs to be reimplemented
+#
+# Revision 1.31  2005/10/03 13:49:21  sjtan
 # using new wx. temporary debugging to stdout(easier to read). where is rfe ?
 #
 # Revision 1.30  2005/09/28 21:27:30  ncq
