@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.30 2005-10-11 21:14:10 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmGuiHelpers.py,v 1.31 2005-10-27 21:37:29 shilbert Exp $
+__version__ = "$Revision: 1.31 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -117,7 +117,7 @@ def gm_show_question(aMessage = None, aTitle = None):
 		None,
 		aMessage,
 		aTitle,
-		wxYES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
+		wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
@@ -299,7 +299,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.30  2005-10-11 21:14:10  ncq
+# Revision 1.31  2005-10-27 21:37:29  shilbert
+# fixed wxYES|NO into wx.YES|NO
+#
+# Revision 1.30  2005/10/11 21:14:10  ncq
 # - remove out-of-place LogException() call
 #
 # Revision 1.29  2005/10/09 08:07:56  ihaywood
