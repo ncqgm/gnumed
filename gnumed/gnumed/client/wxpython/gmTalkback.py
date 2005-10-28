@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -27,7 +27,7 @@ ID_BUTTON_SEND = wx.NewId()
 #=========================================================================
 class cTalkbackFrame(wx.Frame):
 	def __init__(self, *args, **kwds):
-		kwds["style"] = wxCAPTION|wxMINIMIZE_BOX|wxMAXIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER
+		kwds["style"] = wx.CAPTION|wx.MINIMIZE_BOX|wx.MAXIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER
 		wx.Frame.__init__(self, *args, **kwds)
 		self.szr_main = wx.BoxSizer(wx.VERTICAL)
 
@@ -77,17 +77,17 @@ class cTalkbackFrame(wx.Frame):
 		self.label_title.SetFont(wx.Font(16, wx.SWISS, wx.NORMAL, wx.NORMAL, 0, ""))
 	#-----------------------------------------------
 	def __do_layout(self):
-		self.szr_title.Add(self.label_title, 1, wx.BOTTOM|wxRIGHT|wxTOP|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
+		self.szr_title.Add(self.label_title, 1, wx.BOTTOM|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 5)
 		self.szr_main.Add(self.szr_title, 1, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-		self.szr_hint.Add(self.label_hint, 0, wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 6)
+		self.szr_hint.Add(self.label_hint, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL|wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 6)
 		self.szr_main.Add(self.szr_hint, 1, wx.EXPAND, 0)
 
 		self.szr_desc.Add(self.label_desc, 0, wx.ALIGN_RIGHT|wx.LEFT, 6)
 		self.szr_desc.Add(self.field_desc, 3, wx.BOTTOM|wx.RIGHT|wx.EXPAND, 8)
 		self.szr_main.Add(self.szr_desc, 3, wx.EXPAND, 0)
 
-		self.szr_adr.Add(self.label_from, 0, wxRIGHT|wx.ALIGN_RIGHT|wx.LEFT, 5)
+		self.szr_adr.Add(self.label_from, 0, wx.RIGHT|wx.ALIGN_RIGHT|wx.LEFT, 5)
 		self.szr_adr.Add(self.field_from, 1, 0, 0)
 		self.szr_adr.Add(self.label_to, 0, wx.RIGHT|wx.LEFT, 5)
 		self.szr_adr.Add(self.field_to, 2, wx.RIGHT, 8)
@@ -139,7 +139,10 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.11  2005-09-28 21:27:30  ncq
+# Revision 1.12  2005-10-28 08:12:48  shilbert
+# - fix more wx.Foo vs. wxFoo instances
+#
+# Revision 1.11  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.10  2005/09/28 15:57:48  ncq
