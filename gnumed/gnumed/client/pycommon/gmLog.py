@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -632,7 +632,15 @@ def __open_default_logfile():
 			logName = os.path.abspath(os.path.expanduser(os.path.join(ldir, lname)))
 			try:
 				loghandle = cLogTargetFile (lInfo, logName, "ab")
-				print "log file is [%s]" % logName
+				print ""
+				print "#################################################################################"
+				print "#                                                                               #"
+				print "# log file is [%s] " % logName
+				print "#                                                                               #"
+				print "# please email this file to fixme@gnumed.net if you encounter problems          #"
+				print "#                                                                               #"                                                                               #"
+				print "#################################################################################"
+				print ""
 				return loghandle
 			except:
 				print "command line log file [%s] cannot be opened" % logName
@@ -817,7 +825,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.14  2005-10-10 18:18:14  ncq
+# Revision 1.15  2005-10-28 07:38:59  shilbert
+# - console message about log file location has been visually enhanced
+#
+# Revision 1.14  2005/10/10 18:18:14  ncq
 # - some cleanup only, really
 #
 # Revision 1.13  2005/10/04 13:09:49  sjtan
