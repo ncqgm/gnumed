@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.12 2005-08-18 18:41:48 ncq Exp $
+# $Id: gmI18N.py,v 1.13 2005-10-30 15:50:01 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -127,11 +127,21 @@ def __get_system_locale():
 
 	# use locale system
 	import locale
-#	system_locale = locale.setlocale(locale.LC_CTYPE)
 	try:
-		system_locale = locale.setlocale(locale.LC_MESSAGES, '')
+		# activate user-preferred locale
+		# previously we needed this:
+#		system_locale = locale.setlocale(locale.LC_MESSAGES, '')
+		# but the docs tell us to do this:
+#		system_locale = locale.setlocale(locale.LC_ALL, '')
+		system_locale, enc = locale.getlocale()
+		if system_locale is None:
+			system_locale = locale.setlocale(locale.LC_ALL, '')
+		else:
+			_log.Log(gmLog.lInfo, 'user default locale already activated')
 	except AttributeError:
 		_log.LogException('Windows does not support $LC_MESSAGES', sys.exc_info(), verbose=0)
+	except:
+		_log.LogException('error activating user-preferred locale', sys.exc_info(), verbose=0)
 
 	# did we find any locale setting ? assume en_EN if not
 	if system_locale in [None, 'C']:
@@ -338,7 +348,12 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.12  2005-08-18 18:41:48  ncq
+# Revision 1.13  2005-10-30 15:50:01  ncq
+# - only try to activate user preferred locale if it does not appear
+#   to be activated yet, also catch one more exception to make failing
+#   locale stuff non-fatal
+#
+# Revision 1.12  2005/08/18 18:41:48  ncq
 # - Windows does not know proper i18n
 #
 # Revision 1.11  2005/08/18 18:30:57  ncq
