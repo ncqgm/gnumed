@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.48 $
+-- $Revision: 1.49 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -160,50 +160,6 @@ comment on column lnk_tst2norm.id_test is
 	'which test does the linked norm apply to';
 comment on column lnk_tst2norm.id_norm is
 	'the norm to apply to the linked test';
-
--- ====================================
-create table test_result_unmatched (
-	pk serial primary key,
-	fk_patient_candidates integer[],
-	request_id text,
-	firstnames text,
-	lastnames text,
-	dob date,
-	postcode text,
-	other_info text,
-	type text,
-	data text		-- bytea, perhaps ?
-) inherits (audit_fields);
-
-select add_table_for_audit('test_result_unmatched');
-
-comment on table test_result_unmatched is
-	'this table holds test results that could not be matched
-	 to one single patient automatically, it is intended to
-	 facilitate manual matching,
-
-	 - use "modified_when" for import time';
-comment on column test_result_unmatched.fk_patient_candidates is
-	'a matching algorithm can be applied to produce
-	 a list of likely candidate patients, the question
-	 remains whether this should not be done at runtime';
-comment on column test_result_unmatched.request_id is
-	'request ID as found in <data>';
-comment on column test_result_unmatched.firstnames is
-	'first names as found in <data>';
-comment on column test_result_unmatched.lastnames is
-	'last names as found in <data>';
-comment on column test_result_unmatched.dob is
-	'date of birth as found in <data>';
-comment on column test_result_unmatched.postcode is
-	'postcode as found in <data>';
-comment on column test_result_unmatched.other_info is
-	'other identifying information as found in <data>';
-comment on column test_result_unmatched.type is
-	'the type of <data>, eg HL7, LDT, ...,
-	 useful for selecting an importer';
-comment on column test_result_unmatched.data is
-	'the raw data';
 
 -- ====================================
 create table test_result (
@@ -423,11 +379,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.48 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.49 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.48  2005-10-26 21:31:09  ncq
+-- Revision 1.49  2005-10-30 22:55:09  ncq
+-- - factor out unmatched incoming data table
+--
+-- Revision 1.48  2005/10/26 21:31:09  ncq
 -- - review status tracking
 --
 -- Revision 1.47  2005/10/24 19:10:18  ncq
