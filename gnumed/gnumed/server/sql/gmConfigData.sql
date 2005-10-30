@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -19,13 +19,13 @@ values (
 	'which plugins to load in the GUI'
 );
 
--- a 'workplace' called "Release 0.1"
+-- a 'workplace' called "Librarian (0.2)"
 insert into cfg_item
 	(id_template, owner, workplace)
 values (
 	currval('cfg_template_id_seq'),
 	'xxxDEFAULTxxx',
-	'Release 0.1'
+	'Librarian Release (0.2)'
 );
 
 insert into cfg_str_array
@@ -208,11 +208,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.16  2005-09-19 16:38:51  ncq
+-- Revision 1.17  2005-10-30 21:37:07  ncq
+-- - add "Librarian Release (0.2)" config
+--
+-- Revision 1.16  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.15  2005/09/11 17:44:02  ncq
