@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.53 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmPlugin.py,v 1.54 2005-11-01 08:51:43 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -375,12 +375,12 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 		# among them find (the) one holding plugins
 		search_path = None
 		for candidate in candidates:
-			tmp = os.path.join(candidate, 'Gnumed', 'wx.python', plugin_dir)
+			tmp = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
 			if os.path.exists(tmp):
 				search_path = tmp
 				break
 		if search_path is None:
-			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wx.python/%s/]' % plugin_dir)
+			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
 			_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
 			return []
 		# now scan it
@@ -423,7 +423,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.53  2005-09-28 21:27:30  ncq
+# Revision 1.54  2005-11-01 08:51:43  ncq
+# - wx.python -> wx.python
+#
+# Revision 1.53  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.52  2005/09/28 15:57:48  ncq
