@@ -1,5 +1,5 @@
 # -*- coding: latin-1 -*-
-"""GnuMed German KVK objects.
+"""GNUmed German KVK objects.
 
 These objects handle German patient cards (KVK).
 
@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.7 2005-03-06 14:48:23 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmKVK.py,v 1.8 2005-11-01 08:49:49 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -281,7 +281,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.7  2005-03-06 14:48:23  ncq
+# Revision 1.8  2005-11-01 08:49:49  ncq
+# - naming fix
+#
+# Revision 1.7  2005/03/06 14:48:23  ncq
 # - patient pick list now works with 'field name' not 'data idx'
 #
 # Revision 1.6  2004/03/04 19:46:53  ncq
