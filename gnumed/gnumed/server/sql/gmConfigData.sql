@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,7 +32,7 @@ insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmConfigRegistry"}'
+	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -208,11 +208,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.17  2005-10-30 21:37:07  ncq
+-- Revision 1.18  2005-11-01 08:53:25  ncq
+-- - add document viewer to 0.2 workplace plugin config
+--
+-- Revision 1.17  2005/10/30 21:37:07  ncq
 -- - add "Librarian Release (0.2)" config
 --
 -- Revision 1.16  2005/09/19 16:38:51  ncq
