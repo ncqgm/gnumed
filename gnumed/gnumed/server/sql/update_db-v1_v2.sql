@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -11,7 +11,11 @@
 
 -- == cross-service =======================================
 
--- audited_tables.schema
+-- gm_schema_revision --
+alter table gm_schema_revision
+	drop column is_core cascade;
+
+-- audited_tables.schema --
 alter table audited_tables
 	alter column "schema"
 		set default 'public';
@@ -52,6 +56,23 @@ values (
 	0
 );
 \set ON_ERROR_STOP 1
+
+-- a 'workplace' called "Librarian (0.2)" --
+insert into cfg_item
+	(id_template, owner, workplace)
+values (
+	(select id from cfg_template where name='horstspace.notebook.plugin_load_order'),
+	'xxxDEFAULTxxx',
+	'Librarian Release (0.2)'
+);
+
+insert into cfg_str_array
+	(id_item, value)
+values (
+	currval('cfg_item_id_seq'),
+	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmConfigRegistry"}'
+);
+
 
 -- == service clinical ====================================
 
@@ -277,10 +298,6 @@ drop table curr_encounter;
 -- last_act_episode --
 drop table last_act_episode;
 
--- gm_schema_revision ----------------------------------
-alter table gm_schema_revision
-	drop column is_core cascade;
-
 -- == service blobs ==================================================
 -- 1) create tables in schema "blobs"
 \i gmBlobs.sql
@@ -305,19 +322,11 @@ drop table public.doc_type cascade;
 alter table test_result
 	drop column fk_doc cascade;
 
---alter table test_result
---	drop constraint test_result_technically_abnormal;
---alter table test_result
---	drop constraint test_result_fk_reviewer;
---alter table test_result
---	drop constraint test_result_clinically_relevant;
-
 insert into reviewed_test_results (
 	fk_reviewed_row,
 	fk_reviewer,
 	is_technically_abnormal,
-	clinically_relevant,
-	comment
+	clinically_relevant
 ) select
 	tr.pk,
 	tr.fk_reviewer,
@@ -325,8 +334,7 @@ insert into reviewed_test_results (
 		then false
 		else true
 	end as is_abnormal,
-	tr.clinically_relevant,
-	'v1 - v2 database update'
+	tr.clinically_relevant
 from
 	test_result tr
 where
@@ -343,10 +351,35 @@ alter table test_result
 alter table test_result
 	rename column technically_abnormal to abnormality_indicator;
 
--- ===================================================================
--- add tables, data, etc
-\i gmWaitingList.sql
-\i gmCountryZones.sql
+-- test_result_unmatched --
+\i gmUnmatchableData-static.sql
+\i gmUnmatchedData-static.sql
+
+insert into incoming_data_unmatched (
+	pk,
+	fk_patient_candidates,
+	request_id,
+	firstnames,
+	lastnames,
+	dob,
+	postcode,
+	other_info,
+	type,
+	data
+) select
+	pk,
+	fk_patient_candidates,
+	request_id,
+	firstnames,
+	lastnames,
+	dob,
+	postcode,
+	other_info,
+	type,
+	decode(data, 'escape')			-- textsend()
+from test_result_unmatched;
+
+drop table test_result_unmatched cascade;
 
 -- == cleanup debris =================================================
 \unset ON_ERROR_STOP
@@ -358,11 +391,15 @@ drop function log_script_insertion(text, text, boolean);
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.9 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.9  2005-10-26 21:31:09  ncq
+-- Revision 1.10  2005-11-01 08:55:49  ncq
+-- - add 0.2 workplace plugin config
+-- - rename test_result_unmatched to incoming_data_unmatched and move data
+--
+-- Revision 1.9  2005/10/26 21:31:09  ncq
 -- - review status tracking
 --
 -- Revision 1.8  2005/10/24 19:30:23  ncq
