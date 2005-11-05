@@ -1,49 +1,43 @@
 #!/usr/bin/env python
 #==================================================
 """GnuMed/Archive document scanning.
+@todo
+use wxTreeCtrl instead of listbox
+	should make page reordering easier
+use extra toolbar with bitmap buttons for scan,save
+
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __license__ = "GPL"
-__author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
+__author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #==================================================
-import sys, os.path, os, Image
+import sys, os.path, os, Image, string, time, shutil, tempfile
 
-# location of our modules
-if __name__ == "__main__":
-	# standalone from within GnuMed once integrated
-	#sys.path.append(os.path.join('..', '..', 'pycommon'))
-	# standalone from test_area CVS tree
-	sys.path.append(os.path.join('.', 'modules'))
-	sys.path.append('../../client/business')
-	sys.path.append('../../client/pycommon')
-	sys.path.append('../../client/wxpython')
-
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
+
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	from Gnumed.pycommon import gmI18N
 
 _log.Log(gmLog.lData, __version__)
 
-if __name__ == "__main__":
-	import gmI18N
-
-from wxPython.wx import *
-import string, time, shutil, os, tempfile
-
-import gmCfg
+from Gnumed.pycommon import gmCfg, gmMimeLib
 _cfg = gmCfg.gmDefCfgFile
 
-import gmMimeLib
+from Gnumed.pycommon import gmScanBackend
 
-_twain = None
-_sane = None
+from wxPython.wx import *
+
+
+#_twain = None
+#_sane = None
 #==================================================
-[	wxID_LBOX_doc_pages,
+[   wxID_LBOX_doc_pages,
 	wxID_BTN_del_page,
 	wxID_BTN_show_page,
 	wxID_BTN_move_page,
@@ -65,12 +59,6 @@ class ScanPanel(wxPanel):
 	def __init__(self, parent):
 		wxPanel.__init__(self, parent, -1, wxDefaultPosition, wxDefaultSize)
 
-		# FIXME: dict this !!
-		(self.TwainSrcMngr, self.TwainScanner) = (None, None)
-		(self.SaneSrcMngr, self.SaneScanner) = (None, None)
-
-		self.scan_drv = "unknown"
-
 		# get temp dir path from config file
 		self.scan_tmp_dir = None
 		tmp = _cfg.get("scanning", "tmp")
@@ -84,88 +72,88 @@ class ScanPanel(wxPanel):
 		
 		# -- main panel -----------------------
 		self.PNL_main = wxPanel(
-		    parent = self,
-		    id = wxID_PNL_main
+			parent = self,
+			id = wxID_PNL_main
 		)
 
 		# -- "get next page" button -----------
 		self.BTN_acquire_page = wxButton(
-		    name = 'BTN_acquire_page',
-		    parent = self.PNL_main,
-		    id = wxID_BTN_acquire_page,
-		    label = _("acquire image")
+			name = 'BTN_acquire_page',
+			parent = self.PNL_main,
+			id = wxID_BTN_acquire_page,
+			label = _("acquire image")
 		)
 		self.BTN_acquire_page.SetToolTipString(_('acquire the next image from the image source'))
 		EVT_BUTTON(self.BTN_acquire_page, wxID_BTN_acquire_page, self.on_acquire_page)
 
 		# -- list box with pages --------------
 		self.LBOX_doc_pages = wxListBox(
-		    size = wxSize(300,300),
-		    choices = [],
-		    parent = self.PNL_main,
-		    id = wxID_LBOX_doc_pages,
-		    style = wxLB_SORT,
-		    validator = wxDefaultValidator
+			size = wxSize(300,300),
+			choices = [],
+			parent = self.PNL_main,
+			id = wxID_LBOX_doc_pages,
+			style = wxLB_SORT,
+			validator = wxDefaultValidator
 		)    
 		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
 		
 		# -- show page button -----------------
 		self.BTN_show_page = wxButton(
-		    name = 'BTN_show_page',
-		    parent = self.PNL_main,
-		    id = wxID_BTN_show_page,
-		    label = _("show page")
+			name = 'BTN_show_page',
+			parent = self.PNL_main,
+			id = wxID_BTN_show_page,
+			label = _("show page")
 		)
 		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
 		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
 		
 		# -- del page button ------------------
 		self.BTN_del_page = wxButton(
-		    name = 'BTN_del_page',
-		    parent = self.PNL_main,
-		    id = wxID_BTN_del_page,
-		    label = _("delete page")
+			name = 'BTN_del_page',
+			parent = self.PNL_main,
+			id = wxID_BTN_del_page,
+			label = _("delete page")
 		)
 		self.BTN_del_page.SetToolTipString(_('delete selected page from document'))
 		EVT_BUTTON(self.BTN_del_page, wxID_BTN_del_page, self.on_del_page)
 		
-		# -- move page button -----------------		
+		# -- move page button -----------------     
 		self.BTN_move_page = wxButton(
-		    name = 'BTN_move_page',
-		    parent = self.PNL_main,
-		    id = wxID_BTN_move_page,
-		    label = _("move page")
+			name = 'BTN_move_page',
+			parent = self.PNL_main,
+			id = wxID_BTN_move_page,
+			label = _("move page")
 		)
 		self.BTN_move_page.SetToolTipString(_('move selected page within document'))
-		EVT_BUTTON(self.BTN_move_page, wxID_BTN_move_page, self.on_move_page)		
-    		
+		EVT_BUTTON(self.BTN_move_page, wxID_BTN_move_page, self.on_move_page)       
+			
 		# -- save doc button ------------------
 		self.BTN_save_doc = wxButton(
-		    name = 'BTN_save_doc',
-		    parent = self.PNL_main,
-		    id = wxID_BTN_save_doc,
-		    label = _("save document")
+			name = 'BTN_save_doc',
+			parent = self.PNL_main,
+			id = wxID_BTN_save_doc,
+			label = _("save document")
 		)
 		self.BTN_save_doc.SetToolTipString(_('save all currently acquired pages as one document'))
 		EVT_BUTTON(self.BTN_save_doc, wxID_BTN_save_doc, self.on_save_doc)
-    		
+			
 		self.staticText1 = wxStaticText(
-		    name = 'staticText1',
-		    parent = self.PNL_main,
-		    id = -1,
-		    label = _("document pages")
+			name = 'staticText1',
+			parent = self.PNL_main,
+			id = -1,
+			label = _("document pages")
 		)
 		self.staticText2 = wxStaticText(
-		    name = 'staticText2',
-		    parent = self.PNL_main,
-		    id = -1,
-		    label = _("1) scan")
+			name = 'staticText2',
+			parent = self.PNL_main,
+			id = -1,
+			label = _("1) scan")
 		)
-    		self.staticText3 = wxStaticText(
-		    name = 'staticText3',
-		    parent = self.PNL_main,
-		    id = -1,
-		    label = _("2) save")
+		self.staticText3 = wxStaticText(
+			name = 'staticText3',
+			parent = self.PNL_main,
+			id = -1,
+			label = _("2) save")
 		)
 		self.__set_properties()
 		self.__do_layout()
@@ -185,7 +173,7 @@ class ScanPanel(wxPanel):
 	def __do_layout(self):
 		sizer_2 = wxBoxSizer(wxHORIZONTAL)
 		grid_sizer_2 = wxGridSizer(2, 2, 0, 0)
-
+	
 		szr_left_col = wxBoxSizer(wxVERTICAL)
 		szr_left_btns = wxBoxSizer(wxVERTICAL)
 		szr_left_btns_top = wxBoxSizer(wxHORIZONTAL)
@@ -194,22 +182,22 @@ class ScanPanel(wxPanel):
 		szr_left_col.Add(self.BTN_acquire_page, 0, wxEXPAND|wxRIGHT, 20)
 		szr_left_col.Add(self.staticText1, 0, wxTOP|wxBOTTOM, 5)
 		szr_left_col.Add(self.LBOX_doc_pages, 1, wxEXPAND|wxRIGHT|wxBOTTOM, 20)
-
+	
 		szr_left_btns_top.Add(self.BTN_show_page, 0, wxALL, 5)
 		szr_left_btns_top.Add(self.BTN_del_page, 0, wxALL, 5)
-
+	
 		szr_left_btns.Add(szr_left_btns_top, 0, wxALIGN_CENTER_HORIZONTAL|wxRIGHT, 20) 
 		szr_left_btns.Add(self.BTN_move_page, 0, wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL|wxTOP, 10)
-
+	
 		szr_left_col.Add(szr_left_btns, 1, wxALIGN_CENTER_HORIZONTAL, 0)
-
+	
 		szr_right_col = wxBoxSizer(wxVERTICAL)
 		szr_right_col.Add(self.staticText3, 0, wxBOTTOM, 10)
 		szr_right_col.Add(self.BTN_save_doc, 1, wxEXPAND, 0)
-
+	
 		grid_sizer_2.Add(szr_left_col, 1, wxEXPAND|wxLEFT, 20)
 		grid_sizer_2.Add(szr_right_col, 1, wxEXPAND|wxLEFT|wxRIGHT|wxBOTTOM, 40)
-
+	
 		self.PNL_main.SetAutoLayout(1)
 		self.PNL_main.SetSizer(grid_sizer_2)
 		grid_sizer_2.Fit(self.PNL_main)
@@ -218,55 +206,42 @@ class ScanPanel(wxPanel):
 		self.SetSizer(sizer_2)
 		sizer_2.Fit(self)
 		self.Layout()
-
+	
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
 	def on_acquire_page(self, event):
-		global _twain
-		global _sane
+		# make tmp file name
+		# for now we know it's bitmap
+		# FIXME: should be JPEG, perhaps ?
+		# FIXME: get extension from config file
+		tempfile.tempdir = self.scan_tmp_dir
+		tempfile.template = 'obj-'
+		fname = tempfile.mktemp('.jpg')
+		# assemble some options to pass to scanner
+		options= {}
+		options['delay'] = 5
+		print options
+		img = gmScanBackend.acquire_page(options)
+		if img is None:
+			_dlg = wxMessageDialog(
+				self,
+				_('page could not be acquired. Please check the log file for details on what went wrong'),
+				_('acquiring page'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		else:
+			#save image file to disk
+			img.save(fname)
+			# and keep a reference
+			self.acquired_pages.append(fname)
+		# update list of pages in GUI
+		self.__reload_LBOX_doc_pages()
 
-		# if we did not load the scanner driver yet
-		if self.scan_drv == "unknown":
-			try:
-				import twain
-				_twain = twain
-				self.scan_drv = 'wintwain'
-			except ImportError:
-				exc = sys.exc_info()
-				_log.LogException('Cannot import WinTWAIN.py.', exc, fatal=0)
-				try:
-					import sane
-					_sane = sane
-					self.scan_drv = 'linsane'
-				except ImportError:
-					exc = sys.exc_info()
-					_log.LogException('Cannot import SANE.py.', exc, fatal=0)
-					_log.Log(gmLog.lErr, "Can import neither TWAIN nor SANE scanner access library.")
-					dlg = wxMessageDialog(
-						self,
-						_('Cannot load any scanner driver (SANE or TWAIN).'),
-						_('acquiring page'),
-						wxOK | wxICON_ERROR
-					)
-					dlg.ShowModal()
-					dlg.Destroy()
-					return None
-
-			# like this:
-			self.acquire_handler = {
-				'wintwain': self.__acquire_from_twain,
-				'linsane': self.__acquire_from_sane
-			}
-			if self.scan_drv == 'wintwain':
-				self.twain_event_handler = {
-					twain.MSG_XFERREADY: self.__twain_handle_transfer,
-					twain.MSG_CLOSEDSREQ: self.__twain_close_datasource,
-					twain.MSG_CLOSEDSOK: self.__twain_save_state,
-					twain.MSG_DEVICEEVENT: self.__twain_handle_src_event
-				}
-
-		return self.acquire_handler[self.scan_drv]()
+		return 1
 	#-----------------------------------
 	def on_show_page(self, event):
 		# did user select a page ?
@@ -480,263 +455,12 @@ class ScanPanel(wxPanel):
 	#-----------------------------------
 	def __reload_LBOX_doc_pages(self):
 		self.LBOX_doc_pages.Clear()
-		if len(self.acquired_pages) > 0:	
+		if len(self.acquired_pages) > 0:    
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
 				path, name = os.path.split(fname)
 				self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
-	#-----------------------------------
-	# TWAIN related scanning code
-	#-----------------------------------
-	def twain_event_callback(self, twain_event):
-		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
-		return self.twain_event_handler[twain_event]()
-	#-----------------------------------
-	def __twain_handle_transfer(self):
-		_log.Log(gmLog.lInfo, 'receiving image')
-		_log.Log(gmLog.lData, 'image info: %s' % self.TwainScanner.GetImageInfo())
-
-		# get from source
-		try:
-			(external_data_handle, more_images_pending) = self.TwainScanner.XferImageNatively()
-		except:
-			exc = sys.exc_info()
-			_log.LogException('Unable to get global heap image handle !', exc, fatal=1)
-			# free external image memory
-			_twain.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-			self.TwainScanner.HideUI()
-			return None
-
-		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
-
-		# make tmp file name
-		tempfile.tempdir = self.scan_tmp_dir
-		tempfile.template = 'obj-'
-		bmp_name = tempfile.mktemp('.bmp')
-		fname = bmp_name
-		try:
-			# convert to bitmap file
-			_twain.DIBToBMFile(external_data_handle, bmp_name)
-		except:
-			exc = sys.exc_info()
-			_log.LogException('Unable to convert image in global heap handle into file [%s] !' % bmp_name, exc, fatal=1)
-			# free external image memory
-			_twain.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-			self.TwainScanner.HideUI()
-			return None
-		# free external image memory
-		_twain.GlobalHandleFree(external_data_handle)
-
-		# convert to JPEG ?
-		do_jpeg = _cfg.get("scanning", "convert to JPEG")
-		if do_jpeg in ["yes", "on"]:
-			jpg_name = tempfile.mktemp('.jpg')
-			fname = jpg_name
-			# get JPEG quality factor
-			quality_value = _cfg.get("scanning", "JPEG quality level")
-			if quality_value is None:
-				_log.Log(gmLog.lWarn, "JPEG quality level not specified in config file, using default level of 75")
-				quality_value = 75
-			else:
-				if quality_value.isdigit():
-					quality_value = int(quality_value, 10)
-				else:
-					_log.Log(gmLog.lWarn, "JPEG quality level [%s] not a number, using default level of 75" % quality_value)
-					quality_value = 75
-			# do we want progression ?
-			progression_flag = _cfg.get("scanning", "progressive JPEG")
-			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_value, progression_flag))
-			kwds = {}
-			kwds['quality'] = quality_value
-			if progression_flag in ["yes", "on"]:
-				kwds['optimize'] = 1
-				kwds['progressive'] = 1
-			# actually convert to JPEG
-			try:
-				Image.open(bmp_name).convert('RGB').save(jpg_name, **kwds)
-			except:
-				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
-				Image.open(bmp_name).convert('RGB').save(jpg_name)
-			# remove bitmap (except Windows can't do that sometimes :-(
-			try:
-				os.remove(bmp_name)
-			except:
-				_log.LogException("Can't remove bitmap.", sys.exc_info(), fatal=0)
-
-		# hide the scanner user interface again
-		self.TwainScanner.HideUI()
-		# and keep a reference
-		self.acquired_pages.append(fname)
-		#update list of pages in GUI
-		self.__reload_LBOX_doc_pages()
-		# FIXME: if more_images_pending:
-		return 1
-	#-----------------------------------
-	def __twain_close_datasource(self):
-		_log.Log(gmLog.lData, "being asked to close data source")
-		return 1
-	#-----------------------------------
-	def __twain_save_state(self):
-		_log.Log(gmLog.lData, "being asked to save application state")
-		return 1
-	#-----------------------------------
-	def __twain_handle_src_event(self):
-		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
-		return 1
-	#-----------------------------------
-	def __acquire_from_twain(self):
-		_log.Log(gmLog.lInfo, "scanning with TWAIN source")
-		# open scanner on demand
-		if not self.TwainScanner:
-			if not self.__open_twain_scanner():
-				dlg = wxMessageDialog(
-					self,
-					_('Cannot connect to TWAIN source (scanner or camera).'),
-					_('acquiring page'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
-				return None
-
-		self.TwainScanner.RequestAcquire()
-		return 1
-	#-----------------------------------
-	def __open_twain_scanner(self):
-		# did we open the scanner before ?
-		if not self.TwainSrcMngr:
-			#_log.Log(gmLog.lData, "TWAIN version: %s" % _twain.Version())
-			# no, so we need to open it now
-			# TWAIN talks to us via MS-Windows message queues so we
-			# need to pass it a handle to ourselves
-			self.TwainSrcMngr = _twain.SourceManager(self.GetHandle())
-			if not self.TwainSrcMngr:
-				_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
-				return None
-
-			# TWAIN will notify us when the image is scanned
-			self.TwainSrcMngr.SetCallback(self.twain_event_callback)
-
-			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.TwainSrcMngr.GetIdentity()))
-
-		if not self.TwainScanner:
-			self.TwainScanner = self.TwainSrcMngr.OpenSource()
-			if not self.TwainScanner:
-				_log.Log(gmLog.lData, "cannot open the scanner via the TWAIN source manager")
-				return None
-
-			_log.Log(gmLog.lData, "TWAIN data source: %s" % self.TwainScanner.GetSourceName())
-			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.TwainScanner.GetIdentity()))
-		return 1
-	#-----------------------------------
-	# SANE related scanning code
-	#-----------------------------------
-	def __acquire_from_sane(self):
-		_log.Log(gmLog.lInfo, "scanning with SANE source")
-
-		# there is supposed to be a method *.close() but it doesn not work
-		# therefore I put in the following line
-		# else it reports a busy sane-device on the second and consecutive runs 
-		self.SaneScanner = None
-
-		# open scanner on demand
-		if not self.SaneScanner:
-			if not self.__open_sane_scanner():
-				dlg = wxMessageDialog(
-					self,
-					_('Cannot connect to SANE source (scanner or camera).'),
-					_('acquiring page'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
-				return None
-
-		# Set scan parameters
-		# FIXME: get those from config file
-		#scanner.contrast=170 ; scanner.brightness=150 ; scanner.white_level=190
-		#scanner.depth=6
-		self.SaneScanner.br_x = 412.0
-		self.SaneScanner.br_y = 583.0
-
-		# make tmp file name
-		# for now we know it's bitmap
-		# FIXME: should be JPEG, perhaps ?
-		# FIXME: get extension from config file
-		tempfile.tempdir = self.scan_tmp_dir
-		tempfile.template = 'obj-'
-		fname = tempfile.mktemp('.jpg')
-		try:
-			# initiate the scan
-			self.SaneScanner.start()
-			# get an Image object
-			img = self.SaneScanner.snap()
-			#save image file to disk
-			img.save(fname)
-			# and keep a reference
-			self.acquired_pages.append(fname)
-
-			# FIXME:
-			#if more_images_pending:
-		except:
-			exc = sys.exc_info()
-			_log.LogException('Unable to get image from scanner into [%s] !' % fname, exc, fatal=1)
-			return None
-
-		# update list of pages in GUI
-		self.__reload_LBOX_doc_pages()
-
-		return 1
-	#-----------------------------------
-	def __open_sane_scanner(self):
-		# did we open the scanner before ?
-		if not self.SaneSrcMngr:
-			# no, so we need to open it now
-			try:
-				init_result = _sane.init()
-			except:
-				exc = sys.exc_info()
-				_log.LogException('cannot init SANE', exc, fatal=1)
-				self.SaneSrcMngr = None
-				return None
-
-			_log.Log(gmLog.lData, "SANE version: %s" % str(init_result))
-
-		if not self.SaneScanner:
-			# FIXME: actually we should use this to remember which device we work with
-			devices = []
-			devices = _sane.get_devices()
-			if devices == []:
-				_log.Log (gmLog.lErr, "SANE did not find any devices")
-				dlg = wxMessageDialog(
-					self,
-					_('Cannot find any SANE connected devices.'),
-					_('opening scanner'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
-				return None
-
-			_log.Log(gmLog.lData, "available SANE devices: %s" % devices)
-
-			try:
-				# by default use the first device
-				self.SaneScanner = _sane.open(_sane.get_devices()[0][0])
-			except:
-				exc = sys.exc_info()
-				_log.LogException('cannot open SANE scanner', exc, fatal=1)
-				return None
-
-			_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane.get_devices()))
-			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.SaneScanner))
-			_log.Log(gmLog.lData, 'SANE device config: %s' % str(self.SaneScanner.get_parameters()))
-			_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.SaneScanner.optlist))
-			_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.SaneScanner.get_options()))
-
-		return 1
+	
 	#-----------------------------------
 	# internal helper methods
 	#-----------------------------------
@@ -983,6 +707,9 @@ class ScanPanel(wxPanel):
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
+	if _cfg is None:
+		_log.Log(gmLog.lErr, "Cannot run without config file.")
+		sys.exit("Cannot run without config file.")
 	try:
 		application = wxPyWidgetTester(size=(800,600))
 		application.SetWidget(ScanPanel)
@@ -994,7 +721,7 @@ if __name__ == '__main__':
 else:
 	import gmPlugin,images_Archive_plugin
 
-	class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
+class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
 		def name (self):
 			return _("Scan")
 
@@ -1005,11 +732,11 @@ else:
 			return ('tools', _('&scan documents'))
 			
 		def DoToolbar (self, tb, widget):
-	      		tool1 = tb.AddTool(
+			tool1 = tb.AddTool(
 				wxID_PNL_BTN_acquire_page,
 				images_Archive_plugin.getcontentsBitmap(),
 				shortHelpString=_("acquire image"),
-				isToggle=False
+				isToggle=false
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_acquire_page, widget.on_acquire_page)
 			
@@ -1018,7 +745,7 @@ else:
 				wxID_PNL_BTN_save_doc,
 				images_Archive_plugin.getsaveBitmap(),
 				shortHelpString=_("save document"),
-				isToggle=False
+				isToggle=false
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_save_doc, widget.on_save_doc)
 			
@@ -1027,7 +754,7 @@ else:
 				wxID_PNL_BTN_del_page,
 				images_Archive_plugin.getcontentsBitmap(),
 				shortHelpString=_("delete page"),
-				isToggle=False
+				isToggle=false
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
 			
@@ -1036,7 +763,7 @@ else:
 				wxID_PNL_BTN_show_page,
 				images_Archive_plugin.getreportsBitmap(),
 				shortHelpString=_("show page"),
-				isToggle=False
+				isToggle=false
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_show_page, widget.on_show_page)
 	
@@ -1045,24 +772,28 @@ else:
 				wxID_PNL_BTN_move_page,
 				images_Archive_plugin.getsort_A_ZBitmap(),
 				shortHelpString=_("move page"),
-				isToggle=False
+				isToggle=false
 			)
 			EVT_TOOL (tb, wxID_PNL_BTN_move_page, widget.on_move_page)
 		
 		def ReceiveFocus(self):
 			self.DoStatusText()
-		
+				
 		def DoStatusText (self):
 			# FIXME: people want an optional beep and an optional red backgound here
 			#set_statustext = gb['main.statustext']
-			txt = _('1:acquire some pages 2:save document')	
+			txt = _('1:acquire some pages 2:save document') 
 			if not self._set_status_txt(txt):
 				return None
 			return 1
 	
+
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.5  2005-09-27 20:22:44  ncq
+# Revision 1.6  2005-11-05 15:59:29  shilbert
+# - scan functions were moved out to separate library --> gmScanBackend.py
+#
+# Revision 1.5  2005/09/27 20:22:44  ncq
 # - a few wx2.6 fixes
 #
 # Revision 1.4  2004/02/25 09:46:19  ncq
