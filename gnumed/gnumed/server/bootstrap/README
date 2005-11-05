@@ -1,0 +1,31 @@
+-- $Id: README,v 1.1 2005-11-05 11:02:57 ncq Exp $
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
+-- $Revision: 1.1 $
+
+The files and scripts in this directory are intended for
+bootstrapping a new or upgrading an existing GNUmed database.
+
+The main bootstrapper is bootstrap_gm_db_system.py. It does
+all the heavy lifting including setting up the database,
+making sure users and procedural languages are set up and
+importing the schema definition files.
+
+The redo-* shell scripts set up a new GNUmed database. Any
+existing database of the same name WILL BE DROPPED.
+
+The update-* scripts upgrade an existing GNUmed database.
+The original database WILL NOT BE CHANGED in any way.
+
+Bootstrapping is a rather complicated affair. Here are some
+prerequisites that need to be matched:
+
+1) You need to be able to connect to template1 and the
+   target database (gnumed_v*) as "gm-dbo" and "postgres".
+
+2) You need to have the procedural language pl/pgsql
+   available.
+
+Enjoy and please do report bugs !
+
+Karsten Hilbert, MD
+GNUmed i18n maintainer
