@@ -1,0 +1,65 @@
+
+This is the data directory for the GNUMed dermatology tool.
+
+This directory contains the INDEX file, plus various image and 
+description files.
+
+THE INDEX file
+
+INDEX is a list of records, newline separated. Fields are
+whitespace-separated, as follows:
+
+1. the file basename. basename.jpg is the image file,
+if it does not exist, DermTool displays an advertisement calling for an 
+image to be submitted.
+basename.<LANG>.txt must exist, see below for its description
+
+2. the ICD-10 disease code
+
+3. the population. Values are "P" (Paediatric), "A" (Adult), and "E" (Elderly)
+
+4. the distribution: Truncal, Generalised, Face, Hands, "P" (Feet), fLexural,
+Isolated lesion, "HF" (hands and feet), Sun-exposed
+
+5. the colouring: None, Pigmented, Depigmented, Erthyema, Purpura.
+
+6. the pattern: Confluent, Macular, "MP" Maculo-Papular, Papular, Bullous
+
+7. the surface: Flat, Eroded, Crust, Scale, eXudate.
+
+8. sensation: Itchy, Pain, Non-itchy
+
+9. the time-course: Sudden, Evolving
+
+THE IMAGE FILES
+
+These should all be in JPEG format. Resolution or size doesn't matter
+(dermtool will resize)
+Images must either be
+	- taken yourself, with documented patient consent. By putting
+them in this archive, you license them under the GNU Free Documentation
+Licence (see http://www.gnu.org/copyleft/fdl.html)
+	- from a *known* source which clearly identifies them as either
+GFDL, Creative Commons, or public domain.
+
+If you have an image which you feel is superior to the one in this
+archive (for example, you have picture of scabies showing burrows)
+then feel free to submit it. 
+
+THE TEXT FILES
+
+They are all licensed GFDL.
+They have the name <disease>.<language>.txt, example: cystic_acne.en.txt
+
+The first line is the name of the disease.
+Subsequent lines describe where the image came from and its licence.
+(Put the string "NO IMAGE" if no image yet)
+Then a blank line, then 10-20 lines describing the clinical presentation,
+and treatment, focussing on the first-line therapy.
+
+Remember this is not a dermatology textbook: it's a quick reference 
+for on-the-spot clinical diagnosis. 
+
+We want the common conditions seen in day-to-day general practice
+or internal medicine, *not* fascinomas. We also want the
+"rare but can't miss" stuff like meningococcaemia.

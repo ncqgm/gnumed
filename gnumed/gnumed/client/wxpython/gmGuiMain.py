@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.221 2005-10-12 22:32:22 ncq Exp $
-__version__ = "$Revision: 1.221 $"
+# $Id: gmGuiMain.py,v 1.222 2005-11-06 11:10:42 ihaywood Exp $
+__version__ = "$Revision: 1.222 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -79,6 +79,8 @@ ID_CREATE_PATIENT = wx.NewId()
 ID_SEARCH_PATIENT = wx.NewId()
 ID_SEARCH_EMR = wx.NewId()
 ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
+ID_DERMTOOL = wx.NewId ()
+
 #==============================================================================
 
 icon_serpent = \
@@ -326,6 +328,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_tools = wx.Menu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
+		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"),
+					_("A tool to aid dermatology diagnosis"))
+		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
 
 		# menu "Reference"
 		self.menu_reference = wx.Menu()
@@ -442,6 +447,12 @@ class gmTopLevelFrame(wx.Frame):
 		Export selected patient EMR to a file
 		"""
 		gmEMRBrowser.export_emr_to_ascii(parent=self)
+	#----------------------------------------------
+	def __dermtool (self, event):
+		import Gnumed.wxpython.gmDermTool as DT
+
+		frame = DT.DermToolDialog(None, -1)
+		frame.Show(True)
 	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -933,7 +944,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.221  2005-10-12 22:32:22  ncq
+# Revision 1.222  2005-11-06 11:10:42  ihaywood
+# dermtool proof-of-concept
+# Access from Tools|Dermatology menu item
+# A small range of derm pictures using free-as-in-speech sources are included.
+#
+# CVm: ----------------------------------------------------------------------
+#
+# Revision 1.221  2005/10/12 22:32:22  ncq
 # - encounter['description'] -> encounter['aoe']
 #
 # Revision 1.220  2005/10/08 12:37:25  sjtan
