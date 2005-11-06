@@ -6,20 +6,17 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.31 2005-04-03 20:06:51 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmForms.py,v 1.32 2005-11-06 12:31:30 ihaywood Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
-
-try:
-	from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider
-	from Gnumed.pycommon.gmPyCompat import *
-	if __name__ == "__main__":
-		from Gnumed.pycommon import gmI18N
-	from Gnumed.business import gmDemographicRecord, gmPerson
-except:
-	_ = lambda x: x
+import Cheetah.Template, Cheetah.Filters
+from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider
+from Gnumed.pycommon.gmPyCompat import *
+if __name__ == "__main__":
+	from Gnumed.pycommon import gmI18N
+from Gnumed.business import gmDemographicRecord, gmPerson
 
 # start logging
 _log = gmLog.gmDefLog
@@ -40,13 +37,7 @@ class gmFormEngine:
 		self.whoami = gmWhoAmI.cWhoAmI ()
 		self.workplace = self.whoami.get_workplace ()
 
-	def convert (self, item):
-		"""
-		Perform whatever character set conversions are required for this form
-		"""
-		return item
-
-	def process (self, params, escape='@'):
+	def process (self):
 		"""Merge values into the form template.
 
 		Accept a template [format specific to the engine] and
@@ -71,12 +62,6 @@ class gmFormEngine:
 		"""
 		pass
 
-
-	def flags (self):
-		"""
-		A list of flags (true/false options) available in this form instance
-		"""
-		return self.flags
 	#--------------------------------------------------------
 	def store(self, params=None):
 		"""Stores the parameters in the backend.
@@ -125,82 +110,10 @@ class gmFormEngine:
 			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
 			return None
 		return status
-#============================================================
-class TextForm (gmFormEngine):
-	"""
-	Takes a plain text form and subsitutes the fields
-	which are marked using an escape character.
-
-	The fields are a dictionary of strings, string lists, or functions that return these
-	Lists of lists ae allowed, and will be printed as tab-separated tables 
-	If lists, the lines containing these fields are repeated until one
-	of the lists is exhausted.
-	"""
 
 
-	def __init__ (self, *args):
-		gmFormEngine.__init__ (self, *args)
-
-	def convert (self, item, table_sep='\n'):
-		"""
-		Convert lists and tuples to tab-separated lines
-		"""
-		if type (item) is types.ListType or type (item) is types.TupleType:
-			return string.join ([self.convert (i, '\t') for i in item], table_sep)
-		elif type (item) is types.IntType or type (item) is types.FloatType:
-			return str (item)
-		else:
-			return item
-		
-	#--------------------------------------------------------
-	def process (self, params):
-		self.params = params
-		regex = "\$([A-Za-z_]+)"
-		self.result = cStringIO.StringIO()
-		_subst = self.__subst   # scope hack
-		self.result.write(re.sub (regex, lambda x: _subst (x.group (1)), self.template) + '\n')
-		self.result.seek (0)
-		return self.result
-	#--------------------------------------------------------
-        def __subst (self, match, list_level=0):
-                """
-                Perform a substitution on the string using a parameters dictionary,
-                returns the subsitution
-                """
-		if self.params.has_key (match):
-			r = self.params[match]
-		else:
-			r = getattr (self, match, "")
-		if callable (r):
-			self.params[match] = r ()
-			r = self.params[match]
-		return self.convert (r)
-        #--------------------------------------------------------
-
-	#--------------------------------------------------------
-	def exe (self, command):
-		if "%F" in command:
-			tmp = tempfile.mktemp ()
-			f = file (tmp, "w")
-			f.write (self.result.read ())
-			f.close ()
-			command.replace ("%F", tmp)
-			os.system (command)
-			os.unlink (tmp)
-		else:
-			stdin = os.popen (command, "w", 2048)
-			stdin.write (self.result.read ())
-			stdin.close ()
-	#----------------------------------------------------------
-	
-	def printout (self):
-		command, set1 = gmCfg.getDBParam (workplace = self.workplace, option = 'main.comms.print')
-		self.exe (command)
-#============================================================
-class LaTeXForm (TextForm):
-	"""A forms engine wrapping LaTeX.
-	"""
-	def convert (self, item, table_sep=" \\\\\n"  ):
+class LaTeXFilter (Cheetah.Filters.Filter):
+	def filter (self, item, table_sep= " \\\\\n", **kwds):
 		"""
 		Convience function to escape ISO-Latin-1 strings for TeX output
 		WARNING: not all ISO-Latin-1 characters are expressible in TeX
@@ -229,7 +142,7 @@ class LaTeXForm (TextForm):
 				for k, i in trans.items ():
 					item = item.replace (k, i)
 		elif type (item) is types.ListType or type (item) is types.TupleType:
-			item = string.join ([self.convert (i, ' & ') for i in item], table_sep)
+			item = string.join ([self.filter (i, ' & ') for i in item], table_sep)
 		elif item is None:
 			item = '\\relax % Python None\n'
 		elif type (item) is types.IntType or type (item) is types.FloatType:
@@ -237,18 +150,28 @@ class LaTeXForm (TextForm):
 		else:
 			item = str (item)
 			_log.Log (gmLog.lEWarn, "unknown type %s, string %s" % (type (item), item))
-		return item
+		return item 
 
-	def process (self, params):
+
+#=====================================================
+class LaTeXForm (gmFormEngine):
+	"""A forms engine wrapping LaTeX.
+	"""
+
+	def __init__ (self, id, template):
+		self.id = id
+		self.template = template
+		
+	def process (self,params={}):
 		try:
-			latex = TextForm.process (self, params)
+			latex = Cheetah.Template.Template (self.template, filter=LaTeXFilter, searchList=[params])
 			# create a 'sandbox' directory for LaTeX to play in
 			self.tmp = tempfile.mktemp ()
 			os.makedirs (self.tmp)
 			self.oldcwd = os.getcwd ()
 			os.chdir (self.tmp)
 			stdin = os.popen ("latex", "w", 2048)
-			stdin.write (latex.getvalue ()) # send text. LaTeX spits it's output into stdout.
+			stdin.write (str (latex)) #send text. LaTeX spits it's output into stdout
 			# FIXME: send LaTeX output to the logger
 			stdin.close ()
 			dvips = os.system ("dvips texput.dvi -o texput.ps")
@@ -280,6 +203,10 @@ class LaTeXForm (TextForm):
 			_log.Log (gmLog.lErr, e.strerror)
 			raise FormError (e.strerror)		     
 		return True
+
+	def printout (self):
+		command, set1 = gmCfg.getDBParam (workplace = self.workplace, option = 'main.comms.print')
+		self.exe (command)
 
 	def cleanup (self):
 		"""
@@ -325,7 +252,7 @@ def get_form(id):
 	try:
 		# it's a number: match to form ID
 		id = int (id)
-		cmd = 'select template, engine, flags, pk from form_defs where pk = %s'
+		cmd = 'select template, engine, pk from form_defs where pk = %s'
 	except ValueError:
 		# it's a string, match to the form's name
 		# FIXME: can we somehow OR like this: where name_short=%s OR name_long=%s ?
@@ -338,9 +265,9 @@ def get_form(id):
 		_log.Log (gmLog.lErr, 'no form [%s] found' % id)
 		raise gmExceptions.FormError ('no such form found [%s]' % id)
 	if result[0][1] == 'L':
-		return LaTeXForm (result[0][3], result[0][0], result[0][2])
+		return LaTeXForm (result[0][2], result[0][0])
 	elif result[0][1] == 'T':
-		return TextForm (result[0][3], result[0][0], result[0][2])
+		return TextForm (result[0][2], result[0][0])
 	else:
 		_log.Log (gmLog.lErr, 'no form engine [%s] for form [%s]' % (result[0][1], id))
 		raise FormError ('no engine [%s] for form [%s]' % (result[0][1], id))
@@ -433,7 +360,7 @@ def test_au2 ():
 		  'DOB':'12/3/65',
 		  'INCLUDEMEDS':1,
 		  'MEDSLIST':[["Amoxycillin", "500mg", "TDS"], ["Perindopril", "4mg", "OD"]],
-		  'INCLUDEDISEASES':0,
+		  'INCLUDEDISEASES':0, 'DISEASELIST':'',
 		  'CLOSING':'Yours sincerely,'
 		  }
 	form.process (params)
@@ -467,7 +394,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.31  2005-04-03 20:06:51  ncq
+# Revision 1.32  2005-11-06 12:31:30  ihaywood
+# I've discovered that most of what I'm trying to do with forms involves
+# re-implementing Cheetah (www.cheetahtemplate.org), so switch to using this.
+#
+# If this new dependency annoys you, don't import the module: it's not yet
+# used for any end-user functionality.
+#
+# Revision 1.31  2005/04/03 20:06:51  ncq
 # - comment on emr.get_active_episode being no more
 #
 # Revision 1.30  2005/03/06 08:17:02  ihaywood
