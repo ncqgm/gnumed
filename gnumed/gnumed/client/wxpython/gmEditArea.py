@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.101 2005-10-11 21:33:47 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmEditArea.py,v 1.102 2005-11-07 21:34:00 ihaywood Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -18,7 +18,7 @@ except ImportError:
 	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI, gmI18N
-from Gnumed.business import gmPerson, gmDemographicRecord, gmForms
+from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -2344,7 +2344,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.101  2005-10-11 21:33:47  ncq
+# Revision 1.102  2005-11-07 21:34:00  ihaywood
+# gmForms isn't loaded now (not yet needed)
+#
+# gmDermTool no longer dependent on my home directory (thanks Sebastian)
+#
+# Revision 1.101  2005/10/11 21:33:47  ncq
 # - improve fix for ID_BTN_* problems
 #
 # Revision 1.100  2005/10/04 00:04:45  sjtan
