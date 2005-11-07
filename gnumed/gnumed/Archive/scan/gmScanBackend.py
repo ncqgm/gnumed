@@ -2,7 +2,7 @@
 #
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanBackend.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -514,7 +514,7 @@ def acquire_page_into_file(delay=None, filename=None, tmpdir=None, calling_windo
 		except gmExceptions.ConstructorError:
 			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
 			return None
-	return scanner.aquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir, calling_window=calling_window)
+	return scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir, calling_window=calling_window)
 
 #==================================================
 # main
