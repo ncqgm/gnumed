@@ -2,7 +2,7 @@
 #
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanBackend.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -257,7 +257,7 @@ class cSaneScanner:
 
 		return True
 	#---------------------------------------------------
-	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
+	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None,calling_window=None):
 		if filename is None:
 			print "autogeneration of file names not yet supported"
 			return None
@@ -268,8 +268,8 @@ class cSaneScanner:
 			self.__scanner.filename = 'sane-test.pnm'
 
 		if delay is not None:
-			time.sleep(sleep)
-			_log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % sleep)
+			time.sleep(delay)
+			_log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % delay)
 		try:
 			self.__scanner.start()
 			img = self.__scanner.snap()
@@ -530,7 +530,7 @@ if __name__ == '__main__':
 #	scanner = cSaneScanner()
 #	scanner.acquire_page_into_file(filename='test.bmp')
 
-	if not acquire_page_into_file(filename='test.bmp'):
+	if not acquire_page_into_file(filename='test.bmp',delay=5):
 		print "error, cannot acquire page"
 	
 #	#provide some default options for testing
