@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.24 $
+version = $Revision: 1.25 $
 
 #----------------------------------
 [installation]
@@ -93,6 +93,12 @@ override name by = GM_CORE_DB
 # hosting this databse -> [server ...]
 server alias = local host
 
+# do we check for procedural language library
+# existance in the filesystem ?
+# set this to "no" if you want to bootstrap remote
+# machines where you don't have filesystem access ...
+procedural language library check = yes
+
 # audit trail related options:
 # setting this to 1 will disable creation of any
 # auditing related tables, triggers, and functions
@@ -140,12 +146,6 @@ template database = template1
 # which [section] lists particulars about the
 # database server super user -> [user ...]
 super user alias = postgres
-
-# do we check for procedural language library
-# existance in the filesystem ?
-# set this to "no" if you want to bootstrap remote
-# machines where you don't have filesystem access ...
-procedural language library check = yes
 
 # you can put some schema files here,
 # they will be imported into the template database
@@ -202,6 +202,7 @@ $procedural languages$
 #   directory to be used for a particular language
 language library dirs = $language library dirs$
 $libdir/
+/usr/lib/postgresql/7.4/lib/
 /usr/lib/postgresql/
 /usr/lib/postgresql/lib/
 /usr/lib/pgsql/
@@ -277,7 +278,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.24  2005-09-19 16:29:53  ncq
+# Revision 1.25  2005-11-09 10:42:47  ncq
+# - be more careful with others around us: install procedural language into
+#   our database only if needed, not into template1
+#
+# Revision 1.24  2005/09/19 16:29:53  ncq
 # - update
 #
 # Revision 1.23  2005/06/01 23:17:43  ncq
