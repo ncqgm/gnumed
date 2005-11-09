@@ -1,8 +1,9 @@
 #==================================================
-#
+# GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanBackend.py,v $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmScanBackend.py,v 1.7 2005-11-09 11:30:21 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -201,20 +202,18 @@ class cSaneScanner:
 		if not self.__init_src_manager():
 			raise gmExceptions.ConstructorError, msg
 
-		devices = _sane_module.get_devices()
-		_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
-		if device != 'pnm:0':
-			if len(devices) == 0:
-				_log.Log(gmLog.lErr, "SANE module did not find any devices")
-				raise gmExceptions.ConstructorError, msg
-
 		if device is None:
-			# by default use the first available device
-			self.__device = devices[0][0]
-			_log.Log(gmLog.lInfo, 'using SANE device [%s]' % str(devices[0]))
+			# may need to uncomment "test" backend in /etc/sane/dll.conf
+			self.__device = 'test:0'
 		else:
 			self.__device = device
-			_log.Log(gmLog.lInfo, 'using SANE device [%s]' % device)
+		_log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
+
+		devices = _sane_module.get_devices()
+		_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
+		if len(devices) == 0:
+			_log.Log(gmLog.lErr, "SANE module did not find any devices")
+			raise gmExceptions.ConstructorError, msg
 
 		if not self.__init_scanner():
 			raise gmExceptions.ConstructorError, msg
@@ -261,11 +260,6 @@ class cSaneScanner:
 		if filename is None:
 			print "autogeneration of file names not yet supported"
 			return None
-
-		# test ?
-		if self.__device == 'pnm:0':
-			print 'testing SANE scanner support, expecting [sane-test.pnm] to exist'
-			self.__scanner.filename = 'sane-test.pnm'
 
 		if delay is not None:
 			time.sleep(delay)
@@ -505,12 +499,12 @@ class cSaneScanner:
 #		raise
 
 #==================================================
-def acquire_page_into_file(delay=None, filename=None, tmpdir=None, calling_window=None):
+def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
 	except gmExceptions.ConstructorError:
 		try:
-			scanner = cSaneScanner()
+			scanner = cSaneScanner(device=device)
 		except gmExceptions.ConstructorError:
 			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
 			return None
@@ -524,13 +518,7 @@ if __name__ == '__main__':
 	
 	from Gnumed.pycommon import gmI18N
 
-	# the docs say this is a test device
-	# but it does not work
-	#scanner = cSaneScanner(device='pnm:0')
-#	scanner = cSaneScanner()
-#	scanner.acquire_page_into_file(filename='test.bmp')
-
-	if not acquire_page_into_file(filename='test.bmp',delay=5):
+	if not acquire_page_into_file(filename='test.bmp', delay=5):
 		print "error, cannot acquire page"
 	
 #	#provide some default options for testing
@@ -554,3 +542,10 @@ if __name__ == '__main__':
 #		img.save(fname)
 #		# show image
 #		#img.show()
+
+#==================================================
+# $Log: gmScanBackend.py,v $
+# Revision 1.7  2005-11-09 11:30:21  ncq
+# - activate sane test scanner
+#
+#
