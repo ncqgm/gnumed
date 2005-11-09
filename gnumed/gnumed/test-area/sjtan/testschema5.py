@@ -618,7 +618,7 @@ reversed_link:	xlnk_identity.allergy_state, clin_root_item.lnk_type2item, clin_n
 
 type_tables:	^.*enum.*, ^.*category,  marital_status, staff_role, clin_item_type
 
-suppress:	xlnk_identity.xlnk_identity.referral,  xlnk_identity.xlnk_identity.test_org,xlnk_identity.clin_encounter.clin_root_item,xlnk_identity.test_result, xlnk_identity.lab_request, xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_encounter.curr_encounter, xlnk_identity.test_type.test_result,  identity..org,  xlnk_identity.test_org.test_type, xlnk_identity.form_instances.referral,  org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, identity.occupation.lnk_job2person
+suppress:	xlnk_identity.xlnk_identity.referral,  xlnk_identity.xlnk_identity.test_org,xlnk_identity.clin_encounter.clin_root_item,xlnk_identity.test_result, xlnk_identity.lab_request, xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.test_type.test_result,  identity..org,  xlnk_identity.test_org.test_type, xlnk_identity.form_instances.referral,  org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, identity.occupation.lnk_job2person
 
 double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode, xlnk_identity.test_result.xlnk_identity, xlnk_identity.lab_request.xlnk_identity
 
