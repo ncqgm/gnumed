@@ -9,7 +9,7 @@ use extra toolbar with bitmap buttons for scan,save
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -34,8 +34,6 @@ from Gnumed.pycommon import gmScanBackend
 from wxPython.wx import *
 
 
-#_twain = None
-#_sane = None
 #==================================================
 [   wxID_LBOX_doc_pages,
 	wxID_BTN_del_page,
@@ -589,7 +587,7 @@ class ScanPanel(wxPanel):
 			dlg.Destroy()
 	#-----------------------------------
 	def __dump_metadata_to_xml(self, aDir):
-		# FIMXE: error handling
+		# FIXME: error handling
 		content = []
 
 		tag = _cfg.get("metadata", "document_tag")
@@ -790,7 +788,10 @@ class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.6  2005-11-05 15:59:29  shilbert
+# Revision 1.7  2005-11-09 10:46:11  ncq
+# - cleanup
+#
+# Revision 1.6  2005/11/05 15:59:29  shilbert
 # - scan functions were moved out to separate library --> gmScanBackend.py
 #
 # Revision 1.5  2005/09/27 20:22:44  ncq
