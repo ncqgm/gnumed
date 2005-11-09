@@ -2,10 +2,10 @@
 #
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanBackend.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __license__ = "GPL"
-__author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
-                 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
+Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
 #==================================================
 import sys, os.path, os, Image, string, time, shutil, tempfile
@@ -71,7 +71,7 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def __init_scanner(self):
 		# FIXME: set source by string
-		self.__scanner = TwainSrcMngr.OpenSource()
+		self.__scanner = cTwainScanner._src_manager.OpenSource()
 		if not self.__scanner:
 			_log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
 			return False
@@ -554,4 +554,3 @@ if __name__ == '__main__':
 #		img.save(fname)
 #		# show image
 #		#img.show()
-	
