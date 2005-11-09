@@ -163,7 +163,7 @@ class EditArea (wxPanel):
                     self.topSizer.Add( lineSizer,6,  wxEXPAND)
                     
             self.SetSizer(self.topSizer)
-            self.SetAutoLayout(true)
+            self.SetAutoLayout(True)
             self.topSizer.Fit(self)
             self.topSizer.SetSizeHints(self)
             self.Layout()
