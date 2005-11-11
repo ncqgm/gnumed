@@ -4,52 +4,56 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.12 $ $Date: 2005-10-24 19:09:43 $ $Author: ncq $
+-- $Revision: 1.13 $ $Date: 2005-11-11 23:04:40 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-INSERT into blobs.doc_type(pk, name) values(1, public.i18n('discharge summary internal'));
-INSERT into blobs.doc_type(pk, name) values(2, public.i18n('discharge summary surgical'));
-INSERT into blobs.doc_type(pk, name) values(3, public.i18n('discharge summary psychiatric'));
-INSERT into blobs.doc_type(pk, name) values(4, public.i18n('discharge summary neurological'));
-INSERT into blobs.doc_type(pk, name) values(5, public.i18n('discharge summary orthopaedic'));
-INSERT into blobs.doc_type(pk, name) values(6, public.i18n('discharge summary other'));
-INSERT into blobs.doc_type(pk, name) values(7, public.i18n('discharge summary rehabilitation'));
-INSERT into blobs.doc_type(pk, name) values(8, public.i18n('referral report internal'));
-INSERT into blobs.doc_type(pk, name) values(9, public.i18n('referral report surgical'));
-INSERT into blobs.doc_type(pk, name) values(10, public.i18n('referral report ENT'));
-INSERT into blobs.doc_type(pk, name) values(11, public.i18n('referral report eye'));
-INSERT into blobs.doc_type(pk, name) values(12, public.i18n('referral report urology'));
-INSERT into blobs.doc_type(pk, name) values(13, public.i18n('referral report orthopaedic'));
-INSERT into blobs.doc_type(pk, name) values(14, public.i18n('referral report neuro'));
-INSERT into blobs.doc_type(pk, name) values(15, public.i18n('referral report radiology'));
-INSERT into blobs.doc_type(pk, name) values(16, public.i18n('referral report other'));
-INSERT into blobs.doc_type(pk, name) values(17, public.i18n('referral report cardiology'));
-INSERT into blobs.doc_type(pk, name) values(18, public.i18n('referral report psychotherapy'));
-INSERT into blobs.doc_type(pk, name) values(19, public.i18n('discharge summary urology'));
-INSERT into blobs.doc_type(pk, name) values(20, public.i18n('referral report oncology'));
-INSERT into blobs.doc_type(pk, name) values(21, public.i18n('discharge summary neurosurgery'));
-INSERT into blobs.doc_type(pk, name) values(22, public.i18n('discharge summary ophthalmology'));
-INSERT into blobs.doc_type(pk, name) values(23, public.i18n('discharge summary ENT'));
-INSERT into blobs.doc_type(pk, name) values(24, public.i18n('referral report pathology'));
-INSERT into blobs.doc_type(pk, name) values(25, public.i18n('referral report neurosurgery'));
-INSERT into blobs.doc_type(pk, name) values(26, public.i18n('patient photograph'));
---INSERT into blobs.doc_type(pk, name) values(, public.i18n(''));
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary internal'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary surgical'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary psychiatric'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary neurological'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary orthopaedic'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary other'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary rehabilitation'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report internal'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report surgical'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report ENT'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report eye'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report urology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report orthopaedic'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report neuro'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report radiology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report other'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report cardiology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report psychotherapy'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary urology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report oncology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary neurosurgery'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary ophthalmology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('discharge summary ENT'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report pathology'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('referral report neurosurgery'), false);
+INSERT into blobs.doc_type(name, is_user) values(public.i18n('patient photograph'), false);
+--INSERT into blobs.doc_type(name, is_user) values(public.i18n(''), false);
 
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
--- your own doc types can only have ids between 100 and 200
+-- your own doc types must set is_user to true or else
+-- they may get overwritten during database upgrades
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.12 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.12  2005-10-24 19:09:43  ncq
+-- Revision 1.13  2005-11-11 23:04:40  ncq
+-- - doc_type now has is_user
+--
+-- Revision 1.12  2005/10/24 19:09:43  ncq
 -- - explicit "blobs." qualifying
 --
 -- Revision 1.11  2005/09/19 16:38:51  ncq
