@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.57 $
+-- $Revision: 1.58 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -297,7 +297,7 @@ insert into test_result (
 	val_num,
 	val_unit,
 	val_normal_range,
-	technically_abnormal,
+	abnormality_indicator,
 	material
 ) values (
 	'2000-9-17 18:17',
@@ -325,7 +325,7 @@ insert into test_result (
 	val_num,
 	val_unit,
 	val_normal_range,
-	technically_abnormal,
+	abnormality_indicator,
 	material
 ) values (
 	'2000-9-17 18:17',
@@ -353,7 +353,7 @@ insert into test_result (
 	val_num,
 	val_unit,
 	val_normal_range,
-	technically_abnormal,
+	abnormality_indicator,
 	material
 ) values (
 	'2000-9-17 18:17',
@@ -381,7 +381,7 @@ insert into test_result (
 	val_num,
 	val_unit,
 	val_normal_range,
-	technically_abnormal,
+	abnormality_indicator,
 	material
 ) values (
 	'2000-9-17 18:23',
@@ -527,75 +527,75 @@ insert into lnk_type2item (fk_type, fk_item) values (
 
 -- =============================================
 -- went to Vietnam for holidays
-insert into doc_med (
+insert into blobs.doc_med (
 	patient_id,
 	type,
 	comment,
 	ext_ref
 ) values (
 	currval('identity_pk_seq'),
-	(select pk from doc_type where name='referral report other'),
+	(select pk from blobs.doc_type where name='referral report other'),
 	'Vietnam 2003: The Peoples Republic',
 	'vietnam-2003-3::1'
 );
 
-insert into doc_desc (
+insert into blobs.doc_desc (
 	doc_id,
 	text
 ) values (
-	currval('doc_med_id_seq'),
+	currval('blobs.doc_med_id_seq'),
 	'people'
 );
 
 -- need to run the insert on data separately !
-insert into doc_obj (
+insert into blobs.doc_obj (
 	doc_id,
 	seq_idx,
 	comment
 ) values (
-	currval('doc_med_id_seq'),
+	currval('blobs.doc_med_id_seq'),
 	1,
 	'Happy schoolgirls enjoying the afternoon sun catching the smile of
 	 passers-by at an ancient bridge in the paddy fields near Hue.'
 );
 
-insert into doc_obj (
+insert into blobs.doc_obj (
 	doc_id,
 	seq_idx,
 	comment
 ) values (
-	currval('doc_med_id_seq'),
+	currval('blobs.doc_med_id_seq'),
 	2,
 	'Mekong River Delta Schoolgirls making their way home.'
 );
 
-insert into doc_med (
+insert into blobs.doc_med (
 	patient_id,
 	type,
 	comment,
 	ext_ref
 ) values (
 	currval('identity_pk_seq'),
-	(select pk from doc_type where name='referral report other'),
+	(select pk from blobs.doc_type where name='referral report other'),
 	'Vietnam 2003: Tagwerk',
 	'vietnam-2003-3::2'
 );
 
-insert into doc_desc (
+insert into blobs.doc_desc (
 	doc_id,
 	text
 ) values (
-	currval('doc_med_id_seq'),
+	currval('blobs.doc_med_id_seq'),
 	'life'
 );
 
 -- need to run the insert on data separately !
-insert into doc_obj (
+insert into blobs.doc_obj (
 	doc_id,
 	seq_idx,
 	comment
 ) values (
-	currval('doc_med_id_seq'),
+	currval('blobs.doc_med_id_seq'),
 	1,
 	'Perfume pagoda river boating'
 );
@@ -603,11 +603,15 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.57 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.58 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.57  2005-10-24 19:13:00  ncq
+-- Revision 1.58  2005-11-11 23:08:15  ncq
+-- - test_result.technically_abnormal is now abnormality_indicator
+-- - blobs live in schema blobs now
+--
+-- Revision 1.57  2005/10/24 19:13:00  ncq
 -- - blobs.* schema qualification
 --
 -- Revision 1.56  2005/09/22 15:42:38  ncq
