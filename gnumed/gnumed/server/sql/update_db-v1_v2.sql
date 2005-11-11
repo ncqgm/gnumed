@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -314,6 +314,11 @@ drop table public.doc_obj cascade;
 drop table public.doc_med cascade;
 drop table public.doc_type cascade;
 
+-- doc_type --
+-- set all doc_types to system
+update blobs.doc_type
+	set is_user = false;
+
 -- ===================================================================
 -- review tables/views --
 \i gmReviewedStatus-static.sql
@@ -381,6 +386,20 @@ from test_result_unmatched;
 
 drop table test_result_unmatched cascade;
 
+-- == service reference ==============================================
+
+-- form_defs
+alter table form_defs
+	add column is_user boolean;
+update form_defs
+	set is_user = false;
+alter table form_defs
+	alter column is_user
+		set not null;
+alter table form_defs
+	alter column is_user
+		set default true;
+
 -- == cleanup debris =================================================
 \unset ON_ERROR_STOP
 drop function calc_db_identity_hash();
@@ -391,11 +410,14 @@ drop function log_script_insertion(text, text, boolean);
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.10 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.10  2005-11-01 08:55:49  ncq
+-- Revision 1.11  2005-11-11 23:06:48  ncq
+-- - add is_user to doc_type and form_defs
+--
+-- Revision 1.10  2005/11/01 08:55:49  ncq
 -- - add 0.2 workplace plugin config
 -- - rename test_result_unmatched to incoming_data_unmatched and move data
 --
