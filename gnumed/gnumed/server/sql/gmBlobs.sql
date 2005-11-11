@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.51 $ $Date: 2005-10-26 21:33:25 $ $Author: ncq $
+-- $Revision: 1.52 $ $Date: 2005-11-11 23:03:55 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -38,7 +38,12 @@ create schema blobs authorization "gm-dbo";
 -- =============================================
 CREATE TABLE blobs.doc_type (
 	pk serial primary key,
-	name text unique
+	name text
+		not null
+		unique,
+	is_user boolean
+		not null
+		default true
 );
 
 -- FIXME: add comment
@@ -153,7 +158,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.51 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.52 $');
 
 -- =============================================
 -- questions:
@@ -173,7 +178,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.51  2005-10-26 21:33:25  ncq
+-- Revision 1.52  2005-11-11 23:03:55  ncq
+-- - add is_user to doc_type
+--
+-- Revision 1.51  2005/10/26 21:33:25  ncq
 -- - review status tracking
 --
 -- Revision 1.50  2005/10/24 19:09:43  ncq
