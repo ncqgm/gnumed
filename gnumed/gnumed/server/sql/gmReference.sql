@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -192,6 +192,9 @@ create table form_defs (
 	engine char default 'T' not null check (engine in ('T', 'L', 'H')),
 	in_use boolean not null default true,
 	url text,
+	is_user boolean
+		not null
+		default true,
 	unique (name_short, name_long),
 	unique (name_long, revision)
 ) inherits (audit_fields);
@@ -222,8 +225,13 @@ comment on column form_defs.in_use is
 	 used in a given practice';
 comment on column form_defs.url is
 	'For electronic forms which are always sent to the same 
-	url (such as reports to a statutory public-health surveilliance 
+	url (such as reports to a statutory public-health surveillance
 	authority)';
+comment on column form_defs.is_user is
+	'whether this is an "official" form definition - IOW
+	 part of the official GNUmed package and hence installed
+	 at install time as opposed to forms defined locally
+	 by the user';
 
 -- =============================================
 create table form_field_types (
@@ -310,11 +318,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.22  2005-09-19 16:38:51  ncq
+-- Revision 1.23  2005-11-11 23:05:08  ncq
+-- - add is_user to form_defs
+--
+-- Revision 1.22  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.21  2005/07/14 21:31:42  ncq
