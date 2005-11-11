@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -29,12 +29,13 @@ insert into form_types (name) values ('request');
 insert into form_types (name) values ('reminder');
 -- a reminder letter to patient, asking them to make an appointment
 
-insert into form_defs (fk_type, country, name_short, name_long, revision, engine, template) values (5,
+insert into form_defs (fk_type, country, name_short, name_long, revision, engine, is_user, template) values (5,
 	'AU',
 	'Standard Referral',
 	'Standard specialist referral letter for AU',
 	1,
 	'L',
+	false,
 '\\documentclass{letter}
 \\address{ @"%(title)s %(first)s %(last)s" % user.get_names ()@ \\\\ 
 @"%(number)s %(street)s" % user[''addresses''][''work'']@ \\\\
@@ -103,9 +104,14 @@ insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type
 
 
 
-insert into form_defs (fk_type, country, name_short, name_long, revision, engine, template) values
-(7, 'AU', 
-'PBS Script', 'Prescription using the standard form of the Pharmaceutical Benefits Scheme', 1, 'L',
+insert into form_defs (fk_type, country, name_short, name_long, revision, engine, is_user, template) values (
+	7,
+	'AU', 
+	'PBS Script',
+	'Prescription using the standard form of the Pharmaceutical Benefits Scheme',
+	1,
+	'L',
+	false,
 '\\documentclass{a4form}
 \\usepackage{multicol}
 % this is a template of a *community* PBS script form
@@ -168,13 +174,14 @@ insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type
   NULL, 2);
 
 
-insert into form_defs (fk_type, country, name_short, name_long, revision, engine, template) values (
+insert into form_defs (fk_type, country, name_short, name_long, revision, engine, is_user, template) values (
 	(select pk from form_types where name='request'),
 	'AU',
 	'Basic request',
 	'A proof-of-concept basic request form',
 	1,
 	'L',
+	false,
 '\\documentclass{a4form}
 \\usepackage{multicol}
 
