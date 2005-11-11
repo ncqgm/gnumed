@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.167 $
+-- $Revision: 1.168 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -965,7 +965,7 @@ alter table form_instances add foreign key (fk_episode)
 alter table form_instances add constraint form_is_plan
 	check (soap_cat='p');
 
---select add_x_db_fk_def('form_instances', 'xfk_form_def', 'reference', 'form_defss', 'pk');
+--select add_x_db_fk_def('form_instances', 'xfk_form_def', 'reference', 'form_defs', 'pk');
 
 select add_table_for_audit('form_instances');
 
@@ -1224,11 +1224,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.167 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.168 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.167  2005-09-25 17:48:23  ncq
+-- Revision 1.168  2005-11-11 23:06:12  ncq
+-- - typo
+--
+-- Revision 1.167  2005/09/25 17:48:23  ncq
 -- - remove last_act_episode, it's not used
 --
 -- Revision 1.166  2005/09/25 01:00:47  ihaywood
