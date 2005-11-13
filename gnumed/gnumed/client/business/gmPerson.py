@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.51 2005-08-08 08:06:44 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPerson.py,v 1.51.2.1 2005-11-13 15:25:13 ncq Exp $
+__version__ = "$Revision: 1.51.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -835,23 +835,24 @@ class cPatientSearcher_SQL:
 		"""Transform some characters into a regex."""
 		if aString is None:
 			return None
-		if len(aString) == 0:
+		if aString.strip() == '':
 			return aString
+		aString = unicode(aString)
 
 		# umlauts
-		normalized =    aString.replace(u'Ä'.encode('latin-1'), u'(Ä|AE|Ae|A|E)'.encode('latin-1'))
-		normalized = normalized.replace(u'Ö'.encode('latin-1'), u'(Ö|OE|Oe|O)'.encode('latin-1'))
-		normalized = normalized.replace(u'Ü'.encode('latin-1'), u'(Ü|UE|Ue|U)'.encode('latin-1'))
-		normalized = normalized.replace(u'ä'.encode('latin-1'), u'(ä|ae|e|a)'.encode('latin-1'))
-		normalized = normalized.replace(u'ö'.encode('latin-1'), u'(ö|oe|o)'.encode('latin-1'))
-		normalized = normalized.replace(u'ü'.encode('latin-1'), u'(ü|ue|u|y|i)'.encode('latin-1'))
-		normalized = normalized.replace(u'ß'.encode('latin-1'), u'(ß|sz|ss|s)'.encode('latin-1'))
+		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|A|E)')
+		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe|O)')
+		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue|U)')
+		normalized = normalized.replace(u'ä', u'(ä|ae|e|a)')
+		normalized = normalized.replace(u'ö', u'(ö|oe|o)')
+		normalized = normalized.replace(u'ü', u'(ü|ue|u|y|i)')
+		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
 
 		# common soundalikes
 		# - René, Desiré, Inés ...
-		normalized = normalized.replace(u'é'.encode('latin-1'), u'*#DUMMY#*'.encode('latin-1'))
-		normalized = normalized.replace(u'è'.encode('latin-1'), u'*#DUMMY#*'.encode('latin-1'))
-		normalized = normalized.replace(u'*#DUMMY#*'.encode('latin-1'), u'(é|e|è|ä|ae)'.encode('latin-1'))
+		normalized = normalized.replace(u'é', u'*#DUMMY#*')
+		normalized = normalized.replace(u'è', u'*#DUMMY#*')
+		normalized = normalized.replace(u'*#DUMMY#*', u'(é|e|è|ä|ae)')
 		# FIXME: missing i/a/o - but uncommon in German
 		normalized = normalized.replace('v', '*#DUMMY#*')
 		normalized = normalized.replace('f', '*#DUMMY#*')
@@ -1484,7 +1485,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.51  2005-08-08 08:06:44  ncq
+# Revision 1.51.2.1  2005-11-13 15:25:13  ncq
+# - fix unicode problem when nornalizing name search term
+#
+# Revision 1.51  2005/08/08 08:06:44  ncq
 # - cleanup
 #
 # Revision 1.50  2005/07/24 18:44:33  ncq
