@@ -1,8 +1,8 @@
 --=====================================================================
 -- GNUmed distributed database configuration tables
 
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.38 $
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfig-static.sql,v $
+-- $Revision: 1.1 $
 
 -- structure of configuration database for GNUmed
 -- neccessary to allow for distributed servers
@@ -135,11 +135,14 @@ create table cfg.cfg_data (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.38 $');
+select log_script_insertion('$RCSfile: gmConfig-static.sql,v $', '$Revision: 1.1 $');
 
 --=====================================================================
--- $Log: gmconfiguration.sql,v $
--- Revision 1.38  2005-11-18 15:36:28  ncq
+-- $Log: gmConfig-static.sql,v $
+-- Revision 1.1  2005-11-18 15:51:30  ncq
+-- - better naming
+--
+-- Revision 1.38  2005/11/18 15:36:28  ncq
 -- - cleanup, some id -> pk and foreign keys to fk_*
 -- - now store objects in schema cfg.
 -- - factor out reloadable DDL
