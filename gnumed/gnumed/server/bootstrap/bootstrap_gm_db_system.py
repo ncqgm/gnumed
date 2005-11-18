@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1040,7 +1040,7 @@ class gmService:
 
 		curs = coreDB.conn.cursor()
 		# check for presence of service name in core database (service config)
-		cmd = "select id from public.distributed_db where name='%s' limit 1" % self.name
+		cmd = "select id from cfg.distributed_db where name='%s' limit 1" % self.name
 		try:
 			curs.execute(cmd)
 		except:
@@ -1073,7 +1073,7 @@ class gmService:
 			return True
 		# if not, insert database definition in table db
 		else:
-			cmd = "select id from public.db where name='%s' limit 1" % self.db.name
+			cmd = "select id from cfg.db where name='%s' limit 1" % self.db.name
 			try:
 				curs.execute(cmd)
 			except:
@@ -1088,7 +1088,7 @@ class gmService:
 				_log.Log(gmLog.lInfo, "Storing database definition for [%s]." % self.db.name)
 				_log.Log(gmLog.lInfo, "name=%s, host=%s, port=%s" % (self.db.name,self.db.server.port,self.db.server.name))
 	
-				cmd = "INSERT INTO public.db (name,port,host) VALUES ('%s',%s,'%s')" % (self.db.name,self.db.server.port,self.db.server.name)
+				cmd = "INSERT INTO cfg.db (name,port,host) VALUES ('%s',%s,'%s')" % (self.db.name,self.db.server.port,self.db.server.name)
 				try:
 					curs.execute(cmd)
 				except:
@@ -1099,7 +1099,7 @@ class gmService:
 				coreDB.conn.commit()
 
 				# get the database id for the created entry
-				cmd = "select id from public.db where name='%s' limit 1" % self.db.name
+				cmd = "select id from cfg.db where name='%s' limit 1" % self.db.name
 				try:
 					curs.execute(cmd)
 				except:
@@ -1123,7 +1123,7 @@ class gmService:
 			# xxxDEFAULTxxx user, upon client startup if not "user" config exists
 			# the xxxDEFAULTxxx config will be read, confirmed by the current user
 			# and stored for her ...
-			cmd = "INSERT INTO public.config (username,db,ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
+			cmd = "INSERT INTO cfg.config (username, db, ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
 			try:
 				curs.execute(cmd)
 			except:
@@ -1454,7 +1454,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.13  2005-11-09 14:19:01  ncq
+# Revision 1.14  2005-11-18 15:47:16  ncq
+# - need to use cfg.* schema now
+#
+# Revision 1.13  2005/11/09 14:19:01  ncq
 # - bootstrap languages per database, not per server
 #
 # Revision 1.12  2005/10/24 19:36:27  ncq
