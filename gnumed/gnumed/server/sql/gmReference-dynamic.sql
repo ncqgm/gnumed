@@ -2,7 +2,7 @@
 -- Project: GnuMed - service "Reference" - dynamic objects
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference-dynamic.sql,v $
--- $Id: gmReference-dynamic.sql,v 1.1 2005-11-13 17:38:40 ncq Exp $
+-- $Id: gmReference-dynamic.sql,v 1.2 2005-11-18 15:38:25 ncq Exp $
 -- license: GPL
 -- author: Karsten Hilbert
 -- ===================================================================
@@ -31,7 +31,7 @@ comment on column ref_source.source is
 -- workaround since we cannot add trigger on
 -- pg_class directly (and hence not point to
 -- it with a foreign key constraint)
-select add_x_db_fk_def ('lnk_tbl2src', 'data_table', 'reference', 'pg_class', 'relname');
+--select add_x_db_fk_def ('lnk_tbl2src', 'data_table', 'reference', 'pg_class', 'relname');
 
 comment on table lnk_tbl2src is
 	'This table links data tables to sources. Source entries may
@@ -157,11 +157,14 @@ TO GROUP "gm-public";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReference-dynamic.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmReference-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmReference-dynamic.sql,v $
--- Revision 1.1  2005-11-13 17:38:40  ncq
+-- Revision 1.2  2005-11-18 15:38:25  ncq
+-- - comment out add_x_db_fk_def() calls
+--
+-- Revision 1.1  2005/11/13 17:38:40  ncq
 -- - factor out dynamic DDL
 --
 --
