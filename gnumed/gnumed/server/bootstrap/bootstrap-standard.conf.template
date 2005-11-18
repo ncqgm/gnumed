@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.25 $
+version = $Revision: 1.26 $
 
 #----------------------------------
 [installation]
@@ -70,11 +70,11 @@ schema base directory =
 
 # the sql files to be imported for this service
 schema = $schema$
-../sql/gmconfiguration.sql
+../sql/gmConfig-static.sql
 $schema$
 
 # the PostgreSQL version necessary to run this service
-postgres version = 7.1
+postgres version = 7.3
 
 # database alias in which to register this service
 registration database = gnumed
@@ -278,7 +278,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.25  2005-11-09 10:42:47  ncq
+# Revision 1.26  2005-11-18 15:56:55  ncq
+# - gmconfiguration.sql -> gmConfig-static.sql
+#
+# Revision 1.25  2005/11/09 10:42:47  ncq
 # - be more careful with others around us: install procedural language into
 #   our database only if needed, not into template1
 #

@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -28,7 +28,7 @@ alter table audited_tables
 
 -- == service default =====================================
 -- create tables in new schema cfg.
-\i gmconfiguration.sql
+\i gmConfig-static.sql
 
 -- move over data
 insert into cfg.db select * from public.db;
@@ -451,11 +451,14 @@ drop function log_script_insertion(text, text, boolean);
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.12 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.12  2005-11-18 15:44:32  ncq
+-- Revision 1.13  2005-11-18 15:56:55  ncq
+-- - gmconfiguration.sql -> gmConfig-static.sql
+--
+-- Revision 1.12  2005/11/18 15:44:32  ncq
 -- - move configuration objects to new cfg.* schema
 -- - need to setval() sequences after moving data from public into blobs/cfg
 --   schemata since we "insert ... select ..." all columns including pk
