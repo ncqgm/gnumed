@@ -1,10 +1,10 @@
 --=====================================================================
--- GnuMed distributed database configuration tables
+-- GNUmed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.37 $
+-- $Revision: 1.38 $
 
--- structure of configuration database for GnuMed
+-- structure of configuration database for GNUmed
 -- neccessary to allow for distributed servers
 
 -- Copyright by Dr. Horst Herb
@@ -16,7 +16,10 @@
 \set ON_ERROR_STOP 1
 
 --=====================================================================
-CREATE TABLE db (
+create schema cfg authorization "gm-dbo";
+
+--=====================================================================
+CREATE TABLE cfg.db (
     id SERIAL PRIMARY KEY,
     name CHAR(35),
     port INT DEFAULT 5432,
@@ -25,139 +28,58 @@ CREATE TABLE db (
     tty text DEFAULT ''
 );
 
--- the database with id == 0 is the "default" database
-
-COMMENT ON TABLE db IS
-	'information on where to find the databases known to GnuMed';
-
-COMMENT ON COLUMN db.name IS
-	'name of the database';
-
-COMMENT ON COLUMN db.port IS
-	'port number of the server hosting the database';
-
-COMMENT ON COLUMN db.host IS
-	'host name or IP number of the server hosting the database';
-
 --=====================================================================
-CREATE TABLE distributed_db (
+CREATE TABLE cfg.distributed_db (
 	id SERIAL PRIMARY KEY,
 	name char(35)
 );
 
-COMMENT ON TABLE distributed_db IS
-	'Enumerate all known GnuMed service names. Naming new services needs approval by GnuMed administrators !';
-
--- i18N note to translators: do NOT change these values !!!
-
--- this service contains at least the basic GnuMed configuration
-INSERT INTO distributed_db(name) values('default');
-
--- this service contains all person and address related tables
--- eg. demographic and identity data
-INSERT INTO distributed_db(name) values('personalia');
-
--- this service contains patient's medical histories
-INSERT INTO distributed_db(name) values('historica');
-
--- this service provides all pharmaceutical information
--- eg. drugref.org, mainly
-INSERT INTO distributed_db(name) values('pharmaceutica');
-
--- this service provides "external" reead only information such
--- as coding (ICD) and patient education material
-INSERT INTO distributed_db(name) values('reference');
-
--- this service takes care of large (>= 2MB )binary objects
-INSERT INTO distributed_db(name) values('blobs');
-
--- this service holds all the administrative data for the
--- practice: forms queue, roster, waiting room, billing etc.
-insert into distributed_db(name) values('administrivia');
-
 --=====================================================
-CREATE TABLE config (
+CREATE TABLE cfg.config (
     id SERIAL PRIMARY KEY,
     profile CHAR(25) DEFAULT 'default',
     username CHAR(25) DEFAULT CURRENT_USER,
-    ddb INT REFERENCES distributed_db DEFAULT NULL,
-    db INT REFERENCES db,
+    ddb INT REFERENCES cfg.distributed_db(id)
+		DEFAULT NULL,
+    db INT REFERENCES cfg.db(id),
     crypt_pwd text DEFAULT NULL,
     crypt_algo text DEFAULT NULL,
     pwd_hash text DEFAULT NULL,
     hash_algo text DEFAULT NULL
 );
 
-COMMENT ON TABLE config IS
-	'maps a service name to a database location for a particular user, includes user credentials for that database';
-
-COMMENT ON COLUMN config.profile IS
-	'allows multiple profiles per user / pseudo user, one user may have different configuration profiles depending on role, need and location';
-
-COMMENT ON COLUMN config.username IS
-	'user name as used within the GnuMed system';
-
-COMMENT ON COLUMN config.ddb IS
-	'which GnuMed service are we mapping to a database here';
-
-COMMENT ON COLUMN config.db IS
-	'how to reach the database host for this service';
-
-COMMENT ON COLUMN config.crypt_pwd IS
-	'password for user and database, encrypted';
-
-COMMENT ON COLUMN config.crypt_algo IS
-	'encryption algorithm used for password encryption';
-
-COMMENT ON COLUMN config.pwd_hash IS
-	'hash of the unencrypted password';
-
-COMMENT ON COLUMN config.hash_algo IS
-	'algorithm used for password hashing';
-
 -- ======================================================
 -- generic program options storage space
 -- ======================================================
-create table cfg_type_enum (
+create table cfg.cfg_type_enum (
 	name text
 		unique
 		not null
 );
 
-comment on table cfg_type_enum is
-	'enumeration of config option data types';
-
-INSERT INTO cfg_type_enum VALUES ('string');
-INSERT INTO cfg_type_enum VALUES ('numeric');
-INSERT INTO cfg_type_enum VALUES ('str_array');
-insert into cfg_type_enum values ('data');
-
 -- ======================================================
-create table cfg_template (
-	id SERIAL PRIMARY KEY,
-	name text NOT NULL DEFAULT 'must set this !',
-	type text references cfg_type_enum (name),
-	cfg_group text not null default 'xxxDEFAULTxxx',
-	description TEXT NOT NULL DEFAULT 'programmer is an avid Camel Book Reader'
+create table cfg.cfg_template (
+	pk serial primary key,
+	name text
+		NOT NULL
+		DEFAULT 'must set this !',
+	type text
+		not null
+		references cfg.cfg_type_enum(name),
+	cfg_group text
+		not null
+		default 'xxxDEFAULTxxx',
+	description text
+		not null
+		default 'programmer is an avid Camel Book Reader'
 );
 
-comment on table cfg_template is
-	'meta definition of config items';
-comment on column cfg_template.name is
-	'the name of the option; this MUST be set to something meaningful';
-comment on column cfg_template.type is
-	'type of the value';
-comment on column cfg_template.cfg_group is
-	'just for logical grouping of options according to task sets to facilitate better config management';
-comment on column cfg_template.description is
-	'arbitrary description (user visible)';
-
 -- ======================================================
-create table cfg_item (
-	id SERIAL PRIMARY KEY,
-	id_template INTEGER
+create table cfg.cfg_item (
+	pk SERIAL PRIMARY KEY,
+	fk_template integer
 		not null
-		references cfg_template (id),
+		references cfg.cfg_template(pk),
 	owner name
 		not null
 		default CURRENT_USER,
@@ -167,85 +89,62 @@ create table cfg_item (
 	cookie text
 		not null
 		default 'xxxDEFAULTxxx',
-	unique (id_template, owner, workplace, cookie)
+	unique (fk_template, owner, workplace, cookie)
 );
 
-comment on table cfg_item is
-	'this table holds all "instances" of cfg_template';
-comment on column cfg_item.id_template is
-	'this points to the class of this option, think of this as a base object, this also defines the data type';
-comment on column cfg_item.owner is
-	'the database level user this option belongs to; this
-	 is the "role" of the user from the perspective of
-	 the database; can be "default" at the application
-	 level to indicate that it does not care';
-comment on column cfg_item.workplace is
-	'- the logical workplace this option pertains to
-	 - can be a hostname but should be a logical rather
-	   than a physical identifier as machines get moved,
-	   workplaces do not, kind of like a "role" for the
-	   machine
-	 - associate this with a physical workplace through
-	   a local config file or environment variable';
-comment on column cfg_item.cookie is
-	'an arbitrary, opaque entity the client code can use
-	 to associate this config item with even finer grained
-	 context; could be the pertinent patient ID for patient
-	 specific options';
-
 -- ======================================================
-create table cfg_string (
-	id_item integer
+create table cfg.cfg_string (
+	fk_item integer
 		not null
-		references cfg_item(id)
+		references cfg.cfg_item(pk)
 		on update cascade
 		on delete cascade,
 	value text not null
 );
 
 -- ======================================================
-create table cfg_numeric (
-	id_item integer
+create table cfg.cfg_numeric (
+	fk_item integer
 		not null
-		references cfg_item(id)
+		references cfg.cfg_item(pk)
 		on update cascade
 		on delete cascade,
 	value numeric not null
 );
 
 -- ======================================================
-create table cfg_str_array (
-	id_item integer
+create table cfg.cfg_str_array (
+	fk_item integer
 		not null
-		references cfg_item(id)
+		references cfg.cfg_item(pk)
 		on update cascade
 		on delete cascade,
 	value text[] not null
 );
 
 -- ======================================================
-create table cfg_data (
-	id_item integer
+create table cfg.cfg_data (
+	fk_item integer
 		not null
-		references cfg_item(id)
+		references cfg.cfg_item(pk)
 		on update cascade
 		on delete cascade,
 	value bytea
 		not null
 );
 
-comment on table cfg_data is
-	'stores opaque configuration data, either text or binary,
-	 note that it will be difficult to share such options
-	 among different types of clients';
-
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.37 $');
+select log_script_insertion('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.38 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.37  2005-09-19 16:38:51  ncq
+-- Revision 1.38  2005-11-18 15:36:28  ncq
+-- - cleanup, some id -> pk and foreign keys to fk_*
+-- - now store objects in schema cfg.
+-- - factor out reloadable DDL
+--
+-- Revision 1.37  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.36  2005/07/14 21:31:42  ncq
