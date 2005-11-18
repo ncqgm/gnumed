@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -151,7 +151,7 @@ class cCfgSQL:
 		where_clause = ' and '.join(where_parts)
 		cmd = """
 select vco.pk_cfg_item, vco.type
-from v_cfg_options vco
+from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
@@ -169,7 +169,7 @@ limit 1""" % where_clause
 		value_type = rows[0][1]
 
 		# retrieve value from appropriate table
-		cmd = "select value from cfg_%s where id_item=%%s limit 1" % value_type
+		cmd = "select value from cfg.cfg_%s where fk_item=%%s limit 1" % value_type
 		rows = gmPG_.run_ro_query(curs, cmd, None, item_id)
 		curs.close()
 		if rows is None:
@@ -223,7 +223,7 @@ limit 1""" % where_clause
 		where_clause = ' and '.join(where_parts)
 		cmd = """
 select vco.pk_cfg_item
-from v_cfg_options vco
+from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
@@ -293,7 +293,7 @@ limit 1""" % where_clause
 		# different type exists -> error (won't find double entry on get())
 		# get id of option template
 		curs = aRWConn.cursor()
-		cmd = "select id from cfg_template where name=%s and type=%s limit 1"
+		cmd = "select pk from cfg.cfg_template where name=%s and type=%s limit 1"
 		rows = gmPG_.run_ro_query(curs, cmd, None, option, opt_type)
 		if rows is None:
 			curs.close()
@@ -303,9 +303,9 @@ limit 1""" % where_clause
 		if len(rows) == 0:
 			# insert new template
 			queries = []
-			cmd = "insert into cfg_template (name, type) values (%s, %s)"
+			cmd = "insert into cfg.cfg_template (name, type) values (%s, %s)"
 			queries.append((cmd, [option, opt_type]))
-			cmd = "select currval('cfg_template_id_seq')"
+			cmd = "select currval('cfg.cfg_template_pk_seq')"
 			queries.append((cmd, []))
 			rows = gmPG_.run_commit(curs, queries)
 			if rows is None:
@@ -316,7 +316,7 @@ limit 1""" % where_clause
 		template_id = rows[0][0]
 
 		# set up field/value pairs
-		ins_fields = ['id_template']
+		ins_fields = ['fk_template']
 		ins_val_templates = ['%(templ_id)s']
 		ins_where_args = {}
 		if user is not None:
@@ -344,9 +344,9 @@ limit 1""" % where_clause
 			ins_val_templates_str = ', '.join(ins_val_templates)
 			ins_where_args['templ_id'] = template_id
 			queries = []
-			cmd = "insert into cfg_item (%s) values (%s)" % (ins_fields_str, ins_val_templates_str)
+			cmd = "insert into cfg.cfg_item (%s) values (%s)" % (ins_fields_str, ins_val_templates_str)
 			queries.append((cmd, [ins_where_args]))
-			cmd = "insert into cfg_%s (id_item, value)" % opt_type + " values (currval('cfg_item_id_seq'), %s)"
+			cmd = "insert into cfg.cfg_%s (fk_item, value)" % opt_type + " values (currval('cfg.cfg_item_fk_seq'), %s)"
 			queries.append((cmd, [opt_value]))
 			success = gmPG_.run_commit(curs, queries)
 			if success is None:
@@ -361,7 +361,7 @@ limit 1""" % where_clause
 				return False
 			# update option instance
 			args = {'val': opt_value, 'item_id': item_id}
-			cmd = "update cfg_%s" % opt_type + " set value=%(val)s where id_item=%(item_id)s"
+			cmd = "update cfg.cfg_%s" % opt_type + " set value=%(val)s where fk_item=%(item_id)s"
 			if gmPG_.run_query(curs, None, cmd, args) is None:
 				curs.close()
 				return False
@@ -376,7 +376,7 @@ limit 1""" % where_clause
 		"""
 		# if no workplace given: any workplace (= cfg_DEFAULT)
 		where_snippets = [
-			'cfg_template.id=cfg_item.id_template',
+			'cfg_template.pk=cfg_item.fk_template',
 			'cfg_item.workplace=%(wplace)s'
 		]
 		where_args = {'wplace': workplace}
@@ -392,7 +392,7 @@ limit 1""" % where_clause
 
 		cmd = """
 select name, cookie, owner, type, description
-from cfg_template, cfg_item
+from cfg.cfg_template, cfg.cfg_item
 where %s""" % where_clause
 
 		curs = self.conn.cursor()
@@ -437,7 +437,10 @@ where %s""" % where_clause
 			return None
 
 		# get template id, template type
-		cmd = "select id_template, type from cfg_item, cfg_template where cfg_item.id like %s and cfg_item.id_template = cfg_template.id limit 1;"
+		cmd = """
+select fk_template, type from cfg.cfg_item, cfg.cfg_template
+where cfg.cfg_item.pk = %s and cfg.cfg_item.fk_template = cfg.cfg_template.pk
+limit 1"""
 		if gmPG_.run_query(curs, None, cmd, item_id) is None:
 			curs.close()
 			return None
@@ -447,7 +450,7 @@ where %s""" % where_clause
 		# check if this is the only reference to this template
 		# if yes, delete template, too
 		# here we assume that only 
-		cmd = "select id from cfg_item where id_template like %s"
+		cmd = "select pk from cfg.cfg_item where fk_template = %s"
 		if gmPG_.run_query(curs, None, cmd, template_id) is None:
 			curs.close()
 			return None
@@ -456,15 +459,15 @@ where %s""" % where_clause
 
 		# delete option 
 		cmd = """
-		delete from cfg_%s where id_item=%s; 
-		delete from cfg_item where id='%s';""" % (template_type, item_id, item_id)
+		delete from cfg.cfg_%s where fk_item=%s;
+		delete from cfg.cfg_item where pk='%s';""" % (template_type, item_id, item_id)
 		if gmPG_.run_query(curs, None, cmd) is None:
 			curs.close()
 			return None
 
 		# delete template if last reference
 		if template_ref_count == 1:
-			cmd = "delete from cfg_template where id like %s"
+			cmd = "delete from cfg.cfg_template where pk=%s"
 			if gmPG_.run_query(curs, None, cmd, template_id) is None:
 				curs.close()
 				return None
@@ -1257,7 +1260,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.29  2005-10-10 18:05:46  ncq
+# Revision 1.30  2005-11-18 15:48:44  ncq
+# - config tables now in cfg.* schema so adjust to that
+# - also some id -> pk changes
+#
+# Revision 1.29  2005/10/10 18:05:46  ncq
 # - ignore error on failing to delete non-existant backup config
 #   file as that was way over the top behaviour
 #
