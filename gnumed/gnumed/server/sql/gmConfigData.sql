@@ -4,14 +4,29 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+-- ===================================================
+INSERT INTO cfg.distributed_db(name) values('default');
+INSERT INTO cfg.distributed_db(name) values('personalia');
+INSERT INTO cfg.distributed_db(name) values('historica');
+INSERT INTO cfg.distributed_db(name) values('pharmaceutica');
+INSERT INTO cfg.distributed_db(name) values('reference');
+INSERT INTO cfg.distributed_db(name) values('blobs');
+insert into cfg.distributed_db(name) values('administrivia');
+
+-- =============================================
+INSERT INTO cfg.cfg_type_enum VALUES ('string');
+INSERT INTO cfg.cfg_type_enum VALUES ('numeric');
+INSERT INTO cfg.cfg_type_enum VALUES ('str_array');
+insert into cfg.cfg_type_enum values ('data');
+
 -- =============================================
 -- template
-insert into cfg_template
+insert into cfg.cfg_template
 	(name, type, description)
 values (
 	'horstspace.notebook.plugin_load_order',
@@ -20,130 +35,114 @@ values (
 );
 
 -- a 'workplace' called "Librarian (0.2)"
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Librarian Release (0.2)'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Labor'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmShowLab","gmLabJournal","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz (Dokumenten)archiv
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Dokumente'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Sprechzimmer 1
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Sprechzimmer 1'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmShowLab","gmLabJournal","gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Kinderarzt
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Kinderarzt'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmVaccinationsPlugin","gmShowMedDocs","gmShowLab","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Archivbrowser
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Archivbrowser'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry"}'
 );
 
--- Arbeitsplatz KnoppixMedica CD-Nutzer
-insert into cfg_item
-	(id_template, owner, workplace)
-values (
-	currval('cfg_template_id_seq'),
-	'xxxDEFAULTxxx',
-	'KnoppixMedica'
-);
-
-insert into cfg_str_array
-	(id_item, value)
-values (
-	currval('cfg_item_id_seq'),
-	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry","gmEMRBrowserPlugin","gmEMRTextDumpPlugin","gmSingleBoxSoapPlugin","gmStikoBrowser","gmXdtViewer","gmManual","gmDemographicsEditor"}'
-);
-
 -- Arbeitsplatz Impfbrowser
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'Impfungen'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmVaccinationsPlugin","gmConfigRegistry"}'
 );
 
@@ -152,7 +151,7 @@ values (
 -- search behaviour options
 
 -- dismiss or keep previously active patient
-insert into cfg_template
+insert into cfg.cfg_template
 	(name, type, description)
 values (
 	'patient_search.always_dismiss_previous_patient',
@@ -162,24 +161,24 @@ values (
 	 if false: keep previous patient active if no new patient found'
 );
 
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'xxxDEFAULTxxx'
 );
 
 -- default to false as code hasn't been verified for true
-insert into cfg_numeric
-	(id_item, value)
+insert into cfg.cfg_numeric
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	0
 );
 
 -- reload patient data after search even if same patient
-insert into cfg_template
+insert into cfg.cfg_template
 	(name, type, description)
 values (
 	'patient_search.always_reload_new_patient',
@@ -189,30 +188,35 @@ values (
 	 if false: do not reload data if new patient matches previous one'
 );
 
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'xxxDEFAULTxxx'
 );
 
 -- default to false
-insert into cfg_numeric
-	(id_item, value)
+insert into cfg.cfg_numeric
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	0
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.18  2005-11-01 08:53:25  ncq
+-- Revision 1.19  2005-11-18 15:41:45  ncq
+-- - add data from gmconfiguration.sql
+-- - adjust for cfg.* schema usage
+-- - remove stale KnoppixMedica workplace
+--
+-- Revision 1.18  2005/11/01 08:53:25  ncq
 -- - add document viewer to 0.2 workplace plugin config
 --
 -- Revision 1.17  2005/10/30 21:37:07  ncq
