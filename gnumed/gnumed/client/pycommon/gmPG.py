@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -311,7 +311,7 @@ class ConnectionPool:
 		# is located from config DB
 		cfg_db = ConnectionPool.__ro_conns['default']
 		cursor = cfg_db.cursor()
-		cmd = "select name, host, port from db where id = %s"
+		cmd = "select name, host, port from cfg.db where pk=%s"
 		if not run_query(cursor, None, cmd, srvc_id):
 			_log.Log(gmLog.lPanic, 'cannot get login info for service [%s] with id [%s] from config database' % (service, srvc_id))
 			_log.Log(gmLog.lPanic, 'make sure your service-to-database mappings are properly configured')
@@ -358,8 +358,8 @@ class ConnectionPool:
 		# document DB version
 		cursor.execute("select version()")
 		_log.Log(gmLog.lInfo, 'service [default/config] running on [%s]' % cursor.fetchone()[0])
-		# preload all services with database id 0 (default)
-		cmd = "select name from distributed_db"
+		# preload all services with database pk 0 (default)
+		cmd = "select name from cfg.distributed_db"
 		if not run_query(cursor, None, cmd):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load service names from configuration database")
@@ -369,7 +369,7 @@ class ConnectionPool:
 
 		# establish connections to all servers we need
 		# according to configuration database
-		cmd = "select * from config where profile=%s"
+		cmd = "select * from cfg.config where profile=%s"
 		if not run_query(cursor, None, cmd, login.GetProfile()):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load user profile [%s] from database" % login.GetProfile())
@@ -379,7 +379,7 @@ class ConnectionPool:
 		# for all configuration entries that match given user and profile
 		for db in databases:
 			# - get symbolic name of distributed service
-			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
+			cursor.execute("select name from cfg.distributed_db where pk=%d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
 			# - map service name to id of real database
 			_log.Log(gmLog.lData, "mapping service [%s] to DB ID [%s]" % (service, db[dbidx['db']]))
@@ -1199,7 +1199,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.57 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.58 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1393,7 +1393,7 @@ if __name__ == "__main__":
 	print "\n\nPossible services on any gnumed system:"
 	print '-----------------------------------------'
 	cursor = db.cursor()
-	cursor.execute("select name from distributed_db")
+	cursor.execute("select name from cfg.distributed_db")
 	for service in  cursor.fetchall():
 		print service[0]
 
@@ -1401,7 +1401,7 @@ if __name__ == "__main__":
 
 	print "\nResult as dictionary\n==================\n"
 	cur = db.cursor()
-	cursor.execute("select * from db")
+	cursor.execute("select * from cfg.db")
 	d = dictResult(cursor)
 	print d
 	print "\nResult attributes\n==================\n"
@@ -1423,7 +1423,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.57  2005-10-15 18:18:19  ncq
+# Revision 1.58  2005-11-18 15:48:07  ncq
+# - adjust to config tables now living in cfg.* schema, also some id->pk
+#
+# Revision 1.57  2005/10/15 18:18:19  ncq
 # - improved query logging in case of failure or --debug
 #
 # Revision 1.56  2005/10/10 18:24:00  ncq
