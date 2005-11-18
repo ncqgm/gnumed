@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.187 2005-10-19 09:16:29 ncq Exp $
-__version__ = "$Revision: 1.187 $"
+# $Id: gmClinicalRecord.py,v 1.188 2005-11-18 15:16:15 ncq Exp $
+__version__ = "$Revision: 1.188 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -314,6 +314,18 @@ class cClinicalRecord:
 			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 		return filtered_narrative
+	#--------------------------------------------------------
+	def search_narrative_simple(self, search_term=''):
+		search_term = search_term.strip()
+		if search_term == '':
+			return False
+		cmd = """
+select * from v_narrative4search vn4s
+where
+	pk_patient = %s and
+	vn4s.narrative ~ %s"""		# case sensitive
+		rows = gmPG.run_ro_query('historica', cmd, False, self.pk_patient, search_term)
+		return rows
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -785,7 +797,7 @@ class cClinicalRecord:
 				pk_health_issue = pk_health_issue,
 				episode_name = episode_name,
 				is_open = is_open
-			)			
+			)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.pk_patient, pk_health_issue))
 			return None
@@ -1725,7 +1737,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.187  2005-10-19 09:16:29  ncq
+# Revision 1.188  2005-11-18 15:16:15  ncq
+# - add simple (non-context aware) search function
+#
+# Revision 1.187  2005/10/19 09:16:29  ncq
 # - cleanup, return to well-defined state re narrative
 #   cache rebuild, to be fixed later
 #
