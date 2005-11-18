@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -27,10 +27,43 @@ alter table audited_tables
 		set not null;
 
 -- == service default =====================================
+-- create tables in new schema cfg.
+\i gmconfiguration.sql
 
+-- move over data
+insert into cfg.db select * from public.db;
+insert into cfg.distributed_db select * from public.distributed_db;
+insert into cfg.config select * from public.config;
+insert into cfg.cfg_type_enum select * from public.cfg_type_enum;
+insert into cfg.cfg_template select * from public.cfg_template;
+insert into cfg.cfg_item select * from public.cfg_item;
+insert into cfg.cfg_string select * from public.cfg_string;
+insert into cfg.cfg_numeric select * from public.cfg_numeric;
+insert into cfg.cfg_str_array select * from public.cfg_str_array;
+insert into cfg.cfg_data select * from public.cfg_data;
+
+-- adjust sequences since we copied over the primary keys, too
+select setval('cfg.db_id_seq'::text, (select max(id) from cfg.db));
+select setval('cfg.distributed_db_id_seq'::text, (select max(id) from cfg.distributed_db));
+select setval('cfg.config_id_seq'::text, (select max(id) from cfg.config));
+select setval('cfg.cfg_template_pk_seq'::text, (select max(pk) from cfg.cfg_template));
+select setval('cfg.cfg_item_pk_seq'::text, (select max(pk) from cfg.cfg_item));
+
+-- drop old tables
+drop table public.db cascade;
+drop table public.distributed_db cascade;
+drop table public.config cascade;
+drop table public.cfg_type_enum cascade;
+drop table public.cfg_template cascade;
+drop table public.cfg_item cascade;
+drop table public.cfg_string cascade;
+drop table public.cfg_numeric cascade;
+drop table public.cfg_str_array cascade;
+drop table public.cfg_data cascade;
+
+-- add new options
 \unset ON_ERROR_STOP
--- reload patient data after search even if same patient
-insert into cfg_template
+insert into cfg.cfg_template
 	(name, type, description)
 values (
 	'patient_search.always_reload_new_patient',
@@ -40,39 +73,41 @@ values (
 	 if false: do not reload data if new patient matches previous one'
 );
 
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	currval('cfg_template_id_seq'),
+	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'xxxDEFAULTxxx'
 );
 
 -- default to false
-insert into cfg_numeric
-	(id_item, value)
+insert into cfg.cfg_numeric
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	0
 );
 \set ON_ERROR_STOP 1
 
 -- a 'workplace' called "Librarian (0.2)" --
-insert into cfg_item
-	(id_template, owner, workplace)
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
 values (
-	(select id from cfg_template where name='horstspace.notebook.plugin_load_order'),
+	(select pk from cfg.cfg_template where name='horstspace.notebook.plugin_load_order'),
 	'xxxDEFAULTxxx',
 	'Librarian Release (0.2)'
 );
 
-insert into cfg_str_array
-	(id_item, value)
+insert into cfg.cfg_str_array
+	(fk_item, value)
 values (
-	currval('cfg_item_id_seq'),
+	currval('cfg.cfg_item_pk_seq'),
 	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmConfigRegistry"}'
 );
 
+-- remove old data
+delete from cfg.cfg_item where workplace='KnoppixMedica';
 
 -- == service clinical ====================================
 
@@ -302,13 +337,19 @@ drop table last_act_episode;
 -- 1) create tables in schema "blobs"
 \i gmBlobs.sql
 
--- 2) move data from public schema
+-- move data from public schema
 insert into blobs.doc_type select * from public.doc_type;
 insert into blobs.doc_med select * from public.doc_med;
 insert into blobs.doc_obj select * from public.doc_obj;
 insert into blobs.doc_desc select * from public.doc_desc;
 
--- 3) drop tables in public schema
+-- adjust sequences
+select setval('blobs.doc_type_pk_seq'::text, (select max(pk) from blobs.doc_type));
+select setval('blobs.doc_med_id_seq'::text, (select max(id) from blobs.doc_med));
+select setval('blobs.doc_obj_id_seq'::text, (select max(id) from blobs.doc_obj));
+select setval('blobs.doc_desc_id_seq'::text, (select max(id) from blobs.doc_desc));
+
+-- drop tables in public schema
 drop table public.doc_desc cascade;
 drop table public.doc_obj cascade;
 drop table public.doc_med cascade;
@@ -410,11 +451,16 @@ drop function log_script_insertion(text, text, boolean);
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.11 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.11  2005-11-11 23:06:48  ncq
+-- Revision 1.12  2005-11-18 15:44:32  ncq
+-- - move configuration objects to new cfg.* schema
+-- - need to setval() sequences after moving data from public into blobs/cfg
+--   schemata since we "insert ... select ..." all columns including pk
+--
+-- Revision 1.11  2005/11/11 23:06:48  ncq
 -- - add is_user to doc_type and form_defs
 --
 -- Revision 1.10  2005/11/01 08:55:49  ncq
