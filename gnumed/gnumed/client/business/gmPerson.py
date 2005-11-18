@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.57 2005-11-13 15:28:06 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPerson.py,v 1.58 2005-11-18 15:16:55 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1123,11 +1123,11 @@ class cPatientSearcher_SQL:
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
-				_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % a_search_term)
+				queries.append([self.__generate_dumb_brute_query(a_search_term)])
 				return queries
 
 			# FIXME: no ',;' but neither "name name" nor "name name date"
-			_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % a_search_term)
+			queries.append([self.__generate_dumb_brute_query(a_search_term)])
 			return queries
 
 		# more than one major part (separated by ';,')
@@ -1268,6 +1268,19 @@ class cPatientSearcher_SQL:
 			return queries
 
 		return []
+	#--------------------------------------------------------
+	def __generate_dumb_brute_query(self, search_term=''):
+		fields = search_term.split()
+		where_clause = "' and vbp.title || vbp.firstnames || vbp.lastnames ~* '".join(fields)
+		query = """
+select distinct on (pk_identity) vbp.*
+from
+	v_basic_person vbp,
+	names n
+where
+	vbp.pk_identity = n.id_identity
+	and vbp.title || vbp.firstnames || vbp.lastnames ~* '%s'""" % where_clause
+		return query
 #============================================================
 # convenience functions
 #============================================================
@@ -1486,7 +1499,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.57  2005-11-13 15:28:06  ncq
+# Revision 1.58  2005-11-18 15:16:55  ncq
+# - run dumb, brute person search query on really complex search terms
+#
+# Revision 1.57  2005/11/13 15:28:06  ncq
 # - properly fix unicode problem when normalizing name search terms
 #
 # Revision 1.56  2005/10/09 12:22:54  ihaywood
