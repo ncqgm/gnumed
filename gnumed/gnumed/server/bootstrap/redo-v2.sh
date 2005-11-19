@@ -6,6 +6,10 @@ cd -
 export PYTHONPATH="${PYTHONPATH}:../../"
 
 VER="2"
+LOG="redo-v${VER}.log"
+CONF="redo-v${VER}.conf"
+
+#export GM_CORE_DB="gnumed_v${VER}_new"
 export GM_CORE_DB="gnumed_v${VER}"
 
 echo "==========================================================="
@@ -20,7 +24,10 @@ echo "country in any way."
 echo "==========================================================="
 echo "Dropping old database if there is any."
 dropdb -U gm-dbo -i $GM_CORE_DB
-rm -rf redo-v${VER}.log
+rm -rf ${LOG}
 echo "======================="
-echo "bootstrappping database"
-./bootstrap_gm_db_system.py --log-file=redo-v${VER}.log --conf-file=redo-v${VER}.conf
+echo "bootstrapping database"
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+echo "======================="
+echo "The identity hash of the database \"${GM_CORE_DB}\" is:"
+psql -d ${GM_CORE_DB} -U gm-dbo -c "select md5(gm_concat_table_structure());"
