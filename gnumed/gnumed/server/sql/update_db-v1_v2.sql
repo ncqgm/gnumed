@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -447,15 +447,23 @@ drop function calc_db_identity_hash();
 drop function log_script_insertion(text, text, boolean);
 \set ON_ERROR_STOP 1
 
+-- == cleanup debris =================================================
+-- German specific stuff
+alter table de_kvk
+	rename column straße to strasse;
+
 -- ===================================================================
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.13 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.13  2005-11-18 15:56:55  ncq
+-- Revision 1.14  2005-11-19 13:51:14  ncq
+-- - rename latin1 column straße to strasse
+--
+-- Revision 1.13  2005/11/18 15:56:55  ncq
 -- - gmconfiguration.sql -> gmConfig-static.sql
 --
 -- Revision 1.12  2005/11/18 15:44:32  ncq
