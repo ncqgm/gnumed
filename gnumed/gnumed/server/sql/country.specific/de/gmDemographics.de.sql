@@ -1,8 +1,7 @@
--- GnuMed
+-- GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
--- part of GnuMed
 -- license: GPL
 
 -- demographics tables specific for Germany
@@ -31,7 +30,7 @@ create table de_kvk (
 	Namenszuatz varchar(15),				--  0x86	1-15	Namenszusatz			ja
 	Familienname varchar(28) not null,		--  0x87	2-28	Familienname			nein
 	Geburtsdatum character(8) not null,		--  0x88	8		Geburtsdatum			nein
-	Straße varchar(28),						--  0x89	1-28	Straßenname				ja
+	Strasse varchar(28),					--  0x89	1-28	Straßenname				ja
 	Landescode  varchar(3),					--  0x8A	1-3		Wohnsitzländercode		ja
 	PLZ varchar(7) not null,				--  0x8B	4-7		Postleitzahl			nein
 	Ort varchar(23) not null,				--  0x8C	2-23	Ortsname				nein
@@ -155,11 +154,14 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.6  2005-09-19 16:38:52  ncq
+-- Revision 1.7  2005-11-19 13:51:46  ncq
+-- - straße -> strasse
+--
+-- Revision 1.6  2005/09/19 16:38:52  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.5  2005/07/14 21:31:43  ncq
