@@ -9,6 +9,7 @@ VER="2"
 LOG="update_db-v1_v${VER}.log"
 CONF="update_db-v1_v${VER}.conf"
 
+#export GM_CORE_DB="gnumed_v${VER}_cp"
 export GM_CORE_DB="gnumed_v${VER}"
 
 echo "==========================================================="
@@ -23,5 +24,8 @@ echo "Dropping target database if there is any."
 dropdb -U gm-dbo -i ${GM_CORE_DB}
 rm -rf ${LOG}
 echo "======================="
-echo "bootstrappping database"
+echo "bootstrapping database"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+echo "======================="
+echo "The identity hash of the database \"${GM_CORE_DB}\" is:"
+psql -d ${GM_CORE_DB} -U gm-dbo -c "select md5(gm_concat_table_structure());"
