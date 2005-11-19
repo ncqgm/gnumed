@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.30 2005-10-19 09:12:00 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmBusinessDBObject.py,v 1.31 2005-11-19 08:47:56 ihaywood Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -275,7 +275,7 @@ class cBusinessDBObject:
 				_log.LogException('[%s:%s]: subtable support error, no "select" for subtable [%s]' % (self.__class__.__name__, self.pk_obj, attribute), sys.exc_info(), verbose=0)
 				# FIXME: should actually fail and return appropriate error
 				pass
-		except KeyError, AttributeError:
+		except (KeyError, AttributeError):
 			# either
 			# - no subtable support (no attribute _subtable_dml_templates)
 			# - or no known subtable <attribute>
@@ -561,7 +561,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.30  2005-10-19 09:12:00  ncq
+# Revision 1.31  2005-11-19 08:47:56  ihaywood
+# tiny bugfixes
+#
+# Revision 1.30  2005/10/19 09:12:00  ncq
 # - cleanup
 #
 # Revision 1.29  2005/10/15 18:17:06  ncq

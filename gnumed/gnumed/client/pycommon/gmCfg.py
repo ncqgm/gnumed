@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -346,7 +346,7 @@ limit 1""" % where_clause
 			queries = []
 			cmd = "insert into cfg.cfg_item (%s) values (%s)" % (ins_fields_str, ins_val_templates_str)
 			queries.append((cmd, [ins_where_args]))
-			cmd = "insert into cfg.cfg_%s (fk_item, value)" % opt_type + " values (currval('cfg.cfg_item_fk_seq'), %s)"
+			cmd = "insert into cfg.cfg_%s (fk_item, value)" % opt_type + " values (currval('cfg.cfg_item_pk_seq'), %s)"
 			queries.append((cmd, [opt_value]))
 			success = gmPG_.run_commit(curs, queries)
 			if success is None:
@@ -1260,7 +1260,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.30  2005-11-18 15:48:44  ncq
+# Revision 1.31  2005-11-19 08:47:56  ihaywood
+# tiny bugfixes
+#
+# Revision 1.30  2005/11/18 15:48:44  ncq
 # - config tables now in cfg.* schema so adjust to that
 # - also some id -> pk changes
 #
