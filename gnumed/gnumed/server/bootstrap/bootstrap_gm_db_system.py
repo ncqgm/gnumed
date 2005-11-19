@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1187,7 +1187,7 @@ def ask_for_confirmation():
 		db_name = _cfg.get("database %s" % db_alias, "name")
 		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
 		srv_name = _cfg.get("server %s" % srv_alias, "name")
-		print 'part "%s" (service <%s> in <%s> (or overriden) on <%s>)' % (service, service_name, db_name, srv_name)
+		print 'part "%s" [service <%s> in <%s> (or overridden) on <%s>]' % (service, service_name, db_name, srv_name)
 	print "-------------------------------------------------------"
 	desc = _cfg.get("installation", "description")
 	if desc is not None:
@@ -1454,7 +1454,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.14  2005-11-18 15:47:16  ncq
+# Revision 1.15  2005-11-19 13:25:18  ncq
+# - some string cleanup
+#
+# Revision 1.14  2005/11/18 15:47:16  ncq
 # - need to use cfg.* schema now
 #
 # Revision 1.13  2005/11/09 14:19:01  ncq
