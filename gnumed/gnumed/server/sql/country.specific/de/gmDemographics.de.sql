@@ -1,6 +1,6 @@
 -- GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 
 -- license: GPL
 
@@ -9,6 +9,9 @@
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- ===================================================================
+create schema de_DE authorization "gm-dbo";
 
 -- set client_encoding to 'LATIN1';
 -- ===================================================================
@@ -154,11 +157,14 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.7  2005-11-19 13:51:46  ncq
+-- Revision 1.8  2005-11-25 15:06:25  ncq
+-- - create schema de_DE
+--
+-- Revision 1.7  2005/11/19 13:51:46  ncq
 -- - straße -> strasse
 --
 -- Revision 1.6  2005/09/19 16:38:52  ncq
