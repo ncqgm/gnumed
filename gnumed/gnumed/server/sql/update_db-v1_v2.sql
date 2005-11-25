@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -25,6 +25,8 @@ update audited_tables set "schema" = DEFAULT where "schema" is null;
 alter table audited_tables
 	alter column "schema"
 		set not null;
+
+-- FIXME: unique(schema, table)
 
 -- == service default =====================================
 -- create tables in new schema cfg.
@@ -110,6 +112,141 @@ values (
 delete from cfg.cfg_item where workplace='KnoppixMedica';
 
 -- == service clinical ====================================
+-- recreate tables
+\i gmclinical.sql
+
+-- move data and adjust sequences
+insert into clin.xlnk_identity select * from public.xlnk_identity;
+select setval('clin.xlnk_identity_pk_seq'::text, (select max(pk) from clin.xlnk_identity));
+
+insert into clin.clin_health_issue select * from public.clin_health_issue;
+select setval('clin.clin_health_issue_id_seq'::text, (select max(id) from clin.clin_health_issue));
+
+insert into clin.clin_episode select * from public.clin_episode;
+select setval('clin.clin_episode_pk_seq'::text, (select max(pk) from clin.episode));
+
+insert into clin.encounter_type select * from public.encounter_type;
+select setval('clin.encounter_type_pk_seq'::text, (select max(pk) from clin.encounter_type));
+
+insert into clin.clin_encounter select * from public.clin_encounter;
+select setval('clin.clin_encounter_id_seq'::text, (select max(id) from clin.clin_encounter));
+
+-- clin_root_item does not need to be moved ...
+
+insert into clin.clin_item_type select * from public.clin_item_type;
+select setval('clin._pk_seq'::text, (select max(pk) from clin.));
+
+insert into clin.lnk_type2item select * from public.lnk_type2item;
+select setval('clin.lnk_type2item_pk_seq'::text, (select max(pk) from clin.lnk_type2item));
+
+insert into clin.soap_cat_ranks select * from public.soap_cat_ranks;
+select setval('clin.soap_cat_ranks_pk_seq'::text, (select max(pk) from clin.soap_cat_ranks));
+
+insert into clin.clin_narrative select * from public.clin_narrative;
+select setval('clin.clin_narrative_pk_seq'::text, (select max(pk) from clin.clin_narrative));
+
+insert into clin.coded_narrative select * from public.coded_narrative;
+select setval('clin.coded_narrative_pk_seq'::text, (select max(pk) from clin.coded_narrative));
+
+insert into clin.hx_family_item select * from public.hx_family_item;
+select setval('clin.hx_family_item_pk_seq'::text, (select max(pk) from clin.hx_family_item));
+
+insert into clin.clin_hx_family select * from public.clin_hx_family;
+select setval('clin.clin_hx_family_pk_seq'::text, (select max(pk) from clin.clin_hx_family));
+
+insert into clin.clin_diag select * from public.clin_diag;
+select setval('clin.clin_diag_pk_seq'::text, (select max(pk) from clin.clin_diag));
+
+insert into clin.clin_aux_note select * from public.clin_aux_note;
+select setval('clin.clin_aux_note_pk_seq'::text, (select max(pk) from clin.clin_aux_note));
+
+insert into clin.vacc_indication select * from public.vacc_indication;
+select setval('clin.vacc_indication_id_seq'::text, (select max(id) from clin.vacc_indication));
+
+insert into clin.lnk_vacc_ind2code select * from public.lnk_vacc_ind2code;
+select setval('clin.lnk_vacc_ind2code_id_seq'::text, (select max(id) from clin.lnk_vacc_ind2code));
+
+insert into clin.vacc_route select * from public.vacc_route;
+select setval('clin.vacc_route_id_seq'::text, (select max(id) from clin.vacc_route));
+
+insert into clin.vaccine select * from public.vaccine;
+select setval('clin.vaccine_id_seq'::text, (select max(id) from clin.vaccine));
+
+insert into clin.lnk_vaccine2inds select * from public.lnk_vaccine2inds;
+select setval('clin.lnk_vaccine2inds_id_seq'::text, (select max(id) from clin.lnk_vaccine2inds));
+
+insert into clin.vacc_regime select * from public.vacc_regime;
+select setval('clin.vacc_regime_id_seq'::text, (select max(id) from clin.vacc_regime));
+
+insert into clin.lnk_pat2vacc_reg select * from public.lnk_pat2vacc_reg;
+select setval('clin.lnk_pat2vacc_reg_pk_seq'::text, (select max(pk) from clin.lnk_pat2vacc_reg));
+
+insert into clin.vacc_def select * from public.vacc_def;
+select setval('clin.vacc_def_id_seq'::text, (select max(id) from clin.vacc_def));
+
+insert into clin.vaccination select * from public.vaccination;
+select setval('clin.vaccination_id_seq'::text, (select max(id) from clin.vaccination));
+
+insert into clin.allergy_state select * from public.allergy_state;
+select setval('clin.allergy_state_id_seq'::text, (select max(id) from clin.allergy_state));
+
+insert into clin._enum_allergy_type select * from public._enum_allergy_type;
+select setval('clin._enum_allergy_type_id_seq'::text, (select max(id) from clin._enum_allergy_type));
+
+insert into clin.allergy select * from public.allergy;
+select setval('clin.allergy_id_seq'::text, (select max(id) from clin.allergy));
+
+insert into clin.form_instances select * from public.form_instances;
+select setval('clin.form_instances_pk_seq'::text, (select max(pk) from clin.form_instances));
+
+insert into clin.form_data select * from public.form_data;
+select setval('clin.form_data_pk_seq'::text, (select max(pk) from clin.form_data));
+
+insert into clin.clin_medication select * from public.clin_medication;
+select setval('clin.clin_medication_pk_seq'::text, (select max(pk) from clin.clin_medication));
+
+insert into clin.constituent select * from public.constituent;
+-- does not have a primary key
+--select setval('clin._pk_seq'::text, (select max(pk) from clin.));
+
+insert into clin.referral select * from public.referral;
+select setval('clin.referral_id_seq'::text, (select max(id) from clin.referral));
+
+-- drop old tables
+drop table public.xlnk_identity cascade;
+drop table public.clin_health_issue cascade;
+drop table public.clin_episode cascade;
+drop table public.last_act_episode cascade;
+drop table public.encounter_type cascade;
+drop table public.clin_encounter cascade;
+drop table public.curr_encounter cascade;
+drop table public.clin_root_item cascade;
+drop table public.clin_item_type cascade;
+drop table public.lnk_type2item cascade;
+drop table public.soap_cat_ranks cascade;
+drop table public.clin_narrative cascade;
+drop table public.coded_narrative cascade;
+drop table public.hx_family_item cascade;
+drop table public.clin_hx_family cascade;
+drop table public.clin_diag cascade;
+drop table public.clin_aux_note cascade;
+drop table public.vacc_indication cascade;
+drop table public.lnk_vacc_ind2code cascade;
+drop table public.vacc_route cascade;
+drop table public.vaccine cascade;
+drop table public.lnk_vaccine2inds cascade;
+drop table public.vacc_regime cascade;
+drop table public.lnk_pat2vacc_reg cascade;
+drop table public.vacc_def cascade;
+drop table public.vaccination cascade;
+drop table public.allergy_state cascade;
+drop table public._enum_allergy_type cascade;
+drop table public.allergy cascade;
+drop table public.form_instances cascade;
+drop table public.form_data cascade;
+drop table public.clin_medication cascade;
+drop table public.enum_confidentiality_level cascade;
+drop table public.constituent cascade;
 
 -- clin_episode ----------------------------------------
 
@@ -328,10 +465,10 @@ alter table clin_narrative
 	drop column is_aoe cascade;
 
 -- curr_encounter --
-drop table curr_encounter;
+--drop table curr_encounter;
 
 -- last_act_episode --
-drop table last_act_episode;
+--drop table last_act_episode;
 
 -- == service blobs ==================================================
 -- 1) create tables in schema "blobs"
@@ -456,11 +593,14 @@ alter table de_kvk
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.14 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.14  2005-11-19 13:51:14  ncq
+-- Revision 1.15  2005-11-25 15:05:13  ncq
+-- - start upgrading things to "clin" schema - not functional yet
+--
+-- Revision 1.14  2005/11/19 13:51:14  ncq
 -- - rename latin1 column straﬂe to strasse
 --
 -- Revision 1.13  2005/11/18 15:56:55  ncq
