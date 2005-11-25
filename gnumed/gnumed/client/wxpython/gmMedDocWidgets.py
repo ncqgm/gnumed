@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -15,6 +15,7 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxGladeWidgets import wxgScanIdxDocsPnl
 
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
@@ -33,6 +34,12 @@ wx.ID_TB_BTN_show_page = wx.NewId()
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
 		#		 we don't need any real data, so we'll just use None.
+
+#============================================================
+# FIXME: complete this
+class cScanIdxDocsPnl(wxgScanIdxMedDocsPnl):
+	def __init__(self, .....):
+		wxgScanIdxMedDocsPnl.__init__(self, .....)
 
 #============================================================
 class cDocTree(wx.TreeCtrl):
@@ -312,7 +319,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.15  2005-09-28 21:27:30  ncq
+# Revision 1.16  2005-11-25 23:02:49  ncq
+# - start scan/idx panel inheriting from wxGlade base class
+#
+# Revision 1.15  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.14  2005/09/28 15:57:48  ncq
