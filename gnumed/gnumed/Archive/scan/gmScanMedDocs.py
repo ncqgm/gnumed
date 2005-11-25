@@ -9,7 +9,7 @@ use extra toolbar with bitmap buttons for scan,save
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -213,16 +213,14 @@ class ScanPanel(wxPanel):
 		# for now we know it's bitmap
 		# FIXME: should be JPEG, perhaps ?
 		# FIXME: get extension from config file
-		tempfile.tempdir = self.scan_tmp_dir
-		tempfile.template = 'obj-'
-		fname = tempfile.mktemp('.jpg')
+		#tempfile.tempdir = self.scan_tmp_dir
+		#tempfile.template = 'obj-'
+		#fname = tempfile.mktemp('.jpg')
 		# assemble some options to pass to scanner
-		options= {}
-		options['delay'] = 5
-		print options
-		img = gmScanBackend.acquire_page(options)
-		if img is None:
-			_dlg = wxMessageDialog(
+		delay = 5
+		fname = gmScanBackend.acquire_page_into_file(filename='test.bmp',delay=5)
+		if fname is None:
+			dlg = wxMessageDialog(
 				self,
 				_('page could not be acquired. Please check the log file for details on what went wrong'),
 				_('acquiring page'),
@@ -232,8 +230,6 @@ class ScanPanel(wxPanel):
 			dlg.Destroy()
 			return None
 		else:
-			#save image file to disk
-			img.save(fname)
 			# and keep a reference
 			self.acquired_pages.append(fname)
 		# update list of pages in GUI
@@ -788,7 +784,10 @@ class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.7  2005-11-09 10:46:11  ncq
+# Revision 1.8  2005-11-25 17:31:26  shilbert
+# - cleanup
+#
+# Revision 1.7  2005/11/09 10:46:11  ncq
 # - cleanup
 #
 # Revision 1.6  2005/11/05 15:59:29  shilbert
