@@ -1,13 +1,48 @@
 -- GNUmed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Karsten Hilbert
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- ===================================================================
+comment on table audited_tables is
+	'All tables that need standard auditing must be
+	 recorded in this table. Audit triggers will be
+	 generated automatically for all tables recorded
+	 here.';
+
+comment on table audit_fields is
+	'this table holds all the fields needed for auditing';
+comment on column audit_fields.row_version is
+	'the version of the row; mainly just a count';
+comment on COLUMN audit_fields.modified_when is
+	'when has this row been committed (created/modified)';
+comment on COLUMN audit_fields.modified_by is
+	'by whom has this row been committed (created/modified)';
+
+comment on table audit_trail is
+	'Each table that needs standard auditing must have a log table inheriting
+	 from this table. Log tables have the same name with a prepended "log_".
+	 However, log_* tables shall not have constraints.';
+comment on column audit_trail.orig_version is
+	'the version of this row in the original table previous to the modification';
+comment on column audit_trail.orig_when is
+	'previous modification date in the original table';
+comment on column audit_trail.orig_by is
+	'who committed the row to the original table';
+comment on column audit_trail.orig_tableoid is
+	'the table oid of the original table, use this to identify the source table';
+comment on column audit_trail.audit_action is
+	'either "update" or "delete"';
+comment on column audit_trail.audit_when is
+	'when committed to this table for auditing';
+comment on column audit_trail.audit_by is
+	'committed to this table for auditing by whom';
 
 -- ===================================================================
 create or replace function add_table_for_audit(name, name) returns unknown as '
@@ -112,11 +147,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmAudit-dynamic.sql,v $
--- Revision 1.2  2005-10-24 19:06:51  ncq
+-- Revision 1.3  2005-11-25 15:01:05  ncq
+-- - better factor out dynamic stuff
+--
+-- Revision 1.2  2005/10/24 19:06:51  ncq
 -- - missing ";"
 -- - wrong column for pg_namespace
 --

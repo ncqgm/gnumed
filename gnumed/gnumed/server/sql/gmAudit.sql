@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -12,15 +12,13 @@
 -- ===================================================================
 create table audited_tables (
 	id serial primary key,
-	schema name default 'public',
-	table_name name unique not null
+	schema name
+		not null
+		default 'public',
+	table_name name
+		not null,
+	unique(schema, table_name)
 );
-
-comment on table audited_tables is
-	'All tables that need standard auditing must be
-	 recorded in this table. Audit triggers will be
-	 generated automatically for all tables recorded
-	 here.';
 
 -- ===================================================================
 create table audit_fields (
@@ -29,15 +27,6 @@ create table audit_fields (
 	modified_when timestamp with time zone not null default CURRENT_TIMESTAMP,
 	modified_by name not null default CURRENT_USER
 );
-
-comment on table audit_fields is
-	'this table holds all the fields needed for auditing';
-comment on column audit_fields.row_version is
-	'the version of the row; mainly just a count';
-comment on COLUMN audit_fields.modified_when is
-	'when has this row been committed (created/modified)';
-comment on COLUMN audit_fields.modified_by is
-	'by whom has this row been committed (created/modified)';
 
 -- ===================================================================
 create table audit_trail (
@@ -51,32 +40,16 @@ create table audit_trail (
 	audit_by name not null default CURRENT_USER
 );
 
-comment on table audit_trail is
-	'Each table that needs standard auditing must have a log table inheriting
-	 from this table. Log tables have the same name with a prepended "log_".
-	 However, log_* tables shall not have constraints.';
-comment on column audit_trail.orig_version is
-	'the version of this row in the original table previous to the modification';
-comment on column audit_trail.orig_when is
-	'previous modification date in the original table';
-comment on column audit_trail.orig_by is
-	'who committed the row to the original table';
-comment on column audit_trail.orig_tableoid is
-	'the table oid of the original table, use this to identify the source table';
-comment on column audit_trail.audit_action is
-	'either "update" or "delete"';
-comment on column audit_trail.audit_when is
-	'when committed to this table for auditing';
-comment on column audit_trail.audit_by is
-	'committed to this table for auditing by whom';
-
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.12 $');
+select log_script_insertion('$RCSfile: gmAudit.sql,v $', '$Revision: 1.13 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.12  2005-10-24 19:08:11  ncq
+-- Revision 1.13  2005-11-25 15:01:05  ncq
+-- - better factor out dynamic stuff
+--
+-- Revision 1.12  2005/10/24 19:08:11  ncq
 -- - re-runnables factored out
 -- - set default for audited_tables.schema to public
 --
