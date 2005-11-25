@@ -4,9 +4,9 @@
 
 import wx
 
-class gmScanIdxPanel(wx.Panel):
+class wxgScanIdxPanel(wx.Panel):
     def __init__(self, *args, **kwds):
-        # begin wxGlade: gmScanIdxPanel.__init__
+        # begin wxGlade: wxgScanIdxPanel.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.Panel.__init__(self, *args, **kwds)
         self.sizer_top_middle_staticbox = wx.StaticBox(self, -1, _("Properties"))
@@ -34,7 +34,7 @@ class gmScanIdxPanel(wx.Panel):
         # end wxGlade
 
     def __set_properties(self):
-        # begin wxGlade: gmScanIdxPanel.__set_properties
+        # begin wxGlade: wxgScanIdxPanel.__set_properties
         self.__btn_scan.SetToolTipString(_("Acquire a page from an image source. This may bring up an intermediate dialog."))
         self.__btn_scan.SetDefault()
         self.__btn_load.SetToolTipString(_("Acquire a page from the filesystem."))
@@ -49,7 +49,7 @@ class gmScanIdxPanel(wx.Panel):
         # end wxGlade
 
     def __do_layout(self):
-        # begin wxGlade: gmScanIdxPanel.__do_layout
+        # begin wxGlade: wxgScanIdxPanel.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
         sizer_btm = wx.BoxSizer(wx.HORIZONTAL)
@@ -87,6 +87,6 @@ class gmScanIdxPanel(wx.Panel):
         sizer_1.SetSizeHints(self)
         # end wxGlade
 
-# end of class gmScanIdxPanel
+# end of class wxgScanIdxPanel
 
 
