@@ -4,7 +4,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.13 $ $Date: 2005-09-22 15:38:21 $ $Author: ncq $
+-- $Revision: 1.14 $ $Date: 2005-11-25 15:07:28 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,7 +32,7 @@ create table form_job_queue (
 	pk serial primary key,
 	fk_form_instance integer
 		not null
-		references form_instances(pk),
+		references clin.form_instances(pk),
 	form bytea
 		not null,
 	fk_job_target integer
@@ -155,11 +155,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.14 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.13  2005-09-22 15:38:21  ncq
+-- Revision 1.14  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.13  2005/09/22 15:38:21  ncq
 -- - cleanup
 --
 -- Revision 1.12  2005/09/19 16:38:51  ncq

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.58 $
+-- $Revision: 1.59 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -39,7 +39,10 @@ insert into lnk_identity2ext_id (id_identity, external_id, fk_origin)
 values (currval('identity_pk_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
 
 -- only works because services are in the same database
-insert into xlnk_identity (xfk_identity, pupic)
+insert into clin.xlnk_identity (xfk_identity, pupic)
+values (currval('identity_pk_seq'), currval('identity_pk_seq'));
+
+insert into blobs.xlnk_identity (xfk_identity, pupic)
 values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 -- =============================================
@@ -66,52 +69,52 @@ insert into blobs.doc_obj (doc_id, seq_idx, comment, data) VALUES (
 -- EMR data
 
 -- put him on some vaccination schedules
-delete from lnk_pat2vacc_reg where fk_patient = currval('identity_pk_seq');
+delete from clin.lnk_pat2vacc_reg where fk_patient = currval('identity_pk_seq');
 -- tetanus
-insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
+insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	currval('identity_pk_seq'),
-	(select pk_regime from v_vacc_regimes where regime='Tetanus (SFCVC)')
+	(select pk_regime from clin.v_vacc_regimes where regime='Tetanus (SFCVC)')
 );
 -- meningococcus C
-insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
+insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	currval('identity_pk_seq'),
-	(select pk_regime from v_vacc_regimes where regime='MenC (SFCVC)')
+	(select pk_regime from clin.v_vacc_regimes where regime='MenC (SFCVC)')
 );
 -- hemophilus B
-insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
+insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	currval('identity_pk_seq'),
-	(select pk_regime from v_vacc_regimes where regime='HiB (SFCVC)')
+	(select pk_regime from clin.v_vacc_regimes where regime='HiB (SFCVC)')
 );
 
 -- health issue
-delete from clin_health_issue where
+delete from clin.clin_health_issue where
 	id_patient = currval('identity_pk_seq');
 
-insert into clin_health_issue (id_patient, description)
+insert into clin.clin_health_issue (id_patient, description)
 values (
 	currval('identity_pk_seq'),
 	'9/2000 extraterrestrial infection'
 );
 
 -- episode "knife cut"
-delete from clin_episode where pk in (
+delete from clin.clin_episode where pk in (
 	select pk_episode
-	from v_pat_episodes
+	from clin.v_pat_episodes
 	where pk_patient = currval('identity_pk_seq')
 );
 
-insert into clin_episode (
+insert into clin.clin_episode (
 	description,
 	fk_health_issue,
 	is_open
 ) values (
 	'postop infected laceration L forearm',
-	currval('clin_health_issue_id_seq'),
+	currval('clin.clin_health_issue_id_seq'),
 	'false'::boolean
 );
 
 -- encounter: first, for knife cut ------------------------------------------------
-insert into clin_encounter (
+insert into clin.clin_encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
@@ -122,7 +125,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk from encounter_type where description='in surgery'),
+	(select pk from clin.encounter_type where description='in surgery'),
 	'2000-9-17 17:13',
 	'2000-9-17 19:33',
 	'bleeding cut forearm L',
@@ -130,7 +133,7 @@ insert into clin_encounter (
 );
 
 -- subjective
-insert into clin_narrative (
+insert into clin.clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -138,8 +141,8 @@ insert into clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:16:41',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'accid cut himself left forearm -2/24 w/ dirty
 blade rescuing self from being tentacled,
 extraterrest.envir.',
@@ -147,7 +150,7 @@ extraterrest.envir.',
 );
 
 -- objective
-insert into clin_narrative (
+insert into clin.clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -155,8 +158,8 @@ insert into clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:20:59',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'left ulnar forearm; 6cm dirty laceration;
 skin/sc fat only; musc/tend not injured; no dist sens loss;
 pain/redness++; smelly secretion+; no pus',
@@ -164,7 +167,7 @@ pain/redness++; smelly secretion+; no pus',
 );
 
 -- assessment
-insert into clin_narrative (
+insert into clin.clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -172,14 +175,14 @@ insert into clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:21:19',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'contam/infected knife cut left arm, ?extraterr. vector, needs ABs/surg/blood',
 	'a'
 );
 
 -- plan
-insert into clin_narrative (
+insert into clin.clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -187,8 +190,8 @@ insert into clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:2',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'1) inflamm.screen/std ET serology
 2) debridement/loose adapt.; 10ml xylocitin sc; 00-Reprolene
 3) Pen 1.5 Mega 1-1-1
@@ -197,7 +200,7 @@ insert into clin_narrative (
 );
 
 -- diagnoses
-insert into clin_narrative (
+insert into clin.clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -205,13 +208,13 @@ insert into clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:21:19',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'?contaminated laceration L forearm',
 	'a'
 );
 
-insert into clin_diag (
+insert into clin.clin_diag (
 	fk_narrative,
 	laterality,
 	is_chronic,
@@ -219,7 +222,7 @@ insert into clin_diag (
 	is_definite,
 	clinically_relevant
 ) values (
-	currval('clin_narrative_pk_seq'),
+	currval('clin.clin_narrative_pk_seq'),
 	'l',
 	false,
 	true,
@@ -235,7 +238,7 @@ select add_coded_term (
 );
 
 -- given Td booster shot
-insert into vaccination (
+insert into clin.vaccination (
 	fk_encounter,
 	fk_episode,
 	narrative,
@@ -246,12 +249,12 @@ insert into vaccination (
 	site,
 	batch_no
 ) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'prev booster > 7 yrs',
 	currval('identity_pk_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
-	(select id from vaccine where trade_name='Tetasorbat (SFCMS)'),
+	(select id from clin.vaccine where trade_name='Tetasorbat (SFCMS)'),
 	'2000-9-17',
 	'left deltoid muscle',
 	'SFCMS#102041A#11'
@@ -259,7 +262,7 @@ insert into vaccination (
 
 
 -- blood sample drawn for screen/CRP
-insert into lab_request (
+insert into clin.lab_request (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -274,10 +277,10 @@ insert into lab_request (
 	is_pending
 ) values (
 	'2000-9-17 17:33',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'inflammation screen, possibly extraterrestrial contamination',
-	(select pk from test_org where internal_name='Enterprise Main Lab'),
+	(select pk from clin.test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
 	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'SC937-0176-CEC#15034',
@@ -289,7 +292,7 @@ insert into lab_request (
 
 -- results reported by lab
 -- leukos
-insert into test_result (
+insert into clin.test_result (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -301,9 +304,9 @@ insert into test_result (
 	material
 ) values (
 	'2000-9-17 18:17',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	(select pk from test_type where code='WBC-EML'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
+	(select pk from clin.test_type where code='WBC-EML'),
 	'9.5',
 	'Gpt/l',
 	'4.4-11.3',
@@ -311,13 +314,13 @@ insert into test_result (
 	'EDTA blood'
 );
 
-insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_pk_seq'),
-	currval('lab_request_pk_seq')
+insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
+	currval('clin.test_result_pk_seq'),
+	currval('clin.lab_request_pk_seq')
 );
 
 -- erys
-insert into test_result (
+insert into clin.test_result (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -329,9 +332,9 @@ insert into test_result (
 	material
 ) values (
 	'2000-9-17 18:17',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	(select pk from test_type where code='RBC-EML'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
+	(select pk from clin.test_type where code='RBC-EML'),
 	'4.40',
 	'Tpt/l',
 	'4.1-5.1',
@@ -339,13 +342,13 @@ insert into test_result (
 	'EDTA blood'
 );
 
-insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_pk_seq'),
-	currval('lab_request_pk_seq')
+insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
+	currval('clin.test_result_pk_seq'),
+	currval('clin.lab_request_pk_seq')
 );
 
 -- platelets
-insert into test_result (
+insert into clin.test_result (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -357,9 +360,9 @@ insert into test_result (
 	material
 ) values (
 	'2000-9-17 18:17',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	(select pk from test_type where code='PLT-EML'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
+	(select pk from clin.test_type where code='PLT-EML'),
 	'282',
 	'Gpt/l',
 	'150-450',
@@ -367,13 +370,13 @@ insert into test_result (
 	'EDTA blood'
 );
 
-insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_pk_seq'),
-	currval('lab_request_pk_seq')
+insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
+	currval('clin.test_result_pk_seq'),
+	currval('clin.lab_request_pk_seq')
 );
 
 -- CRP
-insert into test_result (
+insert into clin.test_result (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -385,9 +388,9 @@ insert into test_result (
 	material
 ) values (
 	'2000-9-17 18:23',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	(select pk from test_type where code='CRP-EML'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
+	(select pk from clin.test_type where code='CRP-EML'),
 	'17.3',
 	'mg/l',
 	'0.07-8',
@@ -395,13 +398,13 @@ insert into test_result (
 	'Serum'
 );
 
-insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_pk_seq'),
-	currval('lab_request_pk_seq')
+insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
+	currval('clin.test_result_pk_seq'),
+	currval('clin.lab_request_pk_seq')
 );
 
 -- encounter, second for knife cut ------------------------------------------
-insert into clin_encounter (
+insert into clin.clin_encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
@@ -412,7 +415,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk from encounter_type where description='in surgery'),
+	(select pk from clin.encounter_type where description='in surgery'),
 	'2000-9-18 8:13',
 	'2000-9-18 8:47',
 	'knife cut follow-up, pain/swelling',
@@ -420,7 +423,7 @@ insert into clin_encounter (
 );
 
 -- diagnoses
-insert into clin_narrative (
+insert into clin.clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
@@ -428,13 +431,13 @@ insert into clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-18 8:44:19',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'postop infected laceration L forearm',
 	'a'
 );
 
-insert into clin_diag (
+insert into clin.clin_diag (
 	fk_narrative,
 	laterality,
 	is_chronic,
@@ -442,7 +445,7 @@ insert into clin_diag (
 	is_definite,
 	clinically_relevant
 ) values (
-	currval('clin_narrative_pk_seq'),
+	currval('clin.clin_narrative_pk_seq'),
 	'l',
 	false,
 	true,
@@ -464,7 +467,7 @@ select add_coded_term (
 );
 
 -- wound infected, penicillin had been prescribed, developed urticaria
-insert into allergy (
+insert into clin.allergy (
 	fk_encounter,
 	fk_episode,
 	substance,
@@ -472,15 +475,15 @@ insert into allergy (
 	id_type,
 	narrative
 ) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'Penicillin V Stada',
 	'Penicillin',
 	1,
 	'developed urticaria/dyspnoe this morning, eg. 12h after first tablet'
 );
 
-insert into allergy_state (
+insert into clin.allergy_state (
 	fk_patient,
 	has_allergy
 ) values (
@@ -490,7 +493,7 @@ insert into allergy_state (
 
 -- =============================================
 -- family history
-insert into hx_family_item (
+insert into clin.hx_family_item (
 	name_relative,
 	dob_relative,	
 	condition,
@@ -506,23 +509,23 @@ insert into hx_family_item (
 	true
 );
 
-insert into clin_hx_family (
+insert into clin.clin_hx_family (
 	fk_encounter,
 	fk_episode,
 	soap_cat,
 	narrative,
 	fk_hx_family_item
 ) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	's',
 	'brother',
-	currval('hx_family_item_pk_seq')
+	currval('clin.hx_family_item_pk_seq')
 );
 
-insert into lnk_type2item (fk_type, fk_item) values (
-	(select pk from clin_item_type where code = 'fHx'),
-	currval('clin_root_item_pk_item_seq')
+insert into clin.lnk_type2item (fk_type, fk_item) values (
+	(select pk from clin.clin_item_type where code = 'fHx'),
+	currval('clin.clin_root_item_pk_item_seq')
 );
 
 -- =============================================
@@ -602,12 +605,14 @@ insert into blobs.doc_obj (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.58 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.59 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.58  2005-11-11 23:08:15  ncq
+-- Revision 1.59  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.58  2005/11/11 23:08:15  ncq
 -- - test_result.technically_abnormal is now abnormality_indicator
 -- - blobs live in schema blobs now
 --

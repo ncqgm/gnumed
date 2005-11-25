@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -13,11 +13,11 @@
 -- =============================================
 -- vaccination related data
 
-delete from vaccine where comment = 'Starfleet Central Medical Supplies';
+delete from clin.vaccine where comment = 'Starfleet Central Medical Supplies';
 ---------------------
 -- Tetanus vaccine --
 ---------------------
-insert into vaccine (
+insert into clin.vaccine (
 	id_route,
 	trade_name,
 	short_name,
@@ -25,7 +25,7 @@ insert into vaccine (
 	min_age,
 	comment
 ) values (
-	(select id from vacc_route where abbreviation='i.m.'),
+	(select id from clin.vacc_route where abbreviation='i.m.'),
 	'Tetasorbat (SFCMS)',
 	'Tetanus',
 	false,
@@ -34,8 +34,8 @@ insert into vaccine (
 );
 
 -- link to indications
-insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tetanus'));
+insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 
 -- FIXME: we currently assume that the services [reference]
@@ -57,64 +57,64 @@ insert into ref_source (
 	'Starfleet Central Medical Facilities, Earth'
 );
 
-delete from vacc_regime where fk_recommended_by = currval('ref_source_pk_seq');
+delete from clin.vacc_regime where fk_recommended_by = (select pk from ref_source where name_short='SFCVC');
 
 -------------
 -- Tetanus --
 -------------
 -- Impfplan definieren
-insert into vacc_regime
+insert into clin.vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
-	currval('ref_source_pk_seq'),
-	(select id from vacc_indication where description='tetanus'),
+	(select pk from ref_source where name_short='SFCVC'),
+	(select id from clin.vacc_indication where description='tetanus'),
 	'Tetanus (SFCVC)'
 );
 
 -- Impfzeitpunkte festlegen
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
 	'2 months'::interval
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	2,
 	'3 months'::interval,
 	'3 months'::interval,
 	'4 weeks'::interval
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
+	(currval('clin.vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
+	(currval('clin.vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('vacc_regime_id_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
+	(currval('clin.vacc_regime_id_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('vacc_regime_id_seq'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
+	(currval('clin.vacc_regime_id_seq'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	null,
 	'5 years'::interval,
 	'10 years'::interval,
@@ -128,39 +128,39 @@ values (
 -- HiB --
 ---------
 -- Impfplan definieren
-insert into vacc_regime
+insert into clin.vacc_regime
 	(fk_recommended_by, fk_indication, name, comment)
 values (
-	currval('ref_source_pk_seq'),
-	(select id from vacc_indication where description='haemophilus influenzae b'),
+	(select pk from ref_source where name_short='SFCVC'),
+	(select id from clin.vacc_indication where description='haemophilus influenzae b'),
 	'HiB (SFCVC)',
 	'if combined w/ pertussis vaccine (aP) use DTaP/Dt/Td regime'
 );
 
 -- Impfzeitpunkte festlegen
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
 	'2 months'::interval
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	2,
 	'4 months'::interval,
 	'4 months'::interval,
 	'4 weeks'::interval
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	3,
 	'11 months'::interval,
 	'14 months'::interval,
@@ -171,20 +171,20 @@ values (
 -- Meningokokken C --
 ---------------------
 -- Impfplan definieren
-insert into vacc_regime
+insert into clin.vacc_regime
 	(fk_recommended_by, fk_indication, name, comment)
 values (
-	currval('ref_source_pk_seq'),
-	(select id from vacc_indication where description='meningococcus C'),
+	(select pk from ref_source where name_short='SFCVC'),
+	(select id from clin.vacc_indication where description='meningococcus C'),
 	'MenC (SFCVC)',
 	'> 12 months of age, meningococcus C'
 );
 
 -- Impfzeitpunkte festlegen
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	1,
 	'12 months'::interval
 );
@@ -192,7 +192,7 @@ values (
 
 -- =============================================
 -- pathology lab
-insert into test_org
+insert into clin.test_org
 	(fk_org, fk_adm_contact, fk_med_contact, internal_name, comment)
 values (
 	99999,
@@ -206,105 +206,108 @@ values (
 
 -- tests
 -- WBC
-insert into test_type
+insert into clin.test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	'WBC-EML',
 	'leukocytes (EML)',
 	'EDTA sample',
 	'Gpt/l'
 );
 
-insert into test_type_unified (code, name)
+insert into clin.test_type_unified (code, name)
 values (
 	'WBC',
 	'leukocytes'
 );
 
-insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
+insert into clin.lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
-	currval('test_type_pk_seq'),
-	currval('test_type_unified_pk_seq')
+	currval('clin.test_type_pk_seq'),
+	currval('clin.test_type_unified_pk_seq')
 );
 
 -- RBC
-insert into test_type
+insert into clin.test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	'RBC-EML',
 	'erythrocytes (EML)',
 	'EDTA sample',
 	'Tpt/l'
 );
 
-insert into test_type_unified (code, name)
+insert into clin.test_type_unified (code, name)
 values (
 	'RBC',
 	'erythrocytes'
 );
 
-insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
+insert into clin.lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
-	currval('test_type_pk_seq'),
-	currval('test_type_unified_pk_seq')
+	currval('clin.test_type_pk_seq'),
+	currval('clin.test_type_unified_pk_seq')
 );
 
 -- PLT
-insert into test_type
+insert into clin.test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	'PLT-EML',
 	'platelets (EML)',
 	'EDTA sample',
 	'Gpt/l'
 );
 
-insert into test_type_unified (code, name)
+insert into clin.test_type_unified (code, name)
 values (
 	'PLT',
 	'platelets'
 );
 
-insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
+insert into clin.lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
-	currval('test_type_pk_seq'),
-	currval('test_type_unified_pk_seq')
+	currval('clin.test_type_pk_seq'),
+	currval('clin.test_type_unified_pk_seq')
 );
 
 -- CRP
-insert into test_type
+insert into clin.test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	'CRP-EML',
 	'C-reactive protein (EML)',
 	'blood serum',
 	'mg/l'
 );
 
-insert into test_type_unified (code, name)
+insert into clin.test_type_unified (code, name)
 values (
 	'CRP',
 	'C-reactive protein'
 );
 
-insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
+insert into clin.lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
-	currval('test_type_pk_seq'),
-	currval('test_type_unified_pk_seq')
+	currval('clin.test_type_pk_seq'),
+	currval('clin.test_type_unified_pk_seq')
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.19  2005-09-19 16:38:52  ncq
+-- Revision 1.20  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.19  2005/09/19 16:38:52  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.18  2005/07/14 21:31:43  ncq

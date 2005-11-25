@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -31,14 +31,14 @@ insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_pk_seq'), true, 'Testwoman', 'Laborata');
 
 
-delete from xlnk_identity where xfk_identity = currval('identity_pk_seq');
+--delete from clin.xlnk_identity where xfk_identity = currval('identity_pk_seq');
 
-insert into xlnk_identity (xfk_identity, pupic)
+insert into clin.xlnk_identity (xfk_identity, pupic)
 values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 
 -- encounter
-insert into clin_encounter (
+insert into clin.clin_encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
@@ -47,20 +47,20 @@ insert into clin_encounter (
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk from encounter_type where description='chart review'),
+	(select pk from clin.encounter_type where description='chart review'),
 	'first for this RFE',
 	'lab regression testing'
 );
 
 
 -- episode
-delete from clin_episode where pk in (
+delete from clin.clin_episode where pk in (
 	select pk_episode
-	from v_pat_episodes
+	from clin.v_pat_episodes
 	where pk_patient = currval('identity_pk_seq')
 );
 
-insert into clin_episode (
+insert into clin.clin_episode (
 	description,
 	fk_patient,
 	is_open
@@ -71,7 +71,7 @@ insert into clin_episode (
 );
 
 -- lab request
-insert into lab_request (
+insert into clin.lab_request (
 	fk_encounter,
 	fk_episode,
 	narrative,
@@ -81,10 +81,10 @@ insert into lab_request (
 	is_pending,
 	request_status
 ) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	currval('clin.clin_encounter_id_seq'),
+	currval('clin.clin_episode_pk_seq'),
 	'used for anonymized import regression tests',
-	(select pk from test_org where internal_name='your own practice'),
+	(select pk from clin.test_org where internal_name='your own practice'),
 	'anon: sample ID',
 	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	true,
@@ -93,11 +93,14 @@ insert into lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.19 $');
+select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.19  2005-09-22 15:42:38  ncq
+-- Revision 1.20  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.19  2005/09/22 15:42:38  ncq
 -- - remove fk_provider
 --
 -- Revision 1.18  2005/09/19 16:28:23  ncq

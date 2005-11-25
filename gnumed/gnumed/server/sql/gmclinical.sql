@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.168 $
+-- $Revision: 1.169 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -10,32 +10,25 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-create table xlnk_identity (
+create schema clin authorization "gm-dbo";
+
+-- ===================================================================
+create table clin.xlnk_identity (
 	pk serial primary key,
 	xfk_identity integer unique not null,
 	pupic text unique not null,
 	data text unique default null
-) inherits (audit_fields);
-
-select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
-select add_table_for_audit('xlnk_identity');
-
-comment on table xlnk_identity is
-	'this is the one table with the unresolved identity(pk)
-	 foreign key, all other tables in this service link to
-	 this table, depending upon circumstances one can add
-	 dblink() verification or a true FK constraint (if "personalia"
-	 is in the same database as "historica")';
+) inherits (public.audit_fields);
 
 -- ===================================================================
 -- generic EMR structure
 -- ===================================================================
 -- health issue tables
-create table clin_health_issue (
+create table clin.clin_health_issue (
 	id serial primary key,
 	id_patient integer
 		not null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	description text
@@ -53,46 +46,25 @@ create table clin_health_issue (
 		not null
 		default false,
 	unique (id_patient, description)
-) inherits (audit_fields);
-
-alter table clin_health_issue add constraint issue_name_not_empty
-	check (trim(both from description) != '');
-
-select add_table_for_audit('clin_health_issue');
+) inherits (public.audit_fields);
 
 -- FIXME: Richard also has is_operation, laterality
 
-comment on table clin_health_issue is
-	'this is pretty much what others would call "Past Medical History",
-	 eg. longer-ranging, underlying, encompassing issues with one''s
-	 health such as "mild immunodeficiency", "diabetes type 2",
-	 in Belgium it is called "problem",
-	 L.L.Weed includes lots of little things into it, we do not';
-comment on column clin_health_issue.id_patient is
- 	'id of patient this health issue relates to, should
-	 be reference but might be outside our own database';
-comment on column clin_health_issue.description is
-	'descriptive name of this health issue, may
-	 change over time as evidence increases';
-comment on column clin_health_issue.age_noted is
-	'at what age the patient acquired the condition';
-comment on column clin_health_issue.is_active is
-	'whether this health issue (problem) is active';
-comment on column clin_health_issue.clinically_relevant is
-	'whether this health issue (problem) has any clinical relevance';
+alter table clin.clin_health_issue add constraint issue_name_not_empty
+	check (trim(both from description) != '');
 
 -- ===================================================================
 -- episode related tables
-create table clin_episode (
+create table clin.clin_episode (
 	pk serial primary key,
 	fk_health_issue integer
 		default null
-		references clin_health_issue(id)
+		references clin.clin_health_issue(id)
 		on update cascade
 		on delete restrict,
 	fk_patient integer
 		default null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	description text
@@ -100,58 +72,37 @@ create table clin_episode (
 		check (trim(description) != ''),
 	is_open boolean
 		default true
-) inherits (audit_fields);
+) inherits (public.audit_fields);
 
-alter table clin_episode add constraint only_standalone_epi_has_patient
+alter table clin.clin_episode add constraint only_standalone_epi_has_patient
 	check (
 		((fk_health_issue is null) and (fk_patient is not null))
 			or
 		((fk_health_issue is not null) and (fk_patient is null))
 	);
 
-select add_table_for_audit('clin_episode');
-
-comment on table clin_episode is
-	'clinical episodes such as "Otitis media",
-	"traffic accident 7/99", "Hepatitis B"';
-comment on column clin_episode.fk_health_issue is
-	'health issue this episode belongs to';
-comment on column clin_episode.fk_patient is
-	'patient this episode belongs to,
-	 may only be set if fk_health_issue is Null
-	 thereby removing redundancy';
-comment on column clin_episode.description is
-	'description/name of this episode';
-comment on column clin_episode.is_open is
-	'whether the episode is open (eg. there is activity for it),
-	 means open in a temporal sense as in "not closed yet";
-	 only one episode can be open per health issue';
-
 -- ===================================================================
 -- encounter related tables
 -- -------------------------------------------------------------------
-create table encounter_type (
+create table clin.encounter_type (
 	pk serial primary key,
 	description text
 		unique
 		not null
 );
 
-comment on TABLE encounter_type is
-	'these are the types of encounter';
-
 -- -------------------------------------------------------------------
-create table clin_encounter (
+create table clin.clin_encounter (
 	id serial primary key,
 	fk_patient integer
 		not null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	fk_type integer
 		not null
 		default 1
-		references encounter_type(pk)
+		references clin.encounter_type(pk)
 		on update cascade
 		on delete restrict,
 	fk_location integer,
@@ -168,82 +119,34 @@ create table clin_encounter (
 	last_affirmed timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP
-) inherits (audit_fields);
-
--- remote foreign keys
-select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
-
-comment on table clin_encounter is
-	'a clinical encounter between a person and the health care system';
-comment on COLUMN clin_encounter.fk_patient is
-	'PK of subject of care, should be PUPIC, actually';
-comment on COLUMN clin_encounter.fk_type is
-	'PK of type of this encounter';
-comment on COLUMN clin_encounter.fk_location is
-	'PK of location *of care*, e.g. where the provider is at';
-comment on column clin_encounter.source_time_zone is
-	'time zone of location, used to approximate source time
-	 zone for all timestamps in this encounter';
-comment on column clin_encounter.rfe is
-	'the RFE for the encounter as related by either
-	 the patient or the provider (say, in a chart
-	 review)';
-comment on column clin_encounter.aoe is
-	'the Assessment of Encounter (eg consultation summary)
-	 as determined by the provider, may simply be a
-	 concatenation of soAp narrative, this assessment
-	 should go across all problems';
+) inherits (public.audit_fields);
 
 -- ===================================================================
 -- EMR items root with narrative aggregation
 -- -------------------------------------------------------------------
-create table clin_root_item (
+create table clin.clin_root_item (
 	pk_item serial primary key,
 	clin_when timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
 	fk_encounter integer
 		not null
-		references clin_encounter(id)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict,
 	fk_episode integer
 		not null
-		references clin_episode(pk)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict,
 	narrative text,
 	soap_cat text
 		not null
 		check(lower(soap_cat) in ('s', 'o', 'a', 'p'))
-) inherits (audit_fields);
-
-comment on TABLE clin_root_item is
-	'ancestor table for clinical items of any kind, basic
-	 unit of clinical information, do *not* store data in
-	 here directly, use child tables,
-	 contains all the clinical narrative aggregated for full
-	 text search, ancestor for all tables that want to store
-	 clinical free text';
-comment on COLUMN clin_root_item.pk_item is
-	'the primary key, not named "id" or "pk" as usual since child
-	 tables will have "id"/"pk"-named primary keys already and
-	 we would get duplicate columns while inheriting from this
-	 table';
-comment on column clin_root_item.clin_when is
-	'when this clinical item became known, can be different from
-	 when it was entered into the system (= audit_fields.modified_when)';
-comment on COLUMN clin_root_item.fk_encounter is
-	'the encounter this item belongs to';
-comment on COLUMN clin_root_item.fk_episode is
-	'the episode this item belongs to';
-comment on column clin_root_item.narrative is
-	'each clinical item by default inherits a free text field for clinical narrative';
-comment on column clin_root_item.soap_cat is
-	'each clinical item must be in one of the S, O, A, P categories';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table clin_item_type (
+create table clin.clin_item_type (
 	pk serial primary key,
 	type text
 		default 'history'
@@ -253,52 +156,30 @@ create table clin_item_type (
 		default 'Hx'
 		unique
 		not null
-) inherits (audit_fields);
-
-select add_table_for_audit('clin_item_type');
-
-comment on table clin_item_type is
-	'stores arbitrary types for tagging clinical items';
-comment on column clin_item_type.type is
-	'the full name of the item type such as "family history"';
-comment on column clin_item_type.code is
-	'shorthand for the type, eg "FHx"';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table lnk_type2item (
+create table clin.lnk_type2item (
 	pk serial primary key,
 	fk_type integer
 		not null
-		references clin_item_type(pk)
+		references clin.clin_item_type(pk)
 		on update cascade
 		on delete cascade,
 	fk_item integer
 		not null
---		references clin_root_item(pk_item)
+--		references clin.clin_root_item(pk_item)
 --		on update cascade
 --		on delete cascade
 		,
 	unique (fk_type, fk_item)
-) inherits (audit_fields);
-
-select add_table_for_audit('lnk_type2item');
-
-comment on table lnk_type2item is
-	'allow to link many-to-many between clin_root_item and clin_item_type';
--- FIXME: recheck for 8.0
-comment on column lnk_type2item.fk_item is
-	'the item this type is linked to,
-	 since PostgreSQL apparently cannot reference a value
-	 inserted from a child table (?) we must simulate
-	 referential integrity checks with a custom trigger,
-	 this, however, does not deal with update/delete
-	 cascading :-(';
+) inherits (public.audit_fields);
 
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
 -- soap cats
-create table soap_cat_ranks (
+create table clin.soap_cat_ranks (
 	pk serial primary key,
 	rank integer
 		not null
@@ -309,35 +190,25 @@ create table soap_cat_ranks (
 );
 
 -- narrative
-create table clin_narrative (
+create table clin.clin_narrative (
 	pk serial primary key,
 	unique(fk_encounter, fk_episode, narrative, soap_cat)
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table clin_narrative add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.clin_narrative add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table clin_narrative add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.clin_narrative add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table clin_narrative add constraint narrative_neither_null_nor_empty
+alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
-
-select add_table_for_audit('clin_narrative');
-
-comment on TABLE clin_narrative is
-	'Used to store clinical free text *not* associated
-	 with any other table. Used to implement a simple
-	 SOAP structure. Also other tags can be associated
-	 via link tables.';
-comment on column clin_narrative.clin_when is
-	'when did the item reach clinical reality';
 
 -- --------------------------------------------
 -- coded narrative
-create table coded_narrative (
+create table clin.coded_narrative (
 	pk serial primary key,
 	term text
 		not null
@@ -349,33 +220,20 @@ create table coded_narrative (
 		not null
 		check (trim(code) != ''),
 	unique (term, code, xfk_coding_system)
-) inherits (audit_fields);
-
-select add_table_for_audit('coded_narrative');
-select add_x_db_fk_def('coded_narrative', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
-
-comment on table coded_narrative is
-	'associates codes with text snippets
-	 which may be in use in clinical tables';
-comment on column coded_narrative.term is
-	'the text snippet that is to be coded';
-comment on column coded_narrative.code is
-	'the code in the coding system';
-comment on column coded_narrative.xfk_coding_system is
-	'the coding system used to code the text snippet';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
 -- general FH storage
-create table hx_family_item (
+create table clin.hx_family_item (
 	pk serial primary key,
 	fk_narrative_condition integer
 		default null
-		references clin_narrative(pk)
+		references clin.clin_narrative(pk)
 		on update cascade
 		on delete restrict,
 	fk_relative integer
 		default null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete set null,
 	name_relative text
@@ -394,18 +252,16 @@ create table hx_family_item (
 		default false,
 	unique (name_relative, dob_relative, condition),
 	unique (fk_relative, condition)
-) inherits (audit_fields);
+) inherits (public.audit_fields);
 
-select add_table_for_audit('hx_family_item');
-
-alter table hx_family_item add constraint link_or_know_condition
+alter table clin.hx_family_item add constraint link_or_know_condition
 	check (
 		(fk_narrative_condition is not null and condition is null)
 			or
 		(fk_narrative_condition is null and condition is not null)
 	);
 
-alter table hx_family_item add constraint link_or_know_relative
+alter table clin.hx_family_item add constraint link_or_know_relative
 	check (
 		-- from linked narrative
 		(fk_narrative_condition is not null and fk_relative is null and name_relative is null and dob_relative is null)
@@ -417,75 +273,36 @@ alter table hx_family_item add constraint link_or_know_relative
 		(fk_narrative_condition is null and fk_relative is null and name_relative is not null)
 	);
 
-comment on table hx_family_item is
-	'stores family history items independant of the patient,
-	 this is out-of-EMR so that several patients can link to it';
-comment on column hx_family_item.fk_narrative_condition is
-	'can point to a narrative item of a relative if in database';
-comment on column hx_family_item.fk_relative is
-	'foreign key to relative if in database';
-comment on column hx_family_item.name_relative is
-	'name of the relative if not in database';
-comment on column hx_family_item.dob_relative is
-	'DOB of relative if not in database';
-comment on column hx_family_item.condition is
-	'narrative holding the condition the relative suffered from,
-	 must be NULL if fk_narrative_condition is not';
-comment on column hx_family_item.age_noted is
-	'at what age the relative acquired the condition';
-comment on column hx_family_item.age_of_death is
-	'at what age the relative died';
-comment on column hx_family_item.is_cause_of_death is
-	'whether relative died of this problem, Richard
-	 suggested to allow that several times per relative';
-
-
 -- patient linked FH
-create table clin_hx_family (
+create table clin.clin_hx_family (
 	pk serial primary key,
 	fk_hx_family_item integer
 		not null
-		references hx_family_item(pk)
+		references clin.hx_family_item(pk)
 		on update cascade
 		on delete restrict
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table clin_hx_family add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.clin_hx_family add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table clin_hx_family add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.clin_hx_family add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table clin_hx_family add constraint narrative_neither_null_nor_empty
+alter table clin.clin_hx_family add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
 -- FIXME: constraint trigger has_type(fHx)
 
-select add_table_for_audit('clin_hx_family');
-
-comment on table clin_hx_family is
-	'stores family history for a given patient';
-comment on column clin_hx_family.clin_when is
-	'when the family history item became known';
-comment on column clin_hx_family.fk_encounter is
-	'encounter during which family history item became known';
-comment on column clin_hx_family.fk_episode is
-	'episode to which family history item is of importance';
-comment on column clin_hx_family.narrative is
-	'how is the afflicted person related to the patient';
-comment on column clin_hx_family.soap_cat is
-	'as usual, must be NULL if fk_narrative_condition is not but
-	 this is not enforced and only done in the view';
-
 -- --------------------------------------------
 -- patient attached diagnoses
-create table clin_diag (
+create table clin.clin_diag (
 	pk serial primary key,
 	fk_narrative integer
 		unique
 		not null
-		references clin_narrative(pk)
+		references clin.clin_narrative(pk)
 		on update cascade
 		on delete restrict,
 	laterality char
@@ -503,82 +320,50 @@ create table clin_diag (
 	clinically_relevant boolean
 		not null
 		default true
-) inherits (audit_fields);
+) inherits (public.audit_fields);
 
-alter table clin_diag add constraint if_active_then_relevant
+alter table clin.clin_diag add constraint if_active_then_relevant
 	check (
 		(is_active = false)
 			or
 		((is_active = true) and (clinically_relevant = true))
 	);
 -- not sure about that one:
---alter table clin_diag add constraint if_chronic_then_relevant
+--alter table clin.clin_diag add constraint if_chronic_then_relevant
 --	check (
 --		(is_chronic = false)
 --			or
 --		((is_chronic = true) and (clinically_relevant = true))
 --	);
 
-select add_table_for_audit('clin_diag');
-
-comment on table clin_diag is
-	'stores additional detail on those clin_narrative
-	 rows where soap_cat=a that are true diagnoses,
-	 true diagnoses DO have a code from one of the coding systems';
-comment on column clin_diag.is_chronic is
-	'whether this diagnosis is chronic, eg. no complete
-	 cure is to be expected, regardless of whether it is
-	 *active* right now (think of active/non-active phases
-	 of Multiple Sclerosis which is sure chronic)';
-comment on column clin_diag.is_active is
-	'whether diagnosis is currently active or dormant';
-comment on column clin_diag.clinically_relevant is
-	'whether this diagnosis is considered clinically
-	 relevant, eg. significant;
-	 currently active diagnoses are considered to
-	 always be relevant, while inactive ones may
-	 or may not be';
 -- --------------------------------------------
-create table clin_aux_note (
+create table clin.clin_aux_note (
 	pk serial primary key
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table clin_aux_note add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.clin_aux_note add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table clin_aux_note add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.clin_aux_note add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-
-select add_table_for_audit('clin_aux_note');
-
-comment on TABLE clin_aux_note is
-	'Other tables link to this if they need more free text fields.';
 
 -- ============================================
 -- vaccination tables
 -- ============================================
-create table vacc_indication (
+create table clin.vacc_indication (
 	id serial primary key,
 	description text unique not null
-) inherits (audit_fields);
-
-select add_table_for_audit('vacc_indication');
-select add_table_for_scoring('vacc_indication');
-
-comment on table vacc_indication is
-	'definition of indications for vaccinations';
-comment on column vacc_indication.description is
-	'description of indication, eg "Measles"';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table lnk_vacc_ind2code (
+create table clin.lnk_vacc_ind2code (
 	id serial primary key,
 	fk_indication integer
 		not null
-		references vacc_indication(id)
+		references clin.vacc_indication(id)
 		on delete cascade
 		on update cascade,
 	code text not null,
@@ -586,39 +371,21 @@ create table lnk_vacc_ind2code (
 	unique (fk_indication, code, coding_system)
 );
 
--- remote foreign keys
-select add_x_db_fk_def('lnk_vacc_ind2code', 'coding_system', 'reference', 'ref_source', 'name_short');
-
-comment on table lnk_vacc_ind2code is
-	'links vaccination indications to disease codes,
-	 useful for cross-checking whether a patient
-	 should be considered immune against a disease,
-	 multiple codes from multiple coding systems can
-	 be linked against one vaccination indication';
-
 -- --------------------------------------------
-create table vacc_route (
+create table clin.vacc_route (
 	id serial primary key,
 	abbreviation text unique not null,
 	description text unique not null
-) inherits (audit_fields);
-
-select add_table_for_audit('vacc_route');
-
-comment on table vacc_route is
-	'definition of route via which vaccine is given,
-	 currently i.m. and p.o. only but may include
-	 "via genetically engineered food" etc in the
-	 future';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
 -- maybe this table belongs into "service"
 -- "inventory"/"stock" or something one day
-create table vaccine (
+create table clin.vaccine (
 	id serial primary key,
 	id_route integer
 		not null
-		references vacc_route(id)
+		references clin.vacc_route(id)
 		default 1,
 	trade_name text unique not null,
 	short_name text not null,
@@ -632,108 +399,60 @@ create table vaccine (
 	last_batch_no text default null,
 	comment text,
 	unique (trade_name, short_name)
-) inherits (audit_fields);
-
-select add_table_for_audit('vaccine');
-
-comment on table vaccine is
-	'definition of a vaccine as available on the market';
-comment on column vaccine.id_route is
-	'route this vaccine is given';
-comment on column vaccine.trade_name is
-	'full name the vaccine is traded under';
-comment on column vaccine.short_name is
-	'common, maybe practice-specific shorthand name
-	 for referring to this vaccine';
-comment on column vaccine.is_live is
-	'whether this is a live vaccine';
-comment on column vaccine.min_age is
-	'minimum age this vaccine is licensed for';
-comment on column vaccine.max_age is
-	'maximum age this vaccine is licensed for';
-comment on column vaccine.last_batch_no is
-	'serial # of most recently used batch, for
-	 rapid data input purposes';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table lnk_vaccine2inds (
+create table clin.lnk_vaccine2inds (
 	id serial primary key,
 	fk_vaccine integer
 		not null
-		references vaccine(id)
+		references clin.vaccine(id)
 		on delete cascade
 		on update cascade,
 	fk_indication integer
 		not null
-		references vacc_indication(id)
+		references clin.vacc_indication(id)
 		on delete cascade
 		on update cascade,
 	unique (fk_vaccine, fk_indication)
 );
 
-comment on table lnk_vaccine2inds is
-	'links vaccines to their indications';
-
 -- --------------------------------------------
-create table vacc_regime (
+create table clin.vacc_regime (
 	id serial primary key,
 	name text unique not null,
 	fk_recommended_by integer,
 	fk_indication integer
 		not null
-		references vacc_indication(id)
+		references clin.vacc_indication(id)
 		on update cascade
 		on delete restrict,
 	comment text,
 	unique(fk_recommended_by, fk_indication, name)
-) inherits (audit_fields);
-
-select add_table_for_audit('vacc_regime');
-
--- remote foreign keys:
-select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'pk');
-
-comment on table vacc_regime is
-	'holds vaccination schedules/regimes/target diseases';
-comment on column vacc_regime.fk_recommended_by is
-	'organization recommending this vaccination';
-comment on column vacc_regime.fk_indication is
-	'vaccination indication this regime is targeted at';
-comment on column vacc_regime.name is
-	'regime name: schedule/disease/target bacterium...';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table lnk_pat2vacc_reg (
+create table clin.lnk_pat2vacc_reg (
 	pk serial primary key,
 	fk_patient integer
 		not null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete cascade,
 	fk_regime integer
 		not null
-		references vacc_regime(id)
+		references clin.vacc_regime(id)
 		on update cascade
 		on delete restrict,
 	unique(fk_patient, fk_regime)
-) inherits (audit_fields);
-
-select add_table_for_audit('lnk_pat2vacc_reg');
--- select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
-
-comment on table lnk_pat2vacc_reg is
-	'links patients to vaccination regimes they are actually on,
-	 this allows for per-patient selection of regimes to be
-	 followed, eg. children at different ages may be on different
-	 vaccination schedules or some people are on a schedule due
-	 to a trip abroad while most others are not';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table vacc_def (
+create table clin.vacc_def (
 	id serial primary key,
 	fk_regime integer
 		not null
-		references vacc_regime(id)
+		references clin.vacc_regime(id)
 		on delete cascade
 		on update cascade,
 	is_booster boolean
@@ -759,46 +478,22 @@ create table vacc_def (
 		),
 	comment text,
 	unique(fk_regime, seq_no)
-) inherits (audit_fields);
-
-select add_table_for_audit('vacc_def');
-
-comment on table vacc_def is
-	'defines a given vaccination event for a particular regime';
-comment on column vacc_def.fk_regime is
-	'regime to which this event belongs';
-comment on column vacc_def.is_booster is
-	'does this definition represent a booster';
-comment on column vacc_def.seq_no is
-	'sequence number for this vaccination event
-	 within a particular schedule/regime,
-	 NULL if (is_booster == true)';
-comment on column vacc_def.min_age_due is
-	'minimum age at which this shot is due';
-comment on column vacc_def.max_age_due is
-	'maximum age at which this shot is due,
-	 if max_age_due = NULL: no maximum age';
-comment on column vacc_def.min_interval is
-	'if (is_booster == true):
-		recommended interval for boostering
-	 id (is_booster == false):
-	 	minimum interval after previous vaccination,
-		NULL if seq_no == 1';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table vaccination (
+create table clin.vaccination (
 	id serial primary key,
 	-- isn't this redundant ?
 	fk_patient integer
 		not null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	fk_provider integer
 		not null,
 	fk_vaccine integer
 		not null
-		references vaccine(id)
+		references clin.vaccine(id)
 		on delete restrict
 		on update cascade,
 	site text
@@ -807,45 +502,37 @@ create table vaccination (
 		not null
 		default 'not recorded',
 	unique (fk_patient, fk_vaccine, clin_when)
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 -- Richard tells us that "refused" should go into progress note
 
-alter table vaccination add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.vaccination add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table vaccination add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.vaccination add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table vaccination alter column soap_cat set default 'p';
-
-select add_table_for_audit('vaccination');
-select add_table_for_notifies('vaccination', 'vacc');
-
-select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
-
-comment on table vaccination is
-	'holds vaccinations actually given';
+alter table clin.vaccination alter column soap_cat set default 'p';
 
 -- --------------------------------------------
 -- this table will be even larger than vaccination ...
---create table lnk_vacc2vacc_def (
+--create table clin.lnk_vacc2vacc_def (
 --	pk serial primary key,
 --	fk_vaccination integer
 --		not null
---		references vaccination(id)
+--		references clin.vaccination(id)
 --		on delete cascade
 --		on update cascade,
 --	fk_vacc_def integer
 --		not null
---		references vacc_def(id)
+--		references clin.vacc_def(id)
 --		on delete restrict
 --		on update cascade,
 --	unique (fk_vaccination, fk_vacc_def)
---) inherits (audit_fields);
+--) inherits (public.audit_fields);
 
---comment on column lnk_vacc2vacc_def.fk_vacc_def is
+--comment on column clin.lnk_vacc2vacc_def.fk_vacc_def is
 --	'the vaccination event a particular
 --	 vaccination is supposed to cover, allows to
 --	 link out-of-band vaccinations into regimes,
@@ -853,37 +540,27 @@ comment on table vaccination is
 
 -- ============================================
 -- allergies tables
-create table allergy_state (
+create table clin.allergy_state (
 	id serial primary key,
 	fk_patient integer
 		unique
 		not null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	has_allergy integer
 		default null
 		check (has_allergy in (null, -1, 0, 1))
-) inherits (audit_fields);
-
-select add_table_for_audit('allergy_state');
-
-comment on column allergy_state.has_allergy is
-	'patient allergenic state:
-	 - null: unknown, not asked, no data available
-	 - -1: unknown, asked, no data obtained
-	 - 0:  known, asked, has no known allergies
-	 - 1:  known, asked, does have allergies
-	';
+) inherits (public.audit_fields);
 
 -- --------------------------------------------
-create table _enum_allergy_type (
+create table clin._enum_allergy_type (
 	id serial primary key,
 	value text unique not null
 );
 
 -- --------------------------------------------
-create table allergy (
+create table clin.allergy (
 	id serial primary key,
 	substance text not null,
 	substance_code text default null,
@@ -892,59 +569,27 @@ create table allergy (
 	atc_code text default null,
 	id_type integer
 		not null
-		references _enum_allergy_type(id),
+		references clin._enum_allergy_type(id),
 	generic_specific boolean default false,
 	definite boolean default false
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
--- narrative provided by clin_root_item
+-- narrative provided by clin.clin_root_item
 
-alter table allergy add foreign key (fk_encounter)
-		references clin_encounter(id)
-		on update cascade
-		on delete restrict;
-alter table allergy add foreign key (fk_episode)
-		references clin_episode(pk)
-		on update cascade
-		on delete restrict;
-alter table allergy alter column soap_cat set default 'o';
-
-select add_table_for_audit('allergy');
-select add_table_for_notifies('allergy', 'allg');
-
-comment on table allergy is
-	'patient allergy details';
-comment on column allergy.substance is
-	'real-world name of substance the patient reacted to, brand name if drug';
-comment on column allergy.substance_code is
-	'data source specific opaque product code; must provide a link
-	 to a unique product/substance in the database in use; should follow
-	 the parseable convention of "<source>::<source version>::<identifier>",
-	 e.g. "MIMS::2003-1::190" for Zantac; it is left as an exercise to the
-	 application to know what to do with this information';
-comment on column allergy.generics is
-	'names of generic compounds if drug; brand names change/disappear, generic names do not';
-comment on column allergy.allergene is
-	'name of allergenic ingredient in substance if known';
-comment on column allergy.atc_code is
-	'ATC code of allergene or substance if approprate, applicable for penicilline, not so for cat fur';
-comment on column allergy.id_type is
-	'allergy/sensitivity';
-comment on column allergy.generic_specific is
-	'only meaningful for *drug*/*generic* reactions:
-	 1) true: applies to one in "generics" forming "substance",
-			  if more than one generic listed in "generics" then
-			  "allergene" *must* contain the generic in question;
-	 2) false: applies to drug class of "substance";';
-comment on column allergy.definite is
-	'true: definite, false: not definite';
-comment on column allergy.narrative is
-	'used as field "reaction"';
+alter table clin.allergy add foreign key (fk_encounter)
+	references clin.clin_encounter(id)
+	on update cascade
+	on delete restrict;
+alter table clin.allergy add foreign key (fk_episode)
+	references clin.clin_episode(pk)
+	on update cascade
+	on delete restrict;
+alter table clin.allergy alter column soap_cat set default 'o';
 
 -- ============================================
 -- form instance tables
 -- --------------------------------------------
-create table form_instances (
+create table clin.form_instances (
 	pk serial primary key,
 	fk_form_def integer
 		not null
@@ -952,71 +597,39 @@ create table form_instances (
 		on update cascade
 		on delete restrict,
 	form_name text not null
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table form_instances add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.form_instances add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table form_instances add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.form_instances add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table form_instances add constraint form_is_plan
+alter table clin.form_instances add constraint form_is_plan
 	check (soap_cat='p');
 
---select add_x_db_fk_def('form_instances', 'xfk_form_def', 'reference', 'form_defs', 'pk');
-
-select add_table_for_audit('form_instances');
-
-comment on table form_instances is
-	'instances of forms, like a log of all processed forms';
-comment on column form_instances.fk_form_def is
-	'points to the definition of this instance,
-	 this FK will fail once we start separating services,
-	 make it into a x_db_fk then';
-comment on column form_instances.form_name is
-	'a string uniquely identifying the form template,
-	 necessary for the audit trail';
-comment on column form_instances.narrative is
-	'can be used as a status field, eg. "printed", "faxed" etc.';
-
 -- --------------------------------------------
-create table form_data (
+create table clin.form_data (
 	pk serial primary key,
 	fk_instance integer
 		not null
-		references form_instances(pk)
+		references clin.form_instances(pk)
 		on update cascade
 		on delete restrict,
 	fk_form_field integer
 		not null
-		references form_fields(pk)
+		references public.form_fields(pk)
 		on update cascade
 		on delete restrict,
 	value text not null,
 	unique(fk_instance, fk_form_field)
-) inherits (audit_fields);
-
---select add_x_db_fk_def('form_data', 'xfk_form_field', 'reference', 'form_fields', 'pk');
-
-select add_table_for_audit('form_data');
-
-comment on table form_data is
-	'holds the values used in form instances, for
-	 later re-use/validation';
-comment on column form_data.fk_instance is
-	'the form instance this value was used in';
-comment on column form_data.fk_form_field is
-	'points to the definition of the field in the form
-	 which in turn defines the place holder in the
-	 template to replace with <value>';
-comment on column form_data.value is
-	'the value to replace the place holder with';
+) inherits (public.audit_fields);
 
 -- ============================================
 -- medication tables
-create table clin_medication (
+create table clin.clin_medication (
 	pk serial primary key,
 	-- administrative
 	last_prescribed date
@@ -1024,7 +637,7 @@ create table clin_medication (
 		default CURRENT_DATE,
 	fk_last_script integer
 		default null
-		references form_instances(pk)
+		references clin.form_instances(pk)
 		on update cascade
 		on delete set null,
 	discontinued date
@@ -1057,115 +670,31 @@ create table clin_medication (
 		default null,
 	is_prn boolean
 		default false
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table clin_medication add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.clin_medication add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table clin_medication add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.clin_medication add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table clin_medication add constraint medication_is_plan
+alter table clin.clin_medication add constraint medication_is_plan
 	check (soap_cat='p');
-alter table clin_medication add constraint brand_or_generic_required
+alter table clin.clin_medication add constraint brand_or_generic_required
 	check ((brandname is not null) or (generic is not null));
-alter table clin_medication add constraint prescribed_after_started
+alter table clin.clin_medication add constraint prescribed_after_started
 	check (last_prescribed >= clin_when::date);
-alter table clin_medication add constraint discontinued_after_prescribed
+alter table clin.clin_medication add constraint discontinued_after_prescribed
 	check (discontinued >= last_prescribed);
-
-select add_table_for_audit ('clin_medication');
-
-comment on table clin_medication is
-	'Representing what the patient is taking *now*, eg. a medication
-	 status (similar to vaccination status). Not a log of prescriptions.
-	 If drug was prescribed by brandname it may span several (unnamed
-	 or listed) generics. If generic substances were prescribed there
-	 would be one row per substance in this table.
-
-	- forms engine will record each script and its fields
-	- audit mechanism will record all changes to this table
-
-Note the multiple redundancy of the stored drug data.
-Applications should try in this order:
-- internal database code
-- brandname
-- ATC code
-- generic name(s) (in constituents)
-';
-comment on column clin_medication.clin_when is
-	'used as "started" column
-	 - when did patient start to take this medication
-	 - in many cases date of first prescription - but not always
-	 - for newly prescribed drugs identical to last_prescribed';
-comment on column clin_medication.narrative is
-	'used as "prescribed_for" column
-	 - use to specify intent beyond treating issue at hand';
-comment on column clin_medication.last_prescribed is
-	'date last script written for this medication';
-comment on column clin_medication.fk_last_script is
-	'link to the most recent script by which this drug
-	 was prescribed';
-comment on column clin_medication.discontinued is
-	'date at which medication was *discontinued*,
-	 note that the date when a script *expires*
-	 should be calculatable';
-comment on column clin_medication.brandname is
-	'the brand name of this drug under which it is
-	 marketed by the manufacturer';
-comment on column clin_medication.generic is
-	'the generic name of the active substance';
-comment on column clin_medication.adjuvant is
-	'free text describing adjuvants, such as "orange-flavoured" etc.';
-comment on column clin_medication.dosage_form is
-	'the form the drug is delivered in, eg liquid, cream, table, etc.';
-comment on column clin_medication.ufk_drug is
-	'the identifier for this drug in the source database,
-	 may or may not be an opaque value as regards GnuMed';
-comment on column clin_medication.drug_db is
-	'the drug database used to populate this entry';
-comment on column clin_medication.atc_code is
-	'the Anatomic Therapeutic Chemical code for this drug,
-	 used to compute possible substitutes';
-comment on column clin_medication.is_CR is
-	'Controlled Release. Some drugs are marketed under the
-	 same name although one is slow release while the other
-	 is normal release.';
-comment on column clin_medication.dosage is
-	'an array of doses describing how the drug is taken
-	 over the dosing cycle, for example:
-	  - 2 mane 2.5 nocte would be [2, 2.5], period="24 hours"
-	  - 2 one and 2.5 the next would be [2, 2.5], period="2 days"
-	  - once a week would be [1] with period="1 week"';
-comment on column clin_medication.period is
-	'the length of the dosing cycle, in hours';
-comment on column clin_medication.dosage_unit is
-	'the unit the dosages are measured in,
-	 "each" for discrete objects like tablets';
-comment on column clin_medication.directions is
-	'free text for patient/pharmacist directions,
-	 such as "with food" etc';
-comment on column clin_medication.is_prn is
-	'true if "pro re nata" (= as required)';
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
 
-create table enum_confidentiality_level (
-	id SERIAL primary key,
-	description text
-);
-
-comment on table enum_confidentiality_level is
-	'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
-
 -- ============================================
 -- Drug related tables
-
-
 
 -- --------------------------------------------
 -- IMHO this does not belong in here
@@ -1175,7 +704,7 @@ create table constituent
 	amount float not null,
 	amount_unit text not null check (amount_unit in 
 				('g', 'ml', 'mg', 'mcg', 'IU')),
-	id_drug integer not null references clin_medication (pk),
+	id_drug integer not null references clin.clin_medication (pk),
 	unique (genericname, id_drug)
 );
 
@@ -1191,20 +720,20 @@ create table referral (
 	id serial primary key,
 	fk_referee integer
 		not null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	fk_form integer
 		not null
-		references form_instances (pk) 
-) inherits (clin_root_item);
+		references clin.form_instances (pk)
+) inherits (clin.clin_root_item);
 
 alter table referral add foreign key (fk_encounter)
-		references clin_encounter(id)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
 alter table referral add foreign key (fk_episode)
-		references clin_episode(pk)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
 
@@ -1213,22 +742,21 @@ select add_table_for_audit ('referral');
 comment on table referral is 'table for referrals to defined individuals';
 comment on column referral.fk_referee is 'person to whom the referral is directed';
 comment on column referral.narrative is
-	'inherited from clin_root_item;
+	'inherited from clin.clin_root_item;
 	 stores text of referral letter';
 comment on column referral.fk_form is 'foreign key to the form instance of
 this referral.';
 
 -- =============================================
-\i gmWaitingList.sql
-
--- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.168 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.169 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.168  2005-11-11 23:06:12  ncq
+-- Revision 1.169  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.168  2005/11/11 23:06:12  ncq
 -- - typo
 --
 -- Revision 1.167  2005/09/25 17:48:23  ncq

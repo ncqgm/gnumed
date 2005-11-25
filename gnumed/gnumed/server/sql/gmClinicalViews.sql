@@ -5,11 +5,501 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.156 2005-10-26 21:33:25 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.157 2005-11-25 15:07:28 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- =============================================
+-- clin.xlnk_identity
+--select add_x_db_fk_def('clin.xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
+select add_table_for_audit('clin', 'xlnk_identity');
+
+comment on table clin.xlnk_identity is
+	'this is the one table with the unresolved identity(pk)
+	 foreign key, all other tables in this service link to
+	 this table, depending upon circumstances one can add
+	 dblink() verification or a true FK constraint (if "personalia"
+	 is in the same database as "historica")';
+
+-- clin.clin_health_issue
+select add_table_for_audit('clin', 'clin_health_issue');
+
+comment on table clin.clin_health_issue is
+	'This is pretty much what others would call "Past Medical History"
+	 or "Foundational illness", eg. longer-ranging, underlying,
+	 encompassing issues with one''s health such as "immunodeficiency",
+	 "type 2 diabetes". In Belgium it is called "problem".
+	 L.L.Weed includes lots of little things into it, we do not.';
+comment on column clin.clin_health_issue.id_patient is
+ 	'id of patient this health issue relates to, should
+	 be reference but might be outside our own database';
+comment on column clin.clin_health_issue.description is
+	'descriptive name of this health issue, may
+	 change over time as evidence increases';
+comment on column clin.clin_health_issue.age_noted is
+	'at what age the patient acquired the condition';
+comment on column clin.clin_health_issue.is_active is
+	'whether this health issue (problem) is active';
+comment on column clin.clin_health_issue.clinically_relevant is
+	'whether this health issue (problem) has any clinical relevance';
+
+-- clin.clin_episode --
+select add_table_for_audit('clin', 'clin_episode');
+
+comment on table clin.clin_episode is
+	'Clinical episodes such as "Otitis media",
+	 "traffic accident 7/99", "Hepatitis B".
+	 This covers a range of time in which
+	 activity of illness was noted for the
+	 problem clin_episode.description.';
+comment on column clin.clin_episode.fk_health_issue is
+	'health issue this episode belongs to';
+comment on column clin.clin_episode.fk_patient is
+	'patient this episode belongs to,
+	 may only be set if fk_health_issue is Null
+	 thereby removing redundancy';
+comment on column clin.clin_episode.description is
+	'description/name of this episode';
+comment on column clin.clin_episode.is_open is
+	'whether the episode is open (eg. there is activity for it),
+	 means open in a temporal sense as in "not closed yet";
+	 only one episode can be open per health issue';
+
+-- clin.encounter_type --
+comment on TABLE clin.encounter_type is
+	'these are the types of encounter';
+
+-- clin.clin_encounter --
+select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
+
+comment on table clin.clin_encounter is
+	'a clinical encounter between a person and the health care system';
+comment on COLUMN clin.clin_encounter.fk_patient is
+	'PK of subject of care, should be PUPIC, actually';
+comment on COLUMN clin.clin_encounter.fk_type is
+	'PK of type of this encounter';
+comment on COLUMN clin.clin_encounter.fk_location is
+	'PK of location *of care*, e.g. where the provider is at';
+comment on column clin.clin_encounter.source_time_zone is
+	'time zone of location, used to approximate source time
+	 zone for all timestamps in this encounter';
+comment on column clin.clin_encounter.rfe is
+	'the RFE for the encounter as related by either
+	 the patient or the provider (say, in a chart
+	 review)';
+comment on column clin.clin_encounter.aoe is
+	'the Assessment of Encounter (eg consultation summary)
+	 as determined by the provider, may simply be a
+	 concatenation of soAp narrative, this assessment
+	 should go across all problems';
+
+-- clin.clin_root_item
+comment on TABLE clin.clin_root_item is
+	'ancestor table for clinical items of any kind, basic
+	 unit of clinical information, do *not* store data in
+	 here directly, use child tables,
+	 contains all the clinical narrative aggregated for full
+	 text search, ancestor for all tables that want to store
+	 clinical free text';
+comment on COLUMN clin.clin_root_item.pk_item is
+	'the primary key, not named "id" or "pk" as usual since child
+	 tables will have "id"/"pk"-named primary keys already and
+	 we would get duplicate columns while inheriting from this
+	 table';
+comment on column clin.clin_root_item.clin_when is
+	'when this clinical item became known, can be different from
+	 when it was entered into the system (= audit_fields.modified_when)';
+comment on COLUMN clin.clin_root_item.fk_encounter is
+	'the encounter this item belongs to';
+comment on COLUMN clin.clin_root_item.fk_episode is
+	'the episode this item belongs to';
+comment on column clin.clin_root_item.narrative is
+	'each clinical item by default inherits a free text field for clinical narrative';
+comment on column clin.clin_root_item.soap_cat is
+	'each clinical item must be in one of the S, O, A, P categories';
+
+-- clin.clin_item_type --
+select add_table_for_audit('clin', 'clin_item_type');
+
+comment on table clin.clin_item_type is
+	'stores arbitrary types for tagging clinical items';
+comment on column clin.clin_item_type.type is
+	'the full name of the item type such as "family history"';
+comment on column clin.clin_item_type.code is
+	'shorthand for the type, eg "FHx"';
+
+-- clin.lnk_type2item --
+select add_table_for_audit('clin', 'lnk_type2item');
+
+comment on table clin.lnk_type2item is
+	'allow to link many-to-many between clin.clin_root_item and clin.clin_item_type';
+-- FIXME: recheck for 8.0
+comment on column clin.lnk_type2item.fk_item is
+	'the item this type is linked to,
+	 since PostgreSQL apparently cannot reference a value
+	 inserted from a child table (?) we must simulate
+	 referential integrity checks with a custom trigger,
+	 this, however, does not deal with update/delete
+	 cascading :-(';
+
+-- clin.clin_narrative
+select add_table_for_audit('clin', 'clin_narrative');
+
+comment on TABLE clin.clin_narrative is
+	'Used to store clinical free text *not* associated
+	 with any other table. Used to implement a simple
+	 SOAP structure. Also other tags can be associated
+	 via link tables.';
+comment on column clin.clin_narrative.clin_when is
+	'when did the item reach clinical reality';
+
+-- clin.coded_term
+select add_table_for_audit('clin', 'coded_narrative');
+--select add_x_db_fk_def('coded_narrative', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+
+comment on table clin.coded_narrative is
+	'associates codes with text snippets
+	 which may be in use in clinical tables';
+comment on column clin.coded_narrative.term is
+	'the text snippet that is to be coded';
+comment on column clin.coded_narrative.code is
+	'the code in the coding system';
+comment on column clin.coded_narrative.xfk_coding_system is
+	'the coding system used to code the text snippet';
+
+-- clin.hx_family_items --
+select add_table_for_audit('clin', 'hx_family_item');
+
+comment on table clin.hx_family_item is
+	'stores family history items independant of the patient,
+	 this is out-of-EMR so that several patients can link to it';
+comment on column clin.hx_family_item.fk_narrative_condition is
+	'can point to a narrative item of a relative if in database';
+comment on column clin.hx_family_item.fk_relative is
+	'foreign key to relative if in database';
+comment on column clin.hx_family_item.name_relative is
+	'name of the relative if not in database';
+comment on column clin.hx_family_item.dob_relative is
+	'DOB of relative if not in database';
+comment on column clin.hx_family_item.condition is
+	'narrative holding the condition the relative suffered from,
+	 must be NULL if fk_narrative_condition is not';
+comment on column clin.hx_family_item.age_noted is
+	'at what age the relative acquired the condition';
+comment on column clin.hx_family_item.age_of_death is
+	'at what age the relative died';
+comment on column clin.hx_family_item.is_cause_of_death is
+	'whether relative died of this problem, Richard
+	 suggested to allow that several times per relative';
+
+-- clin.clin_hx_family --
+select add_table_for_audit('clin', 'clin_hx_family');
+
+comment on table clin.clin_hx_family is
+	'stores family history for a given patient';
+comment on column clin.clin_hx_family.clin_when is
+	'when the family history item became known';
+comment on column clin.clin_hx_family.fk_encounter is
+	'encounter during which family history item became known';
+comment on column clin.clin_hx_family.fk_episode is
+	'episode to which family history item is of importance';
+comment on column clin.clin_hx_family.narrative is
+	'how is the afflicted person related to the patient';
+comment on column clin.clin_hx_family.soap_cat is
+	'as usual, must be NULL if fk_narrative_condition is not but
+	 this is not enforced and only done in the view';
+
+-- clin.clin_diag --
+select add_table_for_audit('clin', 'clin_diag');
+
+comment on table clin.clin_diag is
+	'stores additional detail on those clin.clin_narrative
+	 rows where soap_cat=a that are true diagnoses,
+	 true diagnoses DO have a code from one of the coding systems';
+comment on column clin.clin_diag.is_chronic is
+	'whether this diagnosis is chronic, eg. no complete
+	 cure is to be expected, regardless of whether it is
+	 *active* right now (think of active/non-active phases
+	 of Multiple Sclerosis which is sure chronic)';
+comment on column clin.clin_diag.is_active is
+	'whether diagnosis is currently active or dormant';
+comment on column clin.clin_diag.clinically_relevant is
+	'whether this diagnosis is considered clinically
+	 relevant, eg. significant;
+	 currently active diagnoses are considered to
+	 always be relevant, while inactive ones may
+	 or may not be';
+
+-- clin.clin_aux_note --
+select add_table_for_audit('clin', 'clin_aux_note');
+
+comment on TABLE clin.clin_aux_note is
+	'Other tables link to this if they need more free text fields.';
+
+-- vacc_indication --
+select add_table_for_audit('clin', 'vacc_indication');
+
+comment on table clin.vacc_indication is
+	'definition of indications for vaccinations';
+comment on column clin.vacc_indication.description is
+	'description of indication, eg "Measles"';
+
+-- clin.lnk_vacc_ind2code --
+--select add_x_db_fk_def('lnk_vacc_ind2code', 'coding_system', 'reference', 'ref_source', 'name_short');
+
+comment on table clin.lnk_vacc_ind2code is
+	'links vaccination indications to disease codes,
+	 useful for cross-checking whether a patient
+	 should be considered immune against a disease,
+	 multiple codes from multiple coding systems can
+	 be linked against one vaccination indication';
+
+-- vacc_route --
+select add_table_for_audit('clin', 'vacc_route');
+
+comment on table clin.vacc_route is
+	'definition of route via which vaccine is given,
+	 currently i.m. and p.o. only but may include
+	 "via genetically engineered food" etc in the
+	 future';
+
+-- vaccine --
+select add_table_for_audit('clin', 'vaccine');
+
+comment on table clin.vaccine is
+	'definition of a vaccine as available on the market';
+comment on column clin.vaccine.id_route is
+	'route this vaccine is given';
+comment on column clin.vaccine.trade_name is
+	'full name the vaccine is traded under';
+comment on column clin.vaccine.short_name is
+	'common, maybe practice-specific shorthand name
+	 for referring to this vaccine';
+comment on column clin.vaccine.is_live is
+	'whether this is a live vaccine';
+comment on column clin.vaccine.min_age is
+	'minimum age this vaccine is licensed for';
+comment on column clin.vaccine.max_age is
+	'maximum age this vaccine is licensed for';
+comment on column clin.vaccine.last_batch_no is
+	'serial # of most recently used batch, for
+	 rapid data input purposes';
+
+-- clin.lnk_vaccine2inds --
+comment on table clin.lnk_vaccine2inds is
+	'links vaccines to their indications';
+
+-- clin.vacc_regime --
+select add_table_for_audit('clin', 'vacc_regime');
+
+comment on table clin.vacc_regime is
+	'holds vaccination schedules/regimes/target diseases';
+comment on column clin.vacc_regime.fk_recommended_by is
+	'organization recommending this vaccination';
+comment on column clin.vacc_regime.fk_indication is
+	'vaccination indication this regime is targeted at';
+comment on column clin.vacc_regime.name is
+	'regime name: schedule/disease/target bacterium...';
+
+-- clin.lnk_pat2vacc_reg --
+select add_table_for_audit('clin', 'lnk_pat2vacc_reg');
+-- select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
+
+comment on table clin.lnk_pat2vacc_reg is
+	'links patients to vaccination regimes they are actually on,
+	 this allows for per-patient selection of regimes to be
+	 followed, eg. children at different ages may be on different
+	 vaccination schedules or some people are on a schedule due
+	 to a trip abroad while most others are not';
+
+-- clin.vacc_def --
+select add_table_for_audit('clin', 'vacc_def');
+
+comment on table clin.vacc_def is
+	'defines a given vaccination event for a particular regime';
+comment on column clin.vacc_def.fk_regime is
+	'regime to which this event belongs';
+comment on column clin.vacc_def.is_booster is
+	'does this definition represent a booster';
+comment on column clin.vacc_def.seq_no is
+	'sequence number for this vaccination event
+	 within a particular schedule/regime,
+	 NULL if (is_booster == true)';
+comment on column clin.vacc_def.min_age_due is
+	'minimum age at which this shot is due';
+comment on column clin.vacc_def.max_age_due is
+	'maximum age at which this shot is due,
+	 if max_age_due = NULL: no maximum age';
+comment on column clin.vacc_def.min_interval is
+	'if (is_booster == true):
+		recommended interval for boostering
+	 id (is_booster == false):
+	 	minimum interval after previous vaccination,
+		NULL if seq_no == 1';
+
+-- clin.vaccination --
+select add_table_for_audit('clin', 'vaccination');
+select add_table_for_notifies('vaccination', 'vacc');
+
+--select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
+
+comment on table clin.vaccination is
+	'holds vaccinations actually given';
+
+-- allergy_state --
+select add_table_for_audit('clin', 'allergy_state');
+
+comment on column clin.allergy_state.has_allergy is
+	'patient allergenic state:
+	 - null: unknown, not asked, no data available
+	 - -1: unknown, asked, no data obtained
+	 - 0:  known, asked, has no known allergies
+	 - 1:  known, asked, does have allergies
+	';
+
+-- allergy --
+select add_table_for_audit('clin', 'allergy');
+select add_table_for_notifies('allergy', 'allg');
+
+comment on table clin.allergy is
+	'patient allergy details';
+comment on column clin.allergy.substance is
+	'real-world name of substance the patient reacted to, brand name if drug';
+comment on column clin.allergy.substance_code is
+	'data source specific opaque product code; must provide a link
+	 to a unique product/substance in the database in use; should follow
+	 the parseable convention of "<source>::<source version>::<identifier>",
+	 e.g. "MIMS::2003-1::190" for Zantac; it is left as an exercise to the
+	 application to know what to do with this information';
+comment on column clin.allergy.generics is
+	'names of generic compounds if drug; brand names change/disappear, generic names do not';
+comment on column clin.allergy.allergene is
+	'name of allergenic ingredient in substance if known';
+comment on column clin.allergy.atc_code is
+	'ATC code of allergene or substance if approprate, applicable for penicilline, not so for cat fur';
+comment on column clin.allergy.id_type is
+	'allergy/sensitivity';
+comment on column clin.allergy.generic_specific is
+	'only meaningful for *drug*/*generic* reactions:
+	 1) true: applies to one in "generics" forming "substance",
+			  if more than one generic listed in "generics" then
+			  "allergene" *must* contain the generic in question;
+	 2) false: applies to drug class of "substance";';
+comment on column clin.allergy.definite is
+	'true: definite, false: not definite';
+comment on column clin.allergy.narrative is
+	'used as field "reaction"';
+
+-- clin.form_instances --
+--select add_x_db_fk_def('form_instances', 'xfk_form_def', 'reference', 'form_defs', 'pk');
+
+select add_table_for_audit('clin', 'form_instances');
+
+comment on table clin.form_instances is
+	'instances of forms, like a log of all processed forms';
+comment on column clin.form_instances.fk_form_def is
+	'points to the definition of this instance,
+	 this FK will fail once we start separating services,
+	 make it into a x_db_fk then';
+comment on column clin.form_instances.form_name is
+	'a string uniquely identifying the form template,
+	 necessary for the audit trail';
+comment on column clin.form_instances.narrative is
+	'can be used as a status field, eg. "printed", "faxed" etc.';
+
+-- clin.form_data --
+--select add_x_db_fk_def('form_data', 'xfk_form_field', 'reference', 'form_fields', 'pk');
+
+select add_table_for_audit('clin', 'form_data');
+
+comment on table clin.form_data is
+	'holds the values used in form instances, for
+	 later re-use/validation';
+comment on column clin.form_data.fk_instance is
+	'the form instance this value was used in';
+comment on column clin.form_data.fk_form_field is
+	'points to the definition of the field in the form
+	 which in turn defines the place holder in the
+	 template to replace with <value>';
+comment on column clin.form_data.value is
+	'the value to replace the place holder with';
+
+-- clin.clin_medication --
+select add_table_for_audit('clin', 'clin_medication');
+
+comment on table clin.clin_medication is
+	'Representing what the patient is taking *now*, eg. a medication
+	 status (similar to vaccination status). Not a log of prescriptions.
+	 If drug was prescribed by brandname it may span several (unnamed
+	 or listed) generics. If generic substances were prescribed there
+	 would be one row per substance in this table.
+
+	- forms engine will record each script and its fields
+	- audit mechanism will record all changes to this table
+
+Note the multiple redundancy of the stored drug data.
+Applications should try in this order:
+- internal database code
+- brandname
+- ATC code
+- generic name(s) (in constituents)
+';
+comment on column clin.clin_medication.clin_when is
+	'used as "started" column
+	 - when did patient start to take this medication
+	 - in many cases date of first prescription - but not always
+	 - for newly prescribed drugs identical to last_prescribed';
+comment on column clin.clin_medication.narrative is
+	'used as "prescribed_for" column
+	 - use to specify intent beyond treating issue at hand';
+comment on column clin.clin_medication.last_prescribed is
+	'date last script written for this medication';
+comment on column clin.clin_medication.fk_last_script is
+	'link to the most recent script by which this drug
+	 was prescribed';
+comment on column clin.clin_medication.discontinued is
+	'date at which medication was *discontinued*,
+	 note that the date when a script *expires*
+	 should be calculatable';
+comment on column clin.clin_medication.brandname is
+	'the brand name of this drug under which it is
+	 marketed by the manufacturer';
+comment on column clin.clin_medication.generic is
+	'the generic name of the active substance';
+comment on column clin.clin_medication.adjuvant is
+	'free text describing adjuvants, such as "orange-flavoured" etc.';
+comment on column clin.clin_medication.dosage_form is
+	'the form the drug is delivered in, eg liquid, cream, table, etc.';
+comment on column clin.clin_medication.ufk_drug is
+	'the identifier for this drug in the source database,
+	 may or may not be an opaque value as regards GnuMed';
+comment on column clin.clin_medication.drug_db is
+	'the drug database used to populate this entry';
+comment on column clin.clin_medication.atc_code is
+	'the Anatomic Therapeutic Chemical code for this drug,
+	 used to compute possible substitutes';
+comment on column clin.clin_medication.is_CR is
+	'Controlled Release. Some drugs are marketed under the
+	 same name although one is slow release while the other
+	 is normal release.';
+comment on column clin.clin_medication.dosage is
+	'an array of doses describing how the drug is taken
+	 over the dosing cycle, for example:
+	  - 2 mane 2.5 nocte would be [2, 2.5], period="24 hours"
+	  - 2 one and 2.5 the next would be [2, 2.5], period="2 days"
+	  - once a week would be [1] with period="1 week"';
+comment on column clin.clin_medication.period is
+	'the length of the dosing cycle, in hours';
+comment on column clin.clin_medication.dosage_unit is
+	'the unit the dosages are measured in,
+	 "each" for discrete objects like tablets';
+comment on column clin.clin_medication.directions is
+	'free text for patient/pharmacist directions,
+	 such as "with food" etc';
+comment on column clin.clin_medication.is_prn is
+	'true if "pro re nata" (= as required)';
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -45,36 +535,36 @@ drop index idx_lreq_episode;
 
 \set ON_ERROR_STOP 1
 
--- clin_root_item & children indices
-create index idx_cri_encounter on clin_root_item(fk_encounter);
-create index idx_cri_episode on clin_root_item(fk_episode);
+-- clin.clin_root_item & children indices
+create index idx_cri_encounter on clin.clin_root_item(fk_encounter);
+create index idx_cri_episode on clin.clin_root_item(fk_episode);
 
-create index idx_clnarr_encounter on clin_narrative(fk_encounter);
-create index idx_clnarr_episode on clin_narrative(fk_episode);
+create index idx_clnarr_encounter on clin.clin_narrative(fk_encounter);
+create index idx_clnarr_episode on clin.clin_narrative(fk_episode);
 
-create index idx_clanote_encounter on clin_aux_note(fk_encounter);
-create index idx_clanote_episode on clin_aux_note(fk_episode);
+create index idx_clanote_encounter on clin.clin_aux_note(fk_encounter);
+create index idx_clanote_episode on clin.clin_aux_note(fk_episode);
 
-create index idx_vacc_encounter on vaccination(fk_encounter);
-create index idx_vacc_episode on vaccination(fk_episode);
+create index idx_vacc_encounter on clin.vaccination(fk_encounter);
+create index idx_vacc_episode on clin.vaccination(fk_episode);
 
-create index idx_allg_encounter on allergy(fk_encounter);
-create index idx_allg_episode on allergy(fk_episode);
+create index idx_allg_encounter on clin.allergy(fk_encounter);
+create index idx_allg_episode on clin.allergy(fk_episode);
 
-create index idx_formi_encounter on form_instances(fk_encounter);
-create index idx_formi_episode on form_instances(fk_episode);
+create index idx_formi_encounter on clin.form_instances(fk_encounter);
+create index idx_formi_episode on clin.form_instances(fk_episode);
 
-create index idx_cmeds_encounter on clin_medication(fk_encounter);
-create index idx_cmeds_episode on clin_medication(fk_episode);
+create index idx_cmeds_encounter on clin.clin_medication(fk_encounter);
+create index idx_cmeds_episode on clin.clin_medication(fk_episode);
 
 create index idx_ref_encounter on referral(fk_encounter);
 create index idx_ref_episode on referral(fk_episode);
 
-create index idx_tres_encounter on test_result(fk_encounter);
-create index idx_tres_episode on test_result(fk_episode);
+create index idx_tres_encounter on clin.test_result(fk_encounter);
+create index idx_tres_episode on clin.test_result(fk_episode);
 
-create index idx_lreq_encounter on lab_request(fk_encounter);
-create index idx_lreq_episode on lab_request(fk_episode);
+create index idx_lreq_encounter on clin.lab_request(fk_encounter);
+create index idx_lreq_episode on clin.lab_request(fk_episode);
 
 -- =============================================
 -- narrative
@@ -86,19 +576,19 @@ drop index idx_narr_o;
 drop index idx_narr_a;
 drop index idx_narr_p;
 
-create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='s';
-create index idx_narr_o on clin_narrative(soap_cat) where soap_cat='o';
-create index idx_narr_a on clin_narrative(soap_cat) where soap_cat='a';
-create index idx_narr_p on clin_narrative(soap_cat) where soap_cat='p';
+create index idx_narr_s on clin.clin_narrative(soap_cat) where soap_cat='s';
+create index idx_narr_o on clin.clin_narrative(soap_cat) where soap_cat='o';
+create index idx_narr_a on clin.clin_narrative(soap_cat) where soap_cat='a';
+create index idx_narr_p on clin.clin_narrative(soap_cat) where soap_cat='p';
 
 \set ON_ERROR_STOP 1
 
-create index idx_narr_soap on clin_narrative(soap_cat);
+create index idx_narr_soap on clin.clin_narrative(soap_cat);
 
--- clin_medication
+-- clin.clin_medication
 \unset ON_ERROR_STOP
 drop index idx_clin_medication;
-create index idx_clin_medication on clin_medication(discontinued) where discontinued is not null;
+create index idx_clin_medication on clin.clin_medication(discontinued) where discontinued is not null;
 \set ON_ERROR_STOP 1
 
 -- =============================================
@@ -108,14 +598,14 @@ create index idx_clin_medication on clin_medication(discontinued) where disconti
 \unset ON_ERROR_STOP
 drop index idx_episode_issue;
 drop index idx_episode_valid_issue;
-create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not null;
+create index idx_episode_valid_issue on clin.clin_episode(fk_health_issue) where fk_health_issue is not null;
 \set ON_ERROR_STOP 1
-create index idx_episode_issue on clin_episode(fk_health_issue);
+create index idx_episode_issue on clin.clin_episode(fk_health_issue);
 
 \unset ON_ERROR_STOP
 drop index idx_uniq_open_epi_per_issue;
 \set ON_ERROR_STOP 1
-create unique index idx_uniq_open_epi_per_issue on clin_episode(is_open, fk_health_issue) where fk_health_issue is not null and is_open;
+create unique index idx_uniq_open_epi_per_issue on clin.clin_episode(is_open, fk_health_issue) where fk_health_issue is not null and is_open;
 
 
 \unset ON_ERROR_STOP
@@ -132,7 +622,7 @@ begin
 		if OLD.fk_patient is null then
 			-- get it from attached health issue
 			select into patient_id id_patient
-				from clin_health_issue
+				from clin.clin_health_issue
 				where id = OLD.fk_health_issue;
 		else
 			patient_id := OLD.fk_patient;
@@ -142,7 +632,7 @@ begin
 		if NEW.fk_patient is null then
 			-- get it from attached health issue
 			select into patient_id id_patient
-				from clin_health_issue
+				from clin.clin_health_issue
 				where id = NEW.fk_health_issue;
 		else
 			patient_id := NEW.fk_patient;
@@ -156,16 +646,16 @@ end;
 
 create trigger tr_episode_mod
 	after insert or delete or update
-	on clin_episode
+	on clin.clin_episode
 	for each row
 		execute procedure trf_announce_episode_mod()
 ;
 
 \unset ON_ERROR_STOP
-drop view v_pat_episodes cascade;
+drop view clin.v_pat_episodes cascade;
 \set ON_ERROR_STOP 1
 
-create view v_pat_episodes as
+create view clin.v_pat_episodes as
 select
 	cep.fk_patient as pk_patient,
 	cep.description as description,
@@ -179,7 +669,7 @@ select
 	cep.modified_by as episode_modified_by,
 	cep.xmin as xmin_clin_episode
 from
-	clin_episode cep
+	clin.clin_episode cep
 where
 	cep.fk_health_issue is null
 
@@ -198,7 +688,7 @@ select
 	cep.modified_by as episode_modified_by,
 	cep.xmin as xmin_clin_episode
 from
-	clin_episode cep, clin_health_issue chi
+	clin.clin_episode cep, clin.clin_health_issue chi
 where
 	-- this should exclude all (fk_health_issue is Null) ?
 	cep.fk_health_issue=chi.id
@@ -207,10 +697,10 @@ where
 -- =============================================
 -- clin_root_item stuff
 \unset ON_ERROR_STOP
-drop function f_announce_clin_item_mod() cascade;
+drop function clin.f_announce_clin_item_mod() cascade;
 \set ON_ERROR_STOP 1
 
-create function F_announce_clin_item_mod() returns opaque as '
+create function clin.f_announce_clin_item_mod() returns opaque as '
 declare
 	episode_id integer;
 	patient_id integer;
@@ -223,7 +713,7 @@ begin
 	end if;
 	-- track back to patient ID
 	select into patient_id pk_patient
-		from v_pat_episodes vpep
+		from clin.v_pat_episodes vpep
 		where vpep.pk_episode = episode_id
 		limit 1;
 	-- now, execute() the NOTIFY
@@ -234,19 +724,19 @@ end;
 
 create trigger TR_clin_item_mod
 	after insert or delete or update
-	on clin_root_item
+	on clin.clin_root_item
 	for each row
-		execute procedure f_announce_clin_item_mod()
+		execute procedure clin.f_announce_clin_item_mod()
 ;
 
 -- ---------------------------------------------
 -- protect from direct inserts/updates/deletes which the
 -- inheritance system can't handle properly
 \unset ON_ERROR_STOP
-drop function f_protect_clin_root_item() cascade;
+drop function clin.f_protect_clin_root_item() cascade;
 \set ON_ERROR_STOP 1
 
-create function f_protect_clin_root_item() returns opaque as '
+create function clin.f_protect_clin_root_item() returns opaque as '
 begin
 	raise exception ''INSERT/DELETE on <clin_root_item> not allowed.'';
 	return NULL;
@@ -254,15 +744,15 @@ end;
 ' language 'plpgsql';
 
 create rule clin_ritem_no_ins as
-	on insert to clin_root_item
-	do instead select f_protect_clin_root_item();
+	on insert to clin.clin_root_item
+	do instead select clin.f_protect_clin_root_item();
 
 create rule clin_ritem_no_del as
-	on delete to clin_root_item
-	do instead select f_protect_clin_root_item();
+	on delete to clin.clin_root_item
+	do instead select clin.f_protect_clin_root_item();
 
 -- ---------------------------------------------
-create view v_pat_items as
+create view clin.v_pat_items as
 select
 	extract(epoch from cri.clin_when) as age,
 	cri.modified_when as modified_when,
@@ -281,8 +771,8 @@ select
 	cri.narrative as narrative,
 	pgc.relname as src_table
 from
-	clin_root_item cri,
-	v_pat_episodes vpep,
+	clin.clin_root_item cri,
+	clin.v_pat_episodes vpep,
 	pg_class pgc
 where
 	vpep.pk_episode=cri.fk_episode
@@ -296,10 +786,10 @@ order by
 -- measurements stuff
 
 \unset ON_ERROR_STOP
-drop view v_test_type_unified cascade;
+drop view clin.v_test_type_unified cascade;
 \set ON_ERROR_STOP 1
 
-create view v_test_type_unified as
+create view clin.v_test_type_unified as
 select
 	ttu.pk as pk_test_type_unified,
 	ltt2ut.fk_test_type as pk_test_type,
@@ -309,16 +799,16 @@ select
 	ttu.comment as comment_unified,
 	ltt2ut.pk as pk_lnk_ttype2unified_type
 from
-	test_type_unified ttu,
-	lnk_ttype2unified_type ltt2ut
+	clin.test_type_unified ttu,
+	clin.lnk_ttype2unified_type ltt2ut
 where
 	ltt2ut.fk_test_type_unified=ttu.pk
 ;
 
-comment on view v_test_type_unified is
+comment on view clin.v_test_type_unified is
 	'denormalized view of test_type_unified and link table to test_type';
 
-create view v_unified_test_types as
+create view clin.v_unified_test_types as
 select
 	ttu0.pk as pk_test_type,
 	-- unified test_type
@@ -340,15 +830,15 @@ select
 	ttu0.pk_test_type_unified,
 	ttu0.pk_lnk_ttype2unified_type
 from
-	(test_type tt1 left outer join v_test_type_unified vttu1 on (tt1.pk=vttu1.pk_test_type)) ttu0
+	(clin.test_type tt1 left outer join clin.v_test_type_unified vttu1 on (tt1.pk=vttu1.pk_test_type)) ttu0
 ;
 
-comment on view v_unified_test_types is
+comment on view clin.v_unified_test_types is
 	'provides a view of test types aggregated under their
 	 corresponding unified name if any, if not linked to a
 	 unified test type name the original name is used';
 
-create view v_test_org_profile as
+create view clin.v_test_org_profile as
 select
 	torg.pk as pk_test_org,
 	torg.internal_name,
@@ -365,17 +855,17 @@ select
 	torg.comment as org_comment,
 	torg.fk_org as pk_org
 from
-	test_org torg,
-	v_unified_test_types vttu
+	clin.test_org torg,
+	clin.v_unified_test_types vttu
 where
 	vttu.pk_test_org=torg.pk
 ;
 
-comment on view v_test_org_profile is
+comment on view clin.v_test_org_profile is
 	'the tests a given test org provides';
 
 
-create view v_test_results as
+create view clin.v_test_results as
 select
 	-- v_pat_episodes
 	vpe.pk_patient as pk_patient,
@@ -434,7 +924,7 @@ select
 	vttu.coding_system_unified,
 	vttu.comment_unified,
 	-- management keys
-	-- clin_root_item
+	-- clin.clin_root_item
 	tr.pk_item,
 	tr.fk_encounter as pk_encounter,
 	tr.fk_episode as pk_episode,
@@ -450,21 +940,21 @@ select
 	-- v_pat_episodes
 	vpe.pk_health_issue
 from
-	test_result tr,
-	v_unified_test_types vttu,
-	v_pat_episodes vpe
+	clin.test_result tr,
+	clin.v_unified_test_types vttu,
+	clin.v_pat_episodes vpe
 where
 	vttu.pk_test_type=tr.fk_type
 		and
 	tr.fk_episode=vpe.pk_episode
 ;
 
-comment on view v_test_results is
+comment on view clin.v_test_results is
 	'denormalized view over test_results joined with (possibly unified) test
 	 type and patient/episode/encounter keys';
 
 
-create view v_lab_requests as
+create view clin.v_lab_requests as
 select
 	vpi.pk_patient as pk_patient,
 	lr.pk as pk_request,
@@ -489,20 +979,20 @@ select
 	lr.soap_cat as soap_cat,
 	lr.xmin as xmin_lab_request
 from
-	lab_request lr,
-	test_org torg,
-	v_pat_items vpi
+	clin.lab_request lr,
+	clin.test_org torg,
+	clin.v_pat_items vpi
 where
 	lr.fk_test_org=torg.pk
 		and
 	vpi.pk_item = lr.pk_item
 ;
 
-comment on view v_lab_requests is
+comment on view clin.v_lab_requests is
 	'denormalizes lab requests per test organization';
 
 
-create view v_results4lab_req as
+create view clin.v_results4lab_req as
 select
 	vtr.pk_patient,
 	vtr.pk_test_result as pk_result,
@@ -554,26 +1044,26 @@ select
 --	vtr.pk_test_org,
 --	vtr.pk_test_type_unified,
 from
-	v_test_results vtr,
-	lab_request lr,
-	lnk_result2lab_req lr2lr
+	clin.v_test_results vtr,
+	clin.lab_request lr,
+	clin.lnk_result2lab_req lr2lr
 where
 	lr2lr.fk_result=vtr.pk_test_result
 		and
 	lr2lr.fk_request=lr.pk
 ;
 
-comment on view v_results4lab_req is
+comment on view clin.v_results4lab_req is
 	'shows denormalized lab results per request';
 
 
 -- ==========================================================
 -- health issues stuff
 \unset ON_ERROR_STOP
-drop function F_announce_h_issue_mod() cascade;
+drop function clin.f_announce_h_issue_mod() cascade;
 \set ON_ERROR_STOP 1
 
-create function F_announce_h_issue_mod() returns opaque as '
+create function clin.f_announce_h_issue_mod() returns opaque as '
 declare
 	patient_id integer;
 begin
@@ -591,15 +1081,15 @@ end;
 
 create trigger TR_h_issues_modified
 	after insert or delete or update
-	on clin_health_issue
+	on clin.clin_health_issue
 	for each row
-		execute procedure F_announce_h_issue_mod()
+		execute procedure clin.f_announce_h_issue_mod()
 ;
 
 -- ==========================================================
 -- allergy stuff
 
-create view v_pat_allergies as
+create view clin.v_pat_allergies as
 select
 	a.id as pk_allergy,
 	vpep.pk_patient as pk_patient,
@@ -627,9 +1117,9 @@ select
 	a.modified_when as modified_when,
 	a.modified_by as modified_by
 from
-	allergy a,
-	_enum_allergy_type at,
-	v_pat_episodes vpep
+	clin.allergy a,
+	clin._enum_allergy_type at,
+	clin.v_pat_episodes vpep
 where
 	vpep.pk_episode=a.fk_episode
 		and
@@ -640,36 +1130,36 @@ where
 -- vaccination stuff
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
-drop view v_vacc_regimes cascade;
+drop view clin.v_vacc_regimes cascade;
 \set ON_ERROR_STOP 1
 
-create view v_vacc_regimes as
+create view clin.v_vacc_regimes as
 select
 	vreg.id as pk_regime,
 	vind.description as indication,
 	_(vind.description) as l10n_indication,
 	vreg.name as regime,
-	(select max(vdef.seq_no) from vacc_def vdef where vreg.id = vdef.fk_regime) as shots,
+	(select max(vdef.seq_no) from clin.vacc_def vdef where vreg.id = vdef.fk_regime) as shots,
 	coalesce(vreg.comment, '') as comment,
 	vreg.fk_indication as pk_indication,
 	vreg.fk_recommended_by as pk_recommended_by,
 	vreg.xmin as xmin_vacc_regime
 from
-	vacc_regime vreg,
-	vacc_indication vind
+	clin.vacc_regime vreg,
+	clin.vacc_indication vind
 where
 	vreg.fk_indication = vind.id
 ;
 
-comment on view v_vacc_regimes is
+comment on view clin.v_vacc_regimes is
 	'all vaccination schedules known to the system';
 
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
-drop view v_vacc_defs4reg cascade;
+drop view clin.v_vacc_defs4reg cascade;
 \set ON_ERROR_STOP 1
 
-create view v_vacc_defs4reg as
+create view clin.v_vacc_defs4reg as
 select
 	vreg.id as pk_regime,
 	vind.description as indication,
@@ -686,9 +1176,9 @@ select
 	vind.id as pk_indication,
 	vreg.fk_recommended_by as pk_recommended_by
 from
-	vacc_regime vreg,
-	vacc_indication vind,
-	vacc_def vdef
+	clin.vacc_regime vreg,
+	clin.vacc_indication vind,
+	clin.vacc_def vdef
 where
 	vreg.id = vdef.fk_regime
 		and
@@ -698,11 +1188,11 @@ order by
 	vacc_seq_no
 ;
 
-comment on view v_vacc_defs4reg is
+comment on view clin.v_vacc_defs4reg is
 	'vaccination event definitions for all schedules known to the system';
 
 -- -----------------------------------------------------
-create view v_vacc_regs4pat as
+create view clin.v_vacc_regs4pat as
 select
 	lp2vr.fk_patient as pk_patient,
 	vvr.indication as indication,
@@ -713,17 +1203,17 @@ select
 	vvr.pk_indication as pk_indication,
 	vvr.pk_recommended_by as pk_recommended_by
 from
-	lnk_pat2vacc_reg lp2vr,
-	v_vacc_regimes vvr
+	clin.lnk_pat2vacc_reg lp2vr,
+	clin.v_vacc_regimes vvr
 where
 	vvr.pk_regime = lp2vr.fk_regime
 ;
 
-comment on view v_vacc_regs4pat is
+comment on view clin.v_vacc_regs4pat is
 	'selection of configured vaccination schedules a patient is actually on';
 
 -- -----------------------------------------------------
-create view v_vaccs_scheduled4pat as
+create view clin.v_vaccs_scheduled4pat as
 select
 	vvr4p.pk_patient as pk_patient,
 	vvr4p.indication as indication,
@@ -741,18 +1231,18 @@ select
 	vvr4p.pk_indication as pk_indication,
 	vvr4p.pk_recommended_by as pk_recommended_by
 from
-	v_vacc_regs4pat vvr4p,
-	v_vacc_defs4reg vvd4r
+	clin.v_vacc_regs4pat vvr4p,
+	clin.v_vacc_defs4reg vvd4r
 where
 	vvd4r.pk_regime = vvr4p.pk_regime
 ;
 
-comment on view v_vaccs_scheduled4pat is
+comment on view clin.v_vaccs_scheduled4pat is
 	'vaccinations scheduled for a patient according
 	 to the vaccination schedules he/she is on';
 
 -- -----------------------------------------------------
-create view v_pat_vacc4ind as
+create view clin.v_pat_vacc4ind as
 select
 	v.fk_patient as pk_patient,
 	v.id as pk_vaccination,
@@ -774,11 +1264,11 @@ select
 	v.modified_by as modified_by,
 	v.xmin as xmin_vaccination
 from
-	vaccination v,
-	vaccine vcine,
-	lnk_vaccine2inds lv2i,
-	vacc_indication vind,
-	v_pat_episodes vpep
+	clin.vaccination v,
+	clin.vaccine vcine,
+	clin.lnk_vaccine2inds lv2i,
+	clin.vacc_indication vind,
+	clin.v_pat_episodes vpep
 where
 	vpep.pk_episode=v.fk_episode
 		and
@@ -789,13 +1279,13 @@ where
 	lv2i.fk_indication = vind.id
 ;
 
-comment on view v_pat_vacc4ind is
+comment on view clin.v_pat_vacc4ind is
 	'vaccinations a patient has actually received for the various
 	 indications, we operate under the assumption that every shot
 	 given counts toward base immunisation, eg. all shots are valid';
 
 -- -----------------------------------------------------
-create view v_pat_missing_vaccs as
+create view clin.v_pat_missing_vaccs as
 select
 	vvs4p.pk_patient,
 	vvs4p.indication,
@@ -827,13 +1317,13 @@ select
 	vvs4p.pk_indication,
 	vvs4p.pk_recommended_by
 from
-	v_vaccs_scheduled4pat vvs4p
+	clin.v_vaccs_scheduled4pat vvs4p
 where
 	vvs4p.is_booster is false
 		and
 	vvs4p.vacc_seq_no > (
 		select count(*)
-		from v_pat_vacc4ind vpv4i
+		from clin.v_pat_vacc4ind vpv4i
 		where
 			vpv4i.pk_patient = vvs4p.pk_patient
 				and
@@ -841,14 +1331,14 @@ where
 	)
 ;
 
-comment on view v_pat_missing_vaccs is
+comment on view clin.v_pat_missing_vaccs is
 	'vaccinations a patient has not been given yet according
 	 to the schedules a patient is on and the previously
 	 received vaccinations';
 
 -- -----------------------------------------------------
 -- FIXME: only list those that DO HAVE a previous vacc (max(date) is not null)
-create view v_pat_missing_boosters as
+create view clin.v_pat_missing_boosters as
 select
 	vvs4p.pk_patient,
 	vvs4p.indication,
@@ -858,7 +1348,7 @@ select
 	vvs4p.vacc_seq_no as seq_no,
 	coalesce(
 		((select max(vpv4i11.date)
-		  from v_pat_vacc4ind vpv4i11
+		  from clin.v_pat_vacc4ind vpv4i11
 		  where
 			vpv4i11.pk_patient = vvs4p.pk_patient
 				and
@@ -869,7 +1359,7 @@ select
 	coalesce(
 		(now() - (
 			(select max(vpv4i12.date)
-			from v_pat_vacc4ind vpv4i12
+			from clin.v_pat_vacc4ind vpv4i12
 			where
 				vpv4i12.pk_patient = vvs4p.pk_patient
 					and
@@ -885,13 +1375,13 @@ select
 	vvs4p.pk_indication,
 	vvs4p.pk_recommended_by
 from
-	v_vaccs_scheduled4pat vvs4p
+	clin.v_vaccs_scheduled4pat vvs4p
 where
 	vvs4p.is_booster is true
 		and
 	vvs4p.min_interval < age (
 		(select max(vpv4i13.date)
-			from v_pat_vacc4ind vpv4i13
+			from clin.v_pat_vacc4ind vpv4i13
 			where
 				vpv4i13.pk_patient = vvs4p.pk_patient
 					and
@@ -899,7 +1389,7 @@ where
 		))
 ;
 
-comment on view v_pat_missing_boosters is
+comment on view clin.v_pat_missing_boosters is
 	'boosters a patient has not been given yet according
 	 to the schedules a patient is on and the previously
 	 received vaccinations';
@@ -911,7 +1401,7 @@ drop index idx_coded_terms;
 drop function add_coded_term(text, text, text) cascade;
 \set ON_ERROR_STOP 1
 
-create index idx_coded_terms on coded_narrative(term);
+create index idx_coded_terms on clin.coded_narrative(term);
 
 create function add_coded_term(text, text, text) returns boolean as '
 declare
@@ -920,12 +1410,12 @@ declare
 	_system alias for $3;
 	_tmp text;
 begin
-	select into _tmp ''1'' from coded_narrative
+	select into _tmp ''1'' from clin.coded_narrative
 		where term = _term and code = _code and xfk_coding_system = _system;
 	if found then
 		return True;
 	end if;
-	insert into coded_narrative (term, code, xfk_coding_system)
+	insert into clin.coded_narrative (term, code, xfk_coding_system)
 		values (_term, _code, _system);
 	return True;
 end;' language 'plpgsql';
@@ -933,7 +1423,7 @@ end;' language 'plpgsql';
 -- =============================================
 -- diagnosis views
 
-create view v_pat_diag as
+create view clin.v_pat_diag as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as diagnosed_when,
@@ -950,9 +1440,9 @@ select
 	cd.xmin as xmin_clin_diag,
 	cn.xmin as xmin_clin_narrative
 from
-	clin_diag cd,
-	clin_narrative as cn,
-	v_pat_items vpi
+	clin.clin_diag cd,
+	clin.clin_narrative as cn,
+	clin.v_pat_items vpi
 where
 	cn.soap_cat='a'
 		and
@@ -961,22 +1451,22 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
-comment on view v_pat_diag is
+comment on view clin.v_pat_diag is
 	'denormalizing view over diagnoses per patient';
 
 -- -----------------------
-create view v_codes4diag as
+create view clin.v_codes4diag as
 select distinct on (diagnosis, code, xfk_coding_system)
 	con.term as diagnosis,
 	con.code as code,
 	con.xfk_coding_system as coding_system
 from
-	coded_narrative con
+	clin.coded_narrative con
 where
-	exists(select 1 from v_pat_diag vpd where vpd.diagnosis = con.term)
+	exists(select 1 from clin.v_pat_diag vpd where vpd.diagnosis = con.term)
 ;
 
-comment on view v_codes4diag is
+comment on view clin.v_codes4diag is
 	'a lookup view for all the codes associated with a
 	 diagnosis, a diagnosis can appear several times,
 	  namely once per associated code';
@@ -990,9 +1480,9 @@ drop index idx_encounter_started;
 drop index idx_encounter_affirmed;
 \set ON_ERROR_STOP 1
 
-create index idx_pat_per_encounter on clin_encounter(fk_patient);
-create index idx_encounter_started on clin_encounter(started);
-create index idx_encounter_affirmed on clin_encounter(last_affirmed);
+create index idx_pat_per_encounter on clin.clin_encounter(fk_patient);
+create index idx_encounter_started on clin.clin_encounter(started);
+create index idx_encounter_affirmed on clin.clin_encounter(last_affirmed);
 
 
 \unset ON_ERROR_STOP
@@ -1012,17 +1502,17 @@ end;
 
 create trigger tr_set_encounter_timezone
 	before insert or update
-	on clin_encounter
+	on clin.clin_encounter
 	for each row
 		execute procedure f_set_encounter_timezone()
 ;
 
 -- per patient
 \unset ON_ERROR_STOP
-drop view v_pat_encounters cascade;
+drop view clin.v_pat_encounters cascade;
 \set ON_ERROR_STOP 1
 
-create view v_pat_encounters as
+create view clin.v_pat_encounters as
 select
 	cle.id as pk_encounter,
 	cle.fk_patient as pk_patient,
@@ -1036,18 +1526,18 @@ select
 	cle.fk_type as pk_type,
 	cle.xmin as xmin_clin_encounter
 from
-	clin_encounter cle,
-	encounter_type et
+	clin.clin_encounter cle,
+	clin.encounter_type et
 where
 	cle.fk_type = et.pk
 ;
 
 -- current ones
 \unset ON_ERROR_STOP
-drop view v_most_recent_encounters cascade;
+drop view clin.v_most_recent_encounters cascade;
 \set ON_ERROR_STOP 1
 
-create view v_most_recent_encounters as
+create view clin.v_most_recent_encounters as
 select distinct on (last_affirmed)
 	ce1.id as pk_encounter,
 	ce1.fk_patient as pk_patient,
@@ -1060,20 +1550,20 @@ select distinct on (last_affirmed)
 	ce1.fk_type as pk_type,
 	ce1.fk_location as pk_location
 from
-	clin_encounter ce1,
-	encounter_type et
+	clin.clin_encounter ce1,
+	clin.encounter_type et
 where
 	ce1.fk_type = et.pk
 		and
 	ce1.started = (
 		-- find max of started in ...
 		select max(started)
-		from clin_encounter ce2
+		from clin.clin_encounter ce2
 		where
 			ce2.last_affirmed = (
 				-- ... max of last_affirmed for patient
 				select max(last_affirmed)
-				from clin_encounter ce3
+				from clin.clin_encounter ce3
 				where
 					ce3.fk_patient = ce1.fk_patient
 			)
@@ -1082,7 +1572,7 @@ where
 ;
 
 -- -----------------------------
-create view v_pat_narrative as
+create view clin.v_pat_narrative as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
@@ -1099,19 +1589,19 @@ select
 	cn.fk_encounter as pk_encounter,
 	cn.xmin as xmin_clin_narrative
 from
-	clin_narrative cn,
-	v_pat_items vpi
+	clin.clin_narrative cn,
+	clin.v_pat_items vpi
 where
 	cn.pk_item = vpi.pk_item
 ;
 
-comment on view v_pat_narrative is
+comment on view clin.v_pat_narrative is
 	'patient SOAP narrative;
-	 this view aggregates all clin_narrative rows
+	 this view aggregates all clin.clin_narrative rows
 	 and adds denormalized context';
 
 -- =============================================
--- types of clin_root_item
+-- types of clin.clin_root_item
 
 -- ---------------------------------------------
 -- custom referential integrity
@@ -1131,9 +1621,9 @@ begin
 		end if;
 	end if;
 	-- check referential integrity
-	select into dummy 1 from clin_root_item where pk_item=NEW.fk_item;
+	select into dummy 1 from clin.clin_root_item where pk_item=NEW.fk_item;
 	if not found then
-		msg := ''referential integrity violation: lnk_type2item.fk_item ['' || NEW.fk_item || ''] not in <clin_root_item.pk_item>'';
+		msg := ''referential integrity violation: clin.lnk_type2item.fk_item ['' || NEW.fk_item || ''] not in <clin_root_item.pk_item>'';
 		raise exception ''%'', msg;
 		return NULL;
 	end if;
@@ -1143,21 +1633,21 @@ end;
 
 create trigger tr_rfi_type2item
 	after insert or update
-	on lnk_type2item
+	on clin.lnk_type2item
 	for each row
 		execute procedure f_rfi_type2item()
 ;
 
 comment on function f_rfi_type2item() is
 	'function used to check referential integrity from
-	 lnk_type2item to clin_root_item with a custom trigger';
+	 clin.lnk_type2item to clin.clin_root_item with a custom trigger';
 
 --comment on trigger tr_rfi_type2item is
 --	'trigger to check referential integrity from
---	 lnk_type2item to clin_root_item';
+--	 clin.lnk_type2item to clin.clin_root_item';
 
 -- ---------------------------------------------
-create view v_pat_item_types as
+create view clin.v_pat_item_types as
 select
 	items.pk_item as pk_item,
 	items.pk_patient as pk_patient,
@@ -1165,12 +1655,12 @@ select
 	items.narrative as narrative,
 	items.type as type
 from
-	((v_pat_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
-		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
+	((clin.v_pat_items vpi inner join clin.lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
+		inner join clin.clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
 ;
 
 -- ---------------------------------------------
-create view v_types4item as
+create view clin.v_types4item as
 select distinct on (narrative, code, type, src_table)
 	items.code as code,
 	items.narrative as narrative,
@@ -1178,8 +1668,8 @@ select distinct on (narrative, code, type, src_table)
 	items.soap_cat as soap_cat,
 	items.src_table as src_table
 from
-	((v_pat_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
-		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
+	((clin.v_pat_items vpi inner join clin.lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
+		inner join clin.clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
 ;
 
 -- =============================================
@@ -1212,12 +1702,12 @@ from
 	
 --	 lnk_type2item
 --	where
---		fk_item = (select pk_item from clin_narrative where pk=NEW.fk_narrative)
+--		fk_item = (select pk_item from clin.clin_narrative where pk=NEW.fk_narrative)
 --			and
---		fk_type = (select pk from clin_item_type )
+--		fk_type = (select pk from clin.clin_item_type )
 --	;
 --	if not found then
---		msg := ''referential integrity violation: lnk_type2item.fk_item ['' || NEW.fk_item || ''] not in <clin_root_item.pk_item>'';
+--		msg := ''referential integrity violation: clin.lnk_type2item.fk_item ['' || NEW.fk_item || ''] not in <clin_root_item.pk_item>'';
 --		raise exception ''%'', msg;
 --		return NULL;
 --	end if;
@@ -1227,20 +1717,20 @@ from
 
 -- create trigger tr_rfi_type2item
 --	after insert or update
---	on lnk_type2item
+--	on clin.lnk_type2item
 --	for each row
 --		execute procedure f_rfi_type2item()
 --;
 
 -- comment on function f_rfi_type2item() is
 --	'function used to check referential integrity from
---	 lnk_type2item to clin_root_item with a custom trigger';
+--	 clin.lnk_type2item to clin.clin_root_item with a custom trigger';
 
 -- comment on trigger tr_rfi_type2item is
 --	'trigger to check referential integrity from
---	 lnk_type2item to clin_root_item';
+--	 lnk_type2item to clin.clin_root_item';
 
-create view v_hx_family as
+create view clin.v_hx_family as
 -- those not linked to another patient as relative
 select
 	vpi.pk_patient as pk_patient,
@@ -1265,9 +1755,9 @@ select
 	hxfi.age_of_death as age_of_death,
 	hxfi.is_cause_of_death as is_cause_of_death
 from
-	v_pat_items vpi,
-	clin_hx_family chxf,
-	hx_family_item hxfi,
+	clin.v_pat_items vpi,
+	clin.clin_hx_family chxf,
+	clin.hx_family_item hxfi,
 	v_basic_person vbp
 where
 	vpi.pk_item = chxf.pk_item
@@ -1304,9 +1794,9 @@ select
 	hxfi.age_of_death as age_of_death,
 	hxfi.is_cause_of_death as is_cause_of_death
 from
-	v_pat_items vpi,
-	clin_hx_family chxf,
-	hx_family_item hxfi,
+	clin.v_pat_items vpi,
+	clin.clin_hx_family chxf,
+	clin.hx_family_item hxfi,
 	v_basic_person vbp
 where
 	vpi.pk_item = chxf.pk_item
@@ -1343,10 +1833,10 @@ select
 	hxfi.age_of_death as age_of_death,
 	hxfi.is_cause_of_death as is_cause_of_death
 from
-	clin_hx_family chxf,
-	hx_family_item hxfi,
+	clin.clin_hx_family chxf,
+	clin.hx_family_item hxfi,
 	v_basic_person vbp,
-	v_pat_narrative vpn
+	clin.v_pat_narrative vpn
 where
 	hxfi.pk = chxf.fk_hx_family_item
 		and
@@ -1361,7 +1851,7 @@ where
 -- =============================================
 -- problem list
 
-create view v_problem_list as
+create view clin.v_problem_list as
 select	-- all the (open) episodes
 	vpep.pk_patient as pk_patient,
 	vpep.description as problem,
@@ -1372,7 +1862,7 @@ select	-- all the (open) episodes
 	vpep.pk_episode as pk_episode,
 	vpep.pk_health_issue as pk_health_issue
 from
-	v_pat_episodes vpep
+	clin.v_pat_episodes vpep
 where
 	vpep.episode_open is true
 
@@ -1388,7 +1878,7 @@ select	-- all the (clinically relevant) health issues
 	null as pk_episode,
 	chi.id as pk_health_issue
 from
-	clin_health_issue chi
+	clin.clin_health_issue chi
 where
 	chi.clinically_relevant is true
 ;
@@ -1396,8 +1886,8 @@ where
 -- =============================================
 -- *complete* narrative for searching
 
-create view v_narrative4search as
--- clin_root_items
+create view clin.v_narrative4search as
+-- clin.clin_root_items
 select
 	vpi.pk_patient as pk_patient,
 	vpi.soap_cat as soap_cat,
@@ -1405,7 +1895,7 @@ select
 	vpi.pk_item as src_pk,
 	vpi.src_table as src_table
 from
-	v_pat_items vpi
+	clin.v_pat_items vpi
 where
 	trim(coalesce(vpi.narrative, '')) != ''
 
@@ -1415,9 +1905,9 @@ select
 	'a' as soap_cat,
 	chi.description as narrative,
 	chi.id as src_pk,
-	'clin_health_issue' as src_table
+	'clin.clin_health_issue' as src_table
 from
-	clin_health_issue chi
+	clin.clin_health_issue chi
 where
 	trim(coalesce(chi.description, '')) != ''
 
@@ -1427,9 +1917,9 @@ select
 	's' as soap_cat,
 	cenc.rfe || '; ' || cenc.aoe as narrative,
 	cenc.id as src_pk,
-	'clin_encounter' as src_table
+	'clin.clin_encounter' as src_table
 from
-	clin_encounter cenc
+	clin.clin_encounter cenc
 
 union	-- episodes
 select
@@ -1437,9 +1927,9 @@ select
 	's' as soap_cat,
 	vpep.description as narrative,
 	vpep.pk_episode as src_pk,
-	'clin_episode' as src_table
+	'clin.clin_episode' as src_table
 from
-	v_pat_episodes vpep
+	clin.v_pat_episodes vpep
 
 union	-- family history
 select
@@ -1451,13 +1941,13 @@ select
 		|| vhxf.condition
 	as narrative,
 	vhxf.pk_hx_family_item as src_pk,
-	'hx_family_item' as src_table
+	'clin.hx_family_item' as src_table
 from
-	v_hx_family vhxf
+	clin.v_hx_family vhxf
 
 ;
 
-comment on view v_narrative4search is
+comment on view clin.v_narrative4search is
 	'unformatted *complete* narrative for patients
 	 including health issue/episode/encounter descriptions,
 	 mainly for searching the narrative';
@@ -1466,9 +1956,9 @@ comment on view v_narrative4search is
 -- =============================================
 -- complete narrative for display as a journal
 
-create view v_emr_journal as
+create view clin.v_emr_journal as
 
--- clin_narrative
+-- clin.clin_narrative
 select
 	vpi.pk_patient as pk_patient,
 	cn.modified_when as modified_when,
@@ -1483,10 +1973,10 @@ select
 	cn.fk_episode as pk_episode,
 	vpi.pk_health_issue as pk_health_issue,
 	cn.pk as src_pk,
-	'clin_narrative'::text as src_table
+	'clin.clin_narrative'::text as src_table
 from
-	v_pat_items vpi,
-	clin_narrative cn
+	clin.v_pat_items vpi,
+	clin.clin_narrative cn
 where
 	vpi.pk_item = cn.pk_item
 
@@ -1507,9 +1997,9 @@ select
 	-1 as pk_episode,
 	chi.id as pk_health_issue,
 	chi.id as src_pk,
-	'clin_health_issue'::text as src_table
+	'clin.clin_health_issue'::text as src_table
 from
-	clin_health_issue chi
+	clin.clin_health_issue chi
 
 union	-- encounters
 select
@@ -1527,9 +2017,9 @@ select
 	-1 as pk_episode,
 	-1 as pk_health_issue,
 	cenc.id as src_pk,
-	'clin_encounter'::text as src_table
+	'clin.clin_encounter'::text as src_table
 from
-	clin_encounter cenc
+	clin.clin_encounter cenc
 
 union	-- episodes
 select
@@ -1546,9 +2036,9 @@ select
 	vpep.pk_episode as pk_episode,
 	-1 as pk_health_issue,
 	vpep.pk_episode as src_pk,
-	'clin_episode'::text as src_table
+	'clin.clin_episode'::text as src_table
 from
-	v_pat_episodes vpep
+	clin.v_pat_episodes vpep
 
 union	-- family history
 select
@@ -1569,9 +2059,9 @@ select
 	vhxf.pk_episode as pk_episode,
 	vhxf.pk_health_issue as pk_health_issue,
 	vhxf.pk_hx_family_item as src_pk,
-	'hx_family_item'::text as src_table
+	'clin.hx_family_item'::text as src_table
 from
-	v_hx_family vhxf
+	clin.v_hx_family vhxf
 
 union	-- vaccinations
 select
@@ -1595,7 +2085,7 @@ select
 	vpv4i.pk_vaccination as src_pk,
 	'vaccination'::text as src_table
 from
-	v_pat_vacc4ind vpv4i
+	clin.v_pat_vacc4ind vpv4i
 
 union -- allergies
 select
@@ -1618,9 +2108,9 @@ select
 	vpa.pk_episode as pk_episode,
 	vpa.pk_health_issue as pk_health_issue,
 	vpa.pk_allergy as src_pk,
-	'allergy' as src_table
+	'clin.allergy' as src_table
 from
-	v_pat_allergies vpa
+	clin.v_pat_allergies vpa
 
 union	-- lab requests
 select
@@ -1644,7 +2134,7 @@ select
 	vlr.pk_item as src_pk,
 	'lab_request' as src_table
 from
-	v_lab_requests vlr
+	clin.v_lab_requests vlr
 
 union	-- test results
 select
@@ -1670,10 +2160,10 @@ select
 	vtr.pk_test_result as src_pk,
 	'test_result' as src_table
 from
-	v_test_results vtr
+	clin.v_test_results vtr
 ;
 
-comment on view v_emr_journal is
+comment on view clin.v_emr_journal is
 	'patient narrative including health issue/episode/
 	 encounter descriptions, mainly for display as a journal';
 
@@ -1681,10 +2171,10 @@ comment on view v_emr_journal is
 -- a waiting list
 
 \unset ON_ERROR_STOP
-drop view v_waiting_list cascade;
+drop view clin.v_waiting_list cascade;
 \set ON_ERROR_STOP 1
 
-create view v_waiting_list as
+create view clin.v_waiting_list as
 select
 	wl.list_position as list_position,
 	wl.urgency as urgency,
@@ -1699,7 +2189,7 @@ select
 	vmre.started as start_most_recent_encounter,
 	vmre.rfe as most_recent_rfe,
 	wl.comment as comment,
-	(select started from clin_encounter ce
+	(select started from clin.clin_encounter ce
 	 where vmre.pk_encounter = ce.id
 	 order by last_affirmed desc limit 1 offset 1
 	) as start_previous_encounter,
@@ -1707,10 +2197,10 @@ select
 	n.id as pk_name,
 	i.pupic as pupic
 from
-	waiting_list wl,
+	clin.waiting_list wl,
 	identity i,
 	names n,
-	v_most_recent_encounters vmre
+	clin.v_most_recent_encounters vmre
 where
 	wl.fk_patient = i.pk and
 	wl.fk_patient = n.id_identity and
@@ -1720,127 +2210,133 @@ where
 ;
 
 -- =============================================
+-- schema
+grant usage on schema clin to group "gm-doctors";
+
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	clin_health_issue
-	, clin_health_issue_id_seq
-	, clin_episode
-	, clin_episode_pk_seq
-	, encounter_type
-	, encounter_type_pk_seq
-	, clin_encounter
-	, clin_encounter_id_seq
-	, clin_root_item
-	, clin_root_item_pk_item_seq
-	, clin_item_type
-	, clin_item_type_pk_seq
-	, lnk_type2item
-	, lnk_type2item_pk_seq
-	, clin_narrative
-	, clin_narrative_pk_seq
-	, coded_narrative
-	, coded_narrative_pk_seq
-	, clin_hx_family
-	, clin_hx_family_pk_seq
-	, hx_family_item
-	, hx_family_item_pk_seq
-	, clin_diag
-	, clin_diag_pk_seq
-	, clin_aux_note
-	, clin_aux_note_pk_seq
-	, _enum_allergy_type
-	, _enum_allergy_type_id_seq
-	, allergy
-	, allergy_id_seq
-	, allergy_state
-	, allergy_state_id_seq
-	, vaccination
-	, vaccination_id_seq
-	, vaccine
-	, vaccine_id_seq
-	, vacc_def
-	, vacc_def_id_seq
-	, vacc_regime
-	, vacc_regime_id_seq
-	, lnk_pat2vacc_reg
-	, lnk_pat2vacc_reg_pk_seq
-	, xlnk_identity
-	, xlnk_identity_pk_seq
-	, form_instances
-	, form_instances_pk_seq
-	, form_data
-	, form_data_pk_seq
+	clin.clin_health_issue
+	, clin.clin_health_issue_id_seq
+	, clin.clin_episode
+	, clin.clin_episode_pk_seq
+	, clin.encounter_type
+	, clin.encounter_type_pk_seq
+	, clin.clin_encounter
+	, clin.clin_encounter_id_seq
+	, clin.clin_root_item
+	, clin.clin_root_item_pk_item_seq
+	, clin.clin_item_type
+	, clin.clin_item_type_pk_seq
+	, clin.lnk_type2item
+	, clin.lnk_type2item_pk_seq
+	, clin.clin_narrative
+	, clin.clin_narrative_pk_seq
+	, clin.coded_narrative
+	, clin.coded_narrative_pk_seq
+	, clin.clin_hx_family
+	, clin.clin_hx_family_pk_seq
+	, clin.hx_family_item
+	, clin.hx_family_item_pk_seq
+	, clin.clin_diag
+	, clin.clin_diag_pk_seq
+	, clin.clin_aux_note
+	, clin.clin_aux_note_pk_seq
+	, clin._enum_allergy_type
+	, clin._enum_allergy_type_id_seq
+	, clin.allergy
+	, clin.allergy_id_seq
+	, clin.allergy_state
+	, clin.allergy_state_id_seq
+	, clin.vaccination
+	, clin.vaccination_id_seq
+	, clin.vaccine
+	, clin.vaccine_id_seq
+	, clin.vacc_def
+	, clin.vacc_def_id_seq
+	, clin.vacc_regime
+	, clin.vacc_regime_id_seq
+	, clin.lnk_pat2vacc_reg
+	, clin.lnk_pat2vacc_reg_pk_seq
+	, clin.xlnk_identity
+	, clin.xlnk_identity_pk_seq
+	, clin.form_instances
+	, clin.form_instances_pk_seq
+	, clin.form_data
+	, clin.form_data_pk_seq
 	, referral
 	, referral_id_seq
-	, clin_medication
-	, clin_medication_pk_seq
+	, clin.clin_medication
+	, clin.clin_medication_pk_seq
 	, constituent
-	, soap_cat_ranks
-	, waiting_list
-	, waiting_list_pk_seq
+	, clin.soap_cat_ranks
+	, clin.waiting_list
+	, clin.waiting_list_pk_seq
 TO GROUP "gm-doctors";
 
 -- measurements
 grant select, insert, update, delete on
-	test_org
-	, test_org_pk_seq
-	, test_type
-	, test_type_pk_seq
-	, test_type_unified
-	, test_type_unified_pk_seq
-	, lnk_ttype2unified_type
-	, lnk_ttype2unified_type_pk_seq
-	, lnk_tst2norm
-	, lnk_tst2norm_id_seq
-	, test_result
-	, test_result_pk_seq
-	, lab_request
-	, lab_request_pk_seq
-	, lnk_result2lab_req
-	, lnk_result2lab_req_pk_seq
+	clin.test_org
+	, clin.test_org_pk_seq
+	, clin.test_type
+	, clin.test_type_pk_seq
+	, clin.test_type_unified
+	, clin.test_type_unified_pk_seq
+	, clin.lnk_ttype2unified_type
+	, clin.lnk_ttype2unified_type_pk_seq
+	, clin.lnk_tst2norm
+	, clin.lnk_tst2norm_id_seq
+	, clin.test_result
+	, clin.test_result_pk_seq
+	, clin.lab_request
+	, clin.lab_request_pk_seq
+	, clin.lnk_result2lab_req
+	, clin.lnk_result2lab_req_pk_seq
 to group "gm-doctors";
 
 -- views
 grant select on
-	v_pat_encounters
-	, v_pat_episodes
-	, v_pat_narrative
-	, v_pat_items
-	, v_pat_allergies
-	, v_vacc_regimes
-	, v_vacc_defs4reg
-	, v_vacc_regs4pat
-	, v_vaccs_scheduled4pat
-	, v_pat_vacc4ind
-	, v_pat_missing_vaccs
-	, v_pat_missing_boosters
-	, v_most_recent_encounters
-	, v_test_type_unified
-	, v_unified_test_types
-	, v_test_results
-	, v_lab_requests
-	, v_results4lab_req
-	, v_test_org_profile
-	, v_pat_diag
-	, v_codes4diag
-	, v_pat_item_types
-	, v_types4item
-	, v_problem_list
-	, v_narrative4search
-	, v_emr_journal
-	, v_hx_family
-	, v_waiting_list
+	clin.v_pat_encounters
+	, clin.v_pat_episodes
+	, clin.v_pat_narrative
+	, clin.v_pat_items
+	, clin.v_pat_allergies
+	, clin.v_vacc_regimes
+	, clin.v_vacc_defs4reg
+	, clin.v_vacc_regs4pat
+	, clin.v_vaccs_scheduled4pat
+	, clin.v_pat_vacc4ind
+	, clin.v_pat_missing_vaccs
+	, clin.v_pat_missing_boosters
+	, clin.v_most_recent_encounters
+	, clin.v_test_type_unified
+	, clin.v_unified_test_types
+	, clin.v_test_results
+	, clin.v_lab_requests
+	, clin.v_results4lab_req
+	, clin.v_test_org_profile
+	, clin.v_pat_diag
+	, clin.v_codes4diag
+	, clin.v_pat_item_types
+	, clin.v_types4item
+	, clin.v_problem_list
+	, clin.v_narrative4search
+	, clin.v_emr_journal
+	, clin.v_hx_family
+	, clin.v_waiting_list
 to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.156 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.157 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.156  2005-10-26 21:33:25  ncq
+-- Revision 1.157  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.156  2005/10/26 21:33:25  ncq
 -- - review status tracking
 --
 -- Revision 1.155  2005/09/25 17:49:24  ncq

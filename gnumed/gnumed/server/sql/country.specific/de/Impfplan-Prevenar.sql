@@ -6,41 +6,41 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Prevenar.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 --delete from lnk_vacc_def2regime;
---delete from vacc_def;
---delete from vacc_regime;
+--delete from clin.vacc_def;
+--delete from clin.vacc_regime;
 
 ----------------------------
 -- Kinder unter 6 Monaten --
 ----------------------------
 -- Impfplan erstellen
-insert into vacc_regime
+insert into clin.vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
 	-1,
-	(select id from vacc_indication where description='pneumococcus'),
+	(select id from clin.vacc_indication where description='pneumococcus'),
 	'Pneumokokken (Start <6 Monate, Hersteller)'
 );
 
 -- Impfzeitpunkte definieren
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
 	'6 months'::interval,
 	'<6 Monate, Hersteller'
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	2,
 	'3 months'::interval,
 	'7 months'::interval,
@@ -48,10 +48,10 @@ values (
 	'<6 Monate, Hersteller'
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	3,
 	'4 months'::interval,
 	'8 months'::interval,
@@ -59,10 +59,10 @@ values (
 	'<6 Monate, Hersteller'
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	4,
 	'1 year'::interval,
 	'2 years'::interval,
@@ -74,29 +74,29 @@ values (
 -- Kinder zwischen 7 und 11 Monaten --
 --------------------------------------
 -- Impfplan erstellen
-insert into vacc_regime
+insert into clin.vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
 	-1,
-	(select id from vacc_indication where description='pneumococcus'),
+	(select id from clin.vacc_indication where description='pneumococcus'),
 	'Pneumokokken (Start 7-11 Monate, Hersteller)'
 );
 
 -- Impfzeitpunkte definieren
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	1,
 	'7 months'::interval,
 	'11 months'::interval,
 	'7-11 Monate, Hersteller'
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	2,
 	'8 months'::interval,
 	'12 months'::interval,
@@ -104,10 +104,10 @@ values (
 	'7-11 Monate, Hersteller'
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	3,
 	'1 year'::interval,
 	'2 years'::interval,
@@ -119,29 +119,29 @@ values (
 -- Kinder zwischen 12 und 23 Monaten --
 ---------------------------------------
 -- Impfplan erstellen
-insert into vacc_regime
+insert into clin.vacc_regime
 	(fk_recommended_by, fk_indication, name)
 values (
 	-1,
-	(select id from vacc_indication where description='pneumococcus'),
+	(select id from clin.vacc_indication where description='pneumococcus'),
 	'Pneumokokken (Start 12-23 Monate, Hersteller)'
 );
 
 -- Impfzeitpunkte definieren
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	1,
 	'12 months'::interval,
 	'23 months'::interval,
 	'12-23 Monate, Hersteller'
 );
 
-insert into vacc_def
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('vacc_regime_id_seq'),
+	currval('clin.vacc_regime_id_seq'),
 	2,
 	'14 months'::interval,
 	'25 months'::interval,
@@ -152,11 +152,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%Impfplan-Prevenar%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: Impfplan-Prevenar.sql,v $
--- Revision 1.10  2005-09-19 16:38:52  ncq
+-- Revision 1.11  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.10  2005/09/19 16:38:52  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.9  2005/07/14 21:31:43  ncq

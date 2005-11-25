@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.49 $
+-- $Revision: 1.50 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -12,43 +12,43 @@
 \set ON_ERROR_STOP 1
 
 -- ====================================
-create table test_org (
+create table clin.test_org (
 	pk serial primary key,
 	fk_org integer unique not null,
 	fk_adm_contact integer
 		default null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	fk_med_contact integer
 		default null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	internal_name text unique,
 	"comment" text
 ) inherits (audit_fields);
 
-select add_table_for_audit('test_org');
+select add_table_for_audit('clin', 'test_org');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_org', 'fk_org', 'personalia', 'org', 'id');
 
-COMMENT ON TABLE test_org IS
+COMMENT ON TABLE clin.test_org IS
 	'organisation providing results';
-COMMENT ON COLUMN test_org.fk_org IS
+COMMENT ON COLUMN clin.test_org.fk_org IS
 	'link to organisation
 	 HL7: MSH.sending_facility/sending_application';
-COMMENT ON COLUMN test_org.fk_adm_contact IS
+COMMENT ON COLUMN clin.test_org.fk_adm_contact IS
 	'whom to call for admin questions (modem link, etc.)';
-COMMENT ON COLUMN test_org.fk_med_contact IS
+COMMENT ON COLUMN clin.test_org.fk_med_contact IS
 	'whom to call for medical questions (result verification,
 	 additional test requests)';
-comment on column test_org.internal_name is
+comment on column clin.test_org.internal_name is
 	'you can store here the name a test org identifies
 	 itself with when sending data
 	 HL7: MSH.sending_application/OBR.universal_service_id';
-comment on column test_org."comment" is
+comment on column clin.test_org."comment" is
 	'useful for, say, dummy records where you want
 	 to mark up stuff like "pharmacy such-and-such"
 	 if you don''t have it in your contacts';
@@ -58,9 +58,9 @@ comment on column test_org."comment" is
 --  2) "non-medical person" (exactly *who* may be in *_result)
 
 -- ====================================
-create table test_type (
+create table clin.test_type (
 	pk serial primary key,
-	fk_test_org integer references test_org(pk),
+	fk_test_org integer references clin.test_org(pk),
 	code text not null,
 	coding_system text default null,
 	name text,
@@ -69,17 +69,17 @@ create table test_type (
 	unique (fk_test_org, code, coding_system)
 ) inherits (audit_fields);
 
-select add_table_for_audit('test_type');
+select add_table_for_audit('clin', 'test_type');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
 select add_x_db_fk_def('test_type', 'conversion_unit', 'reference', 'basic_unit', 'name_short');
 
-comment on table test_type is
+comment on table clin.test_type is
 	'measurement type, like a "method" in a lab';
-comment on column test_type.fk_test_org is
+comment on column clin.test_type.fk_test_org is
 	'organisation carrying out this type of measurement, eg. a particular lab';
-comment on column test_type.code is
+comment on column clin.test_type.code is
 	'short name, acronym or code of this type of measurement,
 	 may conform to some official list or other such as LOINC,
 	 Australian Pathology request codes or German lab-specific ELVs,
@@ -87,17 +87,17 @@ comment on column test_type.code is
 	 tables, too, the only problem being that we do not know which
 	 one ... as it depends on the *value* in "coding_system",
 	 HL7: OBX.observation_identifier';
-comment on column test_type.coding_system is
+comment on column clin.test_type.coding_system is
 	'identifier of coding system that the code of this
 	 measurement type is taken from, should be verifiable
 	 against the "reference" service of GnuMed';
-comment on column test_type.name is
+comment on column clin.test_type.name is
 	'descriptive name of this measurement type,
 	 HL7: OBX.observation_identifier';
-comment on column test_type.comment is
+comment on column clin.test_type.comment is
 	'arbitrary comment on this type of measurement/test such
 	 as "outdated" or "only reliable when ..."';
-comment on column test_type.conversion_unit is
+comment on column clin.test_type.conversion_unit is
 	'the basic unit for this test type, preferably SI,
 	 used for comparing results delivered in differing
 	 units, this does not relate to what unit the test
@@ -106,7 +106,7 @@ comment on column test_type.conversion_unit is
 	 order to be comparable to OTHER results';
 
 -- ====================================
-create table test_type_unified (
+create table clin.test_type_unified (
 	pk serial primary key,
 	code text
 		not null,
@@ -118,7 +118,7 @@ create table test_type_unified (
 	unique (code, name)
 );
 
-comment on table test_type_unified is
+comment on table clin.test_type_unified is
 	'this table merges test types from various test orgs
 	 which are intended to measure the same value but have
 	 differing names into one logical test type,
@@ -126,47 +126,47 @@ comment on table test_type_unified is
 	 semantically different test types into "profiles"';
 
 -- ====================================
-create table lnk_ttype2unified_type (
+create table clin.lnk_ttype2unified_type (
 	pk serial primary key,
 	fk_test_type integer
 		not null
-		references test_type(pk)
+		references clin.test_type(pk)
 		on update cascade
 		on delete cascade,
 	fk_test_type_unified integer
 		not null
-		references test_type_unified(pk)
+		references clin.test_type_unified(pk)
 		on update cascade
 		on delete restrict
 );
 
 -- ====================================
-create table lnk_tst2norm (
+create table clin.lnk_tst2norm (
 	id serial primary key,
 	id_test integer
 		not null
-		references test_type(pk),
+		references clin.test_type(pk),
 	id_norm integer not null,
 	unique (id_test, id_norm)
 ) inherits (audit_fields);
 
-select add_table_for_audit('lnk_tst2norm');
+select add_table_for_audit('clin', 'lnk_tst2norm');
 
-select add_x_db_fk_def ('lnk_tst2norm', 'id_norm', 'reference', 'test_norm', 'id');
+--select add_x_db_fk_def ('lnk_tst2norm', 'id_norm', 'reference', 'test_norm', 'id');
 
-comment on table lnk_tst2norm is
+comment on table clin.lnk_tst2norm is
 	'links test result evaluation norms to tests';
-comment on column lnk_tst2norm.id_test is
+comment on column clin.lnk_tst2norm.id_test is
 	'which test does the linked norm apply to';
-comment on column lnk_tst2norm.id_norm is
+comment on column clin.lnk_tst2norm.id_norm is
 	'the norm to apply to the linked test';
 
 -- ====================================
-create table test_result (
+create table clin.test_result (
 	pk serial primary key,
 	fk_type integer
 		not null
-		references test_type(pk),
+		references clin.test_type(pk),
 	val_num numeric		-- consider contrib/seg.sql
 		default null
 		check (
@@ -190,101 +190,101 @@ create table test_result (
 	note_provider text,
 	material text,
 	material_detail text
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table test_result add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.test_result add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table test_result add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.test_result add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table test_result alter column soap_cat set default 'o';
-alter table test_result add constraint numval_needs_unit
+alter table clin.test_result alter column soap_cat set default 'o';
+alter table clin.test_result add constraint numval_needs_unit
 	check (
 		((val_num is not null) and (trim(coalesce(val_unit, '')) != ''))
 			or
 		(val_num is null)
 	);
 
-select add_table_for_audit('test_result');
-select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
+select add_table_for_audit('clin', 'test_result');
+--select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
 
-COMMENT ON TABLE test_result is
+COMMENT ON TABLE clin.test_result is
 	'the results of a single measurement';
 -- FIXME: housekeeping sanity script:
-comment on column test_result.clin_when is
+comment on column clin.test_result.clin_when is
 	'the time when this result was *actually* obtained,
 	 if this is a lab result this should be between
 	 lab_request.clin_when and lab_request.results_reported_when,
 	 HL7: OBR.observation_date_time';
-comment on column test_result.narrative is
+comment on column clin.test_result.narrative is
 	'clinical comment, progress note';
-comment on column test_result.fk_type is
+comment on column clin.test_result.fk_type is
 	'the type of test this result is from';
-comment on column test_result.val_num is
+comment on column clin.test_result.val_num is
 	'numeric value if any,
 	 HL7: OBX.observation_results if OBX.value_type == NM';
-comment on column test_result.val_alpha is
+comment on column clin.test_result.val_alpha is
 	'alphanumeric value if any,
 	 HL7: OBX.observation_results if OBX.value_type == FT';
-comment on column test_result.val_unit is
+comment on column clin.test_result.val_unit is
 	'the unit this result came in
 	 HL7: OBX.units';
-comment on column test_result.val_normal_min is
+comment on column clin.test_result.val_normal_min is
 	'lower bound of normal range if numerical as
 	 defined by provider for this result';
-comment on column test_result.val_normal_max is
+comment on column clin.test_result.val_normal_max is
 	'upper bound of normal range if numerical as
 	 defined by provider for this result';
-comment on column test_result.val_normal_range is
+comment on column clin.test_result.val_normal_range is
 	'range of normal values if alphanumerical
 	 as defined by provider for this result, eg.
 	 "less than 0.5 but detectable"
 	 HL7: OBX.reference_range';
-comment on column test_result.val_target_min is
+comment on column clin.test_result.val_target_min is
 	'lower bound of target range if numerical as
 	 defined by clinician caring this patient';
-comment on column test_result.val_target_max is
+comment on column clin.test_result.val_target_max is
 	'upper bound of target range if numerical as
 	 defined by clinician caring for this patient';
-comment on column test_result.val_target_range is
+comment on column clin.test_result.val_target_range is
 	'range of target values if alphanumerical
 	 as defined by clinician caring for this patient';
-comment on column test_result.abnormality_indicator is
+comment on column clin.test_result.abnormality_indicator is
 	'how the test provider flagged this result as abnormal,
 	 *not* a clinical assessment but rather a technical one
 	 LDT: 8422';
-comment on column test_result.norm_ref_group is
+comment on column clin.test_result.norm_ref_group is
 	'what sample of the population does this normal range
 	 applay to, eg what type of patient was assumed when
 	 interpreting this result,
 	 LDT: 8407';
-comment on column test_result.note_provider is
+comment on column clin.test_result.note_provider is
 	'any comment the test provider should like to make, such
 	 as "may be inaccurate due to haemolyzed sample"
 	 LDT: 8470';
-comment on column test_result.material is
+comment on column clin.test_result.material is
 	'the submitted material, eg. smear, serum, urine, etc.,
 	 LDT: 8430';
-comment on column test_result.material_detail is
+comment on column clin.test_result.material_detail is
 	'details re the material, eg. site taken from, etc.
 	 LDT: 8431';
 
 -- ====================================
-create table lab_request (
+create table clin.lab_request (
 	pk serial primary key,
 	fk_test_org integer
 		not null
-		references test_org(pk),
+		references clin.test_org(pk),
 	request_id text
 		not null
 		check (trim(both from request_id) != ''),
 	-- FIXME: references staff(pk)
 	fk_requestor integer
 		default null
-		references xlnk_identity(xfk_identity)
+		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
 	lab_request_id text
@@ -302,61 +302,61 @@ create table lab_request (
 	unique (fk_test_org, request_id)
 	-- FIXME: there really ought to be a constraint like this:
 --	unique (fk_patient, request_id)
-) inherits (clin_root_item);
+) inherits (clin.clin_root_item);
 
-alter table lab_request add foreign key (fk_encounter)
-		references clin_encounter(id)
+alter table clin.lab_request add foreign key (fk_encounter)
+		references clin.clin_encounter(id)
 		on update cascade
 		on delete restrict;
-alter table lab_request add foreign key (fk_episode)
-		references clin_episode(pk)
+alter table clin.lab_request add foreign key (fk_episode)
+		references clin.clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table lab_request alter column soap_cat set default 'p';
+alter table clin.lab_request alter column soap_cat set default 'p';
 
-comment on table lab_request is
+comment on table clin.lab_request is
 	'test request metadata';
-comment on column lab_request.clin_when is
+comment on column clin.lab_request.clin_when is
 	'the time the sample for this request was taken
 	 LDT: 8432:8433
 	 HL7: OBR.quantity_timing';
-comment on column lab_request.narrative is
+comment on column clin.lab_request.narrative is
 	'free text comment on request';
-comment on column lab_request.request_id IS
+comment on column clin.lab_request.request_id IS
 	'ID this request had when sent to the lab
 	 LDT: 8310
 	 HL7: OBR.filler_order_number';
-comment on column lab_request.fk_requestor is
+comment on column clin.lab_request.fk_requestor is
 	'who requested the test - really needed ?';
-comment on column lab_request.lab_request_id is
+comment on column clin.lab_request.lab_request_id is
 	'ID this request had internally at the lab
 	 LDT: 8311';
-comment on column lab_request.lab_rxd_when is
+comment on column clin.lab_request.lab_rxd_when is
 	'when did the lab receive the request+sample
 	 LDT: 8301
 	 HL7: OBR.requested_date_time';
-comment on column lab_request.results_reported_when is
+comment on column clin.lab_request.results_reported_when is
 	'when was the report on the result generated,
 	LDT: 8302
 	HL7: OBR.results_report_status_change';
-comment on column lab_request.request_status is
+comment on column clin.lab_request.request_status is
 	'pending, final, preliminary, partial
 	 LDT: 8401';
-comment on column lab_request.is_pending is
+comment on column clin.lab_request.is_pending is
 	'true if any (even partial) results are still pending';
 
 -- ====================================
-create table lnk_result2lab_req (
+create table clin.lnk_result2lab_req (
 	pk serial primary key,
 	fk_result integer
 		unique
 		not null
-		references test_result(pk)
+		references clin.test_result(pk)
 		on update cascade
 		on delete cascade,
 	fk_request integer
 		not null
-		references lab_request(pk)
+		references clin.lab_request(pk)
 		on update cascade
 		on delete cascade
 );
@@ -378,12 +378,14 @@ create table lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.49 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.50 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.49  2005-10-30 22:55:09  ncq
+-- Revision 1.50  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.49  2005/10/30 22:55:09  ncq
 -- - factor out unmatched incoming data table
 --
 -- Revision 1.48  2005/10/26 21:31:09  ncq

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,9 +32,9 @@ values (currval('identity_pk_seq'), true, 'McCoy', 'Leonard Horatio');
 insert into names (id_identity, active, lastnames, firstnames, comment)
 values (currval('identity_pk_seq'), false, 'DeForest', 'Kelley', 'name of the actor');
 
-delete from xlnk_identity where xfk_identity = currval('identity_pk_seq');
+delete from clin.xlnk_identity where xfk_identity = currval('identity_pk_seq');
 
-insert into xlnk_identity (xfk_identity, pupic)
+insert into clin.xlnk_identity (xfk_identity, pupic)
 values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 
@@ -49,12 +49,14 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '$RCSfile: test_data-Leonard_McCoy.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.15 $');
+select log_script_insertion('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.15  2005-09-19 16:38:52  ncq
+-- Revision 1.16  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.15  2005/09/19 16:38:52  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.14  2005/07/14 21:31:43  ncq

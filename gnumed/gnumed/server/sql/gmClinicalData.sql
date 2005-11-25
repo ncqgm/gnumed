@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.39 2005-09-19 16:38:51 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.40 2005-11-25 15:07:28 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -19,29 +19,29 @@
 --			_('by email'),
 --			_('other consultation')
 --		]
-INSERT INTO encounter_type (description) values (i18n('in surgery'));
-INSERT INTO encounter_type (description) values (i18n('phone consultation'));
-INSERT INTO encounter_type (description) values (i18n('fax consultation'));
-INSERT INTO encounter_type (description) values (i18n('home visit'));
-INSERT INTO encounter_type (description) values (i18n('nursing home visit'));
-INSERT INTO encounter_type (description) values (i18n('repeat script'));
-INSERT INTO encounter_type (description) values (i18n('hospital visit'));
-INSERT INTO encounter_type (description) values (i18n('video conference'));
-INSERT INTO encounter_type (description) values (i18n('proxy encounter'));
-INSERT INTO encounter_type (description) values (i18n('emergency encounter'));
-INSERT INTO encounter_type (description) values (i18n('chart review'));
-INSERT INTO encounter_type (description) values (i18n('other encounter'));
+INSERT INTO clin.encounter_type (description) values (i18n('in surgery'));
+INSERT INTO clin.encounter_type (description) values (i18n('phone consultation'));
+INSERT INTO clin.encounter_type (description) values (i18n('fax consultation'));
+INSERT INTO clin.encounter_type (description) values (i18n('home visit'));
+INSERT INTO clin.encounter_type (description) values (i18n('nursing home visit'));
+INSERT INTO clin.encounter_type (description) values (i18n('repeat script'));
+INSERT INTO clin.encounter_type (description) values (i18n('hospital visit'));
+INSERT INTO clin.encounter_type (description) values (i18n('video conference'));
+INSERT INTO clin.encounter_type (description) values (i18n('proxy encounter'));
+INSERT INTO clin.encounter_type (description) values (i18n('emergency encounter'));
+INSERT INTO clin.encounter_type (description) values (i18n('chart review'));
+INSERT INTO clin.encounter_type (description) values (i18n('other encounter'));
 
 -- ===================================================================
-insert into _enum_allergy_type (value) values (i18n('allergy'));
-insert into _enum_allergy_type (value) values (i18n('sensitivity'));
+insert into clin._enum_allergy_type (value) values (i18n('allergy'));
+insert into clin._enum_allergy_type (value) values (i18n('sensitivity'));
 
 -- ===================================================================
 -- soap cat ranking for sorting
-insert into soap_cat_ranks (rank, soap_cat) values (1, 's');
-insert into soap_cat_ranks (rank, soap_cat) values (2, 'o');
-insert into soap_cat_ranks (rank, soap_cat) values (3, 'a');
-insert into soap_cat_ranks (rank, soap_cat) values (4, 'p');
+insert into clin.soap_cat_ranks (rank, soap_cat) values (1, 's');
+insert into clin.soap_cat_ranks (rank, soap_cat) values (2, 'o');
+insert into clin.soap_cat_ranks (rank, soap_cat) values (3, 'a');
+insert into clin.soap_cat_ranks (rank, soap_cat) values (4, 'p');
 
 -- ===================================================================
 -- v_emr_journal
@@ -78,15 +78,15 @@ select i18n('value');
 -- ===================================================================
 -- clinical narrative types
 -- * history types
-insert into clin_item_type (code, type) values (i18n('HxRFE'), i18n('history of presenting complaint'));
-insert into clin_item_type (code, type) values (i18n('psHx'), i18n('psycho-social history'));
-insert into clin_item_type (code, type) values (i18n('fHx'),  i18n('family history'));
-insert into clin_item_type (code, type) values (i18n('sxHx'), i18n('sexual history'));
+insert into clin.clin_item_type (code, type) values (i18n('HxRFE'), i18n('history of presenting complaint'));
+insert into clin.clin_item_type (code, type) values (i18n('psHx'), i18n('psycho-social history'));
+insert into clin.clin_item_type (code, type) values (i18n('fHx'),  i18n('family history'));
+insert into clin.clin_item_type (code, type) values (i18n('sxHx'), i18n('sexual history'));
 
 -- * social history subtypes
-insert into clin_item_type (code, type) values (i18n('sHxD'), i18n('diet'));
-insert into clin_item_type (code, type) values (i18n('sHxH'), i18n('housing'));
--- insert into clin_item_type (code, type) values (i18n(''), i18n(''));
+insert into clin.clin_item_type (code, type) values (i18n('sHxD'), i18n('diet'));
+insert into clin.clin_item_type (code, type) values (i18n('sHxH'), i18n('housing'));
+-- insert into clin.clin_item_type (code, type) values (i18n(''), i18n(''));
 
 -- Eigenanamnese/Fremdanamnese ??, Familienanamnese, Sozialanamnese, Allg./vegetat. Anamnese
 
@@ -141,18 +141,18 @@ insert into clin_item_type (code, type) values (i18n('sHxH'), i18n('housing'));
 --   ISO lang/country
 
 -- ===================================================================
---INSERT INTO _enum_hx_type (description) values (i18n('presenting complaint'));
---INSERT INTO _enum_hx_type (description) values (i18n('history of present illness'));
---INSERT INTO _enum_hx_type (description) values (i18n('drug'));
---INSERT INTO _enum_hx_type (description) values (i18n('other'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n('presenting complaint'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n('history of present illness'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n('drug'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n('other'));
 
 -- ===================================================================
---insert into _enum_hx_source (description) values (i18n('patient'));
---insert into _enum_hx_source (description) values (i18n('clinician'));
---insert into _enum_hx_source (description) values (i18n('relative'));
---insert into _enum_hx_source (description) values (i18n('carer'));
---insert into _enum_hx_source (description) values (i18n('notes'));
---insert into _enum_hx_source (description) values (i18n('correspondence'));
+--insert into clin._enum_hx_source (description) values (i18n('patient'));
+--insert into clin._enum_hx_source (description) values (i18n('clinician'));
+--insert into clin._enum_hx_source (description) values (i18n('relative'));
+--insert into clin._enum_hx_source (description) values (i18n('carer'));
+--insert into clin._enum_hx_source (description) values (i18n('notes'));
+--insert into clin._enum_hx_source (description) values (i18n('correspondence'));
 
 -- ===================================================================
 --INSERT INTO enum_coding_systems (description) values (i18n('general'));
@@ -165,13 +165,13 @@ insert into clin_item_type (code, type) values (i18n('sHxH'), i18n('housing'));
 --INSERT INTO enum_coding_systems (description) values (i18n('other'));
 
 -- ===================================================================
-INSERT INTO enum_confidentiality_level (description) values (i18n('public'));
-INSERT INTO enum_confidentiality_level (description) values (i18n('relatives'));
-INSERT INTO enum_confidentiality_level (description) values (i18n('receptionist'));
-INSERT INTO enum_confidentiality_level (description) values (i18n('clinical staff'));
-INSERT INTO enum_confidentiality_level (description) values (i18n('doctors'));
-INSERT INTO enum_confidentiality_level (description) values (i18n('doctors of practice only'));
-INSERT INTO enum_confidentiality_level (description) values (i18n('treating doctor'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('public'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('relatives'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('receptionist'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('clinical staff'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('doctors'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('doctors of practice only'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n('treating doctor'));
 
 -- ===================================================================
 -- measurements stuff
@@ -183,18 +183,18 @@ select i18n('partial');
 select i18n('final');
 
 
-delete from test_org;
+delete from clin.test_org;
 
 -- various "organizations" taking measurements
 -- patient taking measurements herself
-insert into test_org (fk_org, internal_name, comment) values (
+insert into clin.test_org (fk_org, internal_name, comment) values (
 	-1,
 	i18n('patient'),
 	'self-measurement as reported by patient'
 );
 
 -- if you want to be lazy and just link all external results to one fake providing lab
-insert into test_org (fk_org, internal_name, comment) values (
+insert into clin.test_org (fk_org, internal_name, comment) values (
 	-2,
 	i18n('external org'),
 	'any external organization, regardless
@@ -202,7 +202,7 @@ insert into test_org (fk_org, internal_name, comment) values (
 );
 
 -- your own practice as a test-providing org
-insert into test_org (fk_org, internal_name, comment) values (
+insert into clin.test_org (fk_org, internal_name, comment) values (
 	-3,
 	i18n('your own practice'),
 	'for inhouse lab/tests/measurements'
@@ -210,10 +210,10 @@ insert into test_org (fk_org, internal_name, comment) values (
 
 -- measurement definitions
 -- weight
-insert into test_type (
+insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	i18n('wght'),
 	null,
 	i18n('weight (body mass)'),
@@ -221,10 +221,10 @@ insert into test_type (
 	'kg'
 );
 -- height
-insert into test_type (
+insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	i18n('hght'),
 	null,
 	i18n('height'),
@@ -233,10 +233,10 @@ insert into test_type (
 );
 -- blood pressure
 -- manually/by device, sitting/lying/standing, Riva-Rocci vs. other methods handled in result specifics
-insert into test_type (
+insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	i18n('RR'),
 	null,
 	i18n('blood pressure'),
@@ -244,10 +244,10 @@ insert into test_type (
 	'Pa'
 );
 -- pulse
-insert into test_type (
+insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	i18n('pulse'),
 	null,
 	i18n('pulse, periph.art.'),
@@ -255,20 +255,20 @@ insert into test_type (
 	'Hz'
 );
 -- peripheral arterial oxygenation
-insert into test_type (
+insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
-	currval('test_org_pk_seq'),
+	currval('clin.test_org_pk_seq'),
 	i18n('SpO2'),
 	null,
 	i18n('blood oxygen saturation'),
 	i18n('peripheral arterial blood oxygenization level, transduced'),
 	'%'
 );
---insert into test_type (
+--insert into clin.test_type (
 --	fk_test_org, code, coding_system, name, comment, conversion_unit
 --) values (
---	currval('test_org_pk_seq'),
+--	currval('clin.test_org_pk_seq'),
 --	i18n('code'),
 --	null,
 --	i18n('name'),
@@ -295,345 +295,348 @@ insert into staff_role (name) values (i18n('trainee - lab'));
 
 -- ===================================================================
 -- vaccination routes
-delete from vacc_route;
+delete from clin.vacc_route;
 
-insert into vacc_route
+insert into clin.vacc_route
 	(abbreviation, description)
 values
 	('i.m.', i18n('intramuscular'));
 
-insert into vacc_route
+insert into clin.vacc_route
 	(abbreviation, description)
 values
 	('s.c.', i18n('subcutaneous'));
 
-insert into vacc_route 
+insert into clin.vacc_route 
 	( abbreviation, description) 
 values 
 	( 'o', i18n('orally'));
 
 -- ===================================================================
 -- vaccination indications
-delete from vacc_indication;
+delete from clin.vacc_indication;
 
-insert into vacc_indication (description) values (i18n('measles'));
-insert into vacc_indication (description) values (i18n('mumps'));
-insert into vacc_indication (description) values (i18n('rubella'));
-insert into vacc_indication (description) values (i18n('tetanus'));
-insert into vacc_indication (description) values (i18n('diphtheria'));
-insert into vacc_indication (description) values (i18n('pertussis'));
-insert into vacc_indication (description) values (i18n('haemophilus influenzae b'));
-insert into vacc_indication (description) values (i18n('hepatitis B'));
-insert into vacc_indication (description) values (i18n('poliomyelitis'));
-insert into vacc_indication (description) values (i18n('influenza'));
-insert into vacc_indication (description) values (i18n('hepatitis A'));
-insert into vacc_indication (description) values (i18n('pneumococcus'));
-insert into vacc_indication (description) values (i18n('meningococcus C'));
-insert into vacc_indication (description) values (i18n('tick-borne meningoencephalitis'));
+insert into clin.vacc_indication (description) values (i18n('measles'));
+insert into clin.vacc_indication (description) values (i18n('mumps'));
+insert into clin.vacc_indication (description) values (i18n('rubella'));
+insert into clin.vacc_indication (description) values (i18n('tetanus'));
+insert into clin.vacc_indication (description) values (i18n('diphtheria'));
+insert into clin.vacc_indication (description) values (i18n('pertussis'));
+insert into clin.vacc_indication (description) values (i18n('haemophilus influenzae b'));
+insert into clin.vacc_indication (description) values (i18n('hepatitis B'));
+insert into clin.vacc_indication (description) values (i18n('poliomyelitis'));
+insert into clin.vacc_indication (description) values (i18n('influenza'));
+insert into clin.vacc_indication (description) values (i18n('hepatitis A'));
+insert into clin.vacc_indication (description) values (i18n('pneumococcus'));
+insert into clin.vacc_indication (description) values (i18n('meningococcus C'));
+insert into clin.vacc_indication (description) values (i18n('tick-borne meningoencephalitis'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
-delete from lnk_vacc_ind2code;
+delete from clin.lnk_vacc_ind2code;
 
 -- ICD 10 GM (German Modification)
 
 -- Measles
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.0+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.0+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.1+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.1+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.2+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.2+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.3+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.3+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.4+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.4+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.8+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.8+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='measles'), 'B05.9+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='measles'), 'B05.9+', 'ICD-10-GM');
 
 -- Mumps
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26.0+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26.0+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26.1+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26.1+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26.2+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26.2+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26.3+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26.3+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26.8', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26.8', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='mumps'), 'B26.9', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='mumps'), 'B26.9', 'ICD-10-GM');
 
 -- Rubella
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='rubella'), 'B06', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='rubella'), 'B06', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='rubella'), 'B06.0+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='rubella'), 'B06.0+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='rubella'), 'B06.8', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='rubella'), 'B06.8', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='rubella'), 'B06.9', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='rubella'), 'B06.9', 'ICD-10-GM');
 
 -- Tetanus
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='tetanus'), 'A33', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='tetanus'), 'A33', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='tetanus'), 'A34', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='tetanus'), 'A34', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='tetanus'), 'A35', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='tetanus'), 'A35', 'ICD-10-GM');
 
 -- Diptheria
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36.0', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36.0', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36.1', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36.1', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36.2', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36.2', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36.3', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36.3', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36.8', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36.8', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='diphtheria'), 'A36.9', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='diphtheria'), 'A36.9', 'ICD-10-GM');
 
 -- Influenza
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='influenza'), 'J11', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='influenza'), 'J11', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='influenza'), 'J11.0', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='influenza'), 'J11.0', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='influenza'), 'J11.1', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='influenza'), 'J11.1', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='influenza'), 'J11.8', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='influenza'), 'J11.8', 'ICD-10-GM');
 
 -- Pneumococcus
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pneumococcus'), 'G00.1', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pneumococcus'), 'G00.1', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pneumococcus'), 'I30.1', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pneumococcus'), 'I30.1', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pneumococcus'), 'M00.1', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pneumococcus'), 'M00.1', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pneumococcus'), 'A40.3', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pneumococcus'), 'A40.3', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pneumococcus'), 'J13', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pneumococcus'), 'J13', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pneumococcus'), 'P23.6', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pneumococcus'), 'P23.6', 'ICD-10-GM');
 
 -- Pertussis
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pertussis'), 'A37', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pertussis'), 'A37', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pertussis'), 'A37.0', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pertussis'), 'A37.0', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pertussis'), 'A37.1', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pertussis'), 'A37.1', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pertussis'), 'A37.8', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pertussis'), 'A37.8', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='pertussis'), 'A37.9', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='pertussis'), 'A37.9', 'ICD-10-GM');
 
 -- Hepatitis A
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='hepatitis A'), 'B15', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='hepatitis A'), 'B15', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='hepatitis A'), 'B15.0', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='hepatitis A'), 'B15.0', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='hepatitis A'), 'B15.9', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='hepatitis A'), 'B15.9', 'ICD-10-GM');
 
 -- Meningococcus C
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.0+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.0+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.1+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.1+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.2', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.2', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.3', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.3', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.4', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.4', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.5+', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.5+', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.8', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.8', 'ICD-10-GM');
 
-insert into lnk_vacc_ind2code
+insert into clin.lnk_vacc_ind2code
 	(fk_indication, code, coding_system)
 values
-	((select id from vacc_indication where description='meningococcus C'), 'A39.9', 'ICD-10-GM');
+	((select id from clin.vacc_indication where description='meningococcus C'), 'A39.9', 'ICD-10-GM');
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.39 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.40 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.39  2005-09-19 16:38:51  ncq
+-- Revision 1.40  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.39  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.38  2005/07/14 21:31:42  ncq

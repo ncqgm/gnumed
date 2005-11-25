@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Julian_Bashir.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -27,12 +27,14 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '$RCSfile: test_data-Julian_Bashir.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.10 $');
+select log_script_insertion('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: test_data-Julian_Bashir.sql,v $
--- Revision 1.10  2005-09-19 16:38:52  ncq
+-- Revision 1.11  2005-11-25 15:07:28  ncq
+-- - create schema "clin" and move all things clinical into it
+--
+-- Revision 1.10  2005/09/19 16:38:52  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.9  2005/07/14 21:31:43  ncq
