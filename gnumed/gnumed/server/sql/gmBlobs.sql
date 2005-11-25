@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.52 $ $Date: 2005-11-11 23:03:55 $ $Author: ncq $
+-- $Revision: 1.53 $ $Date: 2005-11-25 15:02:05 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -16,15 +16,15 @@ create schema blobs authorization "gm-dbo";
 -- =============================================
 --\unset ON_ERROR_STOP
 
---create table xlnk_identity (
---	pk serial primary key,
---	xfk_identity integer unique not null,
---	pupic text unique not null,
---	data text unique default null
---) inherits (public.audit_fields);
+create table blobs.xlnk_identity (
+	pk serial primary key,
+	xfk_identity integer unique not null,
+	pupic text unique not null,
+	data text unique default null
+) inherits (public.audit_fields);
 
 --select public.add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
---select public.add_table_for_audit('public', 'xlnk_identity');
+select public.add_table_for_audit('blobs', 'xlnk_identity');
 
 --comment on table xlnk_identity is
 --	'this is the one table with the unresolved identity(pk)
@@ -53,7 +53,7 @@ CREATE TABLE blobs.doc_med (
 	id serial primary key,
 	patient_id integer
 		not null
-		references public.xlnk_identity(xfk_identity)
+		references blobs.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete cascade,
 	type integer
@@ -158,7 +158,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.52 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.53 $');
 
 -- =============================================
 -- questions:
@@ -178,7 +178,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.52  2005-11-11 23:03:55  ncq
+-- Revision 1.53  2005-11-25 15:02:05  ncq
+-- - use xlnk_identity in blobs. now
+--
+-- Revision 1.52  2005/11/11 23:03:55  ncq
 -- - add is_user to doc_type
 --
 -- Revision 1.51  2005/10/26 21:33:25  ncq
