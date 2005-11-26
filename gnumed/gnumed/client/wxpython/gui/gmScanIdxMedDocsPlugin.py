@@ -3,7 +3,7 @@
 #
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmScanIdxMedDocsPlugin.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -14,8 +14,6 @@ try:
 except ImportError:
     from wxPython import wx
 
-
-#import Image
 import os, time, shutil, os.path
 
 from Gnumed.pycommon import gmLog
@@ -23,12 +21,7 @@ _log = gmLog.gmDefLog
 if __name__ == '__main__':
     _log.SetAllLogLevels(gmLog.lData)
 
-#from Gnumed.pycommon import gmCfg, gmMatchProvider, gmExceptions, gmI18N
-#from Gnumed.business import gmXmlDocDesc, gmXdtObjects
-from Gnumed.wxpython import gmPlugin, gmMedDocWidgets#gmGuiHelpers, gmPhraseWheel
-
-#_cfg = gmCfg.gmDefCfgFile
-
+from Gnumed.wxpython import gmPlugin, gmMedDocWidgets
 #====================================
 
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
@@ -51,3 +44,6 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
+#======================================================================
+# $Log:
+# Revision 
