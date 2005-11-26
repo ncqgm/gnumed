@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -30,18 +30,42 @@ _log.Log(gmLog.lInfo, __version__)
 wx.ID_PNL_main = wx.NewId()
 wx.ID_TB_BTN_show_page = wx.NewId()
 
+#============================================================
+class cScanIdxDocsPnl(wxgScanIdxDocsPnl.wxgScanIdxDocsPnl):	# inherit from Glade
+	def __init__(self, *args, **kwds):
+		# init ancestor
+		wxgScanIdxDocsPnl.wxgScanIdxDocsPnl.__init__(self, *args, **kwds)
+		# now we *are* a wxgScanIdxDocsPnl child without any additional properties
 
+		# from here on we can init other stuff
+		# that's not part of the wxGlade GUI
+
+		# say, we want to change some properties
+#		self.__change_properties()
+
+		from Gnumed.pycommon import gmScanBackend
+		self.scan_module = gmScanBackend
+	#--------------------------------------------------------
+	def __change_properties(self):
+		# such as a new tooltip
+		self.__scan_button.SetToolTip('this is the new tooltip')
+	#--------------------------------------------------------
+	def __scan_btn_pressed(self, evt):
+		print "inside wxGlade this method should be set"
+		print "to be called when the user pressed the scan button"
+		print "this can be done by using the EVENT tab to define the EVT macro"
+		new_page_file = self.scan_module.
+	#--------------------------------------------------------
+	def __save_btn_pressed(self, evt):
+		print "same here"
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+#============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
 		#		 we don't need any real data, so we'll just use None.
 
-#============================================================
-# FIXME: complete this
-class cScanIdxDocsPnl(wxgScanIdxMedDocsPnl):
-	def __init__(self, .....):
-		wxgScanIdxMedDocsPnl.__init__(self, .....)
-
-#============================================================
 class cDocTree(wx.TreeCtrl):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 	"""
@@ -319,7 +343,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.16  2005-11-25 23:02:49  ncq
+# Revision 1.17  2005-11-26 08:21:37  ncq
+# - scan/index wxGlade child class fleshed out a bit more
+#
+# Revision 1.16  2005/11/25 23:02:49  ncq
 # - start scan/idx panel inheriting from wxGlade base class
 #
 # Revision 1.15  2005/09/28 21:27:30  ncq
