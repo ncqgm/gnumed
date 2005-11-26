@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -15,7 +15,7 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgScanIdxDocsPnl
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
@@ -31,10 +31,10 @@ wx.ID_PNL_main = wx.NewId()
 wx.ID_TB_BTN_show_page = wx.NewId()
 
 #============================================================
-class cScanIdxDocsPnl(wxgScanIdxDocsPnl.wxgScanIdxDocsPnl):	# inherit from Glade
+class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
     def __init__(self, *args, **kwds):
         # init ancestor
-        wxgScanIdxDocsPnl.wxgScanIdxDocsPnl.__init__(self, *args, **kwds)
+        wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
         # now we *are* a wxgScanIdxDocsPnl child without any additional properties
 
         # from here on we can init other stuff
@@ -358,7 +358,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.18  2005-11-26 16:38:55  shilbert
+# Revision 1.19  2005-11-26 16:56:04  shilbert
+# - initial working version with scan /index documents support
+#
+# Revision 1.18  2005/11/26 16:38:55  shilbert
 # - slowly readding features
 #
 # Revision 1.17  2005/11/26 08:21:37  ncq
