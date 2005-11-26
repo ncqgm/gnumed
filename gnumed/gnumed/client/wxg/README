@@ -1,0 +1,22 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxg/README,v $
+# $Revision: 1.1 $
+
+This directory contains wxGlade *.wxg XML files which are
+used to generate boilerplate Python classes defining the
+basic GUI layout.
+
+The generated classes (in client/wxGladeWidgets/) are then
+used as base classes to inherit from for actual GUI classes
+in client/wxpython/.
+
+If you want to change the look of a widget in GNUmed find
+the corresponding *.wxg file and edit that using wxGlade.
+Then regenerate the base class and put the file into
+client/wxGladeWidgets/. Be careful to stick to the attribute
+names (say, buttons) and EVENT method names to make GNUmed
+transparently use your layout changes. Else you will have to
+edit the code in the final widget somewhere in
+client/wxpython/*.py to provide appropriately named methods
+and access the right attributes.
+
+Karsten
