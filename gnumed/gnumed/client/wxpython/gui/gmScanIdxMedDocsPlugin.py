@@ -1,17 +1,9 @@
 #!/usr/bin/python
 #=====================================================
-# TODO:
-#  - if no xDT file found
-#    * browse GnuMed patient database
-#    * allow patient data input
-#  - cancel-quit button
-#  - load external file(s) (fax, digicam etc.)
-#  - wxDateEntry() mit ordentlichem Validator
-#  - Funktion Seiten umsortieren fertigstellen
-#  - phrasewheel on Kurzkommentar
+#
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmScanIdxMedDocsPlugin.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -31,11 +23,11 @@ _log = gmLog.gmDefLog
 if __name__ == '__main__':
     _log.SetAllLogLevels(gmLog.lData)
 
-from Gnumed.pycommon import gmCfg, gmMatchProvider, gmExceptions, gmI18N
-from Gnumed.business import gmXmlDocDesc, gmXdtObjects
-#from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
+#from Gnumed.pycommon import gmCfg, gmMatchProvider, gmExceptions, gmI18N
+#from Gnumed.business import gmXmlDocDesc, gmXdtObjects
+from Gnumed.wxpython import gmPlugin, gmMedDocWidgets#gmGuiHelpers, gmPhraseWheel
 
-_cfg = gmCfg.gmDefCfgFile
+#_cfg = gmCfg.gmDefCfgFile
 
 #====================================
 
