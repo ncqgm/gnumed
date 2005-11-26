@@ -1,0 +1,17 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxGladeWidgets/README,v $
+# $Revision: 1.1 $
+
+This directory contains Python code as generated from *.wxg
+XML files by wxGlade. The classes define what certain parts
+of the GUI look like. They are inherited from by actual UI
+classes in client/wxpython/.
+
+DO NOT EDIT THE CODE IN THE FILES IN THIS DIRECTORY !
+
+It will be overwritten the next time someone changes the GUI
+with wxGlade and puts the file in here. All your changes
+will be lost. If you want to make your changes permanent
+edit the appropriate *.wxg file in client/wxg/ (preferably
+using wxGlade) and regenerate the GUI code to be put here.
+
+Karsten
