@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -49,8 +49,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
     def __change_properties(self):
         # such as a new tooltip
         self.__scan_button.SetToolTip('this is the new tooltip')
+        self.Bind(wx.EVT_BUTTON, self.__scan_btn_pressed, self.__btn_scan)
     #--------------------------------------------------------
     def __scan_btn_pressed(self, evt):
+        print evt
         print "inside wxGlade this method should be set"
         print "to be called when the user pressed the scan button"
         print "this can be done by using the EVENT tab to define the EVT macro"
@@ -358,7 +360,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.19  2005-11-26 16:56:04  shilbert
+# Revision 1.20  2005-11-26 21:08:00  shilbert
+# - some more iterations on the road
+#
+# Revision 1.19  2005/11/26 16:56:04  shilbert
 # - initial working version with scan /index documents support
 #
 # Revision 1.18  2005/11/26 16:38:55  shilbert
