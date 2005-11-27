@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.21 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmAbout.py,v 1.22 2005-11-27 14:29:27 shilbert Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -100,14 +100,14 @@ class AboutFrame (wx.Frame):
 		self.SetIcon(icon)
 
 		box = wx.BoxSizer(wx.VERTICAL)
-		if wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			box.Add((0,0), 2)
 		else:
 			box.Add((0,0), 2)
 		intro_txt=wx.StaticText(self, -1, _("Monty the Serpent && the FSF Present"))
 		intro_txt.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		box.Add(intro_txt, 0, wx.ALIGN_CENTRE)
-		if wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			box.Add((0,0), 3)
 		else:
 			box.Add((0,0), 3)
@@ -118,7 +118,7 @@ class AboutFrame (wx.Frame):
 		motto_txt=wx.StaticText(self, -1, _("Free eMedicine"))
 		motto_txt.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		box.Add(motto_txt, 0, wx.ALIGN_CENTRE)
-		if wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
@@ -132,20 +132,20 @@ class AboutFrame (wx.Frame):
 
 		self.win=ScrollTxtWin(self)
 		box.Add(self.win, 0, wx.ALIGN_CENTRE)
-		if wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
 		info_txt=wx.StaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
 		info_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(info_txt, 0, wx.ALIGN_CENTRE)
-		if wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
 		btn = wx.Button(self, ID_MENU , _("Close"))
 		box.Add(btn,0, wx.ALIGN_CENTRE)
-		if wxPlatform == '__WXMAC__':
+		if wx.Platform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
@@ -232,7 +232,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.21  2005-09-28 21:27:30  ncq
+# Revision 1.22  2005-11-27 14:29:27  shilbert
+# - more wx24 --> wx26 cleanup
+#
+# Revision 1.21  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.20  2005/09/28 15:57:47  ncq
