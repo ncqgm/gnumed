@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -31,9 +31,8 @@ wx.ID_PNL_main = wx.NewId()
 wx.ID_TB_BTN_show_page = wx.NewId()
 
 #============================================================
-class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
-    # a list holding our objects
-    acquired_pages = []
+# FIXME: this must listen to patient change signals ...
+class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     def __init__(self, *args, **kwds):
         # init ancestor
         wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
@@ -41,27 +40,33 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
 
         # from here on we can init other stuff
         # that's not part of the wxGlade GUI
-        
-        # provide valid choices for document types
-        self.__get_valid_doc_types()
-        # say, we want to change some properties
-        self.__change_properties()
+        self.__init_ui_data()
 
+        # do not import globally since we might want to use
+        # this module without requiring any scanner to be available
         from Gnumed.pycommon import gmScanBackend
         self.scan_module = gmScanBackend
     #--------------------------------------------------------
-    def __change_properties(self):
-        # such as a new tooltip
-        #self.__scan_button.SetToolTip('this is the new tooltip')
-        for doc_type in  self.valid_doc_types:
+    def __init_ui_data(self):
+        # provide choices for document types
+        for doc_type in gmMedDoc.get_document_types():
             self.SelBOX_doc_type.Append(doc_type)
+        # a list holding our objects
+        self.acquired_pages = []
     #--------------------------------------------------------
     def _scan_btn_pressed(self, evt):
-        # "inside wxGlade this method should be set"
+        """inside wxGlade this method should be set"
         # "to be called when the user pressed the scan button"
-        # "this can be done by using the EVENT tab to define the EVT macro"
-        fname = self.scan_module.acquire_page_into_file(filename='test.bmp',delay=5)
+        # "this can be done by using the EVENT tab to define the EVT macro"""
+
+        # FIXME: allow directory to be passed in
+        fname = self.scan_module.acquire_page_into_file (
+            filename = 'test.bmp',
+            delay = 5,
+			calling_window = self
+        )
         if fname is None:
+            # FIXME: use gmGuiHelpers
             dlg = wx.MessageDialog(
                 self,
                 _('page could not be acquired. Please check the log file for details on what went wrong'),
@@ -80,6 +85,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
         # did user select a page ?
         page_idx = self.LBOX_doc_pages.GetSelection()
         if page_idx == -1:
+            # FIXME: use gmGuiHelpers
             dlg = wx.MessageDialog(
                 self,
                 _('You must select a page before you can view it.'),
@@ -95,7 +101,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
 
         (result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
         if not result:
-            gmGuiHelpers.gm_show_error(
+            gmGuiHelpers.gm_show_error (
                 aMessage = _('Cannot display document part:\n%s') % msg,
                 aTitle = _('displaying page')
             )
@@ -105,6 +111,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
     def _del_btn_pressed(self, event):
         page_idx = self.LBOX_doc_pages.GetSelection()
         if page_idx == -1:
+            # FIXME: use gmGuiHelpers
             dlg = wx.MessageDialog(
                 self,
                 _('You must select a page before you can delete it.'),
@@ -129,6 +136,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
             except:
                 exc = sys.exc_info()
                 _log.LogException("Cannot delete file.", exc, fatal=0)
+                # FIXME: use gmGuiHelpers
                 dlg = wx.MessageDialog(
                     self,
                     _('Cannot delete page (file %s).\nSee log for details.') % page_fname,
@@ -153,20 +161,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
                 fname = self.acquired_pages[i]
                 path, name = os.path.split(fname)
                 self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
-    #-----------------------------------------    
-    def __get_valid_doc_types(self):
-        # running standalone ? -> configfile
-        if __name__ == '__main__':
-            self.valid_doc_types = _cfg.get("metadata", "doctypes")
-        # we run embedded -> query database
-        else:   
-            doc_types = []
-            cmd = "SELECT name FROM blobs.doc_type"
-            rows = gmPG.run_ro_query('blobs', cmd)
-            # FIXME: error handling
-            for row in rows:
-                doc_types.append(row[0])
-            self.valid_doc_types = doc_types
 #============================================================
         # NOTE:	 For some reason tree items have to have a data object in
         #		 order to be sorted.  Since our compare just uses the labels
@@ -449,7 +443,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.21  2005-11-27 01:57:28  shilbert
+# Revision 1.22  2005-11-27 12:46:21  ncq
+# - cleanup
+#
+# Revision 1.21  2005/11/27 01:57:28  shilbert
 # - moved some of the feature back in
 #
 # Revision 1.20  2005/11/26 21:08:00  shilbert
