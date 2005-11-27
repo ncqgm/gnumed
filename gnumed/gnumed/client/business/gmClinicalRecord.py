@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.188 2005-11-18 15:16:15 ncq Exp $
-__version__ = "$Revision: 1.188 $"
+# $Id: gmClinicalRecord.py,v 1.189 2005-11-27 12:44:57 ncq Exp $
+__version__ = "$Revision: 1.189 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -126,7 +126,7 @@ class cClinicalRecord:
 			_log.Log(gmLog.lErr, "patient [%s] not in demographic database" % self.pk_patient)
 			return False
 		# patient linked in our local clinical database ?
-		cmd = "select exists(select pk from xlnk_identity where xfk_identity = %s)"
+		cmd = "select exists(select pk from clin.xlnk_identity where xfk_identity = %s)"
 		result = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in clinical database' % self.pk_patient)
@@ -134,8 +134,8 @@ class cClinicalRecord:
 		exists = result[0][0]
 		if not exists:
 			_log.Log(gmLog.lInfo, "patient [%s] not in clinical database" % self.pk_patient)
-			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
-			cmd2 = "select currval('xlnk_identity_pk_seq')"
+			cmd1 = "insert into clin.xlnk_identity (xfk_identity, pupic) values (%s, %s)"
+			cmd2 = "select currval('clin.xlnk_identity_pk_seq')"
 			status = gmPG.run_commit('historica', [
 				(cmd1, [self.pk_patient, self.pk_patient]),
 				(cmd2, [])
@@ -152,15 +152,15 @@ class cClinicalRecord:
 		"""
 		pk_provider = _whoami.get_staff_ID()
 		# provider linked in our local clinical database ?
-		cmd = "select exists(select pk from xlnk_identity where xfk_identity = %s)"
+		cmd = "select exists(select pk from clin.xlnk_identity where xfk_identity = %s)"
 		exists = gmPG.run_ro_query('historica', cmd, None, pk_provider)
 		if exists is None:
 			_log.Log(gmLog.lErr, 'unable to check for provider [%s] existence in clinical database' % pk_provider)
 			return False
 		if not exists[0][0]:
 			_log.Log(gmLog.lInfo, "provider [%s] not in clinical database" % pk_provider)
-			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
-			cmd2 = "select currval('xlnk_identity_pk_seq')"
+			cmd1 = "insert into clin.xlnk_identity (xfk_identity, pupic) values (%s, %s)"
+			cmd2 = "select currval('clin.xlnk_identity_pk_seq')"
 			status = gmPG.run_commit('historica', [
 				(cmd1, [pk_provider, pk_provider]),
 				(cmd2, [])
@@ -287,7 +287,7 @@ class cClinicalRecord:
 			self.__db_cache['narrative']
 		except KeyError:
 			self.__db_cache['narrative'] = []
-			cmd = "select * from v_pat_narrative where pk_patient=%s order by date"
+			cmd = "select * from clin.v_pat_narrative where pk_patient=%s order by date"
 			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load narrative for patient [%s]' % self.pk_patient)
@@ -320,7 +320,7 @@ class cClinicalRecord:
 		if search_term == '':
 			return False
 		cmd = """
-select * from v_narrative4search vn4s
+select * from clin.v_narrative4search vn4s
 where
 	pk_patient = %s and
 	vn4s.narrative ~ %s"""		# case sensitive
@@ -362,7 +362,7 @@ where
 			'pk_health_issue',
 			'src_table'
 		]
-		cmd = "select %s from v_pat_items where pk_patient=%%s order by src_table, age" % string.join(fields, ', ')
+		cmd = "select %s from clin.v_pat_items where pk_patient=%%s order by src_table, age" % string.join(fields, ', ')
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG.run_query(curs, None, cmd, self.pk_patient):
@@ -442,7 +442,7 @@ where
 				emr_data[age].append(_('episode     : %s') % episode_name)
 				# format table specific data columns
 				# - ignore those, they are metadata, some
-				#   are in v_pat_items data already
+				#   are in clin.v_pat_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'fk_encounter', 'fk_episode'
@@ -492,7 +492,7 @@ where
 			'pk_health_issue',
 			'src_table'
 		]
-		select_from = "select %s from v_pat_items" % ', '.join(fields)
+		select_from = "select %s from clin.v_pat_items" % ', '.join(fields)
 		# handle constraint conditions
 		where_snippets = []
 		params = {}
@@ -611,7 +611,7 @@ where
 				emr_data[age].append(_('episode     : %s') % episode_name)
 				# format table specific data columns
 				# - ignore those, they are metadata, some
-				#   are in v_pat_items data already
+				#   are in clin.v_pat_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'fk_encounter', 'fk_episode', 'pk'
@@ -661,7 +661,7 @@ where
 		except KeyError:
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
 			self.__db_cache['allergies'] = []
-			cmd = "select pk_allergy from v_pat_allergies where pk_patient=%s"
+			cmd = "select pk_allergy from clin.v_pat_allergies where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.pk_patient)
@@ -733,7 +733,7 @@ where
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
-			cmd = """select pk_episode from v_pat_episodes where pk_patient=%s"""
+			cmd = """select pk_episode from clin.v_pat_episodes where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.pk_patient)
@@ -764,7 +764,7 @@ where
 	#------------------------------------------------------------------
 	def get_episodes_by_encounter(self, pk_encounter=None):
 		cmd = """select distinct pk_episode
-					from v_pat_items
+					from clin.v_pat_items
 					where pk_encounter=%(enc)s and pk_patient=%(pat)s"""
 		rows = gmPG.run_ro_query (
 			'historica',
@@ -808,16 +808,16 @@ where
 		# try to find the episode with the most recently modified clinical item
 		cmd = """
 select pk
-from clin_episode
+from clin.clin_episode
 where pk=(
 	select distinct on(pk_episode) pk_episode
-	from v_pat_items
+	from clin.v_pat_items
 	where
 		pk_patient=%s
 			and
 		modified_when=(
 			select max(vpi.modified_when)
-			from v_pat_items vpi
+			from clin.v_pat_items vpi
 			where vpi.pk_patient=%s
 		)
 	-- guard against several episodes created at the same moment of time
@@ -825,7 +825,7 @@ where pk=(
 	)"""
 		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, self.pk_patient)
 		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting most recent episode from v_pat_items for patient [%s]' % self.pk_patient)
+			_log.Log(gmLog.lErr, 'error getting most recent episode from clin.v_pat_items for patient [%s]' % self.pk_patient)
 		else:
 			if len(rows) != 0:
 				try:
@@ -840,13 +840,13 @@ where pk=(
 			cmd = """
 select vpe0.pk_episode
 from
-	v_pat_episodes vpe0
+	clin.v_pat_episodes vpe0
 where
 	vpe0.pk_patient = %s
 		and
 	vpe0.episode_modified_when = (
 		select max(vpe1.episode_modified_when)
-		from v_pat_episodes vpe1
+		from clin.v_pat_episodes vpe1
 		where vpe1.pk_episode=vpe0.pk_episode
 	)"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
@@ -878,7 +878,7 @@ where
 			self.__db_cache['problems']
 		except KeyError:
 			self.__db_cache['problems'] = []
-			cmd= """select pk_health_issue, pk_episode from v_problem_list
+			cmd= """select pk_health_issue, pk_episode from clin.v_problem_list
 					where pk_patient=%s"""
 			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
@@ -954,7 +954,7 @@ where
 			self.__db_cache['health issues']
 		except KeyError:
 			self.__db_cache['health issues'] = []
-			cmd = "select id from clin_health_issue where id_patient=%s"
+			cmd = "select id from clin.clin_health_issue where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load health issues for patient [%s]' % self.pk_patient)
@@ -1008,7 +1008,7 @@ where
 			# retrieve vaccination regimes definitions
 			self.__db_cache['vaccinations']['scheduled regimes'] = []
 			cmd = """select distinct on(pk_regime) pk_regime
-					 from v_vaccs_scheduled4pat
+					 from clin.v_vaccs_scheduled4pat
 					 where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
@@ -1081,7 +1081,7 @@ where
 		except KeyError:			
 			self.__db_cache['vaccinations']['vaccinated'] = []
 			# Important fetch ordering by indication, date to know if a vaccination is booster
-			cmd= """select * from v_pat_vacc4ind
+			cmd= """select * from clin.v_pat_vacc4ind
 					where pk_patient=%s
  					order by indication, date"""
 			rows, idx  = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
@@ -1160,7 +1160,7 @@ where
 			self.__db_cache['vaccinations']['scheduled']
 		except KeyError:
 			self.__db_cache['vaccinations']['scheduled'] = []
-			cmd = """select * from v_vaccs_scheduled4pat where pk_patient=%s"""
+			cmd = """select * from clin.v_vaccs_scheduled4pat where pk_patient=%s"""
 			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load scheduled vaccinations for patient [%s]' % self.pk_patient)
@@ -1194,7 +1194,7 @@ where
 			# 1) non-booster
 			self.__db_cache['vaccinations']['missing']['due'] = []
 			# get list of (indication, seq_no) tuples
-			cmd = "select indication, seq_no from v_pat_missing_vaccs where pk_patient=%s"
+			cmd = "select indication, seq_no from clin.v_pat_missing_vaccs where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading (indication, seq_no) for due/overdue vaccinations for patient [%s]' % self.pk_patient)
@@ -1211,7 +1211,7 @@ where
 			# 2) boosters
 			self.__db_cache['vaccinations']['missing']['boosters'] = []
 			# get list of indications
-			cmd = "select indication, seq_no from v_pat_missing_boosters where pk_patient=%s"
+			cmd = "select indication, seq_no from clin.v_pat_missing_boosters where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading indications for missing boosters for patient [%s]' % self.pk_patient)
@@ -1280,7 +1280,7 @@ where
 		sttl = '%s days %s seconds' % (days, seconds)
 		cmd = """
 			select pk_encounter
-			from v_most_recent_encounters
+			from clin.v_most_recent_encounters
 			where
 				pk_patient=%s
 					and
@@ -1320,7 +1320,7 @@ where
 		httl = '%s days %s seconds' % (days, seconds)
 		cmd = """
 			select	pk_encounter
-			from v_most_recent_encounters
+			from clin.v_most_recent_encounters
 			where
 				pk_patient=%s
 					and
@@ -1341,7 +1341,7 @@ where
 		# ask user whether to attach or not
 		cmd = """
 			select title, firstnames, lastnames, gender, dob
-			from v_basic_person	where pk_identity=%s"""
+			from clin.v_basic_person	where pk_identity=%s"""
 		pat = gmPG.run_ro_query('personalia', cmd, None, self.pk_patient)
 		if (pat is None) or (len(pat) == 0):
 			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.pk_patient)
@@ -1419,7 +1419,7 @@ where
 		except KeyError:
 			# fetch all encounters for patient
 			self.__db_cache['encounters'] = []
-			cmd = "select * from v_pat_encounters where pk_patient=%s order by started"
+			cmd = "select * from clin.v_pat_encounters where pk_patient=%s order by started"
 			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for patient [%s]' % self.pk_patient)
@@ -1442,7 +1442,7 @@ where
 				issues.append(issues[0])
 			cmd = """
 select distinct pk_encounter
-from v_pat_items
+from clin.v_pat_items
 where pk_health_issue in %s and pk_patient = %s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
 			if rows is None:
@@ -1456,7 +1456,7 @@ where pk_health_issue in %s and pk_patient = %s"""
 				episodes.append(episodes[0])
 			cmd = """
 select distinct pk_encounter
-from v_pat_items
+from clin.v_pat_items
 where pk_episode in %s and pk_patient = %s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.pk_patient))
 			if rows is None:
@@ -1539,7 +1539,7 @@ where pk_episode in %s and pk_patient = %s"""
 			else:
 				lim = ''
 
-		cmd = """select * from v_results4lab_req where pk_patient=%%s %s""" % lim
+		cmd = """select * from clin.v_results4lab_req where pk_patient=%%s %s""" % lim
 		rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
 		if rows is None:
 			return False
@@ -1638,7 +1638,7 @@ def set_func_ask_user(a_func = None):
 		_func_ask_user = a_func
 #------------------------------------------------------------
 def get_item_types():
-	cmd = "select pk, type, code from clin_item_type"
+	cmd = "select pk, type, code from clin.clin_item_type"
 	data = gmPG.run_ro_query('historica', cmd)
 
 #------------------------------------------------------------
@@ -1737,7 +1737,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.188  2005-11-18 15:16:15  ncq
+# Revision 1.189  2005-11-27 12:44:57  ncq
+# - clinical tables are in schema "clin" now
+#
+# Revision 1.188  2005/11/18 15:16:15  ncq
 # - add simple (non-context aware) search function
 #
 # Revision 1.187  2005/10/19 09:16:29  ncq

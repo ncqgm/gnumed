@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.19 2005-04-30 13:30:02 sjtan Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmAllergy.py,v 1.20 2005-11-27 12:44:57 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -21,13 +21,13 @@ class cAllergy(gmClinItem.cClinItem):
 	"""Represents one allergy event.
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_allergy from v_pat_allergies
+		select *, xmin_allergy from clin.v_pat_allergies
 		where pk_allergy=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from allergy where id=%(id)s and xmin=%(xmin_allergy)s for update"""
+		"""select 1 from clin.allergy where id=%(id)s and xmin=%(xmin_allergy)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update allergy set
+		"""update clin.allergy set
 				clin_when=%(date)s,
 				substance=%(substance)s,
 				substance_code=%(substance_code)s,
@@ -39,7 +39,7 @@ class cAllergy(gmClinItem.cClinItem):
 				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
 			where id=%(pk_allergy)s""",
-		"""select xmin_allergy from v_pat_allergies where pk_allergy=%(pk_allergy)s"""
+		"""select xmin_allergy from clin.v_pat_allergies where pk_allergy=%(pk_allergy)s"""
 	]
 	_updatable_fields = [
 		'date',
@@ -68,9 +68,9 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the same patient ?
 	cmd = """
-		select pk_patient from v_pat_episodes where pk_episode=%s
+		select pk_patient from clin.v_pat_episodes where pk_episode=%s
 			union
-		select pk_patient from v_pat_encounters where pk_encounter=%s"""
+		select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
@@ -83,21 +83,21 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	queries = []
 	if type(allg_type) == types.IntType:
 		cmd = """
-			insert into allergy (id_type, fk_encounter, fk_episode, substance)
+			insert into clin.allergy (id_type, fk_encounter, fk_episode, substance)
 			values (%s, %s, %s, %s)"""
 	else:
 		cmd = """
-			insert into allergy (id_type, fk_encounter, fk_episode,  substance)
-			values ((select id from _enum_allergy_type where value=%s), %s, %s, %s)"""
+			insert into clin.allergy (id_type, fk_encounter, fk_episode,  substance)
+			values ((select id from clin._enum_allergy_type where value=%s), %s, %s, %s)"""
 		allg_type = str(allg_type)
 	queries.append((cmd, [allg_type, encounter_id, episode_id, substance]))
 	# set patient has_allergy status
-	cmd = """delete from allergy_state where fk_patient=%s"""
+	cmd = """delete from clin.allergy_state where fk_patient=%s"""
 	queries.append((cmd, [pat_id]))
-	cmd = """insert into allergy_state (fk_patient, has_allergy) values (%s, 1)"""
+	cmd = """insert into clin.allergy_state (fk_patient, has_allergy) values (%s, 1)"""
 	queries.append((cmd, [pat_id]))
 	# get PK of inserted row
-	cmd = "select currval('allergy_id_seq')"
+	cmd = "select currval('clin.allergy_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -137,7 +137,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.19  2005-04-30 13:30:02  sjtan
+# Revision 1.20  2005-11-27 12:44:57  ncq
+# - clinical tables are in schema "clin" now
+#
+# Revision 1.19  2005/04/30 13:30:02  sjtan
 #
 # id_patient is  now pk_patient.
 #

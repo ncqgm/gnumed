@@ -1,10 +1,9 @@
-"""GnuMed vaccination related business objects.
-
+"""GNUmed vaccination related business objects.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.21 2005-03-20 12:28:50 cfmoro Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmVaccination.py,v 1.22 2005-11-27 12:44:57 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,22 +20,22 @@ class cVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination event.
 	"""
 	_cmd_fetch_payload = """
-		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from v_pat_vacc4ind
+		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from clin.v_pat_vacc4ind
 		where pk_vaccination=%s
 		order by date desc"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from vaccination where id=%(pk_vaccination)s and xmin=%(xmin_vaccination)s for update"""
+		"""select 1 from clin.vaccination where id=%(pk_vaccination)s and xmin=%(xmin_vaccination)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update vaccination set
+		"""update clin.vaccination set
 				clin_when=%(date)s,
 				narrative=%(narrative)s,
 				fk_provider=%(pk_provider)s,
-				fk_vaccine=(select id from vaccine where trade_name=%(vaccine)s),
+				fk_vaccine=(select id from clin.vaccine where trade_name=%(vaccine)s),
 				site=%(site)s,
 				batch_no=%(batch_no)s
 			where id=%(pk_vaccination)s""",
-		"""select xmin_vaccination from v_pat_vacc4ind where pk_vaccination=%(pk_vaccination)s"""
+		"""select xmin_vaccination from clin.v_pat_vacc4ind where pk_vaccination=%(pk_vaccination)s"""
 		]
 	_updatable_fields = [
 		'date',
@@ -98,7 +97,7 @@ class cMissingVaccination(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """
 			(select *, False as overdue
-			from v_pat_missing_vaccs vpmv
+			from clin.v_pat_missing_vaccs vpmv
 			where
 				pk_patient=%(pat_id)s
 					and
@@ -112,7 +111,7 @@ class cMissingVaccination(gmClinItem.cClinItem):
 				UNION
 
 			(select *, True as overdue
-			from v_pat_missing_vaccs vpmv
+			from clin.v_pat_missing_vaccs vpmv
 			where
 				pk_patient=%(pat_id)s
 					and
@@ -141,7 +140,7 @@ class cMissingBooster(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """
 		select *, now() - amount_overdue as latest_due
-		from v_pat_missing_boosters vpmb
+		from clin.v_pat_missing_boosters vpmb
 		where
 			pk_patient=%(pat_id)s
 				and
@@ -154,7 +153,7 @@ class cMissingBooster(gmClinItem.cClinItem):
 class cScheduledVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination scheduled following a regime.
 	"""
-	_cmd_fetch_payload = """select * from v_vaccs_scheduled4pat where pk_vacc_def=%s"""
+	_cmd_fetch_payload = """select * from clin.v_vaccs_scheduled4pat where pk_vacc_def=%s"""
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
@@ -163,19 +162,19 @@ class cVaccinationRegime(gmClinItem.cClinItem):
 	"""Represents one vaccination regime.
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_vacc_regime from v_vacc_regimes
+		select *, xmin_vacc_regime from clin.v_vacc_regimes
 		where pk_regime=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from vacc_regime where id=%(pk_regime)s and xmin=%(xmin_vacc_regime)s for update"""
+		"""select 1 from clin.vacc_regime where id=%(pk_regime)s and xmin=%(xmin_vacc_regime)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update vacc_regime set
+		"""update clin.vacc_regime set
 				name=%(regime)s,
 				fk_recommended_by=%(pk_recommended_by)s,
-				fk_indication=(select id from vacc_indication where description=%(indication)s),
+				fk_indication=(select id from clin.vacc_indication where description=%(indication)s),
 				comment=%(comment)s
 			where id=%(pk_regime)s""",
-		"""select xmin_vacc_regime from v_vacc_regimes where pk_regime=%(pk_regime)s"""
+		"""select xmin_vacc_regime from clin.v_vacc_regimes where pk_regime=%(pk_regime)s"""
 	]
 	_updatable_fields = [
 		'regime',
@@ -190,9 +189,9 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
-	cmd = """select pk_patient from v_pat_episodes where pk_episode=%s 
+	cmd = """select pk_patient from clin.v_pat_episodes where pk_episode=%s 
                  union 
-             select pk_patient from v_pat_encounters where pk_encounter=%s"""
+             select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
@@ -203,15 +202,15 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# insert new vaccination
 	queries = []
 	if type(vaccine) == types.IntType:
-		cmd = """insert into vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
+		cmd = """insert into clin.vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
 				 values (%s, %s, %s, %s, %s)"""
 	else:
-		cmd = """insert into vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
-				 values (%s, %s, %s, %s, (select id from vaccine where trade_name=%s))"""
+		cmd = """insert into clin.vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
+				 values (%s, %s, %s, %s, (select id from clin.vaccine where trade_name=%s))"""
 		vaccine = str(vaccine)
 	queries.append((cmd, [encounter_id, episode_id, patient_id, staff_id, vaccine]))
 	# get PK of inserted row
-	cmd = "select currval('vaccination_id_seq')"
+	cmd = "select currval('clin.vaccination_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if (result is None) or (len(result) == 0):
@@ -226,7 +225,7 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 #--------------------------------------------------------
 def get_vacc_regimes():
 	# FIXME: use cVaccinationRegime
-	cmd = 'select name from vacc_regime'
+	cmd = 'select name from clin.vacc_regime'
 	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
 		return None
@@ -281,7 +280,7 @@ def put_patient_on_schedule(patient_id=None, regime=None):
 
 	# insert new patient - vaccination regime relation
 	queries = []
-	cmd = """insert into lnk_pat2vacc_reg (fk_patient, fk_regime)
+	cmd = """insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime)
 			 values (%s, %s)"""
 	queries.append((cmd, [patient_id, reg_id]))
 	result, msg = gmPG.run_commit('historica', queries, True)
@@ -374,7 +373,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.21  2005-03-20 12:28:50  cfmoro
+# Revision 1.22  2005-11-27 12:44:57  ncq
+# - clinical tables are in schema "clin" now
+#
+# Revision 1.21  2005/03/20 12:28:50  cfmoro
 # On create_vaccination, id_patient -> pk_patient
 #
 # Revision 1.20  2005/02/12 13:56:49  ncq

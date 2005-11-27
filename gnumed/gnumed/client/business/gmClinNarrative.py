@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -18,13 +18,13 @@ _log.Log(gmLog.lInfo, __version__)
 class cDiag(gmClinItem.cClinItem):
 	"""Represents one real diagnosis.
 	"""
-	_cmd_fetch_payload = """select *, xmin_clin_diag, xmin_clin_narrative from v_pat_diag where pk_diag=%s"""
+	_cmd_fetch_payload = """select *, xmin_clin_diag, xmin_clin_narrative from clin.v_pat_diag where pk_diag=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_diag where pk=%(pk_diag)s and xmin=%(xmin_clin_diag)s for update""",
-		"""select 1 from clin_narrative where pk=%(pk_diag)s and xmin=%(xmin_clin_narrative)s for update"""
+		"""select 1 from clin.clin_diag where pk=%(pk_diag)s and xmin=%(xmin_clin_diag)s for update""",
+		"""select 1 from clin.clin_narrative where pk=%(pk_diag)s and xmin=%(xmin_clin_narrative)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update clin_diag set
+		"""update clin.clin_diag set
 				laterality=%()s,
 				laterality=%(laterality)s,
 				is_chronic=%(is_chronic)s::boolean,
@@ -32,10 +32,10 @@ class cDiag(gmClinItem.cClinItem):
 				is_definite=%(is_definite)s::boolean,
 				clinically_relevant=%(clinically_relevant)s::boolean
 			where pk=%(pk_diag)s""",
-		"""update clin_narrative set
+		"""update clin.clin_narrative set
 				narrative=%(diagnosis)s
 			where pk=%(pk_diag)s""",
-		"""select xmin_clin_diag, xmin_clin_narrative from v_pat_diag where pk_diag=%s(pk_diag)s"""
+		"""select xmin_clin_diag, xmin_clin_narrative from clin.v_pat_diag where pk_diag=%s(pk_diag)s"""
 		]
 
 	_updatable_fields = [
@@ -51,7 +51,7 @@ class cDiag(gmClinItem.cClinItem):
 		"""
 			Retrieves codes linked to this diagnosis
 		"""
-		cmd = "select code, coding_system from v_codes4diag where diagnosis=%s"
+		cmd = "select code, coding_system from clin.v_codes4diag where diagnosis=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['diagnosis']])
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting codes for diagnosis [%s] (%s)' % (self._payload[self._idx['diagnosis']], self.pk_obj))
@@ -76,18 +76,18 @@ class cNarrative(gmClinItem.cClinItem):
 		Represents one clinical free text entry
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_clin_narrative from v_pat_narrative where pk_narrative=%s"""
-#		select * , coalesce( (select lastnames ||', '|| firstnames from v_staff where v_staff.pk_staff = v_pat_narrative.pk_provider), 'Anon') as provider,  xmin_clin_narrative from v_pat_narrative where pk_narrative=%s
+		select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"""
+#		select * , coalesce( (select lastnames ||', '|| firstnames from clin.clin.v_staff where clin.clin.v_staff.pk_staff = clin.v_pat_narrative.pk_provider), 'Anon') as provider,  xmin_clin_narrative from v_pat_narrative where pk_narrative=%s
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
+		"""select 1 from clin.clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update clin_narrative set
+		"""update clin.clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(date)s,
 				soap_cat=lower(%(soap_cat)s)
 			where pk=%(pk_narrative)s""",
-		"""select xmin_clin_narrative from v_pat_narrative where pk_narrative=%(pk_narrative)s"""
+		"""select xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%(pk_narrative)s"""
 		]
 
 	_updatable_fields = [
@@ -140,9 +140,9 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	if narrative.strip() == '':
 		return (True, None)
 	# 2) do episode/encounter belong to the patient ?
-	cmd = """select pk_patient from v_pat_episodes where pk_episode=%s 
+	cmd = """select pk_patient from clin.v_pat_episodes where pk_episode=%s 
 				 union 
-			 select pk_patient from v_pat_encounters where pk_encounter=%s"""
+			 select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
@@ -152,11 +152,11 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 		return (False, _('consistency error, check log'))
 	# insert new narrative
 	queries = []
-	cmd = """insert into clin_narrative (fk_encounter, fk_episode, narrative, soap_cat)
+	cmd = """insert into clin.clin_narrative (fk_encounter, fk_episode, narrative, soap_cat)
 				 values (%s, %s, %s, lower(%s))"""
 	queries.append((cmd, [encounter_id, episode_id, narrative, soap_cat]))
 	# get PK of inserted row
-	cmd = "select currval('clin_narrative_pk_seq')"
+	cmd = "select currval('clin.clin_narrative_pk_seq')"
 	queries.append((cmd, []))
 
 	successful, data = gmPG.run_commit2('historica', queries)
@@ -172,8 +172,8 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	return (True, narrative)
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
-	"""Deletes a clin_narrative row by it's PK."""
-	cmd = """delete from clin_narrative where pk=%s"""
+	"""Deletes a clin.clin_narrative row by it's PK."""
+	cmd = """delete from clin.clin_narrative where pk=%s"""
 	successful, data = gmPG.run_commit2('historica', (cmd, [narrative]))
 	if not successful:
 		err, msg = data
@@ -220,7 +220,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.19  2005-10-10 18:27:34  ncq
+# Revision 1.20  2005-11-27 12:44:57  ncq
+# - clinical tables are in schema "clin" now
+#
+# Revision 1.19  2005/10/10 18:27:34  ncq
 # - v_pat_narrative already HAS .provider
 #
 # Revision 1.18  2005/10/08 12:33:09  sjtan

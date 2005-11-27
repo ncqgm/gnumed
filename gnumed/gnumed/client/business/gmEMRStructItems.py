@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -21,16 +21,16 @@ _log.Log(gmLog.lInfo, __version__)
 class cHealthIssue(gmClinItem.cClinItem):
 	"""Represents one health issue.
 	"""
-	_cmd_fetch_payload = """select *, xmin from clin_health_issue where id=%s"""
+	_cmd_fetch_payload = """select *, xmin from clin.clin_health_issue where id=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_health_issue where id=%(id)s and xmin=%(xmin)s for update"""
+		"""select 1 from clin.clin_health_issue where id=%(id)s and xmin=%(xmin)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update clin_health_issue set
+		"""update clin.clin_health_issue set
 				description=%(description)s,
 				age_noted=%(age_noted)s
 			where id=%(id)s""",
-		"""select xmin from clin_health_issue where id=%(id)s"""
+		"""select xmin from clin.clin_health_issue where id=%(id)s"""
 	]
 	_updatable_fields = [
 		'description',
@@ -40,7 +40,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
+			cmd = "select id from clin.clin_health_issue where id_patient=%s and description=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, patient_id, name)
 			if rows is None:
 				raise gmExceptions.ConstructorError, 'error getting health issue for [%s:%s]' % (patient_id, name)
@@ -79,12 +79,12 @@ class cHealthIssue(gmClinItem.cClinItem):
 	def close_expired_episodes(self, ttl=180):
 		"""ttl in days"""
 		cmd = """
-update clin_episode set is_open = false where pk in (
-	select pk_episode from v_pat_items where
+update clin.clin_episode set is_open = false where pk in (
+	select pk_episode from clin.v_pat_items where
 			pk_health_issue = %(issue)s and
 			age > (%(ttl)s || ' days')::interval
 	except
-		select pk from clin_episode where
+		select pk from clin.clin_episode where
 			is_open and
 			fk_health_issue = %(issue)s and
 			age(modified_when) < (%(ttl)s || ' days')::interval
@@ -98,17 +98,17 @@ update clin_episode set is_open = false where pk in (
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = """select *, xmin_clin_episode from v_pat_episodes where pk_episode=%s"""
+	_cmd_fetch_payload = """select *, xmin_clin_episode from clin.v_pat_episodes where pk_episode=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_episode where pk=%(pk_episode)s and xmin=%(xmin_clin_episode)s for update"""
+		"""select 1 from clin.clin_episode where pk=%(pk_episode)s and xmin=%(xmin_clin_episode)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update clin_episode set
+		"""update clin.clin_episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
 				description=%(description)s
 			where pk=%(pk_episode)s""",
-		"""select xmin_clin_episode from v_pat_episodes where pk_episode=%(pk_episode)s"""
+		"""select xmin_clin_episode from clin.v_pat_episodes where pk_episode=%(pk_episode)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
@@ -119,7 +119,7 @@ class cEpisode(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select pk_episode from v_pat_episodes where pk_patient=%s and description=%s limit 1"
+			cmd = "select pk_episode from clin.v_pat_episodes where pk_patient=%s and description=%s limit 1"
 			rows = gmPG.run_ro_query('historica', cmd, None, id_patient, name)
 			if rows is None:
 				raise gmExceptions.ConstructorError, 'error getting episode for [%s:%s]' % (id_patient, name)
@@ -132,7 +132,7 @@ class cEpisode(gmClinItem.cClinItem):
 #	def save_payload(self, conn=None):
 #		if self._payload[self._idx['episode_open']]:
 #			self._cmds_store_payload[0] = """
-#				update clin_episode set
+#				update clin.clin_episode set
 #					is_open = false
 #				where
 #					is_open = true and pk=%(pk_episode)s"""
@@ -173,12 +173,12 @@ class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_clin_encounter from v_pat_encounters where pk_encounter=%s"""
+		select *, xmin_clin_encounter from clin.v_pat_encounters where pk_encounter=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_encounter where id=%(pk_encounter)s and xmin=%(xmin_clin_encounter)s for update"""
+		"""select 1 from clin.clin_encounter where id=%(pk_encounter)s and xmin=%(xmin_clin_encounter)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update clin_encounter set
+		"""update clin.clin_encounter set
 				started=%(started)s,
 				last_affirmed=%(last_affirmed)s,
 				fk_location=%(pk_location)s,
@@ -186,7 +186,7 @@ class cEncounter(gmClinItem.cClinItem):
 				rfe=%(rfe)s,
 				aoe=%(aoe)s
 			where id=%(pk_encounter)s""",
-		"""select xmin_clin_encounter from v_pat_encounters where pk_encounter=%(pk_encounter)s"""
+		"""select xmin_clin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
 	_updatable_fields = [
 		'started',
@@ -230,7 +230,7 @@ class cEncounter(gmClinItem.cClinItem):
 		# FIXME: this will work but it will not invalidate the cache,
 		# FIXME: hence the next save_payload will fail (because xmin is now different)
 		cmd = """
-			UPDATE clin_root_item SET fk_episode = %s 
+			UPDATE clin.clin_root_item SET fk_episode = %s 
  			WHERE fk_encounter = %s AND fk_episode = %s
 			"""
 		queries.append((cmd, [to_episode['pk_episode'], self.pk_obj, from_episode['pk_episode']]))
@@ -284,7 +284,7 @@ class cProblem(gmClinItem.cClinItem):
 			else:
 				where_parts.append('%s=%%(%s)s' % (col_name, col_name))
 				pk[col_name] = val
-		cProblem._cmd_fetch_payload = """select * from v_problem_list where """ + ' and '.join(where_parts)
+		cProblem._cmd_fetch_payload = """select * from clin.v_problem_list where """ + ' and '.join(where_parts)
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
@@ -319,10 +319,10 @@ def create_health_issue(patient_id=None, description=None):
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 	# insert new health issue
 	queries = []
-	cmd = "insert into clin_health_issue (id_patient, description) values (%s, %s)"
+	cmd = "insert into clin.clin_health_issue (id_patient, description) values (%s, %s)"
 	queries.append((cmd, [patient_id, description]))
 	# get PK of inserted row
-	cmd = "select currval('clin_health_issue_id_seq')"
+	cmd = "select currval('clin.clin_health_issue_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -353,13 +353,13 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	queries = []
 	# insert episode
 	if patient_id is None:
-		cmd = """insert into clin_episode (fk_health_issue, description, is_open) values (%s, %s, %s::boolean)"""
+		cmd = """insert into clin.clin_episode (fk_health_issue, description, is_open) values (%s, %s, %s::boolean)"""
 		queries.append((cmd, [pk_health_issue, episode_name, is_open]))
 	else:
-		cmd = """insert into clin_episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"""
+		cmd = """insert into clin.clin_episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"""
 		queries.append((cmd, [pk_health_issue, patient_id, episode_name, is_open]))
 	# retrieve PK
-	cmd = "select currval('clin_episode_pk_seq')"
+	cmd = "select currval('clin.clin_episode_pk_seq')"
 	queries.append((cmd, []))
 	# run queries
 	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
@@ -394,7 +394,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	try:
 		enc_type = int(enc_type)
 		cmd = """
-			insert into clin_encounter (
+			insert into clin.clin_encounter (
 				fk_patient, fk_location, fk_type
 			) values (
 				%s, -1, %s
@@ -402,13 +402,13 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	except ValueError:
 		enc_type = str(enc_type)
 		cmd = """
-			insert into clin_encounter (
+			insert into clin.clin_encounter (
 				fk_patient, fk_location, fk_type
 			) values (
 				%s, -1,	coalesce((select pk from encounter_type where description=%s), 0)
 			)"""
 	queries.append((cmd, [fk_patient, enc_type]))
-	cmd = "select currval('clin_encounter_id_seq')"
+	cmd = "select currval('clin.clin_encounter_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -500,7 +500,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.69  2005-10-15 18:15:37  ncq
+# Revision 1.70  2005-11-27 12:44:57  ncq
+# - clinical tables are in schema "clin" now
+#
+# Revision 1.69  2005/10/15 18:15:37  ncq
 # - cleanup
 # - clin_encounter has fk_*, not pk_*
 # - remove clin_encounter.pk_provider support
