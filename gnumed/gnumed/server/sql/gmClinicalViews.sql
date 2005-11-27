@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.157 2005-11-25 15:07:28 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.158 2005-11-27 12:59:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -556,9 +556,6 @@ create index idx_formi_episode on clin.form_instances(fk_episode);
 
 create index idx_cmeds_encounter on clin.clin_medication(fk_encounter);
 create index idx_cmeds_episode on clin.clin_medication(fk_episode);
-
-create index idx_ref_encounter on referral(fk_encounter);
-create index idx_ref_episode on referral(fk_episode);
 
 create index idx_tres_encounter on clin.test_result(fk_encounter);
 create index idx_tres_episode on clin.test_result(fk_episode);
@@ -2263,11 +2260,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.form_instances_pk_seq
 	, clin.form_data
 	, clin.form_data_pk_seq
-	, referral
-	, referral_id_seq
 	, clin.clin_medication
 	, clin.clin_medication_pk_seq
-	, constituent
 	, clin.soap_cat_ranks
 	, clin.waiting_list
 	, clin.waiting_list_pk_seq
@@ -2329,11 +2323,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.157 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.158 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.157  2005-11-25 15:07:28  ncq
+-- Revision 1.158  2005-11-27 12:59:09  ncq
+-- - comment out referral/constituent for now
+--
+-- Revision 1.157  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.156  2005/10/26 21:33:25  ncq
