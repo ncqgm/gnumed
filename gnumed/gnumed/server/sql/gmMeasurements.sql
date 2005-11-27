@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.50 $
+-- $Revision: 1.51 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -72,8 +72,8 @@ create table clin.test_type (
 select add_table_for_audit('clin', 'test_type');
 
 -- remote foreign keys
-select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
-select add_x_db_fk_def('test_type', 'conversion_unit', 'reference', 'basic_unit', 'name_short');
+--select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
+--select add_x_db_fk_def('test_type', 'conversion_unit', 'reference', 'basic_unit', 'name_short');
 
 comment on table clin.test_type is
 	'measurement type, like a "method" in a lab';
@@ -378,11 +378,14 @@ create table clin.lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.50 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.51 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.50  2005-11-25 15:07:28  ncq
+-- Revision 1.51  2005-11-27 13:00:14  ncq
+-- - cleanup
+--
+-- Revision 1.50  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.49  2005/10/30 22:55:09  ncq
