@@ -16,12 +16,12 @@ class wxgScanIdxPnl(wx.Panel):
         self.label_1 = wx.StaticText(self, -1, _("or"))
         self.__btn_load = wx.Button(self, -1, _("load file"))
         self.label_doc_type = wx.StaticText(self, -1, _("document type:"))
-        self.__doc_type_selector = wx.Choice(self, -1, choices=[])
+        self.SelBOX_doc_type = wx.Choice(self, -1, choices=[])
         self.label_doc_comment = wx.StaticText(self, -1, _("document comment:"))
         self.text_ctrl_doc_comment = wx.TextCtrl(self, -1, "")
         self.label_doc_date = wx.StaticText(self, -1, _("document date:"))
         self.text_ctrl_doc_date = wx.TextCtrl(self, -1, "")
-        self.list_box_pages = wx.ListBox(self, -1, choices=[], style=wx.LB_SINGLE|wx.LB_HSCROLL|wx.LB_NEEDED_SB)
+        self.LBOX_doc_pages = wx.ListBox(self, -1, choices=[], style=wx.LB_SINGLE|wx.LB_HSCROLL|wx.LB_NEEDED_SB)
         self.button_show_page = wx.Button(self, -1, _("show page"))
         self.button_del_page = wx.Button(self, -1, _("delete page"))
         self.__txt_description = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_LINEWRAP|wx.TE_WORDWRAP|wx.NO_BORDER)
@@ -31,6 +31,10 @@ class wxgScanIdxPnl(wx.Panel):
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self._scan_btn_pressed, self.__btn_scan)
+        self.Bind(wx.EVT_BUTTON, self._show_btn_pressed, self.button_show_page)
+        self.Bind(wx.EVT_BUTTON, self._del_btn_pressed, self.button_del_page)
         # end wxGlade
 
     def __set_properties(self):
@@ -38,8 +42,8 @@ class wxgScanIdxPnl(wx.Panel):
         self.__btn_scan.SetToolTipString(_("Acquire a page from an image source. This may bring up an intermediate dialog."))
         self.__btn_scan.SetDefault()
         self.__btn_load.SetToolTipString(_("Acquire a page from the filesystem."))
-        self.__doc_type_selector.SetToolTipString(_("Required: "))
-        self.__doc_type_selector.SetSelection(0)
+        self.SelBOX_doc_type.SetToolTipString(_("Required: "))
+        self.SelBOX_doc_type.SetSelection(0)
         self.button_show_page.SetToolTipString(_("select a page to view from above list"))
         self.button_del_page.SetToolTipString(_("select a page to remove from above list"))
         self.__txt_description.SetToolTipString(_("A free-text document description."))
@@ -63,13 +67,13 @@ class wxgScanIdxPnl(wx.Panel):
         sizer_top_left_szr.Add(self.__btn_load, 0, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
         sizer_top_left.Add(sizer_top_left_szr, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 5)
         sizer_top_middle.Add(self.label_doc_type, 0, wx.LEFT|wx.TOP|wx.ADJUST_MINSIZE, 3)
-        sizer_top_middle.Add(self.__doc_type_selector, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 3)
+        sizer_top_middle.Add(self.SelBOX_doc_type, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 3)
         sizer_top_middle.Add(self.label_doc_comment, 0, wx.LEFT|wx.TOP|wx.ADJUST_MINSIZE, 3)
         sizer_top_middle.Add(self.text_ctrl_doc_comment, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE|wx.FIXED_MINSIZE, 3)
         sizer_top_middle.Add(self.label_doc_date, 0, wx.LEFT|wx.TOP|wx.ADJUST_MINSIZE, 3)
         sizer_top_middle.Add(self.text_ctrl_doc_date, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE|wx.FIXED_MINSIZE, 3)
         sizer_top_left.Add(sizer_top_middle, 1, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 5)
-        sizer_top_right.Add(self.list_box_pages, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE|wx.FIXED_MINSIZE, 3)
+        sizer_top_right.Add(self.LBOX_doc_pages, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE|wx.FIXED_MINSIZE, 3)
         sizer_page_actions.Add(self.button_show_page, 0, wx.ADJUST_MINSIZE, 0)
         sizer_page_actions.Add(self.button_del_page, 0, wx.ADJUST_MINSIZE, 0)
         sizer_top_right.Add(sizer_page_actions, 1, wx.TOP|wx.EXPAND, 4)
@@ -86,6 +90,18 @@ class wxgScanIdxPnl(wx.Panel):
         sizer_1.Fit(self)
         sizer_1.SetSizeHints(self)
         # end wxGlade
+
+    def _scan_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_scan_btn_pressed' not implemented"
+        event.Skip()
+
+    def _show_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_show_btn_pressed' not implemented"
+        event.Skip()
+
+    def _del_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_del_btn_pressed' not implemented"
+        event.Skip()
 
 # end of class wxgScanIdxPnl
 
