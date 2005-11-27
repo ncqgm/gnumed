@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.53 $ $Date: 2005-11-25 15:02:05 $ $Author: ncq $
+-- $Revision: 1.54 $ $Date: 2005-11-27 12:58:19 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -24,7 +24,6 @@ create table blobs.xlnk_identity (
 ) inherits (public.audit_fields);
 
 --select public.add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
-select public.add_table_for_audit('blobs', 'xlnk_identity');
 
 --comment on table xlnk_identity is
 --	'this is the one table with the unresolved identity(pk)
@@ -158,7 +157,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.53 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.54 $');
 
 -- =============================================
 -- questions:
@@ -178,7 +177,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.53  2005-11-25 15:02:05  ncq
+-- Revision 1.54  2005-11-27 12:58:19  ncq
+-- - factor out dynamic stuff
+--
+-- Revision 1.53  2005/11/25 15:02:05  ncq
 -- - use xlnk_identity in blobs. now
 --
 -- Revision 1.52  2005/11/11 23:03:55  ncq

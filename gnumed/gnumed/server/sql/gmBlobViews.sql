@@ -4,11 +4,13 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.12 $ $Date: 2005-10-24 19:09:43 $ $Author: ncq $
+-- $Revision: 1.13 $ $Date: 2005-11-27 12:58:19 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+select public.add_table_for_audit('blobs', 'xlnk_identity');
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -142,11 +144,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.12 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.12  2005-10-24 19:09:43  ncq
+-- Revision 1.13  2005-11-27 12:58:19  ncq
+-- - factor out dynamic stuff
+--
+-- Revision 1.12  2005/10/24 19:09:43  ncq
 -- - explicit "blobs." qualifying
 --
 -- Revision 1.11  2005/09/19 16:38:51  ncq
