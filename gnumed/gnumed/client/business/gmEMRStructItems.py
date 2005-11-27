@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -419,6 +419,17 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 		_log.LogException('cannot instantiate encounter [%s]' % (result[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
 	return (True, encounter)
+#-----------------------------------------------------------
+def get_encounter_types():
+	cmd = "SELECT _(description) from clin.encounter_type"
+	result = gmPG.run_ro_query('historica', cmd, None)
+	if (result is None) or (len(result) == 0):
+		_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
+		return [_('in surgery'), _('chart review')]
+	consultation_types = []
+	for cons_type in result:
+		consultation_types.append(cons_type[0])
+	return consultation_types
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -500,7 +511,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.70  2005-11-27 12:44:57  ncq
+# Revision 1.71  2005-11-27 12:56:19  ncq
+# - add get_encounter_types()
+#
+# Revision 1.70  2005/11/27 12:44:57  ncq
 # - clinical tables are in schema "clin" now
 #
 # Revision 1.69  2005/10/15 18:15:37  ncq
