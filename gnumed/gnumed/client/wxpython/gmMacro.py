@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -76,7 +76,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.20 $" % self.__class__.__name__
+		return "%s $Revision: 1.21 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -118,18 +118,18 @@ class cMacroPrimitives:
 			return (0, _('already locked into a patient'))
 		searcher = gmPerson.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
-			pat_id = searcher.get_patient_ids(search_dict=search_params)
+			idents = searcher.get_identities(search_dict=search_params)
 		else:
-			pat_id = searcher.get_patient_ids(search_term=search_params)
-		if pat_id is None:
+			idents = searcher.get_identities(search_term=search_params)
+		if idents is None:
 			return (0, _('error searching for patient with [%s]/%s') % (search_term, search_dict))
-		if len(pat_id) == 0:
+		if len(idents) == 0:
 			return (0, _('no patient found for [%s]/%s') % (search_term, search_dict))
 		# FIXME: let user select patient
-		if len(pat_id) > 1:
+		if len(idents) > 1:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
-		if not gmPerson.set_active_patient(pat_id[0]):
-			return (0, _('cannot activate patient [%s] (%s/%s)') % (pat_id[0], search_term, search_dict))
+		if not gmPerson.set_active_patient(person = idents[0]):
+			return (0, _('cannot activate patient [%s] (%s/%s)') % (str(idents[0]), search_term, search_dict))
 		self.__pat.lock()
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
@@ -221,7 +221,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.20  2005-11-27 20:38:10  ncq
+# Revision 1.21  2005-11-27 22:08:38  ncq
+# - patient searcher has somewhat changed so adapt
+#
+# Revision 1.20  2005/11/27 20:38:10  ncq
 # - properly import wx
 #
 # Revision 1.19  2005/09/28 21:27:30  ncq
