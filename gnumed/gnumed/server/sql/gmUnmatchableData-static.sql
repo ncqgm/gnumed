@@ -2,7 +2,7 @@
 -- GNUmed - static tables for unmatchable test results
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmUnmatchableData-static.sql,v $
--- $Id: gmUnmatchableData-static.sql,v 1.1 2005-10-30 21:57:51 ncq Exp $
+-- $Id: gmUnmatchableData-static.sql,v 1.2 2005-11-27 13:00:59 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -11,7 +11,7 @@
 \set ON_ERROR_STOP 1
 
 -- ---------------------------------------------
-create table incoming_data_unmatchable (
+create table clin.incoming_data_unmatchable (
 	pk serial primary key,
 	fk_patient_candidates integer[],
 	request_id text,
@@ -25,15 +25,18 @@ create table incoming_data_unmatchable (
 		not null
 ) inherits (audit_fields);
 
-select add_table_for_audit('incoming_data_unmatchable');
+select add_table_for_audit('clin', 'incoming_data_unmatchable');
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmUnmatchableData-static.sql,v $2', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmUnmatchableData-static.sql,v $2', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmUnmatchableData-static.sql,v $
--- Revision 1.1  2005-10-30 21:57:51  ncq
+-- Revision 1.2  2005-11-27 13:00:59  ncq
+-- - since schema "clin" exists now we better use it
+--
+-- Revision 1.1  2005/10/30 21:57:51  ncq
 -- - incoming data tables: unmatched/unmatchable
 --
 --
