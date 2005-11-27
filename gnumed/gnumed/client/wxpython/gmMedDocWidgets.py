@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -32,6 +32,8 @@ wx.ID_TB_BTN_show_page = wx.NewId()
 
 #============================================================
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
+    # a list holding our objects
+    acquired_pages = []
     def __init__(self, *args, **kwds):
         # init ancestor
         wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
@@ -39,45 +41,132 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):	# inherit from Glade
 
         # from here on we can init other stuff
         # that's not part of the wxGlade GUI
-
+        
+        # provide valid choices for document types
+        self.__get_valid_doc_types()
         # say, we want to change some properties
-#		self.__change_properties()
+        self.__change_properties()
 
         from Gnumed.pycommon import gmScanBackend
         self.scan_module = gmScanBackend
     #--------------------------------------------------------
     def __change_properties(self):
         # such as a new tooltip
-        self.__scan_button.SetToolTip('this is the new tooltip')
-        self.Bind(wx.EVT_BUTTON, self.__scan_btn_pressed, self.__btn_scan)
+        #self.__scan_button.SetToolTip('this is the new tooltip')
+        for doc_type in  self.valid_doc_types:
+            self.SelBOX_doc_type.Append(doc_type)
     #--------------------------------------------------------
-    def __scan_btn_pressed(self, evt):
-        print evt
-        print "inside wxGlade this method should be set"
-        print "to be called when the user pressed the scan button"
-        print "this can be done by using the EVENT tab to define the EVT macro"
-        new_page_file = self.scan_module.acquire_page_into_file(filename='test.bmp',delay=5)
-        if new_page_file is None:
-            dlg = wxMessageDialog(
+    def _scan_btn_pressed(self, evt):
+        # "inside wxGlade this method should be set"
+        # "to be called when the user pressed the scan button"
+        # "this can be done by using the EVENT tab to define the EVT macro"
+        fname = self.scan_module.acquire_page_into_file(filename='test.bmp',delay=5)
+        if fname is None:
+            dlg = wx.MessageDialog(
                 self,
                 _('page could not be acquired. Please check the log file for details on what went wrong'),
                 _('acquiring page'),
-                wxOK | wxICON_ERROR
+                wx.OK | wx.ICON_ERROR
             )
             dlg.ShowModal()
             dlg.Destroy()
             return None
         else:
-            # and keep a reference
-            #self.acquired_pages.append(new_page_file)
+            self.acquired_pages.append(fname)
         # update list of pages in GUI
-            pass
+        self.__reload_LBOX_doc_pages()
+    #--------------------------------------------------------
+    def _show_btn_pressed(self, evt):
+        # did user select a page ?
+        page_idx = self.LBOX_doc_pages.GetSelection()
+        if page_idx == -1:
+            dlg = wx.MessageDialog(
+                self,
+                _('You must select a page before you can view it.'),
+                _('displaying page'),
+                wx.OK | wx.ICON_INFORMATION
+            )
+            dlg.ShowModal()
+            dlg.Destroy()
+            return None
+
+        # now, which file was that again ?
+        page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+
+        (result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
+        if not result:
+            gmGuiHelpers.gm_show_error(
+                aMessage = _('Cannot display document part:\n%s') % msg,
+                aTitle = _('displaying page')
+            )
+            return None
+        return 1
+    #-----------------------------------
+    def _del_btn_pressed(self, event):
+        page_idx = self.LBOX_doc_pages.GetSelection()
+        if page_idx == -1:
+            dlg = wx.MessageDialog(
+                self,
+                _('You must select a page before you can delete it.'),
+                _('deleting page'),
+                wx.OK | wx.ICON_INFORMATION
+            )
+            dlg.ShowModal()
+            dlg.Destroy()
+            return None
+        else:
+            page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+
+            # 1) del item from self.acquired_pages
+            self.acquired_pages[page_idx:(page_idx+1)] = []
+
+            # 2) reload list box
+            self.__reload_LBOX_doc_pages()
+
+            # 3) kill file in the file system
+            try:
+                os.remove(page_fname)
+            except:
+                exc = sys.exc_info()
+                _log.LogException("Cannot delete file.", exc, fatal=0)
+                dlg = wx.MessageDialog(
+                    self,
+                    _('Cannot delete page (file %s).\nSee log for details.') % page_fname,
+                    _('deleting page'),
+                    wx.OK | wx.ICON_INFORMATION
+                )
+                dlg.ShowModal()
+                dlg.Destroy()
+
+            return 1
     #--------------------------------------------------------
     def __save_btn_pressed(self, evt):
         print "same here"
         #--------------------------------------------------------
         #--------------------------------------------------------
         #--------------------------------------------------------
+    #--------------------------------------------
+    def __reload_LBOX_doc_pages(self):
+        self.LBOX_doc_pages.Clear()
+        if len(self.acquired_pages) > 0:    
+            for i in range(len(self.acquired_pages)):
+                fname = self.acquired_pages[i]
+                path, name = os.path.split(fname)
+                self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
+    #-----------------------------------------    
+    def __get_valid_doc_types(self):
+        # running standalone ? -> configfile
+        if __name__ == '__main__':
+            self.valid_doc_types = _cfg.get("metadata", "doctypes")
+        # we run embedded -> query database
+        else:   
+            doc_types = []
+            cmd = "SELECT name FROM blobs.doc_type"
+            rows = gmPG.run_ro_query('blobs', cmd)
+            # FIXME: error handling
+            for row in rows:
+                doc_types.append(row[0])
+            self.valid_doc_types = doc_types
 #============================================================
         # NOTE:	 For some reason tree items have to have a data object in
         #		 order to be sorted.  Since our compare just uses the labels
@@ -360,7 +449,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.20  2005-11-26 21:08:00  shilbert
+# Revision 1.21  2005-11-27 01:57:28  shilbert
+# - moved some of the feature back in
+#
+# Revision 1.20  2005/11/26 21:08:00  shilbert
 # - some more iterations on the road
 #
 # Revision 1.19  2005/11/26 16:56:04  shilbert
