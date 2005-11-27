@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.1 2005-11-26 16:53:43 shilbert Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmScanBackend.py,v 1.2 2005-11-27 08:48:45 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -145,50 +145,49 @@ class cTwainScanner:
 		TwainScanner.RequestAcquire()
 		return filename
 	#---------------------------------------------------
-	def dummy(self):
-
+#	def dummy(self):
+#
 #		# make tmp file name
 #		tempfile.tempdir = self.scan_tmp_dir
 #		tempfile.template = 'obj-'
 #		bmp_name = tempfile.mktemp('.bmp')
 #		fname = bmp_name
-
-		# convert to JPEG ?
-		do_jpeg = _cfg.get("scanning", "convert to JPEG")
-		if do_jpeg in ["yes", "on"]:
-			jpg_name = tempfile.mktemp('.jpg')
-			fname = jpg_name
-			# get JPEG quality factor
-			quality_value = _cfg.get("scanning", "JPEG quality level")
-			if quality_value is None:
-				_log.Log(gmLog.lWarn, "JPEG quality level not specified in config file, using default level of 75")
-				quality_value = 75
-			else:
-				if quality_value.isdigit():
-					quality_value = int(quality_value, 10)
-				else:
-					_log.Log(gmLog.lWarn, "JPEG quality level [%s] not a number, using default level of 75" % quality_value)
-					quality_value = 75
-			# do we want progression ?
-			progression_flag = _cfg.get("scanning", "progressive JPEG")
-			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_value, progression_flag))
-			kwds = {}
-			kwds['quality'] = quality_value
-			if progression_flag in ["yes", "on"]:
-				kwds['optimize'] = 1
-				kwds['progressive'] = 1
-			# actually convert to JPEG
-			try:
-				Image.open(bmp_name).convert('RGB').save(jpg_name, **kwds)
-			except:
-				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
-				Image.open(bmp_name).convert('RGB').save(jpg_name)
-			# remove bitmap (except Windows can't do that sometimes :-(
-			try:
-				os.remove(bmp_name)
-			except:
-				_log.LogException("Can't remove bitmap.", sys.exc_info(), fatal=0)
-
+#
+#		# convert to JPEG ?
+#		do_jpeg = _cfg.get("scanning", "convert to JPEG")
+#		if do_jpeg in ["yes", "on"]:
+#			jpg_name = tempfile.mktemp('.jpg')
+#			fname = jpg_name
+#			# get JPEG quality factor
+#			quality_value = _cfg.get("scanning", "JPEG quality level")
+#			if quality_value is None:
+#				_log.Log(gmLog.lWarn, "JPEG quality level not specified in config file, using default level of 75")
+#				quality_value = 75
+#			else:
+#				if quality_value.isdigit():
+#					quality_value = int(quality_value, 10)
+#				else:
+#					_log.Log(gmLog.lWarn, "JPEG quality level [%s] not a number, using default level of 75" % quality_value)
+#					quality_value = 75
+#			# do we want progression ?
+#			progression_flag = _cfg.get("scanning", "progressive JPEG")
+#			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_value, progression_flag))
+#			kwds = {}
+#			kwds['quality'] = quality_value
+#			if progression_flag in ["yes", "on"]:
+#				kwds['optimize'] = 1
+#				kwds['progressive'] = 1
+#			# actually convert to JPEG
+#			try:
+#				Image.open(bmp_name).convert('RGB').save(jpg_name, **kwds)
+#			except:
+#				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
+#				Image.open(bmp_name).convert('RGB').save(jpg_name)
+#			# remove bitmap (except Windows can't do that sometimes :-(
+#			try:
+#				os.remove(bmp_name)
+#			except:
+#				_log.LogException("Can't remove bitmap.", sys.exc_info(), fatal=0)
 #=======================================================
 class cSaneScanner:
 
@@ -293,211 +292,6 @@ class cSaneScanner:
 		#self.__scannerbr_x = 412.0
 		#self.__scannerbr_y = 583.0
 
-#=======================================================
-
-#---------------------------------------
-# Initialize OS specific image aquisition backend
-#---------------------------------------
-#def initialize_backend():
-#	global _twain_module
-#	global _sane_module
-#	try:
-#		import twain
-#		_twain_module = twain
-#		scan_drv = 'wintwain'
-#	except ImportError:
-#		exc = sys.exc_info()
-#		_log.LogException('Cannot import WinTWAIN.py.', exc, fatal=0)
-#		try:
-#			import sane
-#			_sane_module = sane
-#			scan_drv = 'linsane'
-#		except ImportError:
-#			exc = sys.exc_info()
-#			_log.LogException('Cannot import SANE.py.', exc, fatal=0)
-#			_log.Log(gmLog.lErr, "Can import neither TWAIN nor SANE scanner access library.")
-#			scan_drv=None
-#		return scan_drv
-#
-#def get_device_parameters(scan_drv):
-#	if scan_drv == 'linsane':
-#		handler = self.__open_sane_scanner()
-#		params = handler.get_parameters()
-#		#print 'Device parameters:',
-#	elif scan_drv == 'wintwain':
-#		handler = self.__open_twain_scanner()
-#		#FIXME: complete this
-#		params = None
-#	else:
-#		params = None
-#	_log.Log(gmLog.lData, 'Device parameters: %s' % params)
-#	return params
-#	
-#def get_device_properties(self):
-#	pass
-	
-#-----------------------------------
-# TWAIN related scanning code
-#-----------------------------------
-#-----------------------------------
-#def __acquire_from_twain(self):
-#	_log.Log(gmLog.lInfo, "scanning with TWAIN source")
-#	# open scanner on demand
-#	if not TwainScanner:
-#		if not self.__open_twain_scanner():
-#			dlg = wxMessageDialog(
-#				self,
-#				_('Cannot connect to TWAIN source (scanner or camera).'),
-#				_('acquiring page'),
-#				wxOK | wxICON_ERROR
-#			)
-#			dlg.ShowModal()
-#			dlg.Destroy()
-#			return False
-#
-#	TwainScanner.RequestAcquire()
-#	return 1
-#-----------------------------------
-#def __open_twain_scanner(self):
-#	(TwainSrcMngr, TwainScanner) = (None, None)
-#	# did we open the scanner before ?
-#	if not TwainSrcMngr:
-#		#_log.Log(gmLog.lData, "TWAIN version: %s" % _twain_module.Version())
-#		# no, so we need to open it now
-#		# TWAIN talks to us via MS-Windows message queues so we
-#		# need to pass it a handle to ourselves
-#		TwainSrcMngr = _twain_module.SourceManager(self.GetHandle())
-#		if not TwainSrcMngr:
-#			_log.Log(gmLog.lData, "cannot get a handle for the TWAIN source manager")
-#			return False
-#
-#		# TWAIN will notify us when the image is scanned
-#		TwainSrcMngr.SetCallback(self.twain_event_callback)
-#
-#		_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(TwainSrcMngr.GetIdentity()))
-#
-#	if not TwainScanner:
-#		TwainScanner = TwainSrcMngr.OpenSource()
-#		if not TwainScanner:
-#			_log.Log(gmLog.lData, "cannot open the scanner via the TWAIN source manager")
-#			return False
-#
-#		_log.Log(gmLog.lData, "TWAIN data source: %s" % TwainScanner.GetSourceName())
-#		_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(TwainScanner.GetIdentity()))
-#	return TwainScanner
-#-----------------------------------
-# SANE related scanning code
-#-----------------------------------
-#def __acquire_from_sane(options={'tmpdir':None,'delay':None}):
-#	_log.Log(gmLog.lInfo, "scanning with SANE source")
-#
-#	# supposedly there is a method *.close() but it does not
-#	# seem to work, therefore I put in the following line (else
-#	# it reports a busy sane-device on the second and consecutive runs)
-#	SaneScanner = None
-#	# open scanner on demand
-#	if not SaneScanner:
-#		SaneScanner = __open_sane_scanner()
-#		if not SaneScanner:
-#			_log.Log(gmLog.lErr, "Cannot connect to SANE source (scanner or camera).")
-#			return False
-#	# Set scan parameters
-#	# FIXME: get those from config file
-#	#scanner.contrast=170 ; scanner.brightness=150 ; scanner.white_level=190
-#	#scanner.depth=6
-#	#SaneScanner.br_x = 412.0
-#	#SaneScanner.br_y = 583.0
-#	try:
-#		# some sane backends report device_busy if we advance too fast
-#		sleep = options['delay']
-#		if sleep is not None:
-#			time.sleep(sleep)
-#		_log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % sleep)
-#	except KeyError:
-#		pass
-#	try:
-#		# initiate the scan
-#		SaneScanner.start()
-#		# get an Image object
-#		img = SaneScanner.snap()
-#		return img
-#	except:
-#		exc = sys.exc_info()
-#		_log.LogException('Unable to get image from scanner into [%s] !' % fname, exc, fatal=1)
-#		return False
-#-----------------------------------
-#def __open_sane_scanner():
-#	# FIXME: dict this !!
-#	(SaneSrcMngr, SaneScanner) = (None, None)
-#	# did we open the scanner before ?
-#	if not SaneSrcMngr:
-#		# no, so we need to open it now
-#		try:
-#			init_result = _sane_module.init()
-#		except:
-#			exc = sys.exc_info()
-#			_log.LogException('cannot init SANE', exc, fatal=1)
-#			SaneSrcMngr = None
-#			return False
-#
-#		_log.Log(gmLog.lData, "SANE version: %s" % str(init_result))
-#
-#	if not SaneScanner:
-#		# FIXME: actually we should use this to remember which device we work with
-#		devices = []
-#		devices = _sane_module.get_devices()
-#		if devices == []:
-#			_log.Log (gmLog.lErr, "SANE did not find any devices")
-#			return False
-#
-#		_log.Log(gmLog.lData, "available SANE devices: %s" % devices)
-#		try:
-#			# by default use the first device
-#			SaneScanner = _sane_module.open(_sane_module.get_devices()[0][0])
-#		except:
-#			exc = sys.exc_info()
-#			_log.LogException('cannot open SANE scanner', exc, fatal=1)
-#			return False
-#
-#		_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
-#		_log.Log(gmLog.lData, 'opened SANE device: %s' % str(SaneScanner))
-#		_log.Log(gmLog.lData, 'SANE device config: %s' % str(SaneScanner.get_parameters()))
-#		_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(SaneScanner.optlist))
-#		_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(SaneScanner.get_options()))
-#	return SaneScanner
-
-#def acquire_page(options={}):
-#	scan_drv = "unknown"
-#	try:
-#		# if we did not load the scanner driver yet
-#		if scan_drv == "unknown":
-#			scan_drv = initialize_backend()
-#			if scan_drv is None:
-#				_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
-#				return False
-#		# like this:
-#		acquire_handler = {
-#		'wintwain': __acquire_from_twain,
-#		'linsane': __acquire_from_sane
-#		}
-#		if scan_drv == 'wintwain':
-#			self.twain_event_handler = {
-#				_twain_module.MSG_XFERREADY: self.__twain_handle_transfer,
-#				_twain_module.MSG_CLOSEDSREQ: self.__twain_close_datasource,
-#				_twain_module.MSG_CLOSEDSOK: self.__twain_save_state,
-#				_twain_module.MSG_DEVICEEVENT: self.__twain_handle_src_event
-#			}
-#		img = acquire_handler[scan_drv](options)
-#		if not img:
-#			_log.Log (gmLog.lErr, _('Failed to get data from scanner'))
-#			return False
-#		else:
-#			return img
-#	except:
-#		exc = sys.exc_info()
-#		_log.LogException('Unhandled exception.', exc, fatal=1)
-#		raise
-
 #==================================================
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
@@ -545,11 +339,14 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.1  2005-11-26 16:53:43  shilbert
+# Revision 1.2  2005-11-27 08:48:45  ncq
+# - some old cruft removed
+# - example code useful being kept around for now commented out
+#
+# Revision 1.1  2005/11/26 16:53:43  shilbert
 # - moved here from Archive
 # - needed by gmScanIdxMedDocs plugin
 #
 # Revision 1.7  2005/11/09 11:30:21  ncq
 # - activate sane test scanner
-#
 #
