@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmConfigRegistry"}'
+	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -207,11 +207,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.19  2005-11-18 15:41:45  ncq
+-- Revision 1.20  2005-11-27 12:59:56  ncq
+-- - add ScanIdxMedDocsPlugin to Librarian 0.2 release config
+--
+-- Revision 1.19  2005/11/18 15:41:45  ncq
 -- - add data from gmconfiguration.sql
 -- - adjust for cfg.* schema usage
 -- - remove stale KnoppixMedica workplace
