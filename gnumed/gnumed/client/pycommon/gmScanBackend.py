@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.2 2005-11-27 08:48:45 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmScanBackend.py,v 1.3 2005-11-27 10:38:46 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -134,13 +134,19 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
-			print "autogeneration of file names not yet supported"
+			if tmpdir is None:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+			else:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		else:
+			if os.path.splitext(filename) != '.bmp':
+				filename = filename + '.bmp'
+
+		if not os.path.isfile(filename):
+			_log.Log(gmLog.lErr, 'invalid file name: [%s]')
 			return False
 
-		if os.path.splitext(filename) == '.bmp':
-			self.__filename = filename
-		else:
-			self.__filename = filename + '.bmp'
+		self.__filename = filename
 
 		TwainScanner.RequestAcquire()
 		return filename
@@ -255,10 +261,15 @@ class cSaneScanner:
 
 		return True
 	#---------------------------------------------------
-	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None,calling_window=None):
+	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
-			print "autogeneration of file names not yet supported"
-			return None
+			if tmpdir is None:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+			else:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		else:
+			if os.path.splitext(filename) != '.bmp':
+				filename = filename + '.bmp'
 
 		if delay is not None:
 			time.sleep(delay)
@@ -291,7 +302,6 @@ class cSaneScanner:
 		#self.__scannerdepth=6
 		#self.__scannerbr_x = 412.0
 		#self.__scannerbr_y = 583.0
-
 #==================================================
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
@@ -339,7 +349,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.2  2005-11-27 08:48:45  ncq
+# Revision 1.3  2005-11-27 10:38:46  ncq
+# - use secure creation of file names when not given
+#
+# Revision 1.2  2005/11/27 08:48:45  ncq
 # - some old cruft removed
 # - example code useful being kept around for now commented out
 #
