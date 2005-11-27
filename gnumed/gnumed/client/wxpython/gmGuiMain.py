@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.223 2005-11-18 15:23:23 ncq Exp $
-__version__ = "$Revision: 1.223 $"
+# $Id: gmGuiMain.py,v 1.224 2005-11-27 20:20:46 ncq Exp $
+__version__ = "$Revision: 1.224 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -772,10 +772,12 @@ class gmApp(wx.App):
 
 		# check for slave mode
 		tmp = _cfg.get('workplace', 'slave mode')
-		if tmp == 1:
+		if tmp == "1":
 			self.__guibroker['main.slave_mode'] = True
+			_log.Log(gmLog.lInfo, 'slave mode is ON')
 		else:
 			self.__guibroker['main.slave_mode'] = False
+			_log.Log(gmLog.lInfo, 'slave mode is OFF')
 		if self.__guibroker['main.slave_mode']:
 			self.__guibroker['main.slave_personality'] = _cfg.get('workplace', 'slave personality')
 			if not self.__guibroker['main.slave_personality']:
@@ -976,7 +978,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.223  2005-11-18 15:23:23  ncq
+# Revision 1.224  2005-11-27 20:20:46  ncq
+# - slave mode cfg return is string, not integer
+#
+# Revision 1.223  2005/11/18 15:23:23  ncq
 # - enable simple EMR search
 #
 # Revision 1.222  2005/11/06 11:10:42  ihaywood
