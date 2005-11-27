@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.67 2005-09-28 21:38:11 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmTopPanel.py,v 1.68 2005-11-27 12:56:45 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ except ImportError:
 	from wxPython import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmEMRStructItems
 from Gnumed.wxpython import gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets, gmPatSearchWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -224,23 +224,26 @@ class cMainTopPanel(wx.Panel):
 	# internal helpers
 	#-------------------------------------------------------
 	def __load_consultation_types(self):
-		cmd = "SELECT _(description) from encounter_type"
-		result = gmPG.run_ro_query('historica', cmd, None)
-		if (result is None) or (len(result) == 0):
-			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
-			self.__consultation_types = [_('in surgery'), _('chart review')]
-			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-			gmGuiHelpers.gm_show_error (
-				_('Cannot load consultation types from backend.\n'
-				  'Consequently, the only available type are:\n'
-				  '%s') % self.__consultation_types,
-				_('loading consultation types'),
-				gmLog.lWarn
-			)
-			return None
-		self.__consultation_types = []
-		for cons_type in result:
-			self.__consultation_types.append(cons_type[0])
+#		cmd = "SELECT _(description) from encounter_type"
+#		result = gmPG.run_ro_query('historica', cmd, None)
+#		if (result is None) or (len(result) == 0):
+#			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
+#			self.__consultation_types = [_('in surgery'), _('chart review')]
+#			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
+#			gmGuiHelpers.gm_show_error (
+#				_('Cannot load consultation types from backend.\n'
+#				  'Consequently, the only available type are:\n'
+#				  '%s') % self.__consultation_types,
+#				_('loading consultation types'),
+#				gmLog.lWarn
+#			)
+#			return None
+#		self.__consultation_types = []
+#		for cons_type in result:
+#			self.__consultation_types.append(cons_type[0])
+#		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
+
+		self.__consultation_types = gmEMRStructItems.get_encounter_types()
 		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
 		return 1
 	#-------------------------------------------------------
@@ -429,7 +432,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.67  2005-09-28 21:38:11  ncq
+# Revision 1.68  2005-11-27 12:56:45  ncq
+# - use gmEMRStructItems.get_encounter_types()
+#
+# Revision 1.67  2005/09/28 21:38:11  ncq
 # - more 2.6-ification
 #
 # Revision 1.66  2005/09/28 21:27:30  ncq
