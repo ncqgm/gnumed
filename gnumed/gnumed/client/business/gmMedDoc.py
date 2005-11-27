@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.29 2005-11-01 08:50:24 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmMedDoc.py,v 1.30 2005-11-27 09:23:07 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -445,6 +445,9 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			_log(gmLog.lErr, 'cannot add part to document [%s]' % self.pk_obj)
 			return None
 		return new_part
+
+#============================================================
+# convenience functions
 #============================================================
 def create_document(patient_id=None):
 	"""
@@ -497,7 +500,7 @@ def search_for_document(patient_id=None, type_id=None):
 		docs.append(cMedDoc(doc_id, presume_exists=1)) # suppress pointless checking of primary key
 
 	return docs
-#============================================================
+#------------------------------------------------------------
 def create_document_part(doc_id):
 	"""
 	None - failed
@@ -523,11 +526,24 @@ def create_document_part(doc_id):
 	# and init new document part instance
 	part = cMedDocPart(aPKey=part_id)
 	return part
+#------------------------------------------------------------
+def get_document_types():
+	cmd = "SELECT name FROM blobs.doc_type"
+	rows = gmPG.run_ro_query('blobs', cmd)
+	if rows is None:
+		_log.Log(gmLog.lErr, 'cannot retrieve document types')
+		return []
+	doc_types = []
+	for row in rows:
+		doc_types.append(row[0])
+	return doc_types
 #============================================================
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+
+	print get_document_types()
 
 	doc_folder = cDocumentFolder(aPKey=12)
 
@@ -540,7 +556,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.29  2005-11-01 08:50:24  ncq
+# Revision 1.30  2005-11-27 09:23:07  ncq
+# - added get_document_types()
+#
+# Revision 1.29  2005/11/01 08:50:24  ncq
 # - blobs are in blobs. schema now
 #
 # Revision 1.28  2005/02/12 13:56:49  ncq
