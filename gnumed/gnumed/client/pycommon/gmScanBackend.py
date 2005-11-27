@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.3 2005-11-27 10:38:46 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmScanBackend.py,v 1.4 2005-11-27 13:05:45 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -312,7 +312,7 @@ def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, 
 		except gmExceptions.ConstructorError:
 			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
 			return None
-	return scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir, calling_window=calling_window)
+	return scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
 
 #==================================================
 # main
@@ -349,7 +349,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.3  2005-11-27 10:38:46  ncq
+# Revision 1.4  2005-11-27 13:05:45  ncq
+# - used calling_window in the wrong place ...
+#
+# Revision 1.3  2005/11/27 10:38:46  ncq
 # - use secure creation of file names when not given
 #
 # Revision 1.2  2005/11/27 08:48:45  ncq
