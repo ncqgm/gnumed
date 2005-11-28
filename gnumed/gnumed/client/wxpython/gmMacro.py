@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -76,7 +76,17 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.21 $" % self.__class__.__name__
+		return "%s $Revision: 1.22 $" % self.__class__.__name__
+	#-----------------------------------------------------------------
+	def shutdown_gnumed(self, auth_cookie=None, forced=False):
+		"""Shuts down this client instance."""
+		if not self.__attached:
+			return 0
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated shutdown_gnumed()')
+			return 0
+		wx.CallAfter(self._shutdown_gnumed, forced)
+		return 1
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -173,9 +183,9 @@ class cMacroPrimitives:
 			'have legitimate reasons.\n\n'
 			'Do you want to allow breaking the connection ?'
 		)
-		can_break_conn = gmGuiHelpers.gm_show_question(
-			aMessage=msg,
-			aTitle=_('forced detach attempt')
+		can_break_conn = gmGuiHelpers.gm_show_question (
+			aMessage = msg,
+			aTitle = _('forced detach attempt')
 		)
 		if can_break_conn:
 			self.__user_answer = 1
@@ -186,6 +196,13 @@ class cMacroPrimitives:
 			self.__pat.unlock()
 			self.__attached = 0
 		return 1
+	#-----------------------------------------------------------------
+	def _shutdown_gnumed(self, forced=False):
+		top_win = wx.GetApp().GetTopWindow()
+		if forced:
+			top_win.Destroy()
+		else:
+			top_win.Close()
 #=====================================================================
 # main
 #=====================================================================
@@ -221,7 +238,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.21  2005-11-27 22:08:38  ncq
+# Revision 1.22  2005-11-28 23:07:34  ncq
+# - add shutdown_gnumed()
+#
+# Revision 1.21  2005/11/27 22:08:38  ncq
 # - patient searcher has somewhat changed so adapt
 #
 # Revision 1.20  2005/11/27 20:38:10  ncq
