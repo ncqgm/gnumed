@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.158 2005-11-27 12:59:09 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.159 2005-11-29 19:06:13 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -72,7 +72,7 @@ comment on TABLE clin.encounter_type is
 	'these are the types of encounter';
 
 -- clin.clin_encounter --
-select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
+--select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
 
 comment on table clin.clin_encounter is
 	'a clinical encounter between a person and the health care system';
@@ -341,6 +341,7 @@ comment on column clin.vacc_def.min_interval is
 
 -- clin.vaccination --
 select add_table_for_audit('clin', 'vaccination');
+delete from notifying_tables where table_name = 'vaccination';
 select add_table_for_notifies('vaccination', 'vacc');
 
 --select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
@@ -361,6 +362,7 @@ comment on column clin.allergy_state.has_allergy is
 
 -- allergy --
 select add_table_for_audit('clin', 'allergy');
+delete from notifying_tables where table_name = 'allergy';
 select add_table_for_notifies('allergy', 'allg');
 
 comment on table clin.allergy is
@@ -2323,11 +2325,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.158 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.159 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.158  2005-11-27 12:59:09  ncq
+-- Revision 1.159  2005-11-29 19:06:13  ncq
+-- - explicitely delete public.* tables from notify table and re-insert
+--   clin.* tables since add_table_for_notifies doesn't support schema yet
+--
+-- Revision 1.158  2005/11/27 12:59:09  ncq
 -- - comment out referral/constituent for now
 --
 -- Revision 1.157  2005/11/25 15:07:28  ncq
