@@ -1,7 +1,7 @@
 -- GNUmed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -147,11 +147,15 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.3 $');
+-- keep the "true" !
+select log_script_insertion('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.4 $', true);
 
 -- ===================================================================
 -- $Log: gmAudit-dynamic.sql,v $
--- Revision 1.3  2005-11-25 15:01:05  ncq
+-- Revision 1.4  2005-11-29 19:04:51  ncq
+-- - must use *old* log_script_insertion
+--
+-- Revision 1.3  2005/11/25 15:01:05  ncq
 -- - better factor out dynamic stuff
 --
 -- Revision 1.2  2005/10/24 19:06:51  ncq
