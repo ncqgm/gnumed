@@ -1,93 +1,109 @@
 """Test driving an enslaved GnuMed client.
 
-This script demonstrates how to script a GnuMed client.
+This script demonstrates how to script a GNUmed client.
 
-To run the test you must have a GnuMed client running with
+To run the test you must have a GNUmed client running with
 
- --slave=slave-test
+ [workplace]
+  slave mode = 1
+  slave personality = slave-test
+  xml-rpc port = 9999 (the default)
 
-listening on port 9999 (the default).
+in the config file.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/test-slave.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time
 import xmlrpclib, socket
 
-print "=> setting up connection to GnuMed client on localhost:9999"
-s = xmlrpclib.ServerProxy('http://localhost:9999')
+print "=> setting up connection to GNUmed client on localhost:9999"
+srv = xmlrpclib.ServerProxy('http://localhost:9999')
 
 print "=> showing macro processor version"
 try:
-	print s.version()
+	print srv.version()
 except socket.error:
-	print "ERROR: connection refused, have you started a slave GnuMed client on port 9999 ?"
+	print "ERROR: connection refused, have you started a slave GNUmed client on port 9999 ?"
 	sys.exit(-1)
 
 print "=> attaching to macro processor (should fail, missing cookie)"
-detach = s.attach()
+detach = srv.attach()
 print detach
 
 print "=> attaching to macro processor (should fail, wrong cookie)"
-detach = s.attach('wrong cookie')
+detach = srv.attach('wrong cookie')
 print detach
 
-print "=> executing action in client (should fail since not attached)"
-print s.raise_gnumed()
+print "=> executing action in client (should fail, not attached)"
+print srv.raise_gnumed()
 
-print "=> attaching to macro processor (should work)"
-status, conn_auth = s.attach('slave-test')
+print "=> attaching to macro processor (should work, returns (status, auth cookie))"
+status, conn_auth = srv.attach('slave-test')
 print status, conn_auth
 time.sleep(3)
 
-print "=> trying to raise GnuMed client to top of desktop"
-print s.raise_gnumed(conn_auth)
+print "=> trying to raise GNUmed client to top of desktop"
+print srv.raise_gnumed(conn_auth)
 time.sleep(3)
 
-print "=> listing loaded plugins (should fail)"
-print s.get_loaded_plugins('wrong auth')
+print "=> listing loaded plugins (should fail, wrong auth cookie)"
+print srv.get_loaded_plugins('wrong auth')
 time.sleep(5)
 
 print "=> listing loaded plugins"
-print s.get_loaded_plugins(conn_auth)
+print srv.get_loaded_plugins(conn_auth)
 time.sleep(5)
 
-print "=> raising a plugin that doesn't need an active patient"
-print s.raise_notebook_plugin(conn_auth, 'gmManual')
-print "=> trying to raise a plugin that needs an active patient"
-print s.raise_notebook_plugin(conn_auth, 'gmClinicalWindowManager')
+plugin = 'gmManual'
+print "=> raising a plugin that doesn't need an active patient (%s)" % plugin
+print srv.raise_notebook_plugin(conn_auth, plugin)
+time.sleep(3)
+
+plugin = 'XXX-no-such-plugin-XXX'
+print "=> raising a plugin that is not loaded (%s)" % plugin
+print srv.raise_notebook_plugin(conn_auth, plugin)
+time.sleep(3)
+
+plugin = 'gmEMRJournalPlugin'
+print "=> trying to raise a plugin that needs an active patient (%s)" % plugin
+print srv.raise_notebook_plugin(conn_auth, plugin)
 time.sleep(5)
 
-print "=> knew it, need to lock into a patient first ..."
-status, unlock_auth = s.lock_into_patient(conn_auth, 'kirk, james')
+print "=> knew it, need to lock into a patient first (returns (status, unlock cookie))"
+status, unlock_auth = srv.lock_into_patient(conn_auth, 'kirk, james')
 print status, unlock_auth
 
 print "=> trying to raise plugin again"
-print s.raise_notebook_plugin(conn_auth, 'gmClinicalWindowManager')
+print srv.raise_notebook_plugin(conn_auth, plugin)
 time.sleep(8)
 
-print "=> switching to document display plugin"
-print s.raise_notebook_plugin(conn_auth, 'gmShowMedDocs')
+plugin = 'gmShowMedDocs'
+print "=> switching to document display plugin (%s)" % plugin
+print srv.raise_notebook_plugin(conn_auth, plugin)
 time.sleep(4)
 
-print "=> cleaning up: unlocking patient"
-print s.unlock_patient(conn_auth, 'wrong cookie')
+print "=> cleaning up: unlocking patient (should fail, wrong cookie)"
+print srv.unlock_patient(conn_auth, 'wrong cookie')
 
-print "=> unlocking again, correctly"
-print s.unlock_patient(conn_auth, unlock_auth)
+print "=> unlocking again (should work)"
+print srv.unlock_patient(conn_auth, unlock_auth)
 
-print "=> detaching from macro processor (should fail)"
-print s.detach('wrong cookie')
+print "=> detaching from macro processor (should fail, wrong cookie)"
+print srv.detach('wrong cookie')
 
 print "=> oh well, but now for real"
-print s.detach(conn_auth)
-del s
+print srv.detach(conn_auth)
+del srv
 
 #=====================================================================
 # $Log: test-slave.py,v $
-# Revision 1.3  2004-06-25 13:28:00  ncq
+# Revision 1.4  2005-11-29 18:56:05  ncq
+# - general polishing
+#
+# Revision 1.3  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #
 # Revision 1.2  2004/03/15 22:40:17  ncq
@@ -100,5 +116,5 @@ del s
 # - adapt to creds passing on every RPC
 #
 # Revision 1.1  2004/02/13 16:15:29  ncq
-# - test drive GnuMed test slave
+# - test drive GNUmed test slave
 #
