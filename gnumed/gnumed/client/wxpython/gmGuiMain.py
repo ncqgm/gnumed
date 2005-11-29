@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.224 2005-11-27 20:20:46 ncq Exp $
-__version__ = "$Revision: 1.224 $"
+# $Id: gmGuiMain.py,v 1.225 2005-11-29 18:59:41 ncq Exp $
+__version__ = "$Revision: 1.225 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -794,7 +794,7 @@ class gmApp(wx.App):
 		from Gnumed.wxpython import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend is None:
-			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
+			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
 		try:
@@ -978,7 +978,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.224  2005-11-27 20:20:46  ncq
+# Revision 1.225  2005-11-29 18:59:41  ncq
+# - cleanup
+#
+# Revision 1.224  2005/11/27 20:20:46  ncq
 # - slave mode cfg return is string, not integer
 #
 # Revision 1.223  2005/11/18 15:23:23  ncq

@@ -5,8 +5,8 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.4 2005-01-12 14:47:48 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPsql.py,v 1.5 2005-11-29 18:57:03 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ import sys, os, string, re, urllib2
 import gmLog
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.4 $')
+_log.Log(gmLog.lInfo, '$Revision: 1.5 $')
 
 #===================================================================
 def shellrun (cmd):
@@ -30,7 +30,7 @@ def shellrun (cmd):
 	stdin.close ()
 	return r
 #-------------------------------------------------------------------
-def shell (str):
+def shell(str):
 	"""
 	performs backtick shell extension in a string
 	"""
@@ -91,10 +91,12 @@ class Psql:
 
 			# \echo
 			if self.match (r"^\\echo (.*)"):
+#				print self.groups[0]
 				_log.Log (gmLog.lInfo, self.fmt_msg(shell(self.groups[0])))
 				continue
 			# \qecho
 			if self.match (r"^\\qecho (.*)"):
+#				print self.groups[0]
 				_log.Log (gmLog.lInfo, self.fmt_msg(shell (self.groups[0])))
 				continue
 			# \q
@@ -234,7 +236,10 @@ if __name__ == '__main__':
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.4  2005-01-12 14:47:48  ncq
+# Revision 1.5  2005-11-29 18:57:03  ncq
+# - cleanup
+#
+# Revision 1.4  2005/01/12 14:47:48  ncq
 # - in DB speak the database owner is customarily called dbo, hence use that
 #
 # Revision 1.3  2004/12/14 09:50:21  ncq
