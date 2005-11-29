@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -59,7 +59,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         # "to be called when the user pressed the scan button"
         # "this can be done by using the EVENT tab to define the EVT macro"""
 
-        # FIXME: allow directory to be passed in
+        # FIXME: load directory from backend config
         fname = self.scan_module.acquire_page_into_file (
             filename = 'test.bmp',
             delay = 5,
@@ -67,7 +67,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         )
         if fname is None:
             # FIXME: use gmGuiHelpers
-            dlg = wx.MessageDialog(
+            dlg = wx.MessageDialog (
                 self,
                 _('page could not be acquired. Please check the log file for details on what went wrong'),
                 _('acquiring page'),
@@ -443,7 +443,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.22  2005-11-27 12:46:21  ncq
+# Revision 1.23  2005-11-29 19:00:09  ncq
+# - some cleanup
+#
+# Revision 1.22  2005/11/27 12:46:21  ncq
 # - cleanup
 #
 # Revision 1.21  2005/11/27 01:57:28  shilbert
