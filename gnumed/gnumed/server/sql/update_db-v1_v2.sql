@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -26,7 +26,8 @@ alter table audited_tables
 	alter column "schema"
 		set not null;
 
--- FIXME: unique(schema, table)
+alter table audited_tables drop constraint audited_tables_table_name_key cascade;
+alter table audited_tables add constraint unique_qualified_table unique(schema, table_name);
 
 -- == service default =====================================
 -- create tables in new schema cfg.
@@ -105,14 +106,113 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmConfigRegistry"}'
+	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmConfigRegistry"}'
 );
 
 -- remove old data
 delete from cfg.cfg_item where workplace='KnoppixMedica';
 
 -- == service clinical ====================================
--- recreate tables
+-- modify source tables
+
+-- * clin_encounter --
+alter table public.clin_encounter
+	drop column fk_provider cascade;
+
+-- add RFE
+alter table public.clin_encounter
+	add column rfe text;
+
+-- 1) concat clin_narrative.is_rfe rows into clin_encounter.rfe
+create or replace function concat_rfes(integer) returns text as '
+declare
+	_fk_encounter alias for $1;
+	_final_str text;
+	_rfe_row record;
+begin
+	_final_str := ''xxxDEFAULTxxx: '';
+	for _rfe_row in select narrative from public.clin_narrative where is_rfe is true and fk_encounter=_fk_encounter loop
+		_final_str := _final_str || coalesce(_rfe_row.narrative, '''');
+	end loop;
+	return _final_str;
+end;
+' language 'plpgsql';
+
+update public.clin_encounter set
+	rfe = (select concat_rfes(public.clin_encounter.id));
+
+drop function concat_rfes(integer);
+
+-- 2) use Soap rows from clin_narrative on remaining ones
+create or replace function concat_s(integer) returns text as '
+declare
+	_fk_encounter alias for $1;
+	_final_str text;
+	_s_row record;
+begin
+	_final_str := ''xxxDEFAULTxxx: '';
+	for _s_row in select narrative from public.clin_narrative where soap_cat=''s'' and fk_encounter=_fk_encounter loop
+		_final_str := _final_str || coalesce(_s_row.narrative, '''');
+	end loop;
+	return _final_str;
+end;
+' language 'plpgsql';
+
+update public.clin_encounter set
+	rfe = (select concat_s(public.clin_encounter.id))
+	where rfe is null;
+
+drop function concat_s(integer);
+
+-- 3) or else just set a default
+update clin_encounter set
+	rfe = 'xxxDEFAULTxxx'
+	where rfe is null;
+
+-- add AOE
+alter table public.clin_encounter
+	rename column description to aoe;
+
+-- move clin_narrative.is_aoe rows into it
+create or replace function concat_aoes(integer) returns text as '
+declare
+	_fk_encounter alias for $1;
+	_final_str text;
+	_aoe_row record;
+begin
+	_final_str = '''';
+	for _aoe_row in select narrative from public.clin_narrative where is_aoe is true and fk_encounter=_fk_encounter loop
+		_final_str := _final_str || coalesce(_aoe_row.narrative, '''');
+	end loop;
+	return _final_str;
+end;
+' language 'plpgsql';
+
+update public.clin_encounter set
+	aoe = coalesce(public.clin_encounter.aoe, 'xxxDEFAULTxxx') || ': ' || (select concat_aoes(public.clin_encounter.id));
+
+drop function concat_aoes(integer);
+
+-- * clin_narrative --
+delete from public.clin_narrative
+	where
+		(public.clin_narrative.is_rfe or public.clin_narrative.is_aoe)
+		and not exists (select 1 from public.clin_diag cd where cd.fk_narrative = public.clin_narrative.pk)
+		and not exists (select 1 from public.hx_family_item hxf where hxf.fk_narrative_condition = public.clin_narrative.pk)
+;
+
+alter table public.clin_narrative
+	drop constraint aoe_xor_rfe;
+alter table public.clin_narrative
+	drop constraint rfe_is_subj;
+alter table public.clin_narrative
+	drop constraint aoe_is_assess;
+alter table public.clin_narrative
+	drop column is_rfe cascade;
+alter table public.clin_narrative
+	drop column is_aoe cascade;
+
+-- recreate clinical tables in schema "clin"
 \i gmclinical.sql
 
 -- move data and adjust sequences
@@ -123,18 +223,33 @@ insert into clin.clin_health_issue select * from public.clin_health_issue;
 select setval('clin.clin_health_issue_id_seq'::text, (select max(id) from clin.clin_health_issue));
 
 insert into clin.clin_episode select * from public.clin_episode;
-select setval('clin.clin_episode_pk_seq'::text, (select max(pk) from clin.episode));
+select setval('clin.clin_episode_pk_seq'::text, (select max(pk) from clin.clin_episode));
 
 insert into clin.encounter_type select * from public.encounter_type;
 select setval('clin.encounter_type_pk_seq'::text, (select max(pk) from clin.encounter_type));
 
-insert into clin.clin_encounter select * from public.clin_encounter;
+insert into clin.clin_encounter
+	select
+		pk_audit,
+		row_version,
+		modified_when,
+		modified_by,
+		id,
+		fk_patient,
+		fk_type,
+		fk_location,
+		source_time_zone,
+		rfe,
+		aoe,
+		started,
+		last_affirmed
+	from public.clin_encounter;
 select setval('clin.clin_encounter_id_seq'::text, (select max(id) from clin.clin_encounter));
 
 -- clin_root_item does not need to be moved ...
 
 insert into clin.clin_item_type select * from public.clin_item_type;
-select setval('clin._pk_seq'::text, (select max(pk) from clin.));
+select setval('clin.clin_item_type_pk_seq'::text, (select max(pk) from clin.clin_item_type));
 
 insert into clin.lnk_type2item select * from public.lnk_type2item;
 select setval('clin.lnk_type2item_pk_seq'::text, (select max(pk) from clin.lnk_type2item));
@@ -205,31 +320,19 @@ select setval('clin.form_data_pk_seq'::text, (select max(pk) from clin.form_data
 insert into clin.clin_medication select * from public.clin_medication;
 select setval('clin.clin_medication_pk_seq'::text, (select max(pk) from clin.clin_medication));
 
-insert into clin.constituent select * from public.constituent;
--- does not have a primary key
---select setval('clin._pk_seq'::text, (select max(pk) from clin.));
-
-insert into clin.referral select * from public.referral;
-select setval('clin.referral_id_seq'::text, (select max(id) from clin.referral));
-
 -- drop old tables
-drop table public.xlnk_identity cascade;
 drop table public.clin_health_issue cascade;
 drop table public.clin_episode cascade;
 drop table public.last_act_episode cascade;
 drop table public.encounter_type cascade;
 drop table public.clin_encounter cascade;
 drop table public.curr_encounter cascade;
-drop table public.clin_root_item cascade;
 drop table public.clin_item_type cascade;
 drop table public.lnk_type2item cascade;
 drop table public.soap_cat_ranks cascade;
-drop table public.clin_narrative cascade;
 drop table public.coded_narrative cascade;
 drop table public.hx_family_item cascade;
-drop table public.clin_hx_family cascade;
 drop table public.clin_diag cascade;
-drop table public.clin_aux_note cascade;
 drop table public.vacc_indication cascade;
 drop table public.lnk_vacc_ind2code cascade;
 drop table public.vacc_route cascade;
@@ -238,30 +341,26 @@ drop table public.lnk_vaccine2inds cascade;
 drop table public.vacc_regime cascade;
 drop table public.lnk_pat2vacc_reg cascade;
 drop table public.vacc_def cascade;
-drop table public.vaccination cascade;
 drop table public.allergy_state cascade;
 drop table public._enum_allergy_type cascade;
-drop table public.allergy cascade;
-drop table public.form_instances cascade;
 drop table public.form_data cascade;
-drop table public.clin_medication cascade;
 drop table public.enum_confidentiality_level cascade;
 drop table public.constituent cascade;
 
--- clin_episode ----------------------------------------
+-- * clin_episode, again
 
 -- merge multiple open episodes per issue into one ...
 
 -- select them
 create view v_linked_multiple_open_epis as
 select *
-from clin_episode ce1
+from clin.clin_episode ce1
 where
 	is_open and
 	(select
 		count(*)
 	from
-		clin_episode ce2
+		clin.clin_episode ce2
 	where
 		is_open and
 		ce2.fk_health_issue = ce1.fk_health_issue
@@ -296,17 +395,17 @@ begin
 	end loop;
 	raise notice ''new description [%]'', _new_epi_name;
 	-- create new episode
-	insert into clin_episode (
+	insert into clin.clin_episode (
 		fk_health_issue, fk_patient, description, is_open
 	) values (
 		_fk_health_issue, Null, _new_epi_name, true
 	);
-	select into _dummy currval(''clin_episode_pk_seq'');
+	select into _dummy currval(''clin.clin_episode_pk_seq'');
 	raise notice ''new episode pk: [%]'', _dummy;
 	-- point items to new episode
 	raise notice ''now updating clin_root_items'';
-	update clin_root_item
-		set fk_episode = currval(''clin_episode_pk_seq'')
+	update clin.clin_root_item
+		set fk_episode = currval(''clin.clin_episode_pk_seq'')
 		where fk_episode in (
 			select pk
 			from v_linked_multiple_open_epis
@@ -314,10 +413,10 @@ begin
 		);
 	-- delete all but the new episode
 	raise notice ''now deleting old episodes'';
-	delete from clin_episode where
+	delete from clin.clin_episode where
 		is_open and
 		fk_health_issue = _fk_health_issue and
-		pk != currval(''clin_episode_pk_seq'');
+		pk != currval(''clin.clin_episode_pk_seq'');
 	return;
 end;
 ';
@@ -344,201 +443,76 @@ drop function merge_open_epis(integer);
 drop function do_epi_merge();
 drop view v_linked_multiple_open_epis;
 
--- -- clin_encounter -----------------------------------
+-- recreate measurements tables in schema "clin"
+\i gmMeasurements.sql
 
--- -- RFE --
-alter table clin_encounter
-	add column rfe text;
+-- move data and adjust sequences
+insert into clin.test_org select * from public.test_org;
+select setval('clin.test_org_pk_seq'::text, (select max(pk) from clin.test_org));
 
-comment on column clin_encounter.rfe is
-	'the RFE for the encounter as related by either
-	 the patient or the provider (say, in a chart
-	 review)';
+insert into clin.test_type select * from public.test_type;
+select setval('clin.test_type_pk_seq'::text, (select max(pk) from clin.test_type));
 
--- add content to it:
--- 1) use is_rfe rows from clin_narrative
-create or replace function concat_rfes(integer) returns text as '
-declare
-	_fk_encounter alias for $1;
-	_final_str text;
-	_rfe_row record;
-begin
-	_final_str := ''xxxDEFAULTxxx: '';
-	for _rfe_row in select narrative from clin_narrative where is_rfe is true and fk_encounter=_fk_encounter loop
-		_final_str := _final_str || coalesce(_rfe_row.narrative, '''');
-	end loop;
-	return _final_str;
-end;
-' language 'plpgsql';
+insert into clin.test_type_unified select * from public.test_type_unified;
+select setval('clin.test_type_unified_pk_seq'::text, (select max(pk) from clin.test_type_unified));
 
-update clin_encounter set
-	rfe = (select concat_rfes(clin_encounter.id));
+insert into clin.lnk_ttype2unified_type select * from public.lnk_ttype2unified_type;
+select setval('clin.lnk_ttype2unified_type_pk_seq'::text, (select max(pk) from clin.lnk_ttype2unified_type));
 
-drop function concat_rfes(integer);
+insert into clin.lnk_tst2norm select * from public.lnk_tst2norm;
+select setval('clin.lnk_tst2norm_id_seq'::text, (select max(id) from clin.lnk_tst2norm));
 
--- 2) use Soap rows from clin_narrative on remaining ones
-create or replace function concat_s(integer) returns text as '
-declare
-	_fk_encounter alias for $1;
-	_final_str text;
-	_s_row record;
-begin
-	_final_str := ''xxxDEFAULTxxx: '';
-	for _s_row in select narrative from clin_narrative where soap_cat=''s'' and fk_encounter=_fk_encounter loop
-		_final_str := _final_str || coalesce(_s_row.narrative, '''');
-	end loop;
-	return _final_str;
-end;
-' language 'plpgsql';
+insert into clin.test_result
+select
+	pk_audit,
+	row_version,
+	modified_when,
+	modified_by,
+	pk_item,
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat,
+	pk,
+	fk_type,
+	val_num,
+	val_alpha,
+	val_unit,
+	val_normal_min,
+	val_normal_max,
+	val_normal_range,
+	val_target_min,
+	val_target_max,
+	val_target_range,
+	technically_abnormal,
+	norm_ref_group,
+	note_provider,
+	material,
+	material_detail
+from public.test_result;
+select setval('clin.test_result_pk_seq'::text, (select max(pk) from clin.test_result));
 
-update clin_encounter set
-	rfe = (select concat_s(clin_encounter.id))
-	where rfe is null;
+insert into clin.lab_request select * from public.lab_request;
+select setval('clin.lab_request_pk_seq'::text, (select max(pk) from clin.lab_request));
 
-drop function concat_s(integer);
+insert into clin.lnk_result2lab_req select * from public.lnk_result2lab_req;
+select setval('clin.lnk_result2lab_req_pk_seq'::text, (select max(pk) from clin.lnk_result2lab_req));
 
--- 3) or else just set a default
-update clin_encounter set
-	rfe = 'xxxDEFAULTxxx'
-	where rfe is null;
-
--- -- AOE --
-alter table clin_encounter
-	rename column description to aoe;
-
-comment on column clin_encounter.aoe is
-	'the Assessment of Encounter (eg consultation summary)
-	 as determined by the provider, may simply be a
-	 concatenation of soAp narrative, this assessment
-	 should go across all problems';
-
--- move clin_narrative.is_aoe rows into it
-create or replace function concat_aoes(integer) returns text as '
-declare
-	_fk_encounter alias for $1;
-	_final_str text;
-	_aoe_row record;
-begin
-	_final_str = '''';
-	for _aoe_row in select narrative from clin_narrative where is_aoe is true and fk_encounter=_fk_encounter loop
-		_final_str := _final_str || coalesce(_aoe_row.narrative, '''');
-	end loop;
-	return _final_str;
-end;
-' language 'plpgsql';
-
-update clin_encounter set
-	aoe = coalesce(clin_encounter.aoe, 'xxxDEFAULTxxx') || ': ' || (select concat_aoes(clin_encounter.id));
-
-drop function concat_aoes(integer);
-
--- -- fk_provider --
-alter table clin_encounter
-	drop column fk_provider cascade;
-
--- clin_narrative ---------------------------------
-
--- drop rfe constraints
-alter table clin_narrative
-	drop constraint aoe_xor_rfe;
-alter table clin_narrative
-	drop constraint rfe_is_subj;
-
--- drop aoe constraints
-alter table clin_narrative
-	drop constraint aoe_is_assess;
-
--- delete is_rfe/is_aoe=true rows
-delete from clin_narrative
-	where
-		(clin_narrative.is_rfe or clin_narrative.is_aoe)
-		and not exists (select 1 from clin_diag cd where cd.fk_narrative = clin_narrative.pk)
-		and not exists (select 1 from hx_family_item hxf where hxf.fk_narrative_condition = clin_narrative.pk)
-;
-
--- drop is_rfe ...
-alter table clin_narrative
-	drop column is_rfe cascade;
-
--- drop is_aoe ...
-alter table clin_narrative
-	drop column is_aoe cascade;
-
--- curr_encounter --
---drop table curr_encounter;
-
--- last_act_episode --
---drop table last_act_episode;
-
--- == service blobs ==================================================
--- 1) create tables in schema "blobs"
-\i gmBlobs.sql
-
--- move data from public schema
-insert into blobs.doc_type select * from public.doc_type;
-insert into blobs.doc_med select * from public.doc_med;
-insert into blobs.doc_obj select * from public.doc_obj;
-insert into blobs.doc_desc select * from public.doc_desc;
-
--- adjust sequences
-select setval('blobs.doc_type_pk_seq'::text, (select max(pk) from blobs.doc_type));
-select setval('blobs.doc_med_id_seq'::text, (select max(id) from blobs.doc_med));
-select setval('blobs.doc_obj_id_seq'::text, (select max(id) from blobs.doc_obj));
-select setval('blobs.doc_desc_id_seq'::text, (select max(id) from blobs.doc_desc));
-
--- drop tables in public schema
-drop table public.doc_desc cascade;
-drop table public.doc_obj cascade;
-drop table public.doc_med cascade;
-drop table public.doc_type cascade;
-
--- doc_type --
--- set all doc_types to system
-update blobs.doc_type
-	set is_user = false;
-
--- ===================================================================
--- review tables/views --
-\i gmReviewedStatus-static.sql
-
--- test_result --
-alter table test_result
-	drop column fk_doc cascade;
-
-insert into reviewed_test_results (
-	fk_reviewed_row,
-	fk_reviewer,
-	is_technically_abnormal,
-	clinically_relevant
-) select
-	tr.pk,
-	tr.fk_reviewer,
-	case when tr.technically_abnormal is null
-		then false
-		else true
-	end as is_abnormal,
-	tr.clinically_relevant
-from
-	test_result tr
-where
-	tr.reviewed_by_clinician is true
-;
-
-alter table test_result
-	drop column clinically_relevant cascade;
-alter table test_result
-	drop column fk_reviewer cascade;
-alter table test_result
-	drop column reviewed_by_clinician cascade;
-
-alter table test_result
-	rename column technically_abnormal to abnormality_indicator;
+-- drop old tables
+drop table public.test_org cascade;
+drop table public.test_type cascade;
+drop table public.test_type_unified cascade;
+drop table public.lnk_ttype2unified_type cascade;
+drop table public.lnk_tst2norm cascade;
+drop table public.lab_request cascade;
+drop table public.lnk_result2lab_req cascade;
 
 -- test_result_unmatched --
 \i gmUnmatchableData-static.sql
 \i gmUnmatchedData-static.sql
 
-insert into incoming_data_unmatched (
+insert into clin.incoming_data_unmatched (
 	pk,
 	fk_patient_candidates,
 	request_id,
@@ -560,9 +534,69 @@ insert into incoming_data_unmatched (
 	other_info,
 	type,
 	decode(data, 'escape')			-- textsend()
-from test_result_unmatched;
+from public.test_result_unmatched;
 
-drop table test_result_unmatched cascade;
+select setval('clin.incoming_data_unmatched_pk_seq'::text, (select max(pk) from clin.incoming_data_unmatched));
+
+drop table public.test_result_unmatched cascade;
+-- == service blobs ==================================================
+-- 1) create tables in schema "blobs"
+\i gmBlobs.sql
+
+-- move data from public schema
+insert into blobs.xlnk_identity select * from public.xlnk_identity;
+insert into blobs.doc_type select * from public.doc_type;
+insert into blobs.doc_med select * from public.doc_med;
+insert into blobs.doc_obj select * from public.doc_obj;
+insert into blobs.doc_desc select * from public.doc_desc;
+
+-- adjust sequences
+select setval('blobs.xlnk_identity_pk_seq'::text, (select max(pk) from blobs.xlnk_identity));
+select setval('blobs.doc_type_pk_seq'::text, (select max(pk) from blobs.doc_type));
+select setval('blobs.doc_med_id_seq'::text, (select max(id) from blobs.doc_med));
+select setval('blobs.doc_obj_id_seq'::text, (select max(id) from blobs.doc_obj));
+select setval('blobs.doc_desc_id_seq'::text, (select max(id) from blobs.doc_desc));
+
+-- drop tables in public schema
+drop table public.doc_desc cascade;
+drop table public.doc_obj cascade;
+drop table public.doc_med cascade;
+drop table public.doc_type cascade;
+
+-- doc_type --
+-- set all doc_types to system
+update blobs.doc_type
+	set is_user = false;
+
+-- == service clinical, again ========================================
+-- this needs to come after clinical *and* blobs
+
+\i gmReviewedStatus-static.sql
+
+insert into clin.reviewed_test_results (
+	fk_reviewed_row,
+	fk_reviewer,
+	is_technically_abnormal,
+	clinically_relevant
+) select
+	tr.pk,
+	tr.fk_reviewer,
+	case when tr.technically_abnormal is null
+		then false
+		else true
+	end as is_abnormal,
+	tr.clinically_relevant
+from
+	public.test_result tr
+where
+	tr.reviewed_by_clinician is true
+;
+
+-- drops all child tables, too
+drop table public.clin_root_item cascade;
+
+-- adjust clin_root_item sequence globally
+select setval('clin.clin_root_item_pk_item_seq'::text, (select max(pk_item) from clin.clin_root_item));
 
 -- == service reference ==============================================
 
@@ -590,14 +624,26 @@ alter table de_kvk
 	rename column straﬂe to strasse;
 
 -- ===================================================================
+-- need to do this last
+drop table public.xlnk_identity cascade;
+
+-- adjust audit_fields pk sequence globally
+select setval('public.audit_fields_pk_audit_seq'::text, (select max(pk_audit) from public.audit_fields));
+
+-- ===================================================================
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.15 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.15  2005-11-25 15:05:13  ncq
+-- Revision 1.16  2005-11-29 19:09:59  ncq
+-- - properly modified audited_tables
+-- - add scanidxpnl to Librarian release config
+-- - re-arrange clinical upgrade
+--
+-- Revision 1.15  2005/11/25 15:05:13  ncq
 -- - start upgrading things to "clin" schema - not functional yet
 --
 -- Revision 1.14  2005/11/19 13:51:14  ncq
