@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -187,7 +187,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         dlg.ShowModal()
         dlg.Destroy()
         fname = dlg.GetPath()
-        if not aFile is None:
+        if not fname is None:
             # add file to aquired pages
             self.acquired_pages.append(fname)
             # update list of pages in GUI
@@ -485,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.25  2005-12-02 17:31:05  shilbert
+# Revision 1.26  2005-12-02 22:46:21  shilbert
+# - fixed inconsistent naming of vaiables which caused a bug
+#
+# Revision 1.25  2005/12/02 17:31:05  shilbert
 # - readd document types as per Ian's suggestion
 #
 # Revision 1.24  2005/12/02 02:09:02  shilbert
