@@ -1,10 +1,10 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import os.path, sys, re
+import os.path, sys, re, time
 
 try:
     import wxversion
@@ -37,7 +37,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         # init ancestor
         wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
         # now we *are* a wxgScanIdxDocsPnl child without any additional properties
-
+    
         # from here on we can init other stuff
         # that's not part of the wxGlade GUI
         self.__init_ui_data()
@@ -49,8 +49,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     #--------------------------------------------------------
     def __init_ui_data(self):
         # provide choices for document types
-        for doc_type in gmMedDoc.get_document_types():
-            self.SelBOX_doc_type.Append(doc_type)
+        #for doc_type in gmMedDoc.get_document_types():
+            #self.SelBOX_doc_type.Append(doc_type)
+        self.SelBOX_doc_type.SetValue(_('choose document type'))
+        self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
         # a list holding our objects
         self.acquired_pages = []
     #--------------------------------------------------------
@@ -148,12 +150,21 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 
             return 1
     #--------------------------------------------------------
-    def __save_btn_pressed(self, evt):
-        print "same here"
-        #--------------------------------------------------------
-        #--------------------------------------------------------
-        #--------------------------------------------------------
-    #--------------------------------------------
+    def _save_btn_pressed(self, evt):
+        doc_type = self.SelBOX_doc_type.GetSelection()
+        desc_short = self.TBOX_desc_short.GetLineText(0)
+        doc_date = self.TBOX_doc_date.GetLineText(0)
+        desc_long = self.TBOX_desc_long.GetValue()
+        # returns True/False , alternative might be foo.IsChecked()
+        checkbox = self.__checkbox_reviewed.GetValue()
+        # holds the list of aquired pages
+        # self.acquired_pages ...
+        print "finish this"
+    
+    #--------------------------------------------------------
+    def _startover_btn_pressed(self, evt):
+        self.__clear_doc_fields()
+    #--------------------------------------------------------
     def __reload_LBOX_doc_pages(self):
         self.LBOX_doc_pages.Clear()
         if len(self.acquired_pages) > 0:    
@@ -161,6 +172,37 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
                 fname = self.acquired_pages[i]
                 path, name = os.path.split(fname)
                 self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
+    
+    #--------------------------------------------------------
+    def _select_files_btn_pressed (self, evt):
+        # patient file chooser
+        dlg = wx.FileDialog(
+            self,
+            _('choose a file'),
+            '',
+            '',
+            wildcard = "all (*.*)|*.*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg",
+            style = wx.FILE_MUST_EXIST
+        )
+        dlg.ShowModal()
+        dlg.Destroy()
+        fname = dlg.GetPath()
+        if not aFile is None:
+            # add file to aquired pages
+            self.acquired_pages.append(fname)
+            # update list of pages in GUI
+            self.__reload_LBOX_doc_pages()
+    #--------------------------------------------------------
+    def __clear_doc_fields(self):
+        # clear fields
+        # FIXME: make this configurable: either now() or last_date()
+        self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
+        self.TBOX_desc_short.SetValue(_('please fill in'))
+        self.TBOX_desc_long.SetValue(_('please fill in'))
+        self.SelBOX_doc_type.SetValue(_('choose document type'))
+        self.LBOX_doc_pages.Clear()
+        self.acquired_pages = []
+        self.checkbox_reviewed.SetValue(False)
 #============================================================
         # NOTE:	 For some reason tree items have to have a data object in
         #		 order to be sorted.  Since our compare just uses the labels
@@ -443,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.23  2005-11-29 19:00:09  ncq
+# Revision 1.24  2005-12-02 02:09:02  shilbert
+# - quite a few feature updates within the scope of scan&idx panel
+#
+# Revision 1.23  2005/11/29 19:00:09  ncq
 # - some cleanup
 #
 # Revision 1.22  2005/11/27 12:46:21  ncq
