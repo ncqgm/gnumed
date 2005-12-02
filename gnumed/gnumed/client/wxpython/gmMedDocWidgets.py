@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -49,8 +49,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     #--------------------------------------------------------
     def __init_ui_data(self):
         # provide choices for document types
-        #for doc_type in gmMedDoc.get_document_types():
-            #self.SelBOX_doc_type.Append(doc_type)
+        for doc_type in gmMedDoc.get_document_types():
+            self.SelBOX_doc_type.Append(doc_type)
         self.SelBOX_doc_type.SetValue(_('choose document type'))
         self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
         # a list holding our objects
@@ -485,7 +485,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.24  2005-12-02 02:09:02  shilbert
+# Revision 1.25  2005-12-02 17:31:05  shilbert
+# - readd document types as per Ian's suggestion
+#
+# Revision 1.24  2005/12/02 02:09:02  shilbert
 # - quite a few feature updates within the scope of scan&idx panel
 #
 # Revision 1.23  2005/11/29 19:00:09  ncq
