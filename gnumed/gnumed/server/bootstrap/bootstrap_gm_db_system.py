@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -812,7 +812,7 @@ begin
 
 		# create auditing schema
 		curs = self.conn.cursor()
-		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs)
+		audit_schema = gmAuditSchemaGenerator.create_audit_ddl(curs)
 		curs.close()
 		if audit_schema is None:
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
@@ -1454,7 +1454,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.15  2005-11-19 13:25:18  ncq
+# Revision 1.16  2005-12-04 09:32:55  ncq
+# - *_schema -> *_ddl
+#
+# Revision 1.15  2005/11/19 13:25:18  ncq
 # - some string cleanup
 #
 # Revision 1.14  2005/11/18 15:47:16  ncq
