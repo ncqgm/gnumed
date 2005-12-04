@@ -1,7 +1,7 @@
 -- GNUmed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -80,7 +80,6 @@ comment on function add_table_for_audit (name, name) is
 	'sanity-checking convenience function for marking tables for auditing';
 
 
--- drop function add_table_for_audit(name) cascade;
 create or replace function add_table_for_audit(name) returns unknown as '
 	select add_table_for_audit(\'public\', $1);
 ' language SQL;
@@ -148,11 +147,16 @@ to group "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 -- keep the "true" !
-select log_script_insertion('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.4 $', true);
+delete from gm_schema_revision where filename = '$RCSfile: gmAudit-dynamic.sql,v $';
+insert into gm_schema_revision (filename, version) values ('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmAudit-dynamic.sql,v $
--- Revision 1.4  2005-11-29 19:04:51  ncq
+-- Revision 1.5  2005-12-04 09:36:52  ncq
+-- - need to use explicit and old style of logging script insertion
+--   due to early running in upgrade process
+--
+-- Revision 1.4  2005/11/29 19:04:51  ncq
 -- - must use *old* log_script_insertion
 --
 -- Revision 1.3  2005/11/25 15:01:05  ncq
