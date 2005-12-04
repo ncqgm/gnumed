@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.54 $ $Date: 2005-11-27 12:58:19 $ $Author: ncq $
+-- $Revision: 1.55 $ $Date: 2005-12-04 09:38:22 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -22,15 +22,6 @@ create table blobs.xlnk_identity (
 	pupic text unique not null,
 	data text unique default null
 ) inherits (public.audit_fields);
-
---select public.add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
-
---comment on table xlnk_identity is
---	'this is the one table with the unresolved identity(pk)
---	 foreign key, all other tables in this service link to
---	 this table, depending upon circumstances one can add
---	 dblink() verification or a true FK constraint (if "personalia"
---	 is in the same database as "historica")';
 
 --\set ON_ERROR_STOP 1
 
@@ -97,6 +88,9 @@ CREATE TABLE blobs.doc_obj (
 	seq_idx integer
 		not null,
 	comment text,
+	fk_intended_reviewer integer
+		not null
+		references blobs.xlnk_identity(xfk_identity),
 	data bytea
 );
 
@@ -109,6 +103,8 @@ COMMENT ON COLUMN blobs.doc_obj.seq_idx IS
 COMMENT ON COLUMN blobs.doc_obj.comment IS
 	'optional tiny comment for this
 	 object, such as "page 1"';
+comment on column blobs.doc_obj.fk_intended_reviewer is
+	'who is *supposed* to review this item';
 COMMENT ON COLUMN blobs.doc_obj.data IS
 	'actual binary object data;
 	 here is why we use bytea:
@@ -157,7 +153,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.54 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.55 $');
 
 -- =============================================
 -- questions:
@@ -177,7 +173,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.54  2005-11-27 12:58:19  ncq
+-- Revision 1.55  2005-12-04 09:38:22  ncq
+-- - add fk_intended_reviewer to doc_obj
+--
+-- Revision 1.54  2005/11/27 12:58:19  ncq
 -- - factor out dynamic stuff
 --
 -- Revision 1.53  2005/11/25 15:02:05  ncq
