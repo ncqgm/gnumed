@@ -1,4 +1,4 @@
-"""Automatic GnuMed notification trigger generation.
+"""Automatic GNUmed notification trigger generation.
 
 This module creates notification triggers on tables.
 
@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -27,10 +27,8 @@ _log.Log(gmLog.lInfo, __version__)
 #==================================================================
 # SQL statements for notification triggers
 #------------------------------------------------------------------
-trigger_schema = """
-drop function trf_announce_%(sig)s_mod() cascade;
-
-create function trf_announce_%(sig)s_mod() returns opaque as '
+trigger_ddl = """
+create or replace function clin.trf_announce_%(sig)s_mod() returns opaque as '
 declare
 	episode_id integer;
 	patient_id integer;
@@ -43,11 +41,11 @@ begin
 	end if;
 	-- backtrack to patient ID
 	select into patient_id pk_patient
-		from v_pat_episodes vpep
+		from clin.v_pat_episodes vpep
 		where vpep.pk_episode = episode_id
 		limit 1;
 	if not found then
-		raise exception ''trf_announce_%(sig)s_mod(): cannot find patient for episode [%%]'', episode_id;
+		raise exception ''clin.trf_announce_%(sig)s_mod(): cannot find patient for episode [%%]'', episode_id;
 	end if;
 	-- now, execute() the NOTIFY
 	execute ''notify "%(sig)s_mod_db:'' || patient_id || ''"'';
@@ -57,10 +55,10 @@ end;
 
 create constraint trigger tr_%(sig)s_mod
 	after insert or delete or update
-	on %(tbl)s
+	on clin.%(tbl)s
 	deferrable
 	for each row
-		execute procedure trf_announce_%(sig)s_mod()
+		execute procedure clin.trf_announce_%(sig)s_mod()
 ;
 """
 #------------------------------------------------------------------
@@ -78,7 +76,7 @@ def create_notification_schema(aCursor):
 	for notifying_def in rows:
 		tbl = notifying_def[0]
 		sig = notifying_def[1]
-		schema.append(trigger_schema % {'sig': sig, 'tbl': tbl})
+		schema.append(trigger_ddl % {'sig': sig, 'tbl': tbl})
 		schema.append('-- ----------------------------------------------')
 	return schema
 #==================================================================
@@ -107,7 +105,12 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.13  2005-09-13 11:51:42  ncq
+# Revision 1.14  2005-12-04 09:34:44  ncq
+# - make fit for schema support
+# - move some queries to gmPG
+# - improve DDL templates (use or replace on functions)
+#
+# Revision 1.13  2005/09/13 11:51:42  ncq
 # - properly drop trigger functions so update works
 #
 # Revision 1.12  2005/06/01 23:19:38  ncq

@@ -1,4 +1,4 @@
-"""Automatic GnuMed audit trail generation.
+"""Automatic GNUmed audit trail generation.
 
 This module creates SQL DDL commands for the audit
 trail triggers and functions.
@@ -6,7 +6,7 @@ trail triggers and functions.
 Theory of operation:
 
 Any table that needs to be audited (all modifications
-logged) must be recorded in the table "audited_tables".
+logged) must be recorded in the table "public.audited_tables".
 
 This script creates the triggers, functions and tables
 neccessary to establish the audit trail. Some or all
@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -34,67 +34,38 @@ _log.Log(gmLog.lInfo, __version__)
 # the audit trail tables start with this prefix
 audit_trail_table_prefix = 'log_'
 # and inherit from this table
-audit_trail_parent_table = 'audit_trail'
+audit_trail_parent_table = 'public.audit_trail'
 # audited tables inherit these fields
-audit_fields_table = 'audit_fields'
+audit_fields_table = 'public.audit_fields'
 
 #==================================================================
 # convenient queries
 #------------------------------------------------------------------
 # return all tables inheriting from another table
-query_table_descendants = """SELECT relname, oid
-FROM pg_class
-WHERE pg_class.oid in (
-	SELECT inhrelid
-	FROM pg_inherits
-	WHERE inhparent = (
-		SELECT oid
-		FROM pg_class
-		WHERE relname = %s
-	)
-)"""
-
-# return all attributes for a given table
-query_table_attributes = """SELECT
-	pga.attname as attribute
-FROM
-	pg_class pgc, pg_attribute pga
-WHERE
-	pgc.relname = %s
-		AND
-	pga.attnum > 0
-		AND
-	pga.attrelid = pgc.oid
-ORDER BY pga.attnum"""
-
-
-# return all attributes and their data types for a given table
-query_table_col_defs = """SELECT
-	pga.attname as attribute,
-	format_type(pga.atttypid, pga.atttypmod) as type
-FROM
-	pg_class pgc, pg_attribute pga
-WHERE
-	pgc.relname = %s
-		AND
-	pga.attnum > 0
-		AND
-	pga.attrelid = pgc.oid
-ORDER BY pga.attnum"""
+#query_table_descendants = """SELECT relname, oid
+#FROM pg_class
+#WHERE pg_class.oid in (
+#	SELECT inhrelid
+#	FROM pg_inherits
+#	WHERE inhparent = (
+#		SELECT oid
+#		FROM pg_class
+#		WHERE relname = %s
+#	)
+#)"""
 
 #==================================================================
 # SQL statements for auditing setup script
 #------------------------------------------------------------------
-#drop_trigger = "DROP TRIGGER %s ON %s"
-drop_function = "DROP FUNCTION %s() cascade"
+# audit triggers are named "zt_*_*" to make
+# reasonably sure they are executed last
 
 # insert
-template_insert_trigger = """CREATE TRIGGER %s
-	BEFORE INSERT
-	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s()"""
+tmpl_insert_trigger = """CREATE TRIGGER zt_ins_%s
+	BEFORE INSERT ON %s.%s
+	FOR EACH ROW EXECUTE PROCEDURE %s.ft_ins_%s()"""
 
-template_insert_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+tmpl_insert_function = """CREATE OR REPLACE FUNCTION %s.ft_ins_%s() RETURNS trigger AS '
 BEGIN
 	NEW.row_version := 0;
 	NEW.modified_when := CURRENT_TIMESTAMP;
@@ -103,17 +74,16 @@ BEGIN
 END;' LANGUAGE 'plpgsql'"""
 
 # update
-template_update_trigger = """CREATE TRIGGER %s
-	BEFORE UPDATE
-	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s()"""
+tmpl_update_trigger = """CREATE TRIGGER zt_upd_%s
+	BEFORE UPDATE ON %s.%s
+	FOR EACH ROW EXECUTE PROCEDURE %s.ft_upd_%s()"""
 
-template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+tmpl_update_function = """CREATE OR REPLACE FUNCTION %s.ft_upd_%s() RETURNS trigger AS '
 BEGIN
 	NEW.row_version := OLD.row_version + 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := CURRENT_USER;
-	INSERT INTO %s (
+	INSERT INTO %s.%s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
@@ -124,14 +94,13 @@ BEGIN
 END;' LANGUAGE 'plpgsql'"""
 
 # delete
-template_delete_trigger = """CREATE TRIGGER %s
-	BEFORE DELETE
-	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s()"""
+tmpl_delete_trigger = """CREATE TRIGGER zt_del_%s
+	BEFORE DELETE ON %s.%s
+	FOR EACH ROW EXECUTE PROCEDURE %s.ft_del_%s()"""
 
-template_delete_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+tmpl_delete_function = """CREATE OR REPLACE FUNCTION %s.ft_del_%s() RETURNS trigger AS '
 BEGIN
-	INSERT INTO %s (
+	INSERT INTO %s.%s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
@@ -141,70 +110,56 @@ BEGIN
 	return OLD;
 END;' LANGUAGE 'plpgsql'"""
 
-template_create_audit_trail_table = """create table %s (
+tmpl_create_audit_trail_table = """create table %s.%s (
 %s
 ) inherits (%s);
 
-grant insert on %s to group "gm-public" """
+grant insert on %s.%s to group "gm-public" """
 #------------------------------------------------------------------
-def get_columns(aCursor, aTable):
-	"""Return column attributes of table
-	"""
-	if not gmPG.run_query(aCursor, None, query_table_attributes, aTable):
-		_log.Log(gmLog.lErr, 'cannot get columns for table [%s]' % aTable)
-		return None
-	data = aCursor.fetchall()
-	rows = []
-	for row in data:
-		rows.append(row[0])
-	return rows
 #------------------------------------------------------------------
-def get_col_defs(aCursor, aTable):
-	if not gmPG.run_query(aCursor, None, query_table_col_defs, aTable):
-		_log.Log(gmLog.lErr, 'cannot get column definitions for table [%s]' % aTable)
-		return None
-	data = aCursor.fetchall()
-	col_names = []
-	col_type = {}
-	for row in data:
-		col_names.append(row[0])
-		col_type[row[0]] = row[1]
-	col_defs = []
-	col_defs.append(col_names)
-	col_defs.append(col_type)
-	return col_defs
-#------------------------------------------------------------------
-def audit_trail_table_schema(aCursor, table2audit):
+def audit_trail_table_ddl(aCursor='default', schema='public', table2audit=None):
+
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, table2audit)
 
 	# does the audit trail target table exist ?
-	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
-	if not gmPG.run_query(aCursor, None, cmd, audit_trail_table):
-		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % audit_trail_table)
+	exists = gmPG.table_exists(aCursor, schema, audit_trail_table)
+	if exists is None:
+		_log.Log(gmLog.lErr, 'cannot check existance of table %s.%s' % (schema, audit_trail_table))
 		return None
-	table_exists = aCursor.fetchone()[0]
-	if table_exists:
+	if exists:
 		return []
 	# must create audit trail table
-	_log.Log(gmLog.lInfo, 'no audit trail table found for table [%s]' % table2audit)
-	_log.Log(gmLog.lInfo, 'trying to auto-create audit trail table [%s]' % audit_trail_table)
-	# audit those columns
-	audited_col_defs = get_col_defs(aCursor, table2audit)
-	cols2skip = get_columns(aCursor, audit_fields_table)
+	_log.Log(gmLog.lInfo, 'no audit trail table found for [%s.%s]' % (schema, table2audit))
+	_log.Log(gmLog.lInfo, 'creating audit trail table [%s.%s]' % (schema, audit_trail_table))
+
+	# which columns to potentially audit
+	audited_col_defs = gmPG.get_col_defs(source = aCursor, schema = schema, table = table2audit)
+	# which to skip
+	cols2skip = gmPG.get_col_names(source = aCursor, schema = schema, table = audit_fields_table)
 	attribute_list = []
+	# which ones to really audit
 	for col in audited_col_defs[0]:
 		if col in cols2skip:
 			continue
 		attribute_list.append("\t%s %s" % (col, audited_col_defs[1][col]))
 	attributes = string.join(attribute_list, ',\n')
-	table_def = template_create_audit_trail_table % (audit_trail_table, attributes, audit_trail_parent_table, audit_trail_table)
+
+	# create audit table DDL
+	table_def = tmpl_create_audit_trail_table % (
+		schema,
+		audit_trail_table,
+		attributes,
+		audit_trail_parent_table,
+		schema,
+		audit_trail_table
+	)
 	return [table_def, '']
 #------------------------------------------------------------------
-def trigger_schema(aCursor, audited_table):
+def trigger_ddl(aCursor='default', schema='public', audited_table=None):
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, audited_table)
 
-	target_columns = get_columns(aCursor, audited_table)
-	columns2skip = get_columns(aCursor, audit_fields_table)
+	target_columns = gmPG.get_col_names(source = aCursor, schema = schema, table = audited_table)
+	columns2skip = gmPG.get_col_names(source = aCursor, schema = schema, table =  audit_fields_table)
 	columns = []
 	values = []
 	for column in target_columns:
@@ -214,77 +169,54 @@ def trigger_schema(aCursor, audited_table):
 	columns_clause = string.join(columns, ', ')
 	values_clause = string.join(values, ', ')
 
-	schema = []
+	ddl = []
 
 	# insert
-	#  audit triggers are named "zt_*" to make
-	#  reasonably sure they are executed last
-	func_name_insert = 'ft_ins_%s' % (audited_table)
-	trigger_name_insert = 'zt_ins_%s' % (audited_table)
-
-	schema.append(drop_function % func_name_insert)
-	schema.append(template_insert_function % (func_name_insert))
-	schema.append('')
-
-#	schema.append(drop_trigger % (trigger_name_insert, audited_table))
-	schema.append(template_insert_trigger % (trigger_name_insert, audited_table, func_name_insert))
-	schema.append('')
+	ddl.append(tmpl_insert_function % (schema, audited_table))
+	ddl.append('')
+	ddl.append(tmpl_insert_trigger % (audited_table, schema, audited_table, schema, audited_table))
+	ddl.append('')
 
 	# update
-	func_name_update = 'ft_upd_%s' % (audited_table)
-	trigger_name_update = 'zt_upd_%s' % (audited_table)
-
-	schema.append(drop_function % func_name_update)
-	schema.append(template_update_function % (func_name_update, audit_trail_table, columns_clause, values_clause))
-	schema.append('')
-
-#	schema.append(drop_trigger % (trigger_name_update, audited_table))
-	schema.append(template_update_trigger % (trigger_name_update, audited_table, func_name_update))
-	schema.append('')
+	ddl.append(tmpl_update_function % (schema, audited_table, schema, audit_trail_table, columns_clause, values_clause))
+	ddl.append('')
+	ddl.append(tmpl_update_trigger % (audited_table, schema, audited_table, schema, audited_table))
+	ddl.append('')
 
 	# delete
-	func_name_delete = 'ft_del_%s' % (audited_table)
-	trigger_name_delete = 'zt_del_%s' % (audited_table)
-
-	schema.append(drop_function % func_name_delete)
-	schema.append(template_delete_function % (func_name_delete, audit_trail_table, columns_clause, values_clause))
-	schema.append('')
-
-#	schema.append(drop_trigger % (trigger_name_delete, audited_table))
-	schema.append(template_delete_trigger % (trigger_name_delete, audited_table, func_name_delete))
-	schema.append('')
+	ddl.append(tmpl_delete_function % (schema, audited_table, schema, audit_trail_table, columns_clause, values_clause))
+	ddl.append('')
+	ddl.append(tmpl_delete_trigger % (audited_table, schema, audited_table, schema, audited_table))
+	ddl.append('')
 
 	# disallow delete/update on auditing table
 
-	return schema
+	return ddl
 #------------------------------------------------------------------
-def create_audit_schema(aCursor):
+def create_audit_ddl(aCursor):
 	# get list of all marked tables
-	cmd = "select table_name from audited_tables";
+	cmd = "select schema, table_name from public.audited_tables";
 	if gmPG.run_query(aCursor, None, cmd) is None:
 		return None
 	rows = aCursor.fetchall()
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no tables to audit')
 		return None
-	tables2audit = []
-	for row in rows:
-		tables2audit.extend(row)
-	_log.Log(gmLog.lData, tables2audit)
+	_log.Log(gmLog.lData, rows)
 	# for each marked table
-	schema = []
-	for audited_table in tables2audit:
-		audit_trail_schema = audit_trail_table_schema(aCursor, audited_table)
-		if audit_trail_schema is None:
-			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for audited table [%s]' % audited_table)
+	ddl = []
+	for row in rows:
+		audit_trail_ddl = audit_trail_table_ddl(aCursor=aCursor, schema=row[0], table2audit=row[1])
+		if audit_trail_ddl is None:
+			_log.Log(gmLog.lErr, 'cannot generate audit trail DDL for audited table [%s]' % audited_table)
 			return None
-		schema.extend(audit_trail_schema)
-		if len(audit_trail_schema) != 0:
-			schema.append('-- ----------------------------------------------')
+		ddl.extend(audit_trail_ddl)
+		if len(audit_trail_ddl) != 0:
+			ddl.append('-- ----------------------------------------------')
 		# create corresponding triggers
-		schema.extend(trigger_schema(aCursor, audited_table))
-		schema.append('-- ----------------------------------------------')
-	return schema
+		ddl.extend(trigger_ddl(aCursor = aCursor, schema = row[0], audited_table = row[1]))
+		ddl.append('-- ----------------------------------------------')
+	return ddl
 #==================================================================
 # main
 #------------------------------------------------------------------
@@ -301,7 +233,7 @@ if __name__ == "__main__" :
 	conn = dbpool.GetConnection('default')
 	curs = conn.cursor()
 
-	schema = create_audit_schema(curs)
+	schema = create_audit_ddl(curs)
 
 	curs.close()
 	conn.close()
@@ -317,7 +249,12 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.23  2005-09-13 11:51:06  ncq
+# Revision 1.24  2005-12-04 09:34:44  ncq
+# - make fit for schema support
+# - move some queries to gmPG
+# - improve DDL templates (use or replace on functions)
+#
+# Revision 1.23  2005/09/13 11:51:06  ncq
 # - use "drop function ... cascade;"
 #
 # Revision 1.22  2004/07/17 21:23:49  ncq
