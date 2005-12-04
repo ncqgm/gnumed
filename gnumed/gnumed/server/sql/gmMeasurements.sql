@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.52 $
+-- $Revision: 1.53 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -189,7 +189,10 @@ create table clin.test_result (
 	norm_ref_group text,
 	note_provider text,
 	material text,
-	material_detail text
+	material_detail text,
+	fk_intended_reviewer integer
+		not null
+		references clin.xlnk_identity(xfk_identity)
 ) inherits (clin.clin_root_item);
 
 alter table clin.test_result add foreign key (fk_encounter)
@@ -271,6 +274,8 @@ comment on column clin.test_result.material is
 comment on column clin.test_result.material_detail is
 	'details re the material, eg. site taken from, etc.
 	 LDT: 8431';
+comment on column clin.test_result.fk_intended_reviewer is
+	'who is *supposed* to review this item';
 
 -- ====================================
 create table clin.lab_request (
@@ -378,11 +383,14 @@ create table clin.lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.52 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.53 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.52  2005-11-29 19:08:10  ncq
+-- Revision 1.53  2005-12-04 09:43:54  ncq
+-- - add fk_intended_reviewer to test_result
+--
+-- Revision 1.52  2005/11/29 19:08:10  ncq
 -- - cleanup
 --
 -- Revision 1.51  2005/11/27 13:00:14  ncq
