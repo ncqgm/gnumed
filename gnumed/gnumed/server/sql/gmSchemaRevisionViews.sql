@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevisionViews.sql,v $
--- $Id: gmSchemaRevisionViews.sql,v 1.2 2005-10-24 19:28:37 ncq Exp $
+-- $Id: gmSchemaRevisionViews.sql,v 1.3 2005-12-04 09:45:36 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -16,7 +16,7 @@
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.2 $');
+-- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -32,6 +32,7 @@ declare
 	_total text;
 begin
 	_total := '''';
+	-- schema.table.column.data_type
 	for _row in
 		select * from information_schema.columns cols
 			where cols.table_name in (
@@ -80,7 +81,10 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevisionViews.sql,v $
--- Revision 1.2  2005-10-24 19:28:37  ncq
+-- Revision 1.3  2005-12-04 09:45:36  ncq
+-- - just a silly one-line comment
+--
+-- Revision 1.2  2005/10/24 19:28:37  ncq
 -- - move drop function ... to update*.sql
 --
 -- Revision 1.1  2005/09/19 16:15:28  ncq
