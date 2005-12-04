@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -42,11 +42,15 @@ create table audit_trail (
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmAudit.sql,v $', '$Revision: 1.13 $');
+delete from gm_schema_revision where filename = '$RCSfile: gmAudit.sql,v $';
+insert into gm_schema_revision (filename, version) values ('$RCSfile: gmAudit.sql,v $', '$Revision: 1.14 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.13  2005-11-25 15:01:05  ncq
+-- Revision 1.14  2005-12-04 09:37:25  ncq
+-- - same here, hold style of logging script insertion needed
+--
+-- Revision 1.13  2005/11/25 15:01:05  ncq
 -- - better factor out dynamic stuff
 --
 -- Revision 1.12  2005/10/24 19:08:11  ncq
