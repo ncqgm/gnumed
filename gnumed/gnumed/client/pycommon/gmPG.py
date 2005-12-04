@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -114,6 +114,34 @@ select tgargs from pg_trigger where
 		select oid from pg_class where relname=%s
 	)
 """
+
+# get columns and data types for a given table
+query_table_col_defs = """select
+	cols.column_name,
+	cols.data_type
+from
+	information_schema.columns cols
+where
+	cols.table_schema = %s
+		and
+	cols.table_name = %s
+order by
+	cols.ordinal_position
+"""
+
+query_table_attributes = """select
+	cols.column_name
+from
+	information_schema.columns cols
+where
+	cols.table_schema = %s
+		and
+	cols.table_name = %s
+order by
+	cols.ordinal_position"""
+
+
+
 # a handy return to dbapi simplicity
 last_ro_cursor_desc = None
 
@@ -1085,6 +1113,32 @@ def get_col_indices(aCursor = None):
 		col_index += 1
 	return col_indices
 #---------------------------------------------------
+def get_col_defs(source='default', schema='public', table=None):
+	rows = run_ro_query(source, query_table_col_defs, None, (schema, table))
+	if rows is None:
+		_log.Log(gmLog.lErr, 'cannot get column definitions for table [%s.%s]' % (schema, table))
+		return None
+	col_names = []
+	col_type = {}
+	for row in rows:
+		col_names.append(row[0])
+		col_type[row[0]] = row[1]
+	col_defs = []
+	col_defs.append(col_names)
+	col_defs.append(col_type)
+	return col_defs
+#---------------------------------------------------
+def get_col_names(source='default', schema='public', table=None):
+	"""Return column attributes of table"""
+	rows = run_ro_query(source, query_table_attributes, None, (schema, table))
+	if rows is None:
+		_log.Log(gmLog.lErr, 'cannot get columns for table [%s]' % aTable)
+		return None
+	cols = []
+	for row in rows:
+		cols.append(row[0])
+	return cols
+#---------------------------------------------------
 def get_pkey_name(aCursor = None, aTable = None):
 	# sanity checks
 	if aCursor is None:
@@ -1147,59 +1201,27 @@ def get_fkey_defs(source, table):
 
 	return references
 #---------------------------------------------------
-def table_exists(source, table):
-	"""Returns false or true.
+def table_exists(source, schema, table):
+	"""Returns false, true or None on error.
 
 	source: cursor, connection or GnuMed service name
 	"""
-	close_conn = noop
-	close_curs = noop
-#	manage_connection = 0
-#	close_cursor = 1
-	# is it a cursor ?
-	if hasattr(source, 'fetchone') and hasattr(source, 'description'):
-#		close_cursor = 0
-		curs = source
-	# is it a connection ?
-	elif (hasattr(source, 'commit') and hasattr(source, 'cursor')):
-		curs = source.cursor()
-		close_curs = curs.close
-	# take it to be a service name then
-	else:
-#		manage_connection = 1
-		pool = ConnectionPool()
-		conn = pool.GetConnection(source)
-		if conn is None:
-			_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
-			return None
-		curs = conn.cursor()
-		close_conn = pool.ReleaseConnection
-		close_curs = curs.close
-
-	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
-	if not run_query(curs, None, cmd, table):
-		close_curs()
-		close_conn(source)
-#		if close_cursor:
-#			curs.close()
-#		if manage_connection:
-#			pool.ReleaseConnection(source)
+	cmd = """
+select exists (
+	select 1 from information_schema.tables
+	where
+		table_schema = %s and
+		table_name = %s and
+		table_type = 'BASE TABLE'
+)"""
+	rows = run_ro_query(source, cmd, None, (schema, table))
+	if rows is None:
 		_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
 		return None
-
-	exists = curs.fetchone()[0]
-	close_curs()
-	close_conn(source)
-
-#	if close_cursor:
-#		curs.close()
-#	if manage_connection:
-#		pool.ReleaseConnection(source)
-
-	return exists
+	return rows[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.58 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.59 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1423,7 +1445,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.58  2005-11-18 15:48:07  ncq
+# Revision 1.59  2005-12-04 22:17:31  ncq
+# - add some queries and convenience functions
+#
+# Revision 1.58  2005/11/18 15:48:07  ncq
 # - adjust to config tables now living in cfg.* schema, also some id->pk
 #
 # Revision 1.57  2005/10/15 18:18:19  ncq
