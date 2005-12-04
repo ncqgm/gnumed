@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.159 2005-11-29 19:06:13 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.160 2005-12-04 09:42:06 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -23,26 +23,26 @@ comment on table clin.xlnk_identity is
 	 dblink() verification or a true FK constraint (if "personalia"
 	 is in the same database as "historica")';
 
--- clin.clin_health_issue
-select add_table_for_audit('clin', 'clin_health_issue');
+-- clin.health_issue
+select add_table_for_audit('clin', 'health_issue');
 
-comment on table clin.clin_health_issue is
+comment on table clin.health_issue is
 	'This is pretty much what others would call "Past Medical History"
 	 or "Foundational illness", eg. longer-ranging, underlying,
 	 encompassing issues with one''s health such as "immunodeficiency",
 	 "type 2 diabetes". In Belgium it is called "problem".
 	 L.L.Weed includes lots of little things into it, we do not.';
-comment on column clin.clin_health_issue.id_patient is
+comment on column clin.health_issue.id_patient is
  	'id of patient this health issue relates to, should
 	 be reference but might be outside our own database';
-comment on column clin.clin_health_issue.description is
+comment on column clin.health_issue.description is
 	'descriptive name of this health issue, may
 	 change over time as evidence increases';
-comment on column clin.clin_health_issue.age_noted is
+comment on column clin.health_issue.age_noted is
 	'at what age the patient acquired the condition';
-comment on column clin.clin_health_issue.is_active is
+comment on column clin.health_issue.is_active is
 	'whether this health issue (problem) is active';
-comment on column clin.clin_health_issue.clinically_relevant is
+comment on column clin.health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
 -- clin.clin_episode --
@@ -341,10 +341,8 @@ comment on column clin.vacc_def.min_interval is
 
 -- clin.vaccination --
 select add_table_for_audit('clin', 'vaccination');
-delete from notifying_tables where table_name = 'vaccination';
-select add_table_for_notifies('vaccination', 'vacc');
-
---select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
+--delete from notifying_tables where table_name = 'vaccination';
+select add_table_for_notifies('clin', 'vaccination', 'vacc');
 
 comment on table clin.vaccination is
 	'holds vaccinations actually given';
@@ -362,8 +360,8 @@ comment on column clin.allergy_state.has_allergy is
 
 -- allergy --
 select add_table_for_audit('clin', 'allergy');
-delete from notifying_tables where table_name = 'allergy';
-select add_table_for_notifies('allergy', 'allg');
+-- delete from notifying_tables where table_name = 'allergy';
+select add_table_for_notifies('clin', 'allergy', 'allg');
 
 comment on table clin.allergy is
 	'patient allergy details';
@@ -621,8 +619,8 @@ begin
 		if OLD.fk_patient is null then
 			-- get it from attached health issue
 			select into patient_id id_patient
-				from clin.clin_health_issue
-				where id = OLD.fk_health_issue;
+				from clin.health_issue
+				where pk = OLD.fk_health_issue;
 		else
 			patient_id := OLD.fk_patient;
 		end if;
@@ -631,8 +629,8 @@ begin
 		if NEW.fk_patient is null then
 			-- get it from attached health issue
 			select into patient_id id_patient
-				from clin.clin_health_issue
-				where id = NEW.fk_health_issue;
+				from clin.health_issue
+				where pk = NEW.fk_health_issue;
 		else
 			patient_id := NEW.fk_patient;
 		end if;
@@ -687,10 +685,10 @@ select
 	cep.modified_by as episode_modified_by,
 	cep.xmin as xmin_clin_episode
 from
-	clin.clin_episode cep, clin.clin_health_issue chi
+	clin.clin_episode cep, clin.health_issue chi
 where
 	-- this should exclude all (fk_health_issue is Null) ?
-	cep.fk_health_issue=chi.id
+	cep.fk_health_issue=chi.pk
 ;
 
 -- =============================================
@@ -1080,7 +1078,7 @@ end;
 
 create trigger TR_h_issues_modified
 	after insert or delete or update
-	on clin.clin_health_issue
+	on clin.health_issue
 	for each row
 		execute procedure clin.f_announce_h_issue_mod()
 ;
@@ -1875,9 +1873,9 @@ select	-- all the (clinically relevant) health issues
 	chi.is_active as problem_active,
 	'true'::boolean as clinically_relevant,
 	null as pk_episode,
-	chi.id as pk_health_issue
+	chi.pk as pk_health_issue
 from
-	clin.clin_health_issue chi
+	clin.health_issue chi
 where
 	chi.clinically_relevant is true
 ;
@@ -1903,10 +1901,10 @@ select
 	chi.id_patient as pk_patient,
 	'a' as soap_cat,
 	chi.description as narrative,
-	chi.id as src_pk,
-	'clin.clin_health_issue' as src_table
+	chi.pk as src_pk,
+	'clin.health_issue' as src_table
 from
-	clin.clin_health_issue chi
+	clin.health_issue chi
 where
 	trim(coalesce(chi.description, '')) != ''
 
@@ -1994,11 +1992,11 @@ select
 	as narrative,
 	-1 as pk_encounter,
 	-1 as pk_episode,
-	chi.id as pk_health_issue,
-	chi.id as src_pk,
-	'clin.clin_health_issue'::text as src_table
+	chi.pk as pk_health_issue,
+	chi.pk as src_pk,
+	'clin.health_issue'::text as src_table
 from
-	clin.clin_health_issue chi
+	clin.health_issue chi
 
 union	-- encounters
 select
@@ -2214,8 +2212,8 @@ grant usage on schema clin to group "gm-doctors";
 
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	clin.clin_health_issue
-	, clin.clin_health_issue_id_seq
+	clin.health_issue
+	, clin.health_issue_pk_seq
 	, clin.clin_episode
 	, clin.clin_episode_pk_seq
 	, clin.encounter_type
@@ -2325,11 +2323,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.159 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.160 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.159  2005-11-29 19:06:13  ncq
+-- Revision 1.160  2005-12-04 09:42:06  ncq
+-- - clin.clin_health_issue -> clin.health_issue
+-- - properly use new add_table_for_notifies()
+--
+-- Revision 1.159  2005/11/29 19:06:13  ncq
 -- - explicitely delete public.* tables from notify table and re-insert
 --   clin.* tables since add_table_for_notifies doesn't support schema yet
 --
