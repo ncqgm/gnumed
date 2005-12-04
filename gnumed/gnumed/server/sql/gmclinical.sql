@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.170 $
+-- $Revision: 1.171 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -24,8 +24,8 @@ create table clin.xlnk_identity (
 -- generic EMR structure
 -- ===================================================================
 -- health issue tables
-create table clin.clin_health_issue (
-	id serial primary key,
+create table clin.health_issue (
+	pk serial primary key,
 	id_patient integer
 		not null
 		references clin.xlnk_identity(xfk_identity)
@@ -50,7 +50,7 @@ create table clin.clin_health_issue (
 
 -- FIXME: Richard also has is_operation, laterality
 
-alter table clin.clin_health_issue add constraint issue_name_not_empty
+alter table clin.health_issue add constraint issue_name_not_empty
 	check (trim(both from description) != '');
 
 -- ===================================================================
@@ -59,7 +59,7 @@ create table clin.clin_episode (
 	pk serial primary key,
 	fk_health_issue integer
 		default null
-		references clin.clin_health_issue(id)
+		references clin.health_issue(pk)
 		on update cascade
 		on delete restrict,
 	fk_patient integer
@@ -599,6 +599,8 @@ create table clin.form_instances (
 	form_name text not null
 ) inherits (clin.clin_root_item);
 
+-- FIXME: remove clin_root_item, not audited, lnk_form_instance2episode
+
 alter table clin.form_instances add foreign key (fk_encounter)
 		references clin.clin_encounter(id)
 		on update cascade
@@ -693,67 +695,19 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
 
--- ============================================
--- Drug related tables
-
--- --------------------------------------------
--- IMHO this does not belong in here
---create table constituent
---(
---	genericname text not null,
---	amount float not null,
---	amount_unit text not null check (amount_unit in 
---				('g', 'ml', 'mg', 'mcg', 'IU')),
---	id_drug integer not null references clin.clin_medication (pk),
---	unique (genericname, id_drug)
---);
-
---comment on table constituent is
--- 'the constituent substances of the various drugs (normalised out to support compound drugs like Augmentin)';
---comment on column constituent.genericname is
--- 'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
---comment on column constituent.amount is
--- 'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
-
--- =============================================
---create table referral (
---	id serial primary key,
---	fk_referee integer
---		not null
---		references clin.xlnk_identity(xfk_identity)
---		on update cascade
---		on delete restrict,
---	fk_form integer
---		not null
---		references clin.form_instances (pk)
---) inherits (clin.clin_root_item);
-
---alter table referral add foreign key (fk_encounter)
---		references clin.clin_encounter(id)
---		on update cascade
---		on delete restrict;
---alter table referral add foreign key (fk_episode)
---		references clin.clin_episode(pk)
---		on update cascade
---		on delete restrict;
-
---select add_table_for_audit ('referral');
-
---comment on table referral is 'table for referrals to defined individuals';
---comment on column referral.fk_referee is 'person to whom the referral is directed';
---comment on column referral.narrative is
---	'inherited from clin.clin_root_item;
---	 stores text of referral letter';
---comment on column referral.fk_form is 'foreign key to the form instance of
---this referral.';
-
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.170 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.171 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.170  2005-11-27 13:02:07  ncq
+-- Revision 1.171  2005-12-04 09:48:02  ncq
+-- - clin_health_issue -> health_issue (and id -> pk)
+-- - remove constituent
+-- - move referral to AU schema
+-- - comment on forms_data re Ian's suggestions
+--
+-- Revision 1.170  2005/11/27 13:02:07  ncq
 -- - constituent/referral commented out for now
 --
 -- Revision 1.169  2005/11/25 15:07:28  ncq
