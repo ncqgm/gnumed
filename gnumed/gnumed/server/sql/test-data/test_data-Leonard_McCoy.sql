@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -37,6 +37,8 @@ delete from clin.xlnk_identity where xfk_identity = currval('identity_pk_seq');
 insert into clin.xlnk_identity (xfk_identity, pupic)
 values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
+insert into blobs.xlnk_identity (xfk_identity, pupic)
+values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 insert into staff (fk_identity, fk_role, db_user, sign, comment)
 values (
@@ -49,11 +51,14 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.16 $');
+select log_script_insertion('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.16  2005-11-25 15:07:28  ncq
+-- Revision 1.17  2005-12-04 09:49:26  ncq
+-- - register in blobs.xlnk_identity so blobs.doc_obj.fk_intended_reviewer works
+--
+-- Revision 1.16  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.15  2005/09/19 16:38:52  ncq
