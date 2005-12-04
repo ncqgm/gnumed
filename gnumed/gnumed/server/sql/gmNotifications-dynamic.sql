@@ -1,7 +1,7 @@
 -- GnuMed table change notification functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmNotifications-dynamic.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -18,13 +18,13 @@ comment on table public.notifying_tables is
 
 -- ===================================================================
 create or replace function add_table_for_notifies(name, name, name)
-	language 'plpgsql'
 	returns boolean
+	language 'plpgsql'
 	as '
 DECLARE
 	_relnamespace alias for $1;
 	_relname alias for $2;
-	_notification_name alias for $3
+	_notification_name alias for $3;
 	dummy RECORD;
 	tmp text;
 BEGIN
@@ -62,8 +62,8 @@ comment on function add_table_for_notifies (name, name, name) is
 
 -- ===================================================================
 create or replace function add_table_for_notifies(name, name)
-	language SQL
 	returns boolean
+	language SQL
 	as 'select add_table_for_notifies($1, $2, $2);'
 ;
 
@@ -87,11 +87,14 @@ comment on function add_table_for_notifies(name) is
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmNotifications-dynamic.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmNotifications-dynamic.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmNotifications-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmNotifications-dynamic.sql,v $
--- Revision 1.1  2005-11-30 17:04:20  ncq
+-- Revision 1.2  2005-12-04 09:45:13  ncq
+-- - fix the oddball bugs
+--
+-- Revision 1.1  2005/11/30 17:04:20  ncq
 -- - factor into dynamic/static stuff, rename static stuff file
 --
 -- Revision 1.6  2005/09/19 16:38:51  ncq
