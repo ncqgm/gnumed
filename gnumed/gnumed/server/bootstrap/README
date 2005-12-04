@@ -1,6 +1,6 @@
--- $Id: README,v 1.1 2005-11-05 11:02:57 ncq Exp $
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
--- $Revision: 1.1 $
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
+$Id: README,v 1.2 2005-12-04 09:29:12 ncq Exp $
+--------------------------------------------------------------------------
 
 The files and scripts in this directory are intended for
 bootstrapping a new or upgrading an existing GNUmed database.
