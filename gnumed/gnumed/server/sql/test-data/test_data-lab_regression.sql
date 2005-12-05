@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -54,13 +54,13 @@ insert into clin.clin_encounter (
 
 
 -- episode
-delete from clin.clin_episode where pk in (
+delete from clin.episode where pk in (
 	select pk_episode
 	from clin.v_pat_episodes
 	where pk_patient = currval('identity_pk_seq')
 );
 
-insert into clin.clin_episode (
+insert into clin.episode (
 	description,
 	fk_patient,
 	is_open
@@ -82,7 +82,7 @@ insert into clin.lab_request (
 	request_status
 ) values (
 	currval('clin.clin_encounter_id_seq'),
-	currval('clin.clin_episode_pk_seq'),
+	currval('clin.episode_pk_seq'),
 	'used for anonymized import regression tests',
 	(select pk from clin.test_org where internal_name='your own practice'),
 	'anon: sample ID',
@@ -93,11 +93,14 @@ insert into clin.lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.20 $');
+select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.20  2005-11-25 15:07:28  ncq
+-- Revision 1.21  2005-12-05 19:06:38  ncq
+-- - clin.clin_episode -> clin.episode
+--
+-- Revision 1.20  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.19  2005/09/22 15:42:38  ncq
