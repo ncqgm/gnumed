@@ -4,7 +4,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.14 $ $Date: 2005-11-25 15:07:28 $ $Author: ncq $
+-- $Revision: 1.15 $ $Date: 2005-12-05 16:17:24 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -53,7 +53,7 @@ create table form_job_queue (
 -- FIXME: we need a trigger that allows UPDATEs on "status" only
 -- FIXME: we also need a notify trigger on insert/update
 
-select add_x_db_fk_def('form_job_queue', 'fk_submitted_by', 'personalia', 'staff', 'pk');
+--select add_x_db_fk_def('form_job_queue', 'fk_submitted_by', 'personalia', 'staff', 'pk');
 
 comment on table form_job_queue is
 	'Queue table for rendered form instances. Note that
@@ -155,11 +155,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.15 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.14  2005-11-25 15:07:28  ncq
+-- Revision 1.15  2005-12-05 16:17:24  ncq
+-- - remove calls to add_x_db_*
+--
+-- Revision 1.14  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.13  2005/09/22 15:38:21  ncq
