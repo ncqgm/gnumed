@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -388,13 +388,14 @@ class db_server:
 			print "We are about to check whether we need to create the"
 			print "database user who owns all GNUmed database objects."
 			print ""
-			print "Unless the password for this user is given in the"
-			print "config file you will be asked to provide it."
-			print "If you already ran the bootstrapping script previously"
-			print "please provide the same password again. Otherwise you"
-			print "may get connection errors if this database user had"
-			print "been created previously with a different password."
+			print "If the user exists you will have to provide the"
+			print "password that was previously set for it."
 			print ""
+			print "If the user does not exist yet it will be created"
+			print "and you must provide a new password."
+			print ""
+			print "In neither case will you have to provide a password"
+			print "if it is pre-defined in the configuration file."
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
@@ -1454,7 +1455,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.16  2005-12-04 09:32:55  ncq
+# Revision 1.17  2005-12-05 22:21:38  ncq
+# - brush up gm-dbo password request text as suggested by Richard
+#
+# Revision 1.16  2005/12/04 09:32:55  ncq
 # - *_schema -> *_ddl
 #
 # Revision 1.15  2005/11/19 13:25:18  ncq
