@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.160 2005-12-04 09:42:06 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.161 2005-12-05 19:05:59 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -45,24 +45,24 @@ comment on column clin.health_issue.is_active is
 comment on column clin.health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
--- clin.clin_episode --
-select add_table_for_audit('clin', 'clin_episode');
+-- clin.episode --
+select add_table_for_audit('clin', 'episode');
 
-comment on table clin.clin_episode is
+comment on table clin.episode is
 	'Clinical episodes such as "Otitis media",
 	 "traffic accident 7/99", "Hepatitis B".
 	 This covers a range of time in which
 	 activity of illness was noted for the
-	 problem clin_episode.description.';
-comment on column clin.clin_episode.fk_health_issue is
+	 problem episode.description.';
+comment on column clin.episode.fk_health_issue is
 	'health issue this episode belongs to';
-comment on column clin.clin_episode.fk_patient is
+comment on column clin.episode.fk_patient is
 	'patient this episode belongs to,
 	 may only be set if fk_health_issue is Null
 	 thereby removing redundancy';
-comment on column clin.clin_episode.description is
+comment on column clin.episode.description is
 	'description/name of this episode';
-comment on column clin.clin_episode.is_open is
+comment on column clin.episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
 	 means open in a temporal sense as in "not closed yet";
 	 only one episode can be open per health issue';
@@ -595,14 +595,14 @@ create index idx_clin_medication on clin.clin_medication(discontinued) where dis
 \unset ON_ERROR_STOP
 drop index idx_episode_issue;
 drop index idx_episode_valid_issue;
-create index idx_episode_valid_issue on clin.clin_episode(fk_health_issue) where fk_health_issue is not null;
+create index idx_episode_valid_issue on clin.episode(fk_health_issue) where fk_health_issue is not null;
 \set ON_ERROR_STOP 1
-create index idx_episode_issue on clin.clin_episode(fk_health_issue);
+create index idx_episode_issue on clin.episode(fk_health_issue);
 
 \unset ON_ERROR_STOP
 drop index idx_uniq_open_epi_per_issue;
 \set ON_ERROR_STOP 1
-create unique index idx_uniq_open_epi_per_issue on clin.clin_episode(is_open, fk_health_issue) where fk_health_issue is not null and is_open;
+create unique index idx_uniq_open_epi_per_issue on clin.episode(is_open, fk_health_issue) where fk_health_issue is not null and is_open;
 
 
 \unset ON_ERROR_STOP
@@ -643,7 +643,7 @@ end;
 
 create trigger tr_episode_mod
 	after insert or delete or update
-	on clin.clin_episode
+	on clin.episode
 	for each row
 		execute procedure trf_announce_episode_mod()
 ;
@@ -664,9 +664,9 @@ select
 	null as pk_health_issue,
 	cep.modified_when as episode_modified_when,
 	cep.modified_by as episode_modified_by,
-	cep.xmin as xmin_clin_episode
+	cep.xmin as xmin_episode
 from
-	clin.clin_episode cep
+	clin.episode cep
 where
 	cep.fk_health_issue is null
 
@@ -683,9 +683,9 @@ select
 	cep.fk_health_issue as pk_health_issue,
 	cep.modified_when as episode_modified_when,
 	cep.modified_by as episode_modified_by,
-	cep.xmin as xmin_clin_episode
+	cep.xmin as xmin_episode
 from
-	clin.clin_episode cep, clin.health_issue chi
+	clin.episode cep, clin.health_issue chi
 where
 	-- this should exclude all (fk_health_issue is Null) ?
 	cep.fk_health_issue=chi.pk
@@ -1924,7 +1924,7 @@ select
 	's' as soap_cat,
 	vpep.description as narrative,
 	vpep.pk_episode as src_pk,
-	'clin.clin_episode' as src_table
+	'clin.episode' as src_table
 from
 	clin.v_pat_episodes vpep
 
@@ -2033,7 +2033,7 @@ select
 	vpep.pk_episode as pk_episode,
 	-1 as pk_health_issue,
 	vpep.pk_episode as src_pk,
-	'clin.clin_episode'::text as src_table
+	'clin.episode'::text as src_table
 from
 	clin.v_pat_episodes vpep
 
@@ -2214,8 +2214,8 @@ grant usage on schema clin to group "gm-doctors";
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin.health_issue
 	, clin.health_issue_pk_seq
-	, clin.clin_episode
-	, clin.clin_episode_pk_seq
+	, clin.episode
+	, clin.episode_pk_seq
 	, clin.encounter_type
 	, clin.encounter_type_pk_seq
 	, clin.clin_encounter
@@ -2323,11 +2323,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.160 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.161 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.160  2005-12-04 09:42:06  ncq
+-- Revision 1.161  2005-12-05 19:05:59  ncq
+-- - clin_episode -> episode
+--
+-- Revision 1.160  2005/12/04 09:42:06  ncq
 -- - clin.clin_health_issue -> clin.health_issue
 -- - properly use new add_table_for_notifies()
 --

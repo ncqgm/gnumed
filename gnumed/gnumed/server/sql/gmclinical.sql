@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.171 $
+-- $Revision: 1.172 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -55,7 +55,7 @@ alter table clin.health_issue add constraint issue_name_not_empty
 
 -- ===================================================================
 -- episode related tables
-create table clin.clin_episode (
+create table clin.episode (
 	pk serial primary key,
 	fk_health_issue integer
 		default null
@@ -74,7 +74,7 @@ create table clin.clin_episode (
 		default true
 ) inherits (public.audit_fields);
 
-alter table clin.clin_episode add constraint only_standalone_epi_has_patient
+alter table clin.episode add constraint only_standalone_epi_has_patient
 	check (
 		((fk_health_issue is null) and (fk_patient is not null))
 			or
@@ -136,7 +136,7 @@ create table clin.clin_root_item (
 		on delete restrict,
 	fk_episode integer
 		not null
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict,
 	narrative text,
@@ -200,7 +200,7 @@ alter table clin.clin_narrative add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_narrative add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
@@ -288,7 +288,7 @@ alter table clin.clin_hx_family add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_hx_family add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_hx_family add constraint narrative_neither_null_nor_empty
@@ -346,7 +346,7 @@ alter table clin.clin_aux_note add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_aux_note add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 
@@ -510,7 +510,7 @@ alter table clin.vaccination add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.vaccination add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.vaccination alter column soap_cat set default 'p';
@@ -581,7 +581,7 @@ alter table clin.allergy add foreign key (fk_encounter)
 	on update cascade
 	on delete restrict;
 alter table clin.allergy add foreign key (fk_episode)
-	references clin.clin_episode(pk)
+	references clin.episode(pk)
 	on update cascade
 	on delete restrict;
 alter table clin.allergy alter column soap_cat set default 'o';
@@ -606,7 +606,7 @@ alter table clin.form_instances add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.form_instances add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.form_instances add constraint form_is_plan
@@ -679,7 +679,7 @@ alter table clin.clin_medication add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_medication add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_medication add constraint medication_is_plan
@@ -697,11 +697,14 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.171 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.172 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.171  2005-12-04 09:48:02  ncq
+-- Revision 1.172  2005-12-05 19:05:59  ncq
+-- - clin_episode -> episode
+--
+-- Revision 1.171  2005/12/04 09:48:02  ncq
 -- - clin_health_issue -> health_issue (and id -> pk)
 -- - remove constituent
 -- - move referral to AU schema

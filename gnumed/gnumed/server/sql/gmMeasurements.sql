@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.53 $
+-- $Revision: 1.54 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -200,7 +200,7 @@ alter table clin.test_result add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.test_result add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.test_result alter column soap_cat set default 'o';
@@ -314,7 +314,7 @@ alter table clin.lab_request add foreign key (fk_encounter)
 		on update cascade
 		on delete restrict;
 alter table clin.lab_request add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.lab_request alter column soap_cat set default 'p';
@@ -383,11 +383,14 @@ create table clin.lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.53 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.54 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.53  2005-12-04 09:43:54  ncq
+-- Revision 1.54  2005-12-05 19:05:59  ncq
+-- - clin_episode -> episode
+--
+-- Revision 1.53  2005/12/04 09:43:54  ncq
 -- - add fk_intended_reviewer to test_result
 --
 -- Revision 1.52  2005/11/29 19:08:10  ncq

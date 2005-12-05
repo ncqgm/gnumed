@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.58 $
+-- $Revision: 1.59 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -502,20 +502,20 @@ comment on column staff.sign is
 	 redundant with ext_person_id...';
 
 -- ==========================================================
---create table lnk_identity2primary_doc (
---	pk serial primary key,
---	fk_identity integer
---		not null
---		references identity(pk)
---		on update cascade
---		on delete cascade,
---	fk_primary_doc integer
---		not null
---		references staff(pk)
---		on update cascade
---		on delete cascade,
---	unique (fk_identity, fk_primary_doc)
---);
+create table lnk_identity2primary_doc (
+	pk serial primary key,
+	fk_identity integer
+		not null
+		references identity(pk)
+		on update cascade
+		on delete cascade,
+	fk_primary_doc integer
+		not null
+		references staff(pk)
+		on update cascade
+		on delete cascade,
+	unique (fk_identity, fk_primary_doc)
+);
 
 -- ===================================================================
 -- organisation related tables
@@ -599,11 +599,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.58 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.59 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.58  2005-12-05 16:13:48  ncq
+-- Revision 1.59  2005-12-05 19:05:59  ncq
+-- - clin_episode -> episode
+--
+-- Revision 1.58  2005/12/05 16:13:48  ncq
 -- - comment out calls to add_x_db_*
 --
 -- Revision 1.57  2005/09/19 16:38:51  ncq
