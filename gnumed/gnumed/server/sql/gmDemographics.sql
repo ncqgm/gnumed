@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.57 $
+-- $Revision: 1.58 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -491,7 +491,7 @@ create table staff (
 ) inherits (audit_fields);
 
 select add_table_for_audit('staff');
-select add_x_db_fk_def('staff', 'db_user', 'personalia', 'pg_user', 'usename');
+--select add_x_db_fk_def('staff', 'db_user', 'personalia', 'pg_user', 'usename');
 
 comment on table staff is
 	'one-to-one mapping of database user accounts
@@ -500,6 +500,22 @@ comment on column staff.sign is
 	'a short signature unique to this staff member
 	 to be used in the GUI, actually this is somewhat
 	 redundant with ext_person_id...';
+
+-- ==========================================================
+--create table lnk_identity2primary_doc (
+--	pk serial primary key,
+--	fk_identity integer
+--		not null
+--		references identity(pk)
+--		on update cascade
+--		on delete cascade,
+--	fk_primary_doc integer
+--		not null
+--		references staff(pk)
+--		on update cascade
+--		on delete cascade,
+--	unique (fk_identity, fk_primary_doc)
+--);
 
 -- ===================================================================
 -- organisation related tables
@@ -583,11 +599,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.57 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.58 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.57  2005-09-19 16:38:51  ncq
+-- Revision 1.58  2005-12-05 16:13:48  ncq
+-- - comment out calls to add_x_db_*
+--
+-- Revision 1.57  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.56  2005/09/08 17:03:29  ncq
