@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FK-views.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -37,7 +37,7 @@ BEGIN
 		pga.attname = src_col;
 	if not found then
 		-- FIXME: find out how to pass in table AND column
-		msg = ''add_x_db_fk_def: Source column ['' || src_col || ''] not found in source table ['' || src_table || ''].''
+		msg := ''add_x_db_fk_def: Source column ['' || src_col || ''] not found in source table ['' || src_table || ''].''
 		raise exception msg;
 		return false;
 	end if;
@@ -116,11 +116,14 @@ END;' language 'plpgsql';
 
 -- =============================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FK-views.sql,v $', '$Revision: 1.4 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FK-views.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FK-views.sql,v $
--- Revision 1.4  2005-10-24 19:17:04  ncq
+-- Revision 1.5  2005-12-05 16:21:24  ncq
+-- - add missing : in front of =
+--
+-- Revision 1.4  2005/10/24 19:17:04  ncq
 -- - use ... or replace ... on functions
 --
 -- Revision 1.3  2005/09/19 16:38:51  ncq
