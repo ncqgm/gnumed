@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.172 $
+-- $Revision: 1.173 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -92,8 +92,8 @@ create table clin.encounter_type (
 );
 
 -- -------------------------------------------------------------------
-create table clin.clin_encounter (
-	id serial primary key,
+create table clin.encounter (
+	pk serial primary key,
 	fk_patient integer
 		not null
 		references clin.xlnk_identity(xfk_identity)
@@ -131,7 +131,7 @@ create table clin.clin_root_item (
 		default CURRENT_TIMESTAMP,
 	fk_encounter integer
 		not null
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict,
 	fk_episode integer
@@ -196,7 +196,7 @@ create table clin.clin_narrative (
 ) inherits (clin.clin_root_item);
 
 alter table clin.clin_narrative add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_narrative add foreign key (fk_episode)
@@ -284,7 +284,7 @@ create table clin.clin_hx_family (
 ) inherits (clin.clin_root_item);
 
 alter table clin.clin_hx_family add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_hx_family add foreign key (fk_episode)
@@ -342,7 +342,7 @@ create table clin.clin_aux_note (
 ) inherits (clin.clin_root_item);
 
 alter table clin.clin_aux_note add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_aux_note add foreign key (fk_episode)
@@ -506,7 +506,7 @@ create table clin.vaccination (
 -- Richard tells us that "refused" should go into progress note
 
 alter table clin.vaccination add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.vaccination add foreign key (fk_episode)
@@ -577,7 +577,7 @@ create table clin.allergy (
 -- narrative provided by clin.clin_root_item
 
 alter table clin.allergy add foreign key (fk_encounter)
-	references clin.clin_encounter(id)
+	references clin.encounter(pk)
 	on update cascade
 	on delete restrict;
 alter table clin.allergy add foreign key (fk_episode)
@@ -602,7 +602,7 @@ create table clin.form_instances (
 -- FIXME: remove clin_root_item, not audited, lnk_form_instance2episode
 
 alter table clin.form_instances add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.form_instances add foreign key (fk_episode)
@@ -675,7 +675,7 @@ create table clin.clin_medication (
 ) inherits (clin.clin_root_item);
 
 alter table clin.clin_medication add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table clin.clin_medication add foreign key (fk_episode)
@@ -697,11 +697,15 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.172 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.173 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.172  2005-12-05 19:05:59  ncq
+-- Revision 1.173  2005-12-06 13:26:55  ncq
+-- - clin.clin_encounter -> clin.encounter
+-- - also id -> pk
+--
+-- Revision 1.172  2005/12/05 19:05:59  ncq
 -- - clin_episode -> episode
 --
 -- Revision 1.171  2005/12/04 09:48:02  ncq

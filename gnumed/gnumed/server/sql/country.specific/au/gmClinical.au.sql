@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "clinical" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmClinical.au.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -27,11 +27,11 @@ create table au.referral (
 ) inherits (clin.clin_root_item);
 
 alter table au.referral add foreign key (fk_encounter)
-		references clin.clin_encounter(id)
+		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
 alter table au.referral add foreign key (fk_episode)
-		references clin.clin_episode(pk)
+		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
 
@@ -50,7 +50,11 @@ grant usage on schema "au" to group "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmClinical.au.sql,v $
--- Revision 1.2  2005-12-01 16:48:37  ncq
+-- Revision 1.3  2005-12-06 13:26:55  ncq
+-- - clin.clin_encounter -> clin.encounter
+-- - also id -> pk
+--
+-- Revision 1.2  2005/12/01 16:48:37  ncq
 -- - improved
 --
 -- Revision 1.1  2005/12/01 16:46:50  ncq

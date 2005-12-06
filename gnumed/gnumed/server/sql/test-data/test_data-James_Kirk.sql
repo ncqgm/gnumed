@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.61 $
+-- $Revision: 1.62 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -115,7 +115,7 @@ insert into clin.episode (
 );
 
 -- encounter: first, for knife cut ------------------------------------------------
-insert into clin.clin_encounter (
+insert into clin.encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
@@ -142,7 +142,7 @@ insert into clin.clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:16:41',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'accid cut himself left forearm -2/24 w/ dirty
 blade rescuing self from being tentacled,
@@ -159,7 +159,7 @@ insert into clin.clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:20:59',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'left ulnar forearm; 6cm dirty laceration;
 skin/sc fat only; musc/tend not injured; no dist sens loss;
@@ -176,7 +176,7 @@ insert into clin.clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:21:19',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'contam/infected knife cut left arm, ?extraterr. vector, needs ABs/surg/blood',
 	'a'
@@ -191,7 +191,7 @@ insert into clin.clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:2',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'1) inflamm.screen/std ET serology
 2) debridement/loose adapt.; 10ml xylocitin sc; 00-Reprolene
@@ -209,7 +209,7 @@ insert into clin.clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-17 17:21:19',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'?contaminated laceration L forearm',
 	'a'
@@ -250,7 +250,7 @@ insert into clin.vaccination (
 	site,
 	batch_no
 ) values (
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'prev booster > 7 yrs',
 	currval('identity_pk_seq'),
@@ -278,7 +278,7 @@ insert into clin.lab_request (
 	is_pending
 ) values (
 	'2000-9-17 17:33',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from clin.test_org where internal_name='Enterprise Main Lab'),
@@ -306,7 +306,7 @@ insert into clin.test_result (
 	fk_intended_reviewer
 ) values (
 	'2000-9-17 18:17',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	(select pk from clin.test_type where code='WBC-EML'),
 	'9.5',
@@ -336,7 +336,7 @@ insert into clin.test_result (
 	fk_intended_reviewer
 ) values (
 	'2000-9-17 18:17',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	(select pk from clin.test_type where code='RBC-EML'),
 	'4.40',
@@ -366,7 +366,7 @@ insert into clin.test_result (
 	fk_intended_reviewer
 ) values (
 	'2000-9-17 18:17',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	(select pk from clin.test_type where code='PLT-EML'),
 	'282',
@@ -396,7 +396,7 @@ insert into clin.test_result (
 	fk_intended_reviewer
 ) values (
 	'2000-9-17 18:23',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	(select pk from clin.test_type where code='CRP-EML'),
 	'17.3',
@@ -413,7 +413,7 @@ insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
 );
 
 -- encounter, second for knife cut ------------------------------------------
-insert into clin.clin_encounter (
+insert into clin.encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
@@ -440,7 +440,7 @@ insert into clin.clin_narrative (
 	soap_cat
 ) values (
 	'2000-9-18 8:44:19',
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'postop infected laceration L forearm',
 	'a'
@@ -484,7 +484,7 @@ insert into clin.allergy (
 	id_type,
 	narrative
 ) values (
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'Penicillin V Stada',
 	'Penicillin',
@@ -525,7 +525,7 @@ insert into clin.clin_hx_family (
 	narrative,
 	fk_hx_family_item
 ) values (
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	's',
 	'brother',
@@ -620,11 +620,15 @@ insert into blobs.doc_obj (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.61 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.62 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.61  2005-12-05 19:06:38  ncq
+-- Revision 1.62  2005-12-06 13:26:55  ncq
+-- - clin.clin_encounter -> clin.encounter
+-- - also id -> pk
+--
+-- Revision 1.61  2005/12/05 19:06:38  ncq
 -- - clin.clin_episode -> clin.episode
 --
 -- Revision 1.60  2005/12/04 09:48:57  ncq

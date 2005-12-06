@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -38,7 +38,7 @@ values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 
 -- encounter
-insert into clin.clin_encounter (
+insert into clin.encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
@@ -81,7 +81,7 @@ insert into clin.lab_request (
 	is_pending,
 	request_status
 ) values (
-	currval('clin.clin_encounter_id_seq'),
+	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'used for anonymized import regression tests',
 	(select pk from clin.test_org where internal_name='your own practice'),
@@ -93,11 +93,15 @@ insert into clin.lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.21 $');
+select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.21  2005-12-05 19:06:38  ncq
+-- Revision 1.22  2005-12-06 13:26:55  ncq
+-- - clin.clin_encounter -> clin.encounter
+-- - also id -> pk
+--
+-- Revision 1.21  2005/12/05 19:06:38  ncq
 -- - clin.clin_episode -> clin.episode
 --
 -- Revision 1.20  2005/11/25 15:07:28  ncq

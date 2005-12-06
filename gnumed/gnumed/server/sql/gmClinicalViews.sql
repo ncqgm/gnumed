@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.161 2005-12-05 19:05:59 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.162 2005-12-06 13:26:55 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -71,25 +71,25 @@ comment on column clin.episode.is_open is
 comment on TABLE clin.encounter_type is
 	'these are the types of encounter';
 
--- clin.clin_encounter --
---select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
+-- clin.encounter --
+--select add_x_db_fk_def('encounter', 'fk_location', 'personalia', 'org', 'id');
 
-comment on table clin.clin_encounter is
+comment on table clin.encounter is
 	'a clinical encounter between a person and the health care system';
-comment on COLUMN clin.clin_encounter.fk_patient is
+comment on COLUMN clin.encounter.fk_patient is
 	'PK of subject of care, should be PUPIC, actually';
-comment on COLUMN clin.clin_encounter.fk_type is
+comment on COLUMN clin.encounter.fk_type is
 	'PK of type of this encounter';
-comment on COLUMN clin.clin_encounter.fk_location is
+comment on COLUMN clin.encounter.fk_location is
 	'PK of location *of care*, e.g. where the provider is at';
-comment on column clin.clin_encounter.source_time_zone is
+comment on column clin.encounter.source_time_zone is
 	'time zone of location, used to approximate source time
 	 zone for all timestamps in this encounter';
-comment on column clin.clin_encounter.rfe is
+comment on column clin.encounter.rfe is
 	'the RFE for the encounter as related by either
 	 the patient or the provider (say, in a chart
 	 review)';
-comment on column clin.clin_encounter.aoe is
+comment on column clin.encounter.aoe is
 	'the Assessment of Encounter (eg consultation summary)
 	 as determined by the provider, may simply be a
 	 concatenation of soAp narrative, this assessment
@@ -1477,9 +1477,9 @@ drop index idx_encounter_started;
 drop index idx_encounter_affirmed;
 \set ON_ERROR_STOP 1
 
-create index idx_pat_per_encounter on clin.clin_encounter(fk_patient);
-create index idx_encounter_started on clin.clin_encounter(started);
-create index idx_encounter_affirmed on clin.clin_encounter(last_affirmed);
+create index idx_pat_per_encounter on clin.encounter(fk_patient);
+create index idx_encounter_started on clin.encounter(started);
+create index idx_encounter_affirmed on clin.encounter(last_affirmed);
 
 
 \unset ON_ERROR_STOP
@@ -1499,7 +1499,7 @@ end;
 
 create trigger tr_set_encounter_timezone
 	before insert or update
-	on clin.clin_encounter
+	on clin.encounter
 	for each row
 		execute procedure f_set_encounter_timezone()
 ;
@@ -1511,7 +1511,7 @@ drop view clin.v_pat_encounters cascade;
 
 create view clin.v_pat_encounters as
 select
-	cle.id as pk_encounter,
+	cle.pk as pk_encounter,
 	cle.fk_patient as pk_patient,
 	cle.started as started,
 	et.description as type,
@@ -1521,9 +1521,9 @@ select
 	cle.last_affirmed as last_affirmed,
 	cle.fk_location as pk_location,
 	cle.fk_type as pk_type,
-	cle.xmin as xmin_clin_encounter
+	cle.xmin as xmin_encounter
 from
-	clin.clin_encounter cle,
+	clin.encounter cle,
 	clin.encounter_type et
 where
 	cle.fk_type = et.pk
@@ -1536,7 +1536,7 @@ drop view clin.v_most_recent_encounters cascade;
 
 create view clin.v_most_recent_encounters as
 select distinct on (last_affirmed)
-	ce1.id as pk_encounter,
+	ce1.pk as pk_encounter,
 	ce1.fk_patient as pk_patient,
 	ce1.rfe as rfe,
 	ce1.aoe as aoe,
@@ -1547,7 +1547,7 @@ select distinct on (last_affirmed)
 	ce1.fk_type as pk_type,
 	ce1.fk_location as pk_location
 from
-	clin.clin_encounter ce1,
+	clin.encounter ce1,
 	clin.encounter_type et
 where
 	ce1.fk_type = et.pk
@@ -1555,12 +1555,12 @@ where
 	ce1.started = (
 		-- find max of started in ...
 		select max(started)
-		from clin.clin_encounter ce2
+		from clin.encounter ce2
 		where
 			ce2.last_affirmed = (
 				-- ... max of last_affirmed for patient
 				select max(last_affirmed)
-				from clin.clin_encounter ce3
+				from clin.encounter ce3
 				where
 					ce3.fk_patient = ce1.fk_patient
 			)
@@ -1913,10 +1913,10 @@ select
 	cenc.fk_patient as pk_patient,
 	's' as soap_cat,
 	cenc.rfe || '; ' || cenc.aoe as narrative,
-	cenc.id as src_pk,
-	'clin.clin_encounter' as src_table
+	cenc.pk as src_pk,
+	'clin.encounter' as src_table
 from
-	clin.clin_encounter cenc
+	clin.encounter cenc
 
 union	-- episodes
 select
@@ -2010,13 +2010,13 @@ select
 	end as modified_by,
 	's' as soap_cat,
 	_('encounter') || ': ' || _('RFE') || ': ' || cenc.rfe || '; ' || _('AOE') || ':' as narrative,
-	cenc.id as pk_encounter,
+	cenc.pk as pk_encounter,
 	-1 as pk_episode,
 	-1 as pk_health_issue,
-	cenc.id as src_pk,
-	'clin.clin_encounter'::text as src_table
+	cenc.pk as src_pk,
+	'clin.encounter'::text as src_table
 from
-	clin.clin_encounter cenc
+	clin.encounter cenc
 
 union	-- episodes
 select
@@ -2186,8 +2186,8 @@ select
 	vmre.started as start_most_recent_encounter,
 	vmre.rfe as most_recent_rfe,
 	wl.comment as comment,
-	(select started from clin.clin_encounter ce
-	 where vmre.pk_encounter = ce.id
+	(select started from clin.encounter ce
+	 where vmre.pk_encounter = ce.pk
 	 order by last_affirmed desc limit 1 offset 1
 	) as start_previous_encounter,
 	i.pk as pk_identity,
@@ -2218,8 +2218,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.episode_pk_seq
 	, clin.encounter_type
 	, clin.encounter_type_pk_seq
-	, clin.clin_encounter
-	, clin.clin_encounter_id_seq
+	, clin.encounter
+	, clin.encounter_pk_seq
 	, clin.clin_root_item
 	, clin.clin_root_item_pk_item_seq
 	, clin.clin_item_type
@@ -2323,11 +2323,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.161 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.162 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.161  2005-12-05 19:05:59  ncq
+-- Revision 1.162  2005-12-06 13:26:55  ncq
+-- - clin.clin_encounter -> clin.encounter
+-- - also id -> pk
+--
+-- Revision 1.161  2005/12/05 19:05:59  ncq
 -- - clin_episode -> episode
 --
 -- Revision 1.160  2005/12/04 09:42:06  ncq
