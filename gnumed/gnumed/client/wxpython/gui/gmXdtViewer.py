@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""GnuMed xDT viewer.
+"""GNUmed xDT viewer.
 
 TODO:
 
@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.19 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmXdtViewer.py,v 1.20 2005-12-06 16:44:16 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -29,6 +29,7 @@ import sys, os, fileinput, string
 try:
 	import wxversion
 	import wx
+	import wx.lib.mixins.listctrl
 except ImportError:
 	from wxPython import wx
 	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wx.ListCtrlAutoWidthMixin
@@ -43,21 +44,21 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 #=============================================================================
-class gmXdtListCtrl(wx.ListCtrl, wx.ListCtrlAutoWidthMixin):
-	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
+class gmXdtListCtrl(wx.ListCtrl, wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin):
+	def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
 		wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
-		wx.ListCtrlAutoWidthMixin.__init__(self)
+		wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin.__init__(self)
 #=============================================================================
 class gmXdtViewerPanel(wx.Panel):
 	def __init__(self, parent, aFileName = None):
-		wx.Panel.__init__(self, parent, -1, style=wxWANTS_CHARS)
+		wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS)
 
 		# our actual list
 		tID = wx.NewId()
 		self.list = gmXdtListCtrl(
 			self,
 			tID,
-			style=wx.LC_REPORT|wxSUNKEN_BORDER|wx.LC_VRULES
+			style=wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES
 		)#|wx.LC_HRULES)
 
 		self.list.InsertColumn(0, _("XDT field"))
@@ -82,9 +83,9 @@ class gmXdtViewerPanel(wx.Panel):
 		wx.EVT_LEFT_DCLICK(self.list, self.OnDoubleClick)
 		wx.EVT_RIGHT_DOWN(self.list, self.OnRightDown)
 
-		if wxPlatform == '__WXMSW__':
+		if wx.Platform == '__WXMSW__':
 			wx.EVT_COMMAND_RIGHT_CLICK(self.list, tID, self.OnRightClick)
-		elif wxPlatform == '__WXGTK__':
+		elif wx.Platform == '__WXGTK__':
 			wx.EVT_RIGHT_UP(self.list, self.OnRightClick)
 
 	#-------------------------------------------------------------------------
@@ -194,7 +195,7 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def OnRightClick(self, event):
 		return
-		menu = wxMenu()
+		menu = wx.Menu()
 		tPopupID1 = 0
 		tPopupID2 = 1
 		tPopupID3 = 2
@@ -202,7 +203,7 @@ class gmXdtViewerPanel(wx.Panel):
 		tPopupID5 = 5
 
 		# Show how to put an icon in the menu
-		item = wxMenuItem(menu, tPopupID1,"One")
+		item = wx.MenuItem(menu, tPopupID1,"One")
 		item.SetBitmap(images.getSmilesBitmap())
 
 		menu.AppendItem(item)
@@ -228,7 +229,7 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def OnPopupThree(self, event):
 		self.list.ClearAll()
-		wxCallAfter(self.PopulateList)
+		wx.CallAfter(self.PopulateList)
 		#wxYield()
 		#self.PopulateList()
 	#-------------------------------------------------------------------------
@@ -249,7 +250,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmCLI, gmPyCompat
 	#---------------------
 	# set up dummy app
-	class TestApp (wxApp):
+	class TestApp (wx.App):
 		def OnInit (self):
 
 			fname = ""
@@ -258,7 +259,7 @@ if __name__ == '__main__':
 				fname = gmCLI.arg['--xdt-file']
 				_log.Log(gmLog.lData, 'XDT file is [%s]' % fname)
 				# file valid ?
-				if not os.access(fname, R_OK):
+				if not os.access(fname, os.R_OK):
 					title = _('Opening xDT file')
 					msg = _('Cannot open xDT file.\n'
 							'[%s]') % fname
@@ -271,11 +272,11 @@ if __name__ == '__main__':
 				gmGuiHelpers.gm_show_error(msg, title, gmLog.lWarn)
 				return False
 
-			frame = wxFrame(
-				parent=NULL,
+			frame = wx.Frame(
+				parent = None,
 				id = -1,
 				title = _("XDT Viewer"),
-				size = wxSize(800,600)
+				size = wx.Size(800,600)
 			)
 			pnl = gmXdtViewerPanel(frame, fname)
 			pnl.Populate()
@@ -335,7 +336,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.19  2005-09-28 21:27:30  ncq
+# Revision 1.20  2005-12-06 16:44:16  ncq
+# - make it work standalone again
+#
+# Revision 1.19  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.18  2005/09/26 18:01:52  ncq
