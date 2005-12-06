@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.41 2005-09-19 16:38:51 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.42 2005-12-06 13:22:50 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -145,7 +145,7 @@ BEGIN
 	-- does name exist ?
 	select into _names_row * from names where id_identity = _id_identity and active = true;
 	if not found then
-		msg = ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.''
+		msg := ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.''
 		raise exception msg;
 	end if;
 	-- can directly set nickname ?
@@ -433,11 +433,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.41  2005-09-19 16:38:51  ncq
+-- Revision 1.42  2005-12-06 13:22:50  ncq
+-- - add missing : in front of =
+--
+-- Revision 1.41  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.40  2005/07/14 21:31:42  ncq
