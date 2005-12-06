@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.9 2005-04-11 18:01:33 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmClinicalRecordTest.py,v 1.10 2005-12-06 14:24:15 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -48,12 +48,12 @@ class EMR_StructureTests(unittest.TestCase):
 		self.assertEqual(new_health_issue['description'], 'TEST Health Issue')
 		# delete test health issue
 		queries = []
-		cmd = "delete from clin_health_issue where id=%s and description=%s"
+		cmd = "delete from clin.health_issue where id=%s and description=%s"
 		queries.append((cmd, [new_health_issue['id'], 'TEST Health Issue']))
 		result, msg = gmPG.run_commit('historica', queries, True)		 
 		self.assertEqual(result, True)
 		# check deletion was successfull
-		cmd = """select id from clin_health_issue where id=%s"""
+		cmd = """select id from clin.health_issue where id=%s"""
 		rows = gmPG.run_ro_query('historica', cmd, None, new_health_issue['id'])
 		self.assertEqual(len(rows), 0)
 
@@ -73,17 +73,17 @@ class EMR_StructureTests(unittest.TestCase):
 		self.assertEqual(new_episode['id_patient'], patient_id)
 		# delete test episode
 		queries = []
-		cmd = "select pk from clin_episode where pk=%s and fk_health_issue=%s and description=%s"
+		cmd = "select pk from clin.episode where pk=%s and fk_health_issue=%s and description=%s"
 		queries.append((cmd, [ new_episode['pk_episode'], h_issue['id'], 'TEST Episode']))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		self.assertEqual(result[0][0], new_episode['pk_episode'])
 		queries = []
-		cmd = "delete from clin_episode where pk=%s"
+		cmd = "delete from clin.episode where pk=%s"
 		queries.append((cmd, [result[0][0]]))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		self.assertEqual(result, True)
 		# check deletion was successfull
-		cmd = """select pk from clin_episode where pk=%s"""
+		cmd = """select pk from clin.episode where pk=%s"""
 		rows = gmPG.run_ro_query('historica', cmd, None, new_episode['pk_episode'])
 		self.assertEqual(len(rows), 0)
 	#--------------------------------------------------------
@@ -296,7 +296,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.9  2005-04-11 18:01:33  ncq
+# Revision 1.10  2005-12-06 14:24:15  ncq
+# - clin.clin_health_issue/episode -> clin.health_issue/episode
+#
+# Revision 1.9  2005/04/11 18:01:33  ncq
 # - some cleanup
 #
 # Revision 1.8  2004/09/18 13:53:26  ncq

@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.18 2005-10-20 07:42:27 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmEMRStructWidgets.py,v 1.19 2005-12-06 14:24:15 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -80,7 +80,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		# condition
 		cmd = """
 			select distinct on (description) id, description
-			from clin_health_issue where description %(fragment_condition)s"""
+			from clin.health_issue where description %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
 		mp.setThresholds(aWord=2, aSubstring=5)
 		self.fld_condition = gmPhraseWheel.cPhraseWheel (
@@ -902,7 +902,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.18  2005-10-20 07:42:27  ncq
+# Revision 1.19  2005-12-06 14:24:15  ncq
+# - clin.clin_health_issue/episode -> clin.health_issue/episode
+#
+# Revision 1.18  2005/10/20 07:42:27  ncq
 # - somewhat improved edit area for issue
 #
 # Revision 1.17  2005/10/08 12:33:09  sjtan

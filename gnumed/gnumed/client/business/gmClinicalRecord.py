@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.189 2005-11-27 12:44:57 ncq Exp $
-__version__ = "$Revision: 1.189 $"
+# $Id: gmClinicalRecord.py,v 1.190 2005-12-06 14:24:14 ncq Exp $
+__version__ = "$Revision: 1.190 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -808,7 +808,7 @@ where
 		# try to find the episode with the most recently modified clinical item
 		cmd = """
 select pk
-from clin.clin_episode
+from clin.episode
 where pk=(
 	select distinct on(pk_episode) pk_episode
 	from clin.v_pat_items
@@ -954,7 +954,7 @@ where
 			self.__db_cache['health issues']
 		except KeyError:
 			self.__db_cache['health issues'] = []
-			cmd = "select id from clin.clin_health_issue where id_patient=%s"
+			cmd = "select id from clin.health_issue where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load health issues for patient [%s]' % self.pk_patient)
@@ -1737,7 +1737,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.189  2005-11-27 12:44:57  ncq
+# Revision 1.190  2005-12-06 14:24:14  ncq
+# - clin.clin_health_issue/episode -> clin.health_issue/episode
+#
+# Revision 1.189  2005/11/27 12:44:57  ncq
 # - clinical tables are in schema "clin" now
 #
 # Revision 1.188  2005/11/18 15:16:15  ncq
