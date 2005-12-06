@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -21,16 +21,16 @@ _log.Log(gmLog.lInfo, __version__)
 class cHealthIssue(gmClinItem.cClinItem):
 	"""Represents one health issue.
 	"""
-	_cmd_fetch_payload = """select *, xmin from clin.health_issue where id=%s"""
+	_cmd_fetch_payload = """select *, xmin from clin.health_issue where pk=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.health_issue where id=%(id)s and xmin=%(xmin)s for update"""
+		"""select 1 from clin.health_issue where pk=%(pk)s and xmin=%(xmin)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update clin.health_issue set
 				description=%(description)s,
 				age_noted=%(age_noted)s
-			where id=%(id)s""",
-		"""select xmin from clin.health_issue where id=%(id)s"""
+			where pk=%(pk)s""",
+		"""select xmin from clin.health_issue where pk=%(pk)s"""
 	]
 	_updatable_fields = [
 		'description',
@@ -40,7 +40,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select id from clin.health_issue where id_patient=%s and description=%s"
+			cmd = "select pk from clin.health_issue where id_patient=%s and description=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, patient_id, name)
 			if rows is None:
 				raise gmExceptions.ConstructorError, 'error getting health issue for [%s:%s]' % (patient_id, name)
@@ -322,7 +322,7 @@ def create_health_issue(patient_id=None, description=None):
 	cmd = "insert into clin.health_issue (id_patient, description) values (%s, %s)"
 	queries.append((cmd, [patient_id, description]))
 	# get PK of inserted row
-	cmd = "select currval('clin.health_issue_id_seq')"
+	cmd = "select currval('clin.health_issue_pk_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -405,10 +405,10 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 			insert into clin.encounter (
 				fk_patient, fk_location, fk_type
 			) values (
-				%s, -1,	coalesce((select pk from encounter_type where description=%s), 0)
+				%s, -1,	coalesce((select pk from clin.encounter_type where description=%s), 0)
 			)"""
 	queries.append((cmd, [fk_patient, enc_type]))
-	cmd = "select currval('clin.encounter_id_seq')"
+	cmd = "select currval('clin.encounter_pk_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
@@ -511,7 +511,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.72  2005-12-06 14:24:14  ncq
+# Revision 1.73  2005-12-06 17:57:13  ncq
+# - more id->pk fixes
+#
+# Revision 1.72  2005/12/06 14:24:14  ncq
 # - clin.clin_health_issue/episode -> clin.health_issue/episode
 #
 # Revision 1.71  2005/11/27 12:56:19  ncq
