@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -396,6 +396,7 @@ class db_server:
 			print ""
 			print "In neither case will you have to provide a password"
 			print "if it is pre-defined in the configuration file."
+			print ""
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
@@ -1455,7 +1456,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.17  2005-12-05 22:21:38  ncq
+# Revision 1.18  2005-12-06 17:33:34  ncq
+# - improved question layout
+#
+# Revision 1.17  2005/12/05 22:21:38  ncq
 # - brush up gm-dbo password request text as suggested by Richard
 #
 # Revision 1.16  2005/12/04 09:32:55  ncq
