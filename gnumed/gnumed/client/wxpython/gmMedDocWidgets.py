@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -50,10 +50,15 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     def __init_ui_data(self):
         # provide choices for document types
         for doc_type in gmMedDoc.get_document_types():
-            self.SelBOX_doc_type.Append(doc_type)
-        self.SelBOX_doc_type.SetValue(_('choose document type'))
-        self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
-        # a list holding our objects
+            self._SelBOX_doc_type.Append(doc_type)
+        # FIXME: make this configurable: either now() or last_date()
+        self._TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
+        self._TBOX_doc_comment.SetValue(_('please fill in'))
+        self._TBOX_description.SetValue(_('please fill in'))
+        # FIXME: set from config item
+        self._ChBOX_reviewed.SetValue(False)
+        # the list holding our objects
+        self._LBOX_doc_pages.Clear()
         self.acquired_pages = []
     #--------------------------------------------------------
     def _scan_btn_pressed(self, evt):
@@ -85,7 +90,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     #--------------------------------------------------------
     def _show_btn_pressed(self, evt):
         # did user select a page ?
-        page_idx = self.LBOX_doc_pages.GetSelection()
+        page_idx = self._LBOX_doc_pages.GetSelection()
         if page_idx == -1:
             # FIXME: use gmGuiHelpers
             dlg = wx.MessageDialog(
@@ -99,7 +104,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             return None
 
         # now, which file was that again ?
-        page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+        page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
 
         (result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
         if not result:
@@ -111,7 +116,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         return 1
     #-----------------------------------
     def _del_btn_pressed(self, event):
-        page_idx = self.LBOX_doc_pages.GetSelection()
+        page_idx = self._LBOX_doc_pages.GetSelection()
         if page_idx == -1:
             # FIXME: use gmGuiHelpers
             dlg = wx.MessageDialog(
@@ -124,7 +129,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             dlg.Destroy()
             return None
         else:
-            page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+            page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
 
             # 1) del item from self.acquired_pages
             self.acquired_pages[page_idx:(page_idx+1)] = []
@@ -151,10 +156,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             return 1
     #--------------------------------------------------------
     def _save_btn_pressed(self, evt):
-        doc_type = self.SelBOX_doc_type.GetSelection()
-        desc_short = self.TBOX_desc_short.GetLineText(0)
-        doc_date = self.TBOX_doc_date.GetLineText(0)
-        desc_long = self.TBOX_desc_long.GetValue()
+        doc_type = self._SelBOX_doc_type.GetSelection()
+        doc_comment = self._TBOX_doc_comment.GetLineText(0)
+        doc_date = self._TBOX_doc_date.GetLineText(0)
+        description = self._TBOX_description.GetValue()
         # returns True/False , alternative might be foo.IsChecked()
         checkbox = self.__checkbox_reviewed.GetValue()
         # holds the list of aquired pages
@@ -163,15 +168,15 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     
     #--------------------------------------------------------
     def _startover_btn_pressed(self, evt):
-        self.__clear_doc_fields()
+        self.__init_ui_data()
     #--------------------------------------------------------
     def __reload_LBOX_doc_pages(self):
-        self.LBOX_doc_pages.Clear()
+        self._LBOX_doc_pages.Clear()
         if len(self.acquired_pages) > 0:    
             for i in range(len(self.acquired_pages)):
                 fname = self.acquired_pages[i]
                 path, name = os.path.split(fname)
-                self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
+                self._LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
     
     #--------------------------------------------------------
     def _select_files_btn_pressed (self, evt):
@@ -192,17 +197,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             self.acquired_pages.append(fname)
             # update list of pages in GUI
             self.__reload_LBOX_doc_pages()
-    #--------------------------------------------------------
-    def __clear_doc_fields(self):
-        # clear fields
-        # FIXME: make this configurable: either now() or last_date()
-        self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
-        self.TBOX_desc_short.SetValue(_('please fill in'))
-        self.TBOX_desc_long.SetValue(_('please fill in'))
-        self.SelBOX_doc_type.SetValue(_('choose document type'))
-        self.LBOX_doc_pages.Clear()
-        self.acquired_pages = []
-        self.checkbox_reviewed.SetValue(False)
 #============================================================
         # NOTE:	 For some reason tree items have to have a data object in
         #		 order to be sorted.  Since our compare just uses the labels
@@ -485,7 +479,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.26  2005-12-02 22:46:21  shilbert
+# Revision 1.27  2005-12-06 17:59:12  ncq
+# - make scan/index panel work more
+#
+# Revision 1.26  2005/12/02 22:46:21  shilbert
 # - fixed inconsistent naming of vaiables which caused a bug
 #
 # Revision 1.25  2005/12/02 17:31:05  shilbert
