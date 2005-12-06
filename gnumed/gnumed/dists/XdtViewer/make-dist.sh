@@ -2,15 +2,18 @@
 
 #========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/XdtViewer/Attic/make-dist.sh,v $
-# $Id: make-dist.sh,v 1.3 2005-12-06 22:47:33 shilbert Exp $
+# $Id: make-dist.sh,v 1.4 2005-12-06 22:48:20 shilbert Exp $
 
 echo "making tgz"
-tar -cvzhf gnumed-XdtViewer.tgz gmXdtViewer.py gnumed.conf run-xdt-viewer.sh modules locale data
+tar -cvzhf gnumed-XdtViewer.tgz gmXdtViewer.py run-xdt-viewer.sh modules locale data
 echo "done"
 
 #========================================================
 # $Log: make-dist.sh,v $
-# Revision 1.3  2005-12-06 22:47:33  shilbert
+# Revision 1.4  2005-12-06 22:48:20  shilbert
+# - remoce reference to gnumed.conf
+#
+# Revision 1.3  2005/12/06 22:47:33  shilbert
 # - include sample bdt file
 #
 # Revision 1.2  2003/02/19 15:43:17  ncq
