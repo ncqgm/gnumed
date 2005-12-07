@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.162 2005-12-06 13:26:55 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.163 2005-12-07 16:28:18 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1754,8 +1754,7 @@ select
 from
 	clin.v_pat_items vpi,
 	clin.clin_hx_family chxf,
-	clin.hx_family_item hxfi,
-	v_basic_person vbp
+	clin.hx_family_item hxfi
 where
 	vpi.pk_item = chxf.pk_item
 		and
@@ -1802,7 +1801,7 @@ where
 		and
 	hxfi.fk_narrative_condition is null
 		and
-	hxfi.fk_relative = v_basic_person.pk_identity
+	hxfi.fk_relative = vbp.pk_identity
 
 UNION
 
@@ -1883,6 +1882,7 @@ where
 -- =============================================
 -- *complete* narrative for searching
 
+-- FIXME: add form_data, fk_encounter, fk_health_issue, fk_episode etc
 create view clin.v_narrative4search as
 -- clin.clin_root_items
 select
@@ -2323,11 +2323,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.162 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.163 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.162  2005-12-06 13:26:55  ncq
+-- Revision 1.163  2005-12-07 16:28:18  ncq
+-- - with the help of the postgresql list fix the "add missing from"
+--   error in v_hx_family
+--
+-- Revision 1.162  2005/12/06 13:26:55  ncq
 -- - clin.clin_encounter -> clin.encounter
 -- - also id -> pk
 --
