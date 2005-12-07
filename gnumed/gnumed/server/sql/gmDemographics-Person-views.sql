@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.42 2005-12-06 13:22:50 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.43 2005-12-07 16:28:54 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -264,7 +264,6 @@ from
 -- ==========================================================
 \unset ON_ERROR_STOP
 drop view v_basic_person cascade;
-drop view v_basic_person;
 \set ON_ERROR_STOP 1
 
 create view v_basic_person as
@@ -280,15 +279,15 @@ select
 	_(i.gender) as l10n_gender,
 	i.karyotype as karyotype,
 	i.pupic as pupic,
-	case when fk_marital_status is null
+	case when i.fk_marital_status is null
 		then 'unknown'
 		else (select ms.name from marital_status ms, identity i1 where ms.pk=i.fk_marital_status and i1.pk=i.pk)
 	end as marital_status,
-	case when fk_marital_status is null
+	case when i.fk_marital_status is null
 		then _('unknown')
 		else (select _(ms1.name) from marital_status ms1, identity i1 where ms1.pk=i.fk_marital_status and i1.pk=i.pk)
 	end as l10n_marital_status,
-	fk_marital_status as pk_marital_status,
+	i.fk_marital_status as pk_marital_status,
 	n.preferred as preferred,
 	i.xmin as xmin_identity
 from
@@ -433,11 +432,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.42  2005-12-06 13:22:50  ncq
+-- Revision 1.43  2005-12-07 16:28:54  ncq
+-- - some tightening of column scopes
+--
+-- Revision 1.42  2005/12/06 13:22:50  ncq
 -- - add missing : in front of =
 --
 -- Revision 1.41  2005/09/19 16:38:51  ncq
