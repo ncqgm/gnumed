@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.43 2005-12-07 16:28:54 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.44 2005-12-08 16:13:13 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -139,6 +139,7 @@ DECLARE
 	_nick alias for $2;
 
 	_names_row record;
+	msg text;
 BEGIN
 	-- 0.1: Just always set the nickname inside the active name
 	-- post 0.1: openEHR-like (name: pk, fk_identity, name, fk_type, comment, is_legal, is_active ...)
@@ -432,11 +433,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.43 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.44 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.43  2005-12-07 16:28:54  ncq
+-- Revision 1.44  2005-12-08 16:13:13  ncq
+-- - need to declare plpgsql variables
+--
+-- Revision 1.43  2005/12/07 16:28:54  ncq
 -- - some tightening of column scopes
 --
 -- Revision 1.42  2005/12/06 13:22:50  ncq
