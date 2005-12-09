@@ -1,12 +1,12 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-apidocs.sh,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
 BASE=~/gm-cvs-head/gnumed/gnumed/client
-MODULES="$BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/ $BASE/pycommon/"
+MODULES=" $BASE/pycommon/ $BASE/wxpython/ $BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/"
 LOG=~/gm-apidocs/epydoc-errors.txt
 
 export DISPLAY=":0.0"
@@ -16,7 +16,10 @@ cat $LOG
 
 #============================================
 # $Log: make-apidocs.sh,v $
-# Revision 1.7  2005-12-09 20:53:09  ncq
+# Revision 1.8  2005-12-09 20:58:06  ncq
+# - add wxpython now that wxPython doesn't need a DISPLAY anymore
+#
+# Revision 1.7  2005/12/09 20:53:09  ncq
 # - proper BASE dir
 #
 # Revision 1.6  2005/12/09 20:43:25  ncq
