@@ -1,19 +1,26 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
+DB=gnumed_v2
+
 export PGUSER="gm-dbo"
-/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html
-/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t dot
-/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t dia
-/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t zigzag.dia
+/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t html
+/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dot
+/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dia
+/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t zigzag.dia
+
+dot -Tpng -o ~/gm-schemadocs/gnumed-schema.png ~/gm-schemadocs/gnumed-schema.dot
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.8  2005-01-25 17:35:03  ncq
+# Revision 1.9  2005-12-09 20:43:25  ncq
+# - improved output
+#
+# Revision 1.8  2005/01/25 17:35:03  ncq
 # - Thilo wanted the other formats, too, so here it is ...
 #
 # Revision 1.7  2005/01/19 09:27:59  ncq
