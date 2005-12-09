@@ -1,22 +1,25 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-apidocs.sh,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-BASE=~/gnumed/gnumed/client
+BASE=~/gm-cvs-head/gnumed/gnumed/client
 MODULES="$BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/ $BASE/pycommon/"
 LOG=~/gm-apidocs/epydoc-errors.txt
 
 export DISPLAY=":0.0"
-export PYTHONPATH="${PYTHONPATH}:~/gnumed/gnumed/"
+export PYTHONPATH="${PYTHONPATH}:~/gm-cvs-head/gnumed/gnumed/"
 nice -n 19 epydoc -n GNUmed -u http://www.gnumed.org --no-private -o ~/gm-apidocs $MODULES &> $LOG
 cat $LOG
 
 #============================================
 # $Log: make-apidocs.sh,v $
-# Revision 1.6  2005-12-09 20:43:25  ncq
+# Revision 1.7  2005-12-09 20:53:09  ncq
+# - proper BASE dir
+#
+# Revision 1.6  2005/12/09 20:43:25  ncq
 # - improved output
 #
 # Revision 1.5  2005/02/15 18:37:33  ncq
