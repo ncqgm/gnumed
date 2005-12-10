@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.74 2005-10-30 15:48:56 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmPatientExporter.py,v 1.75 2005-12-10 23:02:05 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -1009,8 +1009,8 @@ class cEMRJournalExporter:
 select
 	to_char(vemrj.clin_when, 'YYYY-MM-DD') as date,
 	vemrj.*,
-	(select rank from soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
-from v_emr_journal vemrj
+	(select rank from clin.soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
+from clin.v_emr_journal vemrj
 where pk_patient=%s order by date, pk_episode, scr"""
 		rows, idx = gmPG.run_ro_query (
 			'clinical',
@@ -1112,7 +1112,7 @@ class cMedistarSOAPExporter:
 		if encounter is None:
 			encounter = emr.get_active_encounter()
 		# get data
-		cmd = "select narrative from v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
+		cmd = "select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in 'soap':
 			rows = gmPG.run_ro_query (
 				'clinical',
@@ -1259,7 +1259,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.74  2005-10-30 15:48:56  ncq
+# Revision 1.75  2005-12-10 23:02:05  ncq
+# - tables are in clin.* now
+#
+# Revision 1.74  2005/10/30 15:48:56  ncq
 # - slightly enlarge space for provider signum display
 #
 # Revision 1.73  2005/10/19 09:06:39  ncq
