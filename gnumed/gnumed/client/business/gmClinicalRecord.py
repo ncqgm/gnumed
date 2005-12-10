@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.190 2005-12-06 14:24:14 ncq Exp $
-__version__ = "$Revision: 1.190 $"
+# $Id: gmClinicalRecord.py,v 1.191 2005-12-10 22:55:17 ncq Exp $
+__version__ = "$Revision: 1.191 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1267,6 +1267,7 @@ where
 			return False
 		self.__encounter = enc
 		_log.Log(gmLog.lData, 'new encounter [%s] initiated' % enc['pk_encounter'])
+		_log.Log(gmLog.lData, str(enc))
 		return True
 	#------------------------------------------------------------------
 	def __activate_very_recent_encounter(self):
@@ -1737,7 +1738,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.190  2005-12-06 14:24:14  ncq
+# Revision 1.191  2005-12-10 22:55:17  ncq
+# - fully log newly created encounters
+#
+# Revision 1.190  2005/12/06 14:24:14  ncq
 # - clin.clin_health_issue/episode -> clin.health_issue/episode
 #
 # Revision 1.189  2005/11/27 12:44:57  ncq
