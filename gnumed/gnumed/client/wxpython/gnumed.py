@@ -52,7 +52,7 @@ from a launcher script.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -136,7 +136,11 @@ def setup_locale():
 	# logging state of affairs
 	_log.Log(gmLog.lData, 'startup locale settings (should be C locale): %s' % locale.setlocale(locale.LC_ALL))
 	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
-	_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
+	try:
+		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
+	except ValueError:
+		_log.LogException('the OS locale setup seems faulty')
+		return False
 	_log.Log(gmLog.lData, 'initial database of locale conventions:')
 	data = locale.localeconv()
 	for key in data.keys():
@@ -459,7 +463,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.88  2005-10-30 15:53:13  ncq
+# Revision 1.89  2005-12-11 13:31:44  ncq
+# - deal with people setting their locale to something they don't have installed
+#
+# Revision 1.88  2005/10/30 15:53:13  ncq
 # - try to be more careful and more precise when setting up the locale
 #
 # Revision 1.87  2005/09/28 21:27:30  ncq
