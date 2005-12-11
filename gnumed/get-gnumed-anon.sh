@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #------------------------------------------------------------------
-# $Id: get-gnumed-anon.sh,v 1.2 2005-07-11 08:32:57 ncq Exp $
+# $Id: get-gnumed-anon.sh,v 1.3 2005-12-11 18:24:45 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/get-gnumed-anon.sh,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 #------------------------------------------------------------------
 
 if [ -d gnumed ] || [ -e update_tree.sh ]; then
@@ -16,11 +16,14 @@ fi
 
 echo "Anonymously checking out a fresh copy of the GnuMed CVS tree."
 export CVS_RSH="ssh"
-cvs -z9 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed co -P gnumed
+cvs -z9 -d:pserver:anonymous@cvs.sv.gnu.org:/sources/gnumed co -P gnumed
 
 #------------------------------------------------------------------
 # $Log: get-gnumed-anon.sh,v $
-# Revision 1.2  2005-07-11 08:32:57  ncq
+# Revision 1.3  2005-12-11 18:24:45  ncq
+# - use pserver again for anon, also moved to cvs.sv.gnu.org
+#
+# Revision 1.2  2005/07/11 08:32:57  ncq
 # - need to *export* environment variable to make them
 #   work properly in subprocesses
 #
