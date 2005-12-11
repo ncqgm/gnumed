@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #------------------------------------------------------------------
-# $Id: get-gnumed-user.sh,v 1.2 2005-07-11 08:32:57 ncq Exp $
+# $Id: get-gnumed-user.sh,v 1.3 2005-12-11 18:20:38 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/get-gnumed-user.sh,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 #------------------------------------------------------------------
 
 if [ -d gnumed ] || [ -e update_tree.sh ]; then
@@ -18,7 +18,7 @@ export GMCVSUSER="not set"
 
 echo "Checking out a fresh copy of the GnuMed CVS tree for user <$GMCVSUSER>."
 export CVS_RSH="ssh"
-export CVSROOT=$GMCVSUSER@subversions.gnu.org:/cvsroot/gnumed/
+export CVSROOT=$GMCVSUSER@cvs.sv.gnu.org:/sources/gnumed/
 cvs -z9 co gnumed
 
 # once you have checked out you don't need CVSROOT anymore
@@ -26,7 +26,10 @@ cvs -z9 co gnumed
 
 #------------------------------------------------------------------
 # $Log: get-gnumed-user.sh,v $
-# Revision 1.2  2005-07-11 08:32:57  ncq
+# Revision 1.3  2005-12-11 18:20:38  ncq
+# - sources were moved to cvs.savannah.gnu.org
+#
+# Revision 1.2  2005/07/11 08:32:57  ncq
 # - need to *export* environment variable to make them
 #   work properly in subprocesses
 #
