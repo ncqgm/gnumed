@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.30 2005-11-27 09:23:07 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmMedDoc.py,v 1.31 2005-12-13 21:46:07 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -328,18 +328,18 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
-	def update_data_from_file(self, fname):
+	def update_data_from_file(self, fname=None):
 		try:
 			from pyPgSQL.PgSQL import PgBytea
 		except ImportError:
 			# FIXME
 			_log.Log(gmLog.lPanic, 'need pyPgSQL')
-			return None
+			return False
 
 		# read from file and convert (escape)
 		if not os.path.exists(fname):
 			_log.Log(gmLog.lErr, "[%s] does not exist" % fname)
-			return None
+			return False
 		aFile = open(fname, "rb")
 		img_data = str(aFile.read())
 		aFile.close()
@@ -353,8 +353,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		])
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' (self.pk_obj, fname))
-			return None
-		return 1
+			return False
+		return True
 	#--------------------------------------------------------
 	def update_data(self, data):
 		try:
@@ -439,12 +439,39 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 				continue
 		return parts
 	#--------------------------------------------------------
-	def add_part(self):
+	def add_part(self, file=None):
 		new_part = create_document_part(self.pk_obj)
 		if new_part is None:
 			_log(gmLog.lErr, 'cannot add part to document [%s]' % self.pk_obj)
 			return None
+		if file is not None:
+			if not new_part.update_data_from_file(fname=file):
+				_log.Log(gmLog.lErr, 'cannot import binary data from [%s] into document part' % file)
+				return False
 		return new_part
+	#--------------------------------------------------------
+	def add_parts_from_files(self, files=None):
+		idx = 1
+		for filename in files:
+			new_part = self.add_part()
+			if new_part is None:
+				msg = 'cannot instantiate document part object'
+				_log.Log(gmLog.lErr, msg)
+				return (False, msg, filename)
+			new_part['seq_idx'] = idx
+			if not new_part.save_payload():
+				msg = 'cannot set sequence index on document part [%s]' % filename
+				_log.Log(gmLog.lErr, msg)
+				return (False, msg, filename)
+			if not new_part.update_data_from_file(fname=filename):
+				msg = 'cannot import binary data from [%s] into document part' % filename
+				_log.Log(gmLog.lErr, msg)
+				return (False, msg, filename)
+			idx += 1
+		return (True, '', '')
+	#--------------------------------------------------------
+	def set_reviewed(self, status = None):
+		print "missing set_reviewed()"
 
 #============================================================
 # convenience functions
@@ -556,7 +583,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.30  2005-11-27 09:23:07  ncq
+# Revision 1.31  2005-12-13 21:46:07  ncq
+# - enhance cMedDoc.add_part() so it can load data from a file
+# - add cMedDoc.add_parts_from_files()
+#
+# Revision 1.30  2005/11/27 09:23:07  ncq
 # - added get_document_types()
 #
 # Revision 1.29  2005/11/01 08:50:24  ncq
