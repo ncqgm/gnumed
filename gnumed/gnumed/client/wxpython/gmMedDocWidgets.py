@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -62,9 +62,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         self.acquired_pages = []
     #--------------------------------------------------------
     def _scan_btn_pressed(self, evt):
-        """inside wxGlade this method should be set"
-        # "to be called when the user pressed the scan button"
-        # "this can be done by using the EVENT tab to define the EVT macro"""
+        """inside wxGlade this method should be set
+           to be called when the user pressed the scan button
+           this can be done by using the EVENT tab to define the EVT macro"""
 
         # FIXME: load directory from backend config
         fname = self.scan_module.acquire_page_into_file (
@@ -156,16 +156,88 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             return 1
     #--------------------------------------------------------
     def _save_btn_pressed(self, evt):
-        doc_type = self._SelBOX_doc_type.GetSelection()
-        doc_comment = self._TBOX_doc_comment.GetLineText(0)
-        doc_date = self._TBOX_doc_date.GetLineText(0)
-        description = self._TBOX_description.GetValue()
-        # returns True/False , alternative might be foo.IsChecked()
-        checkbox = self.__checkbox_reviewed.GetValue()
-        # holds the list of aquired pages
-        # self.acquired_pages ...
-        print "finish this"
-    
+		wx.BeginBusyCursor()
+
+		if not self.__valid_for_save():
+			wx.EndBusyCursor()
+			return False
+
+		pat = gmPerson.gmCurrentPatient()
+
+		# create new document
+		new_doc = gmMedDoc.create_document(pat.getID())
+		if new_doc is None:
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot create new document.'),
+				aTitle = _('saving document')
+			)
+			return False
+
+		# update business object with metadata
+		# - date of generation
+		new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
+		# - type of document
+		new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
+		# - external reference
+		ref = self.__get_ext_ref()
+		if ref is not None:
+			new_doc['ext_ref'] = ref
+		# - comment
+		comment = self._TBOX_doc_comment.GetLineText(0).strip()
+		if comment != '':
+			new_doc['comment'] = comment
+		# - save it
+		if not new_doc.save_payload():
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot update document metadata.'),
+				aTitle = _('saving document')
+			)
+			return False
+		# - long description
+        description = self._TBOX_description.GetValue().strip()
+		if description != '':
+			if not new_doc.add_description(description):
+				wx.EndBusyCursor()
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('Cannot add document description.'),
+					aTitle = _('saving document')
+				)
+				return False
+
+		# add document parts from files
+		success, msg, filename = new_doc.add_parts_from_files(files=self.acquired_pages)
+		if not success:
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_error (
+				aMessage = msg,
+				aTitle = _('saving document')
+			)
+			return False
+
+		# set reviewed status
+		new_doc.set_reviewed(self._ChBOX_reviewed.GetValue())
+
+		wx.EndBusyCursor()
+
+		# FIXME: make optional
+		msg =
+_("""The reference ID for the new document is:
+
+ <%s>
+
+You probably want to write it down on the
+original documents.
+
+If you don't care about the ID you can switch
+off this message in the GNUmed configuration.""") % ref
+		gmGuiHelpers._gm_show_info (
+			aMessage = msg
+			aTitle = _('saving document')
+		)
+		self.__init_ui_data()
+		return True
     #--------------------------------------------------------
     def _startover_btn_pressed(self, evt):
         self.__init_ui_data()
@@ -479,7 +551,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.27  2005-12-06 17:59:12  ncq
+# Revision 1.28  2005-12-13 21:44:31  ncq
+# - start _save_btn_pressed() so people see where we are going
+#
+# Revision 1.27  2005/12/06 17:59:12  ncq
 # - make scan/index panel work more
 #
 # Revision 1.26  2005/12/02 22:46:21  shilbert
