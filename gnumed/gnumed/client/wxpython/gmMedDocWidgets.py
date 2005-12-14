@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -47,6 +47,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         from Gnumed.pycommon import gmScanBackend
         self.scan_module = gmScanBackend
     #--------------------------------------------------------
+    # internal API
+    #--------------------------------------------------------
     def __init_ui_data(self):
         # provide choices for document types
         for doc_type in gmMedDoc.get_document_types():
@@ -61,6 +63,20 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         self._LBOX_doc_pages.Clear()
         self.acquired_pages = []
     #--------------------------------------------------------
+    def __reload_LBOX_doc_pages(self):
+        self._LBOX_doc_pages.Clear()
+        if len(self.acquired_pages) > 0:    
+            for i in range(len(self.acquired_pages)):
+                fname = self.acquired_pages[i]
+                path, name = os.path.split(fname)
+                self._LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
+    #--------------------------------------------------------
+    def __valid_for_save(self):
+        # FIXME: dummy
+        return True
+    #--------------------------------------------------------
+    # event handling API
+    #--------------------------------------------------------
     def _scan_btn_pressed(self, evt):
         """inside wxGlade this method should be set
            to be called when the user pressed the scan button
@@ -73,18 +89,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             calling_window = self
         )
         if fname is None:
-            # FIXME: use gmGuiHelpers
-            dlg = wx.MessageDialog (
-                self,
-                _('page could not be acquired. Please check the log file for details on what went wrong'),
-                _('acquiring page'),
-                wx.OK | wx.ICON_ERROR
+            gmGuiHelpers.gm_show_err (
+                aMessage = _('Page could not be acquired from source.'),
+                aTitle = _('acquiring page')
             )
-            dlg.ShowModal()
-            dlg.Destroy()
             return None
-        else:
-            self.acquired_pages.append(fname)
+        self.acquired_pages.append(fname)
         # update list of pages in GUI
         self.__reload_LBOX_doc_pages()
     #--------------------------------------------------------
@@ -92,20 +102,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         # did user select a page ?
         page_idx = self._LBOX_doc_pages.GetSelection()
         if page_idx == -1:
-            # FIXME: use gmGuiHelpers
-            dlg = wx.MessageDialog(
-                self,
-                _('You must select a page before you can view it.'),
-                _('displaying page'),
-                wx.OK | wx.ICON_INFORMATION
+            gmGuiHelpers.gm_show_info (
+                aMessage = _('You must select a page before you can view it.'),
+                aTitle = _('displaying page')
             )
-            dlg.ShowModal()
-            dlg.Destroy()
             return None
-
         # now, which file was that again ?
         page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
-
         (result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
         if not result:
             gmGuiHelpers.gm_show_error (
@@ -114,53 +117,41 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             )
             return None
         return 1
-    #-----------------------------------
+    #--------------------------------------------------------
     def _del_btn_pressed(self, event):
         page_idx = self._LBOX_doc_pages.GetSelection()
         if page_idx == -1:
-            # FIXME: use gmGuiHelpers
-            dlg = wx.MessageDialog(
-                self,
-                _('You must select a page before you can delete it.'),
-                _('deleting page'),
-                wx.OK | wx.ICON_INFORMATION
+            gmGuiHelpers.gm_show_info (
+                aMessage = _('You must select a page before you can delete it.'),
+                aTitle = _('deleting page')
             )
-            dlg.ShowModal()
-            dlg.Destroy()
             return None
-        else:
-            page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
+        page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
 
-            # 1) del item from self.acquired_pages
-            self.acquired_pages[page_idx:(page_idx+1)] = []
+        # 1) del item from self.acquired_pages
+        self.acquired_pages[page_idx:(page_idx+1)] = []
 
-            # 2) reload list box
-            self.__reload_LBOX_doc_pages()
+        # 2) reload list box
+        self.__reload_LBOX_doc_pages()
 
-            # 3) kill file in the file system
-            try:
-                os.remove(page_fname)
-            except:
-                exc = sys.exc_info()
-                _log.LogException("Cannot delete file.", exc, fatal=0)
-                # FIXME: use gmGuiHelpers
-                dlg = wx.MessageDialog(
-                    self,
-                    _('Cannot delete page (file %s).\nSee log for details.') % page_fname,
-                    _('deleting page'),
-                    wx.OK | wx.ICON_INFORMATION
-                )
-                dlg.ShowModal()
-                dlg.Destroy()
+        # 3) kill file in the file system
+        try:
+            os.remove(page_fname)
+        except:
+            _log.LogException('Error deleting file.')
+            gmGuiHelpers.gm_show_error (
+                aMessage = _('Cannot delete page in file [%s].') % page_fname,
+                aTitle = _('deleting page')
+            )
 
-            return 1
+        return 1
     #--------------------------------------------------------
     def _save_btn_pressed(self, evt):
-        print evt
         wx.BeginBusyCursor()
 
         if not self.__valid_for_save():
             wx.EndBusyCursor()
+            # __valid_for_save() should display its errors
             return False
 
         pat = gmPerson.gmCurrentPatient()
@@ -245,15 +236,6 @@ off this message in the GNUmed configuration.""") % ref
     #--------------------------------------------------------
     def _startover_btn_pressed(self, evt):
         self.__init_ui_data()
-    #--------------------------------------------------------
-    def __reload_LBOX_doc_pages(self):
-        self._LBOX_doc_pages.Clear()
-        if len(self.acquired_pages) > 0:    
-            for i in range(len(self.acquired_pages)):
-                fname = self.acquired_pages[i]
-                path, name = os.path.split(fname)
-                self._LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
-    
     #--------------------------------------------------------
     def _select_files_btn_pressed (self, evt):
         # patient file chooser
@@ -549,7 +531,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.31  2005-12-14 15:40:54  ncq
+# Revision 1.32  2005-12-14 15:54:01  ncq
+# - cleanup
+#
+# Revision 1.31  2005/12/14 15:40:54  ncq
 # - add my changes regarding new config handling
 #
 # Revision 1.30  2005/12/14 14:08:24  shilbert
