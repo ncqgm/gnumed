@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -204,14 +204,45 @@ values (
 	0
 );
 
+-- scan & index behaviour options ------------------------------
+-- show document ID after import
+insert into cfg.cfg_template
+	(name, type, description)
+values (
+	'horstspace.scan_index.show_doc_id',
+	'boolean',
+	'1/0, meaning true/false,
+	 True: after importing a new document display the document ID,
+	 False: do not display the document ID for a new document after import'
+);
+
+insert into cfg.cfg_item
+	(fk_template, owner)
+values (
+	currval('cfg.cfg_template_pk_seq'),
+	'xxxDEFAULTxxx'
+);
+
+-- default to True
+insert into cfg.cfg_numeric
+	(fk_item, value)
+values (
+	currval('cfg.cfg_item_pk_seq'),
+	1
+);
+
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.20  2005-11-27 12:59:56  ncq
+-- Revision 1.21  2005-12-14 10:43:33  ncq
+-- - add option on showing document ID after import
+-- - several clin.clin_* -> clin.* renames
+--
+-- Revision 1.20  2005/11/27 12:59:56  ncq
 -- - add ScanIdxMedDocsPlugin to Librarian 0.2 release config
 --
 -- Revision 1.19  2005/11/18 15:41:45  ncq

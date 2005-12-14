@@ -1,13 +1,17 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- TODO:
+-- - remove scoring stuff
+-- - add gmNotifications stuff
 
 -- == cross-service =======================================
 
@@ -109,7 +113,33 @@ values (
 	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmConfigRegistry"}'
 );
 
--- remove old data
+-- show document ID after import
+insert into cfg.cfg_template
+	(name, type, description)
+values (
+	'horstspace.scan_index.show_doc_id',
+	'boolean',
+	'1/0, meaning true/false,
+	 True: after importing a new document display the document ID,
+	 False: do not display the document ID for a new document after import'
+);
+
+insert into cfg.cfg_item
+	(fk_template, owner)
+values (
+	currval('cfg.cfg_template_pk_seq'),
+	'xxxDEFAULTxxx'
+);
+
+-- default to True
+insert into cfg.cfg_numeric
+	(fk_item, value)
+values (
+	currval('cfg.cfg_item_pk_seq'),
+	1
+);
+
+-- remove old options
 delete from cfg.cfg_item where workplace='KnoppixMedica';
 
 -- == service clinical ====================================
@@ -123,7 +153,7 @@ alter table public.clin_encounter
 alter table public.clin_encounter
 	add column rfe text;
 
--- 1) concat clin_narrative.is_rfe rows into clin_encounter.rfe
+-- 1) concat clin_narrative.is_rfe rows into encounter.rfe
 create or replace function concat_rfes(integer) returns text as '
 declare
 	_fk_encounter alias for $1;
@@ -219,16 +249,16 @@ alter table public.clin_narrative
 insert into clin.xlnk_identity select * from public.xlnk_identity;
 select setval('clin.xlnk_identity_pk_seq'::text, (select max(pk) from clin.xlnk_identity));
 
-insert into clin.clin_health_issue select * from public.clin_health_issue;
-select setval('clin.clin_health_issue_id_seq'::text, (select max(id) from clin.clin_health_issue));
+insert into clin.health_issue select * from public.clin_health_issue;
+select setval('clin.health_issue_pk_seq'::text, (select max(pk) from clin.health_issue));
 
-insert into clin.clin_episode select * from public.clin_episode;
-select setval('clin.clin_episode_pk_seq'::text, (select max(pk) from clin.clin_episode));
+insert into clin.episode select * from public.clin_episode;
+select setval('clin.episode_pk_seq'::text, (select max(pk) from clin.episode));
 
 insert into clin.encounter_type select * from public.encounter_type;
 select setval('clin.encounter_type_pk_seq'::text, (select max(pk) from clin.encounter_type));
 
-insert into clin.clin_encounter
+insert into clin.encounter
 	select
 		pk_audit,
 		row_version,
@@ -244,7 +274,7 @@ insert into clin.clin_encounter
 		started,
 		last_affirmed
 	from public.clin_encounter;
-select setval('clin.clin_encounter_id_seq'::text, (select max(id) from clin.clin_encounter));
+select setval('clin.encounter_id_seq'::text, (select max(id) from clin.encounter));
 
 -- clin_root_item does not need to be moved ...
 
@@ -462,6 +492,10 @@ select setval('clin.lnk_ttype2unified_type_pk_seq'::text, (select max(pk) from c
 insert into clin.lnk_tst2norm select * from public.lnk_tst2norm;
 select setval('clin.lnk_tst2norm_id_seq'::text, (select max(id) from clin.lnk_tst2norm));
 
+-- FIXME:
+--	fk_intended_reviewer integer
+--		not null
+--		references clin.xlnk_identity(xfk_identity)
 insert into clin.test_result
 select
 	pk_audit,
@@ -548,6 +582,10 @@ insert into blobs.xlnk_identity select * from public.xlnk_identity;
 insert into blobs.doc_type select * from public.doc_type;
 insert into blobs.doc_med select * from public.doc_med;
 insert into blobs.doc_obj select * from public.doc_obj;
+-- FIXME
+--	fk_intended_reviewer integer
+--		not null
+--		references clin.xlnk_identity(xfk_identity)
 insert into blobs.doc_desc select * from public.doc_desc;
 
 -- adjust sequences
@@ -634,11 +672,15 @@ select setval('public.audit_fields_pk_audit_seq'::text, (select max(pk_audit) fr
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.16 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.16  2005-11-29 19:09:59  ncq
+-- Revision 1.17  2005-12-14 10:43:33  ncq
+-- - add option on showing document ID after import
+-- - several clin.clin_* -> clin.* renames
+--
+-- Revision 1.16  2005/11/29 19:09:59  ncq
 -- - properly modified audited_tables
 -- - add scanidxpnl to Librarian release config
 -- - re-arrange clinical upgrade
