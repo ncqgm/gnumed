@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -190,7 +190,7 @@ limit 1""" % where_clause
 				_log.LogException("don't know how to cast [%s] (type [%s])" % (val, type(val)), sys.exc_info(), verbose=0)
 		return val
 	#-----------------------------------------------
-	def get_by_user(option=None, cookie=None):
+	def get_by_user(self, option=None, cookie=None, default=None):
 		"""Get config option from database.
 
 		Use this for options in which the workplace does not
@@ -207,16 +207,16 @@ limit 1""" % where_clause
 
 		args = {
 			'opt': option,
-			'usr': cfg_DEFAULT
+			'usr': cfg_DEFAULT,
+			'cookie': cookie
 		}
 		# generate query with current user
 		where_parts = [
-			'(vco.owner = CURRENT_USER) or (vco.owner = %(usr)s)',
+			'(vco.owner = %(usr)s) or (vco.owner = CURRENT_USER)',
 			'vco.option = %(opt)s'
 		]
 		if cookie is not None:
 			where_parts.append('vco.cookie = %(cookie)s')
-			args['cookie'] = cookie
 		cmd = """
 select
 	vco.pk_cfg_item,
@@ -225,6 +225,7 @@ select
 from cfg.v_cfg_options vco
 where
 	%s
+order by vco.owner
 limit 1""" % (' and '.join(where_parts))
 
 		# run it
@@ -234,8 +235,20 @@ limit 1""" % (' and '.join(where_parts))
 			return None
 		if len(rows) == 0:
 			_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
-			return None
-
+			# - cannot create default
+			if default is None:
+				return None
+			# - create default
+			else:
+				_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+				success = self.set (
+					option = option,
+					value = default
+				)
+				# - error
+				if not success:
+					return None
+				return default
 		# if default option used try to store for user
 		if rows[0][2] == cfg_DEFAULT:
 			self.set (
@@ -244,6 +257,79 @@ limit 1""" % (' and '.join(where_parts))
 				value = rows[0][0]
 			)
 
+		return rows[0][0]
+	#-----------------------------------------------
+	def get_by_workplace(self, option=None, workplace=None, cookie=None, default=None):
+		"""Get config option from database.
+
+		Use this for options in which the user does not
+		matter. It will search for matches in this order:
+			- current workplace, any user
+			- default workplace, default user
+		The latter is used so an admin can set defaults. If a default
+		option is found it is automatically stored specific to the workplace.
+
+		Returns None if not found.
+		"""
+		if option is None or workplace is None:
+			raise ValueError, 'option and/or workplace cannot be <None>'
+
+		args = {
+			'opt': option,
+			'wplace': workplace,
+			'defwplace': cfg_DEFAULT,
+			'cookie': cookie
+		}
+		# generate query with current user
+		where_parts = [
+			'(vco.workplace = %(wplace)s) or (vco.workplace = %(defwplace)s)',
+			'vco.option = %(opt)s'
+		]
+		if cookie is not None:
+			where_parts.append('vco.cookie = %(cookie)s')
+		cmd = """
+select
+	vco.pk_cfg_item,
+	vco.type,
+	vco.workplace
+from cfg.v_cfg_options vco
+where
+	%s
+order by vco.workplace
+limit 1""" % (' and '.join(where_parts))
+
+		# run it
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
+		# - error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting option definition')
+			return None
+		# - not found
+		if len(rows) == 0:
+			_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
+			# - cannot create default
+			if default is None:
+				return None
+			# - create default
+			else:
+				_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+				success = self.set (
+					option = option,
+					workplace = workplace,
+					value = default
+				)
+				# - error
+				if not success:
+					return None
+				return default
+		# if default workplace found try to store specific to *this* workplace
+		if rows[0][2] == cfg_DEFAULT:
+			self.set (
+				option = option,
+				value = rows[0][0],
+				workplace = workplace,
+				cookie = cookie
+			)
 		return rows[0][0]
 	#-----------------------------------------------
 	def getID(self, workplace = None, user = None, cookie = None, option = None):
@@ -311,7 +397,7 @@ limit 1""" % where_clause
 			return False
 
 		if aRWConn is None:
-			aRWConn = gmPG_.ConnectionPool().GetConnection(service = 'default', readonly=False)
+			aRWConn = gmPG_.ConnectionPool().GetConnection(service = 'default', readonly=0)
 
 		cache_key = self.__make_key(workplace, user, cookie, option)
 		opt_value = value
@@ -1254,11 +1340,10 @@ if __name__ == "__main__":
 	# else test database config
 	print "testing database config"
 	print "======================="
-	# FIXME: BROKEN
-	from pyPgSQL import PgSQL
-	dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed', 'any-doc', '', '', '')
-	conn = PgSQL.connect(dsn)
-	myDBCfg = cCfgSQL(aConn = conn, aDBAPI=PgSQL)
+#	from pyPgSQL import PgSQL
+#	dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed_v2', 'any-doc', 'any-doc', '', '')
+#	conn = PgSQL.connect(dsn)
+	myDBCfg = cCfgSQL()
 
 	font = myDBCfg.get(option = 'font name')
 	print "font is currently:", font
@@ -1268,7 +1353,8 @@ if __name__ == "__main__":
 		new_font = "Courier"
 	if font == "Courier":
 		new_font = "Times New Roman"
-	myDBCfg.set(option='font name', value=new_font, aRWConn=conn)
+#	myDBCfg.set(option='font name', value=new_font, aRWConn=conn)
+	myDBCfg.set(option='font name', value=new_font)
 
 	font = myDBCfg.get(option = 'font name')
 	print "font is now:", font
@@ -1277,7 +1363,8 @@ if __name__ == "__main__":
 	random.seed()
 	new_opt = str(random.random())
 	print "setting new option", new_opt
-	myDBCfg.set(option=new_opt, value = "I do not know.", aRWConn=conn)
+#	myDBCfg.set(option=new_opt, value = "I do not know.", aRWConn=conn)
+	myDBCfg.set(option=new_opt, value = "I do not know.")
 	print "new option is now:", myDBCfg.get(option = new_opt)
 
 	print "setting array option"
@@ -1285,25 +1372,31 @@ if __name__ == "__main__":
 	aList.append("val 1")
 	aList.append("val 2")
 	new_opt = str(random.random())
-	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
+#	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
+	myDBCfg.set(option=new_opt, value = aList)
 	aList = []
 	aList.append("val 2")
 	aList.append("val 1")
-	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
+#	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
+	myDBCfg.set(option=new_opt, value = aList)
 
-	myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
+#	myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
+	myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx")
 	print "blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "blatest")
 		
-	myDBCfg.delete(user = cfg_DEFAULT, option = "blatest", aRWConn = conn)
+#	myDBCfg.delete(user = cfg_DEFAULT, option = "blatest", aRWConn = conn)
+	myDBCfg.delete(user = cfg_DEFAULT, option = "blatest")
 	print "after deletion blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "blatest")
 
 	print "setting complex option"
 	data = {1: 'line 1', 2: 'line2', 3: {1: 'line3.1', 2: 'line3.2'}}
-	myDBCfg.set(user = cfg_DEFAULT, option = "complex option test", value = data, aRWConn = conn)
+#	myDBCfg.set(user = cfg_DEFAULT, option = "complex option test", value = data, aRWConn = conn)
+	myDBCfg.set(user = cfg_DEFAULT, option = "complex option test", value = data)
 	print "complex option set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "complex option test")
-	myDBCfg.delete(user=cfg_DEFAULT, option = "complex option test", aRWConn = conn)
+#	myDBCfg.delete(user=cfg_DEFAULT, option = "complex option test", aRWConn = conn)
+	myDBCfg.delete(user=cfg_DEFAULT, option = "complex option test")
 
-	conn.close()
+#	conn.close()
 
 #	val, set = getDBParam(workplace = "test", cookie = "gui", option = "plugin load order")
 #	print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
@@ -1320,7 +1413,13 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.32  2005-12-14 10:41:11  ncq
+# Revision 1.33  2005-12-14 16:56:09  ncq
+# - enhance get_by_user() and get_by_workplace() with a default
+#   which if set will enable to store the option even if there's
+#   no template in the database
+# - fix unit test
+#
+# Revision 1.32  2005/12/14 10:41:11  ncq
 # - allow cCfgSQL to set up its own connection if none given
 # - add cCfgSQL.get_by_user()
 # - smarten up cCfgSQL.get()
