@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -70,7 +70,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         fname = self.scan_module.acquire_page_into_file (
             filename = 'test.bmp',
             delay = 5,
-			calling_window = self
+            calling_window = self
         )
         if fname is None:
             # FIXME: use gmGuiHelpers
@@ -156,91 +156,93 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             return 1
     #--------------------------------------------------------
     def _save_btn_pressed(self, evt):
-		wx.BeginBusyCursor()
+        print evt
+        wx.BeginBusyCursor()
 
-		if not self.__valid_for_save():
-			wx.EndBusyCursor()
-			return False
+        if not self.__valid_for_save():
+            wx.EndBusyCursor()
+            return False
 
-		pat = gmPerson.gmCurrentPatient()
+        pat = gmPerson.gmCurrentPatient()
 
-		# create new document
-		new_doc = gmMedDoc.create_document(pat.getID())
-		if new_doc is None:
-			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot create new document.'),
-				aTitle = _('saving document')
-			)
-			return False
+        # create new document
+        new_doc = gmMedDoc.create_document(pat.getID())
+        if new_doc is None:
+            wx.EndBusyCursor()
+            gmGuiHelpers.gm_show_error (
+                aMessage = _('Cannot create new document.'),
+                aTitle = _('saving document')
+            )
+            return False
 
-		# update business object with metadata
-		# - date of generation
-		new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
-		# - type of document
-		new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
-		# - external reference
-		ref = self.__get_ext_ref()
-		if ref is not None:
-			new_doc['ext_ref'] = ref
-		# - comment
-		comment = self._TBOX_doc_comment.GetLineText(0).strip()
-		if comment != '':
-			new_doc['comment'] = comment
-		# - save it
-		if not new_doc.save_payload():
-			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot update document metadata.'),
-				aTitle = _('saving document')
-			)
-			return False
-		# - long description
+        # update business object with metadata
+        # - date of generation
+        new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
+        # - type of document
+        new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
+        # - external reference
+        ref = self.__get_ext_ref()
+        if ref is not None:
+            new_doc['ext_ref'] = ref
+        # - comment
+        comment = self._TBOX_doc_comment.GetLineText(0).strip()
+        if comment != '':
+            new_doc['comment'] = comment
+        # - save it
+        if not new_doc.save_payload():
+            wx.EndBusyCursor()
+            gmGuiHelpers.gm_show_error (
+                aMessage = _('Cannot update document metadata.'),
+                aTitle = _('saving document')
+            )
+            return False
+        # - long description
         description = self._TBOX_description.GetValue().strip()
-		if description != '':
-			if not new_doc.add_description(description):
-				wx.EndBusyCursor()
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('Cannot add document description.'),
-					aTitle = _('saving document')
-				)
-				return False
+        if description != '':
+            if not new_doc.add_description(description):
+                wx.EndBusyCursor()
+                gmGuiHelpers.gm_show_error (
+                    aMessage = _('Cannot add document description.'),
+                    aTitle = _('saving document')
+                )
+                return False
 
-		# add document parts from files
-		success, msg, filename = new_doc.add_parts_from_files(files=self.acquired_pages)
-		if not success:
-			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
-				aMessage = msg,
-				aTitle = _('saving document')
-			)
-			return False
+        # add document parts from files
+        success, msg, filename = new_doc.add_parts_from_files(files=self.acquired_pages)
+        if not success:
+            wx.EndBusyCursor()
+            gmGuiHelpers.gm_show_error (
+                aMessage = msg,
+                aTitle = _('saving document')
+            )
+            return False
 
-		# set reviewed status
-		new_doc.set_reviewed(self._ChBOX_reviewed.GetValue())
+        # set reviewed status
+        new_doc.set_reviewed(self._ChBOX_reviewed.GetValue())
 
-		cfg = gmCfg.cCfgSQL()
-		show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
-		wx.EndBusyCursor()
-		if show_id:
-			msg =
-_("""The reference ID for the new document is:
+        cfg = gmCfg.cCfgSQL()
+        show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
+        wx.EndBusyCursor()
+        if show_id:
+            msg =_(
+"""The reference ID for the new document is:
 
- <%s>
+<%s>
 
 You probably want to write it down on the
 original documents.
 
 If you don't care about the ID you can switch
-off this message in the GNUmed configuration.""") % ref
-			gmGuiHelpers._gm_show_info (
-				aMessage = msg
-				aTitle = _('saving document')
-			)
+off this message in the GNUmed configuration."""
+                ) % ref
+            gmGuiHelpers._gm_show_info (
+                aMessage = msg,
+                aTitle = _('saving document')
+            )
 
-		# prepare for next document
-		self.__init_ui_data()
-		return True
+        # prepare for next document
+        self.__init_ui_data()
+        return True
     #--------------------------------------------------------
     def _startover_btn_pressed(self, evt):
         self.__init_ui_data()
@@ -554,7 +556,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.29  2005-12-14 10:42:11  ncq
+# Revision 1.30  2005-12-14 14:08:24  shilbert
+# - minor cleanup of ncq's changes
+#
+# Revision 1.29  2005/12/14 10:42:11  ncq
 # - use cCfgSQL.get_by_user in scan&index panel on showing document reference ID
 #
 # Revision 1.28  2005/12/13 21:44:31  ncq
