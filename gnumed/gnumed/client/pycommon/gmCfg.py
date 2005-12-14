@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -91,17 +91,18 @@ class cCfgBase:
 #================================
 class cCfgSQL:
 	def __init__(self, aConn = None, aDBAPI = None):
-		if aConn is None:
-			_log.Log(gmLog.lErr, "Cannot init database config object without database connection.")
-			raise AssertionError, "Cannot init database config object without database connection."
-
-		self.dbapi = aDBAPI
-		self.conn = aConn
-
 		global gmPG_
 		if gmPG_ is None:
 			from Gnumed.pycommon import gmPG
 			gmPG_ = gmPG
+
+		if aConn is None:
+			self.__conn = gmPG_.ConnectionPool().GetConnection(service = 'default')
+			self.__dbapi = gmPG_.dbapi
+		else:
+			self.__dbapi = aDBAPI
+			self.__conn = aConn
+
 		global cPickle_
 		if cPickle_ is None:
 			import cPickle
@@ -155,7 +156,7 @@ from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
-		curs = self.conn.cursor()
+		curs = self.__conn.cursor()
 		rows = gmPG_.run_ro_query(curs, cmd, None, where_args)
 		if rows is None:
 			curs.close()
@@ -188,7 +189,63 @@ limit 1""" % where_clause
 			except:
 				_log.LogException("don't know how to cast [%s] (type [%s])" % (val, type(val)), sys.exc_info(), verbose=0)
 		return val
-	#----------------------------
+	#-----------------------------------------------
+	def get_by_user(option=None, cookie=None):
+		"""Get config option from database.
+
+		Use this for options in which the workplace does not
+		matter. Will search for matches in this order:
+			- current user, any workplace
+			- default user, default workplace
+		The latter is used so an admin can set defaults. If a default
+		option is found it is automatically stored for the user.
+
+		Returns None if not found.
+		"""
+		if option is None:
+			raise ValueError, 'option cannot be <None>'
+
+		args = {
+			'opt': option,
+			'usr': cfg_DEFAULT
+		}
+		# generate query with current user
+		where_parts = [
+			'(vco.owner = CURRENT_USER) or (vco.owner = %(usr)s)',
+			'vco.option = %(opt)s'
+		]
+		if cookie is not None:
+			where_parts.append('vco.cookie = %(cookie)s')
+			args['cookie'] = cookie
+		cmd = """
+select
+	vco.pk_cfg_item,
+	vco.type,
+	vco.owner
+from cfg.v_cfg_options vco
+where
+	%s
+limit 1""" % (' and '.join(where_parts))
+
+		# run it
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting option definition')
+			return None
+		if len(rows) == 0:
+			_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
+			return None
+
+		# if default option used try to store for user
+		if rows[0][2] == cfg_DEFAULT:
+			self.set (
+				option = option,
+				cookie = cookie,
+				value = rows[0][0]
+			)
+
+		return rows[0][0]
+	#-----------------------------------------------
 	def getID(self, workplace = None, user = None, cookie = None, option = None):
 		"""Get config value from database.
 
@@ -227,7 +284,7 @@ from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
-		curs = self.conn.cursor()
+		curs = self.__conn.cursor()
 		rows = gmPG_.run_ro_query (curs, cmd, None, where_args)
 		if rows is None:
 			curs.close()
@@ -249,9 +306,12 @@ limit 1""" % where_clause
 		have to delete the parameter and recreate it using the new type.
 		"""
 		# sanity checks
-		if None in [option, value, aRWConn]:
-			_log.Log(gmLog.lErr, "option, value, and/or aRWConn are None")
+		if None in [option, value]:
+			_log.Log(gmLog.lErr, "option and/or value are None")
 			return False
+
+		if aRWConn is None:
+			aRWConn = gmPG_.ConnectionPool().GetConnection(service = 'default', readonly=False)
 
 		cache_key = self.__make_key(workplace, user, cookie, option)
 		opt_value = value
@@ -262,25 +322,25 @@ limit 1""" % where_clause
 		elif type(value) is types.ListType:
 			opt_type = 'str_array'
 			try:
-				opt_value = self.dbapi.PgArray(value)
+				opt_value = self.__dbapi.PgArray(value)
 			except AttributeError:
 				_log.LogException('this dbapi does not support PgArray', sys.exc_info())
 				print "This Python DB-API module does not support the PgArray data type."
 				print "It is recommended to install at least version 2.3 of pyPgSQL from"
 				print "<http://pypgsql.sourceforge.net>."
 				return False
-		elif isinstance(value, self.dbapi.PgArray):
+		elif isinstance(value, self.__dbapi.PgArray):
 			opt_type = 'str_array'
 		# FIXME: UnicodeType ?
 		else:
 			opt_type = 'data'
 			try:
-				# the DB-API 2.0 says, Binary() is a function at the module
+				# the DB-API 2.0 says Binary() is a function at the module
 				# level, however, pyPgSQL prides itself to define this at
 				# the connection level, arghh !! also, it does not work
 				# so this needs to be pgByteA with pyPgSQL while it should
 				# be Binary
-				opt_value = self.dbapi.PgBytea(cPickle_.dumps(value))
+				opt_value = self.__dbapi.PgBytea(cPickle_.dumps(value))
 			except cPickle_.PicklingError:
 				_log.Log(gmLog.lErr, "cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), cache_key, str(value)))
 				return False
@@ -395,7 +455,7 @@ select name, cookie, owner, type, description
 from cfg.cfg_template, cfg.cfg_item
 where %s""" % where_clause
 
-		curs = self.conn.cursor()
+		curs = self.__conn.cursor()
 
 		# retrieve option definition
 		if gmPG_.run_query(curs, None, cmd, where_args) is None:
@@ -1260,7 +1320,12 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.31  2005-11-19 08:47:56  ihaywood
+# Revision 1.32  2005-12-14 10:41:11  ncq
+# - allow cCfgSQL to set up its own connection if none given
+# - add cCfgSQL.get_by_user()
+# - smarten up cCfgSQL.get()
+#
+# Revision 1.31  2005/11/19 08:47:56  ihaywood
 # tiny bugfixes
 #
 # Revision 1.30  2005/11/18 15:48:44  ncq
