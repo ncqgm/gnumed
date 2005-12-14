@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -53,8 +53,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             self._SelBOX_doc_type.Append(doc_type)
         # FIXME: make this configurable: either now() or last_date()
         self._TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
-        self._TBOX_doc_comment.SetValue(_('please fill in'))
-        self._TBOX_description.SetValue(_('please fill in'))
+        self._TBOX_doc_comment.SetValue('')
+        self._TBOX_description.SetValue('')
         # FIXME: set from config item
         self._ChBOX_reviewed.SetValue(False)
         # the list holding our objects
@@ -224,17 +224,16 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
         wx.EndBusyCursor()
         if show_id:
-            msg =_(
+            msg = _(
 """The reference ID for the new document is:
 
-<%s>
+ <%s>
 
 You probably want to write it down on the
 original documents.
 
 If you don't care about the ID you can switch
-off this message in the GNUmed configuration."""
-                ) % ref
+off this message in the GNUmed configuration.""") % ref
             gmGuiHelpers._gm_show_info (
                 aMessage = msg,
                 aTitle = _('saving document')
@@ -448,14 +447,10 @@ class cDocTree(wx.TreeCtrl):
             return None
 
         # but do everything with parts
-        if __name__ == "__main__":
-            tmp = "unknown_workplace"
-        else:
-            tmp = _whoami.get_workplace()
-
-        exp_base, set = gmCfg.getDBParam (
-            workplace = tmp,
-            option = "doc export dir"
+        cfg = gmCfg.cCfgSQL()
+        exp_base = cfg.get_by_workplace (
+            option = "doc export dir",
+            workplace = _whoami.get_workplace()
         )
         if exp_base is None:
             exp_base = ''
@@ -474,16 +469,13 @@ class cDocTree(wx.TreeCtrl):
             )
             return None
 
-        if __name__ == "__main__":
-            chunksize = None
-        else:
-            chunksize, set = gmCfg.getDBParam (
-                workplace = _whoami.get_workplace(),
-                option = "doc export chunk size"
-            )
+        chunksize = cfg.get_by_workplace (
+            option = "doc export chunk size",
+            workplace = _whoami.get_workplace(),
+            default = 1 * 1024 * 1024		# 1 MB
+        )
         if chunksize is None:
-            # 1 MB
-            chunksize = 1 * 1024 * 1024
+            chunksize = 1 * 1024 * 1024		# 1 MB
 
         # retrieve doc part
         fname = node_data.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
@@ -552,11 +544,15 @@ class cDocTree(wx.TreeCtrl):
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
-    print "please write a unit test"
+	print "==> the syntax seems OK"
+	print "==> please write a real unit test"
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.30  2005-12-14 14:08:24  shilbert
+# Revision 1.31  2005-12-14 15:40:54  ncq
+# - add my changes regarding new config handling
+#
+# Revision 1.30  2005/12/14 14:08:24  shilbert
 # - minor cleanup of ncq's changes
 #
 # Revision 1.29  2005/12/14 10:42:11  ncq
