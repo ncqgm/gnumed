@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -210,7 +210,7 @@ insert into cfg.cfg_template
 	(name, type, description)
 values (
 	'horstspace.scan_index.show_doc_id',
-	'boolean',
+	'numeric',
 	'1/0, meaning true/false,
 	 True: after importing a new document display the document ID,
 	 False: do not display the document ID for a new document after import'
@@ -234,11 +234,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.21  2005-12-14 10:43:33  ncq
+-- Revision 1.22  2005-12-14 11:42:21  ncq
+-- - we don't have cfg_boolean but rather use cfg_numeric
+--
+-- Revision 1.21  2005/12/14 10:43:33  ncq
 -- - add option on showing document ID after import
 -- - several clin.clin_* -> clin.* renames
 --

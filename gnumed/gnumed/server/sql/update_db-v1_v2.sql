@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -118,7 +118,7 @@ insert into cfg.cfg_template
 	(name, type, description)
 values (
 	'horstspace.scan_index.show_doc_id',
-	'boolean',
+	'numeric',
 	'1/0, meaning true/false,
 	 True: after importing a new document display the document ID,
 	 False: do not display the document ID for a new document after import'
@@ -672,11 +672,14 @@ select setval('public.audit_fields_pk_audit_seq'::text, (select max(pk_audit) fr
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.17 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.17  2005-12-14 10:43:33  ncq
+-- Revision 1.18  2005-12-14 11:42:21  ncq
+-- - we don't have cfg_boolean but rather use cfg_numeric
+--
+-- Revision 1.17  2005/12/14 10:43:33  ncq
 -- - add option on showing document ID after import
 -- - several clin.clin_* -> clin.* renames
 --
