@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -155,9 +155,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             return False
 
         pat = gmPerson.gmCurrentPatient()
+		doc_folder = pat.get_document_folder()
 
         # create new document
-        new_doc = gmMedDoc.create_document(pat.getID())
+        new_doc = doc_folder.add_document()
         if new_doc is None:
             wx.EndBusyCursor()
             gmGuiHelpers.gm_show_error (
@@ -172,7 +173,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         # - type of document
         new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
         # - external reference
-        ref = self.__get_ext_ref()
+        ref = gmMedDoc.get_ext_ref()
         if ref is not None:
             new_doc['ext_ref'] = ref
         # - comment
@@ -531,7 +532,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.32  2005-12-14 15:54:01  ncq
+# Revision 1.33  2005-12-14 17:01:03  ncq
+# - use document_folder class and other gmMedDoc.py goodies
+#
+# Revision 1.32  2005/12/14 15:54:01  ncq
 # - cleanup
 #
 # Revision 1.31  2005/12/14 15:40:54  ncq
