@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.225 2005-11-29 18:59:41 ncq Exp $
-__version__ = "$Revision: 1.225 $"
+# $Id: gmGuiMain.py,v 1.226 2005-12-14 17:01:51 ncq Exp $
+__version__ = "$Revision: 1.226 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -135,17 +135,12 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['main.SetWindowTitle'] = self.updateTitle
 		if layout is None:
 			# get plugin layout style
-			self.layout_style, set1 = gmCfg.getDBParam(
+			cfg = gmCfg.cCfgSQL()
+			self.layout_style = cfg.get_by_workplace (
+				option = 'main.window.layout_style',
 				workplace = _whoami.get_workplace(),
-				option = 'main.window.layout_style'
-				)
-			if set1 is None:
-				self.layout_style = 'status_quo'
-				gmCfg.setDBParam (
-					workplace = _whoami.get_workplace(),
-					option = 'main.window.layout_style',
-					value = self.layout_style
-					)
+				default = 'status_quo'
+			)
 			#----------------------
 			# create layout manager
 			#----------------------
@@ -155,6 +150,9 @@ class gmTopLevelFrame(wx.Frame):
 			elif self.layout_style == 'terry':
 				_log.Log(gmLog.lInfo, "loading Richard Terry's layout manager")
 				self.LayoutMgr = gmRichardSpace.cLayoutMgr(self, -1)
+			else:
+				_log.Log(gmLog.lInfo, 'loading Horst space layout manager as default (option is missing)')
+				self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
 		else:
 			# layout class is explicitly provided, use that
 			_log.Log (gmLog.lInfo, "loading %s as toplevel" % layout)
@@ -186,35 +184,25 @@ class gmTopLevelFrame(wx.Frame):
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
 
- 		def_width, def_height = (640,480)
+ 		desired_width, desired_height = (640,480)
+		cfg = gmCfg.cCfgSQL()
+
 		# width
- 		prev_width, set1 = gmCfg.getDBParam( 
+		prev_width = cfg.get_by_workplace (
+			option = 'main.window.width',
 			workplace = _whoami.get_workplace(),
- 			option = 'main.window.width'
+			default = desired_width
 		)
-		if set1 is None:
-			desired_width = def_width
-			gmCfg.setDBParam (
-				workplace = _whoami.get_workplace(),
-				option = 'main.window.width',
-				value = desired_width
-			)
-		else:
+		if prev_width is not None:
 			desired_width = int(prev_width)
 
 		# height
- 		prev_height, set1 = gmCfg.getDBParam( 
- 			workplace = _whoami.get_workplace(),
- 			option = 'main.window.height'
- 		)
-		if set1 is None:
- 			desired_height = def_height
-			gmCfg.setDBParam(
-				workplace = _whoami.get_workplace(),
-				option = 'main.window.height',
-				value = desired_height
-			)
-		else:
+		prev_height = cfg.get_by_workplace (
+			option = 'main.window.height',
+			workplace = _whoami.get_workplace(),
+			default = desired_height
+		)
+		if prev_height is not None:
 			desired_height = int(prev_height)
 
 		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (desired_width, desired_height))
@@ -978,7 +966,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.225  2005-11-29 18:59:41  ncq
+# Revision 1.226  2005-12-14 17:01:51  ncq
+# - use improved db cfg option getting
+#
+# Revision 1.225  2005/11/29 18:59:41  ncq
 # - cleanup
 #
 # Revision 1.224  2005/11/27 20:20:46  ncq

@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.24 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPatSearchWidgets.py,v 1.25 2005-12-14 17:01:51 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -360,35 +360,15 @@ and hit <ENTER>
 		self._lclick_count = 0
 
 		# get configuration
-		self.__always_dismiss_after_search = False
-		value, set = gmCfg.getDBParam (
-			workplace = _whoami.get_workplace(),
-			option = 'patient_search.always_dismiss_previous_patient'
-		)
-		if set is None:
-			gmCfg.setDBParam (
-				option = 'patient_search.always_dismiss_previous_patient',
-				value = False,
-				workplace = _whoami.get_workplace()
-			)
-		else:
-			try: self.__always_dismiss_after_search = bool(value)
-			except: pass
-
-		self.__always_reload_after_search = False
-		value, set = gmCfg.getDBParam (
-			workplace = _whoami.get_workplace(),
-			option = 'patient_search.always_reload_new_patient'
-		)
-		if set is None:
-			gmCfg.setDBParam (
-				option = 'patient_search.always_reload_new_patient',
-				value = False,
-				workplace = gmCfg.cfg_DEFAULT
-			)
-		else:
-			try: self.__always_reload_after_search = bool(value)
-			except: pass
+		cfg = gmCfg.cCfgSQL()
+		self.__always_dismiss_after_search = bool(cfg.get_by_user (
+			option = 'patient_search.always_dismiss_previous_patient',
+			default = False
+		))
+		self.__always_reload_after_search = bool(cfg.get_by_user (
+			option = 'patient_search.always_reload_new_patient',
+			default = False
+		))
 
 		self.__register_events()
 	#--------------------------------------------------------
@@ -734,7 +714,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.24  2005-09-28 21:27:30  ncq
+# Revision 1.25  2005-12-14 17:01:51  ncq
+# - use improved db cfg option getting
+#
+# Revision 1.24  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.23  2005/09/27 20:44:59  ncq
