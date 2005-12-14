@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.31 2005-12-13 21:46:07 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmMedDoc.py,v 1.32 2005-12-14 17:00:01 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -164,6 +164,9 @@ class cDocumentFolder:
 				_log.LogException('document error on [%s] for patient [%s]' % (doc_id, self.id_patient), sys.exc_info())
 				continue
 		return docs
+	#--------------------------------------------------------
+	def add_document(self):
+		return gmMedDoc.create_document(self.id_patient)
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -368,7 +371,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 
 		# insert the data
 		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE id=%s"
-		result = gmPG.run_commit(blobs, [
+		result = gmPG.run_commit('blobs', [
 			(cmd, [img_obj, self.pk_obj])
 		])
 		if result is None:
@@ -424,6 +427,13 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			data.extend(desc)
 		return data
 	#--------------------------------------------------------
+	def add_description(self, description):
+		cmd = "insert into blobs.doc_desc (doc_id, text) values (%s, %s)"
+		return gmPG.run_commit2 (
+			link_obj = 'blobs',
+			queries = [(cmd, [self.pk_obj, str(description)])]
+		)
+	#--------------------------------------------------------
 	def get_parts(self):
 		cmd = "select pk_obj from blobs.v_obj4doc where pk_doc=%s"
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
@@ -471,8 +481,8 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return (True, '', '')
 	#--------------------------------------------------------
 	def set_reviewed(self, status = None):
-		print "missing set_reviewed()"
-
+		print "***** missing set_reviewed() *****"
+		return False
 #============================================================
 # convenience functions
 #============================================================
@@ -564,6 +574,10 @@ def get_document_types():
 	for row in rows:
 		doc_types.append(row[0])
 	return doc_types
+#------------------------------------------------------------
+def get_ext_ref():
+	print "*********** gmMedDoc.get_ext_ref() not implemented ***********"
+	return None
 #============================================================
 # main
 #------------------------------------------------------------
@@ -583,7 +597,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.31  2005-12-13 21:46:07  ncq
+# Revision 1.32  2005-12-14 17:00:01  ncq
+# - add add_document() and add_description() to cMedDoc
+# - fix missing ''
+# - add gmMedDoc.get_ext_ref()
+#
+# Revision 1.31  2005/12/13 21:46:07  ncq
 # - enhance cMedDoc.add_part() so it can load data from a file
 # - add cMedDoc.add_parts_from_files()
 #
