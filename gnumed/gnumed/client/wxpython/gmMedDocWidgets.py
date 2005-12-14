@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -219,10 +219,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		# set reviewed status
 		new_doc.set_reviewed(self._ChBOX_reviewed.GetValue())
 
+		cfg = gmCfg.cCfgSQL()
+		show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
 		wx.EndBusyCursor()
-
-		# FIXME: make optional
-		msg =
+		if show_id:
+			msg =
 _("""The reference ID for the new document is:
 
  <%s>
@@ -232,10 +233,12 @@ original documents.
 
 If you don't care about the ID you can switch
 off this message in the GNUmed configuration.""") % ref
-		gmGuiHelpers._gm_show_info (
-			aMessage = msg
-			aTitle = _('saving document')
-		)
+			gmGuiHelpers._gm_show_info (
+				aMessage = msg
+				aTitle = _('saving document')
+			)
+
+		# prepare for next document
 		self.__init_ui_data()
 		return True
     #--------------------------------------------------------
@@ -551,7 +554,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.28  2005-12-13 21:44:31  ncq
+# Revision 1.29  2005-12-14 10:42:11  ncq
+# - use cCfgSQL.get_by_user in scan&index panel on showing document reference ID
+#
+# Revision 1.28  2005/12/13 21:44:31  ncq
 # - start _save_btn_pressed() so people see where we are going
 #
 # Revision 1.27  2005/12/06 17:59:12  ncq
