@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -155,7 +155,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             return False
 
         pat = gmPerson.gmCurrentPatient()
-		doc_folder = pat.get_document_folder()
+        doc_folder = pat.get_document_folder()
 
         # create new document
         new_doc = doc_folder.add_document()
@@ -532,7 +532,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.33  2005-12-14 17:01:03  ncq
+# Revision 1.34  2005-12-16 12:04:25  ncq
+# - fix silly indentation bug
+#
+# Revision 1.33  2005/12/14 17:01:03  ncq
 # - use document_folder class and other gmMedDoc.py goodies
 #
 # Revision 1.32  2005/12/14 15:54:01  ncq
