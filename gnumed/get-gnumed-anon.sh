@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #------------------------------------------------------------------
-# $Id: get-gnumed-anon.sh,v 1.3 2005-12-11 18:24:45 ncq Exp $
+# $Id: get-gnumed-anon.sh,v 1.4 2005-12-23 16:07:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/get-gnumed-anon.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 #------------------------------------------------------------------
 
 if [ -d gnumed ] || [ -e update_tree.sh ]; then
@@ -15,12 +15,14 @@ if [ -d gnumed ] || [ -e update_tree.sh ]; then
 fi
 
 echo "Anonymously checking out a fresh copy of the GnuMed CVS tree."
-export CVS_RSH="ssh"
 cvs -z9 -d:pserver:anonymous@cvs.sv.gnu.org:/sources/gnumed co -P gnumed
 
 #------------------------------------------------------------------
 # $Log: get-gnumed-anon.sh,v $
-# Revision 1.3  2005-12-11 18:24:45  ncq
+# Revision 1.4  2005-12-23 16:07:26  ncq
+# - no need for CVS_RSH=ssh anymore
+#
+# Revision 1.3  2005/12/11 18:24:45  ncq
 # - use pserver again for anon, also moved to cvs.sv.gnu.org
 #
 # Revision 1.2  2005/07/11 08:32:57  ncq
