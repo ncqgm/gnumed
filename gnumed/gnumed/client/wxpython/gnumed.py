@@ -52,18 +52,30 @@ from a launcher script.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # standard modules
 import sys, os, os.path, signal
 
-if __name__ != "__main__":
-	print "GNUmed startup: This should not be used as a module !"
-	print "-----------------------------------------------------"
-	print __doc__
+# advise not to run as root
+if os.name in ['posix'] and os.geteuid() == 0:
+	print """
+GNUmed startup: GNUmed should not be run as root.
+-------------------------------------------------
+
+Running GNUmed as root can potentially put all
+your medical data at risk. It is strongly advised
+against. Please run GNUmed as a non-root user.
+"""
 	sys.exit(1)
+
+if __name__ != "__main__":
+	print "GNUmed startup: This should not be imported as a module !"
+	print "---------------------------------------------------------"
+	print __doc__
+	sys.exit(0)
 #==========================================================
 # Python 2.3 on Mandrake seems to turn True/False deprecation warnings
 # into exceptions, so revert them to warnings again
@@ -463,7 +475,11 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.89  2005-12-11 13:31:44  ncq
+# Revision 1.90  2005-12-23 15:43:23  ncq
+# - refuse to be run as root
+# - exit with status 0 if imported as module
+#
+# Revision 1.89  2005/12/11 13:31:44  ncq
 # - deal with people setting their locale to something they don't have installed
 #
 # Revision 1.88  2005/10/30 15:53:13  ncq
