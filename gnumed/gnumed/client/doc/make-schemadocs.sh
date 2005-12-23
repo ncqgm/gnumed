@@ -1,23 +1,26 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
 DB=gnumed_v2
 
 export PGUSER="gm-dbo"
-/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t html
-/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dot
-/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dia
-/usr/local/bin/postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t zigzag.dia
+postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t html
+postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dot
+postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dia
+postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t zigzag.dia
 
 dot -Tpng -o ~/gm-schemadocs/gnumed-schema.png ~/gm-schemadocs/gnumed-schema.dot
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.9  2005-12-09 20:43:25  ncq
+# Revision 1.10  2005-12-23 16:24:18  ncq
+# - remove absolute path prefix on pg autodoc binary
+#
+# Revision 1.9  2005/12/09 20:43:25  ncq
 # - improved output
 #
 # Revision 1.8  2005/01/25 17:35:03  ncq
