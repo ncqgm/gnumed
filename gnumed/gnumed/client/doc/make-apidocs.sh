@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-apidocs.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-BASE=~/gm-cvs-head/gnumed/gnumed/client
+BASE=~/gm-cvs-head/gnumed/gnumed/Gnumed
 #MODULES=" $BASE/pycommon/ $BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/ $BASE/wxpython/"
 LOG=~/gm-apidocs/epydoc-errors.txt
 
@@ -16,7 +16,10 @@ cat $LOG
 
 #============================================
 # $Log: make-apidocs.sh,v $
-# Revision 1.9  2005-12-22 00:25:02  ncq
+# Revision 1.10  2005-12-23 22:52:52  ncq
+# - try fixing the obscure epydoc errors "no such module Gnumed.pycommon"
+#
+# Revision 1.9  2005/12/22 00:25:02  ncq
 # - more verbose errors
 # - show imported modules even if they fail to be doc'ed
 # - proper base directory
