@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.22 2005-11-27 14:29:27 shilbert Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmAbout.py,v 1.23 2005-12-24 10:27:42 shilbert Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -136,7 +136,7 @@ class AboutFrame (wx.Frame):
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
-		info_txt=wx.StaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
+		info_txt=wx.StaticText(self, -1, _("Please visit http://www.gnumed.org"))
 		info_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(info_txt, 0, wx.ALIGN_CENTRE)
 		if wx.Platform == '__WXMAC__':
@@ -232,7 +232,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.22  2005-11-27 14:29:27  shilbert
+# Revision 1.23  2005-12-24 10:27:42  shilbert
+# - gui fixes
+#
+# Revision 1.22  2005/11/27 14:29:27  shilbert
 # - more wx24 --> wx26 cleanup
 #
 # Revision 1.21  2005/09/28 21:27:30  ncq
