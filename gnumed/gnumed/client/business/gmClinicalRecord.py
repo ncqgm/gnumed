@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.191 2005-12-10 22:55:17 ncq Exp $
-__version__ = "$Revision: 1.191 $"
+# $Id: gmClinicalRecord.py,v 1.192 2005-12-25 13:24:30 sjtan Exp $
+__version__ = "$Revision: 1.192 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -954,7 +954,7 @@ where
 			self.__db_cache['health issues']
 		except KeyError:
 			self.__db_cache['health issues'] = []
-			cmd = "select id from clin.health_issue where id_patient=%s"
+			cmd = "select pk from clin.health_issue where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load health issues for patient [%s]' % self.pk_patient)
@@ -1738,7 +1738,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.191  2005-12-10 22:55:17  ncq
+# Revision 1.192  2005-12-25 13:24:30  sjtan
+#
+# schema changes in names .
+#
+# Revision 1.191  2005/12/10 22:55:17  ncq
 # - fully log newly created encounters
 #
 # Revision 1.190  2005/12/06 14:24:14  ncq

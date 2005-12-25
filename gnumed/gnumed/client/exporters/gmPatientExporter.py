@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.75 2005-12-10 23:02:05 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmPatientExporter.py,v 1.76 2005-12-25 13:24:30 sjtan Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -459,7 +459,8 @@ class cEmrExport:
         elif isinstance(item, gmVaccination.cVaccination):
             txt += self.get_vaccination_summary(item, left_margin)
         elif isinstance(item, gmPathLab.cLabResult) and \
-            (item['relevant'] == True or item['abnormal'] == True):
+	    True: 
+            #(item['relevant'] == True or item['abnormal'] == True):
             txt += self.get_lab_result_summary(item, left_margin)
             self.lab_new_encounter = False
         return txt
@@ -501,7 +502,7 @@ class cEmrExport:
         if len(unlinked_episodes) > 0:
             h_issues.insert(0, {
                 'description': _('free-standing episodes'),
-                'id': None
+                'pk': None
             })
         # existing issues        
         for a_health_issue in h_issues:
@@ -514,7 +515,7 @@ class cEmrExport:
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
-            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
+            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
             for an_episode in episodes:
 	       self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
 
@@ -546,7 +547,7 @@ class cEmrExport:
                    until = self.__constraints['until'],
                    id_list = self.__constraints['encounters'],
                    episodes = [an_episode['pk_episode']],
-                   issues = [a_health_issue['id']]
+                   issues = [a_health_issue['pk']]
                )
 	       return encounters
 	       
@@ -572,7 +573,7 @@ class cEmrExport:
 	    	_log.Log(gmLog.lErr, "health issue %s should exist in tree already" %  a_health_issue['description'] )
 		return
 	    issue_node= id
-	    episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
+	    episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
 	    
 	    #check for removed episode and update tree
 	    tree_episodes = {} 
@@ -642,7 +643,7 @@ class cEmrExport:
         """
         # dummy issue for unlinked episodes ?
         # FIXME: turn into "proper" dummy episode
-        if issue['id'] is None:
+        if issue['pk'] is None:
             txt = _('Active health issue "%s"') % issue['description']
             return txt
 
@@ -665,7 +666,7 @@ class cEmrExport:
             txt += _('\n***** CONFIDENTIAL *****\n\n')
 
         emr = self.__patient.get_clinical_record()
-        epis = emr.get_episodes(issues=[issue['id']])
+        epis = emr.get_episodes(issues=[issue['pk']])
         if epis is None:
             txt += left_margin * ' ' + _('Error retrieving episodes for health issue\n%s') % str(issue)
             return txt
@@ -674,8 +675,8 @@ class cEmrExport:
             txt += left_margin * ' ' + _('There are no episodes for this health issue.\n')
             return txt
 
-        first_encounter = emr.get_first_encounter(issue_id = issue['id'])
-        last_encounter = emr.get_last_encounter(issue_id = issue['id'])
+        first_encounter = emr.get_first_encounter(issue_id = issue['pk'])
+        last_encounter = emr.get_last_encounter(issue_id = issue['pk'])
         if first_encounter is None or last_encounter is None:
             txt += _('%s%s episode(s)\n\n%sNo encounters found for this health issue.\n') % (
                 left_margin * ' ' +
@@ -796,15 +797,15 @@ class cEmrExport:
         # unlinked episodes
         unlinked_episodes = emr.get_episodes(issues = [None])
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description':_('free-standing episodes'), 'id':None})        
+            h_issues.insert(0, {'description':_('free-standing episodes'), 'pk':None})        
         for a_health_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
-            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
+            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
             for an_episode in episodes:
                self.__target.write('\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
                encounters = emr.get_encounters(since=self.__constraints['since'],
                 until=self.__constraints['until'], id_list=self.__constraints['encounters'],
-                episodes=[an_episode['pk_episode']], issues=[a_health_issue['id']])
+                episodes=[an_episode['pk_episode']], issues=[a_health_issue['pk']])
                for an_encounter in encounters:
                     # title
                     self.lab_new_encounter = True
@@ -1259,7 +1260,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.75  2005-12-10 23:02:05  ncq
+# Revision 1.76  2005-12-25 13:24:30  sjtan
+#
+# schema changes in names .
+#
+# Revision 1.75  2005/12/10 23:02:05  ncq
 # - tables are in clin.* now
 #
 # Revision 1.74  2005/10/30 15:48:56  ncq

@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -98,9 +98,9 @@ update clin.episode set is_open = false where pk in (
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = """select *, xmin_clin_episode from clin.v_pat_episodes where pk_episode=%s"""
+	_cmd_fetch_payload = """select *, xmin_episode from clin.v_pat_episodes where pk_episode=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.episode where pk=%(pk_episode)s and xmin=%(xmin_clin_episode)s for update"""
+		"""select 1 from clin.episode where pk=%(pk_episode)s and xmin=%(xmin_episode)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update clin.episode set
@@ -108,7 +108,7 @@ class cEpisode(gmClinItem.cClinItem):
 				is_open=%(episode_open)s::boolean,
 				description=%(description)s
 			where pk=%(pk_episode)s""",
-		"""select xmin_clin_episode from clin.v_pat_episodes where pk_episode=%(pk_episode)s"""
+		"""select xmin_episode from clin.v_pat_episodes where pk_episode=%(pk_episode)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
@@ -511,7 +511,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.73  2005-12-06 17:57:13  ncq
+# Revision 1.74  2005-12-25 13:24:30  sjtan
+#
+# schema changes in names .
+#
+# Revision 1.73  2005/12/06 17:57:13  ncq
 # - more id->pk fixes
 #
 # Revision 1.72  2005/12/06 14:24:14  ncq
