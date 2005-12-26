@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.62 2005-10-21 09:25:52 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmSOAPWidgets.py,v 1.63 2005-12-26 12:03:10 sjtan Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -329,7 +329,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 				continue
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
-				last_encounter = emr.get_last_encounter(issue_id = issue['id'])
+				last_encounter = emr.get_last_encounter(issue_id = issue['pk'])
 				if last_encounter is None:
 					last = issue['modified_when'].Format('%m/%Y')
 				else:
@@ -645,7 +645,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
 				else:
 					# either error or non-expired open episode exists
-					open_epis = emr.get_episodes( [issue['id']], open_status = True)
+					open_epis = emr.get_episodes( [issue['pk']], open_status = True)
 					if len(open_epis) > 1:
 						_log.Log(gmLog.lErr, 'there is more than one open episode for health issue [%s]' % str(issue))
 						for e in open_epis:
@@ -697,6 +697,9 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		self.__embedded_data.holder.clear()
 
 		return True
+
+	def get_problem(self):
+		return self.__problem
 #============================================================
 class cResizingSoapPanel(wx.Panel):
 	"""Basic progress note panel.
@@ -789,7 +792,7 @@ class cResizingSoapPanel(wx.Panel):
 	def get_problem(self):
 		"""Retrieve the related problem for this SOAP input widget.
 		"""
-		return self.__problem
+		return self.__soap_editor.get_problem()
 	#--------------------------------------------------------
 	def is_unassociated_editor(self):
 		"""
@@ -824,6 +827,8 @@ class cResizingSoapPanel(wx.Panel):
 		Check SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
+	def save(self):
+		return self.__soap_editor.save()
 #============================================================
 class cSingleBoxSOAP(wx.TextCtrl):
 	"""if we separate it out like this it can transparently gain features"""
@@ -1083,7 +1088,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.62  2005-10-21 09:25:52  ncq
+# Revision 1.63  2005-12-26 12:03:10  sjtan
+#
+# more schema matching. some delegation .
+#
+# Revision 1.62  2005/10/21 09:25:52  ncq
 # - verify input structure in store_data()
 # - reorder __init__ so cSoapWin does not fail
 # - better recursion in data_sink setting for keywords

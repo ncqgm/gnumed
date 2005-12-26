@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.192 2005-12-25 13:24:30 sjtan Exp $
-__version__ = "$Revision: 1.192 $"
+# $Id: gmClinicalRecord.py,v 1.193 2005-12-26 12:03:10 sjtan Exp $
+__version__ = "$Revision: 1.193 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -385,7 +385,7 @@ where
 		issues = self.get_health_issues()
 		issue_map = {}
 		for issue in issues:
-			issue_map[issue['id']] = issue['description']
+			issue_map[issue['pk']] = issue['description']
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
@@ -552,7 +552,7 @@ where
 		issues = self.get_health_issues()
 		issue_map = {}
 		for issue in issues:
-			issue_map[issue['id']] = issue['description']
+			issue_map[issue['pk']] = issue['description']
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
@@ -971,7 +971,7 @@ where
 			_log.Log(gmLog.lErr, 'id_list to filter by is empty, most likely a programming error')
 		filtered_issues = []
 		for issue in self.__db_cache['health issues']:
-			if issue['id'] in id_list:
+			if issue['pk'] in id_list:
 				filtered_issues.append(issue)
 		return filtered_issues
 	#------------------------------------------------------------------
@@ -990,7 +990,7 @@ where
 		return issue
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
-		return self.get_problems(issues = [issue['id']])
+		return self.get_problems(issues = [issue['pk']])
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
@@ -1738,7 +1738,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.192  2005-12-25 13:24:30  sjtan
+# Revision 1.193  2005-12-26 12:03:10  sjtan
+#
+# more schema matching. some delegation .
+#
+# Revision 1.192  2005/12/25 13:24:30  sjtan
 #
 # schema changes in names .
 #
