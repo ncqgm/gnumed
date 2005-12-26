@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -359,7 +359,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		cmd = """insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"""
 		queries.append((cmd, [pk_health_issue, patient_id, episode_name, is_open]))
 	# retrieve PK
-	cmd = "select currval('clin.clin_episode_pk_seq')"
+	cmd = "select currval('clin.episode_pk_seq')"
 	queries.append((cmd, []))
 	# run queries
 	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
@@ -511,7 +511,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.74  2005-12-25 13:24:30  sjtan
+# Revision 1.75  2005-12-26 05:26:38  sjtan
+#
+# match schema
+#
+# Revision 1.74  2005/12/25 13:24:30  sjtan
 #
 # schema changes in names .
 #

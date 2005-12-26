@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.20 2005-12-26 04:23:05 sjtan Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmEMRStructWidgets.py,v 1.21 2005-12-26 05:26:37 sjtan Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -79,7 +79,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	def _define_fields(self, parent):
 		# condition
 		cmd = """
-			select distinct on (description) id, description
+			select distinct on (description) pk, description
 			from clin.health_issue where description %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
 		mp.setThresholds(aWord=2, aSubstring=5)
@@ -141,7 +141,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		# Progress note
 		cmd = """
 			select distinct on (narrative) pk, narrative
-			from clin_narrative where narrative %(fragment_condition)s limit 30"""
+			from clin.clin_narrative where narrative %(fragment_condition)s limit 30"""
 		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
 		mp.setThresholds(2, 4, 6)
 		self.fld_progress_note = gmPhraseWheel.cPhraseWheel (
@@ -902,7 +902,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.20  2005-12-26 04:23:05  sjtan
+# Revision 1.21  2005-12-26 05:26:37  sjtan
+#
+# match schema
+#
+# Revision 1.20  2005/12/26 04:23:05  sjtan
 #
 # match schema changes.
 #
