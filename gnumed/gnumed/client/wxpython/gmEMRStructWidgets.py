@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.19 2005-12-06 14:24:15 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmEMRStructWidgets.py,v 1.20 2005-12-26 04:23:05 sjtan Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -191,7 +191,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		# progress note
 		narr = self.fld_progress_note.GetValue().strip()
 		if narr != '':
-			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['id'])
+			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['pk'])
 			epi['episode_open'] = False
 			epi.save_payload()
 			# FIXME: error handling
@@ -386,7 +386,7 @@ class cEpisodePicker(wx.Panel):
 	        issues = emr.get_health_issues()
 	        issue_map = {}
 		for issue in issues:
-			issue_map[issue['id']] = issue['description']
+			issue_map[issue['pk']] = issue['description']
 
 		
 		episodes = emr.get_episodes()
@@ -813,7 +813,7 @@ if __name__ == '__main__':
 				"""
 				Test episode selector dialog
 				"""
-				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['id']
+				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['pk']
 				episode_selector = cEpisodeSelectorDlg(
 					None,
 					-1,
@@ -838,7 +838,7 @@ if __name__ == '__main__':
 				"""
 				Test episode editor dialog
 				"""
-				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['id']
+				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['pk']
 				episode_selector = cEpisodeEditorDlg(None, -1,
 				'Episode editor test', pk_health_issue = pk_issue)
 				retval = episode_selector.ShowModal() # Shows it
@@ -902,7 +902,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.19  2005-12-06 14:24:15  ncq
+# Revision 1.20  2005-12-26 04:23:05  sjtan
+#
+# match schema changes.
+#
+# Revision 1.19  2005/12/06 14:24:15  ncq
 # - clin.clin_health_issue/episode -> clin.health_issue/episode
 #
 # Revision 1.18  2005/10/20 07:42:27  ncq
