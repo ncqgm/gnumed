@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.22 2005-09-28 21:21:35 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmHorstSpace.py,v 1.23 2005-12-26 08:57:26 sjtan Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -27,7 +27,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
+from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
 from Gnumed.business import gmPerson
 
@@ -96,6 +96,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		wx.EVT_NOTEBOOK_PAGE_CHANGED (self.nb, self.ID_NOTEBOOK, self._on_notebook_page_changed)
 		# - popup menu on right click in notebook
 		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
+
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
@@ -154,6 +157,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	# external callbacks
 	#----------------------------------------------
+	def _on_patient_selected(self):
+		self.nb.SetSelection(1)   #use this to use change in page to refresh ; would need to confirm selecting the right patient , so go to demographic tab
+
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed.
 		"""
@@ -177,7 +183,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
 			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
 			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'sys: [%s] wx.: [%s]' % (sys.platform, wxPlatform))
+			_log.Log(gmLog.lData, 'sys: [%s] wx.: [%s]' % (sys.platform, wx.Platform))
 			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
 			# but let's do a basic check, at least
 			pat = gmPerson.gmCurrentPatient()
@@ -191,6 +197,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		# check target page
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
+		
 		if not new_page.can_receive_focus():
 			_log.Log(gmLog.lData, 'veto()ing page change')
 			event.Veto()
@@ -212,6 +219,13 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		id_old_page = event.GetOldSelection()
 		curr_nb_page = self.nb.GetSelection()
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
+		try:
+			print "new page is ", new_page.get_instance()
+			new_page.get_instance()._populate_with_data()
+		except:
+			print "error looking at new page"
+
+		self._curr_page = new_page
 
 		# well-behaving wxPython port ?
 		if self.__new_page_already_checked:
@@ -312,7 +326,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.22  2005-09-28 21:21:35  ncq
+# Revision 1.23  2005-12-26 08:57:26  sjtan
+#
+# repaint may not be signalled on some platforms ( gtk ? ); repaint occurs if 1) the emrbrowser is the selected notebook page AND
+# 2) the frame is re-sized.  This suggests repaint is best done on notebook page changed. This workaround goes to
+# the demographic page on a new patient select - let's the user confirm they have selected the right patient; then when
+# switch to emrbrowser, this signals data_reget. seems to work.
+#
+# Revision 1.22  2005/09/28 21:21:35  ncq
 # - non-initialized variable plugin in plugin loading
 # - wx2.6 fixing
 #

@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.54 2005-11-01 08:51:43 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmPlugin.py,v 1.55 2005-12-26 08:57:26 sjtan Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -223,6 +223,9 @@ class cNotebookPlugin:
 	def OnShow (self, evt):
 		self.register() # register without changing configuration
 
+	def get_instance(self):
+		return self._widget
+
 #==================================================================
 class cNotebookPluginOld(cNotebookPlugin):
 	def __init__(self, set=None):
@@ -309,6 +312,9 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 
 	module_from_package = __gm_import('Gnumed.wxpython.%s.%s' % (aPackage, plugin_name))
 	# find name of class of plugin (must be the same as the plugin module filename)
+	#print
+	#print "module_from_package", module_from_package
+	#print
 	plugin_class = module_from_package.__dict__[plugin_name]
 
 	if not issubclass(plugin_class, cNotebookPlugin):
@@ -423,7 +429,14 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.54  2005-11-01 08:51:43  ncq
+# Revision 1.55  2005-12-26 08:57:26  sjtan
+#
+# repaint may not be signalled on some platforms ( gtk ? ); repaint occurs if 1) the emrbrowser is the selected notebook page AND
+# 2) the frame is re-sized.  This suggests repaint is best done on notebook page changed. This workaround goes to
+# the demographic page on a new patient select - let's the user confirm they have selected the right patient; then when
+# switch to emrbrowser, this signals data_reget. seems to work.
+#
+# Revision 1.54  2005/11/01 08:51:43  ncq
 # - wx.python -> wx.python
 #
 # Revision 1.53  2005/09/28 21:27:30  ncq
