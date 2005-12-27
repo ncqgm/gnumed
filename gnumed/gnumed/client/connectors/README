@@ -1,6 +1,6 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/README,v $
-# $Id: README,v 1.3 2005-11-01 08:51:05 ncq Exp $
-# $Revision: 1.3 $
+# $Id: README,v 1.4 2005-12-27 17:52:37 ncq Exp $
+# $Revision: 1.4 $
 
 This directory stores connectors specific to this client.
 
@@ -26,3 +26,38 @@ MDW current patient ID:
 
  \HKEY_LOCAL_MACHINE\SOFTWARE\Medical Director for Windows\General\CurrentPatient
 
+-----------------------------------------------------------
+TurboMed GDT-Schnittstelle:
+
+From: selbsthilfetm@gmx.net
+To: sebastian.hilbert@gmx.net
+
+Sehr geehrter Herr Hilbert,
+
+ups, da hab ich den Mund wohl sehr voll genommen, aber so gut wie die Hotline
+sind wir doch alle!
+
+Also ich hab mal für Sie rumgehackt:
+1. der Eintrag in der Karteikarte ist ein formulareintrag, der Pfad ist im
+Eintrag hinterlegt: "\FORMULARE\KARTEIKARTE\GDT RUECK.TMF" (hoert auf
+"tmtest"!). Dieses Formular wird gestartet, wenn sie den blauen Punkt
+drücken.
+
+2. gespeicherte datenfelder des formulars sind: datum, zeit, Nummer,
+ txtZeile, txtsection, txt8402 - was die im einzelnen machen habe ich nicht
+ untersucht, aber...
+
+3. in txtsection ist der Name des Gerätes hinterlegt. Dieser Name wird in der
+gdt.ini (\Formulare\karteikarte\) abgefragt und dort das verknüpfte Programm
+eingelesen.
+
+4. ebenfalls in der gdt rueck.tmf wird in Zeile 139 (Quellcode) das
+ verknüpfte Programm gestartet. Übergabedateien siehe gdt.ini
+
+> Spitze,
+
+So jetzt wissen Sie und ich auch "wat n Dampfmaschin is".
+
+mit freundlichen gruessen
+Hugo
+-----------------------------------------------------------
