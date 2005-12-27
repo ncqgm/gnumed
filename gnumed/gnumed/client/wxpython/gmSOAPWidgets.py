@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.64 2005-12-27 02:52:40 sjtan Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmSOAPWidgets.py,v 1.65 2005-12-27 19:01:07 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -75,13 +75,21 @@ def create_vacc_popup(parent, pos, size, style, data_sink):
 # FIXME: keywords hardcoded for now, load from cfg in backend instead
 progress_note_keywords = {
 	's': {
+		'$missing_action': {},
 		'phx': {
 			'widget_factory': create_issue_popup,
 			'widget_data_sink': None
 		},
-		'$missing_action': {},
 		'ea:': {
 			'widget_factory': create_issue_popup,
+			'widget_data_sink': None
+		},
+		'$vacc': {
+			'widget_factory': create_vacc_popup,
+			'widget_data_sink': None
+		},
+		'impf:': {
+			'widget_factory': create_vacc_popup,
 			'widget_data_sink': None
 		},
 		'icpc:': {},
@@ -628,7 +636,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		emr = self.__pat.get_clinical_record()
 		episode = None
 		problem = self.__problem
-		# - new episode, must get from narrative (or user)
+		# - new episode, must get name from narrative (or user)
 		if (problem is None) or (problem['type'] == 'issue'):
 			if len(aoe) != 0:
 				epi_name = aoe
@@ -645,10 +653,10 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				if all_closed:
 					gmGuiHelpers.gm_beep_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
 					# either error or non-expired open episode exists
-					# fixme, all_closed not working
+					# FIXME: all_closed not working
 
-				open_epis = emr.get_episodes(  open_status = True)
-				open_epis = filter(lambda epi: epi['pk_health_issue'] == issue['pk'], open_epis) 
+				open_epis = emr.get_episodes(open_status = True)
+				open_epis = filter(lambda epi: epi['pk_health_issue'] == issue['pk'], open_epis)
 				if len(open_epis) > 1:
 						_log.Log(gmLog.lErr, 'there is more than one open episode for health issue [%s]' % str(issue))
 						for e in open_epis:
@@ -662,10 +670,15 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 						#xxxxxxxxxxxxxxxxxxxx
 						
 						print "FIXME  len(open_epis) == 1"
-						d = wx.MessageDialog( self, "There is an episode still open for this issue. Close the old episode (yes)\nRelink under old episode(no)\nThink about it (cancel)", caption = "WARNING !" , style = wx.YES| wx.NO | wx.CANCEL)
+						d = wx.MessageDialog (
+							self,
+							_("There is an episode still open for this issue. Close the old episode (yes)\nRelink under old episode(no)\nThink about it (cancel)"),
+							caption = "WARNING !",
+							style = wx.YES| wx.NO | wx.CANCEL
+						)
 						answ = d.ShowModal()
 						if answ == wx.ID_YES:
-							open_epis[0]['episode_open']= False
+							open_epis[0]['episode_open'] = False
 							open_epis[0].save_payload()
 						elif answ == wx.ID_NO:
 							episode = open_epis[0]
@@ -673,9 +686,10 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 							return False
 						
 				if episode is None:
-						# error, close all and hope things work out ...
-						issue.close_expired_episodes(ttl=-1)
-						episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
+					# error, close all and hope things work out ...
+					issue.close_expired_episodes(ttl=-1)
+					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
+
 			if episode is None:
 				msg = _('Cannot create episode [%s] to save progress note under.' % epi_name)
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
@@ -1103,7 +1117,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.64  2005-12-27 02:52:40  sjtan
+# Revision 1.65  2005-12-27 19:01:07  ncq
+# - define vacc popup keyword just for testing
+# - slightly massage Syan's close-episodes-on-creation patch
+#
+# Revision 1.64  2005/12/27 02:52:40  sjtan
 #
 # allow choice of closing old episode, or relinking to old episode, whenever opening a new episode in the present of an already open episode of an issue.
 # Small logic error fixed where the id of the health_issue was passed in as the id of an episode.
