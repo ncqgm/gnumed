@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.23 2005-12-26 08:57:26 sjtan Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmHorstSpace.py,v 1.24 2005-12-27 18:57:29 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -98,7 +98,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
 
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
-		
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
@@ -158,8 +157,14 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	# external callbacks
 	#----------------------------------------------
 	def _on_patient_selected(self):
-		self.nb.SetSelection(1)   #use this to use change in page to refresh ; would need to confirm selecting the right patient , so go to demographic tab
-
+		# this workaround forces a change in notebook tab to
+		# force a refresh on the old one when a new patient is
+		# selected
+		# it's useful to confirm the identity of the selected
+		# patient so force the notebook to display demographics for now
+		# FIXME: later make this go to the "patient summary" tab
+		self.nb.SetSelection(1)
+	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed.
 		"""
@@ -183,7 +188,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
 			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
 			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'sys: [%s] wx.: [%s]' % (sys.platform, wx.Platform))
+			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' % (sys.platform, wx.Platform))
 			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
 			# but let's do a basic check, at least
 			pat = gmPerson.gmCurrentPatient()
@@ -326,7 +331,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.23  2005-12-26 08:57:26  sjtan
+# Revision 1.24  2005-12-27 18:57:29  ncq
+# - better document Syan's workaround
+#
+# Revision 1.23  2005/12/26 08:57:26  sjtan
 #
 # repaint may not be signalled on some platforms ( gtk ? ); repaint occurs if 1) the emrbrowser is the selected notebook page AND
 # 2) the frame is re-sized.  This suggests repaint is best done on notebook page changed. This workaround goes to
