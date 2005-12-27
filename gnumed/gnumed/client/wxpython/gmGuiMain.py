@@ -1,5 +1,5 @@
 # -*- coding: iso-8859-1 -*-
-"""GnuMed GUI client
+"""GNUmed GUI client
 
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.226 2005-12-14 17:01:51 ncq Exp $
-__version__ = "$Revision: 1.226 $"
+# $Id: gmGuiMain.py,v 1.227 2005-12-27 18:54:50 ncq Exp $
+__version__ = "$Revision: 1.227 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -372,12 +372,14 @@ class gmTopLevelFrame(wx.Frame):
 		wx.CallAfter(self.__on_activating_patient, **kwargs)
 	#----------------------------------------------
 	def __on_activating_patient(self, **kwargs):
+
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
 		# update encounter summary
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
+
 		# - work out suitable default
 		epis = emr.get_episodes_by_encounter()
 		if len(epis) == 0:
@@ -395,7 +397,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
-		gmAbout = gmAbout.AboutFrame(self, -1, _("About GNUmed"), size=wx.Size(300, 250), style = wx.MAXIMIZE_BOX)
+		gmAbout = gmAbout.AboutFrame(self, -1, _("About GNUmed"), size=wx.Size(350, 300), style = wx.MAXIMIZE_BOX)
 		gmAbout.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
@@ -674,7 +676,7 @@ Search results:
 	def updateTitle(self, anActivity = None):
 		"""Update title of main window based on template.
 
-		This gives nice tooltips on iconified GnuMed instances.
+		This gives nice tooltips on iconified GNUmed instances.
 		User research indicates that in the title bar people want
 		the date of birth, not the age, so please stick to this
 		convention.
@@ -772,12 +774,13 @@ class gmApp(wx.App):
 				msg = _(
 					'Slave mode requested but personality not set.\n\n'
 					'(The personality must be set so that clients can\n'
-					'find the appropriate GnuMed instance to attach to.)\n\n'
+					'find the appropriate GNUmed instance to attach to.)\n\n'
 					'Set slave personality in config file !'
 				)
 				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
 				return False
 			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % self.__guibroker['main.slave_personality'])
+
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
 		self.__backend = gmLogin.Login()
@@ -785,14 +788,34 @@ class gmApp(wx.App):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
+		# verify database
+		if not gmPG.database_schema_compatible():
+			msg = _(
+"""You cannot use this database with a GNUmed client of version 0.2 ("Librarian" release) because the table structure is incompatible.
+
+Choose another database server profile or ask your administrator for help.""")
+			if gmCLI.has_arg('--override-schema-check'):
+ 				msg = msg + _("""
+
+The client will, however, continue to start up because you are running a development/test version of GNUmed.
+
+There may be schema related errors. Please report and/or fix them.
+
+Do not rely on this database to work properly in all cases !""")
+				gmGuiHelpers.gm_show_info(msg, _('Verifying database'), gmLog.lErr)
+			else:
+				gmGuiHelpers.gm_show_error(msg, _('Verifying database'), gmLog.lErr)
+				return False
+
+		# check account <-> staff member association
 		try:
 			tmp = _whoami.get_staff_ID()
 		except ValueError:
-			_log.LogException('DB account [%s] not mapped to GnuMed staff member' % _whoami.get_db_account(), sys.exc_info(), verbose=0)
+			_log.LogException('DB account [%s] not mapped to GNUmed staff member' % _whoami.get_db_account(), sys.exc_info(), verbose=0)
 			msg = _(
 				'The database account [%s] is not associated with\n'
-				'any staff member known to GnuMed. You therefor\n'
-				'cannot use GnuMed with this account.\n\n'
+				'any staff member known to GNUmed. You therefor\n'
+				'cannot use GNUmed with this account.\n\n'
 				'Please ask your administrator for help.\n'
 			) % _whoami.get_db_account()
 			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
@@ -803,11 +826,18 @@ class gmApp(wx.App):
 
 		# set up language in database
 		self.__set_db_lang()
+
+		# display database banner
+		msg = gmPG.run_ro_query('default', 'select message from cfg.db_logon_banner')
+		if msg is not None:
+			gmGuiHelpers.gm_show_info(msg[0][0], _('Verifying database'))
+
 		# create the main window
 		cli_layout = gmCLI.arg.get('--layout', None)
-		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), (640,440), cli_layout)
+		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440), cli_layout)
 		# and tell the app to use it
 		self.SetTopWindow(frame)
+
 		#frame.Unlock()
 		# NOTE: the following only works under Windows according
 		# to the docs and bombs under wxPython-2.4 on GTK/Linux
@@ -966,7 +996,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.226  2005-12-14 17:01:51  ncq
+# Revision 1.227  2005-12-27 18:54:50  ncq
+# - -> GNUmed
+# - enlarge About
+# - verify database on startup
+# - display database banner if it exists
+#
+# Revision 1.226  2005/12/14 17:01:51  ncq
 # - use improved db cfg option getting
 #
 # Revision 1.225  2005/11/29 18:59:41  ncq
