@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.49 2005-10-18 13:34:00 sjtan Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmEMRBrowser.py,v 1.50 2005-12-27 02:52:40 sjtan Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -459,8 +459,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 				print "No target episode node found"
 
 			self.__selected_encounter.transfer_clinical_data(from_episode = curr_episode, 
-									 to_episode = target, 
-									 emr = self.__exporter.get_patient().get_clinical_record()
+									 to_episode = target 
 									 )
 			
 			
@@ -663,7 +662,7 @@ class ExpansionHistory:
 		ix = self.__last_pat_desc
 		if ix is None:
 			return
-		#print "\nDEBUG Remembering with index",ix 
+		#print "\nDEBUG Remembering with index",ix , " type of ix is ", type(ix)
 		#print
 		l = []
 		
@@ -785,7 +784,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.49  2005-10-18 13:34:00  sjtan
+# Revision 1.50  2005-12-27 02:52:40  sjtan
+#
+# allow choice of closing old episode, or relinking to old episode, whenever opening a new episode in the present of an already open episode of an issue.
+# Small logic error fixed where the id of the health_issue was passed in as the id of an episode.
+#
+# Revision 1.49  2005/10/18 13:34:00  sjtan
 # after running; small diffs
 #
 # Revision 1.48  2005/10/09 06:42:02  sjtan

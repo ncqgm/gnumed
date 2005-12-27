@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.63 2005-12-26 12:03:10 sjtan Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmSOAPWidgets.py,v 1.64 2005-12-27 02:52:40 sjtan Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -442,6 +442,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		"""
 		page_idx = self.__soap_notebook.GetSelection()
 		soap_nb_page = self.__soap_notebook.GetPage(page_idx)
+		
 		if not soap_nb_page.save():
 			return False
 		self.__soap_notebook.DeletePage(page_idx)
@@ -640,24 +641,38 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				# FIXME: make ttl configurable
 				ttl = 90	# 90 days, 3 months
 				all_closed = issue.close_expired_episodes(ttl=ttl)
+
 				if all_closed:
 					gmGuiHelpers.gm_beep_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
-					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
-				else:
 					# either error or non-expired open episode exists
-					open_epis = emr.get_episodes( [issue['pk']], open_status = True)
-					if len(open_epis) > 1:
+					# fixme, all_closed not working
+
+				open_epis = emr.get_episodes(  open_status = True)
+				open_epis = filter(lambda epi: epi['pk_health_issue'] == issue['pk'], open_epis) 
+				if len(open_epis) > 1:
 						_log.Log(gmLog.lErr, 'there is more than one open episode for health issue [%s]' % str(issue))
 						for e in open_epis:
 							_log.Log(gmLog.lData, str(e))
-					if len(open_epis) == 1:
+
+				if len(open_epis) == 1:
 						# need to ask user what to do
 						# - close old open episode and continue with new one ?
 						# - use old open episode as is ?
 						# - use old open episode but rename ?
 						#xxxxxxxxxxxxxxxxxxxx
-						print "FIXME"
-					else:
+						
+						print "FIXME  len(open_epis) == 1"
+						d = wx.MessageDialog( self, "There is an episode still open for this issue. Close the old episode (yes)\nRelink under old episode(no)\nThink about it (cancel)", caption = "WARNING !" , style = wx.YES| wx.NO | wx.CANCEL)
+						answ = d.ShowModal()
+						if answ == wx.ID_YES:
+							open_epis[0]['episode_open']= False
+							open_epis[0].save_payload()
+						elif answ == wx.ID_NO:
+							episode = open_epis[0]
+						else:
+							return False
+						
+				if episode is None:
 						# error, close all and hope things work out ...
 						issue.close_expired_episodes(ttl=-1)
 						episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
@@ -1088,7 +1103,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.63  2005-12-26 12:03:10  sjtan
+# Revision 1.64  2005-12-27 02:52:40  sjtan
+#
+# allow choice of closing old episode, or relinking to old episode, whenever opening a new episode in the present of an already open episode of an issue.
+# Small logic error fixed where the id of the health_issue was passed in as the id of an episode.
+#
+# Revision 1.63  2005/12/26 12:03:10  sjtan
 #
 # more schema matching. some delegation .
 #
