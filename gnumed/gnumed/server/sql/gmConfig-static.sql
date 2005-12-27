@@ -2,7 +2,7 @@
 -- GNUmed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfig-static.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- structure of configuration database for GNUmed
 -- neccessary to allow for distributed servers
@@ -17,6 +17,9 @@
 
 --=====================================================================
 create schema cfg authorization "gm-dbo";
+
+comment on schema cfg is
+	'This schema holds all the configuration data.';
 
 --=====================================================================
 CREATE TABLE cfg.db (
@@ -46,6 +49,16 @@ CREATE TABLE cfg.config (
     crypt_algo text DEFAULT NULL,
     pwd_hash text DEFAULT NULL,
     hash_algo text DEFAULT NULL
+);
+
+-- ======================================================
+create table cfg.db_logon_banner (
+	message text
+		check (trim(message) != ''),
+	singularizer boolean
+		unique
+		default true
+		check (singularizer is true)
 );
 
 -- ======================================================
@@ -135,11 +148,15 @@ create table cfg.cfg_data (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmConfig-static.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmConfig-static.sql,v $', '$Revision: 1.2 $');
 
 --=====================================================================
 -- $Log: gmConfig-static.sql,v $
--- Revision 1.1  2005-11-18 15:51:30  ncq
+-- Revision 1.2  2005-12-27 19:11:54  ncq
+-- - add comment on cfg. schema
+-- - add cfg.db_logon_banner
+--
+-- Revision 1.1  2005/11/18 15:51:30  ncq
 -- - better naming
 --
 -- Revision 1.38  2005/11/18 15:36:28  ncq
