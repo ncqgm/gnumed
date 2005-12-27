@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.59 $
+-- $Revision: 1.60 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -517,6 +517,8 @@ create table lnk_identity2primary_doc (
 	unique (fk_identity, fk_primary_doc)
 );
 
+select add_table_for_audit('lnk_identity2primary_doc');
+
 -- ===================================================================
 -- organisation related tables
 -- ===================================================================
@@ -599,11 +601,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.59 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.60 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.59  2005-12-05 19:05:59  ncq
+-- Revision 1.60  2005-12-27 19:13:17  ncq
+-- - add link table to audit system
+--
+-- Revision 1.59  2005/12/05 19:05:59  ncq
 -- - clin_episode -> episode
 --
 -- Revision 1.58  2005/12/05 16:13:48  ncq
