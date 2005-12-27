@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -394,8 +394,8 @@ class db_server:
 			print "If the user does not exist yet it will be created"
 			print "and you must provide a new password."
 			print ""
-			print "In neither case will you have to provide a password"
-			print "if it is pre-defined in the configuration file."
+			print "You will not have to provide a password if it"
+			print "is pre-defined in the configuration file."
 			print ""
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
@@ -1456,7 +1456,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.18  2005-12-06 17:33:34  ncq
+# Revision 1.19  2005-12-27 19:07:11  ncq
+# - improve wording
+#
+# Revision 1.18  2005/12/06 17:33:34  ncq
 # - improved question layout
 #
 # Revision 1.17  2005/12/05 22:21:38  ncq
