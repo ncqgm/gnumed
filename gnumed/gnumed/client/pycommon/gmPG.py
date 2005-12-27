@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -81,6 +81,8 @@ else:
 _default_client_timezone = "%+.1f" % (-tz / 3600.0)
 
 _serialize_failure = "serialize access due to concurrent update"
+
+_v2_schema_hash = 'not released, testing only'
 #======================================================================
 # a bunch of useful queries
 #----------------------------------------------------------------------
@@ -1221,7 +1223,7 @@ select exists (
 	return rows[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.59 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.60 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1256,6 +1258,18 @@ def set_default_client_timezone(timezone = None):
 	global _default_client_timezone
 	_default_client_timezone = timezone
 	return 1
+#---------------------------------------------------
+def database_schema_compatible():
+	rows = run_ro_query('default', 'select md5(gm_concat_table_structure())')
+	if rows is None:
+		_log.Log(gmLog.lErr, 'cannot hash database structure')
+		return False
+	if rows[0][0] != _v2_schema_hash:
+		_log.Log(gmLog.lErr, 'incompatible database structure')
+		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % _v2_schema_hash)
+		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0][0])
+		return False
+	return True
 #===================================================
 def __prompted_input(prompt, default=None):
 	usr_input = raw_input(prompt)
@@ -1445,7 +1459,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.59  2005-12-04 22:17:31  ncq
+# Revision 1.60  2005-12-27 18:43:46  ncq
+# - add database schema verification support
+# - _v2_schema_hash
+# - database_schema_compatible()
+#
+# Revision 1.59  2005/12/04 22:17:31  ncq
 # - add some queries and convenience functions
 #
 # Revision 1.58  2005/11/18 15:48:07  ncq
