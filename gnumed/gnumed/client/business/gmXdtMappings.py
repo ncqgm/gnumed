@@ -5,12 +5,14 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.26 2004-06-25 12:37:20 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmXdtMappings.py,v 1.27 2005-12-27 17:40:19 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
-if __name__ == '__main__':
+try:
+	_('dummy-no-need-to-translate')
+except NameError:
 	_ = lambda x:x
 #==============================================================
 xdt_id_map = {
@@ -1349,7 +1351,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.26  2004-06-25 12:37:20  ncq
+# Revision 1.27  2005-12-27 17:40:19  ncq
+# - define _()
+#
+# Revision 1.26  2004/06/25 12:37:20  ncq
 # - eventually fix the import gmI18N issue
 #
 # Revision 1.25  2004/06/20 15:38:58  ncq
