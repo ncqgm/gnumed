@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-apidocs.sh,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
@@ -11,12 +11,15 @@ LOG=~/gm-apidocs/epydoc-errors.txt
 
 export DISPLAY=":0.0"
 export PYTHONPATH="${PYTHONPATH}:~/gm-cvs-head/gnumed/gnumed/"
-nice -n 19 epydoc -v --show-imports -n GNUmed -u http://www.gnumed.org --no-private -o ~/gm-apidocs $BASE/ &> $LOG
+nice -n 19 epydoc -v --debug --show-imports -n "GNUmed Never Sleeps" -u http://www.gnumed.org --no-private -o ~/gm-apidocs $BASE/ &> $LOG
 cat $LOG
 
 #============================================
 # $Log: make-apidocs.sh,v $
-# Revision 1.10  2005-12-23 22:52:52  ncq
+# Revision 1.11  2005-12-27 17:55:01  ncq
+# - various tweaks regarding $BASE
+#
+# Revision 1.10  2005/12/23 22:52:52  ncq
 # - try fixing the obscure epydoc errors "no such module Gnumed.pycommon"
 #
 # Revision 1.9  2005/12/22 00:25:02  ncq
