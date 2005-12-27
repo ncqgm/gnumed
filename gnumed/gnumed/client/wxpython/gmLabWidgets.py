@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -21,7 +21,8 @@ try:
 	import wx
 except ImportError:
 	from wxPython import wx
-	from wxPython.lib.mixins.listctrl import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
+	from wxPython.lib.mixins.listctrl
+	import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
 	from wxPython import grid
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider, gmGuiBroker
@@ -868,7 +869,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.16  2005-09-28 21:27:30  ncq
+# Revision 1.17  2005-12-27 18:57:47  ncq
+# - fix syntax error
+#
+# Revision 1.16  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.15  2005/09/28 15:57:48  ncq
