@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "clinical" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmClinical.au.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -47,10 +47,18 @@ this referral.';
 
 -- ===================================================================
 grant usage on schema "au" to group "gm-doctors";
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	au.referral
+	to group "gm-doctors";
+
 
 -- ===================================================================
 -- $Log: gmClinical.au.sql,v $
--- Revision 1.3  2005-12-06 13:26:55  ncq
+-- Revision 1.4  2005-12-27 03:42:54  sjtan
+--
+-- grants to allow relinking episodes
+--
+-- Revision 1.3  2005/12/06 13:26:55  ncq
 -- - clin.clin_encounter -> clin.encounter
 -- - also id -> pk
 --
