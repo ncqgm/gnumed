@@ -2,10 +2,12 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.23 2005-12-24 10:27:42 shilbert Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmAbout.py,v 1.24 2005-12-27 18:46:20 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
+
+import zlib, cPickle
 
 try:
 	import wxversion
@@ -13,7 +15,10 @@ try:
 except ImportError:
 	from wxPython import wx
 
-import zlib, cPickle
+try:
+	_('dummy-no-need-to-translate')
+except NameError:
+	_ = lambda x:x
 
 ID_MENU = wx.NewId()
 ID_EXIT = wx.NewId()
@@ -232,7 +237,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.23  2005-12-24 10:27:42  shilbert
+# Revision 1.24  2005-12-27 18:46:20  ncq
+# - define _()
+#
+# Revision 1.23  2005/12/24 10:27:42  shilbert
 # - gui fixes
 #
 # Revision 1.22  2005/11/27 14:29:27  shilbert
