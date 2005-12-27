@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigViews.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- ======================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -67,6 +67,14 @@ COMMENT ON COLUMN cfg.db.port IS
 	'port number of the server hosting the database';
 COMMENT ON COLUMN cfg.db.host IS
 	'host name or IP number of the server hosting the database';
+
+-- cfg.db_logon_banner --
+comment on table cfg.db_logon_banner is
+	'Stores a banner to show when clients log on.';
+comment on column cfg.db_logon_banner.message is
+	'The actual message to show.';
+comment on column cfg.db_logon_banner.singularizer is
+	'Makes sure there only ever is one such banner at any given time.';
 
 -- cfg.cfg_type_enum --
 comment on table cfg.cfg_type_enum is
@@ -249,6 +257,7 @@ GRANT SELECT ON
 	cfg.db
 	, cfg.distributed_db
 	, cfg.config
+	, cfg.db_logon_banner
 	, cfg.cfg_type_enum
 	, cfg.cfg_template
 	, cfg.cfg_item
@@ -277,11 +286,14 @@ to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigViews.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigViews.sql,v $', '$Revision: 1.8 $');
 
 --=====================================================================
 -- $Log: gmConfigViews.sql,v $
--- Revision 1.7  2005-11-18 15:40:13  ncq
+-- Revision 1.8  2005-12-27 19:12:48  ncq
+-- - comment/grant cfg.db_logon_banner
+--
+-- Revision 1.7  2005/11/18 15:40:13  ncq
 -- - add lots of rerunnable things from gmconfiguration.sql
 -- - create adjusted views in cfg.* schema
 -- - adjust grants/include schema grants
