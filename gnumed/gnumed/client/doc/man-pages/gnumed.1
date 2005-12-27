@@ -1,4 +1,4 @@
-.TH GNUMED 1 "2002 November 8" "Manual for GNUmed"
+.TH GNUMED 1 "2005 December 26" "Manual for GNUmed"
 
 .SH NAME
 GNUmed \- a medical practice management software for GP offices
@@ -15,6 +15,7 @@ You have been warned.
 .RB [--conf-file=FILE]
 .RB [--unicode-gettext=0|1]
 .RB [--lang-gettext=LANGUAGE]
+.RB [--override-schema-check]
 .RB [--help]
 .RB [-h|?]
 
@@ -34,7 +35,8 @@ in PostgreSQL databases possibly distributed onto several machines.
 Be extra quiet and show only _real_ errors in the log.
 .TP
 .B \--debug
-Be extra verbose and report nearly everything that's going on. Useful for, well, debugging :-)
+Be extra verbose and report nearly everything that's going
+on. Useful for, well, debugging :-)  Slow, too.
 .TP
 .B \--talkback
 Run the client and upon exiting run a talkback client where
@@ -66,6 +68,11 @@ Explicitely set the language to use in gettext translation. The very
 same effect can be achieved by setting the environment variable $LANG
 from a launcher script.
 .TP
+.B \--override-schema-check
+Continue loading the client even if the database schema
+version and the client software version cannot be verified
+to be compatible.
+.TP
 .B \--help, -h, or -?
 Well, show this help.
 
@@ -84,18 +91,11 @@ variables work.
 .SH FILES
 .PP
 .TP
-.B /usr/share/gnumed/
-Nearly all files live below this directory.
-.TP
 .B ~/.gnumed/gnumed.log
 The default log file.
 .TP
 .B ~/.gnumed/gnumed.conf
 The default configuration file.
-.TP
-.B plugins.conf
-Defines which plugins to load in which order. Lives in any of
-the plugin directories.
 
 .SH SEE ALSO
 .PP
@@ -105,15 +105,14 @@ the plugin directories.
 .B http://www.gnumed.org
 Users' website
 .TP
-.B http://www.gnumed.net
-Developers' website
-.TP
 .B http://www.gnumed.de
 German website
 .TP
 .B http://savannah.gnu.org/projects/gnumed
-source code repository
-
+source code repository (CVS)
+.TP
+.B http://salaam.homeunix.com/twiki/bin/view/Gnumed/WebHome
+detailed Wiki-style documentation
 
 .SH BUGS
 
@@ -127,4 +126,4 @@ You have been warned.
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.8 2005-08-18 18:55:37 ncq Exp $
+$Id: gnumed.1,v 1.9 2005-12-27 17:55:44 ncq Exp $
