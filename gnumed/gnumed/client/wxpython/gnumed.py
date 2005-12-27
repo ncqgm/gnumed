@@ -47,12 +47,15 @@ Command line arguments:
 Explicitely set the language to use in gettext translation. The very
 same effect can be achieved by setting the environment variable $LANG
 from a launcher script.
+--override-schema-check
+ Continue loading the client even if the database schema version
+ and the client software version cannot be verified to be compatible.
 --help, -h, or -?
  Well, show this help.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -475,7 +478,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.90  2005-12-23 15:43:23  ncq
+# Revision 1.91  2005-12-27 19:02:41  ncq
+# - document --overide-schema-check
+#
+# Revision 1.90  2005/12/23 15:43:23  ncq
 # - refuse to be run as root
 # - exit with status 0 if imported as module
 #
