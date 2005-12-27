@@ -1,14 +1,25 @@
--- Projekt GnuMed
+-- Project GNUmed
 -- USS Enterprise defs
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+-- =============================================
+insert into cfg.db_logon_banner (message) values (
+_('Welcome to the USS Enterprise Medical Department GNUmed database.\n
+\n
+This database is the default installation intended for demonstration of the GNUmed client. It may be running on a publically accessible server on the internet. Therefore any data you enter here is likely to be lost when the database is upgraded. It is also put at risk of unlawful disclosure.\n
+\n
+DO NOT USE THIS DATABASE TO STORE REAL LIVE PATIENT DATA.\n
+\n
+\n
+Starfleet Central Medical Facilities')
+);
 
 -- =============================================
 -- vaccination related data
@@ -300,11 +311,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.20  2005-11-25 15:07:28  ncq
+-- Revision 1.21  2005-12-27 19:13:59  ncq
+-- - add database logon banner
+--
+-- Revision 1.20  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.19  2005/09/19 16:38:52  ncq
