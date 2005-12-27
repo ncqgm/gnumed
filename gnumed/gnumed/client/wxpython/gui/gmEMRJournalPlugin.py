@@ -4,12 +4,12 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin, gmEMRBrowser
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmI18N
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -100,7 +100,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.4  2005-10-03 13:59:59  sjtan
+# Revision 1.5  2005-12-27 19:05:36  ncq
+# - use gmI18N
+#
+# Revision 1.4  2005/10/03 13:59:59  sjtan
 # indentation errors
 #
 # Revision 1.3  2005/09/26 18:01:52  ncq

@@ -6,12 +6,12 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin, gmEMRBrowser
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmI18N
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -102,7 +102,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.8  2005-09-28 21:38:11  ncq
+# Revision 1.9  2005-12-27 19:05:36  ncq
+# - use gmI18N
+#
+# Revision 1.8  2005/09/28 21:38:11  ncq
 # - more 2.6-ification
 #
 # Revision 1.7  2005/09/26 18:01:52  ncq
