@@ -1,18 +1,21 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/make-tarball.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-BASE=~/gm-cvs-head/gnumed/
+BASE=~/gm-cvs-head
 ARCHIVE=$HOME/public_html/gnumed/snapshot/gnumed-latest-snapshot.tgz
 
-tar -cvzf $ARCHIVE $BASE
+cd $BASE
+tar -cvzf $ARCHIVE gnumed/
 
 #============================================
 # $Log: make-tarball.sh,v $
-# Revision 1.1  2005-12-27 17:08:06  ncq
-# - make snapshots of the CVS tree
+# Revision 1.2  2005-12-27 17:15:52  ncq
+# - backup relative path
 #
+# Revision 1.1  2005/12/27 17:08:06  ncq
+# - make snapshots of the CVS tree
 #
