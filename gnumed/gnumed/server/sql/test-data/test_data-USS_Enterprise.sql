@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -46,7 +46,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 
 -- FIXME: we currently assume that the services [reference]
@@ -311,11 +311,17 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.21  2005-12-27 19:13:59  ncq
+-- Revision 1.22  2005-12-29 21:48:09  ncq
+-- - clin.vaccine.id -> pk
+-- - remove clin.vaccine.last_batch_no
+-- - add clin.vaccine_batches
+-- - adjust test data and country data
+--
+-- Revision 1.21  2005/12/27 19:13:59  ncq
 -- - add database logon banner
 --
 -- Revision 1.20  2005/11/25 15:07:28  ncq

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.163 2005-12-07 16:28:18 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.164 2005-12-29 21:48:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -283,9 +283,11 @@ comment on column clin.vaccine.min_age is
 	'minimum age this vaccine is licensed for';
 comment on column clin.vaccine.max_age is
 	'maximum age this vaccine is licensed for';
-comment on column clin.vaccine.last_batch_no is
-	'serial # of most recently used batch, for
-	 rapid data input purposes';
+
+-- --
+comment on column clin.vaccine_batches.batch_no is
+	'serial # of a batch of a given vaccine that
+	 is awaiting usage in the fridge';
 
 -- clin.lnk_vaccine2inds --
 comment on table clin.lnk_vaccine2inds is
@@ -1253,7 +1255,7 @@ select
 	coalesce(v.narrative, '') as narrative,
 	vind.id as pk_indication,
 	v.fk_provider as pk_provider,
-	vcine.id as pk_vaccine,
+	vcine.pk as pk_vaccine,
 	vpep.pk_health_issue as pk_health_issue,
 	v.fk_episode as pk_episode,
 	v.fk_encounter as pk_encounter,
@@ -1269,9 +1271,9 @@ from
 where
 	vpep.pk_episode=v.fk_episode
 		and
-	v.fk_vaccine = vcine.id
+	v.fk_vaccine = vcine.pk
 		and
-	lv2i.fk_vaccine = vcine.id
+	lv2i.fk_vaccine = vcine.pk
 		and
 	lv2i.fk_indication = vind.id
 ;
@@ -2247,7 +2249,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.vaccination
 	, clin.vaccination_id_seq
 	, clin.vaccine
-	, clin.vaccine_id_seq
+	, clin.vaccine_pk_seq
 	, clin.vacc_def
 	, clin.vacc_def_id_seq
 	, clin.vacc_regime
@@ -2323,11 +2325,17 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.163 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.164 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.163  2005-12-07 16:28:18  ncq
+-- Revision 1.164  2005-12-29 21:48:09  ncq
+-- - clin.vaccine.id -> pk
+-- - remove clin.vaccine.last_batch_no
+-- - add clin.vaccine_batches
+-- - adjust test data and country data
+--
+-- Revision 1.163  2005/12/07 16:28:18  ncq
 -- - with the help of the postgresql list fix the "add missing from"
 --   error in v_hx_family
 --

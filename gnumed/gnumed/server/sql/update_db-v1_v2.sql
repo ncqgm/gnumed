@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -315,7 +315,7 @@ insert into clin.vacc_route select * from public.vacc_route;
 select setval('clin.vacc_route_id_seq'::text, (select max(id) from clin.vacc_route));
 
 insert into clin.vaccine select * from public.vaccine;
-select setval('clin.vaccine_id_seq'::text, (select max(id) from clin.vaccine));
+select setval('clin.vaccine_pk_seq'::text, (select max(pk) from clin.vaccine));
 
 insert into clin.lnk_vaccine2inds select * from public.lnk_vaccine2inds;
 select setval('clin.lnk_vaccine2inds_id_seq'::text, (select max(id) from clin.lnk_vaccine2inds));
@@ -672,11 +672,17 @@ select setval('public.audit_fields_pk_audit_seq'::text, (select max(pk_audit) fr
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.18 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.18  2005-12-14 11:42:21  ncq
+-- Revision 1.19  2005-12-29 21:48:09  ncq
+-- - clin.vaccine.id -> pk
+-- - remove clin.vaccine.last_batch_no
+-- - add clin.vaccine_batches
+-- - adjust test data and country data
+--
+-- Revision 1.18  2005/12/14 11:42:21  ncq
 -- - we don't have cfg_boolean but rather use cfg_numeric
 --
 -- Revision 1.17  2005/12/14 10:43:33  ncq

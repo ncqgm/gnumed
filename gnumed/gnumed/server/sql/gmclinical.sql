@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.173 $
+-- $Revision: 1.174 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -379,10 +379,11 @@ create table clin.vacc_route (
 ) inherits (public.audit_fields);
 
 -- --------------------------------------------
--- maybe this table belongs into "service"
--- "inventory"/"stock" or something one day
+
+-- FIXME: this table should eventually point to entries
+-- FIXME: in the clin.* drug data cache table
 create table clin.vaccine (
-	id serial primary key,
+	pk serial primary key,
 	id_route integer
 		not null
 		references clin.vacc_route(id)
@@ -396,9 +397,22 @@ create table clin.vaccine (
 	max_age interval
 		default null
 		check((max_age is null) or (max_age >= min_age)),
-	last_batch_no text default null,
 	comment text,
 	unique (trade_name, short_name)
+) inherits (public.audit_fields);
+
+-- FIXME: this table eventually needs to go into
+-- FIXME: stock inventory tracking
+create table clin.vaccine_batches (
+	pk serial primary key,
+	fk_vaccine integer
+		not null
+		references clin.vaccine(pk)
+		on update cascade
+		on delete cascade,
+	batch_no text
+		unique
+		not null
 ) inherits (public.audit_fields);
 
 -- --------------------------------------------
@@ -406,7 +420,7 @@ create table clin.lnk_vaccine2inds (
 	id serial primary key,
 	fk_vaccine integer
 		not null
-		references clin.vaccine(id)
+		references clin.vaccine(pk)
 		on delete cascade
 		on update cascade,
 	fk_indication integer
@@ -493,7 +507,7 @@ create table clin.vaccination (
 		not null,
 	fk_vaccine integer
 		not null
-		references clin.vaccine(id)
+		references clin.vaccine(pk)
 		on delete restrict
 		on update cascade,
 	site text
@@ -697,11 +711,17 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.173 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.174 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.173  2005-12-06 13:26:55  ncq
+-- Revision 1.174  2005-12-29 21:48:09  ncq
+-- - clin.vaccine.id -> pk
+-- - remove clin.vaccine.last_batch_no
+-- - add clin.vaccine_batches
+-- - adjust test data and country data
+--
+-- Revision 1.173  2005/12/06 13:26:55  ncq
 -- - clin.clin_encounter -> clin.encounter
 -- - also id -> pk
 --

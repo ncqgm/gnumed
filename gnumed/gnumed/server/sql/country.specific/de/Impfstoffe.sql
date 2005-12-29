@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -34,7 +34,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 insert into clin.vaccine (
 	id_route,
@@ -54,10 +54,10 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='diphtheria'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='diphtheria'));
 
 -----------------
 -- Hepatitis A --
@@ -82,7 +82,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='hepatitis A'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='hepatitis A'));
 
 insert into clin.vaccine (
 	id_route,
@@ -102,7 +102,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='hepatitis A'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='hepatitis A'));
 
 -----------------
 -- Hepatitis B --
@@ -127,7 +127,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='hepatitis B'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='hepatitis B'));
 
 ------------------
 -- Pneumokokken --
@@ -152,7 +152,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='pneumococcus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='pneumococcus'));
 
 ---------------
 -- Influenza --
@@ -175,7 +175,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='influenza'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='influenza'));
 
 
 insert into clin.vaccine (
@@ -197,7 +197,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='influenza'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='influenza'));
 
 ---------------
 -- NeisVac C --
@@ -220,7 +220,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='meningococcus C'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='meningococcus C'));
 
 ---------------
 -- Menjugate --
@@ -243,7 +243,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='meningococcus C'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='meningococcus C'));
 
 ----------------
 -- Meningitec --
@@ -266,7 +266,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='meningococcus C'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='meningococcus C'));
 
 
 -------------
@@ -290,16 +290,16 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='diphtheria'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='diphtheria'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='pertussis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='pertussis'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
 
 -------------
 -- Revaxis --
@@ -322,13 +322,13 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='diphtheria'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='diphtheria'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
 
 ----------
 -- FSME --
@@ -353,7 +353,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tick-borne meningoencephalitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tick-borne meningoencephalitis'));
 
 insert into clin.vaccine (
 	id_route,
@@ -375,7 +375,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tick-borne meningoencephalitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tick-borne meningoencephalitis'));
 
 -------------
 -- Priorix --
@@ -398,13 +398,13 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='measles'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='measles'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='mumps'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='mumps'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='rubella'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='rubella'));
 
 ------------
 -- Masern --
@@ -427,7 +427,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='measles'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='measles'));
 
 ----------------------
 -- Infanrix-IPV+Hib --
@@ -450,19 +450,19 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='diphtheria'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='diphtheria'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='pertussis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='pertussis'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='haemophilus influenzae b'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='haemophilus influenzae b'));
 
 -------------
 -- Act-HiB --
@@ -485,7 +485,7 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='haemophilus influenzae b'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='haemophilus influenzae b'));
 
 --------------
 -- Pentavac --
@@ -508,19 +508,19 @@ insert into clin.vaccine (
 
 -- link to indications
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='tetanus'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='tetanus'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='diphtheria'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='diphtheria'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='pertussis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='pertussis'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
 
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='haemophilus influenzae b'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='haemophilus influenzae b'));
 
 -----------------
 -- IPV Mérieux --
@@ -541,16 +541,22 @@ insert into clin.vaccine (
 
 -- link to indication
 insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
-values (currval('clin.vaccine_id_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
 
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.24  2005-11-25 15:07:28  ncq
+-- Revision 1.25  2005-12-29 21:48:09  ncq
+-- - clin.vaccine.id -> pk
+-- - remove clin.vaccine.last_batch_no
+-- - add clin.vaccine_batches
+-- - adjust test data and country data
+--
+-- Revision 1.24  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.23  2005/09/19 16:38:52  ncq

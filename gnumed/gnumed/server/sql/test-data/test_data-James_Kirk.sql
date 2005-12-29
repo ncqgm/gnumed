@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.62 $
+-- $Revision: 1.63 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -255,7 +255,7 @@ insert into clin.vaccination (
 	'prev booster > 7 yrs',
 	currval('identity_pk_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
-	(select id from clin.vaccine where trade_name='Tetasorbat (SFCMS)'),
+	(select pk from clin.vaccine where trade_name='Tetasorbat (SFCMS)'),
 	'2000-9-17',
 	'left deltoid muscle',
 	'SFCMS#102041A#11'
@@ -620,11 +620,17 @@ insert into blobs.doc_obj (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.62 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.63 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.62  2005-12-06 13:26:55  ncq
+-- Revision 1.63  2005-12-29 21:48:09  ncq
+-- - clin.vaccine.id -> pk
+-- - remove clin.vaccine.last_batch_no
+-- - add clin.vaccine_batches
+-- - adjust test data and country data
+--
+-- Revision 1.62  2005/12/06 13:26:55  ncq
 -- - clin.clin_encounter -> clin.encounter
 -- - also id -> pk
 --
