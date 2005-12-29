@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.22 2005-11-27 12:44:57 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmVaccination.py,v 1.23 2005-12-29 21:54:35 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -31,7 +31,7 @@ class cVaccination(gmClinItem.cClinItem):
 				clin_when=%(date)s,
 				narrative=%(narrative)s,
 				fk_provider=%(pk_provider)s,
-				fk_vaccine=(select id from clin.vaccine where trade_name=%(vaccine)s),
+				fk_vaccine=(select pk from clin.vaccine where trade_name=%(vaccine)s),
 				site=%(site)s,
 				batch_no=%(batch_no)s
 			where id=%(pk_vaccination)s""",
@@ -206,7 +206,7 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 				 values (%s, %s, %s, %s, %s)"""
 	else:
 		cmd = """insert into clin.vaccination (fk_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
-				 values (%s, %s, %s, %s, (select id from clin.vaccine where trade_name=%s))"""
+				 values (%s, %s, %s, %s, (select pk from clin.vaccine where trade_name=%s))"""
 		vaccine = str(vaccine)
 	queries.append((cmd, [encounter_id, episode_id, patient_id, staff_id, vaccine]))
 	# get PK of inserted row
@@ -373,7 +373,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.22  2005-11-27 12:44:57  ncq
+# Revision 1.23  2005-12-29 21:54:35  ncq
+# - adjust to schema changes
+#
+# Revision 1.22  2005/11/27 12:44:57  ncq
 # - clinical tables are in schema "clin" now
 #
 # Revision 1.21  2005/03/20 12:28:50  cfmoro

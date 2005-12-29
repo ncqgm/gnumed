@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.23 2005-10-21 09:27:11 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmVaccWidgets.py,v 1.24 2005-12-29 21:54:35 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -55,7 +55,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		# FIXME: move to gmClinicalRecord or gmVaccination
 		query = """
 			select
-				id,
+				pk,
 				trade_name
 			from
 				vaccine
@@ -552,7 +552,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.23  2005-10-21 09:27:11  ncq
+# Revision 1.24  2005-12-29 21:54:35  ncq
+# - adjust to schema changes
+#
+# Revision 1.23  2005/10/21 09:27:11  ncq
 # - propagate new way of popup data saving
 #
 # Revision 1.22  2005/09/28 21:27:30  ncq
