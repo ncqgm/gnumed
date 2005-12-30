@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -191,7 +191,7 @@ limit 1""" % where_clause
 		return val
 	#-----------------------------------------------
 	def get_by_user(self, option=None, cookie=None, default=None):
-		"""Get config option from database.
+		"""Get config option from database w/o regard for the workplace.
 
 		Use this for options in which the workplace does not
 		matter. Will search for matches in this order:
@@ -260,7 +260,7 @@ limit 1""" % (' and '.join(where_parts))
 		return rows[0][0]
 	#-----------------------------------------------
 	def get_by_workplace(self, option=None, workplace=None, cookie=None, default=None):
-		"""Get config option from database.
+		"""Get config option from database w/o regard for the user.
 
 		Use this for options in which the user does not
 		matter. It will search for matches in this order:
@@ -1413,7 +1413,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.33  2005-12-14 16:56:09  ncq
+# Revision 1.34  2005-12-30 16:51:03  ncq
+# - slightly improved method documentation
+#
+# Revision 1.33  2005/12/14 16:56:09  ncq
 # - enhance get_by_user() and get_by_workplace() with a default
 #   which if set will enable to store the option even if there's
 #   no template in the database
