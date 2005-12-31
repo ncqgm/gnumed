@@ -1,21 +1,23 @@
 # -*- coding: latin-1 -*-
-"""GnuMed forms classes
+"""GNUmed forms classes
 Business layer for printing all manner of forms, letters, scripts etc.
  
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.32 2005-11-06 12:31:30 ihaywood Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmForms.py,v 1.33 2005-12-31 18:01:54 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
- 
+
+# standard library 
 import sys, os.path, string, time, re, tempfile, cStringIO, types
+
+# 3rd party modules
 import Cheetah.Template, Cheetah.Filters
-from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider
-from Gnumed.pycommon.gmPyCompat import *
-if __name__ == "__main__":
-	from Gnumed.pycommon import gmI18N
+
+# our modules
+from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider, gmI18N
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # start logging
@@ -394,7 +396,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.32  2005-11-06 12:31:30  ihaywood
+# Revision 1.33  2005-12-31 18:01:54  ncq
+# - spelling of GNUmed
+# - clean up imports
+#
+# Revision 1.32  2005/11/06 12:31:30  ihaywood
 # I've discovered that most of what I'm trying to do with forms involves
 # re-implementing Cheetah (www.cheetahtemplate.org), so switch to using this.
 #
