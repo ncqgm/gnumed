@@ -9,7 +9,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -454,11 +454,20 @@ values (
 
 -- Impfzeitpunkte festlegen
 insert into clin.vacc_def
+	(fk_regime, seq_no, min_age_due, comment)
+values (
+	currval('clin.vacc_regime_id_seq'),
+	1,
+	'18 years'::interval,
+	'jährlich neu von WHO empfohlener Impfstoff'
+);
+
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, is_booster, min_interval, comment)
 values (
 	currval('clin.vacc_regime_id_seq'),
 	null,
-	'18 years'::interval,
+	'19 years'::interval,
 	true,
 	'1 year'::interval,
 	'jährlich neu von WHO empfohlener Impfstoff'
@@ -479,11 +488,20 @@ values (
 
 -- Impfzeitpunkte (STIKO) festlegen
 insert into clin.vacc_def
+	(fk_regime, seq_no, min_age_due, comment)
+values (
+	currval('clin.vacc_regime_id_seq'),
+	1,
+	'18 years'::interval,
+	'Polysaccharid-Impfstoff'
+);
+
+insert into clin.vacc_def
 	(fk_regime, seq_no, min_age_due, is_booster, min_interval, comment)
 values (
 	currval('clin.vacc_regime_id_seq'),
 	null,
-	'18 years'::interval,
+	'24 years'::interval,
 	true,
 	'6 years'::interval,
 	'Polysaccharid-Impfstoff'
@@ -544,11 +562,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: STIKO-Impfkalender.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.17  2005-11-25 15:07:28  ncq
+-- Revision 1.18  2006-01-01 20:43:14  ncq
+-- - adjust to tightened constraints
+--
+-- Revision 1.17  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.16  2005/09/19 16:38:52  ncq
