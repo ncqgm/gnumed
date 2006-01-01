@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -431,7 +431,7 @@ class cDocTree(wx.TreeCtrl):
             return None
 
         # but do everything with parts
-		def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
+        def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
         cfg = gmCfg.cCfgSQL()
         tmp_dir = cfg.get_by_workplace (
             option = "horstspace.tmp_dir",
@@ -532,7 +532,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.36  2006-01-01 17:44:43  ncq
+# Revision 1.37  2006-01-01 18:14:25  shilbert
+# - fixed indentation problem
+#
+# Revision 1.36  2006/01/01 17:44:43  ncq
 # - comment on proper user of emr.add_document()
 #
 # Revision 1.35  2006/01/01 17:23:29  ncq
