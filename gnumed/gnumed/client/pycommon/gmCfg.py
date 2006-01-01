@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -303,7 +303,7 @@ limit 1""" % (' and '.join(where_parts))
 		# - error
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting option definition')
-			return None
+			return default
 		# - not found
 		if len(rows) == 0:
 			_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
@@ -311,17 +311,13 @@ limit 1""" % (' and '.join(where_parts))
 			if default is None:
 				return None
 			# - create default
-			else:
-				_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
-				success = self.set (
-					option = option,
-					workplace = workplace,
-					value = default
-				)
-				# - error
-				if not success:
-					return None
-				return default
+			_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+			self.set (
+				option = option,
+				workplace = workplace,
+				value = default
+			)
+			return default
 		# if default workplace found try to store specific to *this* workplace
 		if rows[0][2] == cfg_DEFAULT:
 			self.set (
@@ -1413,7 +1409,12 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.34  2005-12-30 16:51:03  ncq
+# Revision 1.35  2006-01-01 17:22:08  ncq
+# - get_by_workplace always returns default value in case of
+#   errors/option not found except when there is not default given
+#   in which case it will return None on error
+#
+# Revision 1.34  2005/12/30 16:51:03  ncq
 # - slightly improved method documentation
 #
 # Revision 1.33  2005/12/14 16:56:09  ncq
