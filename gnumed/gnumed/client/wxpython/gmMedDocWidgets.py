@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -158,6 +158,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         doc_folder = pat.get_document_folder()
 
         # create new document
+        # FIXME: need to set doc type from self._SelBOX_doc_type.GetSelection()
         new_doc = doc_folder.add_document()
         if new_doc is None:
             wx.EndBusyCursor()
@@ -170,8 +171,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         # update business object with metadata
         # - date of generation
         new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
-        # - type of document
-        new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
+#        # - type of document
+#        new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
         # - external reference
         ref = gmMedDoc.get_ext_ref()
         if ref is not None:
@@ -531,7 +532,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.35  2006-01-01 17:23:29  ncq
+# Revision 1.36  2006-01-01 17:44:43  ncq
+# - comment on proper user of emr.add_document()
+#
+# Revision 1.35  2006/01/01 17:23:29  ncq
 # - properly use backend option for temp dir to
 #   temporarily export docs into for viewing
 #
