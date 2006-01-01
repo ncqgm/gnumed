@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.40 2005-11-25 15:07:28 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.41 2006-01-01 17:57:14 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -316,20 +316,30 @@ values
 -- vaccination indications
 delete from clin.vacc_indication;
 
+insert into clin.vacc_indication (description) values (i18n('cholera'));
+insert into clin.vacc_indication (description) values (i18n('diphtheria'));
+insert into clin.vacc_indication (description) values (i18n('haemophilus influenzae b'));
+insert into clin.vacc_indication (description) values (i18n('hepatitis A'));
+insert into clin.vacc_indication (description) values (i18n('hepatitis B'));
+insert into clin.vacc_indication (description) values (i18n('influenza'));
+insert into clin.vacc_indication (description) values (i18n('japanese encephalitis'));
 insert into clin.vacc_indication (description) values (i18n('measles'));
+insert into clin.vacc_indication (description) values (i18n('meningococcus A'));
+insert into clin.vacc_indication (description) values (i18n('meningococcus C'));
+insert into clin.vacc_indication (description) values (i18n('meningococcus W'));
+insert into clin.vacc_indication (description) values (i18n('meningococcus Y'));
 insert into clin.vacc_indication (description) values (i18n('mumps'));
+insert into clin.vacc_indication (description) values (i18n('pertussis'));
+insert into clin.vacc_indication (description) values (i18n('pneumococcus'));
+insert into clin.vacc_indication (description) values (i18n('poliomyelitis'));
+insert into clin.vacc_indication (description) values (i18n('Q fever'));
+insert into clin.vacc_indication (description) values (i18n('rabies'));
 insert into clin.vacc_indication (description) values (i18n('rubella'));
 insert into clin.vacc_indication (description) values (i18n('tetanus'));
-insert into clin.vacc_indication (description) values (i18n('diphtheria'));
-insert into clin.vacc_indication (description) values (i18n('pertussis'));
-insert into clin.vacc_indication (description) values (i18n('haemophilus influenzae b'));
-insert into clin.vacc_indication (description) values (i18n('hepatitis B'));
-insert into clin.vacc_indication (description) values (i18n('poliomyelitis'));
-insert into clin.vacc_indication (description) values (i18n('influenza'));
-insert into clin.vacc_indication (description) values (i18n('hepatitis A'));
-insert into clin.vacc_indication (description) values (i18n('pneumococcus'));
-insert into clin.vacc_indication (description) values (i18n('meningococcus C'));
 insert into clin.vacc_indication (description) values (i18n('tick-borne meningoencephalitis'));
+insert into clin.vacc_indication (description) values (i18n('typhoid fever'));
+insert into clin.vacc_indication (description) values (i18n('varicella'));
+insert into clin.vacc_indication (description) values (i18n('yellow fever'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
@@ -629,11 +639,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.40  2005-11-25 15:07:28  ncq
+-- Revision 1.41  2006-01-01 17:57:14  ncq
+-- - add vaccination indications
+--
+-- Revision 1.40  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.39  2005/09/19 16:38:51  ncq
