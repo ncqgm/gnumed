@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.13 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPatPicWidgets.py,v 1.14 2006-01-01 20:38:03 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -147,8 +147,7 @@ class cPatientPicture(wx.StaticBitmap):
 			return False
 
 		# save in database
-#		doc = gmMedDoc.create_document(self.__pat['ID'])
-#		doc.update_metadata({'type ID': gmMedDoc.MUGSHOT})
+#		doc = gmMedDoc.create_document(self.__pat['ID'], document_type=gmMedDoc.MUGSHOT)
 #		obj = gmMedDoc.create_document_part(doc)
 #		obj.update_data_from_file(photo)
 
@@ -186,7 +185,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.13  2005-09-28 21:27:30  ncq
+# Revision 1.14  2006-01-01 20:38:03  ncq
+# - properly use create_document()
+#
+# Revision 1.13  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.12  2005/09/28 15:57:48  ncq
