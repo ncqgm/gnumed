@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.44 2005-12-08 16:13:13 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.45 2006-01-01 20:39:22 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -98,11 +98,7 @@ END;' LANGUAGE 'plpgsql';
 
 -- business functions
 
-\unset ON_ERROR_STOP
-drop function add_name(integer, text, text, bool);
-\set ON_ERROR_STOP 1
-
-create function add_name(integer, text, text, bool) returns integer as '
+create or replace function add_name(integer, text, text, bool) returns integer as '
 DECLARE
 	_id_identity alias for $1;
 	_first alias for $2;
@@ -433,11 +429,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.44 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.45 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.44  2005-12-08 16:13:13  ncq
+-- Revision 1.45  2006-01-01 20:39:22  ncq
+-- - cleanup
+--
+-- Revision 1.44  2005/12/08 16:13:13  ncq
 -- - need to declare plpgsql variables
 --
 -- Revision 1.43  2005/12/07 16:28:54  ncq

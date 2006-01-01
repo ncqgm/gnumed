@@ -7,23 +7,18 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.8 2005-11-01 08:49:49 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmKVK.py,v 1.9 2006-01-01 20:37:22 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, fileinput, re, string
 
 # our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'pycommon'))
-
 from Gnumed.pycommon import gmLog, gmExceptions
 
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 #============================================================
 class cKVK_data:
@@ -281,7 +276,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.8  2005-11-01 08:49:49  ncq
+# Revision 1.9  2006-01-01 20:37:22  ncq
+# - cleanup
+#
+# Revision 1.8  2005/11/01 08:49:49  ncq
 # - naming fix
 #
 # Revision 1.7  2005/03/06 14:48:23  ncq
