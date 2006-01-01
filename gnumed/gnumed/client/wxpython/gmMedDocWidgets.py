@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -430,15 +430,14 @@ class cDocTree(wx.TreeCtrl):
             return None
 
         # but do everything with parts
+		def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
         cfg = gmCfg.cCfgSQL()
-        exp_base = cfg.get_by_workplace (
-            option = "doc export dir",
-            workplace = _whoami.get_workplace()
+        tmp_dir = cfg.get_by_workplace (
+            option = "horstspace.tmp_dir",
+            workplace = _whoami.get_workplace(),
+            default = def_tmp_dir
         )
-        if exp_base is None:
-            exp_base = ''
-        else:
-            exp_base = os.path.abspath(os.path.expanduser(exp_base))
+        exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
         if not os.path.exists(exp_base):
             _log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
         else:
@@ -532,7 +531,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.34  2005-12-16 12:04:25  ncq
+# Revision 1.35  2006-01-01 17:23:29  ncq
+# - properly use backend option for temp dir to
+#   temporarily export docs into for viewing
+#
+# Revision 1.34  2005/12/16 12:04:25  ncq
 # - fix silly indentation bug
 #
 # Revision 1.33  2005/12/14 17:01:03  ncq
