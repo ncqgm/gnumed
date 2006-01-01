@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.33 2006-01-01 15:39:50 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmMedDoc.py,v 1.34 2006-01-01 16:08:08 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -166,7 +166,7 @@ class cDocumentFolder:
 		return docs
 	#--------------------------------------------------------
 	def add_document(self):
-		return gmMedDoc.create_document(self.id_patient)
+		return create_document(self.id_patient)
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -597,7 +597,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.33  2006-01-01 15:39:50  ncq
+# Revision 1.34  2006-01-01 16:08:08  ncq
+# - proper scoping of functions
+#
+# Revision 1.33  2006/01/01 15:39:50  ncq
 # - some missing blobs.
 #
 # Revision 1.32  2005/12/14 17:00:01  ncq
