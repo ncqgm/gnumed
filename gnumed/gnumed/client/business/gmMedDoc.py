@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.34 2006-01-01 16:08:08 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmMedDoc.py,v 1.35 2006-01-01 17:39:39 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -165,8 +165,8 @@ class cDocumentFolder:
 				continue
 		return docs
 	#--------------------------------------------------------
-	def add_document(self):
-		return create_document(self.id_patient)
+	def add_document(self, document_type=None):
+		return create_document(patient_id=self.id_patient, document_type=document_type)
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -486,20 +486,20 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 # convenience functions
 #============================================================
-def create_document(patient_id=None):
+def create_document(patient_id=None, document_type=None):
 	"""
 	None - failed
 	not None - new document class instance
 	"""
 	# sanity checks
-	if patient_id is None:
-		_log.Log(gmLog.lErr, 'need patient id to create document')
-		return None
+	if None in [patient_id, document_type]:
+		raise ValueError, 'neither patient_id nor document_type may be None'
+
 	# insert document
-	cmd1 = """INSERT INTO blobs.doc_med (patient_id) VALUES (%s)"""
+	cmd1 = """INSERT INTO blobs.doc_med (patient_id, type) VALUES (%s, %s)"""
 	cmd2 = """select currval('blobs.doc_med_id_seq')"""
 	result = gmPG.run_commit('blobs', [
-		(cmd1, [patient_id]),
+		(cmd1, [patient_id, document_type]),
 		(cmd2, [])
 	])
 	if result is None:
@@ -597,7 +597,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.34  2006-01-01 16:08:08  ncq
+# Revision 1.35  2006-01-01 17:39:39  ncq
+# - require document type in create_document()
+#
+# Revision 1.34  2006/01/01 16:08:08  ncq
 # - proper scoping of functions
 #
 # Revision 1.33  2006/01/01 15:39:50  ncq
