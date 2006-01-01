@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.174 $
+-- $Revision: 1.175 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -470,11 +470,10 @@ create table clin.vacc_def (
 		on delete cascade
 		on update cascade,
 	is_booster boolean
-		default false
-		check (((is_booster is true) and (seq_no is null)) or ((is_booster is false) and (seq_no > 0))),
+		not null
+		default false,
 	seq_no integer
-		default null
-		check (((is_booster is true) and (seq_no is null)) or ((is_booster is false) and (seq_no > 0))),
+		default null,
 	min_age_due interval
 		not null
 		check (min_age_due > '0 seconds'::interval),
@@ -482,16 +481,10 @@ create table clin.vacc_def (
 		default null
 		check ((max_age_due is null) or (max_age_due >= min_age_due)),
 	min_interval interval
-		default null
-		check (
-			((is_booster=true) and (min_interval is not null) and (min_interval > '0 seconds'::interval))
-				or
-			((seq_no = 1) and (min_interval is null))
-				or
-			((seq_no > 1) and (min_interval is not null) and (min_interval > '0 seconds'::interval))
-		),
+		default null,
 	comment text,
 	unique(fk_regime, seq_no)
+--	,unique(fk_regime, is_booster)
 ) inherits (public.audit_fields);
 
 -- --------------------------------------------
@@ -711,11 +704,16 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.174 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.175 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.174  2005-12-29 21:48:09  ncq
+-- Revision 1.175  2006-01-01 20:41:06  ncq
+-- - move vacc_def constraints around
+-- - add trigger constraint to make sure there's always base
+--   immunization definitions for boosters
+--
+-- Revision 1.174  2005/12/29 21:48:09  ncq
 -- - clin.vaccine.id -> pk
 -- - remove clin.vaccine.last_batch_no
 -- - add clin.vaccine_batches

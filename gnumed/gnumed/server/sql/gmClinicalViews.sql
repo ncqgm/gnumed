@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.164 2005-12-29 21:48:09 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.165 2006-01-01 20:41:06 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -324,7 +324,9 @@ comment on table clin.vacc_def is
 comment on column clin.vacc_def.fk_regime is
 	'regime to which this event belongs';
 comment on column clin.vacc_def.is_booster is
-	'does this definition represent a booster';
+	'does this definition represent a booster,
+	 also set for quasi-booster regimes such as
+	 Influenza';
 comment on column clin.vacc_def.seq_no is
 	'sequence number for this vaccination event
 	 within a particular schedule/regime,
@@ -341,9 +343,114 @@ comment on column clin.vacc_def.min_interval is
 	 	minimum interval after previous vaccination,
 		NULL if seq_no == 1';
 
+alter table clin.vacc_def
+	add constraint numbered_shot_xor_booster
+		check (
+			((is_booster is true) and (seq_no is null)) or
+			((is_booster is false) and (seq_no > 0))
+		);
+
+alter table clin.vacc_def
+	add constraint sensible_min_interval
+		check (
+			((min_interval is null) and (seq_no = 1))
+				or
+			((min_interval is not null) and (min_interval > '0 seconds'::interval) and (is_booster is true))
+				or
+			((min_interval is not null) and (min_interval > '0 seconds'::interval) and (seq_no > 1))
+		);
+
+\unset ON_ERROR_STOP
+drop trigger tr_ins_booster_must_have_base_immunity on clin.vacc_def;
+drop trigger tr_upd_booster_must_have_base_immunity on clin.vacc_def;
+drop trigger tr_del_booster_must_have_base_immunity on clin.vacc_def;
+\set ON_ERROR_STOP 1
+
+-- insert
+create or replace function clin.f_ins_booster_must_have_base_immunity()
+	returns trigger
+	language 'plpgsql' as '
+BEGIN
+	-- do not worry about non-booster inserts
+	if NEW.is_booster is false then
+		return NEW;
+	end if;
+	-- only insert booster def if non-booster def exists
+	perform 1 from clin.vacc_def where fk_regime = NEW.fk_regime and seq_no is not null;
+	if FOUND then
+		return NEW;
+	end if;
+	raise exception ''Cannot define booster shot for regime [%]. There is no base immunization definition.'', NEW.fk_regime;
+	return null;
+END;
+';
+
+create trigger tr_ins_booster_must_have_base_immunity
+	before insert on clin.vacc_def
+	for each row execute procedure clin.f_ins_booster_must_have_base_immunity();
+
+-- update
+create or replace function clin.f_upd_booster_must_have_base_immunity()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	msg text;
+BEGIN
+	-- do not worry about non-booster updates
+	if NEW.is_booster is false then
+		return null;
+	end if;
+	-- after update to booster still non-booster def available ?
+	perform 1 from clin.vacc_def where fk_regime = NEW.fk_regime and seq_no is not null;
+	if FOUND then
+		return null;
+	end if;
+	msg := ''Cannot set vacc def ['' || NEW.pk || ''] to booster for regime ['' || NEW.fk_regime || '']. There would be no base immunization definition left.'';
+	raise exception ''%'', msg;
+	return null;
+END;';
+
+create trigger tr_upd_booster_must_have_base_immunity
+	after update on clin.vacc_def
+	for each row execute procedure clin.f_upd_booster_must_have_base_immunity();
+
+-- delete
+create or replace function clin.f_del_booster_must_have_base_immunity()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	msg text;
+BEGIN
+	-- do not worry about booster deletes
+	if OLD.is_booster then
+		return null;
+	end if;
+	-- any non-booster rows left ?
+	perform 1 from clin.vacc_def where fk_regime = OLD.fk_regime and seq_no is not null;
+	if FOUND then
+		return null;
+	end if;
+	-- *any* rows left ?
+	perform 1 from clin.vacc_def where fk_regime = OLD.fk_regime;
+	if not FOUND then
+		-- no problem
+		return null;
+	end if;
+	-- any remaining rows can only be booster rows - which is a problem
+	msg := ''Cannot delete last non-booster vacc def ['' || OLD.pk || ''] from regime ['' || OLD.fk_regime || '']. There would be only booster definitions left.'';
+	raise exception ''%'', msg;
+	return null;
+END;';
+
+create trigger tr_del_booster_must_have_base_immunity
+	after delete on clin.vacc_def
+	for each row execute procedure clin.f_del_booster_must_have_base_immunity();
+
+
 -- clin.vaccination --
 select add_table_for_audit('clin', 'vaccination');
---delete from notifying_tables where table_name = 'vaccination';
 select add_table_for_notifies('clin', 'vaccination', 'vacc');
 
 comment on table clin.vaccination is
@@ -2325,11 +2432,16 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.164 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.165 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.164  2005-12-29 21:48:09  ncq
+-- Revision 1.165  2006-01-01 20:41:06  ncq
+-- - move vacc_def constraints around
+-- - add trigger constraint to make sure there's always base
+--   immunization definitions for boosters
+--
+-- Revision 1.164  2005/12/29 21:48:09  ncq
 -- - clin.vaccine.id -> pk
 -- - remove clin.vaccine.last_batch_no
 -- - add clin.vaccine_batches
