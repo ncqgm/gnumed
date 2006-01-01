@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.32 2005-12-14 17:00:01 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmMedDoc.py,v 1.33 2006-01-01 15:39:50 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -55,15 +55,15 @@ class cDocumentFolder:
 			_log.Log(gmLog.lErr, "no patient [%s] in demographic database" % self.id_patient)
 			return None
 		# patient linked in our local documents database ?
-		cmd = "select exists(select pk from xlnk_identity where xfk_identity = %s)"
+		cmd = "select exists(select pk from blobs.xlnk_identity where xfk_identity = %s)"
 		result = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in documents database' % self.id_patient)
 			return None
 		if not result[0][0]:
 			_log.Log(gmLog.lInfo, "no patient [%s] in documents database" % self.id_patient)
-			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
-			cmd2 = "select currval('xlnk_identity_pk_seq')"
+			cmd1 = "insert into blobs.xlnk_identity (xfk_identity, pupic) values (%s, %s)"
+			cmd2 = "select currval('blobs.xlnk_identity_pk_seq')"
 			status = gmPG.run_commit('blobs', [
 				(cmd1, [self.id_patient, self.id_patient]),
 				(cmd2, [])
@@ -103,7 +103,7 @@ class cDocumentFolder:
 					blobs.doc_med dm
 					blobs.doc_obj dobj
 				where
-					dm.type = (select pk from doc_type where name='patient photograph') and
+					dm.type = (select pk from blobs.doc_type where name='patient photograph') and
 					dm.patient_id=%s and
 					and dobj.doc_id = dm.id
 				limit 1
@@ -129,7 +129,7 @@ class cDocumentFolder:
 				where
 					patient_id=%(ID)s
 						and
-					type=(select pk from doc_type where name=%(TYP)s)
+					type=(select pk from blobs.doc_type where name=%(TYP)s)
 				"""
 		else:
 			cmd = """
@@ -413,9 +413,9 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		- will return a list of strings
 		"""
 		if max_lng is None:
-			cmd = "SELECT text FROM doc_desc WHERE doc_id=%s"
+			cmd = "SELECT text FROM blobs.doc_desc WHERE doc_id=%s"
 		else:
-			cmd = "SELECT substring(text from 1 for %s) FROM doc_desc WHERE doc_id=%%s" % max_lng
+			cmd = "SELECT substring(text from 1 for %s) FROM blobs.doc_desc WHERE doc_id=%%s" % max_lng
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load document [%s] descriptions' % self.pk_obj)
@@ -597,7 +597,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.32  2005-12-14 17:00:01  ncq
+# Revision 1.33  2006-01-01 15:39:50  ncq
+# - some missing blobs.
+#
+# Revision 1.32  2005/12/14 17:00:01  ncq
 # - add add_document() and add_description() to cMedDoc
 # - fix missing ''
 # - add gmMedDoc.get_ext_ref()
