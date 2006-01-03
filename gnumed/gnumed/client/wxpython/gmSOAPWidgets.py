@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.65 2005-12-27 19:01:07 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmSOAPWidgets.py,v 1.66 2006-01-03 12:12:03 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,7 +21,6 @@ except ImportError:
 
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmWhoAmI
-from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash, gmVaccWidgets, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
@@ -1117,7 +1116,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.65  2005-12-27 19:01:07  ncq
+# Revision 1.66  2006-01-03 12:12:03  ncq
+# - make epydoc happy re _()
+#
+# Revision 1.65  2005/12/27 19:01:07  ncq
 # - define vacc popup keyword just for testing
 # - slightly massage Syan's close-episodes-on-creation patch
 #

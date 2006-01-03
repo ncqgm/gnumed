@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.227 2005-12-27 18:54:50 ncq Exp $
-__version__ = "$Revision: 1.227 $"
+# $Id: gmGuiMain.py,v 1.228 2006-01-03 12:12:03 ncq Exp $
+__version__ = "$Revision: 1.228 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -38,7 +38,11 @@ from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignal
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.pycommon.gmPyCompat import *
+
+try:
+	_('do-not-translate-but-make-epydoc-happy')
+except NameError:
+	_ = lambda x:x
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -996,7 +1000,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.227  2005-12-27 18:54:50  ncq
+# Revision 1.228  2006-01-03 12:12:03  ncq
+# - make epydoc happy re _()
+#
+# Revision 1.227  2005/12/27 18:54:50  ncq
 # - -> GNUmed
 # - enlarge About
 # - verify database on startup

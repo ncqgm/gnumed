@@ -6,8 +6,8 @@ includes dialogues for printer calibration, etc.
 and new form wizard.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormPrinter.py,v $
-# $Id: gmFormPrinter.py,v 1.8 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmFormPrinter.py,v 1.9 2006-01-03 12:12:03 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Ian Haywood"
 
 try:
@@ -18,7 +18,12 @@ except ImportError:
 
 import string
 
-from Gnumed.pycommon import gmPG, gmCfg, gmLog
+from Gnumed.pycommon import gmPG, gmCfg, gmLog, gmI18N
+
+try:
+	_('do-not-translate-but-make-epydoc-happy')
+except NameError:
+	_ = lambda x:x
 
 cache_form = 0 # cached variables to allow repeat of last form
 cache_params = {}
@@ -342,7 +347,10 @@ psd = gmPrinterSetupDialog (fp)
 
 #=================================================
 # $Log: gmFormPrinter.py,v $
-# Revision 1.8  2005-09-28 21:27:30  ncq
+# Revision 1.9  2006-01-03 12:12:03  ncq
+# - make epydoc happy re _()
+#
+# Revision 1.8  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.7  2005/09/28 15:57:48  ncq

@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.24 2005-09-27 20:44:59 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmLogin.py,v 1.25 2006-01-03 12:12:03 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "H.Herb"
 
 import os.path, sys
@@ -20,6 +20,11 @@ except ImportError:
 
 from Gnumed.pycommon import gmPG, gmLog, gmExceptions, gmI18N
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
+
+try:
+	_('do-not-translate-but-make-epydoc-happy')
+except NameError:
+	_ = lambda x:x
 
 _log = gmLog.gmDefLog
 #==============================================================
@@ -70,7 +75,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.24  2005-09-27 20:44:59  ncq
+# Revision 1.25  2006-01-03 12:12:03  ncq
+# - make epydoc happy re _()
+#
+# Revision 1.24  2005/09/27 20:44:59  ncq
 # - wx.wx* -> wx.*
 #
 # Revision 1.23  2005/09/26 18:01:51  ncq

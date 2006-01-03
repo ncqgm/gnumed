@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,6 +24,10 @@ _log.Log(gmLog.lInfo, __version__)
 
 ID_ALLERGY_LIST = wx.NewId()
 
+try:
+	_('do-not-translate-but-make-epydoc-happy')
+except NameError:
+	_ = lambda x:x
 #======================================================================
 class gmAllergyEditArea(gmEditArea.cEditArea):
 
@@ -348,7 +352,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.12  2005-12-27 18:46:39  ncq
+# Revision 1.13  2006-01-03 12:12:03  ncq
+# - make epydoc happy re _()
+#
+# Revision 1.12  2005/12/27 18:46:39  ncq
 # - use gmI18N
 #
 # Revision 1.11  2005/09/28 21:27:30  ncq
