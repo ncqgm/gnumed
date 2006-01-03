@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1331,6 +1331,10 @@ def become_pg_demon_user():
 		_log.Log (gmLog.lWarn, "running on broken OS -- can't import pwd module")
 		return None
 
+	try:
+		_log.Log(gmLog.lInfo, 'running as user [%s]' % pwd.getpwuid(os.getuid())[0])
+	except: pass
+
 	pg_demon_user_passwd_line = None
 	if os.getuid() == 0: # we are the super-user
 		try:
@@ -1456,7 +1460,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.19  2005-12-27 19:07:11  ncq
+# Revision 1.20  2006-01-03 11:27:52  ncq
+# - log user we are actually running as
+#
+# Revision 1.19  2005/12/27 19:07:11  ncq
 # - improve wording
 #
 # Revision 1.18  2005/12/06 17:33:34  ncq
