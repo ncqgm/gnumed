@@ -1,12 +1,12 @@
 """Automatic GNUmed audit trail generation.
 
 This module creates SQL DDL commands for the audit
-trail triggers and functions.
+trail triggers and functions to be created in the schema "audit".
 
 Theory of operation:
 
 Any table that needs to be audited (all modifications
-logged) must be recorded in the table "public.audited_tables".
+logged) must be recorded in the table "audit.audited_tables".
 
 This script creates the triggers, functions and tables
 neccessary to establish the audit trail. Some or all
@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -34,9 +34,9 @@ _log.Log(gmLog.lInfo, __version__)
 # the audit trail tables start with this prefix
 audit_trail_table_prefix = 'log_'
 # and inherit from this table
-audit_trail_parent_table = 'public.audit_trail'
+audit_trail_parent_table = 'audit.audit_trail'
 # audited tables inherit these fields
-audit_fields_table = 'public.audit_fields'
+audit_fields_table = 'audit.audit_fields'
 
 #==================================================================
 # convenient queries
@@ -63,27 +63,37 @@ audit_fields_table = 'public.audit_fields'
 # insert
 tmpl_insert_trigger = """CREATE TRIGGER zt_ins_%s
 	BEFORE INSERT ON %s.%s
-	FOR EACH ROW EXECUTE PROCEDURE %s.ft_ins_%s()"""
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%s()"""
 
-tmpl_insert_function = """CREATE OR REPLACE FUNCTION %s.ft_ins_%s() RETURNS trigger AS '
+tmpl_insert_function = """
+CREATE OR REPLACE FUNCTION audit.ft_ins_%s()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	SECURITY DEFINER
+	AS '
 BEGIN
 	NEW.row_version := 0;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := CURRENT_USER;
 	return NEW;
-END;' LANGUAGE 'plpgsql'"""
+END;'"""
 
 # update
 tmpl_update_trigger = """CREATE TRIGGER zt_upd_%s
 	BEFORE UPDATE ON %s.%s
-	FOR EACH ROW EXECUTE PROCEDURE %s.ft_upd_%s()"""
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%s()"""
 
-tmpl_update_function = """CREATE OR REPLACE FUNCTION %s.ft_upd_%s() RETURNS trigger AS '
+tmpl_update_function = """
+CREATE OR REPLACE FUNCTION audit.ft_upd_%s()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	SECURITY DEFINER
+	AS '
 BEGIN
 	NEW.row_version := OLD.row_version + 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := CURRENT_USER;
-	INSERT INTO %s.%s (
+	INSERT INTO audit.%s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
@@ -91,16 +101,22 @@ BEGIN
 		%s
 	);
 	return NEW;
-END;' LANGUAGE 'plpgsql'"""
+END;'"""
 
 # delete
-tmpl_delete_trigger = """CREATE TRIGGER zt_del_%s
+tmpl_delete_trigger = """
+CREATE TRIGGER zt_del_%s
 	BEFORE DELETE ON %s.%s
-	FOR EACH ROW EXECUTE PROCEDURE %s.ft_del_%s()"""
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%s()"""
 
-tmpl_delete_function = """CREATE OR REPLACE FUNCTION %s.ft_del_%s() RETURNS trigger AS '
+tmpl_delete_function = """
+CREATE OR REPLACE FUNCTION audit.ft_del_%s()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	SECURITY DEFINER
+	AS '
 BEGIN
-	INSERT INTO %s.%s (
+	INSERT INTO audit.%s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
@@ -108,16 +124,16 @@ BEGIN
 		%s
 	);
 	return OLD;
-END;' LANGUAGE 'plpgsql'"""
+END;'"""
 
-tmpl_create_audit_trail_table = """create table %s.%s (
+tmpl_create_audit_trail_table = """
+create table audit.%s (
 %s
-) inherits (%s);
-
-grant insert on %s.%s to group "gm-public" """
+) inherits (%s);"""
+#grant insert on %s.%s to group "gm-public" 
 #------------------------------------------------------------------
 #------------------------------------------------------------------
-def audit_trail_table_ddl(aCursor='default', schema='public', table2audit=None):
+def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
 
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, table2audit)
 
@@ -146,16 +162,15 @@ def audit_trail_table_ddl(aCursor='default', schema='public', table2audit=None):
 
 	# create audit table DDL
 	table_def = tmpl_create_audit_trail_table % (
-		schema,
 		audit_trail_table,
 		attributes,
-		audit_trail_parent_table,
-		schema,
-		audit_trail_table
+		audit_trail_parent_table
 	)
 	return [table_def, '']
+#		schema,
+#		audit_trail_table
 #------------------------------------------------------------------
-def trigger_ddl(aCursor='default', schema='public', audited_table=None):
+def trigger_ddl(aCursor='default', schema='audit', audited_table=None):
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, audited_table)
 
 	target_columns = gmPG.get_col_names(source = aCursor, schema = schema, table = audited_table)
@@ -172,21 +187,21 @@ def trigger_ddl(aCursor='default', schema='public', audited_table=None):
 	ddl = []
 
 	# insert
-	ddl.append(tmpl_insert_function % (schema, audited_table))
+	ddl.append(tmpl_insert_function % audited_table)
 	ddl.append('')
-	ddl.append(tmpl_insert_trigger % (audited_table, schema, audited_table, schema, audited_table))
+	ddl.append(tmpl_insert_trigger % (audited_table, schema, audited_table, audited_table))
 	ddl.append('')
 
 	# update
-	ddl.append(tmpl_update_function % (schema, audited_table, schema, audit_trail_table, columns_clause, values_clause))
+	ddl.append(tmpl_update_function % (audited_table, audit_trail_table, columns_clause, values_clause))
 	ddl.append('')
-	ddl.append(tmpl_update_trigger % (audited_table, schema, audited_table, schema, audited_table))
+	ddl.append(tmpl_update_trigger % (audited_table, schema, audited_table, audited_table))
 	ddl.append('')
 
 	# delete
-	ddl.append(tmpl_delete_function % (schema, audited_table, schema, audit_trail_table, columns_clause, values_clause))
+	ddl.append(tmpl_delete_function % (audited_table, audit_trail_table, columns_clause, values_clause))
 	ddl.append('')
-	ddl.append(tmpl_delete_trigger % (audited_table, schema, audited_table, schema, audited_table))
+	ddl.append(tmpl_delete_trigger % (audited_table, schema, audited_table, audited_table))
 	ddl.append('')
 
 	# disallow delete/update on auditing table
@@ -195,7 +210,7 @@ def trigger_ddl(aCursor='default', schema='public', audited_table=None):
 #------------------------------------------------------------------
 def create_audit_ddl(aCursor):
 	# get list of all marked tables
-	cmd = "select schema, table_name from public.audited_tables";
+	cmd = "select schema, table_name from audit.audited_tables";
 	if gmPG.run_query(aCursor, None, cmd) is None:
 		return None
 	rows = aCursor.fetchall()
@@ -249,7 +264,14 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.24  2005-12-04 09:34:44  ncq
+# Revision 1.25  2006-01-05 16:07:11  ncq
+# - generate audit trail tables and functions in schema "audit"
+# - adjust configuration
+# - audit trigger functions now "security definer" (== gm-dbo)
+# - grant SELECT only to non-gm-dbo users
+# - return language_handler not opaque from language call handler functions
+#
+# Revision 1.24  2005/12/04 09:34:44  ncq
 # - make fit for schema support
 # - move some queries to gmPG
 # - improve DDL templates (use or replace on functions)
