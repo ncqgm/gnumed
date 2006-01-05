@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.23 2005-12-29 21:54:35 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmVaccination.py,v 1.24 2006-01-05 22:39:57 sjtan Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -235,7 +235,111 @@ def get_vacc_regimes():
 	for row in rows:
 		data.extend(rows)
 	return data
+	
+class VaccByRecommender:
+	_recommended_regimes = None 
+
+def get_vacc_regimes_by_recommender_ordered(pk_patient = None,  clear_cache = False):
+	try:
+		id = int(pk_patient)
+		if not id:
+			id = 0
+	except:
+		id = 0
+	
+
+	cmd = """select fk_regime from clin.lnk_pat2vacc_reg l  where 
+		l.fk_patient = %d """ % id
+	
+	rows = gmPG.run_ro_query('historica', cmd)
+	active = []
+	if rows and len(rows):
+		active = [ r[0] for r in rows]
+		
+	
+	recommended_regimes = VaccByRecommender._recommended_regimes
+	if not clear_cache and recommended_regimes:
+		return recommended_regimes, active
+	
+	
+	r = ( {}, [] )
+	
+	cmd = """select 
+		r.pk_regime , 
+		r.pk_recommended_by , 
+		r.indication, 
+		r.regime , 
+		extract (epoch from d.min_age_due) /60/60/24,
+		extract (epoch from d.max_age_due)  /60/60/24, 		
+		extract (epoch from d.min_interval ) /60/60/24, 
+		d.seq_no 	
+		
+		from 
+			clin.v_vacc_regimes r, clin.vacc_def d 
+		where 
+			d.fk_regime = r.pk_regime 
+		order by 
+			r.pk_recommended_by, d.min_age_due
+	""" 
+	print cmd
+	#import pdb
+	#pdb.set_trace()
+	#
+	rows = gmPG.run_ro_query('historica', cmd)
+	if not rows is None:
+		for row in rows:
+			m = {}
+			for k, i in zip ( ['pk_regime', 'pk_recommender', 'indication' , 'regime', 'min_age_due', 'max_age_due', 'min_interval', 'seq_no' ] , range( len( row )) ):
+				m[k] = row[i]
+			pk_recommender = m['pk_recommender']	
+			
+			if not pk_recommender in r[0].keys(): 
+				r[0][pk_recommender] = []
+				r[1].append(pk_recommender)
+			r[0][pk_recommender].append(m)
+			
+			
+		for k, v in r[0].items():
+			print k
+			for x in v:
+				print '\t', x
+
+	VaccByRecommender._recommended_regimes = r
+	return r, active
+
+def get_missing_vaccinations_ordered_min_due( pk_patient):
+	try:
+		pk_patient = int(pk_patient)
+	except:
+		pk_patient = 0
+
+	if type(pk_patient) is not int:
+		pk_patient = 0
+	cmd =""" 
+	select 
+		indication, regime, 
+		pk_regime, 
+		pk_recommended_by, 
+		seq_no , 
+		extract(epoch from age_due_min) /60/60/24 as age_due_min, 
+		extract(epoch from age_due_max) /60/60/24 as age_due_max,
+		extract(epoch from min_interval)/60/60/24 as min_interval
+	from
+		clin.v_pat_missing_vaccs 
+	where pk_patient = %d 
+	order by age_due_min, pk_recommended_by, indication
+	""" % pk_patient
+	
+		
+	rows = gmPG.run_ro_query('historica', cmd)
+	
+	return rows
+	
+	
+	
+				
 #--------------------------------------------------------
+
 def get_indications_from_vaccinations(vaccinations=None):
 	"""Retrieves vaccination bundle indications list.
 
@@ -287,6 +391,79 @@ def put_patient_on_schedule(patient_id=None, regime=None):
 	if result is None:
 		return (False, msg)
 	return (True, msg)
+	
+def remove_patient_from_schedule(patient_id=None, regime=None):
+	"""
+		unSchedules a vaccination regime for a patient
+
+		* patient_id = Patient's PK
+		* regime_id = regime object or Vaccination regime's PK
+	"""
+	# FIXME: add method schedule_vaccination_regime() to gmPerson.cPerson
+	if isinstance(regime, cVaccinationRegime):
+		reg_id = regime['pk_regime']
+	else:
+		reg_id = regime
+
+	# delete  patient - vaccination regime relation
+	queries = []
+	cmd = """delete from clin.lnk_pat2vacc_reg where fk_patient = %s and fk_regime = %s"""
+			 
+	queries.append((cmd, [patient_id, reg_id]))
+	result, msg = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, msg)
+	return (True, msg)	
+
+	
+def get_matching_vaccines_for_indications( all_ind):
+
+	quoted_inds = [ "'"+x + "%'" for x in all_ind]
+	
+
+	cmd_inds_per_vaccine = """
+		select count(v.trade_name) , v.trade_name 
+		from 
+			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
+		where 
+			v.id = l.fk_vaccine and l.fk_indication = i.id 
+		group 
+			by trade_name
+		"""
+		
+	cmd_presence_in_vaccine = """
+			select count(v.trade_name) , v.trade_name 
+	
+		from 
+			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
+		where 
+			v.id = l.fk_vaccine and l.fk_indication = i.id 	
+		and  
+			i.description like any ( array [ %s ] ) 		
+		group 
+			
+			by trade_name
+
+		"""		% ', '.join( quoted_inds )
+	#import pdb
+	#pdb.set_trace()
+	inds_per_vaccine = gmPG.run_ro_query( 'historica', cmd_inds_per_vaccine)
+	
+	presence_in_vaccine = gmPG.run_ro_query( 'historica', cmd_presence_in_vaccine)
+
+	map_vacc_count_inds = dict ( [ (x[1], x[0]) for x in inds_per_vaccine ] )
+	
+	matched_vaccines = []
+	for (presence, vaccine) in presence_in_vaccine:
+		if presence == len ( all_ind) : 
+			# matched the number of indications selected with a vaccine
+			# is this also ALL the vaccine's indications ?
+			if map_vacc_count_inds[vaccine] == presence:
+				matched_vaccines.append(vaccine)
+			
+			
+	return matched_vaccines
+	
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -373,7 +550,11 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.23  2005-12-29 21:54:35  ncq
+# Revision 1.24  2006-01-05 22:39:57  sjtan
+#
+# vaccination use case; some sql stuff may need to be added ( e.g. permissions ); sorry in a hurry
+#
+# Revision 1.23  2005/12/29 21:54:35  ncq
 # - adjust to schema changes
 #
 # Revision 1.22  2005/11/27 12:44:57  ncq
