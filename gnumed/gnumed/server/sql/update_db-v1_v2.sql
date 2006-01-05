@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -666,17 +666,20 @@ alter table de_kvk
 drop table public.xlnk_identity cascade;
 
 -- adjust audit_fields pk sequence globally
-select setval('public.audit_fields_pk_audit_seq'::text, (select max(pk_audit) from public.audit_fields));
+select setval('audit.audit_fields_pk_audit_seq'::text, (select max(pk_audit) from audit.audit_fields));
 
 -- ===================================================================
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.19 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.19  2005-12-29 21:48:09  ncq
+-- Revision 1.20  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.19  2005/12/29 21:48:09  ncq
 -- - clin.vaccine.id -> pk
 -- - remove clin.vaccine.last_batch_no
 -- - add clin.vaccine_batches

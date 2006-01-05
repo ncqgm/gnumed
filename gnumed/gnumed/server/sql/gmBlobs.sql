@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.55 $ $Date: 2005-12-04 09:38:22 $ $Author: ncq $
+-- $Revision: 1.56 $ $Date: 2006-01-05 16:04:37 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -21,7 +21,7 @@ create table blobs.xlnk_identity (
 	xfk_identity integer unique not null,
 	pupic text unique not null,
 	data text unique default null
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 --\set ON_ERROR_STOP 1
 
@@ -153,7 +153,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.55 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.56 $');
 
 -- =============================================
 -- questions:
@@ -173,7 +173,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.55  2005-12-04 09:38:22  ncq
+-- Revision 1.56  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.55  2005/12/04 09:38:22  ncq
 -- - add fk_intended_reviewer to doc_obj
 --
 -- Revision 1.54  2005/11/27 12:58:19  ncq

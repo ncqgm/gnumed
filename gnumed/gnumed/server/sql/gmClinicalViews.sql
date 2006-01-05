@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.165 2006-01-01 20:41:06 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.166 2006-01-05 16:04:37 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -110,7 +110,7 @@ comment on COLUMN clin.clin_root_item.pk_item is
 	 table';
 comment on column clin.clin_root_item.clin_when is
 	'when this clinical item became known, can be different from
-	 when it was entered into the system (= audit_fields.modified_when)';
+	 when it was entered into the system (= audit.audit_fields.modified_when)';
 comment on COLUMN clin.clin_root_item.fk_encounter is
 	'the encounter this item belongs to';
 comment on COLUMN clin.clin_root_item.fk_episode is
@@ -2432,11 +2432,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.165 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.166 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.165  2006-01-01 20:41:06  ncq
+-- Revision 1.166  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.165  2006/01/01 20:41:06  ncq
 -- - move vacc_def constraints around
 -- - add trigger constraint to make sure there's always base
 --   immunization definitions for boosters

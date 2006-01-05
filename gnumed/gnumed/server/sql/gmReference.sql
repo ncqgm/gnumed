@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -26,7 +26,7 @@ create table ref_source (
 	description text,
 	source text unique not null,
 	unique(name_short, version)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 -- ====================================
 create table lnk_tbl2src (
@@ -70,7 +70,7 @@ create table atc_group (
 	description text
 		unique
 		not null
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 create table atc_substance (
 	pk serial primary key,
@@ -87,7 +87,7 @@ create table atc_substance (
 		on delete restrict,
 	route text,
 	comment text
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 -- =============================================
 create table test_norm (
@@ -135,7 +135,7 @@ create table form_defs (
 		default true,
 	unique (name_short, name_long),
 	unique (name_long, revision)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 -- =============================================
 create table form_field_types (
@@ -182,11 +182,14 @@ create table form_print_defs (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.24  2005-11-13 17:38:40  ncq
+-- Revision 1.25  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.24  2005/11/13 17:38:40  ncq
 -- - factor out dynamic DDL
 --
 -- Revision 1.23  2005/11/11 23:05:08  ncq

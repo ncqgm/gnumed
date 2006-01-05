@@ -2,7 +2,7 @@
 -- GNUmed - tracking of reviewed status of incoming data
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReviewedStatus-static.sql,v $
--- $Id: gmReviewedStatus-static.sql,v 1.2 2005-11-25 15:07:28 ncq Exp $
+-- $Id: gmReviewedStatus-static.sql,v 1.3 2006-01-05 16:04:37 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -25,7 +25,7 @@ create table clin.review_root (
 	comment text
 		default null,
 	unique (fk_reviewed_row, fk_reviewer)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- ---------------------------------------------
 create table clin.reviewed_test_results (
@@ -42,11 +42,14 @@ create table blobs.reviewed_doc_objs (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReviewedStatus-static.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmReviewedStatus-static.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmReviewedStatus-static.sql,v $
--- Revision 1.2  2005-11-25 15:07:28  ncq
+-- Revision 1.3  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.2  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.1  2005/10/26 21:31:08  ncq

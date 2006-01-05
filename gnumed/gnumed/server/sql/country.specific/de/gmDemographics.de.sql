@@ -1,6 +1,6 @@
 -- GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 
 -- license: GPL
 
@@ -92,7 +92,7 @@ create table beh_fall_typ (
 	code text unique not null,
 	kurzform text unique not null,
 	name text unique not null
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('beh_fall_typ');
 
@@ -148,7 +148,7 @@ create table prax_geb_paid (
 		references payment_method(pk)
 		on delete restrict
 		on update cascade
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('prax_geb_paid');
 
@@ -157,11 +157,14 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.8  2005-11-25 15:06:25  ncq
+-- Revision 1.9  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.8  2005/11/25 15:06:25  ncq
 -- - create schema de_DE
 --
 -- Revision 1.7  2005/11/19 13:51:46  ncq

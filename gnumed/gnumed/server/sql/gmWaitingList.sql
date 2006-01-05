@@ -1,7 +1,7 @@
 -- Project: GNUmed - waiting list tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmWaitingList.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -27,7 +27,7 @@ create table clin.waiting_list (
 		not null
 		check (list_position > 0),
 	comment text
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('clin', 'waiting_list');
 
@@ -52,11 +52,14 @@ comment on column clin.waiting_list.comment is
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmWaitingList.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmWaitingList.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmWaitingList.sql,v $
--- Revision 1.2  2005-11-25 15:07:28  ncq
+-- Revision 1.3  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.2  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.1  2005/09/21 10:18:59  ncq

@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -15,7 +15,7 @@ CREATE TABLE lab_test_GNR (
 	id_test integer
 		not null
 		references clin.test_type(pk)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 --	EBM character(6) references ebm(gnr),
 --	GOA_88 character(6) references goae_88.gnr,
@@ -47,11 +47,14 @@ COMMENT ON COLUMN lab_test_GNR.id_test IS
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmClinical.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.15  2005-11-25 15:07:28  ncq
+-- Revision 1.16  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.15  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.14  2005/09/19 16:38:52  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.60 $
+-- $Revision: 1.61 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -37,7 +37,7 @@ create table state (
 	country char(2) not null references country(code),
 	name text not null,
 	unique (code, country)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('state');
 
@@ -64,7 +64,7 @@ create table urb (
 	name text
 		not null,
 	unique (id_state, postcode, name)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 -- this does not work in the UK! Seperate postcodes for each street,
 -- Same in Germany ! Postcodes can be valid for:
@@ -102,7 +102,7 @@ create table street (
 	suburb text default null,
 	lat_lon point,
 	unique(id_urb, name, postcode)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('street');
 
@@ -132,7 +132,7 @@ create table address (
 	addendum text default null,
 	lat_lon point default null,
 	unique(id_street, aux_street, number, subunit, addendum)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 -- FIXME: should be unique(coalesce(field, '')) for aux_street, subunit, addendum !
 
@@ -197,7 +197,7 @@ create table gender_label (
 		not null,
 	comment text
 		not null
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('gender_label');
 
@@ -225,7 +225,7 @@ create table identity (
 		default null
 		check ((deceased is null) or (deceased >= dob)),
 	title text
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('identity');
 
@@ -280,7 +280,7 @@ create table lnk_identity2ext_id (
 		enum_ext_id_types(pk),
 	comment text,
 	unique (id_identity, external_id, fk_origin)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('lnk_identity2ext_id');
 
@@ -379,7 +379,7 @@ create table relation_types (
 	biological boolean not null,
 	biol_verified boolean default false,
 	description text
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('relation_types');
 
@@ -405,7 +405,7 @@ create table lnk_person2relative (
 	id_relation_type integer not null references relation_types,
 	started date default NULL,
 	ended date default NULL
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('lnk_person2relative');
 
@@ -430,7 +430,7 @@ create table occupation (
 	name text
 		not null
 		check (trim(name) != '')
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('occupation');
 
@@ -444,7 +444,7 @@ create table lnk_job2person (
 	id_occupation integer not null references occupation(id),
 	comment text,
 	unique (id_identity, id_occupation)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('lnk_job2person');
 
@@ -459,7 +459,7 @@ create table staff_role (
 	pk serial primary key,
 	name text unique not null,
 	comment text
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('staff_role');
 
@@ -488,7 +488,7 @@ create table staff (
 	comment text,
 	unique(fk_role, db_user)
 	-- link to practice
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select add_table_for_audit('staff');
 --select add_x_db_fk_def('staff', 'db_user', 'personalia', 'pg_user', 'usename');
@@ -560,7 +560,7 @@ create table lnk_org2ext_id (
 	fk_origin integer not null references enum_ext_id_types(pk),
 	comment text,
 	unique (id_org, external_id, fk_origin)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 -- ==========================================================
 -- the table formerly known as lnk_person2address
@@ -601,11 +601,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.60 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.61 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.60  2005-12-27 19:13:17  ncq
+-- Revision 1.61  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.60  2005/12/27 19:13:17  ncq
 -- - add link table to audit system
 --
 -- Revision 1.59  2005/12/05 19:05:59  ncq

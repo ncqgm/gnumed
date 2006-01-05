@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.175 $
+-- $Revision: 1.176 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -18,7 +18,7 @@ create table clin.xlnk_identity (
 	xfk_identity integer unique not null,
 	pupic text unique not null,
 	data text unique default null
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- ===================================================================
 -- generic EMR structure
@@ -46,7 +46,7 @@ create table clin.health_issue (
 		not null
 		default false,
 	unique (id_patient, description)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- FIXME: Richard also has is_operation, laterality
 
@@ -72,7 +72,7 @@ create table clin.episode (
 		check (trim(description) != ''),
 	is_open boolean
 		default true
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 alter table clin.episode add constraint only_standalone_epi_has_patient
 	check (
@@ -119,7 +119,7 @@ create table clin.encounter (
 	last_affirmed timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- ===================================================================
 -- EMR items root with narrative aggregation
@@ -143,7 +143,7 @@ create table clin.clin_root_item (
 	soap_cat text
 		not null
 		check(lower(soap_cat) in ('s', 'o', 'a', 'p'))
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.clin_item_type (
@@ -156,7 +156,7 @@ create table clin.clin_item_type (
 		default 'Hx'
 		unique
 		not null
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.lnk_type2item (
@@ -173,7 +173,7 @@ create table clin.lnk_type2item (
 --		on delete cascade
 		,
 	unique (fk_type, fk_item)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- ============================================
 -- specific EMR content tables: SOAP++
@@ -220,7 +220,7 @@ create table clin.coded_narrative (
 		not null
 		check (trim(code) != ''),
 	unique (term, code, xfk_coding_system)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 -- general FH storage
@@ -252,7 +252,7 @@ create table clin.hx_family_item (
 		default false,
 	unique (name_relative, dob_relative, condition),
 	unique (fk_relative, condition)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 alter table clin.hx_family_item add constraint link_or_know_condition
 	check (
@@ -320,7 +320,7 @@ create table clin.clin_diag (
 	clinically_relevant boolean
 		not null
 		default true
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 alter table clin.clin_diag add constraint if_active_then_relevant
 	check (
@@ -356,7 +356,7 @@ alter table clin.clin_aux_note add foreign key (fk_episode)
 create table clin.vacc_indication (
 	id serial primary key,
 	description text unique not null
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.lnk_vacc_ind2code (
@@ -376,7 +376,7 @@ create table clin.vacc_route (
 	id serial primary key,
 	abbreviation text unique not null,
 	description text unique not null
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 
@@ -399,7 +399,7 @@ create table clin.vaccine (
 		check((max_age is null) or (max_age >= min_age)),
 	comment text,
 	unique (trade_name, short_name)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- FIXME: this table eventually needs to go into
 -- FIXME: stock inventory tracking
@@ -413,7 +413,7 @@ create table clin.vaccine_batches (
 	batch_no text
 		unique
 		not null
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.lnk_vaccine2inds (
@@ -443,7 +443,7 @@ create table clin.vacc_regime (
 		on delete restrict,
 	comment text,
 	unique(fk_recommended_by, fk_indication, name)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.lnk_pat2vacc_reg (
@@ -459,7 +459,7 @@ create table clin.lnk_pat2vacc_reg (
 		on update cascade
 		on delete restrict,
 	unique(fk_patient, fk_regime)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.vacc_def (
@@ -485,7 +485,7 @@ create table clin.vacc_def (
 	comment text,
 	unique(fk_regime, seq_no)
 --	,unique(fk_regime, is_booster)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin.vaccination (
@@ -537,7 +537,7 @@ alter table clin.vaccination alter column soap_cat set default 'p';
 --		on delete restrict
 --		on update cascade,
 --	unique (fk_vaccination, fk_vacc_def)
---) inherits (public.audit_fields);
+--) inherits (audit.audit_fields);
 
 --comment on column clin.lnk_vacc2vacc_def.fk_vacc_def is
 --	'the vaccination event a particular
@@ -558,7 +558,7 @@ create table clin.allergy_state (
 	has_allergy integer
 		default null
 		check (has_allergy in (null, -1, 0, 1))
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 create table clin._enum_allergy_type (
@@ -634,7 +634,7 @@ create table clin.form_data (
 		on delete restrict,
 	value text not null,
 	unique(fk_instance, fk_form_field)
-) inherits (public.audit_fields);
+) inherits (audit.audit_fields);
 
 -- ============================================
 -- medication tables
@@ -704,11 +704,14 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.175 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.176 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.175  2006-01-01 20:41:06  ncq
+-- Revision 1.176  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.175  2006/01/01 20:41:06  ncq
 -- - move vacc_def constraints around
 -- - add trigger constraint to make sure there's always base
 --   immunization definitions for boosters

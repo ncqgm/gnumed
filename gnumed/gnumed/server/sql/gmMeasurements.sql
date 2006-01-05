@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.55 $
+-- $Revision: 1.56 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -27,7 +27,7 @@ create table clin.test_org (
 		on delete restrict,
 	internal_name text unique,
 	"comment" text
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select public.add_table_for_audit('clin', 'test_org');
 
@@ -67,7 +67,7 @@ create table clin.test_type (
 	comment text,
 	conversion_unit text,
 	unique (fk_test_org, code, coding_system)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select public.add_table_for_audit('clin', 'test_type');
 
@@ -148,7 +148,7 @@ create table clin.lnk_tst2norm (
 		references clin.test_type(pk),
 	id_norm integer not null,
 	unique (id_test, id_norm)
-) inherits (audit_fields);
+) inherits (audit.audit_fields);
 
 select public.add_table_for_audit('clin', 'lnk_tst2norm');
 
@@ -383,11 +383,14 @@ create table clin.lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.55 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.56 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.55  2005-12-06 13:26:55  ncq
+-- Revision 1.56  2006-01-05 16:04:37  ncq
+-- - move auditing to its own schema "audit"
+--
+-- Revision 1.55  2005/12/06 13:26:55  ncq
 -- - clin.clin_encounter -> clin.encounter
 -- - also id -> pk
 --
