@@ -1,13 +1,13 @@
 # -*- coding: latin-1 -*-
-"""GnuMed patient objects.
+"""GNUmed patient objects.
 
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.58 2005-11-18 15:16:55 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmPerson.py,v 1.59 2006-01-06 10:15:37 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -30,10 +30,10 @@ __comm_list = None
 #============================================================
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	_service = "personalia"
-	_cmd_fetch_payload = "select * from v_basic_person where pk_identity=%s"
-	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(pk_identity)s and xmin = %(xmin_identity)s"]
+	_cmd_fetch_payload = "select * from dem.v_basic_person where pk_identity=%s"
+	_cmds_lock_rows_for_update = ["select 1 from dem.identity where pk=%(pk_identity)s and xmin = %(xmin_identity)s"]
 	_cmds_store_payload = [
-		"""update identity set
+		"""update dem.identity set
 			title=%(title)s,
 			dob=%(dob)s,
 			cob=%(cob)s,
@@ -42,7 +42,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			karyotype = %(karyotype)s,
 			pupic = %(pupic)s
 		where pk=%(pk_identity)s""",
-		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
+		"""select xmin_identity from dem.v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
 	_subtable_dml_templates = {
@@ -62,20 +62,20 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					at.name as type,
 					lpoa.id_type as id_type
 				from
-					v_basic_address vba,
-					lnk_person_org_address lpoa,
-					address_type at
+					dem.v_basic_address vba,
+					dem.lnk_person_org_address lpoa,
+					dem.address_type at
 				where
 					lpoa.id_address = vba.id
 					and lpoa.id_type = at.id
 					and lpoa.id_identity = %s""",
 			'insert':
 				"""
-					INSERT INTO lnk_person_org_address (id_identity, id_address)
+					INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
 					VALUES (%(pk_master)s, create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));
 				""",
 			'delete':
-				"""delete from lnk_person_org_address where id_identity = %s and id_address = %s"""
+				"""delete from dem.lnk_person_org_address where id_identity = %s and id_address = %s"""
 		},
 		'ext_ids': {
 			'select':"""
@@ -86,12 +86,12 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					external_id,
 					eeid.name as type,
 					eeid.context as context
-				from lnk_identity2ext_id, enum_ext_id_types eeid
+				from dem.lnk_identity2ext_id, enum_ext_id_types eeid
 				where id_identity = %s and fk_origin = eeid.pk""",
 			'delete':
-				"""delete from lnk_identity2ext_id where id_identity = %s and external_id = %s""",
+				"""delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s""",
 			'insert':
-				"""insert into lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
+				"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
 				values(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""
 		},
 		'comms': {
@@ -103,23 +103,23 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					l2c.is_confidential,
 					ect.description as type
 				from
-					lnk_identity2comm l2c,
-					enum_comm_types ect
+					dem.lnk_identity2comm l2c,
+					dem.enum_comm_types ect
 				where
 					l2c.id_identity = %s
 					and ect.id = id_type""",
 			'insert':
-				"""SELECT link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)""",
+				"""SELECT dem.link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)""",
 			'delete':
-				"""delete from lnk_identity2ext_id where id_identity = %s and url = %s"""},
+				"""delete from dem.lnk_identity2ext_id where id_identity = %s and url = %s"""},
 		'occupations': {
 			'select':
-				"""select o.name as occupation, o.id as pk from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s""",
+				"""select o.name as occupation, o.id as pk from dem.occupation o, dem.lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s""",
 			'delete':
-				"""delete from lnk_job2person lj2p where id_identity = %s and id_occupation = %s""",
+				"""delete from dem.lnk_job2person lj2p where id_identity = %s and id_occupation = %s""",
 			'insert':
 				"""
-					INSERT INTO lnk_job2person (id_identity, id_occupation)
+					INSERT INTO dem.lnk_job2person (id_identity, id_occupation)
 					VALUES (%(pk_master)s, create_occupation(%(occupation)s))
 				"""
 		}
@@ -166,7 +166,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			pk_identity = self._payload[self._idx['pk_identity']]
 			cmd = """
 					select n.firstnames, n.lastnames, i.title, n.preferred, n.active
-					from names n, identity i
+					from dem.names n, dem.identity i
 					where n.id_identity=%s and i.pk=%s"""
 			rows, idx = gmPG.run_ro_query('personalia', cmd, 1, pk_identity, pk_identity)
 			if rows is None:
@@ -215,10 +215,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		queries = []
 		active = (active and 't') or 'f'
 		queries.append (
-			("select add_name(%s, %s, %s, %s)", [self.getId(), firstnames, lastnames, active])
+			("select dem.add_name(%s, %s, %s, %s)", [self.getId(), firstnames, lastnames, active])
 		)
 		if nickname is not None:
-			queries.append (("select set_nickname(%s, %s)", [self.getId(), nickname]))
+			queries.append (("select dem.set_nickname(%s, %s)", [self.getId(), nickname]))
 		successful, data = gmPG.run_commit2('personalia', queries)
 		if not successful:
 			_log.Log(gmLog.lErr, 'failed to add name: %s' % str(data))
@@ -236,7 +236,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param nickname The preferred/nick/warrior name to set.
 		"""
 		# dump to backend
-		cmd = "select set_nickname(%s, %s)"
+		cmd = "select dem.set_nickname(%s, %s)"
 		queries = [(cmd, [self.getId(), nickname])]
 		successful, data = gmPG.run_commit2('personalia', queries)
 		if not successful:
@@ -351,7 +351,7 @@ select
         t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, pk_marital_status,
 	marital_status, xmin_identity, preferred
 from
-	v_basic_person vbp, relation_types t, lnk_person2relative l
+	dem.v_basic_person vbp, dem.relation_types t, dem.lnk_person2relative l
 where
 	(l.id_identity = %s and
 	vbp.pk_identity = l.id_relative and
@@ -380,10 +380,10 @@ where
 		if self._ext_cache.has_key('relatives'):
 			del self._ext_cache['relatives']
 		cmd2 = """
-			insert into lnk_person2relative (
+			insert into dem.lnk_person2relative (
 				id_identity, id_relative, id_relation_type
 			) values (
-				%s, %s, (select id from relation_types where description = %s)
+				%s, %s, (select id from dem.relation_types where description = %s)
 			)"""
 		if rel_type:
 			return gmPG.run_commit2 (
@@ -450,7 +450,7 @@ class cPerson:
 
 		- true/false/None
 		"""
-		cmd = "select exists(select pk from identity where pk = %s)"
+		cmd = "select exists(select pk from dem.identity where pk = %s)"
 		res = gmPG.run_ro_query('personalia', cmd, None, self.__ID)
 		if res is None:
 			_log.Log(gmLog.lErr, 'check for person PK [%s] existence failed' % self.__ID)
@@ -477,7 +477,7 @@ class cPerson:
 	def _getMedDocsList(self):
 		"""Build a complete list of metadata for all documents of this person.
 		"""
-		cmd = "SELECT id from doc_med WHERE patient_id=%s"
+		cmd = "SELECT id from blobs.doc_med WHERE patient_id=%s"
 		tmp = gmPG.run_ro_query('blobs', cmd, None, self.__ID)
 		_log.Log(gmLog.lData, "document IDs: %s" % tmp)
 		if tmp is None:
@@ -893,21 +893,21 @@ class cPatientSearcher_SQL:
 
 		queries = []
 
-		# "<digits>" - GnuMed patient PK or DOB
+		# "<digits>" - GNUmed patient PK or DOB
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.strip()
-			queries.append(["SELECT * FROM v_basic_person WHERE pk_identity = '%s'" % tmp])
-			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
+			queries.append(["SELECT * FROM dem.v_basic_person WHERE pk_identity = '%s'" % tmp])
+			queries.append(["SELECT * FROM dem.v_basic_person WHERE dob='%s'::timestamp" % raw])
 			return queries
 
-		# "#<di git  s>" - GnuMed patient PK
+		# "#<di git  s>" - GNUmed patient PK
 		if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
 			tmp = tmp.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the PK actually exists
-			queries.append(["SELECT * FROM v_basic_person WHERE pk_identity = '%s'" % tmp])
+			queries.append(["SELECT * from dem.v_basic_person WHERE pk_identity = '%s'" % tmp])
 			# but might also be an external ID
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
@@ -933,10 +933,10 @@ class cPatientSearcher_SQL:
 
 		# "<d igi ts>" - DOB or patient PK
 		if re.match("^(\d|\s|\t)+$", raw):
-			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
+			queries.append(["SELECT * from dem.v_basic_person WHERE dob='%s'::timestamp" % raw])
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
-			queries.append(["SELECT * FROM v_basic_person WHERE pk_identity LIKE '%s%%'" % tmp])
+			queries.append(["SELECT * from dem.v_basic_person WHERE pk_identity LIKE '%s%%'" % tmp])
 			return queries
 
 		# "<Z(.|/|-/ )I  FF ERN>" - DOB
@@ -946,22 +946,22 @@ class cPatientSearcher_SQL:
 			# apparently not needed due to PostgreSQL smarts...
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
-			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			queries.append(["SELECT * from dem.v_basic_person WHERE dob='%s'::timestamp" % tmp])
 			return queries
 
 		# " , <alpha>" - first name
 		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
 			tmp = raw.split(',')[1].strip()
 			tmp = self.__normalize(tmp)
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM names, v_basic_person vbp WHERE names.firstnames ~ '^%s' and vbp.pk_identity = names.id_identity" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM names, v_basic_person vbp WHERE names.firstnames ~ '^%s' and vbp.pk_identity = names.id_identity" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % tmp])
 			return queries
 
 		# "*|$<...>" - DOB
 		if re.match("^(\s|\t)*(\*|\$).+$", raw):
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
-			queries.append(["SELECT * FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			queries.append(["SELECT * from dem.v_basic_person WHERE dob='%s'::timestamp" % tmp])
 			return queries
 
 		return None
@@ -993,7 +993,7 @@ class cPatientSearcher_SQL:
 			pass
 		queries = []
 		if where_snippets:
-			queries.append(['select id_identity from names where %s' % ' and '.join(where_snippets)])
+			queries.append(['select id_identity from dem.names where %s' % ' and '.join(where_snippets)])
 		where_snippets = []
 		try:
 			data['dob']
@@ -1006,7 +1006,7 @@ class cPatientSearcher_SQL:
 		except KeyError:
 			pass
 
-		queries.append(['select * from v_basic_person where %s' % ' and '.join(where_snippets)])
+		queries.append(['select * from dem.v_basic_person where %s' % ' and '.join(where_snippets)])
 		# sufficient data ?
 		if len(queries) == 0:
 			_log.Log(gmLog.lErr, 'invalid search dict structure')
@@ -1043,13 +1043,13 @@ class cPatientSearcher_SQL:
 			# there's no intermediate whitespace due to the regex
 			tmp = normalized.strip()
 			# assumption: this is a last name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* '^%s'" % tmp])
 			# assumption: this is a first name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s'" % tmp])
 			# name parts anywhere in name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s'" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s'" % tmp])
 			return queries
 
 		# try to split on (major) part separators
@@ -1078,21 +1078,21 @@ class cPatientSearcher_SQL:
 				if date_count == 0:
 					# assumption: first last
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
 					])
 					queries.append([
-						 "SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
+						 "SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
 					])
 					# assumption: last first
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
 					])
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND firstnames || n.lastnames ~* '%s'" % (name_parts[0], name_parts[1])
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND firstnames || n.lastnames ~* '%s'" % (name_parts[0], name_parts[1])
 					])
 					return queries
 				# FIXME: either "name date" or "date date"
@@ -1105,21 +1105,21 @@ class cPatientSearcher_SQL:
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
 					])
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					# assumption: last, first, dob - second order query
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
 					])
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* FROM v_basic_person vbp, names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND n.firstnames || n.lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND n.firstnames || n.lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -1242,15 +1242,15 @@ class cPatientSearcher_SQL:
 			elif len(date_parts) > 1:
 				if len(wheres) > 0:
 					wheres[0].append("dob='%s'::timestamp" % date_parts[0])
-					wheres[0].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
+					wheres[0].append("date_trunc('day', dem.identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
 				else:
 					wheres.append([
 						"dob='%s'::timestamp" % date_parts[0],
-						"date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1]
+						"date_trunc('day', dem.identity.deceased) LIKE (select timestamp '%s'" % date_parts[1]
 					])
 				if len(wheres) > 1:
 					wheres[1].append("dob='%s'::timestamp" % date_parts[0])
-					wheres[1].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
+					wheres[1].append("date_trunc('day', dem.identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
 				else:
 					wheres.append([
 						"dob='%s'::timestamp" % date_parts[0],
@@ -1261,7 +1261,7 @@ class cPatientSearcher_SQL:
 			for where_clause in wheres:
 				if len(where_clause) > 0:
 					queries.append([
-						"SELECT * FROM v_basic_person WHERE %s" % ' AND '.join(where_clause)
+						"SELECT * from dem.v_basic_person WHERE %s" % ' AND '.join(where_clause)
 					])
 				else:
 					queries.append([])
@@ -1275,8 +1275,8 @@ class cPatientSearcher_SQL:
 		query = """
 select distinct on (pk_identity) vbp.*
 from
-	v_basic_person vbp,
-	names n
+	dem.v_basic_person vbp,
+	dem.names n
 where
 	vbp.pk_identity = n.id_identity
 	and vbp.title || vbp.firstnames || vbp.lastnames ~* '%s'""" % where_clause
@@ -1307,11 +1307,11 @@ def dob2medical_age(dob):
 	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
-	cmd1 = """insert into identity (gender, dob)
+	cmd1 = """insert into dem.identity (gender, dob)
 values (%s, coalesce(%s, CURRENT_TIMESTAMP))"""
-	cmd2 = """insert into names (id_identity, lastnames, firstnames)
-values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
-	cmd3 = """select currval('identity_pk_seq')"""
+	cmd2 = """insert into dem.names (id_identity, lastnames, firstnames)
+values (currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
+	cmd3 = """select currval('dem.identity_pk_seq')"""
 
 	successful, data = gmPG.run_commit2 (
 		link_obj = 'personalia',
@@ -1329,8 +1329,8 @@ values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 
 	return cIdentity(aPK_obj=rows[0][0])
 #============================================================
 def create_dummy_identity():	
-	cmd1 = "insert into identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
-	cmd2 = "select currval('identity_id_seq')"
+	cmd1 = "insert into dem.identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
+	cmd2 = "select currval('dem.identity_id_seq')"
 
 	data = gmPG.run_commit('personalia', [(cmd1, []), (cmd2, [])])
 	if data is None:
@@ -1403,7 +1403,7 @@ def get_gender_list():
 	global __gender_idx
 	global __gender_list
 	if __gender_list is None:
-		cmd = "select tag, l10n_tag, label, l10n_label, sort_weight from v_gender_labels order by sort_weight desc"
+		cmd = "select tag, l10n_tag, label, l10n_label, sort_weight from dem.v_gender_labels order by sort_weight desc"
 		__gender_list, __gender_idx = gmPG.run_ro_query('personalia', cmd, True)
 		if __gender_list is None:
 			_log.Log(gmLog.lPanic, 'cannot retrieve gender values from database')
@@ -1412,7 +1412,7 @@ def get_gender_list():
 def get_comm_list():	
 	global __comm_list
 	if __comm_list is None:
-		cmd = "select description from enum_comm_types order by description"
+		cmd = "select description from dem.enum_comm_types order by description"
 		rows = gmPG.run_ro_query('personalia', cmd, False)
 		if rows is None:
 			_log.Log(gmLog.lPanic, 'cannot retrieve communication media values from database')
@@ -1499,7 +1499,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.58  2005-11-18 15:16:55  ncq
+# Revision 1.59  2006-01-06 10:15:37  ncq
+# - lots of small fixes adjusting to "dem" schema
+#
+# Revision 1.58  2005/11/18 15:16:55  ncq
 # - run dumb, brute person search query on really complex search terms
 #
 # Revision 1.57  2005/11/13 15:28:06  ncq

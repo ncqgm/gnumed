@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.76 2005-10-09 08:11:48 ihaywood Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmDemographicRecord.py,v 1.77 2006-01-06 10:15:37 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -58,9 +58,15 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	its talking to an organisation or an individual"""
 	_table = "org"
 
-	_cmd_fetch_payload = "select *, xmin from org where id=%s"
-	_cmds_lock_rows_for_update = ["select 1 from org where id=%(id)s and xmin=%(xmin)s"]
-	_cmds_store_payload = ["update org set description=%(description)s, id_category=(select id from org_category where description=%(occupation)s) where id=%(id)s", "select xmin from org whereid=%(id)s"]
+	_cmd_fetch_payload = "select *, xmin from dem.org where id=%s"
+	_cmds_lock_rows_for_update = ["select 1 from dem.org where id=%(id)s and xmin=%(xmin)s"]
+	_cmds_store_payload = [
+		"update dem.org set
+			description=%(description)s,
+			id_category=(select id from dem.org_category where description=%(occupation)s)
+		where id=%(id)s",
+		"select xmin from dem.org whereid=%(id)s"
+	]
 	_updatable_fields = ["description", "occupation"]
 	_service = 'personalia'
 		      
@@ -103,10 +109,10 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				xmin_identity,
 				preferred
 			from
-				v_basic_address vba,
-				lnk_person_org_address lpoa,
-				address_type at,
-				v_basic_person vbp
+				dem.v_basic_address vba,
+				dem.lnk_person_org_address lpoa,
+				dem.address_type at,
+				dem.v_basic_person vbp
 			where
 				lpoa.id_address = vba.id
 				and lpoa.id_type = at.id
@@ -137,7 +143,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#------------------------------------------------------------
 	def unlink_person (self, person):
-		cmd = "delete from lnk_person_org_address where id_org = %s and id_identity = %s"
+		cmd = "delete from dem.lnk_person_org_address where id_org = %s and id_identity = %s"
 		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), person['id']])])
 	#----------------------------------------------------------------------
 	def getId (self):
@@ -154,8 +160,8 @@ def get_time_tuple (mx):
 	return [ int(x) for x in  str(mx).split(' ')[0].split('-') ] + [0,0,0, 0,0,0]
 #----------------------------------------------------------------
 def getAddressTypes():
-	"""Gets a dict matching address types to thier ID"""
-	row_list = gmPG.run_ro_query('personalia', "select name, id from address_type")
+	"""Gets a dict matching address types to their ID"""
+	row_list = gmPG.run_ro_query('personalia', "select name, id from dem.address_type")
 	if row_list is None:
 		return {}
 	if len(row_list) == 0:
@@ -164,7 +170,7 @@ def getAddressTypes():
 #----------------------------------------------------------------
 def getMaritalStatusTypes():
 	"""Gets a dictionary matching marital status types to their internal ID"""
-	row_list = gmPG.run_ro_query('personalia', "select name, pk from marital_status")
+	row_list = gmPG.run_ro_query('personalia', "select name, pk from dem.marital_status")
 	if row_list is None:
 		return {}
 	if len(row_list) == 0:
@@ -175,14 +181,14 @@ def getExtIDTypes (context = 'p'):
 	"""Gets dictionary mapping ext ID names to internal code from the backend for the given context
 	"""
 	# FIXME: error handling
-	rl = gmPG.run_ro_query('personalia', "select name, pk from enum_ext_id_types where context = %s", None, context)
+	rl = gmPG.run_ro_query('personalia', "select name, pk from dem.enum_ext_id_types where context = %s", None, context)
 	if rl is None:
 		return {}
 	return dict (rl)
 #----------------------------------------------------------------
 def getCommChannelTypes():
 	"""Gets the dictionary of comm channel types to internal ID"""
-	row_list = gmPG.run_ro_query('personalia', "select description, id from enum_comm_types")
+	row_list = gmPG.run_ro_query('personalia', "select description, id from dem.enum_comm_types")
 	if row_list is None:
 		return None
 	if len (row_list) == 0:
@@ -191,7 +197,7 @@ def getCommChannelTypes():
 #----------------------------------------------------------------
 def getRelationshipTypes():
 	"""Gets a dictionary of relationship types to internal id"""
-	row_list = gmPG.run_ro_query('personalia', "select description, id from relation_types")
+	row_list = gmPG.run_ro_query('personalia', "select description, id from dem.relation_types")
 	if row_list is None:
 		return None
 	if len (row_list) == 0:
@@ -200,28 +206,66 @@ def getRelationshipTypes():
 
 #----------------------------------------------------------------
 def getUrb (id_urb):
-	row_list = gmPG.run_ro_query('personalia', "select state.name, urb.postcode from urb,state where urb.id = %s and urb.id_state = state.id", None, id_urb)
+	cmd = """
+select
+	dem.state.name,
+	dem.urb.postcode
+from
+	dem.urb,
+	dem.state
+where
+	dem.urb.id = %s and
+	dem.urb.id_state = dem.state.id"""
+	row_list = gmPG.run_ro_query('personalia', cmd, None, id_urb)
 	if not row_list:
 		return None
 	else:
 		return (row_list[0][0], row_list[0][1])
 
 def getStreet (id_street):
-	row_list = gmPG.run_ro_query('personalia', "select state.name, coalesce (street.postcode, urb.postcode), urb.name from urb,state,street where street.id = %s and street.id_urb = urb.id and urb.id_state = state.id", None, id_street)
+	cmd = """
+select
+	dem.state.name,
+	coalesce (dem.street.postcode, dem.urb.postcode),
+	dem.urb.name
+from
+	dem.urb,
+	dem.state,
+	dem.street
+where
+	dem.street.id = %s and
+	dem.street.id_urb = dem.urb.id and
+	dem.urb.id_state = dem.state.id
+"""
+	row_list = gmPG.run_ro_query('personalia', cmd, None, id_street)
 	if not row_list:
 		return None
 	else:
 		return (row_list[0][0], row_list[0][1], row_list[0][2])
 
 def getCountry (country_code):
-	row_list = gmPG.run_ro_query('personalia', "select name from country where code = %s", None, country_code)
+	row_list = gmPG.run_ro_query('personalia', "select name from dem.country where code = %s", None, country_code)
 	if not row_list:
 		return None
 	else:
 		return row_list[0][0]
 #-------------------------------------------------------------------------------
 def get_town_data (town):
-	row_list = gmPG.run_ro_query ('personalia', "select urb.postcode, state.code, state.name, country.code, country.name from urb, state, country where urb.name = %s and urb.id_state = state.id and state.country = country.code", None, town)
+	row_list = gmPG.run_ro_query ('personalia', """
+select
+	dem.urb.postcode,
+	dem.state.code,
+	dem.state.name,
+	dem.country.code,
+	dem.country.name
+from
+	dem.urb,
+	dem.state,
+	dem.country
+where
+	dem.urb.name = %s and
+	dem.urb.id_state = dem.state.id and
+	dem.state.country = dem.country.code""", None, town)
 	if not row_list:
 		return (None, None, None, None, None)
 	else:
@@ -246,15 +290,15 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 			'column':'postcode',
 			'pk':'postcode',
 			'limit':10,
-			'table':'urb',
-			'extra conditions':{'urb':'id = %s', 'default':'postcode is not null'}
+			'table':'dem.urb',
+			'extra conditions':{'dem.urb':'id = %s', 'default':'postcode is not null'}
 			, 'service': 'personalia'
 			},{
 			'column':'postcode',
-			'table':'street',
+			'table':'dem.street',
 			'limit':10,
 			'pk':'postcode',
-			'extra conditions':{'urb':'id_urb = %s', 'street': 'id = %s', 'default':'postcode is not null'}
+			'extra conditions':{'dem.urb':'id_urb = %s', 'dem.street': 'id = %s', 'default':'postcode is not null'}
 			, 'service': 'personalia'
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
@@ -271,13 +315,13 @@ class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 	def __init__ (self):
 		source = [{
 			'service': 'personlia',
-			'table': 'street',
+			'table': 'dem.street',
 			'pk':'id',
 			'column': 'name',
 			'limit': 10,
 			'extra conditions': {
-				'urb': 'id_urb = %s',
-				'postcode': 'postcode = %s or postcode is null'
+				'dem.urb': 'id_urb = %s',
+				'dem.postcode': 'postcode = %s or postcode is null'
 				}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
@@ -290,7 +334,7 @@ class StateMP (gmMatchProvider.cMatchProvider_SQL):
 	def __init__ (self):
 		source = [{
 			'service': 'personlia',
-			'table': 'state',
+			'table': 'dem.state',
 			'pk':'id',
 			'column': 'name',
 			'limit': 10,
@@ -306,7 +350,7 @@ class MP_urb_by_zip (gmMatchProvider.cMatchProvider_SQL):
 	def __init__ (self):
 		source = [{
 			'service': 'personalia',
-			'table': 'urb',
+			'table': 'dem.urb',
 			'pk':'id',
 			'column': 'name',
 			'limit': 15,
@@ -322,7 +366,7 @@ class CountryMP (gmMatchProvider.cMatchProvider_SQL):
 	def __init__ (self):
 		source = [{
 			'service':'personalia',
-			'table':'country',
+			'table':'dem.country',
 			'pk':'code',
 			'column':'name',
 			'limit':5
@@ -336,7 +380,7 @@ class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
 	def __init__ (self):
 		source = [{
 			'service':'personalia',
-			'table':'occupation',
+			'table':'dem.occupation',
 			'pk':'id',
 			'column':'name',
 			'limit':7
@@ -363,7 +407,7 @@ class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
 	def __init__(self):
 		source = [ {
 			'service': 'personalia',
-			'table'	: 'org_category',
+			'table'	: 'dem.org_category',
 			'pk'	: 'id',
 			'column': 'description',
 			'result': 'description' ,
@@ -403,7 +447,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.76  2005-10-09 08:11:48  ihaywood
+# Revision 1.77  2006-01-06 10:15:37  ncq
+# - lots of small fixes adjusting to "dem" schema
+#
+# Revision 1.76  2005/10/09 08:11:48  ihaywood
 # introducing get_town_data (), a convience method to get info that can be inferred from a town's name (in AU)
 #
 # Revision 1.75  2005/10/09 02:19:40  ihaywood
