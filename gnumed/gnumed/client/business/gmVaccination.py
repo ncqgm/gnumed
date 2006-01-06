@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.24 2006-01-05 22:39:57 sjtan Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmVaccination.py,v 1.25 2006-01-06 08:32:12 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -183,15 +183,23 @@ class cVaccinationRegime(gmClinItem.cClinItem):
 		'comment'
 	]
 #============================================================
+class VaccByRecommender:
+	_recommended_regimes = None 
+#============================================================
 # convenience functions
 #------------------------------------------------------------
 def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staff_id = None, vaccine=None):
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
-	cmd = """select pk_patient from clin.v_pat_episodes where pk_episode=%s 
-                 union 
-             select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
+	cmd = """
+select pk_patient
+from clin.v_pat_episodes
+where pk_episode=%s 
+	union 
+select pk_patient
+from clin.v_pat_encounters
+where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
@@ -235,86 +243,80 @@ def get_vacc_regimes():
 	for row in rows:
 		data.extend(rows)
 	return data
-	
-class VaccByRecommender:
-	_recommended_regimes = None 
+#--------------------------------------------------------
+def get_vacc_regimes_by_recommender_ordered(pk_patient=None, clear_cache=False):
+	# check DbC, if it fails exception is due
+	int(pk_patient)
 
-def get_vacc_regimes_by_recommender_ordered(pk_patient = None,  clear_cache = False):
-	try:
-		id = int(pk_patient)
-		if not id:
-			id = 0
-	except:
-		id = 0
-	
+	cmd = """
+select fk_regime
+from clin.lnk_pat2vacc_reg l
+where l.fk_patient = %s""" % pk_patient
 
-	cmd = """select fk_regime from clin.lnk_pat2vacc_reg l  where 
-		l.fk_patient = %d """ % id
-	
 	rows = gmPG.run_ro_query('historica', cmd)
 	active = []
 	if rows and len(rows):
 		active = [ r[0] for r in rows]
-		
-	
-	recommended_regimes = VaccByRecommender._recommended_regimes
-	if not clear_cache and recommended_regimes:
-		return recommended_regimes, active
-	
-	
+
+	# FIXME: this is patient dependant so how would a cache
+	# FIXME: work that's not taking into account pk_patient ?
+#	recommended_regimes = VaccByRecommender._recommended_regimes
+#	if not clear_cache and recommended_regimes:
+#		return recommended_regimes, active
+
 	r = ( {}, [] )
-	
-	cmd = """select 
-		r.pk_regime , 
-		r.pk_recommended_by , 
-		r.indication, 
-		r.regime , 
-		extract (epoch from d.min_age_due) /60/60/24,
-		extract (epoch from d.max_age_due)  /60/60/24, 		
-		extract (epoch from d.min_interval ) /60/60/24, 
-		d.seq_no 	
-		
-		from 
-			clin.v_vacc_regimes r, clin.vacc_def d 
-		where 
-			d.fk_regime = r.pk_regime 
-		order by 
-			r.pk_recommended_by, d.min_age_due
-	""" 
-	print cmd
+
+	# FIXME: use views ?	
+	cmd = """
+select 
+	r.pk_regime , 
+	r.pk_recommended_by , 
+	r.indication, 
+	r.regime , 
+	extract (epoch from d.min_age_due) /60/60/24,
+	extract (epoch from d.max_age_due)  /60/60/24, 		
+	extract (epoch from d.min_interval ) /60/60/24, 
+	d.seq_no
+from 
+	clin.v_vacc_regimes r, clin.vacc_def d 
+where 
+	d.fk_regime = r.pk_regime 
+order by 
+	r.pk_recommended_by, d.min_age_due""" 
+	#print cmd
 	#import pdb
 	#pdb.set_trace()
 	#
 	rows = gmPG.run_ro_query('historica', cmd)
-	if not rows is None:
-		for row in rows:
-			m = {}
-			for k, i in zip ( ['pk_regime', 'pk_recommender', 'indication' , 'regime', 'min_age_due', 'max_age_due', 'min_interval', 'seq_no' ] , range( len( row )) ):
-				m[k] = row[i]
-			pk_recommender = m['pk_recommender']	
-			
-			if not pk_recommender in r[0].keys(): 
-				r[0][pk_recommender] = []
-				r[1].append(pk_recommender)
-			r[0][pk_recommender].append(m)
-			
-			
-		for k, v in r[0].items():
-			print k
-			for x in v:
-				print '\t', x
+	if rows is None:
+		VaccByRecommender._recommended_regimes = r
+		return r, active
+
+	row_fields = ['pk_regime', 'pk_recommender', 'indication' , 'regime', 'min_age_due', 'max_age_due', 'min_interval', 'seq_no' ]
+
+	for row in rows:
+		m = {}
+		for k, i in zip(row_fields, range(len(row))):
+			m[k] = row[i]
+		pk_recommender = m['pk_recommender']
+
+		if not pk_recommender in r[0].keys(): 
+			r[0][pk_recommender] = []
+			r[1].append(pk_recommender)
+		r[0][pk_recommender].append(m)
+
+	for k, v in r[0].items():
+		print k
+		for x in v:
+			print '\t', x
 
 	VaccByRecommender._recommended_regimes = r
 	return r, active
+#--------------------------------------------------------
+def get_missing_vaccinations_ordered_min_due(pk_patient):
+	# DbC
+	int(pk_patient)
 
-def get_missing_vaccinations_ordered_min_due( pk_patient):
-	try:
-		pk_patient = int(pk_patient)
-	except:
-		pk_patient = 0
-
-	if type(pk_patient) is not int:
-		pk_patient = 0
 	cmd =""" 
 	select 
 		indication, regime, 
@@ -326,20 +328,14 @@ def get_missing_vaccinations_ordered_min_due( pk_patient):
 		extract(epoch from min_interval)/60/60/24 as min_interval
 	from
 		clin.v_pat_missing_vaccs 
-	where pk_patient = %d 
+	where pk_patient = %s
 	order by age_due_min, pk_recommended_by, indication
 	""" % pk_patient
-	
-		
-	rows = gmPG.run_ro_query('historica', cmd)
-	
-	return rows
-	
-	
-	
-				
-#--------------------------------------------------------
 
+	rows = gmPG.run_ro_query('historica', cmd)
+
+	return rows
+#--------------------------------------------------------
 def get_indications_from_vaccinations(vaccinations=None):
 	"""Retrieves vaccination bundle indications list.
 
@@ -391,7 +387,7 @@ def put_patient_on_schedule(patient_id=None, regime=None):
 	if result is None:
 		return (False, msg)
 	return (True, msg)
-	
+#--------------------------------------------------------
 def remove_patient_from_schedule(patient_id=None, regime=None):
 	"""
 		unSchedules a vaccination regime for a patient
@@ -414,23 +410,28 @@ def remove_patient_from_schedule(patient_id=None, regime=None):
 	if result is None:
 		return (False, msg)
 	return (True, msg)	
-
-	
+#--------------------------------------------------------
 def get_matching_vaccines_for_indications( all_ind):
 
 	quoted_inds = [ "'"+x + "%'" for x in all_ind]
-	
+
+#	cmd_inds_per_vaccine = """
+#		select count(v.trade_name) , v.trade_name 
+#		from 
+#			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
+#		where 
+#			v.id = l.fk_vaccine and l.fk_indication = i.id 
+#		group 
+#			by trade_name
+#		"""
 
 	cmd_inds_per_vaccine = """
-		select count(v.trade_name) , v.trade_name 
-		from 
-			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
-		where 
-			v.id = l.fk_vaccine and l.fk_indication = i.id 
-		group 
-			by trade_name
-		"""
-		
+select
+	count(trade_name),
+	trade_name
+from clin.v_inds4vaccine
+group by trade_name"""
+
 	cmd_presence_in_vaccine = """
 			select count(v.trade_name) , v.trade_name 
 	
@@ -445,14 +446,13 @@ def get_matching_vaccines_for_indications( all_ind):
 			by trade_name
 
 		"""		% ', '.join( quoted_inds )
-	#import pdb
-	#pdb.set_trace()
+
 	inds_per_vaccine = gmPG.run_ro_query( 'historica', cmd_inds_per_vaccine)
 	
 	presence_in_vaccine = gmPG.run_ro_query( 'historica', cmd_presence_in_vaccine)
 
 	map_vacc_count_inds = dict ( [ (x[1], x[0]) for x in inds_per_vaccine ] )
-	
+
 	matched_vaccines = []
 	for (presence, vaccine) in presence_in_vaccine:
 		if presence == len ( all_ind) : 
@@ -460,10 +460,7 @@ def get_matching_vaccines_for_indications( all_ind):
 			# is this also ALL the vaccine's indications ?
 			if map_vacc_count_inds[vaccine] == presence:
 				matched_vaccines.append(vaccine)
-			
-			
 	return matched_vaccines
-	
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -550,7 +547,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.24  2006-01-05 22:39:57  sjtan
+# Revision 1.25  2006-01-06 08:32:12  ncq
+# - some cleanup, added view to backend, may need some fixing
+#
+# Revision 1.24  2006/01/05 22:39:57  sjtan
 #
 # vaccination use case; some sql stuff may need to be added ( e.g. permissions ); sorry in a hurry
 #
