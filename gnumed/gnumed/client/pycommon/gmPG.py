@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -120,7 +120,7 @@ select tgargs from pg_trigger where
 # get columns and data types for a given table
 query_table_col_defs = """select
 	cols.column_name,
-	cols.data_type
+	cols.udt_name
 from
 	information_schema.columns cols
 where
@@ -1124,7 +1124,10 @@ def get_col_defs(source='default', schema='public', table=None):
 	col_type = {}
 	for row in rows:
 		col_names.append(row[0])
-		col_type[row[0]] = row[1]
+		if row[1].startswith('_'):
+			col_type[row[0]] = row[1][1:] + '[]'
+		else:
+			col_type[row[0]] = row[1]
 	col_defs = []
 	col_defs.append(col_names)
 	col_defs.append(col_type)
@@ -1223,7 +1226,7 @@ select exists (
 	return rows[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.60 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.61 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1459,7 +1462,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.60  2005-12-27 18:43:46  ncq
+# Revision 1.61  2006-01-06 10:17:29  ncq
+# - properly deal with array columns in get_col_defs()
+#   (needed by audit generator)
+#
+# Revision 1.60  2005/12/27 18:43:46  ncq
 # - add database schema verification support
 # - _v2_schema_hash
 # - database_schema_compatible()
