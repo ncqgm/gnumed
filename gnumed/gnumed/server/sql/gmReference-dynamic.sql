@@ -2,7 +2,7 @@
 -- Project: GnuMed - service "Reference" - dynamic objects
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference-dynamic.sql,v $
--- $Id: gmReference-dynamic.sql,v 1.2 2005-11-18 15:38:25 ncq Exp $
+-- $Id: gmReference-dynamic.sql,v 1.3 2006-01-06 10:12:02 ncq Exp $
 -- license: GPL
 -- author: Karsten Hilbert
 -- ===================================================================
@@ -11,7 +11,7 @@
 
 -- ===================================================================
 -- ref_source --
-select add_table_for_audit('ref_source');
+select audit.add_table_for_audit('ref_source');
 
 comment on table ref_source is
 	'lists the available coding systems, classifications, ontologies and term lists';
@@ -58,8 +58,8 @@ COMMENT ON column unit.shift IS
 	'what has to be added (after multiplying by factor) to a value with this unit to get values in the basic_unit';
 
 -- atc tables --
-select add_table_for_audit('atc_group');
-select add_table_for_audit('atc_substance');
+select audit.add_table_for_audit('atc_group');
+select audit.add_table_for_audit('atc_substance');
 
 -- test_norm --
 comment on table test_norm is
@@ -79,7 +79,7 @@ comment on table form_types is
 	 generally by purpose (radiology, pathology, sick leave, etc.)';
 
 
-select add_table_for_audit('form_defs');
+select audit.add_table_for_audit('form_defs');
 
 comment on table form_defs is
 	'form definitions';
@@ -157,11 +157,20 @@ TO GROUP "gm-public";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReference-dynamic.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmReference-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmReference-dynamic.sql,v $
--- Revision 1.2  2005-11-18 15:38:25  ncq
+-- Revision 1.3  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.2  2005/11/18 15:38:25  ncq
 -- - comment out add_x_db_fk_def() calls
 --
 -- Revision 1.1  2005/11/13 17:38:40  ncq

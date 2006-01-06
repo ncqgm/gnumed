@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -20,80 +20,89 @@ reset client_encoding;
 -- seeding for occupations list
 -- this is highly nation-specific!
 
-insert into occupation (name) values ('doctor');
-insert into occupation (name) values ('general practitioner');
-insert into occupation (name) values ('hospital resident');
-insert into occupation (name) values ('hospital registrar');
-insert into occupation (name) values ('physician');
-insert into occupation (name) values ('cardiologist');
-insert into occupation (name) values ('gastroenterologist');
-insert into occupation (name) values ('respiratory physician');
-insert into occupation (name) values ('neurologist');
-insert into occupation (name) values ('dermatologist');
-insert into occupation (name) values ('rheumatologist');
-insert into occupation (name) values ('geneticist');
-insert into occupation (name) values ('pathologist');
-insert into occupation (name) values ('obstetrician/gynaecologist');
-insert into occupation (name) values ('paediatrician');
-insert into occupation (name) values ('psychiatrist');
-insert into occupation (name) values ('anaesthetist');
-insert into occupation (name) values ('radiologist');
-insert into occupation (name) values ('surgeon');
-insert into occupation (name) values ('general surgeon');
-insert into occupation (name) values ('plastic surgeon');
-insert into occupation (name) values ('orthopaedic surgeon');
-insert into occupation (name) values ('vascular surgeon');
-insert into occupation (name) values ('paediatric surgeon');
-insert into occupation (name) values ('neurosurgeon');
-insert into occupation (name) values ('cardio-thoracic surgeon');
-insert into occupation (name) values ('ENT surgeon');
-insert into occupation (name) values ('ophthalmologist');
+insert into dem.occupation (name) values ('doctor');
+insert into dem.occupation (name) values ('general practitioner');
+insert into dem.occupation (name) values ('hospital resident');
+insert into dem.occupation (name) values ('hospital registrar');
+insert into dem.occupation (name) values ('physician');
+insert into dem.occupation (name) values ('cardiologist');
+insert into dem.occupation (name) values ('gastroenterologist');
+insert into dem.occupation (name) values ('respiratory physician');
+insert into dem.occupation (name) values ('neurologist');
+insert into dem.occupation (name) values ('dermatologist');
+insert into dem.occupation (name) values ('rheumatologist');
+insert into dem.occupation (name) values ('geneticist');
+insert into dem.occupation (name) values ('pathologist');
+insert into dem.occupation (name) values ('obstetrician/gynaecologist');
+insert into dem.occupation (name) values ('paediatrician');
+insert into dem.occupation (name) values ('psychiatrist');
+insert into dem.occupation (name) values ('anaesthetist');
+insert into dem.occupation (name) values ('radiologist');
+insert into dem.occupation (name) values ('surgeon');
+insert into dem.occupation (name) values ('general surgeon');
+insert into dem.occupation (name) values ('plastic surgeon');
+insert into dem.occupation (name) values ('orthopaedic surgeon');
+insert into dem.occupation (name) values ('vascular surgeon');
+insert into dem.occupation (name) values ('paediatric surgeon');
+insert into dem.occupation (name) values ('neurosurgeon');
+insert into dem.occupation (name) values ('cardio-thoracic surgeon');
+insert into dem.occupation (name) values ('ENT surgeon');
+insert into dem.occupation (name) values ('ophthalmologist');
 
-insert into occupation (name) values ('nurse');
-insert into occupation (name) values ('social worker');
-insert into occupation (name) values ('physiotherapist');
-insert into occupation (name) values ('speech pathologist');
-insert into occupation (name) values ('psychologist');
-insert into occupation (name) values ('occupational therapist');
-insert into occupation (name) values ('dietician');
-insert into occupation (name) values ('radiographer');
+insert into dem.occupation (name) values ('nurse');
+insert into dem.occupation (name) values ('social worker');
+insert into dem.occupation (name) values ('physiotherapist');
+insert into dem.occupation (name) values ('speech pathologist');
+insert into dem.occupation (name) values ('psychologist');
+insert into dem.occupation (name) values ('occupational therapist');
+insert into dem.occupation (name) values ('dietician');
+insert into dem.occupation (name) values ('radiographer');
 
-insert into occupation (name) values ('student');
-insert into occupation (name) values ('teacher');
-insert into occupation (name) values ('lecturer');
-insert into occupation (name) values ('mechanic');
-insert into occupation (name) values ('cleaner');
-insert into occupation (name) values ('engineer');
-insert into occupation (name) values ('hairdresser');
-insert into occupation (name) values ('unemployed');
-insert into occupation (name) values ('scientist');
-insert into occupation (name) values ('retired');
-insert into occupation (name) values ('dentist');
-insert into occupation (name) values ('police officer');
-insert into occupation (name) values ('soldier');
-insert into occupation (name) values ('security guard');
-insert into occupation (name) values ('farmer');
-insert into occupation (name) values ('unknown');
+insert into dem.occupation (name) values ('student');
+insert into dem.occupation (name) values ('teacher');
+insert into dem.occupation (name) values ('lecturer');
+insert into dem.occupation (name) values ('mechanic');
+insert into dem.occupation (name) values ('cleaner');
+insert into dem.occupation (name) values ('engineer');
+insert into dem.occupation (name) values ('hairdresser');
+insert into dem.occupation (name) values ('unemployed');
+insert into dem.occupation (name) values ('scientist');
+insert into dem.occupation (name) values ('retired');
+insert into dem.occupation (name) values ('dentist');
+insert into dem.occupation (name) values ('police officer');
+insert into dem.occupation (name) values ('soldier');
+insert into dem.occupation (name) values ('security guard');
+insert into dem.occupation (name) values ('farmer');
+insert into dem.occupation (name) values ('unknown');
 
-insert into enum_ext_id_types (name, issuer, context) values ('Medicare', 'HIC', 'p');
-insert into enum_ext_id_types (name, issuer, context) values ('Provider No.', 'HIC', 'c');
-insert into enum_ext_id_types (name, issuer, context) values ('Prescriber No.', 'HIC', 'c');
-insert into enum_ext_id_types (name, issuer, context) values ('DVA', 'Department of Veteran''s Affairs', 'p');
-insert into enum_ext_id_types (name, issuer, context) values ('CRN', 'Centrelink', 'p');
-insert into enum_ext_id_types (name, issuer, context) values ('Licence No.', 'RTA', 'p');
-insert into enum_ext_id_types (name, issuer, context) values ('ABN', 'ATO', 'o');
-insert into enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o');
---insert into enum_ext_id_types (name, issuer, context) values ('', '', '');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('Medicare', 'HIC', 'p');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('Provider No.', 'HIC', 'c');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('Prescriber No.', 'HIC', 'c');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('DVA', 'Department of Veteran''s Affairs', 'p');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('CRN', 'Centrelink', 'p');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('Licence No.', 'RTA', 'p');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('ABN', 'ATO', 'o');
+insert into dem.enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o');
+--insert into dem.enum_ext_id_types (name, issuer, context) values ('', '', '');
 
 
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.14 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.13  2005-09-19 16:38:51  ncq
+-- Revision 1.14  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.13  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.12  2005/07/14 21:31:42  ncq

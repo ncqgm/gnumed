@@ -1,6 +1,6 @@
 -- GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 
 -- license: GPL
 
@@ -11,14 +11,18 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-create schema de_DE authorization "gm-dbo";
+create schema de_de authorization "gm-dbo";
+grant usage on schema de_de to group "gm-doctors";
 
 -- set client_encoding to 'LATIN1';
 -- ===================================================================
 -- tables related to the German Krankenversichtenkarte KVK
-create table de_kvk (
-	id serial primary key,
-	id_patient integer not null references identity(pk),
+create table de_de.kvk (
+	pk serial
+		primary key,
+	fk_patient integer
+		not null
+		references dem.identity(pk),
 
 	-- eigentliche KVK-Felder
 	-- Datenbereich (020h-0FFh)				--  Feldtag	Länge	Feldname				Optional
@@ -52,30 +56,30 @@ create table de_kvk (
 --  2. Feldlaenge (1 Byte)
 --  3. ASCII-codierter Text (der angegebenen Feldlaenge, 1 Zeichen=1 Byte )
 
-comment on table de_kvk is
+comment on table de_de.kvk is
 	'Speichert die Daten einer bestimmten KVK. Wir trennen die KVK-Daten von
 	 den Daten ueber Person, Wohnort, Kassenzugehoerigkeit, Mitgliedsstatus und
 	 Abrechnungsfaellen. Diese Daten werden jedoch a) als Vorgaben fuer die
 	 eigentlichen Personendaten und b) als gueltig fuer abrechnungstechnische
 	 Belange angesehen.';
 
-comment on column de_kvk.invalidated is
+comment on column de_de.kvk.invalidated is
 	'Kann durchaus vor Ende von "Gueltigkeit" liegen. Zeitpunkt des
 	 Austritts aus der Krankenkasse. Beim Setzen dieses Feldes muss
 	 auch die Zuzahlungsbefreiung auf NULL gesetzt werden.';
 
 -- ---------------------------------------------
---create table de_kvk_presented (
+--create table de_de.kvk_presented (
 --	id serial primary key,
---	id_kvk integer not null references de_kvk(id),
+--	id_kvk integer not null references kvk(id),
 --	presented timestamp with time zone not null,
 --	unique (id_kvk, presented)
 --);
 
 -- ---------------------------------------------
-create table de_zuzahlungsbefreiung (
+create table de_de.zuzahlungsbefreiung (
 	id serial primary key,
-	id_patient integer references identity(pk),
+	id_patient integer references dem.identity(pk),
 
 	Medikamente date default null,
 	Heilmittel date default null,
@@ -87,29 +91,29 @@ create table de_zuzahlungsbefreiung (
 -- =============================================
 -- Praxisgebuehr
 -- ---------------------------------------------
-create table beh_fall_typ (
+create table de_de.beh_fall_typ (
 	pk serial primary key,
 	code text unique not null,
 	kurzform text unique not null,
 	name text unique not null
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('beh_fall_typ');
+select audit.add_table_for_audit('de_de', 'beh_fall_typ');
 
-comment on table beh_fall_typ is
+comment on table de_de.beh_fall_typ is
 	'Art des Behandlungsfalls (MuVo/Impfung/...)';
 
 -- ---------------------------------------------
-create table behandlungsfall (
+create table de_de.behandlungsfall (
 	pk serial primary key,
 	fk_patient integer
 		not null
-		references identity(pk)
+		references dem.identity(pk)
 		on delete restrict
 		on update cascade,
 	fk_falltyp integer
 		not null
-		references beh_fall_typ(pk)
+		references de_de.beh_fall_typ(pk)
 		on delete restrict
 		on update cascade,
 	started date
@@ -120,21 +124,21 @@ create table behandlungsfall (
 		default true
 );
 
-select add_table_for_audit('behandlungsfall');
+select audit.add_table_for_audit('de_de', 'behandlungsfall');
 
 -- ---------------------------------------------
 -- this general table belongs elsewhere
-create table payment_method (
+create table de_de.payment_method (
 	pk serial primary key,
 	description text unique not null
 );
 
 -- ---------------------------------------------
-create table prax_geb_paid (
+create table de_de.prax_geb_paid (
 	pk serial primary key,
 	fk_fall integer
 		not null
-		references behandlungsfall(pk)
+		references de_de.behandlungsfall(pk)
 		on delete restrict
 		on update cascade,
 	paid_amount numeric
@@ -145,23 +149,32 @@ create table prax_geb_paid (
 		default CURRENT_DATE,
 	paid_with integer
 		not null
-		references payment_method(pk)
+		references de_de.payment_method(pk)
 		on delete restrict
 		on update cascade
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('prax_geb_paid');
+select audit.add_table_for_audit('de_de', 'prax_geb_paid');
 
-comment on table prax_geb_paid is
+comment on table de_de.prax_geb_paid is
 	'';
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.9  2006-01-05 16:04:37  ncq
+-- Revision 1.10  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.9  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.8  2005/11/25 15:06:25  ncq

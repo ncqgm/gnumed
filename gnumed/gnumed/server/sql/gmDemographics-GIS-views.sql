@@ -1,19 +1,19 @@
--- project: GNUMed
+-- project: GNUmed
 
 -- author: Horst Herb, Ian Haywood, Karsten Hilbert, Carlos Moro
 -- copyright: authors
 -- license: GPL (details at http://gnu.org)
 
--- droppable components of gmGIS schema
+-- droppable components of GIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-create or replace function gm_upd_default_states()
+create or replace function dem.gm_upd_default_states()
 	returns boolean
 	language 'plpgsql'
 	as '
@@ -27,13 +27,13 @@ begin
 
 	-- add default state to countries needing one
 	for _country_row in
-		select distinct code from country
+		select distinct code from dem.country
 		where code not in (
-			select country from state where code = _state_code
+			select country from dem.state where code = _state_code
 		)
 	loop
 		raise notice ''adding default state for [%]'', _country_row.code;
-		execute ''insert into state (code, country, name) values (''
+		execute ''insert into dem.state (code, country, name) values (''
 				|| quote_literal(_state_code) || '', ''
 				|| quote_literal(_country_row.code) || '', ''
 				|| quote_literal(_state_name) || '');'';
@@ -44,15 +44,16 @@ end;
 
 select i18n('state/territory/province/region not available');
 
-select gm_upd_default_states();
+select dem.gm_upd_default_states();
 
 -- ===================================================================
 -- if you suffer from performance problems when selecting from this view,
 -- implement it as a real table
 \unset ON_ERROR_STOP
-drop view v_basic_address;
+drop view dem.v_basic_address;
 \set ON_ERROR_STOP 1
-create view v_basic_address as
+
+create view dem.v_basic_address as
 select
 	adr.id as id,
 	s.country as country_code,
@@ -66,11 +67,11 @@ select
 	adr.addendum as addendum,
 	coalesce (adr.lat_lon, str.lat_lon, urb.lat_lon) as lat_lon
 from
-	address adr,
-	state s,
-	country c,
-	urb,
-	street str
+	dem.address adr,
+	dem.state s,
+	dem.country c,
+	dem.urb,
+	dem.street str
 where
 	s.country = c.code
 		and
@@ -85,10 +86,10 @@ where
 -- Functions to create urb, street and address.
 
 \unset ON_ERROR_STOP
-DROP FUNCTION create_urb(text, text, text, text);
+DROP function dem.create_urb(text, text, text, text);
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION create_urb(text, text, text, text) RETURNS integer AS '
+CREATE function dem.create_urb(text, text, text, text) RETURNS integer AS '
 DECLARE
 	_urb ALIAS FOR $1;
 	_urb_postcode ALIAS FOR $2;	
@@ -101,21 +102,21 @@ DECLARE
 	msg text;
 BEGIN
  	-- get state
- 	SELECT INTO _state_id s.id FROM state s WHERE s.code = _state_code and s.country = _country_code;
+ 	SELECT INTO _state_id s.id from dem.state s WHERE s.code = _state_code and s.country = _country_code;
  	IF NOT FOUND THEN
 		msg := ''Cannot set address ['' || _country_code || '', '' || _state_code || '', '' || _urb || '', '' || _urb_postcode || ''].'';
 		RAISE EXCEPTION ''=> %'', msg;
  	END IF;
 	-- get/create and return urb
-	SELECT INTO _urb_id u.id FROM urb u WHERE u.name ILIKE _urb AND u.id_state = _state_id;
+	SELECT INTO _urb_id u.id from dem.urb u WHERE u.name ILIKE _urb AND u.id_state = _state_id;
 	IF FOUND THEN
 		RETURN _urb_id;
 	END IF;
-	INSERT INTO urb (name, postcode, id_state) VALUES (_urb, _urb_postcode, _state_id);
-	RETURN currval(''urb_id_seq'');
+	INSERT INTO dem.urb (name, postcode, id_state) VALUES (_urb, _urb_postcode, _state_id);
+	RETURN currval(''dem.urb_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
-COMMENT ON FUNCTION create_urb(text, text, text, text) IS
+COMMENT ON function dem.create_urb(text, text, text, text) IS
 	'This function takes a parameters the name of the urb,\n
 	the postcode of the urb, the name of the state and the\n
 	name of the country.\n
@@ -126,10 +127,10 @@ COMMENT ON FUNCTION create_urb(text, text, text, text) IS
 	existing row, a new urb is created and returned.';
 
 \unset ON_ERROR_STOP
-DROP FUNCTION create_street(text, text, text, text, text);
+DROP function dem.create_street(text, text, text, text, text);
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION create_street(text, text, text, text, text) RETURNS integer AS '
+CREATE function dem.create_street(text, text, text, text, text) RETURNS integer AS '
 DECLARE
 	_street ALIAS FOR $1;
 	_postcode ALIAS FOR $2;
@@ -145,15 +146,15 @@ BEGIN
 	-- create/get urb
 	SELECT INTO _urb_id create_urb(_urb, _postcode, _state, _country);
 	-- create/get and return street
-	SELECT INTO _street_id s.id FROM street s WHERE s.name ILIKE _street AND s.id_urb = _urb_id AND postcode ILIKE _postcode;
+	SELECT INTO _street_id s.id from dem.street s WHERE s.name ILIKE _street AND s.id_urb = _urb_id AND postcode ILIKE _postcode;
 	IF FOUND THEN
 		RETURN _street_id;
 	END IF;
-	INSERT INTO street (name, postcode, id_urb) VALUES (_street, _postcode, _urb_id);
-	RETURN currval(''street_id_seq'');
+	INSERT INTO dem.street (name, postcode, id_urb) VALUES (_street, _postcode, _urb_id);
+	RETURN currval(''dem.street_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
-COMMENT ON FUNCTION create_street(text, text, text, text, text) IS
+COMMENT ON function dem.create_street(text, text, text, text, text) IS
 	'This function takes a parameters the name of the street,\n
 	the postal code, the name of the urb,\n
 	the postcode of the urb, the name of the state and the\n
@@ -165,10 +166,10 @@ COMMENT ON FUNCTION create_street(text, text, text, text, text) IS
 	existing row, a new urb is created or a new street is created and returned.';
 
 \unset ON_ERROR_STOP
-DROP FUNCTION create_address(text, text, text, text, text, text);
+DROP function dem.create_address(text, text, text, text, text, text);
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION create_address(text, text, text, text, text, text) RETURNS integer AS '
+CREATE function dem.create_address(text, text, text, text, text, text) RETURNS integer AS '
 DECLARE
 	_number ALIAS FOR $1;
 	_street ALIAS FOR $2;
@@ -185,15 +186,15 @@ BEGIN
 	-- create/get street
 	SELECT INTO _street_id create_street(_street, _postcode, _urb, _state, _country);
 	-- create/get and return address
-	SELECT INTO _address_id a.id FROM address a WHERE a.number ILIKE _number and a.id_street = _street_id;
+	SELECT INTO _address_id a.id from dem.address a WHERE a.number ILIKE _number and a.id_street = _street_id;
 	IF FOUND THEN
 		RETURN _address_id;
 	END IF;
-	INSERT INTO address (number, id_street) VALUES ( _number, _street_id);
-	RETURN currval(''address_id_seq'');
+	INSERT INTO dem.address (number, id_street) VALUES ( _number, _street_id);
+	RETURN currval(''dem.address_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
-COMMENT ON FUNCTION create_address(text, text, text, text, text, text) IS
+COMMENT ON function dem.create_address(text, text, text, text, text, text) IS
 	'This function takes as parameters the number of the address,\n
 	the name of the street, the postal code of the address, the\n
 	name of the urb, the name of the state and the name of the\n
@@ -207,11 +208,11 @@ COMMENT ON FUNCTION create_address(text, text, text, text, text, text) IS
 
 -- ===================================================================
 \unset ON_ERROR_STOP
-drop view v_zip2street cascade;
-drop view v_zip2street;
+drop view dem.v_zip2street cascade;
+drop view dem.v_zip2street;
 \set ON_ERROR_STOP 1
 
-create view v_zip2street as
+create view dem.v_zip2street as
 	select
 		coalesce (str.postcode, urb.postcode) as postcode,
 		str.name as street,
@@ -222,10 +223,10 @@ create view v_zip2street as
 		c.name as country,
 		stt.country as code_country
 	from
-		street str,
-		urb,
-		state stt,
-		country c
+		dem.street str,
+		dem.urb,
+		dem.state stt,
+		dem.country c
 	where
 		str.postcode is not null
 			and
@@ -236,15 +237,15 @@ create view v_zip2street as
 		stt.country = c.code
 ;
 
-comment on view v_zip2street is
+comment on view dem.v_zip2street is
 	'list known data for streets that have a zip code';
 
 -- ===================================================================
 \unset ON_ERROR_STOP
-drop view v_zip2urb;
+drop view dem.v_zip2urb;
 \set ON_ERROR_STOP 1
 
-create view v_zip2urb as
+create view dem.v_zip2urb as
 	select
 		urb.postcode as postcode,
 		urb.name as urb,
@@ -253,9 +254,9 @@ create view v_zip2urb as
 		_(c.name) as country,
 		stt.country as code_country
 	from
-		urb,
-		state stt,
-		country c
+		dem.urb,
+		dem.state stt,
+		dem.country c
 	where
 		urb.postcode is not null
 			and
@@ -264,15 +265,15 @@ create view v_zip2urb as
 		stt.country = c.code
 ;
 
-comment on view v_zip2urb is
+comment on view dem.v_zip2urb is
 	'list known data for urbs that have a zip code';
 
 -- ===================================================================
 \unset ON_ERROR_STOP
-drop view v_uniq_zipped_urbs;
+drop view dem.v_uniq_zipped_urbs;
 \set ON_ERROR_STOP 1
 
-create view v_uniq_zipped_urbs as
+create view dem.v_uniq_zipped_urbs as
 	-- all the cities that
 	select
 		urb.postcode as postcode,
@@ -282,9 +283,9 @@ create view v_uniq_zipped_urbs as
 		_(c.name) as country,
 		stt.country as code_country
 	from
-		urb,
-		state stt,
-		country c
+		dem.urb,
+		dem.state stt,
+		dem.country c
 	where
 		-- have a zip code
 		urb.postcode is not null
@@ -292,8 +293,8 @@ create view v_uniq_zipped_urbs as
 		-- are not found in "street" with this zip code
 		not exists(
 			select 1 from
-				v_zip2street vz2str,
-				urb
+				dem.v_zip2street vz2str,
+				dem.urb
 			where
 				vz2str.postcode = urb.postcode
 					and
@@ -304,17 +305,17 @@ create view v_uniq_zipped_urbs as
 		stt.country = c.code
 ;
 
-comment on view v_uniq_zipped_urbs is
+comment on view dem.v_uniq_zipped_urbs is
 	'convenience view that selects urbs which:
 	 - have a zip code
 	 - are not referenced in table "street" with that zip code';
 
 -- ===================================================================
 \unset ON_ERROR_STOP
-drop view v_zip2data;
+drop view dem.v_zip2data;
 \set ON_ERROR_STOP 1
 
-create view v_zip2data as
+create view dem.v_zip2data as
 	select
 		vz2s.postcode as zip,
 		vz2s.street,
@@ -324,7 +325,7 @@ create view v_zip2data as
 		vz2s.code_state,
 		vz2s.country,
 		vz2s.code_country
-	from v_zip2street vz2s
+	from dem.v_zip2street vz2s
 		union
 	select
 		vuzu.postcode as zip,
@@ -336,33 +337,42 @@ create view v_zip2data as
 		vuzu.country,
 		vuzu.code_country
 	from
-		v_uniq_zipped_urbs vuzu
+		dem.v_uniq_zipped_urbs vuzu
 ;
 
-comment on view v_zip2data is
+comment on view dem.v_zip2data is
 	'aggregates nearly all known data per zip code';
 
 -- ===================================================================
 GRANT select ON
-	v_basic_address,
-	v_zip2street,
-	v_zip2urb,
-	v_zip2data
+	dem.v_basic_address,
+	dem.v_zip2street,
+	dem.v_zip2urb,
+	dem.v_zip2data
 TO GROUP "gm-doctors";
 
 GRANT select, delete, insert, update ON
-	v_basic_address
+	dem.v_basic_address
 TO GROUP "gm-doctors";
 
 
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.26 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.25  2005-09-28 22:49:04  ncq
+-- Revision 1.26  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.25  2005/09/28 22:49:04  ncq
 -- - update gm_upd_default_states()
 --
 -- Revision 1.24  2005/09/19 16:20:47  ncq

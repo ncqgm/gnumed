@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.166 2006-01-05 16:04:37 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.167 2006-01-06 10:12:02 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -14,7 +14,7 @@
 -- =============================================
 -- clin.xlnk_identity
 --select add_x_db_fk_def('clin.xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
-select add_table_for_audit('clin', 'xlnk_identity');
+select audit.add_table_for_audit('clin', 'xlnk_identity');
 
 comment on table clin.xlnk_identity is
 	'this is the one table with the unresolved identity(pk)
@@ -24,7 +24,7 @@ comment on table clin.xlnk_identity is
 	 is in the same database as "historica")';
 
 -- clin.health_issue
-select add_table_for_audit('clin', 'health_issue');
+select audit.add_table_for_audit('clin', 'health_issue');
 
 comment on table clin.health_issue is
 	'This is pretty much what others would call "Past Medical History"
@@ -46,7 +46,7 @@ comment on column clin.health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
 -- clin.episode --
-select add_table_for_audit('clin', 'episode');
+select audit.add_table_for_audit('clin', 'episode');
 
 comment on table clin.episode is
 	'Clinical episodes such as "Otitis media",
@@ -121,7 +121,7 @@ comment on column clin.clin_root_item.soap_cat is
 	'each clinical item must be in one of the S, O, A, P categories';
 
 -- clin.clin_item_type --
-select add_table_for_audit('clin', 'clin_item_type');
+select audit.add_table_for_audit('clin', 'clin_item_type');
 
 comment on table clin.clin_item_type is
 	'stores arbitrary types for tagging clinical items';
@@ -131,7 +131,7 @@ comment on column clin.clin_item_type.code is
 	'shorthand for the type, eg "FHx"';
 
 -- clin.lnk_type2item --
-select add_table_for_audit('clin', 'lnk_type2item');
+select audit.add_table_for_audit('clin', 'lnk_type2item');
 
 comment on table clin.lnk_type2item is
 	'allow to link many-to-many between clin.clin_root_item and clin.clin_item_type';
@@ -145,7 +145,7 @@ comment on column clin.lnk_type2item.fk_item is
 	 cascading :-(';
 
 -- clin.clin_narrative
-select add_table_for_audit('clin', 'clin_narrative');
+select audit.add_table_for_audit('clin', 'clin_narrative');
 
 comment on TABLE clin.clin_narrative is
 	'Used to store clinical free text *not* associated
@@ -156,7 +156,7 @@ comment on column clin.clin_narrative.clin_when is
 	'when did the item reach clinical reality';
 
 -- clin.coded_term
-select add_table_for_audit('clin', 'coded_narrative');
+select audit.add_table_for_audit('clin', 'coded_narrative');
 --select add_x_db_fk_def('coded_narrative', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
 
 comment on table clin.coded_narrative is
@@ -170,7 +170,7 @@ comment on column clin.coded_narrative.xfk_coding_system is
 	'the coding system used to code the text snippet';
 
 -- clin.hx_family_items --
-select add_table_for_audit('clin', 'hx_family_item');
+select audit.add_table_for_audit('clin', 'hx_family_item');
 
 comment on table clin.hx_family_item is
 	'stores family history items independant of the patient,
@@ -195,7 +195,7 @@ comment on column clin.hx_family_item.is_cause_of_death is
 	 suggested to allow that several times per relative';
 
 -- clin.clin_hx_family --
-select add_table_for_audit('clin', 'clin_hx_family');
+select audit.add_table_for_audit('clin', 'clin_hx_family');
 
 comment on table clin.clin_hx_family is
 	'stores family history for a given patient';
@@ -212,7 +212,7 @@ comment on column clin.clin_hx_family.soap_cat is
 	 this is not enforced and only done in the view';
 
 -- clin.clin_diag --
-select add_table_for_audit('clin', 'clin_diag');
+select audit.add_table_for_audit('clin', 'clin_diag');
 
 comment on table clin.clin_diag is
 	'stores additional detail on those clin.clin_narrative
@@ -233,13 +233,13 @@ comment on column clin.clin_diag.clinically_relevant is
 	 or may not be';
 
 -- clin.clin_aux_note --
-select add_table_for_audit('clin', 'clin_aux_note');
+select audit.add_table_for_audit('clin', 'clin_aux_note');
 
 comment on TABLE clin.clin_aux_note is
 	'Other tables link to this if they need more free text fields.';
 
 -- vacc_indication --
-select add_table_for_audit('clin', 'vacc_indication');
+select audit.add_table_for_audit('clin', 'vacc_indication');
 
 comment on table clin.vacc_indication is
 	'definition of indications for vaccinations';
@@ -257,7 +257,7 @@ comment on table clin.lnk_vacc_ind2code is
 	 be linked against one vaccination indication';
 
 -- vacc_route --
-select add_table_for_audit('clin', 'vacc_route');
+select audit.add_table_for_audit('clin', 'vacc_route');
 
 comment on table clin.vacc_route is
 	'definition of route via which vaccine is given,
@@ -266,7 +266,7 @@ comment on table clin.vacc_route is
 	 future';
 
 -- vaccine --
-select add_table_for_audit('clin', 'vaccine');
+select audit.add_table_for_audit('clin', 'vaccine');
 
 comment on table clin.vaccine is
 	'definition of a vaccine as available on the market';
@@ -294,7 +294,7 @@ comment on table clin.lnk_vaccine2inds is
 	'links vaccines to their indications';
 
 -- clin.vacc_regime --
-select add_table_for_audit('clin', 'vacc_regime');
+select audit.add_table_for_audit('clin', 'vacc_regime');
 
 comment on table clin.vacc_regime is
 	'holds vaccination schedules/regimes/target diseases';
@@ -306,7 +306,7 @@ comment on column clin.vacc_regime.name is
 	'regime name: schedule/disease/target bacterium...';
 
 -- clin.lnk_pat2vacc_reg --
-select add_table_for_audit('clin', 'lnk_pat2vacc_reg');
+select audit.add_table_for_audit('clin', 'lnk_pat2vacc_reg');
 -- select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
 
 comment on table clin.lnk_pat2vacc_reg is
@@ -317,7 +317,7 @@ comment on table clin.lnk_pat2vacc_reg is
 	 to a trip abroad while most others are not';
 
 -- clin.vacc_def --
-select add_table_for_audit('clin', 'vacc_def');
+select audit.add_table_for_audit('clin', 'vacc_def');
 
 comment on table clin.vacc_def is
 	'defines a given vaccination event for a particular regime';
@@ -450,14 +450,14 @@ create trigger tr_del_booster_must_have_base_immunity
 
 
 -- clin.vaccination --
-select add_table_for_audit('clin', 'vaccination');
+select audit.add_table_for_audit('clin', 'vaccination');
 select add_table_for_notifies('clin', 'vaccination', 'vacc');
 
 comment on table clin.vaccination is
 	'holds vaccinations actually given';
 
 -- allergy_state --
-select add_table_for_audit('clin', 'allergy_state');
+select audit.add_table_for_audit('clin', 'allergy_state');
 
 comment on column clin.allergy_state.has_allergy is
 	'patient allergenic state:
@@ -468,7 +468,7 @@ comment on column clin.allergy_state.has_allergy is
 	';
 
 -- allergy --
-select add_table_for_audit('clin', 'allergy');
+select audit.add_table_for_audit('clin', 'allergy');
 -- delete from notifying_tables where table_name = 'allergy';
 select add_table_for_notifies('clin', 'allergy', 'allg');
 
@@ -504,7 +504,7 @@ comment on column clin.allergy.narrative is
 -- clin.form_instances --
 --select add_x_db_fk_def('form_instances', 'xfk_form_def', 'reference', 'form_defs', 'pk');
 
-select add_table_for_audit('clin', 'form_instances');
+select audit.add_table_for_audit('clin', 'form_instances');
 
 comment on table clin.form_instances is
 	'instances of forms, like a log of all processed forms';
@@ -521,7 +521,7 @@ comment on column clin.form_instances.narrative is
 -- clin.form_data --
 --select add_x_db_fk_def('form_data', 'xfk_form_field', 'reference', 'form_fields', 'pk');
 
-select add_table_for_audit('clin', 'form_data');
+select audit.add_table_for_audit('clin', 'form_data');
 
 comment on table clin.form_data is
 	'holds the values used in form instances, for
@@ -536,7 +536,7 @@ comment on column clin.form_data.value is
 	'the value to replace the place holder with';
 
 -- clin.clin_medication --
-select add_table_for_audit('clin', 'clin_medication');
+select audit.add_table_for_audit('clin', 'clin_medication');
 
 comment on table clin.clin_medication is
 	'Representing what the patient is taking *now*, eg. a medication
@@ -1236,6 +1236,35 @@ where
 -- vaccination stuff
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
+drop view clin.v_inds4vaccine cascade;
+\set ON_ERROR_STOP 1
+
+create view clin.v_inds4vaccine as
+select
+	v.trade_name,
+	v.short_name,
+	i.description as indication,
+	v.is_live,
+	v.min_age,
+	v.max_age,
+	v.comment,
+	v.pk as pk_vaccine,
+	v.id_route as pk_route,
+	i.id as pk_vacc_indication
+from
+	clin.vaccine v,
+	clin.vacc_indication i,
+	clin.lnk_vaccine2inds lv2i
+where
+	v.pk = lv2i.fk_vaccine and
+	i.id = lv2i.fk_indication
+;
+
+comment on view clin.v_inds4vaccine is
+	'lists indications for vaccines';
+
+
+\unset ON_ERROR_STOP
 drop view clin.v_vacc_regimes cascade;
 \set ON_ERROR_STOP 1
 
@@ -1401,18 +1430,18 @@ select
 	vvs4p.vacc_seq_no as seq_no,
 	case when vvs4p.age_due_max is null
 		then (now() + coalesce(vvs4p.min_interval, vvs4p.age_due_min))
-		else ((select identity.dob from identity where identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max)
+		else ((select dem.identity.dob from dem.identity where dem.identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max)
 	end as latest_due,
 	-- note that ...
 	-- ... 1) time_left ...
 	case when vvs4p.age_due_max is null
 		then coalesce(vvs4p.min_interval, vvs4p.age_due_min)
-		else (((select identity.dob from identity where identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max) - now())
+		else (((select dem.identity.dob from dem.identity where dem.identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max) - now())
 	end as time_left,
 	-- ... and 2) amount_overdue ...
 	case when vvs4p.age_due_max is null
 		then coalesce(vvs4p.min_interval, vvs4p.age_due_min)
-		else (now() - ((select identity.dob from identity where identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max))
+		else (now() - ((select dem.identity.dob from dem.identity where dem.identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max))
 	end as amount_overdue,
 	-- ... are just the inverse of each other
 	vvs4p.age_due_min,
@@ -1504,12 +1533,12 @@ comment on view clin.v_pat_missing_boosters is
 -- coded narrative
 \unset ON_ERROR_STOP
 drop index idx_coded_terms;
-drop function add_coded_term(text, text, text) cascade;
+drop function clin.add_coded_term(text, text, text) cascade;
 \set ON_ERROR_STOP 1
 
 create index idx_coded_terms on clin.coded_narrative(term);
 
-create function add_coded_term(text, text, text) returns boolean as '
+create function clin.add_coded_term(text, text, text) returns boolean as '
 declare
 	_term alias for $1;
 	_code alias for $2;
@@ -1682,9 +1711,9 @@ create view clin.v_pat_narrative as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
-	case when ((select 1 from v_staff where db_user = cn.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = cn.modified_by) is null)
 		then '<' || cn.modified_by || '>'
-		else (select sign from v_staff where db_user = cn.modified_by)
+		else (select sign from dem.v_staff where db_user = cn.modified_by)
 	end as provider,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
@@ -1902,7 +1931,7 @@ from
 	clin.v_pat_items vpi,
 	clin.clin_hx_family chxf,
 	clin.hx_family_item hxfi,
-	v_basic_person vbp
+	dem.v_basic_person vbp
 where
 	vpi.pk_item = chxf.pk_item
 		and
@@ -1940,7 +1969,7 @@ select
 from
 	clin.clin_hx_family chxf,
 	clin.hx_family_item hxfi,
-	v_basic_person vbp,
+	dem.v_basic_person vbp,
 	clin.v_pat_narrative vpn
 where
 	hxfi.pk = chxf.fk_hx_family_item
@@ -2069,9 +2098,9 @@ select
 	vpi.pk_patient as pk_patient,
 	cn.modified_when as modified_when,
 	cn.clin_when as clin_when,
-	case when ((select 1 from v_staff where db_user = cn.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = cn.modified_by) is null)
 		then '<' || cn.modified_by || '>'
-		else (select sign from v_staff where db_user = cn.modified_by)
+		else (select sign from dem.v_staff where db_user = cn.modified_by)
 	end as modified_by,
 	cn.soap_cat as soap_cat,
 	cn.narrative,
@@ -2091,9 +2120,9 @@ select
 	chi.id_patient as pk_patient,
 	chi.modified_when as modified_when,
 	chi.modified_when as clin_when,
-	case when ((select 1 from v_staff where db_user = chi.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = chi.modified_by) is null)
 		then '<' || chi.modified_by || '>'
-		else (select sign from v_staff where db_user = chi.modified_by)
+		else (select sign from dem.v_staff where db_user = chi.modified_by)
 	end as modified_by,
 	'a' as soap_cat,
 	_('health issue') || ': ' || chi.description || '; '
@@ -2113,9 +2142,9 @@ select
 	cenc.modified_when as modified_when,
 	-- FIXME: or last_affirmed ?
 	cenc.started as clin_when,
-	case when ((select 1 from v_staff where db_user = cenc.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = cenc.modified_by) is null)
 		then '<' || cenc.modified_by || '>'
-		else (select sign from v_staff where db_user = cenc.modified_by)
+		else (select sign from dem.v_staff where db_user = cenc.modified_by)
 	end as modified_by,
 	's' as soap_cat,
 	_('encounter') || ': ' || _('RFE') || ': ' || cenc.rfe || '; ' || _('AOE') || ':' as narrative,
@@ -2132,9 +2161,9 @@ select
 	vpep.pk_patient as pk_patient,
 	vpep.episode_modified_when as modified_when,
 	vpep.episode_modified_when as clin_when,
-	case when ((select 1 from v_staff where db_user = vpep.episode_modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = vpep.episode_modified_by) is null)
 		then '<' || vpep.episode_modified_by || '>'
-		else (select sign from v_staff where db_user = vpep.episode_modified_by)
+		else (select sign from dem.v_staff where db_user = vpep.episode_modified_by)
 	end as modified_by,
 	's' as soap_cat,
 	_('episode') || ': ' || vpep.description as narrative,
@@ -2151,9 +2180,9 @@ select
 	vhxf.pk_patient as pk_patient,
 	vhxf.modified_when as modified_when,
 	vhxf.clin_when as clin_when,
-	case when ((select 1 from v_staff where db_user = vhxf.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = vhxf.modified_by) is null)
 		then '<' || vhxf.modified_by || '>'
-		else (select sign from v_staff where db_user = vhxf.modified_by)
+		else (select sign from dem.v_staff where db_user = vhxf.modified_by)
 	end as modified_by,
 	vhxf.soap_cat as soap_cat,
 	_(vhxf.relationship) || ' '
@@ -2174,9 +2203,9 @@ select
 	vpv4i.pk_patient as pk_patient,
 	vpv4i.modified_when as modified_when,
 	vpv4i.date as clin_when,
-	case when ((select 1 from v_staff where db_user = vpv4i.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = vpv4i.modified_by) is null)
 		then '<' || vpv4i.modified_by || '>'
-		else (select sign from v_staff where db_user = vpv4i.modified_by)
+		else (select sign from dem.v_staff where db_user = vpv4i.modified_by)
 	end as modified_by,
 	'p' as soap_cat,
 	_('vaccine') || ': ' || vpv4i.vaccine || '; '
@@ -2198,9 +2227,9 @@ select
 	vpa.pk_patient as pk_patient,
 	vpa.modified_when as modified_when,
 	vpa.date as clin_when,
-	case when ((select 1 from v_staff where db_user = vpa.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = vpa.modified_by) is null)
 		then '<' || vpa.modified_by || '>'
-		else (select sign from v_staff where db_user = vpa.modified_by)
+		else (select sign from dem.v_staff where db_user = vpa.modified_by)
 	end as modified_by,
 	's' as soap_cat,	-- FIXME: pull in proper soap_cat
 	_('allergene') || ': ' || coalesce(vpa.allergene, '') || '; '
@@ -2223,9 +2252,9 @@ select
 	vlr.pk_patient as pk_patient,
 	vlr.modified_when as modified_when,
 	vlr.sampled_when as clin_when,
-	case when ((select 1 from v_staff where db_user = vlr.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = vlr.modified_by) is null)
 		then '<' || vlr.modified_by || '>'
-		else (select sign from v_staff where db_user = vlr.modified_by)
+		else (select sign from dem.v_staff where db_user = vlr.modified_by)
 	end as modified_by,
 	vlr.soap_cat as soap_cat,
 	_('lab') || ': ' || vlr.lab_name || '; '
@@ -2247,9 +2276,9 @@ select
 	vtr.pk_patient as pk_patient,
 	vtr.modified_when as modified_when,
 	vtr.clin_when as clin_when,
-	case when ((select 1 from v_staff where db_user = vtr.modified_by) is null)
+	case when ((select 1 from dem.v_staff where db_user = vtr.modified_by) is null)
 		then '<' || vtr.modified_by || '>'
-		else (select sign from v_staff where db_user = vtr.modified_by)
+		else (select sign from dem.v_staff where db_user = vtr.modified_by)
 	end as modified_by,
 	vtr.soap_cat as soap_cat,
 	_('code') || ': ' || vtr.unified_code || '; '
@@ -2304,8 +2333,8 @@ select
 	i.pupic as pupic
 from
 	clin.waiting_list wl,
-	identity i,
-	names n,
+	dem.identity i,
+	dem.names n,
 	clin.v_most_recent_encounters vmre
 where
 	wl.fk_patient = i.pk and
@@ -2357,6 +2386,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.vaccination_id_seq
 	, clin.vaccine
 	, clin.vaccine_pk_seq
+	, clin.lnk_vaccine2inds
+	, clin.lnk_vaccine2inds_id_seq
+	, clin.vacc_indication
+	, clin.vacc_indication_id_seq
 	, clin.vacc_def
 	, clin.vacc_def_id_seq
 	, clin.vacc_regime
@@ -2432,11 +2465,20 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.166 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.167 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.166  2006-01-05 16:04:37  ncq
+-- Revision 1.167  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.166  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.165  2006/01/01 20:41:06  ncq

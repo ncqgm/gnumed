@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.41 2006-01-01 17:57:14 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.42 2006-01-06 10:12:02 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -275,23 +275,6 @@ insert into clin.test_type (
 --	i18n('comment'),
 --	'unit'
 --);
-
--- ===================================================================
--- staff roles
-delete from staff_role;
-
--- standard GP practice staff
-insert into staff_role (name) values (i18n('doctor'));
-insert into staff_role (name) values (i18n('nurse'));
-insert into staff_role (name) values (i18n('manager'));
-insert into staff_role (name) values (i18n('secretary'));
-insert into staff_role (name) values (i18n('X-ray assistant'));
-insert into staff_role (name) values (i18n('lab technician'));
-insert into staff_role (name) values (i18n('medical student'));
-insert into staff_role (name) values (i18n('student nurse'));
-insert into staff_role (name) values (i18n('trainee - secretary'));
-insert into staff_role (name) values (i18n('trainee - X-ray'));
-insert into staff_role (name) values (i18n('trainee - lab'));
 
 -- ===================================================================
 -- vaccination routes
@@ -639,11 +622,20 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.41  2006-01-01 17:57:14  ncq
+-- Revision 1.42  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.41  2006/01/01 17:57:14  ncq
 -- - add vaccination indications
 --
 -- Revision 1.40  2005/11/25 15:07:28  ncq

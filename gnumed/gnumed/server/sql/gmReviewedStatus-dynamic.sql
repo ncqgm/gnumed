@@ -2,7 +2,7 @@
 -- GNUmed - tracking of reviewed status of incoming data
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReviewedStatus-dynamic.sql,v $
--- $Id: gmReviewedStatus-dynamic.sql,v 1.2 2005-11-25 15:07:28 ncq Exp $
+-- $Id: gmReviewedStatus-dynamic.sql,v 1.3 2006-01-06 10:12:02 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -51,9 +51,9 @@ select
 	rr.fk_reviewer as pk_reviewer,
 	rr.is_technically_abnormal as is_technically_abnormal,
 	rr.clinically_relevant as clinically_relevant,
-	case when ((select 1 from v_staff where pk_identity = rr.fk_reviewer) is null)
+	case when ((select 1 from dem.v_staff where pk_identity = rr.fk_reviewer) is null)
 		then '<' || rr.fk_reviewer || '>'
-		else (select sign from v_staff where pk_identity = rr.fk_reviewer)
+		else (select sign from dem.v_staff where pk_identity = rr.fk_reviewer)
 	end as reviewer,
 	(select relname
 	 from pg_class
@@ -77,11 +77,20 @@ to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmReviewedStatus-dynamic.sql,v $
--- Revision 1.2  2005-11-25 15:07:28  ncq
+-- Revision 1.3  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.2  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.1  2005/10/26 21:31:07  ncq

@@ -4,22 +4,22 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Christine_Chapel.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-insert into identity (gender, dob, cob, title)
+insert into dem.identity (gender, dob, cob, title)
 values ('f', '1932-2-23+2:00', 'US', 'Dr.RN');
 
-insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_pk_seq'), true, 'Chapel', 'Christine');
+insert into dem.names (id_identity, active, lastnames, firstnames)
+values (currval('dem.identity_pk_seq'), true, 'Chapel', 'Christine');
 
-insert into staff (fk_identity, fk_role, db_user, sign, comment)
+insert into dem.staff (fk_identity, fk_role, db_user, sign, comment)
 values (
-	currval('identity_pk_seq'),
-	(select pk from staff_role where name='nurse'),
+	currval('dem.identity_pk_seq'),
+	(select pk from dem.staff_role where name='nurse'),
 	'test-nurse',
 	'CC',
 	'Enterprise Head Nurse, temporarily Enterprise Chief Medical Officer'
@@ -27,11 +27,20 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-Christine_Chapel.sql,v $', '$Revision: 1.10 $');
+select log_script_insertion('$RCSfile: test_data-Christine_Chapel.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: test_data-Christine_Chapel.sql,v $
--- Revision 1.10  2005-11-25 15:07:28  ncq
+-- Revision 1.11  2006-01-06 10:12:03  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.10  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.9  2005/09/19 16:38:52  ncq

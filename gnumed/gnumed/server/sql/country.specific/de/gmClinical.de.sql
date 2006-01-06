@@ -3,14 +3,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 reset client_encoding;
 -- =============================================
-CREATE TABLE lab_test_GNR (
+CREATE TABLE de_de.lab_test_GNR (
 	id serial primary key,
 	id_test integer
 		not null
@@ -22,24 +22,24 @@ CREATE TABLE lab_test_GNR (
 --	GOA_96 character(6) references goae_96.gnr
 --	UVT_GOA character(6) references bg_goae(gnr)
 
-select add_table_for_audit('lab_test_gnr');
+select audit.add_table_for_audit('de_de', 'lab_test_gnr');
 
-COMMENT ON TABLE lab_test_GNR is
+COMMENT ON TABLE de_de.lab_test_GNR is
 	'specific for Germany, GNR = GebuehrenordnungsNummeR = billing
 	 item, build index before lab import and drop afterwards, check
 	 against this table when importing, build table during import';
-COMMENT ON COLUMN lab_test_GNR.id_test IS
+COMMENT ON COLUMN de_de.lab_test_GNR.id_test IS
 	'link to test in our practice';
---COMMENT ON COLUMN lab_test_GNR.EBM is
+--COMMENT ON COLUMN de_de.lab_test_GNR.EBM is
 --	'GNR according to EBM (Einheitlicher BewertungsMassstab)
 --	 for Kassenpatienten (gov''t insured patients)';
---COMMENT ON COLUMN lab_test_GNR.GOA_88 is
+--COMMENT ON COLUMN de_de.lab_test_GNR.GOA_88 is
 --	'GNR according to GOAe 88 (GebuehrenOrdnung fuer Aerzte)
 --	 for Privatpatienten (privately insured patients)';
---COMMENT ON COLUMN lab_test_GNR.GOA_96 is
+--COMMENT ON COLUMN de_de.lab_test_GNR.GOA_96 is
 --	'GNR according to GOAe 96 (GebuehrenOrdnung fuer Aerzte)
 --	 for Privatpatienten (privately insured patients)';
---COMMENT ON COLUMN lab_test_GNR.BG_GOA is
+--COMMENT ON COLUMN de_de.lab_test_GNR.BG_GOA is
 --	'GNR according to GOAe (GebuehrenOrdnung fuer Aerzte) for
 --	 Berufsgenossenschaften (sector specific job related
 --	 health insurance)';
@@ -47,11 +47,20 @@ COMMENT ON COLUMN lab_test_GNR.id_test IS
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmClinical.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.16  2006-01-05 16:04:37  ncq
+-- Revision 1.17  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.16  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.15  2005/11/25 15:07:28  ncq

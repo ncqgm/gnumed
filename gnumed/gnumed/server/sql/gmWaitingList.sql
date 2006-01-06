@@ -1,7 +1,7 @@
 -- Project: GNUmed - waiting list tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmWaitingList.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -29,7 +29,7 @@ create table clin.waiting_list (
 	comment text
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('clin', 'waiting_list');
+select audit.add_table_for_audit('clin', 'waiting_list');
 
 comment on table clin.waiting_list is
 	'aggregates all the patients currently waiting for an encounter';
@@ -52,11 +52,20 @@ comment on column clin.waiting_list.comment is
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmWaitingList.sql,v $', '$Revision: 1.3 $');
+select log_script_insertion('$RCSfile: gmWaitingList.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmWaitingList.sql,v $
--- Revision 1.3  2006-01-05 16:04:37  ncq
+-- Revision 1.4  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.3  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.2  2005/11/25 15:07:28  ncq

@@ -1,7 +1,7 @@
--- Project: GnuMed
+-- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -9,62 +9,74 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+-- schema
+grant usage on schema dem to group "gm-doctors";
+
 grant select on
-	name_gender_map
+	dem.name_gender_map
 to group "gm-public";
 
 -- do not allow anyone other the gm-dbo to DELETE on identity ...
 grant select, insert, update on
-	identity,
-	identity_pk_seq
+	dem.identity,
+	dem.identity_pk_seq
 to group "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	names,
-	names_id_seq,
-	urb,
-	urb_id_seq,
-	country,
-	country_id_seq,
-	state,
-	state_id_seq,
-	street,
-	street_id_seq,
-	address,
-	address_id_seq,
-	address_type,
-	address_type_id_seq,
-	enum_comm_types,
-	enum_ext_id_types,
-	enum_ext_id_types_pk_seq
-	, gender_label
-	, gender_label_pk_seq,
-	lnk_identity2ext_id,
-	lnk_identity2ext_id_id_seq,
-	lnk_person_org_address,
-	lnk_person_org_address_id_seq,
-	lnk_identity2comm,
-	lnk_identity2comm_id_seq,
-	relation_types,
-	lnk_person2relative,
-	lnk_person2relative_id_seq,
-	occupation,
-	occupation_id_seq,	
-	lnk_job2person,
-	lnk_job2person_id_seq,
-	org_category,
-	org,
-	org_id_seq,
-	lnk_org2comm,
-	lnk_org2comm_id_seq,
-	staff_role,
-	staff,
-	marital_status
+	dem.names,
+	dem.names_id_seq,
+	dem.urb,
+	dem.urb_id_seq,
+	dem.country,
+	dem.country_id_seq,
+	dem.state,
+	dem.state_id_seq,
+	dem.street,
+	dem.street_id_seq,
+	dem.address,
+	dem.address_id_seq,
+	dem.address_type,
+	dem.address_type_id_seq,
+	dem.enum_comm_types,
+	dem.enum_ext_id_types,
+	dem.enum_ext_id_types_pk_seq
+	, dem.gender_label
+	, dem.gender_label_pk_seq,
+	dem.lnk_identity2ext_id,
+	dem.lnk_identity2ext_id_id_seq,
+	dem.lnk_person_org_address,
+	dem.lnk_person_org_address_id_seq,
+	dem.lnk_identity2comm,
+	dem.lnk_identity2comm_id_seq,
+	dem.relation_types,
+	dem.lnk_person2relative,
+	dem.lnk_person2relative_id_seq,
+	dem.occupation,
+	dem.occupation_id_seq,	
+	dem.lnk_job2person,
+	dem.lnk_job2person_id_seq,
+	dem.org_category,
+	dem.org,
+	dem.org_id_seq,
+	dem.lnk_org2comm,
+	dem.lnk_org2comm_id_seq,
+	dem.staff_role,
+	dem.staff,
+	dem.marital_status
 TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.13  2005-04-14 16:58:18  ncq
+-- Revision 1.14  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.13  2005/04/14 16:58:18  ncq
 -- - gender_label grants
 --
 -- Revision 1.12  2005/04/12 16:23:23  ncq

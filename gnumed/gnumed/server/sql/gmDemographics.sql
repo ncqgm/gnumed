@@ -1,7 +1,7 @@
--- Project: GnuMed
+-- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.61 $
+-- $Revision: 1.62 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -10,53 +10,56 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
+create schema dem authorization "gm-dbo";
+
+-- ===================================================================
 -- location related tables
 -- ===================================================================
 -- no auditing neccessary, as this table only uses
 -- original ISO data (= reference verifiable any time)
-create table country (
+create table dem.country (
 	id serial primary key,
 	code char(2) unique not null,
 	name text not null,
 	deprecated date default null
 );
 
-COMMENT ON TABLE country IS
+COMMENT on table dem.country IS
 	'countries coded per ISO 3166-1';
-COMMENT ON COLUMN country.code IS
+COMMENT on column dem.country.code IS
 	'international two character country code as per ISO 3166-1';
-COMMENT ON COLUMN country.deprecated IS
+COMMENT on column dem.country.deprecated IS
 	'date when this country ceased officially to exist (if applicable)';
 
 -- ===================================================================
 -- state codes: any need for more than 3 characters?
 -- yes, in Germany we have up to 6
-create table state (
+create table dem.state (
 	id serial primary key,
 	code text not null,
-	country char(2) not null references country(code),
+	country char(2) not null references dem.country(code),
 	name text not null,
 	unique (code, country)
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('state');
+select audit.add_table_for_audit('dem', 'state');
 
-COMMENT on table state is
+COMMENT on table dem.state is
 	'state codes (country specific);
 	 Richard agreed we should require pre-existence,
 	 allow user to mail details for adding a state to developers';
-COMMENT on column state.code is
+COMMENT on column dem.state.code is
 	'state code';
-COMMENT on column state.country is
+COMMENT on column dem.state.country is
 	'2 character ISO 3166-1 country code';
 
 -- ===================================================================
 -- FIXME: remodel according to XMeld
-create table urb (
+create table dem.urb (
 	id serial primary key,
 	id_state integer
 		not null
-		references state(id)
+		references dem.state(id)
 		on update cascade
 		on delete restrict,
 	postcode text not null,
@@ -75,26 +78,26 @@ create table urb (
 -- - part of one street in one urb
 -- Take that !  :-)
 
-select add_table_for_audit('urb');
+select audit.add_table_for_audit('dem', 'urb');
 
-COMMENT ON TABLE urb IS
+COMMENT on table dem.urb IS
 	'cities, towns, dwellings ..., eg. "official" places of residence';
-COMMENT ON COLUMN urb.id_state IS
+COMMENT on column dem.urb.id_state IS
 	'reference to information about country and state';
-COMMENT ON COLUMN urb.postcode IS
+COMMENT on column dem.urb.postcode IS
 	'default postcode for urb.name,
 	 useful for all the smaller urbs that only have one postcode,
 	 also useful as a default when adding new streets to an urb';
-COMMENT ON COLUMN urb.name IS
+COMMENT on column dem.urb.name IS
 	'the name of the city/town/dwelling';
-COMMENT ON COLUMN urb.lat_lon is
+COMMENT on column dem.urb.lat_lon is
 	'the location of the urb, as lat/long co-ordinates. Ideally this would be NOT NULL';
 -- ===================================================================
-create table street (
+create table dem.street (
 	id serial primary key,
 	id_urb integer
 		not null
-		references urb(id)
+		references dem.urb(id)
 		on update cascade
 		on delete restrict,
 	name text not null,
@@ -104,26 +107,26 @@ create table street (
 	unique(id_urb, name, postcode)
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('street');
+select audit.add_table_for_audit('dem', 'street');
 
-COMMENT ON TABLE street IS
+COMMENT on table dem.street IS
 	'street names, specific for distinct "urbs"';
-COMMENT ON COLUMN street.id_urb IS
+COMMENT on column dem.street.id_urb IS
 	'reference to information postcode, city, country and state';
-COMMENT ON COLUMN street.name IS
+COMMENT on column dem.street.name IS
 	'name of this street';
-COMMENT ON COLUMN street.postcode IS
+COMMENT on column dem.street.postcode IS
 	'postcode for systems (such as UK Royal Mail) which specify the street';
-comment on column street.suburb is
+comment on column dem.street.suburb is
 	'the suburb this street is in (if any)';
-comment on column street.lat_lon is
+comment on column dem.street.lat_lon is
 'the approximate location of the street, as lat/long co-ordinates';
 -- ===================================================================
-create table address (
+create table dem.address (
 	id serial primary key,
 	id_street integer
 		not null
-		references street(id)
+		references dem.street(id)
 		on update cascade
 		on delete restrict,
 	aux_street text default null,
@@ -136,47 +139,47 @@ create table address (
 
 -- FIXME: should be unique(coalesce(field, '')) for aux_street, subunit, addendum !
 
-select add_table_for_audit('address');
+select audit.add_table_for_audit('dem', 'address');
 
-comment on table address is
+comment on table dem.address is
 	'an address aka a location, void of attached meaning such as type of address';
-comment on column address.id_street is
+comment on column dem.address.id_street is
 	'the street this address is at from
 	 whence the urb is to be found, it
-	 thus indirectly references urb(id)';
-comment on column address.aux_street is
+	 thus indirectly references dem.urb(id)';
+comment on column dem.address.aux_street is
 	'additional street-level information which
 	 formatters would usually put on lines directly
 	 below the street line of an address, such as
 	 postal box directions in CA';
-comment on column address.number is
+comment on column dem.address.number is
 	'number of the house';
-comment on column address.subunit is
+comment on column dem.address.subunit is
 	'directions *below* the unit (eg.number) level,
 	 such as appartment number, room number, level,
 	 entrance or even verbal directions';
-comment on column address.addendum is
+comment on column dem.address.addendum is
 	'any additional information that
 	 did not fit anywhere else';
-comment on column address.lat_lon is
+comment on column dem.address.lat_lon is
 	'the exact location of this address in latitude-longtitude';
 
 -- ===================================================================
-create table address_type (
+create table dem.address_type (
 	id serial primary key,
 	"name" text unique not null
 );
 
 
 -- ===================================================================
-create table marital_status (
+create table dem.marital_status (
 	pk serial primary key,
 	name text
 		unique
 		not null
 );
 -- ===================================================================
-create table enum_comm_types (
+create table dem.enum_comm_types (
 	id serial primary key,
 	description text unique not null
 );
@@ -184,7 +187,7 @@ create table enum_comm_types (
 -- ===================================================================
 -- person related tables
 -- ===================================================================
-create table gender_label (
+create table dem.gender_label (
 	pk serial primary key,
 	tag text
 		not null
@@ -199,18 +202,18 @@ create table gender_label (
 		not null
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('gender_label');
+select audit.add_table_for_audit('dem', 'gender_label');
 
-comment on table gender_label is
+comment on table dem.gender_label is
 	'This table stores the genders known to GNUmed.
 	 FIXME: cross-check with CDA:administrative-gender-code';
 
 -- ==========================================================
-create table identity (
+create table dem.identity (
 	pk serial primary key,
 	pupic char(24),
 	gender text
-		references gender_label(tag)
+		references dem.gender_label(tag)
 		on update cascade
 		on delete restrict,
 	karyotype text
@@ -219,7 +222,7 @@ create table identity (
 		not null,
 	fk_marital_status integer
 		default null
-		references marital_status(pk),
+		references dem.marital_status(pk),
 	cob char(2),
 	deceased timestamp with time zone
 		default null
@@ -227,26 +230,26 @@ create table identity (
 	title text
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('identity');
+select audit.add_table_for_audit('dem', 'identity');
 
-comment on table identity IS
+comment on table dem.identity IS
 	'represents the unique identity of a person';
-comment on column identity.pupic IS
+comment on column dem.identity.pupic IS
 	'Portable Unique Person Identification Code as per gnumed white papers';
-comment on column identity.gender is
+comment on column dem.identity.gender is
 	'the gender code';
-comment on column identity.dob IS
+comment on column dem.identity.dob IS
 	'date/time of birth';
-comment on column identity.cob IS
+comment on column dem.identity.cob IS
 	'country of birth as per date of birth, coded as 2 character ISO code';
-comment on column identity.deceased IS
+comment on column dem.identity.deceased IS
 	'date when a person has died';
-comment on column identity.title IS
+comment on column dem.identity.title IS
 	'Yes, a title is an attribute of an identity, not of a name !
 	 Also, there are some incredible rants of titles.';
 
 -- ===================================================================
-create table enum_ext_id_types (
+create table dem.enum_ext_id_types (
 	pk serial primary key,
 	name text,
 	issuer text,
@@ -254,11 +257,11 @@ create table enum_ext_id_types (
 	unique (name, issuer)
 );
 
-comment on table enum_ext_id_types is
+comment on table dem.enum_ext_id_types is
 	'a list of all bureaucratic IDs/serial numbers/3rd party primary keys, etc.';
-comment on column enum_ext_id_types.issuer is
+comment on column dem.enum_ext_id_types.issuer is
 	'the authority/system issuing the number';
-comment on column enum_ext_id_types.context is
+comment on column dem.enum_ext_id_types.context is
 	'the context in which this number is used
 		- p for ordinary persons
 		- o for organisations
@@ -267,39 +270,38 @@ comment on column enum_ext_id_types.context is
 	 FIXME: is context really a property of *type* ?';
 
 -- ==========================================================
-create table lnk_identity2ext_id (
+create table dem.lnk_identity2ext_id (
 	id serial primary key,
 	id_identity integer
 		not null
-		references identity(pk)
+		references dem.identity(pk)
 		on update cascade
 		on delete cascade,
 	external_id text not null,
 	fk_origin integer
-		not null references
-		enum_ext_id_types(pk),
+		not null references dem.enum_ext_id_types(pk),
 	comment text,
 	unique (id_identity, external_id, fk_origin)
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('lnk_identity2ext_id');
+select audit.add_table_for_audit('dem', 'lnk_identity2ext_id');
 
-comment on table lnk_identity2ext_id is
+comment on table dem.lnk_identity2ext_id is
 	'link external IDs to GnuMed identities';
-comment on column lnk_identity2ext_id.external_id is
+comment on column dem.lnk_identity2ext_id.external_id is
 	'textual representation of external ID which
 	 may be Social Security Number, patient ID of
 	 another EMR system, you-name-it';
-comment on column lnk_identity2ext_id.fk_origin is
+comment on column dem.lnk_identity2ext_id.fk_origin is
 	'originating system';
 
 -- ==========================================================
 -- FIXME: rebuild according to OpenEHR and XMeld
-create table names (
+create table dem.names (
 	id serial primary key,
 	id_identity integer
 		not null
-		references identity(pk)
+		references dem.identity(pk)
 		on update cascade
 		on delete cascade,
 	active boolean default true,
@@ -310,35 +312,35 @@ create table names (
 	unique(id_identity, lastnames, firstnames)
 );
 
-comment on table names is
+comment on table dem.names is
 	'all the names an identity is known under;
 	 As opposed to the versioning of all other tables, changed names
 	 should not be moved into the audit trail tables. Search functionality
 	 must be available at any time for all names a person ever had.';
-comment on column names.active IS
+comment on column dem.names.active IS
 	'true if the name is still in use';
-comment on column names.firstnames IS
+comment on column dem.names.firstnames IS
 	'all first names of an identity in legal order,\n
 	 IOW "minor" name, identifier of this identity within\n
 	 the group defined by <lastnames>';
-comment on column names.lastnames IS
+comment on column dem.names.lastnames IS
 	'all last names of an identity in legal order,\n
 	 IOW "major" name, "group identifier", eg. family, village, tribe, ...';
-comment on column names.preferred IS
+comment on column dem.names.preferred IS
 	'preferred first name, the name a person is usually\n
 	 called (nickname, warrior name)';
-comment on column names.comment is
+comment on column dem.names.comment is
 	'a comment regarding this name, useful in things like "this was
 	 the name before marriage" etc';
 
 -- ==========================================================
-create table name_gender_map (
+create table dem.name_gender_map (
 	id serial primary key,
 	name text unique not null,
 	gender character(1) check (gender in ('m', 'f'))
 );
 
-COMMENT on table name_gender_map is
+COMMENT on table dem.name_gender_map is
 	'maps (first) names to their most frequently locally assigned gender,
 	 this table is updated nightly by a cron script,
 	 names whose gender distribution is between 70/30 and 30/70 are
@@ -347,20 +349,20 @@ COMMENT on table name_gender_map is
 
 
 -- ==========================================================
-create table lnk_identity2comm (
+create table dem.lnk_identity2comm (
 	id serial primary key,
 	id_identity integer
 		not null
-		references identity(pk)
+		references dem.identity(pk)
 		on update cascade
 		on delete cascade,
 	id_address integer
 		default null
-		references address(id)
+		references dem.address(id)
 		on update set null
 		on delete set null,
 	url text,
-	id_type integer references enum_comm_types,
+	id_type integer references dem.enum_comm_types,
 	is_confidential bool not null default false,
 	unique (id_identity, url)
 );
@@ -373,24 +375,24 @@ create table lnk_identity2comm (
 -- and it is still useful to record whatever information we can gather.
 -- Thus, we need a variety of relationship types
 
-create table relation_types (
+create table dem.relation_types (
 	id serial primary key,
-	inverse integer references relation_types (id),
+	inverse integer references dem.relation_types (id),
 	biological boolean not null,
 	biol_verified boolean default false,
 	description text
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('relation_types');
+select audit.add_table_for_audit('dem', 'relation_types');
 
-comment on table relation_types IS
+comment on table dem.relation_types IS
 	'types of biological/social relationships between identities';
-comment on column relation_types.biological IS
+comment on column dem.relation_types.biological IS
 	'true if relationship is biological (proven or
 	 reasonable assumption), else false';
-comment on column relation_types.biol_verified IS
+comment on column dem.relation_types.biol_verified IS
 	'ONLY true if there is genetic proof for this relationship';
-comment on column relation_types.description IS
+comment on column dem.relation_types.description IS
 	'plain text description of relationship';
 
 -- ==========================================================
@@ -398,33 +400,33 @@ comment on column relation_types.description IS
 -- data and is said to be plenty fast
 -- FIXME: it might be useful to CLUSTER ON id_identity ?
 
-create table lnk_person2relative (
+create table dem.lnk_person2relative (
 	id serial primary key,
-	id_identity integer not null references identity(pk),
-	id_relative integer not null references identity(pk),
-	id_relation_type integer not null references relation_types,
+	id_identity integer not null references dem.identity(pk),
+	id_relative integer not null references dem.identity(pk),
+	id_relation_type integer not null references dem.relation_types,
 	started date default NULL,
 	ended date default NULL
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('lnk_person2relative');
+select audit.add_table_for_audit('dem', 'lnk_person2relative');
 
-comment on table lnk_person2relative IS
+comment on table dem.lnk_person2relative IS
 	'biological and social relationships between an identity and other identities';
-comment on column lnk_person2relative.id_identity IS
+comment on column dem.lnk_person2relative.id_identity IS
 	'primary identity to whom the relationship applies';
-comment on column lnk_person2relative.id_relative IS
+comment on column dem.lnk_person2relative.id_relative IS
 	'referred-to identity of this relationship (e.g. "child"
 	 if id_identity points to the father and id_relation_type
 	 points to "parent")';
-comment on column lnk_person2relative.started IS
+comment on column dem.lnk_person2relative.started IS
 	'date when this relationship began';
-comment on column lnk_person2relative.ended IS
+comment on column dem.lnk_person2relative.ended IS
 	'date when this relationship ended, biological
 	 relationships do not end !';
 
 -- ==========================================================
-create table occupation (
+create table dem.occupation (
 	id serial
 		primary key,
 	name text
@@ -432,52 +434,52 @@ create table occupation (
 		check (trim(name) != '')
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('occupation');
+select audit.add_table_for_audit('dem', 'occupation');
 
-comment on table occupation is
+comment on table dem.occupation is
 	'collects occupation names';
 
 -- ==========================================================
-create table lnk_job2person (
+create table dem.lnk_job2person (
 	id serial primary key,
-	id_identity integer not null references identity(pk),
-	id_occupation integer not null references occupation(id),
+	id_identity integer not null references dem.identity(pk),
+	id_occupation integer not null references dem.occupation(id),
 	comment text,
 	unique (id_identity, id_occupation)
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('lnk_job2person');
+select audit.add_table_for_audit('dem', 'lnk_job2person');
 
-comment on table lnk_job2person is
+comment on table dem.lnk_job2person is
 	'linking (possibly several) jobs to a person';
-comment on column lnk_job2person.comment is
+comment on column dem.lnk_job2person.comment is
 	'if you think you need non-unique id_identity/id_occupation
 	 combinations, think again, you may be missing the point
 	 of the comment field';
 -- ==========================================================
-create table staff_role (
+create table dem.staff_role (
 	pk serial primary key,
 	name text unique not null,
 	comment text
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('staff_role');
+select audit.add_table_for_audit('dem', 'staff_role');
 
-comment on table staff_role is
+comment on table dem.staff_role is
 	'work roles a staff member can have';
 
 -- ==========================================================
-create table staff (
+create table dem.staff (
 	pk serial primary key,
 	-- should actually point to identity(PUPIC)
 	fk_identity integer
 		not null
-		references identity(pk)
+		references dem.identity(pk)
 		on update cascade
 		on delete cascade,
 	fk_role integer
 		not null
-		references staff_role(pk)
+		references dem.staff_role(pk)
 		on update cascade
 		on delete cascade,
 	db_user name
@@ -490,74 +492,74 @@ create table staff (
 	-- link to practice
 ) inherits (audit.audit_fields);
 
-select add_table_for_audit('staff');
+select audit.add_table_for_audit('dem', 'staff');
 --select add_x_db_fk_def('staff', 'db_user', 'personalia', 'pg_user', 'usename');
 
-comment on table staff is
+comment on table dem.staff is
 	'one-to-one mapping of database user accounts
 	 (db_user) to staff identities (fk_identity)';
-comment on column staff.sign is
+comment on column dem.staff.sign is
 	'a short signature unique to this staff member
 	 to be used in the GUI, actually this is somewhat
 	 redundant with ext_person_id...';
 
 -- ==========================================================
-create table lnk_identity2primary_doc (
+create table dem.lnk_identity2primary_doc (
 	pk serial primary key,
 	fk_identity integer
 		not null
-		references identity(pk)
+		references dem.identity(pk)
 		on update cascade
 		on delete cascade,
 	fk_primary_doc integer
 		not null
-		references staff(pk)
+		references dem.staff(pk)
 		on update cascade
 		on delete cascade,
 	unique (fk_identity, fk_primary_doc)
 );
 
-select add_table_for_audit('lnk_identity2primary_doc');
+select audit.add_table_for_audit('dem', 'lnk_identity2primary_doc');
 
 -- ===================================================================
 -- organisation related tables
 -- ===================================================================
 
 -- ===================================================================
-create table org_category (
+create table dem.org_category (
 	id serial primary key,
 	description text unique not null
 );
 
 -- ===================================================================
 -- measurements will link to this, for example
-create table org (
+create table dem.org (
 	id serial primary key,
-	id_category integer not null references org_category(id),
+	id_category integer not null references dem.org_category(id),
 	description text not null,
 	unique(id_category, description)
 );
 
 -- ====================================================================
-create table lnk_org2comm (
+create table dem.lnk_org2comm (
 	id serial primary key,
 	id_org integer not null
-		references org(id)
+		references dem.org(id)
 		on update cascade
 		on delete cascade,
 	url text,
-	id_type integer references enum_comm_types(id), 
+	id_type integer references dem.enum_comm_types(id), 
 	is_confidential bool not null default false,
 	unique (id_org, url)
 );
 
 -- =====================================================================
 
-create table lnk_org2ext_id (
+create table dem.lnk_org2ext_id (
 	id serial primary key,
-	id_org integer not null references org(id),
+	id_org integer not null references dem.org(id),
 	external_id text not null,
-	fk_origin integer not null references enum_ext_id_types(pk),
+	fk_origin integer not null references dem.enum_ext_id_types(pk),
 	comment text,
 	unique (id_org, external_id, fk_origin)
 ) inherits (audit.audit_fields);
@@ -565,33 +567,33 @@ create table lnk_org2ext_id (
 -- ==========================================================
 -- the table formerly known as lnk_person2address
 -- homologous to data_links in Richard's schema
-create table lnk_person_org_address (
+create table dem.lnk_person_org_address (
 	id serial primary key,
 	id_identity integer
-		references identity(pk),
+		references dem.identity(pk),
 	id_address integer
-		references address(id),
+		references dem.address(id),
 	id_type integer
 		default 1
-		references address_type(id),
+		references dem.address_type(id),
 	address_source text,
 	id_org integer
-		references org(id),
+		references dem.org(id),
 	unique(id_identity, id_address),
 	unique(id_org, id_address)
 --	, unique(id_identity, id_org, id_occupation)
 );
 
-COMMENT ON TABLE lnk_person_org_address IS
+COMMENT on table dem.lnk_person_org_address IS
 	'a many-to-many pivot table describing the relationship
 	 between an organisation, a person, their work address and
 	 their occupation at that location.
 	 For patients id_org is NULL';
-COMMENT ON COLUMN lnk_person_org_address.id_identity IS
+COMMENT on column dem.lnk_person_org_address.id_identity IS
 	'identity to which the address belongs';
-COMMENT ON COLUMN lnk_person_org_address.id_address IS
+COMMENT on column dem.lnk_person_org_address.id_address IS
 	'address belonging to this identity (the branch of the organisation)';
-COMMENT ON COLUMN lnk_person_org_address.id_type IS
+COMMENT on column dem.lnk_person_org_address.id_type IS
 	'type of this address (like home, work, parents, holidays ...)';
 
 -- consider not plainly auditing this table but also
@@ -601,11 +603,20 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.61 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.62 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.61  2006-01-05 16:04:37  ncq
+-- Revision 1.62  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.61  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.60  2005/12/27 19:13:17  ncq

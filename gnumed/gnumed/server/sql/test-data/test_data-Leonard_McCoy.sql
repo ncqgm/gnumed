@@ -4,46 +4,46 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-delete from identity where
+delete from dem.identity where
 	gender = 'm'
 		and
 	cob = 'US'
 		and
 	pk in (
 		select pk_identity
-		from v_basic_person
+		from dem.v_basic_person
 		where firstnames='Leonard Horatio'
 				and lastnames='McCoy'
 				and dob='1920-1-20+2:00'
 	);
 
-insert into identity (gender, dob, cob, title)
+insert into dem.identity (gender, dob, cob, title)
 values ('m', '1920-1-20+2:00', 'US', 'Dr.');
 
-insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_pk_seq'), true, 'McCoy', 'Leonard Horatio');
+insert into dem.names (id_identity, active, lastnames, firstnames)
+values (currval('dem.identity_pk_seq'), true, 'McCoy', 'Leonard Horatio');
 
-insert into names (id_identity, active, lastnames, firstnames, comment)
-values (currval('identity_pk_seq'), false, 'DeForest', 'Kelley', 'name of the actor');
+insert into dem.names (id_identity, active, lastnames, firstnames, comment)
+values (currval('dem.identity_pk_seq'), false, 'DeForest', 'Kelley', 'name of the actor');
 
-delete from clin.xlnk_identity where xfk_identity = currval('identity_pk_seq');
+delete from clin.xlnk_identity where xfk_identity = currval('dem.identity_pk_seq');
 
 insert into clin.xlnk_identity (xfk_identity, pupic)
-values (currval('identity_pk_seq'), currval('identity_pk_seq'));
+values (currval('dem.identity_pk_seq'), currval('dem.identity_pk_seq'));
 
 insert into blobs.xlnk_identity (xfk_identity, pupic)
-values (currval('identity_pk_seq'), currval('identity_pk_seq'));
+values (currval('dem.identity_pk_seq'), currval('dem.identity_pk_seq'));
 
-insert into staff (fk_identity, fk_role, db_user, sign, comment)
+insert into dem.staff (fk_identity, fk_role, db_user, sign, comment)
 values (
-	currval('identity_pk_seq'),
-	(select pk from staff_role where name='doctor'),
+	currval('dem.identity_pk_seq'),
+	(select pk from dem.staff_role where name='doctor'),
 	'any-doc',
 	'LMcC',
 	'Enterprise Chief Medical Officer'
@@ -51,11 +51,20 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.17 $');
+select log_script_insertion('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.17  2005-12-04 09:49:26  ncq
+-- Revision 1.18  2006-01-06 10:12:03  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.17  2005/12/04 09:49:26  ncq
 -- - register in blobs.xlnk_identity so blobs.doc_obj.fk_intended_reviewer works
 --
 -- Revision 1.16  2005/11/25 15:07:28  ncq

@@ -4,29 +4,38 @@
 -- identity related test data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/gmDemographics-Person-test_data.sql,v $
--- $Id: gmDemographics-Person-test_data.sql,v 1.7 2005-09-19 16:38:52 ncq Exp $
+-- $Id: gmDemographics-Person-test_data.sql,v 1.8 2006-01-06 10:12:03 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ==========================================================
 -- insert some example people
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Ian', 'Haywood', '1977-12-19', 'UK', 'm');
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Cilla', 'Raby', '1979-3-1', 'AU', 'f');
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Horst', 'Herb', '1970-1-1', 'DE', 'm');
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Richard', 'Terry', '1960-1-1', 'AU', 'm');
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Karsten', 'Hilbert', '1974-10-23', 'DE', 'm');
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Sebastian', 'Hilbert', '1979-3-13', 'DE', 'm');
-insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Hilmar', 'Berger', '1974-1-1', 'DE', 'm');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Ian', 'Haywood', '1977-12-19', 'UK', 'm');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Cilla', 'Raby', '1979-3-1', 'AU', 'f');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Horst', 'Herb', '1970-1-1', 'DE', 'm');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Richard', 'Terry', '1960-1-1', 'AU', 'm');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Karsten', 'Hilbert', '1974-10-23', 'DE', 'm');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Sebastian', 'Hilbert', '1979-3-13', 'DE', 'm');
+insert into dem.v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Hilmar', 'Berger', '1974-1-1', 'DE', 'm');
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-test_data.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-test_data.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-test_data.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-test_data.sql,v $
--- Revision 1.7  2005-09-19 16:38:52  ncq
+-- Revision 1.8  2006-01-06 10:12:03  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.7  2005/09/19 16:38:52  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.6  2005/07/14 21:31:43  ncq

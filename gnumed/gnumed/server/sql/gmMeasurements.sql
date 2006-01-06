@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.56 $
+-- $Revision: 1.57 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -29,7 +29,7 @@ create table clin.test_org (
 	"comment" text
 ) inherits (audit.audit_fields);
 
-select public.add_table_for_audit('clin', 'test_org');
+select audit.add_table_for_audit('clin', 'test_org');
 
 -- remote foreign keys
 --select add_x_db_fk_def('test_org', 'fk_org', 'personalia', 'org', 'id');
@@ -69,7 +69,7 @@ create table clin.test_type (
 	unique (fk_test_org, code, coding_system)
 ) inherits (audit.audit_fields);
 
-select public.add_table_for_audit('clin', 'test_type');
+select audit.add_table_for_audit('clin', 'test_type');
 
 -- remote foreign keys
 --select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
@@ -150,7 +150,7 @@ create table clin.lnk_tst2norm (
 	unique (id_test, id_norm)
 ) inherits (audit.audit_fields);
 
-select public.add_table_for_audit('clin', 'lnk_tst2norm');
+select audit.add_table_for_audit('clin', 'lnk_tst2norm');
 
 --select add_x_db_fk_def ('lnk_tst2norm', 'id_norm', 'reference', 'test_norm', 'id');
 
@@ -211,7 +211,7 @@ alter table clin.test_result add constraint numval_needs_unit
 		(val_num is null)
 	);
 
-select add_table_for_audit('clin', 'test_result');
+select audit.add_table_for_audit('clin', 'test_result');
 --select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
 
 COMMENT ON TABLE clin.test_result is
@@ -383,11 +383,20 @@ create table clin.lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.56 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.57 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.56  2006-01-05 16:04:37  ncq
+-- Revision 1.57  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.56  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.55  2005/12/06 13:26:55  ncq

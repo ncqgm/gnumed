@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.176 $
+-- $Revision: 1.177 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -390,7 +390,9 @@ create table clin.vaccine (
 		default 1,
 	trade_name text unique not null,
 	short_name text not null,
-	is_live boolean not null default false,
+	is_live boolean
+		not null
+		default false,
 	min_age interval
 		not null
 		check(min_age > interval '0 seconds'),
@@ -704,11 +706,20 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.176 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.177 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.176  2006-01-05 16:04:37  ncq
+-- Revision 1.177  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.176  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.175  2006/01/01 20:41:06  ncq

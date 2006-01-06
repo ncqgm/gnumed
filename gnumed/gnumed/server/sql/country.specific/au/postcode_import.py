@@ -54,14 +54,14 @@ ID_WA = offset+8
 
 states = { 'ACT':ID_ACT, 'NSW':ID_NSW, 'NT':ID_NT, 'SA':ID_SA, 'TAS':ID_TAS, 'QLD':ID_QLD, 'VIC':ID_VIC, 'WA':ID_WA }
 
-print "INSERT INTO state(code, country, name) VALUES ('ACT', 'AU', 'Australian Capital Territory');"
-print "INSERT INTO state(code, country, name) VALUES ('NSW', 'AU', 'New South Wales');"
-print "INSERT INTO state(code, country, name) VALUES ('NT', 'AU', 'Northern Territory');"
-print "INSERT INTO state(code, country, name) VALUES ('SA', 'AU', 'South Australia');"
-print "INSERT INTO state(code, country, name) VALUES ('TAS', 'AU', 'Tasmania');"
-print "INSERT INTO state(code, country, name) VALUES ('QLD', 'AU', 'Queensland');"
-print "INSERT INTO state(code, country, name) VALUES ('VIC', 'AU', 'Victoria');"
-print "INSERT INTO state(code, country, name) VALUES ('WA', 'AU', 'West Australia');"
+print "INSERT into dem.state(code, country, name) VALUES ('ACT', 'AU', 'Australian Capital Territory');"
+print "INSERT into dem.state(code, country, name) VALUES ('NSW', 'AU', 'New South Wales');"
+print "INSERT into dem.state(code, country, name) VALUES ('NT', 'AU', 'Northern Territory');"
+print "INSERT into dem.state(code, country, name) VALUES ('SA', 'AU', 'South Australia');"
+print "INSERT into dem.state(code, country, name) VALUES ('TAS', 'AU', 'Tasmania');"
+print "INSERT into dem.state(code, country, name) VALUES ('QLD', 'AU', 'Queensland');"
+print "INSERT into dem.state(code, country, name) VALUES ('VIC', 'AU', 'Victoria');"
+print "INSERT into dem.state(code, country, name) VALUES ('WA', 'AU', 'West Australia');"
 
 f = open(filename)
 lines = f.readlines()
@@ -87,14 +87,14 @@ for line in lines:
 	tmp = string.split(line, import_delimiter)
 	#get rid of the quotation marks of the imported fields
 	# FIXME: must get rid of duplicates !!!
-	cmd = "insert into urb (id_state, postcode, name) values ((select id from state where country='AU' and code='%s'), %s, '%s');" % (
+	cmd = "insert into dem.urb (id_state, postcode, name) values ((select id from dem.state where country='AU' and code='%s'), %s, '%s');" % (
 		tmp[state][1:-1],
 		tmp[pcode][1:-1],
 		safestr(tmp[locality][1:-1])
 	)
 	print cmd
 
-print "\nselect gm_upd_default_states();"
+print "\nselect dem.gm_upd_default_states();"
 
 if begun:
 	pass

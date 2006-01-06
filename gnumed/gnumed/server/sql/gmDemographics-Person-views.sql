@@ -1,11 +1,11 @@
--- project: GNUMed
+-- project: GNUmed
 
 -- purpose: views for easier identity access
 -- author: Karsten Hilbert
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.45 2006-01-01 20:39:22 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.46 2006-01-06 10:12:02 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -14,11 +14,10 @@ drop index idx_names_last_first;
 drop index idx_names_firstnames;
 \set ON_ERROR_STOP 1
 
-create index idx_identity_dob on identity(dob);
--- useful for queries on "last and first" or "last"
-create index idx_names_last_first on names(lastnames, firstnames);
--- need this for queries on "first" only
-create index idx_names_firstnames on names(firstnames);
+create index idx_identity_dob on dem.identity(dob);
+create index idx_names_last_first on dem.names(lastnames, firstnames);
+-- need this for queries on "first" only - becomes redundant with PG 8.0
+create index idx_names_firstnames on dem.names(firstnames);
 
 -- ==========================================================
 -- rules/triggers/functions on table "names"
@@ -26,7 +25,7 @@ create index idx_names_firstnames on names(firstnames);
 -- allow only unique names
 \unset ON_ERROR_STOP
 drop index idx_uniq_act_name;
-create unique index idx_uniq_act_name on names(id_identity) where active = true;
+create unique index idx_uniq_act_name on dem.names(id_identity) where active = true;
 \set ON_ERROR_STOP 1
 
 -- IH: 9/3/02
@@ -34,22 +33,22 @@ create unique index idx_uniq_act_name on names(id_identity) where active = true;
 -- it's behaviour is to set all other names to inactive when
 -- a name is made active
 \unset ON_ERROR_STOP
-drop trigger tr_uniq_active_name on names;
-drop function f_uniq_active_name();
+drop trigger tr_uniq_active_name on dem.names;
+drop function dem.f_uniq_active_name();
 
-drop trigger tr_always_active_name on names;
-drop function f_always_active_name();
+drop trigger tr_always_active_name on dem.names;
+drop function dem.f_always_active_name();
 \set ON_ERROR_STOP 1
 
 -- do not allow multiple active names per person
-create FUNCTION F_uniq_active_name() RETURNS OPAQUE AS '
+create or replace function dem.f_uniq_active_name() RETURNS trigger AS '
 DECLARE
 --	tmp text;
 BEGIN
 --	tmp := ''identity:'' || NEW.id_identity || '',id:'' || NEW.id || '',name:'' || NEW.firstnames || '' '' || NEW.lastnames;
 --	raise notice ''uniq_active_name: [%]'', tmp;
 	if NEW.active = true then
-		update names set active = false
+		update dem.names set active = false
 		where
 			id_identity = NEW.id_identity
 				and
@@ -59,11 +58,11 @@ BEGIN
 END;' LANGUAGE 'plpgsql';
 
 --create TRIGGER tr_uniq_active_name
---	BEFORE insert ON names
---	FOR EACH ROW EXECUTE PROCEDURE F_uniq_active_name();
+--	BEFORE insert on dem.names
+--	FOR EACH ROW EXECUTE PROCEDURE dem.F_uniq_active_name();
 
 -- ensure we always have an active name
-create function f_always_active_name() returns opaque as '
+create or replace function dem.f_always_active_name() returns trigger as '
 BEGIN
 	if NEW.active = false then
 		raise exception ''Cannot delete/disable active name. Another name must be activated first.'';
@@ -74,31 +73,31 @@ END;
 ' language 'plpgsql';
 
 --create trigger tr_always_active_name
---	before update or delete on names
---	for each row execute procedure f_always_active_name();
+--	before update or delete on dem.names
+--	for each row execute PROCEDURE dem.f_always_active_name();
 
 
 -- FIXME: we don't actually want this to be available
 \unset ON_ERROR_STOP
-drop trigger TR_delete_names on identity;
-drop function F_delete_names();
+drop trigger TR_delete_names on dem.identity;
+drop function dem.F_delete_names();
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION F_delete_names() RETURNS OPAQUE AS '
+create or replace function dem.f_delete_names() RETURNS trigger AS '
 DECLARE
 BEGIN
-	DELETE FROM names WHERE id_identity=OLD.id;
+	DELETE from dem.names WHERE id_identity=OLD.id;
 	RETURN OLD;
 END;' LANGUAGE 'plpgsql';
 
 -- only re-enable this once we know how to do it !!
 --CREATE TRIGGER TR_delete_names
---	BEFORE DELETE ON identity
---	FOR EACH ROW EXECUTE PROCEDURE F_delete_names();
+--	BEFORE DELETE on dem.identity
+--	FOR EACH ROW EXECUTE PROCEDURE dem.F_delete_names();
 
 -- business functions
 
-create or replace function add_name(integer, text, text, bool) returns integer as '
+create or replace function dem.add_name(integer, text, text, bool) returns integer as '
 DECLARE
 	_id_identity alias for $1;
 	_first alias for $2;
@@ -108,28 +107,26 @@ DECLARE
 	_id integer;
 BEGIN
 	-- name already there for this identity ?
-	select into _id id from names where id_identity = _id_identity and firstnames = _first and lastnames = _last;
+	select into _id id from dem.names where id_identity = _id_identity and firstnames = _first and lastnames = _last;
 	if FOUND then
-		update names set active = _active where id = _id;
+		update dem.names set active = _active where id = _id;
 		return _id;
 	end if;
 	-- no, insert new name
 	if _active then
 	    -- deactivate all the existing names
-		update names set active = false where id_identity = _id_identity;
+		update dem.names set active = false where id_identity = _id_identity;
 	end if;
-	insert into names (id_identity, firstnames, lastnames, active) values (_id_identity, _first, _last, _active);
+	insert into dem.names (id_identity, firstnames, lastnames, active) values (_id_identity, _first, _last, _active);
 	if FOUND then
-		return currval(''names_id_seq'');
+		return currval(''dem.names_id_seq'');
 	end if;
 	return NULL;
 END;' language 'plpgsql';
 
-\unset ON_ERROR_STOP
-drop function set_nickname(integer, text);
-\set ON_ERROR_STOP 1
 
-create function set_nickname(integer, text) returns integer as '
+
+create or replace function dem.set_nickname(integer, text) returns integer as '
 DECLARE
 	_id_identity alias for $1;
 	_nick alias for $2;
@@ -140,21 +137,21 @@ BEGIN
 	-- 0.1: Just always set the nickname inside the active name
 	-- post 0.1: openEHR-like (name: pk, fk_identity, name, fk_type, comment, is_legal, is_active ...)
 	-- does name exist ?
-	select into _names_row * from names where id_identity = _id_identity and active = true;
+	select into _names_row * from dem.names where id_identity = _id_identity and active = true;
 	if not found then
 		msg := ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.''
 		raise exception msg;
 	end if;
 	-- can directly set nickname ?
 	-- if _names_row.preferred is null then
-	update names set preferred = _nick where id = _names_row.id;
+	update dem.names set preferred = _nick where id = _names_row.id;
 	return _names_row.id;
 	-- end if;
 	-- must create new row
 	-- 1) deactivate old row ...
-	-- update names set active = false where id = _names_row.id;
+	-- update dem.names set active = false where id = _names_row.id;
 	-- 2) insert new row from old row  and new data ...
-	--insert into names (id_identity, active, firstnames, lastnames, preferred, comment)
+	--insert into dem.names (id_identity, active, firstnames, lastnames, preferred, comment)
 	--	values (_id_identity, true, _names_row.firstnames, _names_row.lastnames, _nick, _names_row.comment);
 	--if found then
 	--	return currval(''names_id_seq'');
@@ -162,7 +159,7 @@ BEGIN
 	--return NULL;
 END;' language 'plpgsql';
 
-comment on function set_nickname(integer, text) is
+comment on function dem.set_nickname(integer, text) is
 	'Setting the nickname only makes sense for the currently active\n
 	 name. However, we also want to keep track of previous nicknames.\n
 	 Hence we would set the nickname right in the active name if\n
@@ -172,29 +169,21 @@ comment on function set_nickname(integer, text) is
 	 Unsetting works the same (IOW *setting* to NULL).';
 
 -- ==========================================================
-\unset ON_ERROR_STOP 
-drop function create_occupation(text);
-\set ON_ERROR_STOP 1
-
-CREATE FUNCTION create_occupation(text) RETURNS integer AS '
+create or replace function dem.create_occupation(text) RETURNS integer AS '
 DECLARE
 	_job alias for $1;
 	_id integer;
 BEGIN
-	select into _id id from occupation where name = _job;
+	select into _id id from dem.occupation where name = _job;
 	if FOUND then
 		return _id;
 	end if;
-	insert into occupation (name) values (_job);
-	return currval(''occupation_id_seq'');
+	insert into dem.occupation (name) values (_job);
+	return currval(''dem.occupation_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 -- ==========================================================
-\unset ON_ERROR_STOP 
-drop function link_person_comm(integer, text, text, bool);
-\set ON_ERROR_STOP 1
-
-CREATE FUNCTION link_person_comm(integer, text, text, bool) RETURNS integer AS '
+create or replace function dem.link_person_comm(integer, text, text, bool) RETURNS integer AS '
 DECLARE
 	_id_identity alias for $1;
 	_comm_medium alias for $2;
@@ -207,33 +196,32 @@ DECLARE
 	msg text;
 BEGIN
 	-- FIXME: maybe need to update is_confidential
-	SELECT INTO _id_lnk_identity2comm id FROM lnk_identity2comm WHERE id_identity = _id_identity AND url ILIKE _url;
+	SELECT INTO _id_lnk_identity2comm id from dem.lnk_identity2comm WHERE id_identity = _id_identity AND url ILIKE _url;
 	IF FOUND THEN
 		RETURN _id_lnk_identity2comm;
 	END IF;
 	-- does comm_medium exist ?
-	SELECT INTO _id_comm_type id FROM enum_comm_types WHERE description ILIKE _comm_medium;
+	SELECT INTO _id_comm_type id from dem.enum_comm_types WHERE description ILIKE _comm_medium;
 	IF NOT FOUND THEN
 		msg := ''Cannot set person comm ['' || _id_identity || '', '' || _comm_medium || '','' || _url || '']. No enum_comms_types row with description ['' || _comm_medium || ''] found.'';
 		RAISE EXCEPTION ''---> %'', msg;
 	END IF;
 	-- update existing comm. 0.1 Release (FIXME: rewrite later to allow for any number of type entries per identity)
-	SELECT INTO _id_lnk_identity2comm id FROM lnk_identity2comm WHERE id_identity = _id_identity AND id_type = _id_comm_type;
+	SELECT INTO _id_lnk_identity2comm id from dem.lnk_identity2comm WHERE id_identity = _id_identity AND id_type = _id_comm_type;
 	IF FOUND THEN
-		UPDATE lnk_identity2comm SET url = _url, is_confidential = _is_confidential WHERE id = _id_lnk_identity2comm;
+		UPDATE dem.lnk_identity2comm SET url = _url, is_confidential = _is_confidential WHERE id = _id_lnk_identity2comm;
 		RETURN _id_lnk_identity2comm;
 	END IF;
 	-- create new communication2identity link
-	INSERT INTO lnk_identity2comm (id_identity, url, id_type, is_confidential) values (_id_identity, _url, _id_comm_type, _is_confidential);
-	RETURN currval(''lnk_identity2comm_id_seq'');
+	INSERT INTO dem.lnk_identity2comm (id_identity, url, id_type, is_confidential) values (_id_identity, _url, _id_comm_type, _is_confidential);
+	RETURN currval(''dem.lnk_identity2comm_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 \unset ON_ERROR_STOP
-drop function new_pupic() cascade;
-drop function new_pupic();
+drop function dem.new_pupic() cascade;
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION new_pupic() RETURNS char(24) AS '
+create or replace function dem.new_pupic() RETURNS char(24) AS '
 DECLARE
 BEGIN
    -- how does this work? How do we get new ''unique'' numbers?
@@ -242,10 +230,10 @@ END;' LANGUAGE 'plpgsql';
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop view v_gender_labels;
+drop view dem.v_gender_labels;
 \set ON_ERROR_STOP 1
 
-create view v_gender_labels as
+create view dem.v_gender_labels as
 select
 	gl.tag,
 	_(gl.tag) as l10n_tag,
@@ -255,15 +243,15 @@ select
 	gl.sort_weight as sort_weight,
 	gl.pk as pk_gender_label
 from
-	gender_label gl
+	dem.gender_label gl
 ;
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop view v_basic_person cascade;
+drop view dem.v_basic_person cascade;
 \set ON_ERROR_STOP 1
 
-create view v_basic_person as
+create view dem.v_basic_person as
 select
 	i.pk as pk_identity,
 	n.id as n_id,
@@ -278,18 +266,18 @@ select
 	i.pupic as pupic,
 	case when i.fk_marital_status is null
 		then 'unknown'
-		else (select ms.name from marital_status ms, identity i1 where ms.pk=i.fk_marital_status and i1.pk=i.pk)
+		else (select ms.name from dem.marital_status ms, dem.identity i1 where ms.pk=i.fk_marital_status and i1.pk=i.pk)
 	end as marital_status,
 	case when i.fk_marital_status is null
 		then _('unknown')
-		else (select _(ms1.name) from marital_status ms1, identity i1 where ms1.pk=i.fk_marital_status and i1.pk=i.pk)
+		else (select _(ms1.name) from dem.marital_status ms1, dem.identity i1 where ms1.pk=i.fk_marital_status and i1.pk=i.pk)
 	end as l10n_marital_status,
 	i.fk_marital_status as pk_marital_status,
 	n.preferred as preferred,
 	i.xmin as xmin_identity
 from
-	identity i,
-	names n
+	dem.identity i,
+	dem.names n
 where
 	i.deceased is NULL and
 	n.active = true and
@@ -299,39 +287,46 @@ where
 -- ----------------------------------------------------------
 -- create new name and new identity
 create RULE r_insert_basic_person AS
-	ON INSERT TO v_basic_person DO INSTEAD (
-		INSERT INTO identity (pupic, gender, dob, cob, title)
-					values (new_pupic(), NEW.gender, NEW.dob, NEW.cob, NEW.title);
-		INSERT INTO names (firstnames, lastnames, id_identity)
-					VALUES (NEW.firstnames, NEW.lastnames, currval('identity_pk_seq'));
+	ON INSERT TO dem.v_basic_person DO INSTEAD (
+		INSERT INTO dem.identity (pupic, gender, dob, cob, title)
+					values (dem.new_pupic(), NEW.gender, NEW.dob, NEW.cob, NEW.title);
+		INSERT INTO dem.names (firstnames, lastnames, id_identity)
+					VALUES (NEW.firstnames, NEW.lastnames, currval('dem.identity_pk_seq'));
 	)
 ;
 
 -- rule for name change - add new name to list, making it active
-create RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person 
-    WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
-    OR NEW.title != OLD.title DO INSTEAD 
-    INSERT INTO names (firstnames, lastnames, id_identity, active)
-     VALUES (NEW.firstnames, NEW.lastnames, NEW.pk_identity, true);
+create RULE r_update_basic_person1 AS
+	ON UPDATE TO dem.v_basic_person WHERE
+		NEW.firstnames != OLD.firstnames OR
+		NEW.lastnames != OLD.lastnames OR
+		NEW.title != OLD.title
+	DO INSTEAD 
+		INSERT INTO dem.names (firstnames, lastnames, id_identity, active)
+			VALUES (NEW.firstnames, NEW.lastnames, NEW.pk_identity, true);
 
 -- rule for identity change
 -- yes, you would use this, think carefully.....
-create RULE r_update_basic_person2 AS ON UPDATE TO v_basic_person
-    DO INSTEAD UPDATE identity SET dob=NEW.dob, cob=NEW.cob, gender=NEW.gender
-    WHERE pk=NEW.pk_identity;
+create RULE r_update_basic_person2 AS
+	ON UPDATE TO dem.v_basic_person DO INSTEAD
+		UPDATE dem.identity SET
+			dob=NEW.dob,
+			cob=NEW.cob,
+			gender=NEW.gender
+		WHERE pk=NEW.pk_identity;
 
 -- deletes names as well by use of a trigger (double rule would be simpler, 
 -- but didn't work)
-create RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
-       DELETE FROM identity WHERE pk=OLD.pk_identity;
+create RULE r_delete_basic_person AS ON DELETE to dem.v_basic_person DO INSTEAD
+       DELETE from dem.identity WHERE pk=OLD.pk_identity;
 
 -- =============================================
 -- staff views
 \unset ON_ERROR_STOP
-drop view v_staff;
+drop view dem.v_staff;
 \set ON_ERROR_STOP 1
 
-create view v_staff as
+create view dem.v_staff as
 select
 	vbp.pk_identity as pk_identity,
 	s.pk as pk_staff,
@@ -345,9 +340,9 @@ select
 	s.db_user as db_user,
 	s.comment as comment
 from
-	staff s,
-	staff_role sr,
-	v_basic_person vbp
+	dem.staff s,
+	dem.staff_role sr,
+	dem.v_basic_person vbp
 where
 	s.fk_role = sr.pk
 		and
@@ -357,25 +352,24 @@ where
 -- =========================================================
 -- emulate previous structure of address linktables
 \unset ON_ERROR_STOP
-drop view lnk_person2address;
-drop view lnk_org2address;
+drop view dem.lnk_person2address;
+drop view dem.lnk_org2address;
 \set ON_ERROR_STOP 1
 
-CREATE VIEW lnk_person2address AS
+CREATE VIEW dem.lnk_person2address AS
 	SELECT id_identity, id_address, id_type
-	FROM lnk_person_org_address;
+	from dem.lnk_person_org_address;
 
-CREATE VIEW lnk_org2address AS
+CREATE VIEW dem.lnk_org2address AS
 	SELECT id_org, id_address
-	FROM lnk_person_org_address;
+	from dem.lnk_person_org_address;
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop view v_person_comms_flat cascade;
-drop view v_person_comms_flat;
+drop view dem.v_person_comms_flat cascade;
 \set ON_ERROR_STOP 1
 
-create view v_person_comms_flat as
+create view dem.v_person_comms_flat as
 select
         pk,
         v1.email ,
@@ -384,21 +378,21 @@ select
         v4.workphone,
         v5.mobile
 from
-        (select pk from identity) as i
+        (select pk from dem.identity) as i
             left outer join
-        (select  url as email, id_identity from lnk_identity2comm  where id_type =1) as v1
+        (select  url as email, id_identity from dem.lnk_identity2comm  where id_type =1) as v1
             on (pk = v1.id_identity)
                 full outer join
-            (select  url as fax, id_identity as id_id_fax from lnk_identity2comm  where id_type =2 ) as v2
+            (select  url as fax, id_identity as id_id_fax from dem.lnk_identity2comm  where id_type =2 ) as v2
                 on (pk = v2.id_id_fax)
                     full outer join
-                (select  url as homephone, id_identity as id_id_homephone from lnk_identity2comm  where id_type =3 ) as v3
+                (select  url as homephone, id_identity as id_id_homephone from dem.lnk_identity2comm  where id_type =3 ) as v3
                     on (pk = v3.id_id_homephone)
                         full outer join
-                    (select url as workphone, id_identity as id_id_workphone from lnk_identity2comm  where id_type =4 ) as v4
+                    (select url as workphone, id_identity as id_id_workphone from dem.lnk_identity2comm  where id_type =4 ) as v4
                         on (pk = v4.id_id_workphone)
                             full outer join
-                        (select url as mobile, id_identity as id_id_mobile from lnk_identity2comm  where id_type =5 ) as v5
+                        (select url as mobile, id_identity as id_id_mobile from dem.lnk_identity2comm  where id_type =5 ) as v5
                             on (pk = v5.id_id_mobile);
 
 -- =========================================================
@@ -408,32 +402,41 @@ from
 drop index idx_lnk_pers2rel;
 \set ON_ERROR_STOP 1
 
-create index idx_lnk_pers2rel on lnk_person2relative(id_identity, id_relation_type);
--- consider regular "CLUSTER idx_lnk_pers2rel ON lnk_person2relative;"
+create index idx_lnk_pers2rel on dem.lnk_person2relative(id_identity, id_relation_type);
+-- consider regular "CLUSTER idx_lnk_pers2rel on dem.lnk_person2relative;"
 
 -- ==========================================================
 -- permissions
 -- ==========================================================
 GRANT SELECT ON
-	v_staff
-	, lnk_person2address
-	, lnk_org2address
-	, v_person_comms_flat
-	, v_gender_labels
+	dem.v_staff
+	, dem.lnk_person2address
+	, dem.lnk_org2address
+	, dem.v_person_comms_flat
+	, dem.v_gender_labels
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	v_basic_person
+	dem.v_basic_person
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.45 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.45  2006-01-01 20:39:22  ncq
+-- Revision 1.46  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.45  2006/01/01 20:39:22  ncq
 -- - cleanup
 --
 -- Revision 1.44  2005/12/08 16:13:13  ncq

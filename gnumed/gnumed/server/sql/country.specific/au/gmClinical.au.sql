@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "clinical" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmClinical.au.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -35,7 +35,7 @@ alter table au.referral add foreign key (fk_episode)
 		on update cascade
 		on delete restrict;
 
-select add_table_for_audit ('au', 'referral');
+select audit.add_table_for_audit ('au', 'referral');
 
 comment on table au.referral is 'table for referrals to defined individuals';
 comment on column au.referral.fk_referee is 'person to whom the referral is directed';
@@ -54,7 +54,16 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 
 -- ===================================================================
 -- $Log: gmClinical.au.sql,v $
--- Revision 1.4  2005-12-27 03:42:54  sjtan
+-- Revision 1.5  2006-01-06 10:12:02  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.4  2005/12/27 03:42:54  sjtan
 --
 -- grants to allow relinking episodes
 --

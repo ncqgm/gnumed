@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -207,8 +207,8 @@ insert into clin.test_org
 	(fk_org, fk_adm_contact, fk_med_contact, internal_name, comment)
 values (
 	99999,
-	(select pk_identity from v_basic_person where lastnames='Spock' and dob='1931-3-26+2:00'::timestamp),
-	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select pk_identity from dem.v_basic_person where lastnames='Spock' and dob='1931-3-26+2:00'::timestamp),
+	(select pk_identity from dem.v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'Enterprise Main Lab',
 	'the main path lab aboard the USS Enterprise'
 );
@@ -311,11 +311,20 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.22  2005-12-29 21:48:09  ncq
+-- Revision 1.23  2006-01-06 10:12:03  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.22  2005/12/29 21:48:09  ncq
 -- - clin.vaccine.id -> pk
 -- - remove clin.vaccine.last_batch_no
 -- - add clin.vaccine_batches

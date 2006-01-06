@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.63 $
+-- $Revision: 1.64 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -13,44 +13,44 @@
 -- service personalia
 -- ---------------------------------------------
 -- identity, should cascade to name by itself ...
-delete from identity where
+delete from dem.identity where
 	gender = 'm'
 		and
 	cob = 'CA'
 		and
-	pk in (select pk_identity from v_basic_person where firstnames='James Tiberius' and lastnames='Kirk' and dob='1931-3-22+2:00');
+	pk in (select pk_identity from dem.v_basic_person where firstnames='James Tiberius' and lastnames='Kirk' and dob='1931-3-22+2:00');
 
-insert into identity (gender, dob, cob, title, pupic)
+insert into dem.identity (gender, dob, cob, title, pupic)
 values ('m', '1931-3-22+2:00', 'CA', 'Capt.', 'SFSN:SC937-0176-CEC');
 
-insert into names (id_identity, active, lastnames, firstnames, comment)
-values (currval('identity_pk_seq'), true, 'Kirk', 'James Tiberius', 'name of character in Star Trek series');
+insert into dem.names (id_identity, active, lastnames, firstnames, comment)
+values (currval('dem.identity_pk_seq'), true, 'Kirk', 'James Tiberius', 'name of character in Star Trek series');
 
-insert into names (id_identity, active, lastnames, firstnames, comment)
-values (currval('identity_pk_seq'), false, 'Kirk', 'James R.', 'the original middle initial was R. as seen in "Where No Man Has Gone Before"');
+insert into dem.names (id_identity, active, lastnames, firstnames, comment)
+values (currval('dem.identity_pk_seq'), false, 'Kirk', 'James R.', 'the original middle initial was R. as seen in "Where No Man Has Gone Before"');
 
-insert into names (id_identity, active, lastnames, firstnames, comment)
-values (currval('identity_pk_seq'), false, 'Shatner', 'William', 'name of actor in real life');
+insert into dem.names (id_identity, active, lastnames, firstnames, comment)
+values (currval('dem.identity_pk_seq'), false, 'Shatner', 'William', 'name of actor in real life');
 
-insert into enum_ext_id_types (name, issuer, context)
+insert into dem.enum_ext_id_types (name, issuer, context)
 values ('Starfleet Serial Number', 'Star Fleet Central Staff Office', 'p');
 
-insert into lnk_identity2ext_id (id_identity, external_id, fk_origin)
-values (currval('identity_pk_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
+insert into dem.lnk_identity2ext_id (id_identity, external_id, fk_origin)
+values (currval('dem.identity_pk_seq'), 'SC937-0176-CEC', currval('dem.enum_ext_id_types_pk_seq'));
 
 -- only works because services are in the same database
 insert into clin.xlnk_identity (xfk_identity, pupic)
-values (currval('identity_pk_seq'), currval('identity_pk_seq'));
+values (currval('dem.identity_pk_seq'), currval('dem.identity_pk_seq'));
 
 insert into blobs.xlnk_identity (xfk_identity, pupic)
-values (currval('identity_pk_seq'), currval('identity_pk_seq'));
+values (currval('dem.identity_pk_seq'), currval('dem.identity_pk_seq'));
 
 -- =============================================
 -- service BLOBs
 -- =============================================
 -- document of type "patient picture"
 insert into blobs.doc_med (patient_id, type, comment) values (
-	currval('public.identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	(select pk from blobs.doc_type where name='patient photograph'),
 	'Captain Kirk pictures'
 );
@@ -60,7 +60,7 @@ insert into blobs.doc_obj (doc_id, seq_idx, comment, fk_intended_reviewer, data)
 	currval('blobs.doc_med_id_seq'),
 	1,
 	'a small picture of Kirk',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	'GIF89a0\\0000\\000Õ\\000\\000ÿÿÿ½\\234\\234\\224sk½\\204sÖ½µ\\224{s½\\214{¥{k\\214cR½\\234\\214{ZJ­{cÎ­\\234Æ\\224{¥sZ\\234kRcB1\\204R91!\\030çÎ½Æ­\\234cJ9µ\\204cB)\\030Z9!Î­\\224Æ¥\\214µ\\224{sR9\\214cBsZBB1!)\\030\\010ÞÆ­½¥\\21491)\\234\\204k\\214sZ\\020\\010\\000B)\\010ÖÆ­RB)cZJïçÖRJ9\\214{R­\\234kskR½­{\\214\\204Zsskkkc))!\\234\\234{\\030\\030\\020BJ!­µ\\224¥½\\23419J\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000,\\000\\000\\000\\0000\\0000\\000@\\006ÿ@\\204P¡@¼*\\220\\012çPØílP\\223I2\\032Ñ¨¬jjÄRÍX,\\020k&\\003#\\017$Òâ\\223JzÞ#§\\223Æ*)"\\217¼Å2è7\\014\\033.\\013\\007\\003\\033\\006\\015\\014(\\023!\\033\\007\\007\\002)\\022P#S#[\\020\\035\\021\\034N,B\\036\\012\\017\\016\\013{\\026\\016\\204\\011\\032\\011\\006«\\015­­\\003{°\\015%)N#\\020:¹:44\\012\\035\\020\\020\\036\\035¡\\016}{\\216$\\002%¡\\006\\003¾\\010%*P;&\\012%%\\033\\025\\237\\022^2¼4U\\022 mH\\237\\035%¢\\204\\016\\030&\\030x\\203\\006!z}ô\\013\\017\\006\\0364^33/\\0121\\000_\\2340\\021Ì\\003\\004\\014m<D\\030Ö¡a\\236\\003\\011\\022lhô S\\036\\207(2\\204\\010\\021£C\\014\\007.6\\2200\\010\\201\\003°\\012\\012^|\\222c\\203F\\033`)ÚÄ\\034ñ\\001\\234\\225p\\022¤\\2008\\001áÄ\\205ÿ._jíø`©\\2155Jr> \\024\\226''\\035\\237\\015}\\014D\\214Èª\\025\\003\\002\\011Zác1IW\\225\\004\\0070|ø cF\\011\\004\\036.\\230°ÁIÊ\\011\\017\\017\\026È\\035åGC\\210\\011\\004D4s`b\\016\\027]ºhØHH\\004\\201©\\001¯\\0268°h!\\021\\001\\002\\00140H¥AÃ+>\\013öñ;\\221\\202\\204\\210\\0348^\\000Ãà¦\\003\\002\\005\\0250\\014s´¡\\006\\011G\\204\\014\\015h*\\012B¥.*^øóÐBAI\\005\\006Sp\\030\\016áÂ\\011\\014\\034¬\\0118`h\\203Ä\\003\\016.\\016ïèÂE\\014\\021.\\036À\\200Q}ûv\\017ÃßxPÉ¦\\000\\015\\226\\022$\\200»\\222^RK÷6ú\\202ÈýaL\\015\\025\\025X|ø}\\222C~\\026/Ä!\\007\\015/ Õ\\001(\\027u\\000\\036q\\020\\010gÍ\\003\\012p\\200Á\\204<A\\000F\\012>]\\020SIo\\200 ÿÇ\\016t\\000\\007\\212\\003¢Ð\\025U\\002\\031\\210PY\\006,¢@À\\012+\\020À@\\006\\033\\0108\\230\\015\\022ÄÄFJ}=\\201\\222Cy4ÅG!\\023Ñcä\\220°Ð\\223\\037\\015\\027x0\\202\\016U\\\\\\200Àl\\036ì\\220Ânùiã\\001J%\\034`¢s`6@O,|\\034 Ô\\016Æ\\005&Á\\001¿\\014÷ \\211\\016\\024V@\\001$ ¥\\232(\\017`pÂqÁ¨pÍ \\032\\224°\\003\\010à\\214\\001ØMH\\004S\\204\\000¦ð±\\212\\227Ñuà\\200d\\013tYBC\\0159@\\202\\003\\026,ÀA\\003F\\220!\\003`^\\231QX(\\007\\224²XE\\017\\034`\\000\\001\\031Ì\\206X\\003\\226\\211¹G1\\003\\214Á\\217n>éÉS\\011\\015&¡M\\021\\010\\204"@\\001\\216<Ð\\023r\\007\\004°At$Îµ\\200\\007\\022ØÒ\\205n\\012Ô\\200C\\0150¼ÀBI\\022\\236DÄ0\\016\\234æÁ\\204\\021¤+ÿé\\003ï(Ö\\224\\010(lûÂ\\015\\212\\002\\027C\\013\\036Ü`\\022rÃùªh(Ò\\035\\224n(öDðF\\007\\034i·]w(p·]C\\034\\214§B\\203¤íë+r\\237@³Ü#\\010HØA\\005%´Ð\\202\\\\1dWLu.x\\007\\003p\\237\\020qÄ\\005J\\011ÀÖ\\023P@Á\\213z7U\\221\\2058)ð\\023F\\0118|Q\\201\\004\\025\\000tÀpþEì\\017\\004/\\234\\2113Q[\\\\q\\205\\015 \\204\\023_\\217íè¨ÂÖ*°p\\236\\004''%ÚrµNØ0\\202\\022H\\017\\227è\\007b\\021%\\201\\031¾\\036wÂ8\\020x\\221\\202Z/©]A\\005\\037\\2320ÂY\\237ÐÆÇ­\\017 Ð\\020\\002\\203LÔ\\214\\035\\021+@IKc\\005û\\206\\012ç\\015È\\002ËM\\215â¨\\001\\032\\030 Âç"dPY"0¢PY\\014)T=\\216\\2061¡ôÂ\\007\\037\\206\\030Á\\210éÄ\\026ÿ\\225\\006\\024\\020@\\001\\005+¾¸\\002\\005´\\032\\020 \\011¼\\200 !B \\237ieËÃdNæSE\\216iÁ+\\210m`!/\\036\\230PuLmD\\000\\201-/(H\\014\\234¢Xà\\234DE\\036\\202Ø\\230ô\\034PÁy\\037(ÀK\\025\\037x°ÀÇO¨0\\204¢/8`\\210\\005\\204\\220\\212\\010Tá\\234Z\\211\\011\\026±P\\200\\207v0\\202\\013xeM\\003è\\211\\011°\\205\\032\\014\\\\à\\002Á¸\\000\\010â×¨A\\014 \\031¤ð\\003=øâ\\004\\023ÀÌ+\\037Ð\\200\\003J\\002\\001k\\220è4\\227ÛZ\\016T°\\223\\023p DÑaÎù(\\200\\002\\012@Å\\001~\\031\\201\\012¼b\\203Nx¯\\205ÅzÀ1Êu¸\\003ØaJl\\032\\010ÖR@\\004\\017 @\\004/x[\\021Ép(\\033hã \\031#\\221£&Ò\\210HáªX\\016X\\206\\000¼\\005\\002\\020\\224`\\001Ö+\\\\\\012T \\203Qyÿe\\0046À ¢ q\\030­@\\207U\\007È\\000\\003|\\230*è\\200DE«XL\\003^À\\217~\\220*\\027t`\\001J|\\021\\027B\\0000R\\222²ÀF\\022\\020\\000\\006\\204\\216E¢\\023\\223b\\032 \\000:îª\\012PªB¡öf\\016tx©\\024ª\\031Æ\\000DÇ\\200\\011ÈÒ\\017¶\\022\\205\\001*p\\203}ø\\003\\004\\022\\200\\231\\006A\\0206mðÑ\\024\\216\\020\\200\\002\\2143!wü\\221S\\000L\\225b\\024 \\205kéæ\\005Í,\\032\\012j@1`\\230ãp®L¦a\\2343ÀÙ\\214¯Rm¤\\2065ý1\\202\\032ÄK\\004%\\000ÏAXé\\013"X\\020\\023\\012p@3úà¥Ä\\221Ï\\001 ð\\233$U\\220\\222Ý\\024 d$°\\015¿\\016âM¦4\\205\\011gA\\213I\\004\\006°ap§:$àN\\015jP\\002I\\222 \\004*ÙÐ\\033$t\\001ä\\020á"é\\232\\020\\007ôÐ©\\2120\\204Du.°K\\006\\\\P\\202\\030d\\000\\006\\0358\\200\\013z\\003\\214#Ð\\2138zÂ \\025»D\\010w9$:ìâ@C`°\\200\\026¤¬;\\013ÛN\\006ð¥¨à\\200ë {JAÆ6ÆÉ\\000$@\\000\\206{Ã\\013HÐ\\201\\005¸\\200\\004\\201P\\030T·\\203´ñxà[\\037(i3\\215³\\223\\212)DAçRM\\0138p\\215\\030¤A\\015-(\\031L¡\\032\\004\\000;'
 );
 
@@ -70,30 +70,30 @@ insert into blobs.doc_obj (doc_id, seq_idx, comment, fk_intended_reviewer, data)
 -- EMR data
 
 -- put him on some vaccination schedules
-delete from clin.lnk_pat2vacc_reg where fk_patient = currval('identity_pk_seq');
+delete from clin.lnk_pat2vacc_reg where fk_patient = currval('dem.identity_pk_seq');
 -- tetanus
 insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	(select pk_regime from clin.v_vacc_regimes where regime='Tetanus (SFCVC)')
 );
 -- meningococcus C
 insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	(select pk_regime from clin.v_vacc_regimes where regime='MenC (SFCVC)')
 );
 -- hemophilus B
 insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	(select pk_regime from clin.v_vacc_regimes where regime='HiB (SFCVC)')
 );
 
 -- health issue
 delete from clin.health_issue where
-	id_patient = currval('identity_pk_seq');
+	id_patient = currval('dem.identity_pk_seq');
 
 insert into clin.health_issue (id_patient, description)
 values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	'9/2000 extraterrestrial infection'
 );
 
@@ -101,7 +101,7 @@ values (
 delete from clin.episode where pk in (
 	select pk_episode
 	from clin.v_pat_episodes
-	where pk_patient = currval('identity_pk_seq')
+	where pk_patient = currval('dem.identity_pk_seq')
 );
 
 insert into clin.episode (
@@ -124,7 +124,7 @@ insert into clin.encounter (
 	rfe,
 	aoe
 ) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	-1,
 	(select pk from clin.encounter_type where description='in surgery'),
 	'2000-9-17 17:13',
@@ -232,7 +232,7 @@ insert into clin.clin_diag (
 );
 
 -- codes
-select add_coded_term (
+select clin.add_coded_term (
 	'?contaminated laceration L forearm',
 	'T11.1',
 	'ICD-10-GM 2004'
@@ -253,8 +253,8 @@ insert into clin.vaccination (
 	currval('clin.encounter_pk_seq'),
 	currval('clin.episode_pk_seq'),
 	'prev booster > 7 yrs',
-	currval('identity_pk_seq'),
-	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	currval('dem.identity_pk_seq'),
+	(select pk_staff from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from clin.vaccine where trade_name='Tetasorbat (SFCMS)'),
 	'2000-9-17',
 	'left deltoid muscle',
@@ -283,7 +283,7 @@ insert into clin.lab_request (
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from clin.test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
-	(select pk_identity from v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select pk_identity from dem.v_basic_person where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'SC937-0176-CEC#15034',
 	'2000-9-17 17:40',
 	'2000-9-17 18:10',
@@ -314,7 +314,7 @@ insert into clin.test_result (
 	'4.4-11.3',
 	'',
 	'EDTA blood',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
@@ -344,7 +344,7 @@ insert into clin.test_result (
 	'4.1-5.1',
 	'',
 	'EDTA blood',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
@@ -374,7 +374,7 @@ insert into clin.test_result (
 	'150-450',
 	'',
 	'EDTA blood',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
@@ -404,7 +404,7 @@ insert into clin.test_result (
 	'0.07-8',
 	'++',
 	'Serum',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 insert into clin.lnk_result2lab_req(fk_result, fk_request) values (
@@ -422,7 +422,7 @@ insert into clin.encounter (
 	rfe,
 	aoe
 ) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	-1,
 	(select pk from clin.encounter_type where description='in surgery'),
 	'2000-9-18 8:13',
@@ -463,13 +463,13 @@ insert into clin.clin_diag (
 );
 
 -- codes
-select add_coded_term (
+select clin.add_coded_term (
 	'postop infected laceration L forearm',
 	'T79.3',
 	'ICD-10-GM 2004'
 );
 
-select add_coded_term (
+select clin.add_coded_term (
 	'postop infected laceration L forearm',
 	'B97.8!',
 	'ICD-10-GM 2004'
@@ -496,7 +496,7 @@ insert into clin.allergy_state (
 	fk_patient,
 	has_allergy
 ) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	1
 );
 
@@ -545,7 +545,7 @@ insert into blobs.doc_med (
 	comment,
 	ext_ref
 ) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	(select pk from blobs.doc_type where name='referral report other'),
 	'Vietnam 2003: The Peoples Republic',
 	'vietnam-2003-3::1'
@@ -570,7 +570,7 @@ insert into blobs.doc_obj (
 	1,
 	'Happy schoolgirls enjoying the afternoon sun catching the smile of
 	 passers-by at an ancient bridge in the paddy fields near Hue.',
-	 (select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	 (select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 insert into blobs.doc_obj (
@@ -582,7 +582,7 @@ insert into blobs.doc_obj (
 	currval('blobs.doc_med_id_seq'),
 	2,
 	'Mekong River Delta Schoolgirls making their way home.',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 insert into blobs.doc_med (
@@ -591,7 +591,7 @@ insert into blobs.doc_med (
 	comment,
 	ext_ref
 ) values (
-	currval('identity_pk_seq'),
+	currval('dem.identity_pk_seq'),
 	(select pk from blobs.doc_type where name='referral report other'),
 	'Vietnam 2003: Tagwerk',
 	'vietnam-2003-3::2'
@@ -615,16 +615,25 @@ insert into blobs.doc_obj (
 	currval('blobs.doc_med_id_seq'),
 	1,
 	'Perfume pagoda river boating',
-	(select pk_identity from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
 );
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.63 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.64 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.63  2005-12-29 21:48:09  ncq
+-- Revision 1.64  2006-01-06 10:12:03  ncq
+-- - add missing grants
+-- - add_table_for_audit() now in "audit" schema
+-- - demographics now in "dem" schema
+-- - add view v_inds4vaccine
+-- - move staff_role from clinical into demographics
+-- - put add_coded_term() into "clin" schema
+-- - put German things into "de_de" schema
+--
+-- Revision 1.63  2005/12/29 21:48:09  ncq
 -- - clin.vaccine.id -> pk
 -- - remove clin.vaccine.last_batch_no
 -- - add clin.vaccine_batches
