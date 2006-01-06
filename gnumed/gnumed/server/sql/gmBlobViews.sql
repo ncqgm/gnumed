@@ -4,13 +4,13 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.14 $ $Date: 2006-01-01 15:49:10 $ $Author: ncq $
+-- $Revision: 1.15 $ $Date: 2006-01-06 10:04:16 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-select public.add_table_for_audit('blobs', 'xlnk_identity');
+select audit.add_table_for_audit('blobs', 'xlnk_identity');
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -146,11 +146,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.14 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.14  2006-01-01 15:49:10  ncq
+-- Revision 1.15  2006-01-06 10:04:16  ncq
+-- - move add_table_for_audit() into audit schema
+--
+-- Revision 1.14  2006/01/01 15:49:10  ncq
 -- - grants for blobs.xlnk_identity
 --
 -- Revision 1.13  2005/11/27 12:58:19  ncq
