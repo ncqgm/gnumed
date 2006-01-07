@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.77 2006-01-06 10:15:37 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmDemographicRecord.py,v 1.78 2006-01-07 11:23:24 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -61,10 +61,10 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = "select *, xmin from dem.org where id=%s"
 	_cmds_lock_rows_for_update = ["select 1 from dem.org where id=%(id)s and xmin=%(xmin)s"]
 	_cmds_store_payload = [
-		"update dem.org set
+		"""update dem.org set
 			description=%(description)s,
 			id_category=(select id from dem.org_category where description=%(occupation)s)
-		where id=%(id)s",
+		where id=%(id)s""",
 		"select xmin from dem.org whereid=%(id)s"
 	]
 	_updatable_fields = ["description", "occupation"]
@@ -447,7 +447,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.77  2006-01-06 10:15:37  ncq
+# Revision 1.78  2006-01-07 11:23:24  ncq
+# - must use """ for multi-line string
+#
+# Revision 1.77  2006/01/06 10:15:37  ncq
 # - lots of small fixes adjusting to "dem" schema
 #
 # Revision 1.76  2005/10/09 08:11:48  ihaywood

@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.25 2006-01-06 08:32:12 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmVaccination.py,v 1.26 2006-01-07 11:23:24 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -317,7 +317,7 @@ def get_missing_vaccinations_ordered_min_due(pk_patient):
 	# DbC
 	int(pk_patient)
 
-	cmd =""" 
+	cmd = """ 
 	select 
 		indication, regime, 
 		pk_regime, 
@@ -547,7 +547,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.25  2006-01-06 08:32:12  ncq
+# Revision 1.26  2006-01-07 11:23:24  ncq
+# - must use """ for multi-line string
+#
+# Revision 1.25  2006/01/06 08:32:12  ncq
 # - some cleanup, added view to backend, may need some fixing
 #
 # Revision 1.24  2006/01/05 22:39:57  sjtan
