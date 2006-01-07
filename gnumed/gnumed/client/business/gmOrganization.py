@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
@@ -242,7 +242,7 @@ class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
 		return False
 
 	def findAllOrganizations(self):
-		result = gmPG.run_ro_query("personalia", """select id from org""",[])
+		result = gmPG.run_ro_query("personalia", """select id from dem.org""",[])
 		if result == None:
 			gmLog.gmDefLog.LogException("Unable to select id from org", sys.exc_info())
 			return False
@@ -298,8 +298,8 @@ class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
 			
 	def findOrgsByName( self, name, exact = False):
 		"""the org name is a unique key, so should only return one or none org"""
-		if exact: query= "select id from org where description = '%s'"%name
-		else: query = "select id from org where description like '%s%%'"%name
+		if exact: query= "select id from dem.org where description = '%s'"%name
+		else: query = "select id from dem.org where description like '%s%%'"%name
 			
 		result = gmPG.run_ro_query("personalia", query )
 		if result is None:
@@ -484,7 +484,7 @@ class cOrgImpl1(cOrg):
 		format = ', '.join(places)
 		
 		cmd = [
-		("""select id, url, id_type from comm_channel where url in( %s )""" % format, urls) ]
+		("""select id, url, id_type from dem.comm_channel where url in( %s )""" % format, urls) ]
 		result = gmPG.run_commit('personalia', cmd)
 		if result is None:
 			gmLog.gmDefLog.Log(gmLog.lInfo, "find existing org comms failed" )
@@ -498,10 +498,10 @@ class cOrgImpl1(cOrg):
 				del existing_urls[url]
 		cmds = []
 
-		delete_link_cmd = """delete from lnk_org2comm_channel
+		delete_link_cmd = """delete from dem.lnk_org2comm_channel
 				where id_comm in ( 
 					select l2.id_comm from 
-					lnk_org2comm_channel l2 , comm_channel c 
+					dem.lnk_org2comm_channel l2 , dem.comm_channel c 
 					where 	     c.id = l2.id_comm 
 						and  c.id_type = %d
 						and  l2.id_org = %d
@@ -510,7 +510,7 @@ class cOrgImpl1(cOrg):
 		for url in existing_urls.keys():
 			(id_comm, id_type) = existing_urls[url]
 			cmds = [  (delete_link_cmd % (id_type, self.getId()) ,[] ), 
-				("""insert into lnk_org2comm_channel( id_comm, id_org)
+				("""insert into dem.lnk_org2comm_channel( id_comm, id_org)
 				values ( %d, %d ) """ % ( id_comm, self.getId() ) , [] )
 				]
 		
@@ -525,11 +525,11 @@ class cOrgImpl1(cOrg):
 			else:
 					
 				cmds.append( 
-					("""insert into comm_channel( url, id_type)
+					("""insert into dem.comm_channel( url, id_type)
 					values( '%s', %d)""" % (url, id_type),[] )
 					)
 				cmds.append(
-					("""insert into lnk_org2comm_channel(id_comm, id_org)
+					("""insert into dem.lnk_org2comm_channel(id_comm, id_org)
 					values( currval('comm_channel_id_seq'), %d)""" %
 					 self.getId()  ,[] )  )
 		
@@ -566,7 +566,7 @@ class cOrgImpl1(cOrg):
 			print "state, country",  state, country
 		# address already in database ?
 		cmd = """
-			select addr_id from v_basic_address
+			select addr_id from dem.v_basic_address
 			where
 				number = %s and
 				street = %s and
@@ -583,7 +583,7 @@ class cOrgImpl1(cOrg):
 
 		# delete any pre-existing link for this org 
 		cmd = """
-			delete from lnk_person_org_address
+			delete from dem.lnk_person_org_address
 			where
 				id_org = %s 
 			"""
@@ -593,18 +593,18 @@ class cOrgImpl1(cOrg):
 		if len(data) > 0:
 			addr_id = data[0][0]
 			cmd = """
-				insert into lnk_person_org_address (id_org, id_address)
+				insert into dem.lnk_person_org_address (id_org, id_address)
 				values (%d, %d)
 				""" % (self.getId(), addr_id)
 			return gmPG.run_commit ("personalia", [ ( cmd,[]) ])
 
 		# no, insert new address and link it, too
 		cmd1 = """
-			insert into v_basic_address (number, street, city, postcode, state, country)
+			insert into dem.v_basic_address (number, street, city, postcode, state, country)
 			values (%s, %s, %s, %s, %s, %s)
 			"""
 		cmd2 = """
-			insert into lnk_person_org_address (id_org, id_address)
+			insert into dem.lnk_person_org_address (id_org, id_address)
 			values (%d, currval('address_id_seq'))
 			""" % self.getId()
 		return gmPG.run_commit ("personalia", [
@@ -705,9 +705,9 @@ class cOrgImpl1(cOrg):
 	
 	def shallow_del(self):
 		cmds = [
-		 ("delete from lnk_person_org_address where id_org = %d"%self.getId() , [] ),
-		 ("delete from lnk_org2comm_channel where id_org = %d"%self.getId(),[] ),
-		 ("delete from org where id = %d"%self.getId() , [] )
+		 ("delete from dem.lnk_person_org_address where id_org = %d"%self.getId() , [] ),
+		 ("delete from dem.lnk_org2comm_channel where id_org = %d"%self.getId(),[] ),
+		 ("delete from dem.org where id = %d"%self.getId() , [] )
 		]
 
 		if (gmPG.run_commit('personalia',cmds) == None):
@@ -727,18 +727,18 @@ class cOrgImpl1(cOrg):
 		#</DEBUG>
 		v = self['name']
 		if v <> None:
-			cmd = "select id from org where description = '%s'" % v
+			cmd = "select id from dem.org where description = '%s'" % v
 			result = gmPG.run_ro_query('personalia', cmd)
 			if result <> None and len(result) <> 0:
 				self.setId(result[0][0])
 				return True
 		
 		
-		cmd = ("""insert into org (description, id_category) values('xxxDefaultxxx', ( select  id from org_category limit 1) )""", [])
-		cmd2 = ("""select currval('org_id_seq')""", [])
+		cmd = ("""insert into dem.org (description, id_category) values('xxxDefaultxxx', ( select  id from dem.org_category limit 1) )""", [])
+		cmd2 = ("""select currval('dem.org_id_seq')""", [])
 		result = gmPG.run_commit('personalia', [cmd, cmd2])
 		if result is None:
-			cmd = ("""select id from org where description ='xxxDefaultxxx'""",[])
+			cmd = ("""select id from dem.org where description ='xxxDefaultxxx'""",[])
 			result = gmPG.run_commit('personalia', [cmd] )
 			if result <> None and len(result) == 1:
 				self.setId(result[0][0])
@@ -781,7 +781,7 @@ class cOrgImpl1(cOrg):
 			#print "cCatFinder", cf.getCategories('org_category')
 			#print "m['category']", m['category'], "cf.getId(.. = ", cf.getId('org_category', m['category'])
 			cmd = """
-				update org set description='%s' , 
+				update dem.org set description='%s' , 
 						id_category = %s where id = %s
 			 	""" % ( m['name'], 
 					str( cf.getId('org_category', m['category']) ),
@@ -807,13 +807,13 @@ class cOrgImpl1(cOrg):
 		self._personMap[int(demRecord.getID())] = demRecord
 
 		# checked already linked
-		cmd = "select id from lnk_person_org_address where id_identity = %d and id_org = %d" % (int(demRecord.getID()), self.getId() )
+		cmd = "select id from dem.lnk_person_org_address where id_identity = %d and id_org = %d" % (int(demRecord.getID()), self.getId() )
 
 		result = gmPG.run_ro_query("personalia", cmd,[])
 		if not result is None and len(result) == 1:
 			return True, _("Ok")
 
-		cmd = "insert into lnk_person_org_address(id_identity, id_org) values (%d,%d)" % ( int(demRecord.getID()), self.getId() )
+		cmd = "insert into dem.lnk_person_org_address(id_identity, id_org) values (%d,%d)" % ( int(demRecord.getID()), self.getId() )
 	
 		result = gmPG.run_commit("personalia", [ (cmd,[]) ] )
 
@@ -827,7 +827,7 @@ class cOrgImpl1(cOrg):
 		if self.getId() == None:
 			return False, _("Org must be saved before adding persons")
 
-		cmd = """delete from lnk_person_org_address where id_identity = %d
+		cmd = """delete from dem.lnk_person_org_address where id_identity = %d
 		and id_org = %d """ % ( int(demographicRecord.getID()) , self.getId() )
 		
 		result = gmPG.run_commit("personalia", [ (cmd,[]) ] )
@@ -854,7 +854,7 @@ class cOrgImpl1(cOrg):
 		if not reload and not self._personMap == {} :
 			return m
 			
-		query = "select id_identity from lnk_person_org_address where id_org = %d"% self.getId()
+		query = "select id_identity from dem.lnk_person_org_address where id_org = %d"% self.getId()
 		result = gmPG.run_ro_query("personalia", query)
 		print "for ", query, " got ", result
 		if result is None:
@@ -906,7 +906,7 @@ class cCompositeOrgImpl1( cOrgImpl1):
 			return True
 
 		new_description = '\n'.join([parent['name'] , self['name'], self['subtype']])
-		result = gmPG.run_commit("personalia", [ ("""update org set description='%s' where id=%d
+		result = gmPG.run_commit("personalia", [ ("""update dem.org set description='%s' where id=%d
 			""" % (new_description, self.getId() ), [] ) ])
 		if result == None:
 			gmLog.gmDefLog.LogException("unable to update sub-org name", sys.exc_info() )
@@ -1194,10 +1194,10 @@ def get_comm_channels_data_for_org_ids( idList):
 
 	ids = ", ".join( [ str(x) for x in idList]) 
 	cmd = """select l.id_org, id_type, url 
-			from comm_channel c, lnk_org2comm_channel l 
+			from dem.comm_channel c, dem.lnk_org2comm_channel l 
 			where
 				c.id = l.id_comm and
-				l.id_org in ( select id from org where id in (%s) )
+				l.id_org in ( select id from dem.org where id in (%s) )
 		""" % ids 
 	result = gmPG.run_ro_query("personalia", cmd)
 	if result == None:
@@ -1218,9 +1218,9 @@ def get_address_data_for_org_ids( idList):
 	
 	ids = ", ".join( [ str(x) for x in idList]) 
 	cmd = """select l.id_org, number, street, city, postcode, state, country 
-			from v_basic_address v , lnk_org2address l 
+			from dem.v_basic_address v , dem.lnk_org2address l 
 				where v.addr_id = l.id_address and
-				l.id_org in ( select id from org where id in (%s) ) """ % ids 
+				l.id_org in ( select id from dem.org where id in (%s) ) """ % ids 
 	result = gmPG.run_ro_query( "personalia", cmd)
 	
 	if result == None:
@@ -1236,8 +1236,8 @@ def get_org_data_for_org_ids(idList):
 		returns a map of id_org vs. org attributes: description, id_category"""
 	
 	ids = ", ".join( [ str(x) for x in idList]) 
-	cmd = """select id, description, id_category  from org 
-			where id in ( select id from org where id in( %s) )""" % ids 
+	cmd = """select id, description, id_category  from dem.org 
+			where id in ( select id from dem.org where id in( %s) )""" % ids 
 	#<DEBUG>
 	print cmd
 	#</DEBUG>
@@ -1395,9 +1395,9 @@ if __name__ == '__main__':
 #	def testOrgPerson(f1, a1, personList):
 
 	def deletePerson(id):
-		cmds = [ ( "delete from lnk_identity2comm_chan where id_identity=%d"%id,[]),
-			("delete from names where id_identity=%d"%id,[]),
-			("delete from identity where id = %d"%id,[]) ]
+		cmds = [ ( "delete from dem.lnk_identity2comm_chan where id_identity=%d"%id,[]),
+			("delete from dem.names where id_identity=%d"%id,[]),
+			("delete from dem.identity where id = %d"%id,[]) ]
 		result = gmPG.run_commit("personalia", cmds)
 		return result
 
@@ -1502,39 +1502,39 @@ if __name__ == '__main__':
 		categoryList = "'hospital'"
 
 		cmds = [ ( """create temp table del_org as
-				select id  from org
+				select id  from dem.org
 				where description in(%s) or
-				id_category in ( select id from org_category c
+				id_category in ( select id from dem.org_category c
 							where c.description in (%s))
 			""" % (nameList, categoryList), [] ),
 			("""create temp table del_identity as
-			select id  from identity
+			select id  from dem.identity
 			where id in
 				(
-					select id_identity from lnk_person_org_address
+					select id_identity from dem.lnk_person_org_address
 					where id_org in ( select id from del_org)
 				)""",[] ),
 			("""create temp table del_comm as
-			(select id_comm from lnk_org2comm_channel where
+			(select id_comm from dem.lnk_org2comm_channel where
 				id_org in ( select id from del_org)
 			) UNION
-			(select id_comm from lnk_identity2comm_chan where
+			(select id_comm from dem.lnk_identity2comm_chan where
 				id_identity in ( select id from del_identity)
 			)""", [] ),
-			("""delete from names where id_identity in
+			("""delete from dem.names where id_identity in
 					(select id from del_identity)""",[]),
-			("""delete from lnk_person_org_address where
+			("""delete from dem.lnk_person_org_address where
 					id_org in (select id from del_org )""",[]),
-			("""delete from lnk_person_org_address where
+			("""delete from dem.lnk_person_org_address where
 					id_identity in (select id from del_identity)""", []),
-			("""delete from lnk_org2comm_channel
+			("""delete from dem.lnk_org2comm_channel
 			where id_org in (select id from del_org) """,[]),
-			("""delete from lnk_identity2comm_chan
+			("""delete from dem.lnk_identity2comm_chan
 					where id_identity in (select id from del_identity)""",[] ),
-			("""delete from comm_channel where id in ( select id_comm from del_comm)""",[]),
-			("""delete from lnk_job2person where id_identity in (select id from del_identity)""", []),
-			("""delete from identity where id in (select id from del_identity)""",[] ),
-			("""delete from org where id in ( select id from del_org) """ , [] ),
+			("""delete from dem.comm_channel where id in ( select id_comm from del_comm)""",[]),
+			("""delete from dem.lnk_job2person where id_identity in (select id from del_identity)""", []),
+			("""delete from dem.identity where id in (select id from del_identity)""",[] ),
+			("""delete from dem.org where id in ( select id from del_org) """ , [] ),
 			("""drop table del_comm""",[]),
 			("""drop table del_identity""",[]),
 			("""drop table del_org""", [])
@@ -1572,16 +1572,16 @@ if __name__ == '__main__':
 			c.reload("org_category")
 			cursor = conn.cursor()
 
-			cursor.execute("select last_value from org_id_seq")
+			cursor.execute("select last_value from dem.org_id_seq")
 			[org_id_seq] = cursor.fetchone()
 
 			cursor.execute("""
-		insert into org ( description, id_category, id)
+		insert into dem.org ( description, id_category, id)
 		values ( 'xxxDEFAULTxxx', %d,
 		%d)
 			""" % ( c.getId('org_category', 'hospital') , org_id_seq + 1 ) )
 			cursor.execute("""
-		delete from org where id = %d""" % ( org_id_seq + 1) )
+		delete from dem.org where id = %d""" % ( org_id_seq + 1) )
 		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
 		except:
@@ -1593,15 +1593,15 @@ if __name__ == '__main__':
 		try:
 			cursor = conn.cursor()
 
-			cursor.execute("select last_value from org_category_id_seq")
+			cursor.execute("select last_value from dem.org_category_id_seq")
 			[org_cat_id_seq] = cursor.fetchone()
 
 			cursor.execute("""
-		insert into org_category ( description, id)
+		insert into dem.org_category ( description, id)
 		values ( 'xxxDEFAULTxxx',%d)
 			""" %   (org_cat_id_seq + 1 ) )
 			cursor.execute("""
-		delete from org_category where description like 'xxxDEFAULTxxx' """ )
+		delete from dem.org_category where description like 'xxxDEFAULTxxx' """ )
 		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
 		except:
@@ -1642,11 +1642,11 @@ if __name__ == '__main__':
 		failed_categories = []
 		n =1
 		for cat in categories:
-			cursor.execute("select last_value from org_category_id_seq")
+			cursor.execute("select last_value from dem.org_category_id_seq")
 			[org_cat_id_seq] = cursor.fetchone()
 
-			cursor.execute( "insert into org_category(description, id) values('%s', %d)" % (cat, org_cat_id_seq + n) )
-			cursor.execute("select id from org_category where description in ('%s')" % cat)
+			cursor.execute( "insert into dem.org_category(description, id) values('%s', %d)" % (cat, org_cat_id_seq + n) )
+			cursor.execute("select id from dem.org_category where description in ('%s')" % cat)
 
 			result =  cursor.fetchone()
 			if result == None or len(result) == 0:
@@ -1685,9 +1685,9 @@ if __name__ == '__main__':
 		for cat in categories:
 			try:
 				cursor = conn.cursor()
-				cursor.execute( "delete from  org_category where description in ('%s')"%cat)
+				cursor.execute( "delete from  dem.org_category where description in ('%s')"%cat)
 				conn.commit()
-				cursor.execute("select id from org_category where description in ('%s')"%cat)
+				cursor.execute("select id from dem.org_category where description in ('%s')"%cat)
 				if cursor.fetchone() == None:
 					print "Succeeded in removing temporary org_category"
 				else:
@@ -2022,7 +2022,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.33  2005-06-07 10:15:47  ncq
+# Revision 1.34  2006-01-07 17:40:56  ncq
+# - lots of schema qualification
+#
+# Revision 1.33  2005/06/07 10:15:47  ncq
 # - setContext -> set_context
 #
 # Revision 1.32  2005/01/31 10:37:26  ncq
