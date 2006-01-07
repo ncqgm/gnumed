@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.73 2005-10-19 09:12:40 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmDemographicsWidgets.py,v 1.74 2006-01-07 17:52:38 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1137,7 +1137,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
 		queries = []
-		queries.append("select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s")
+		queries.append("select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
@@ -1153,9 +1153,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_firstname.SetForegroundColour('red')
 		queries = []
 		cmd = """
-			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
+			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s
 				union
-			select distinct name, name from name_gender_map where name %(fragment_condition)s"""
+			select distinct name, name from dem.name_gender_map where name %(fragment_condition)s"""
 		queries.append(cmd)
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
@@ -1171,9 +1171,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
 		queries = []
 		cmd = """
-			select distinct preferred, preferred from names where preferred %(fragment_condition)s
+			select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s
 				union
-			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
+			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s"""
 		queries.append(cmd)
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
@@ -1754,6 +1754,9 @@ class cPatEditionNotebook(wx.Notebook):
 				txt = gender['label']
 				break
 		self.ident_form_DTD['gender'] = txt
+#xxxxxxxxxxxxxxxxx
+#check source of identity['dob'] == string
+#xxxxxxxxxxxxxxxxx
 		self.ident_form_DTD['dob'] = identity['dob']
 		txt = ''
 		if not identity['title'] is None:
@@ -1917,7 +1920,7 @@ class cPatIdentityPanel(wx.Panel):
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
 		queries = []
-		queries.append("select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s")
+		queries.append("select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
@@ -1933,9 +1936,9 @@ class cPatIdentityPanel(wx.Panel):
 		STT_firstname.SetForegroundColour('red')
 		queries = []
 		cmd = """
-			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
+			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s
 				union
-			select distinct name, name from name_gender_map where name %(fragment_condition)s"""
+			select distinct name, name from dem.name_gender_map where name %(fragment_condition)s"""
 		queries.append(cmd)
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)
@@ -1951,9 +1954,9 @@ class cPatIdentityPanel(wx.Panel):
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
 		queries = []
 		cmd = """
-			select distinct preferred, preferred from names where preferred %(fragment_condition)s
+			select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s
 				union
-			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
+			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s"""
 		queries.append(cmd)
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)
@@ -1992,7 +1995,7 @@ class cPatIdentityPanel(wx.Panel):
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
 		queries = []
-		queries.append("select distinct title, title from identity where title %(fragment_condition)s")
+		queries.append("select distinct title, title from dem.identity where title %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(1, 3, 15)
 		self.PRW_title = gmPhraseWheel.cPhraseWheel (
@@ -2041,7 +2044,7 @@ class cPatIdentityPanel(wx.Panel):
 		Matches are fetched from existing records in backend.
 		"""
 		firstname = self.PRW_firstname.GetValue()
-		cmd = "select gender from name_gender_map where name ilike %s"
+		cmd = "select gender from from.name_gender_map where name ilike %s"
 		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
@@ -2067,7 +2070,7 @@ class cPatIdentityPanel(wx.Panel):
 			return False
 		if not update_identity_from_dtd(identity = self.__ident, dtd = self.__dtd):
 			msg = _("An error happened while saving Identity section.\nPlease, refresh and check all the data.")
-			gmGuiHelpers.gm_show_error(msg, _('Identity saving error'), gmLog.lErr)					
+			gmGuiHelpers.gm_show_error(msg, _('Identity saving error'), gmLog.lErr)
 			return False
 		return True
 #============================================================		
@@ -2190,7 +2193,7 @@ class cPatContactsPanel(wx.Panel):
 		# zip code
 		STT_zip_code = wx.StaticText(self.PNL_form, -1, _('Zip code'))
 		queries = []
-		queries.append("select distinct postcode, postcode from street where postcode %(fragment_condition)s")
+		queries.append("select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
@@ -2210,9 +2213,9 @@ class cPatContactsPanel(wx.Panel):
 		queries.append("""
 		select distinct on (s1,s2) s1, s2 from (
 			select * from (
-				select street as s1, street as s2, 1 as rank from v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
+				select street as s1, street as s2, 1 as rank from dem.v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select name as s1, name as s2, 2 as rank from street where name %(fragment_condition)s
+				select name as s1, name as s2, 2 as rank from dem.street where name %(fragment_condition)s
 			) as q1 order by rank, s1
 		) as q2
 		""")
@@ -2237,9 +2240,9 @@ class cPatContactsPanel(wx.Panel):
 		queries.append("""
 		select distinct on (u1,u2) u1, u2 from (
 			select * from (		
-				select urb as u1, urb as u2, 1 as rank from v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
+				select urb as u1, urb as u2, 1 as rank from dem.v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select name as u1, name as u2, 2 as rank from urb where name %(fragment_condition)s
+				select name as u1, name as u2, 2 as rank from dem.urb where name %(fragment_condition)s
 			) as t1 order by rank, u1
 		) as q2
 		""")
@@ -2264,9 +2267,9 @@ class cPatContactsPanel(wx.Panel):
 		queries.append("""
 		select distinct on (code,name) code, name from (
 			select * from (				
-				select code_state as code, state as name, 1 as rank from v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+				select code_state as code, state as name, 1 as rank from dem.v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
 					union
-				select code as code, name as name, 2 as rank from state where name %(fragment_condition)s and country ilike %%(country)s
+				select code as code, name as name, 2 as rank from dem.state where name %(fragment_condition)s and country ilike %%(country)s
 			) as q1 order by rank, name
 		) as q2				
 		""")
@@ -2289,9 +2292,9 @@ class cPatContactsPanel(wx.Panel):
 		queries.append("""
 		select distinct on (code,name) code, name from (
 			select * from (						
-				select code_country as code, country as name, 1 as rank from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
+				select code_country as code, country as name, 1 as rank from dem.v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select code as code, _(name) as name, 2 as rank from country where _(name) %(fragment_condition)s
+				select code as code, _(name) as name, 2 as rank from dem.country where _(name) %(fragment_condition)s
 			) as q1 order by rank, name
 		) as q2								
 		""")
@@ -2543,7 +2546,7 @@ class cPatOccupationsPanel(wx.Panel):
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		queries = []
-		queries.append("select distinct name, name from occupation where name %(fragment_condition)s")
+		queries.append("select distinct name, name from dem.occupation where name %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)		
 		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
@@ -2869,8 +2872,8 @@ def get_name_gender_map():
 	"""	
 	global _name_gender_map
 	if _name_gender_map is None:
-		#cmd = "select lower(name), gender from name_gender_map"
-		cmd = "select name, gender from name_gender_map"
+		#cmd = "select lower(name), gender from dem.name_gender_map"
+		cmd = "select name, gender from dem.name_gender_map"
 		rows = gmPG.run_ro_query('personalia', cmd, False)
 		if rows is None:
 			_log.Log(gmLog.lPanic, 'cannot retrieve name-gender map from database')
@@ -2929,7 +2932,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.73  2005-10-19 09:12:40  ncq
+# Revision 1.74  2006-01-07 17:52:38  ncq
+# - several schema qualifications
+#
+# Revision 1.73  2005/10/19 09:12:40  ncq
 # - cleanup
 #
 # Revision 1.72  2005/10/09 08:10:22  ihaywood
