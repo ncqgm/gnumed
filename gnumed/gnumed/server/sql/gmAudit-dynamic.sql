@@ -1,7 +1,7 @@
 -- GNUmed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -147,21 +147,27 @@ create rule audit_trail_no_del as
 
 -- ===================================================================
 grant SELECT on
+	audit.audit_trail
+	, audit.audit_trail_pk_audit_seq
+to group "gm-doctors";
+
+grant SELECT, insert, update, delete on
 	audit.audit_fields
 	, audit.audit_fields_pk_audit_seq
-	, audit.audit_trail
-	, audit.audit_trail_pk_audit_seq
 to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
 -- keep the "true" !
 delete from gm_schema_revision where filename = '$RCSfile: gmAudit-dynamic.sql,v $';
-insert into gm_schema_revision (filename, version) values ('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.7 $');
+insert into gm_schema_revision (filename, version) values ('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
 -- $Log: gmAudit-dynamic.sql,v $
--- Revision 1.7  2006-01-06 10:04:16  ncq
+-- Revision 1.8  2006-01-07 14:20:54  ncq
+-- - appropriate grants ...
+--
+-- Revision 1.7  2006/01/06 10:04:16  ncq
 -- - move add_table_for_audit() into audit schema
 --
 -- Revision 1.6  2006/01/05 16:04:37  ncq
