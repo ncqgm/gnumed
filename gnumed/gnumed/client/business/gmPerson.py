@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.59 2006-01-06 10:15:37 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPerson.py,v 1.60 2006-01-07 13:13:46 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -86,7 +86,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					external_id,
 					eeid.name as type,
 					eeid.context as context
-				from dem.lnk_identity2ext_id, enum_ext_id_types eeid
+				from dem.lnk_identity2ext_id, dem.enum_ext_id_types eeid
 				where id_identity = %s and fk_origin = eeid.pk""",
 			'delete':
 				"""delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s""",
@@ -914,8 +914,8 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace(' ', '*#DUMMY#*')
 			tmp = tmp.replace('\t', '*#DUMMY#*')
 			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '^%s'" % tmp])
-			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
+			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '^%s'" % tmp])
+			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
 			return queries
 
 		# "#<di/git s/orc-hars>" - external ID (or PUPIC)
@@ -927,8 +927,8 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace('-', '*#DUMMY#*')
 			tmp = tmp.replace('/', '*#DUMMY#*')
 			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
-			queries.append(["select vba.* from lnk_identity2ext_id li2ei, v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
+			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
+			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
 			return queries
 
 		# "<d igi ts>" - DOB or patient PK
@@ -953,8 +953,8 @@ class cPatientSearcher_SQL:
 		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
 			tmp = raw.split(',')[1].strip()
 			tmp = self.__normalize(tmp)
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % tmp])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % tmp])
 			return queries
 
 		# "*|$<...>" - DOB
@@ -1499,7 +1499,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.59  2006-01-06 10:15:37  ncq
+# Revision 1.60  2006-01-07 13:13:46  ncq
+# - more schema qualifications
+#
+# Revision 1.59  2006/01/06 10:15:37  ncq
 # - lots of small fixes adjusting to "dem" schema
 #
 # Revision 1.58  2005/11/18 15:16:55  ncq
