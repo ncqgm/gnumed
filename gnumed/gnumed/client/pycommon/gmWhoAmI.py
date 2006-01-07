@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -73,7 +73,7 @@ class cWhoAmI(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
-		cmd = "select pk_staff from v_staff where db_user=CURRENT_USER"
+		cmd = "select pk_staff from dem.v_staff where db_user=CURRENT_USER"
 		result = gmPG.run_ro_query('personalia', cmd, None)
 		if result is None:
 			raise ValueError, _('cannot resolve db account name to primary key of staff member')
@@ -88,7 +88,7 @@ class cWhoAmI(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
-		cmd = "select pk_identity from v_staff where db_user=CURRENT_USER"
+		cmd = "select pk_identity from dem.v_staff where db_user=CURRENT_USER"
 		result = gmPG.run_ro_query('personalia', cmd, None)
 		if result is None:
 			raise ValueError, _('cannot resolve db account name to identity of staff member')
@@ -103,7 +103,7 @@ class cWhoAmI(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
-		cmd = "select title, firstnames, lastnames from v_staff where db_user=CURRENT_USER"
+		cmd = "select title, firstnames, lastnames from dem.v_staff where db_user=CURRENT_USER"
 		result = gmPG.run_ro_query('personalia', cmd, None)
 		if result is None:
 			raise ValueError, _('cannot get staff name')
@@ -118,7 +118,7 @@ class cWhoAmI(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
-		cmd = "select sign from v_staff where db_user=CURRENT_USER"
+		cmd = "select sign from dem.v_staff where db_user=CURRENT_USER"
 		result = gmPG.run_ro_query('personalia', cmd, None)
 		if result is None:
 			raise ValueError, _('cannot get staff sign')
@@ -137,7 +137,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.6  2005-04-03 20:09:47  ncq
+# Revision 1.7  2006-01-07 12:20:19  ncq
+# - dem. schema use
+#
+# Revision 1.6  2005/04/03 20:09:47  ncq
 # - get_staff_sign()
 #
 # Revision 1.5  2004/08/13 08:54:24  ncq
