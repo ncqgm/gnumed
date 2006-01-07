@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -63,11 +63,19 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	dem.staff_role,
 	dem.staff,
 	dem.marital_status
+	, dem.provider_inbox
+	, dem.provider_inbox_pk_seq
+	, dem.inbox_item_type
+	, dem.inbox_item_type_pk_seq
 TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.14  2006-01-06 10:12:02  ncq
+-- Revision 1.15  2006-01-07 17:53:32  ncq
+-- - proper grants for provider inbox
+-- - dynamic staff re provider inbox added
+--
+-- Revision 1.14  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
