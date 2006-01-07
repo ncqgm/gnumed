@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.193 2005-12-26 12:03:10 sjtan Exp $
-__version__ = "$Revision: 1.193 $"
+# $Id: gmClinicalRecord.py,v 1.194 2006-01-07 13:00:19 ncq Exp $
+__version__ = "$Revision: 1.194 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -116,7 +116,7 @@ class cClinicalRecord:
 		- true/false
 		"""
 		# patient in demographic database ?
-		cmd = "select exists(select pk from identity where pk = %s)"
+		cmd = "select exists(select pk from dem.identity where pk = %s)"
 		result = gmPG.run_ro_query('personalia', cmd, None, self.pk_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.pk_patient)
@@ -1602,7 +1602,7 @@ where pk_episode in %s and pk_patient = %s"""
 		Stores a referral in the clinical narrative
 		"""
 		cmd = """
-		insert into referral (
+		insert into au.referral (
 		fk_encounter, fk_episode, narrative, fk_form
 		) values (
 		%s, %s, %s, %s
@@ -1738,7 +1738,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.193  2005-12-26 12:03:10  sjtan
+# Revision 1.194  2006-01-07 13:00:19  ncq
+# - add some schema qualifiers
+#
+# Revision 1.193  2005/12/26 12:03:10  sjtan
 #
 # more schema matching. some delegation .
 #
