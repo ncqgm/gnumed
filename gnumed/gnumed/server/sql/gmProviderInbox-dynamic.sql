@@ -2,7 +2,7 @@
 -- GNUmed - dynamic tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
--- $Id: gmProviderInbox-dynamic.sql,v 1.2 2006-01-07 17:53:32 ncq Exp $
+-- $Id: gmProviderInbox-dynamic.sql,v 1.3 2006-01-08 17:40:04 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -43,9 +43,9 @@ create view dem.v_provider_inbox as
 select
 	(select sign from dem.staff where dem.staff.pk = pi.fk_staff)
 		as provider,
-	(select description from dem.inbox_item_type where dem.inbox_item_type=pi.fk_inbox_item_type)
+	(select description from dem.inbox_item_type where dem.inbox_item_type.pk = pi.fk_inbox_item_type)
 		as type,
-	(select _(description) from dem.inbox_item_type where dem.inbox_item_type=pi.fk_inbox_item_type)
+	(select _(description) from dem.inbox_item_type where dem.inbox_item_type.pk = pi.fk_inbox_item_type)
 		as l10n_type,
 	pi.comment,
 	pi.ufk_context as pk_context,
@@ -55,16 +55,18 @@ select
 	pi.pk as pk_provider_inbox
 from
 	dem.provider_inbox pi
-where
 ;
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-dynamic.sql,v $
--- Revision 1.2  2006-01-07 17:53:32  ncq
+-- Revision 1.3  2006-01-08 17:40:04  ncq
+-- - fixed syntax error with "where" where no where belonged
+--
+-- Revision 1.2  2006/01/07 17:53:32  ncq
 -- - proper grants for provider inbox
 -- - dynamic staff re provider inbox added
 --
