@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.228 2006-01-03 12:12:03 ncq Exp $
-__version__ = "$Revision: 1.228 $"
+# $Id: gmGuiMain.py,v 1.229 2006-01-09 20:19:06 ncq Exp $
+__version__ = "$Revision: 1.229 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -895,7 +895,7 @@ Do not rely on this database to work properly in all cases !""")
 
 		db_lang = None
 		# get current database locale
-		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
+		cmd = "select lang from i18n.curr_lang where user = CURRENT_USER limit 1;"
 		result = gmPG.run_ro_query('default', cmd, 0)
 		if result is None:
 			# if the actual query fails assume the admin
@@ -1000,7 +1000,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.228  2006-01-03 12:12:03  ncq
+# Revision 1.229  2006-01-09 20:19:06  ncq
+# - adjust to i18n schema
+#
+# Revision 1.228  2006/01/03 12:12:03  ncq
 # - make epydoc happy re _()
 #
 # Revision 1.227  2005/12/27 18:54:50  ncq
