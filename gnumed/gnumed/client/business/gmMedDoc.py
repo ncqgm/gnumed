@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.36 2006-01-09 10:42:21 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmMedDoc.py,v 1.37 2006-01-09 22:06:09 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -507,7 +507,7 @@ def create_document(patient_id=None, document_type=None):
 		return None
 	doc_id = result[0][0]
 	# and init new document instance
-	doc = cMedDoc(aPKey = doc_id)
+	doc = cMedDoc(aPK_obj = doc_id)
 	return doc
 #------------------------------------------------------------
 def search_for_document(patient_id=None, type_id=None):
@@ -561,7 +561,7 @@ def create_document_part(doc_id):
 		return None
 	part_id = result[0][0]
 	# and init new document part instance
-	part = cMedDocPart(aPKey=part_id)
+	part = cMedDocPart(aPK_obj=part_id)
 	return part
 #------------------------------------------------------------
 def get_document_types():
@@ -597,7 +597,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.36  2006-01-09 10:42:21  ncq
+# Revision 1.37  2006-01-09 22:06:09  ncq
+# - aPKey -> aPK_obj
+#
+# Revision 1.36  2006/01/09 10:42:21  ncq
 # - yet another missed dem schema qualification
 #
 # Revision 1.35  2006/01/01 17:39:39  ncq
