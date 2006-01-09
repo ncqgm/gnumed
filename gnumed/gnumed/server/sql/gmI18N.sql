@@ -1,12 +1,13 @@
--- =============================================
--- GnuMed fixed string internationalisation
--- ========================================
+-- ======================================================
+-- GNUmed fixed string internationalisation (SQL gettext)
+-- ======================================================
+
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.23 2005-09-19 16:38:51 ncq Exp $
+-- $Id: gmI18N.sql,v 1.24 2006-01-09 13:42:29 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
--- Import this script into any GnuMed database you create.
+-- Import this script into any GNUmed database you create.
 
 -- This will allow for transparent translation of 'fixed'
 -- strings in the database. Simply switching the language in
@@ -18,249 +19,53 @@
 \set ON_ERROR_STOP 1
 
 -- =============================================
-create table i18n_curr_lang (
-	id serial primary key,
-	owner name default CURRENT_USER unique not null,
-	lang text not null
-);
-
-comment on table i18n_curr_lang is
-	'holds the currently selected per-user default
-	 language for fixed strings in the database';
+create schema i18n authorization "gm-dbo";
 
 -- =============================================
-create table i18n_keys (
-	id serial primary key,
-	orig text unique not null
+create table i18n.curr_lang (
+	pk serial
+		primary key,
+	"user" name
+		default CURRENT_USER
+		unique
+		not null,
+	lang text
+		not null
 );
 
-comment on table i18n_keys is
-	'this table holds all the original strings that need
-	 translation so give this to your language teams,
-	 the function i18n() will take care to enter relevant
-	 strings into this table, the table table does NOT
-	 play any role in runtime translation activity';
+-- =============================================
+create table i18n.keys (
+	pk serial
+		primary key,
+	orig text
+		unique
+		not null
+);
 
 -- =============================================
-create table i18n_translations (
-	id serial primary key,
-	lang text not null,
-	orig text not null,
-	trans text not null,
+create table i18n.translations (
+	pk serial
+		primary key,
+	lang text
+		not null,
+	orig text
+		not null,
+	trans text
+		not null,
 	unique (lang, orig)
 );
-create index idx_orig on i18n_translations(orig);
-
-comment on table i18n_translations is
-	'this table holds all the translated strings';
-comment on column i18n_translations.lang is
-	'the language (corresponding to i18n_curr_lang for
-	 a given user) that this translation belongs to';
-comment on column i18n_translations.orig is
-	'the original, untranslated string, used as the search key.';
-comment on column i18n_translations.trans is
-	'the translation of <orig> into <lang>';
-
--- =============================================
-create function i18n(text) returns text as '
-DECLARE
-	original ALIAS FOR $1;
-BEGIN
-	if not exists(select id from i18n_keys where orig = original) then
-		insert into i18n_keys (orig) values (original);
-	end if;
-	return original;
-END;
-' language 'plpgsql';
-
-comment on function i18n(text) is
-	'insert original strings into i18n_keys for later translation';
-
--- =============================================
-create function i18n_upd_tx(text, text, text) returns boolean as '
-declare
-	_lang alias for $1;
-	_orig alias for $2;
-	_trans alias for $3;
-	_tmp text;
-begin
-	select into _tmp ''1'' from i18n_keys where orig=_orig;
-	if not found then
-		_tmp := ''String "'' || _orig || ''" not found in i18n_keys. No use storing translation.'';
-		raise notice ''%'', _tmp;
-		-- return ''String "'' || _orig || ''" not found in i18n_keys. No use storing translation.'';
-		return False;
-	end if;
-	delete from i18n_translations where lang=_lang and orig=_orig;
-	insert into i18n_translations (lang, orig, trans) values (_lang, _orig, _trans);
-	-- return _orig || '' == ('' || _lang || '') ==> '' || _trans;
-	return True;
-end;' language 'plpgsql';
-
--- =============================================
-create function _(text) returns text as '
-DECLARE
-    orig_str ALIAS FOR $1;
-    trans_str text;
-    my_lang text;
-BEGIN
-    -- get language
-    select into my_lang lang
-	from i18n_curr_lang
-    where
-	owner = CURRENT_USER;
-    if not found then
-	return orig_str;
-    end if;
-    -- get translation
-    select into trans_str trans
-	from i18n_translations
-    where
-	lang = my_lang
-	    and
-	orig = orig_str;
-    if not found then
-	return orig_str;
-    end if;
-    return trans_str;
-END;
-' language 'plpgsql';
-
-comment on function _(text) is
-	'will return either the translation into i18n_curr_lang.lang
-	 for the current user or the input';
-
--- =============================================
-create function _(text, text) returns text as '
-DECLARE
-	_orig alias for $1;
-	_lang alias for $2;
-	trans_str text;
-BEGIN
-	-- no translation available at all ?
-	if not exists(select 1 from i18n_translations where orig = _orig) then
-		return _orig;
-	end if;
-	-- get translation
-	select into trans_str trans
-	from i18n_translations
-	where
-		lang = _lang
-			and
-		orig = _orig;
-	if not found then
-		return _orig;
-	end if;
-	return trans_str;
-END;
-' language 'plpgsql';
-
-comment on function _(text, text) is
-	'will return either the translation into <text> (2nd
-	 argument) for the current user or the input';
-
--- =============================================
-create function set_curr_lang(text) returns unknown as '
-DECLARE
-	language ALIAS FOR $1;
-BEGIN
-	if exists(select id from i18n_translations where lang = language) then
-		delete from i18n_curr_lang where owner = CURRENT_USER;
-		insert into i18n_curr_lang (lang) values (language);
-		return 1;
-	else
-		raise exception ''Cannot set current language to [%]. No translations available.'', language;
-		return NULL;
-	end if;
-	return NULL;
-END;
-' language 'plpgsql';
-
-comment on function set_curr_lang(text) is
-	'set preferred language:
-	 - for "current user"
-	 - only if translations for this language are available';
-
--- =============================================
-create function force_curr_lang(text) returns unknown as '
-DECLARE
-    language ALIAS FOR $1;
-BEGIN
-    raise notice ''Forcing current language to [%] without checking for translations..'', language;
-    delete from i18n_curr_lang where owner = CURRENT_USER;
-    insert into i18n_curr_lang (lang) values (language);
-    return 1;
-END;
-' language 'plpgsql';
-
-comment on function force_curr_lang(text) is
-	'force preferred language to some language:
-	 - for "current user"';
-
--- =============================================
-create function set_curr_lang(text, name) returns unknown as '
-DECLARE
-	language ALIAS FOR $1;
-	username ALIAS FOR $2;
-BEGIN
-	if exists(select id from i18n_translations where lang = language) then
-		delete from i18n_curr_lang where owner = username;
-		insert into i18n_curr_lang (owner, lang) values (username, language);
-		return 1;
-	else
-		raise exception ''Cannot set current language to [%]. No translations available.'', language;
-		return NULL;
-	end if;
-	return NULL;
-END;
-' language 'plpgsql';
-
-comment on function set_curr_lang(text, name) is
-	'set language to first argument for the user named in
-	 the second argument if translations are available';
-
--- =============================================
-\unset ON_ERROR_STOP
-drop view v_missing_translations;
-\set ON_ERROR_STOP 1
-
-create view v_missing_translations as
-select
-	icl.lang,
-	ik.orig
-from
-	(select distinct on (lang) lang from i18n_curr_lang) as icl,
-	i18n_keys ik
-where
-	ik.orig not in (select orig from i18n_translations)
-;
-
-comment on view v_missing_translations is
-	'lists per language which strings are missing a translation';
-
--- =============================================
--- there's most likely no harm in granting select to all
-GRANT SELECT on
-	i18n_curr_lang
-	, i18n_keys
-	, i18n_translations
-	, v_missing_translations
-TO group "gm-public";
-
--- users need to be able to change this
--- FIXME: more groups need to have access here
-GRANT SELECT, INSERT, UPDATE, DELETE on
-	i18n_curr_lang,
-	i18n_curr_lang_id_seq
-TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.23  2005-09-19 16:38:51  ncq
+-- Revision 1.24  2006-01-09 13:42:29  ncq
+-- - factor out dynamic stuff
+-- - move into schema "i18n" (except for _())
+--
+-- Revision 1.23  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.22  2005/07/14 21:31:42  ncq
