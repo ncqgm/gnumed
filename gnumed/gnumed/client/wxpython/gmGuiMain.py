@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.229 2006-01-09 20:19:06 ncq Exp $
-__version__ = "$Revision: 1.229 $"
+# $Id: gmGuiMain.py,v 1.230 2006-01-09 20:27:04 ncq Exp $
+__version__ = "$Revision: 1.230 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -967,7 +967,7 @@ Do not rely on this database to work properly in all cases !""")
 			return 1
 
 		# try setting database language (only possible if translation exists)
-		cmd = "select set_curr_lang(%s) "
+		cmd = "select i18n.set_curr_lang(%s) "
 		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 			if len (lang) > 0:
 				# FIXME: we would need to run that on all databases we connect to ...
@@ -1000,7 +1000,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.229  2006-01-09 20:19:06  ncq
+# Revision 1.230  2006-01-09 20:27:04  ncq
+# - set_curr_lang() is in schema i18n, too
+#
+# Revision 1.229  2006/01/09 20:19:06  ncq
 # - adjust to i18n schema
 #
 # Revision 1.228  2006/01/03 12:12:03  ncq
