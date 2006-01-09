@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.35 2006-01-01 17:39:39 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmMedDoc.py,v 1.36 2006-01-09 10:42:21 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -46,7 +46,7 @@ class cDocumentFolder:
 		- true/false/None
 		"""
 		# patient in demographic database ?
-		cmd = "select exists(select pk from identity where pk = %s)"
+		cmd = "select exists(select pk from dem.identity where pk = %s)"
 		result = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.id_patient)
@@ -597,7 +597,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.35  2006-01-01 17:39:39  ncq
+# Revision 1.36  2006-01-09 10:42:21  ncq
+# - yet another missed dem schema qualification
+#
+# Revision 1.35  2006/01/01 17:39:39  ncq
 # - require document type in create_document()
 #
 # Revision 1.34  2006/01/01 16:08:08  ncq
