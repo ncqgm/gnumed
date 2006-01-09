@@ -4,7 +4,7 @@
 -- identity related data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-data.sql,v $
--- $Id: gmDemographics-Person-data.sql,v 1.10 2006-01-06 10:12:02 ncq Exp $
+-- $Id: gmDemographics-Person-data.sql,v 1.11 2006-01-09 13:46:19 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -13,45 +13,45 @@
 -- please do NOT alter the sequence !!
 
 BEGIN;
-insert into dem.relation_types(biological, description, inverse) values(true,  i18n('parent'), NULL);
-insert into dem.relation_types(biological, description, inverse) values(true,  i18n('child'), 1);
+insert into dem.relation_types(biological, description, inverse) values(true,  i18n.i18n('parent'), NULL);
+insert into dem.relation_types(biological, description, inverse) values(true,  i18n.i18n('child'), 1);
 update dem.relation_types set inverse=2 where id=1;
-insert into dem.relation_types(biological, description, inverse) values(true,  i18n('sibling'), 3);
-insert into dem.relation_types(biological, description, inverse) values(true,  i18n('halfsibling'), 4);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('stepparent'), NULL);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('stepchild'), 5);
+insert into dem.relation_types(biological, description, inverse) values(true,  i18n.i18n('sibling'), 3);
+insert into dem.relation_types(biological, description, inverse) values(true,  i18n.i18n('halfsibling'), 4);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('stepparent'), NULL);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('stepchild'), 5);
 update dem.relation_types set inverse=6 where id=5;
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('married'), 7);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('de facto'), 8);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('divorced'), 9);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('separated'), 10);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('legal guardian'), NULL);
-insert into dem.relation_types(biological, description, inverse) values(false, i18n('ward'), 11);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('married'), 7);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('de facto'), 8);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('divorced'), 9);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('separated'), 10);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('legal guardian'), NULL);
+insert into dem.relation_types(biological, description, inverse) values(false, i18n.i18n('ward'), 11);
 update dem.relation_types set inverse=12 where id=11;
 COMMIT;
 
-insert into dem.marital_status(name) values (i18n ('single'));
-insert into dem.marital_status(name) values (i18n ('de facto'));
-insert into dem.marital_status(name) values (i18n ('married'));
-insert into dem.marital_status(name) values (i18n ('divorced'));
-insert into dem.marital_status(name) values (i18n ('separated'));
-insert into dem.marital_status(name) values (i18n ('widowed'));
+insert into dem.marital_status(name) values (i18n.i18n ('single'));
+insert into dem.marital_status(name) values (i18n.i18n ('de facto'));
+insert into dem.marital_status(name) values (i18n.i18n ('married'));
+insert into dem.marital_status(name) values (i18n.i18n ('divorced'));
+insert into dem.marital_status(name) values (i18n.i18n ('separated'));
+insert into dem.marital_status(name) values (i18n.i18n ('widowed'));
 
 
 insert into dem.gender_label (tag, label, sort_weight, comment) values (
-	i18n('m'), i18n('male'), 3, '(m)ale'
+	i18n.i18n('m'), i18n.i18n('male'), 3, '(m)ale'
 );
 insert into dem.gender_label (tag, label, sort_weight, comment) values (
-	i18n('f'), i18n('female'), 3, '(f)emale'
+	i18n.i18n('f'), i18n.i18n('female'), 3, '(f)emale'
 );
 insert into dem.gender_label (tag, label, sort_weight, comment) values (
-	i18n('tm'), i18n('transsexual phenotype male'), 2, 'tm - (t)ranssexual phenotype (m)ale'
+	i18n.i18n('tm'), i18n.i18n('transsexual phenotype male'), 2, 'tm - (t)ranssexual phenotype (m)ale'
 );
 insert into dem.gender_label (tag, label, sort_weight, comment) values (
-	i18n('tf'), i18n('transsexual phenotype female'), 2, 'tf - (t)ranssexual phenotype (f)emale'
+	i18n.i18n('tf'), i18n.i18n('transsexual phenotype female'), 2, 'tf - (t)ranssexual phenotype (f)emale'
 );
 insert into dem.gender_label (tag, label, sort_weight, comment) values (
-	i18n('h'), i18n('hermaphrodite'), 1, '(h)ermaphrodite: intersexual'
+	i18n.i18n('h'), i18n.i18n('hermaphrodite'), 1, '(h)ermaphrodite: intersexual'
 );
 
 -- ===================================================================
@@ -59,25 +59,28 @@ insert into dem.gender_label (tag, label, sort_weight, comment) values (
 delete from dem.staff_role;
 
 -- standard GP practice staff
-insert into dem.staff_role (name) values (i18n('doctor'));
-insert into dem.staff_role (name) values (i18n('nurse'));
-insert into dem.staff_role (name) values (i18n('manager'));
-insert into dem.staff_role (name) values (i18n('secretary'));
-insert into dem.staff_role (name) values (i18n('X-ray assistant'));
-insert into dem.staff_role (name) values (i18n('lab technician'));
-insert into dem.staff_role (name) values (i18n('medical student'));
-insert into dem.staff_role (name) values (i18n('student nurse'));
-insert into dem.staff_role (name) values (i18n('trainee - secretary'));
-insert into dem.staff_role (name) values (i18n('trainee - X-ray'));
-insert into dem.staff_role (name) values (i18n('trainee - lab'));
+insert into dem.staff_role (name) values (i18n.i18n('doctor'));
+insert into dem.staff_role (name) values (i18n.i18n('nurse'));
+insert into dem.staff_role (name) values (i18n.i18n('manager'));
+insert into dem.staff_role (name) values (i18n.i18n('secretary'));
+insert into dem.staff_role (name) values (i18n.i18n('X-ray assistant'));
+insert into dem.staff_role (name) values (i18n.i18n('lab technician'));
+insert into dem.staff_role (name) values (i18n.i18n('medical student'));
+insert into dem.staff_role (name) values (i18n.i18n('student nurse'));
+insert into dem.staff_role (name) values (i18n.i18n('trainee - secretary'));
+insert into dem.staff_role (name) values (i18n.i18n('trainee - X-ray'));
+insert into dem.staff_role (name) values (i18n.i18n('trainee - lab'));
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-data.sql,v $
--- Revision 1.10  2006-01-06 10:12:02  ncq
+-- Revision 1.11  2006-01-09 13:46:19  ncq
+-- - adjust to schema "i18n" qualification
+--
+-- Revision 1.10  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema

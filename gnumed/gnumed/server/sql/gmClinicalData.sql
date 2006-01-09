@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.42 2006-01-06 10:12:02 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.43 2006-01-09 13:46:19 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -19,22 +19,22 @@
 --			_('by email'),
 --			_('other consultation')
 --		]
-INSERT INTO clin.encounter_type (description) values (i18n('in surgery'));
-INSERT INTO clin.encounter_type (description) values (i18n('phone consultation'));
-INSERT INTO clin.encounter_type (description) values (i18n('fax consultation'));
-INSERT INTO clin.encounter_type (description) values (i18n('home visit'));
-INSERT INTO clin.encounter_type (description) values (i18n('nursing home visit'));
-INSERT INTO clin.encounter_type (description) values (i18n('repeat script'));
-INSERT INTO clin.encounter_type (description) values (i18n('hospital visit'));
-INSERT INTO clin.encounter_type (description) values (i18n('video conference'));
-INSERT INTO clin.encounter_type (description) values (i18n('proxy encounter'));
-INSERT INTO clin.encounter_type (description) values (i18n('emergency encounter'));
-INSERT INTO clin.encounter_type (description) values (i18n('chart review'));
-INSERT INTO clin.encounter_type (description) values (i18n('other encounter'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('in surgery'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('phone consultation'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('fax consultation'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('home visit'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('nursing home visit'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('repeat script'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('hospital visit'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('video conference'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('proxy encounter'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('emergency encounter'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('chart review'));
+INSERT INTO clin.encounter_type (description) values (i18n.i18n('other encounter'));
 
 -- ===================================================================
-insert into clin._enum_allergy_type (value) values (i18n('allergy'));
-insert into clin._enum_allergy_type (value) values (i18n('sensitivity'));
+insert into clin._enum_allergy_type (value) values (i18n.i18n('allergy'));
+insert into clin._enum_allergy_type (value) values (i18n.i18n('sensitivity'));
 
 -- ===================================================================
 -- soap cat ranking for sorting
@@ -45,48 +45,48 @@ insert into clin.soap_cat_ranks (rank, soap_cat) values (4, 'p');
 
 -- ===================================================================
 -- v_emr_journal
-select i18n('RFE');
+select i18n.i18n('RFE');
 
-select i18n('health issue');
-select i18n('noted at age');
-select i18n('episode');
-select i18n('encounter');
+select i18n.i18n('health issue');
+select i18n.i18n('noted at age');
+select i18n.i18n('episode');
+select i18n.i18n('encounter');
 
-select i18n('vaccine');
-select i18n('batch no');
-select i18n('indication');
-select i18n('site');
-select i18n('notes');
+select i18n.i18n('vaccine');
+select i18n.i18n('batch no');
+select i18n.i18n('indication');
+select i18n.i18n('site');
+select i18n.i18n('notes');
 
-select i18n('allergene');
-select i18n('substance');
-select i18n('generic');
-select i18n('ATC code');
-select i18n('type');
-select i18n('reaction');
+select i18n.i18n('allergene');
+select i18n.i18n('substance');
+select i18n.i18n('generic');
+select i18n.i18n('ATC code');
+select i18n.i18n('type');
+select i18n.i18n('reaction');
 
-select i18n('lab');
-select i18n('sample ID');
-select i18n('sample taken');
-select i18n('status');
-select i18n('notes');
+select i18n.i18n('lab');
+select i18n.i18n('sample ID');
+select i18n.i18n('sample taken');
+select i18n.i18n('status');
+select i18n.i18n('notes');
 
-select i18n('code');
-select i18n('name');
-select i18n('value');
+select i18n.i18n('code');
+select i18n.i18n('name');
+select i18n.i18n('value');
 
 -- ===================================================================
 -- clinical narrative types
 -- * history types
-insert into clin.clin_item_type (code, type) values (i18n('HxRFE'), i18n('history of presenting complaint'));
-insert into clin.clin_item_type (code, type) values (i18n('psHx'), i18n('psycho-social history'));
-insert into clin.clin_item_type (code, type) values (i18n('fHx'),  i18n('family history'));
-insert into clin.clin_item_type (code, type) values (i18n('sxHx'), i18n('sexual history'));
+insert into clin.clin_item_type (code, type) values (i18n.i18n('HxRFE'), i18n.i18n('history of presenting complaint'));
+insert into clin.clin_item_type (code, type) values (i18n.i18n('psHx'), i18n.i18n('psycho-social history'));
+insert into clin.clin_item_type (code, type) values (i18n.i18n('fHx'),  i18n.i18n('family history'));
+insert into clin.clin_item_type (code, type) values (i18n.i18n('sxHx'), i18n.i18n('sexual history'));
 
 -- * social history subtypes
-insert into clin.clin_item_type (code, type) values (i18n('sHxD'), i18n('diet'));
-insert into clin.clin_item_type (code, type) values (i18n('sHxH'), i18n('housing'));
--- insert into clin.clin_item_type (code, type) values (i18n(''), i18n(''));
+insert into clin.clin_item_type (code, type) values (i18n.i18n('sHxD'), i18n.i18n('diet'));
+insert into clin.clin_item_type (code, type) values (i18n.i18n('sHxH'), i18n.i18n('housing'));
+-- insert into clin.clin_item_type (code, type) values (i18n.i18n(''), i18n.i18n(''));
 
 -- Eigenanamnese/Fremdanamnese ??, Familienanamnese, Sozialanamnese, Allg./vegetat. Anamnese
 
@@ -141,46 +141,46 @@ insert into clin.clin_item_type (code, type) values (i18n('sHxH'), i18n('housing
 --   ISO lang/country
 
 -- ===================================================================
---INSERT INTO clin._enum_hx_type (description) values (i18n('presenting complaint'));
---INSERT INTO clin._enum_hx_type (description) values (i18n('history of present illness'));
---INSERT INTO clin._enum_hx_type (description) values (i18n('drug'));
---INSERT INTO clin._enum_hx_type (description) values (i18n('other'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n.i18n('presenting complaint'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n.i18n('history of present illness'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n.i18n('drug'));
+--INSERT INTO clin._enum_hx_type (description) values (i18n.i18n('other'));
 
 -- ===================================================================
---insert into clin._enum_hx_source (description) values (i18n('patient'));
---insert into clin._enum_hx_source (description) values (i18n('clinician'));
---insert into clin._enum_hx_source (description) values (i18n('relative'));
---insert into clin._enum_hx_source (description) values (i18n('carer'));
---insert into clin._enum_hx_source (description) values (i18n('notes'));
---insert into clin._enum_hx_source (description) values (i18n('correspondence'));
+--insert into clin._enum_hx_source (description) values (i18n.i18n('patient'));
+--insert into clin._enum_hx_source (description) values (i18n.i18n('clinician'));
+--insert into clin._enum_hx_source (description) values (i18n.i18n('relative'));
+--insert into clin._enum_hx_source (description) values (i18n.i18n('carer'));
+--insert into clin._enum_hx_source (description) values (i18n.i18n('notes'));
+--insert into clin._enum_hx_source (description) values (i18n.i18n('correspondence'));
 
 -- ===================================================================
---INSERT INTO enum_coding_systems (description) values (i18n('general'));
---INSERT INTO enum_coding_systems (description) values (i18n('clinical'));
---INSERT INTO enum_coding_systems (description) values (i18n('diagnosis'));
---INSERT INTO enum_coding_systems (description) values (i18n('therapy'));
---INSERT INTO enum_coding_systems (description) values (i18n('pathology'));
---INSERT INTO enum_coding_systems (description) values (i18n('bureaucratic'));
---INSERT INTO enum_coding_systems (description) values (i18n('ean'));
---INSERT INTO enum_coding_systems (description) values (i18n('other'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('general'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('clinical'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('diagnosis'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('therapy'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('pathology'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('bureaucratic'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('ean'));
+--INSERT INTO enum_coding_systems (description) values (i18n.i18n('other'));
 
 -- ===================================================================
---INSERT INTO enum_confidentiality_level (description) values (i18n('public'));
---INSERT INTO enum_confidentiality_level (description) values (i18n('relatives'));
---INSERT INTO enum_confidentiality_level (description) values (i18n('receptionist'));
---INSERT INTO enum_confidentiality_level (description) values (i18n('clinical staff'));
---INSERT INTO enum_confidentiality_level (description) values (i18n('doctors'));
---INSERT INTO enum_confidentiality_level (description) values (i18n('doctors of practice only'));
---INSERT INTO enum_confidentiality_level (description) values (i18n('treating doctor'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('public'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('relatives'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('receptionist'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('clinical staff'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('doctors'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('doctors of practice only'));
+--INSERT INTO enum_confidentiality_level (description) values (i18n.i18n('treating doctor'));
 
 -- ===================================================================
 -- measurements stuff
 
 -- request status strings
-select i18n('pending');
-select i18n('preliminary');
-select i18n('partial');
-select i18n('final');
+select i18n.i18n('pending');
+select i18n.i18n('preliminary');
+select i18n.i18n('partial');
+select i18n.i18n('final');
 
 
 delete from clin.test_org;
@@ -189,14 +189,14 @@ delete from clin.test_org;
 -- patient taking measurements herself
 insert into clin.test_org (fk_org, internal_name, comment) values (
 	-1,
-	i18n('patient'),
+	i18n.i18n('patient'),
 	'self-measurement as reported by patient'
 );
 
 -- if you want to be lazy and just link all external results to one fake providing lab
 insert into clin.test_org (fk_org, internal_name, comment) values (
 	-2,
-	i18n('external org'),
+	i18n.i18n('external org'),
 	'any external organization, regardless
 	 of real source for measurements'
 );
@@ -204,7 +204,7 @@ insert into clin.test_org (fk_org, internal_name, comment) values (
 -- your own practice as a test-providing org
 insert into clin.test_org (fk_org, internal_name, comment) values (
 	-3,
-	i18n('your own practice'),
+	i18n.i18n('your own practice'),
 	'for inhouse lab/tests/measurements'
 );
 
@@ -214,10 +214,10 @@ insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('clin.test_org_pk_seq'),
-	i18n('wght'),
+	i18n.i18n('wght'),
 	null,
-	i18n('weight (body mass)'),
-	i18n('the patient''s weight (body mass to be accurate)'),
+	i18n.i18n('weight (body mass)'),
+	i18n.i18n('the patient''s weight (body mass to be accurate)'),
 	'kg'
 );
 -- height
@@ -225,10 +225,10 @@ insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('clin.test_org_pk_seq'),
-	i18n('hght'),
+	i18n.i18n('hght'),
 	null,
-	i18n('height'),
-	i18n('lying in infants, else standing, see result notes'),
+	i18n.i18n('height'),
+	i18n.i18n('lying in infants, else standing, see result notes'),
 	'm'
 );
 -- blood pressure
@@ -237,10 +237,10 @@ insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('clin.test_org_pk_seq'),
-	i18n('RR'),
+	i18n.i18n('RR'),
 	null,
-	i18n('blood pressure'),
-	i18n('specifics attached to result record'),
+	i18n.i18n('blood pressure'),
+	i18n.i18n('specifics attached to result record'),
 	'Pa'
 );
 -- pulse
@@ -248,10 +248,10 @@ insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('clin.test_org_pk_seq'),
-	i18n('pulse'),
+	i18n.i18n('pulse'),
 	null,
-	i18n('pulse, periph.art.'),
-	i18n('peripheral arterial pulse'),
+	i18n.i18n('pulse, periph.art.'),
+	i18n.i18n('peripheral arterial pulse'),
 	'Hz'
 );
 -- peripheral arterial oxygenation
@@ -259,20 +259,20 @@ insert into clin.test_type (
 	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('clin.test_org_pk_seq'),
-	i18n('SpO2'),
+	i18n.i18n('SpO2'),
 	null,
-	i18n('blood oxygen saturation'),
-	i18n('peripheral arterial blood oxygenization level, transduced'),
+	i18n.i18n('blood oxygen saturation'),
+	i18n.i18n('peripheral arterial blood oxygenization level, transduced'),
 	'%'
 );
 --insert into clin.test_type (
 --	fk_test_org, code, coding_system, name, comment, conversion_unit
 --) values (
 --	currval('clin.test_org_pk_seq'),
---	i18n('code'),
+--	i18n.i18n('code'),
 --	null,
---	i18n('name'),
---	i18n('comment'),
+--	i18n.i18n('name'),
+--	i18n.i18n('comment'),
 --	'unit'
 --);
 
@@ -283,46 +283,46 @@ delete from clin.vacc_route;
 insert into clin.vacc_route
 	(abbreviation, description)
 values
-	('i.m.', i18n('intramuscular'));
+	('i.m.', i18n.i18n('intramuscular'));
 
 insert into clin.vacc_route
 	(abbreviation, description)
 values
-	('s.c.', i18n('subcutaneous'));
+	('s.c.', i18n.i18n('subcutaneous'));
 
 insert into clin.vacc_route 
 	( abbreviation, description) 
 values 
-	( 'o', i18n('orally'));
+	( 'o', i18n.i18n('orally'));
 
 -- ===================================================================
 -- vaccination indications
 delete from clin.vacc_indication;
 
-insert into clin.vacc_indication (description) values (i18n('cholera'));
-insert into clin.vacc_indication (description) values (i18n('diphtheria'));
-insert into clin.vacc_indication (description) values (i18n('haemophilus influenzae b'));
-insert into clin.vacc_indication (description) values (i18n('hepatitis A'));
-insert into clin.vacc_indication (description) values (i18n('hepatitis B'));
-insert into clin.vacc_indication (description) values (i18n('influenza'));
-insert into clin.vacc_indication (description) values (i18n('japanese encephalitis'));
-insert into clin.vacc_indication (description) values (i18n('measles'));
-insert into clin.vacc_indication (description) values (i18n('meningococcus A'));
-insert into clin.vacc_indication (description) values (i18n('meningococcus C'));
-insert into clin.vacc_indication (description) values (i18n('meningococcus W'));
-insert into clin.vacc_indication (description) values (i18n('meningococcus Y'));
-insert into clin.vacc_indication (description) values (i18n('mumps'));
-insert into clin.vacc_indication (description) values (i18n('pertussis'));
-insert into clin.vacc_indication (description) values (i18n('pneumococcus'));
-insert into clin.vacc_indication (description) values (i18n('poliomyelitis'));
-insert into clin.vacc_indication (description) values (i18n('Q fever'));
-insert into clin.vacc_indication (description) values (i18n('rabies'));
-insert into clin.vacc_indication (description) values (i18n('rubella'));
-insert into clin.vacc_indication (description) values (i18n('tetanus'));
-insert into clin.vacc_indication (description) values (i18n('tick-borne meningoencephalitis'));
-insert into clin.vacc_indication (description) values (i18n('typhoid fever'));
-insert into clin.vacc_indication (description) values (i18n('varicella'));
-insert into clin.vacc_indication (description) values (i18n('yellow fever'));
+insert into clin.vacc_indication (description) values (i18n.i18n('cholera'));
+insert into clin.vacc_indication (description) values (i18n.i18n('diphtheria'));
+insert into clin.vacc_indication (description) values (i18n.i18n('haemophilus influenzae b'));
+insert into clin.vacc_indication (description) values (i18n.i18n('hepatitis A'));
+insert into clin.vacc_indication (description) values (i18n.i18n('hepatitis B'));
+insert into clin.vacc_indication (description) values (i18n.i18n('influenza'));
+insert into clin.vacc_indication (description) values (i18n.i18n('japanese encephalitis'));
+insert into clin.vacc_indication (description) values (i18n.i18n('measles'));
+insert into clin.vacc_indication (description) values (i18n.i18n('meningococcus A'));
+insert into clin.vacc_indication (description) values (i18n.i18n('meningococcus C'));
+insert into clin.vacc_indication (description) values (i18n.i18n('meningococcus W'));
+insert into clin.vacc_indication (description) values (i18n.i18n('meningococcus Y'));
+insert into clin.vacc_indication (description) values (i18n.i18n('mumps'));
+insert into clin.vacc_indication (description) values (i18n.i18n('pertussis'));
+insert into clin.vacc_indication (description) values (i18n.i18n('pneumococcus'));
+insert into clin.vacc_indication (description) values (i18n.i18n('poliomyelitis'));
+insert into clin.vacc_indication (description) values (i18n.i18n('Q fever'));
+insert into clin.vacc_indication (description) values (i18n.i18n('rabies'));
+insert into clin.vacc_indication (description) values (i18n.i18n('rubella'));
+insert into clin.vacc_indication (description) values (i18n.i18n('tetanus'));
+insert into clin.vacc_indication (description) values (i18n.i18n('tick-borne meningoencephalitis'));
+insert into clin.vacc_indication (description) values (i18n.i18n('typhoid fever'));
+insert into clin.vacc_indication (description) values (i18n.i18n('varicella'));
+insert into clin.vacc_indication (description) values (i18n.i18n('yellow fever'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
@@ -622,11 +622,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.42  2006-01-06 10:12:02  ncq
+-- Revision 1.43  2006-01-09 13:46:19  ncq
+-- - adjust to schema "i18n" qualification
+--
+-- Revision 1.42  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema

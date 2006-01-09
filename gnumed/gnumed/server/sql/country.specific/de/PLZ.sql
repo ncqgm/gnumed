@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -44,15 +44,15 @@ insert into dem.state (code, country, name) values ('Bgld', 'AT', 'Burgenland');
 insert into dem.state (code, country, name) values ('Ktn', 'AT', 'Kärnten');			-- Carinthia
 
 -- jo, wos is jetz dös ?
---INSERT into dem.state(code, country, name) VALUES ('BU','AT',i18n('Burgenland'));
---INSERT into dem.state(code, country, name) VALUES ('CA','AT',i18n('Carinthia'));
---INSERT into dem.state(code, country, name) VALUES ('NI','AT',i18n('Niederoesterreich'));
---INSERT into dem.state(code, country, name) VALUES ('OB','AT',i18n('Oberoesterreich'));
---INSERT into dem.state(code, country, name) VALUES ('SA','AT',i18n('Salzburg'));
---INSERT into dem.state(code, country, name) VALUES ('ST','AT',i18n('Steiermark'));
---INSERT into dem.state(code, country, name) VALUES ('TI','AT',i18n('Tirol'));
---INSERT into dem.state(code, country, name) VALUES ('VO','AT',i18n('Vorarlberg'));
---INSERT into dem.state(code, country, name) VALUES ('WI','AT',i18n('Wien'));
+--INSERT into dem.state(code, country, name) VALUES ('BU','AT',i18n.i18n('Burgenland'));
+--INSERT into dem.state(code, country, name) VALUES ('CA','AT',i18n.i18n('Carinthia'));
+--INSERT into dem.state(code, country, name) VALUES ('NI','AT',i18n.i18n('Niederoesterreich'));
+--INSERT into dem.state(code, country, name) VALUES ('OB','AT',i18n.i18n('Oberoesterreich'));
+--INSERT into dem.state(code, country, name) VALUES ('SA','AT',i18n.i18n('Salzburg'));
+--INSERT into dem.state(code, country, name) VALUES ('ST','AT',i18n.i18n('Steiermark'));
+--INSERT into dem.state(code, country, name) VALUES ('TI','AT',i18n.i18n('Tirol'));
+--INSERT into dem.state(code, country, name) VALUES ('VO','AT',i18n.i18n('Vorarlberg'));
+--INSERT into dem.state(code, country, name) VALUES ('WI','AT',i18n.i18n('Wien'));
 
 select dem.gm_upd_default_states();
 
@@ -163,11 +163,14 @@ insert into dem.street (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.12  2006-01-06 10:12:02  ncq
+-- Revision 1.13  2006-01-09 13:46:19  ncq
+-- - adjust to schema "i18n" qualification
+--
+-- Revision 1.12  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
