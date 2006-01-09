@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.74 2006-01-07 17:52:38 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmDemographicsWidgets.py,v 1.75 2006-01-09 10:46:18 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1212,7 +1212,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
 		queries = []
-		queries.append("select distinct title, title from identity where title %(fragment_condition)s")
+		queries.append("select distinct title, title from dem.identity where title %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(1, 3, 15)
 		self.PRW_title = gmPhraseWheel.cPhraseWheel(
@@ -2932,7 +2932,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.74  2006-01-07 17:52:38  ncq
+# Revision 1.75  2006-01-09 10:46:18  ncq
+# - yet more schema quals
+#
+# Revision 1.74  2006/01/07 17:52:38  ncq
 # - several schema qualifications
 #
 # Revision 1.73  2005/10/19 09:12:40  ncq
