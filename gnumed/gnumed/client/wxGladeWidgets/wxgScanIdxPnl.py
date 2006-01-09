@@ -35,6 +35,8 @@ class wxgScanIdxPnl(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self._scan_btn_pressed, self.__btn_scan)
         self.Bind(wx.EVT_BUTTON, self._show_btn_pressed, self.__btn_show_page)
         self.Bind(wx.EVT_BUTTON, self._del_btn_pressed, self.__btn_del_page)
+        self.Bind(wx.EVT_BUTTON, self._save_btn_pressed, self.__btn_save)
+        self.Bind(wx.EVT_BUTTON, self._startover_btn_pressed, self.__btn_discard)
         # end wxGlade
 
     def __set_properties(self):
@@ -101,6 +103,14 @@ class wxgScanIdxPnl(wx.Panel):
 
     def _del_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
         print "Event handler `_del_btn_pressed' not implemented"
+        event.Skip()
+
+    def _save_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_save_btn_pressed' not implemented"
+        event.Skip()
+
+    def _startover_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_startover_btn_pressed' not implemented"
         event.Skip()
 
 # end of class wxgScanIdxPnl
