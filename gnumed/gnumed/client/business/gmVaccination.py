@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.27 2006-01-09 10:43:07 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmVaccination.py,v 1.28 2006-01-10 23:22:53 sjtan Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -420,7 +420,7 @@ def get_matching_vaccines_for_indications( all_ind):
 #		from 
 #			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
 #		where 
-#			v.id = l.fk_vaccine and l.fk_indication = i.id 
+#			v.pk = l.fk_vaccine and l.fk_indication = i.id 
 #		group 
 #			by trade_name
 #		"""
@@ -438,7 +438,7 @@ group by trade_name"""
 		from 
 			clin.vaccine v, clin.lnk_vaccine2inds l, clin.vacc_indication i
 		where 
-			v.id = l.fk_vaccine and l.fk_indication = i.id 	
+			v.pk = l.fk_vaccine and l.fk_indication = i.id 	
 		and  
 			i.description like any ( array [ %s ] ) 		
 		group 
@@ -547,7 +547,11 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.27  2006-01-09 10:43:07  ncq
+# Revision 1.28  2006-01-10 23:22:53  sjtan
+#
+# id has become pk
+#
+# Revision 1.27  2006/01/09 10:43:07  ncq
 # - more dem schema qualifications
 #
 # Revision 1.26  2006/01/07 11:23:24  ncq
