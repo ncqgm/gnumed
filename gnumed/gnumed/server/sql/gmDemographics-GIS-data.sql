@@ -267,16 +267,18 @@ insert into dem.country(code, name) values('AE', i18n.i18n('United Arab Emirates
 insert into dem.country(code, name) values('GB', i18n.i18n('United Kingdom'));
 insert into dem.country(code, name) values('US', i18n.i18n('United States'));
 
--- ===================================================================
-\i gmCountryZones.sql
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.10 $');
+select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.11 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.10  2006-01-09 12:41:46  ncq
+-- Revision 1.11  2006-01-10 12:58:17  sjtan
+--
+-- path for plpgsql on a debian system added; remove need to know base sql dir for gmCountryCodes.sql
+--
+-- Revision 1.10  2006/01/09 12:41:46  ncq
 -- - lots of i18n.i18n()
 --
 -- Revision 1.9  2006/01/06 10:12:02  ncq
