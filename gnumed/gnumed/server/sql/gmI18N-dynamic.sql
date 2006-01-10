@@ -3,7 +3,7 @@
 -- ======================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N-dynamic.sql,v $
--- $Id: gmI18N-dynamic.sql,v 1.1 2006-01-09 13:42:29 ncq Exp $
+-- $Id: gmI18N-dynamic.sql,v 1.2 2006-01-10 08:44:22 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -33,7 +33,7 @@ comment on table i18n.keys is
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop index idx_orig on i18n.translations(orig) cascade;
+drop index idx_orig;
 \set ON_ERROR_STOP 1
 
 create index idx_orig on i18n.translations(orig);
@@ -261,11 +261,14 @@ TO group "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmI18N-dynamic.sql,v $
--- Revision 1.1  2006-01-09 13:42:29  ncq
+-- Revision 1.2  2006-01-10 08:44:22  ncq
+-- - drop index does not require "on"
+--
+-- Revision 1.1  2006/01/09 13:42:29  ncq
 -- - factor out dynamic stuff
 -- - move into schema "i18n" (except for _())
 --
