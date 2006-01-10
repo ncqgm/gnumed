@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.167 2006-01-06 10:12:02 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.168 2006-01-10 23:22:17 sjtan Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -2440,6 +2440,7 @@ grant select on
 	, clin.v_vacc_defs4reg
 	, clin.v_vacc_regs4pat
 	, clin.v_vaccs_scheduled4pat
+	, clin.v_inds4vaccine
 	, clin.v_pat_vacc4ind
 	, clin.v_pat_missing_vaccs
 	, clin.v_pat_missing_boosters
@@ -2465,11 +2466,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.167 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.168 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.167  2006-01-06 10:12:02  ncq
+-- Revision 1.168  2006-01-10 23:22:17  sjtan
+--
+-- update permissions for views
+--
+-- Revision 1.167  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
