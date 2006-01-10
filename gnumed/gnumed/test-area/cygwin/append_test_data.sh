@@ -1,10 +1,10 @@
 path=../../server/sql/test-data
 confpath=../../server/bootstrap
 conf_file=bootstrap-test_data.conf
+user=gm-dbo
 target=test_data
 rm  test_data
 touch test_data
-
 
 
 
@@ -15,7 +15,7 @@ for y in `cat filelist-$conf_file`;do
 done	
 
 
-echo psql -f $target -h 127.0.0.1 -Upostgres gnumed
-psql -f $target -h 127.0.0.1 -Upostgres gnumed
+echo psql -f $target -h 127.0.0.1 -U\"$user\" gnumed
+psql -f $target -h 127.0.0.1 -U"$user" gnumed
 
 
