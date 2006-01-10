@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.75 2006-01-09 10:46:18 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmDemographicsWidgets.py,v 1.76 2006-01-10 14:22:24 sjtan Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1427,7 +1427,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		Matches are fetched from existing records in backend.
 		"""
 		firstname = self.PRW_firstname.GetValue()
-		cmd = "select gender from name_gender_map where name ilike %s"
+		cmd = "select gender from dem.name_gender_map where name ilike %s"
 		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
@@ -2044,7 +2044,7 @@ class cPatIdentityPanel(wx.Panel):
 		Matches are fetched from existing records in backend.
 		"""
 		firstname = self.PRW_firstname.GetValue()
-		cmd = "select gender from from.name_gender_map where name ilike %s"
+		cmd = "select gender from dem.name_gender_map where name ilike %s"
 		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
@@ -2932,7 +2932,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.75  2006-01-09 10:46:18  ncq
+# Revision 1.76  2006-01-10 14:22:24  sjtan
+#
+# movement to schema dem
+#
+# Revision 1.75  2006/01/09 10:46:18  ncq
 # - yet more schema quals
 #
 # Revision 1.74  2006/01/07 17:52:38  ncq
