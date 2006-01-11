@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.56 $ $Date: 2006-01-05 16:04:37 $ $Author: ncq $
+-- $Revision: 1.57 $ $Date: 2006-01-11 13:16:20 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -40,7 +40,7 @@ CREATE TABLE blobs.doc_type (
 
 -- =============================================
 CREATE TABLE blobs.doc_med (
-	id serial primary key,
+	pk serial primary key,
 	patient_id integer
 		not null
 		references blobs.xlnk_identity(xfk_identity)
@@ -79,10 +79,10 @@ COMMENT ON COLUMN blobs.doc_med.ext_ref IS
 
 -- =============================================
 CREATE TABLE blobs.doc_obj (
-	id serial primary key,
+	pk serial primary key,
 	doc_id integer
 		not null
-		references blobs.doc_med(id)
+		references blobs.doc_med(pk)
 		on update cascade
 		on delete restrict,
 	seq_idx integer
@@ -137,9 +137,9 @@ impossible to secure, etc.
 
 -- =============================================
 CREATE TABLE blobs.doc_desc (
-	id serial primary key,
+	pk serial primary key,
 	doc_id integer
-		references blobs.doc_med(id)
+		references blobs.doc_med(pk)
 		on delete cascade
 		on update cascade,
 	"text" text,
@@ -153,7 +153,7 @@ COMMENT ON TABLE blobs.doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.56 $');
+INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.57 $');
 
 -- =============================================
 -- questions:
@@ -173,7 +173,10 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.56  2006-01-05 16:04:37  ncq
+-- Revision 1.57  2006-01-11 13:16:20  ncq
+-- - id -> pk
+--
+-- Revision 1.56  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.55  2005/12/04 09:38:22  ncq

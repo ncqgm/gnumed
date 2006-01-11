@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.60 2006-01-07 13:13:46 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPerson.py,v 1.61 2006-01-11 13:14:20 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -477,7 +477,7 @@ class cPerson:
 	def _getMedDocsList(self):
 		"""Build a complete list of metadata for all documents of this person.
 		"""
-		cmd = "SELECT id from blobs.doc_med WHERE patient_id=%s"
+		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
 		tmp = gmPG.run_ro_query('blobs', cmd, None, self.__ID)
 		_log.Log(gmLog.lData, "document IDs: %s" % tmp)
 		if tmp is None:
@@ -1499,7 +1499,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.60  2006-01-07 13:13:46  ncq
+# Revision 1.61  2006-01-11 13:14:20  ncq
+# - id -> pk
+#
+# Revision 1.60  2006/01/07 13:13:46  ncq
 # - more schema qualifications
 #
 # Revision 1.59  2006/01/06 10:15:37  ncq

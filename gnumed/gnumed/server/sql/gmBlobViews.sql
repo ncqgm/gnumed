@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.15 $ $Date: 2006-01-06 10:04:16 $ $Author: ncq $
+-- $Revision: 1.16 $ $Date: 2006-01-11 13:15:51 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -30,7 +30,7 @@ from
 create view blobs.v_doc_med as
 select
 	dm.patient_id as pk_patient,
-	dm.id as pk_doc,
+	dm.pk as pk_doc,
 	dm.date as date,
 	vdt.type as type,
 	vdt.l10n_type as l10n_type,
@@ -49,7 +49,7 @@ where
 create view blobs.v_obj4doc as
 select
 	vdm.pk_patient as pk_patient,
-	dobj.id as pk_obj,
+	dobj.pk as pk_obj,
 	dobj.seq_idx as seq_idx,
 	vdm.date as date_generated,
 	vdm.type as type,
@@ -127,11 +127,11 @@ GRANT SELECT, INSERT, UPDATE, DELETE on
 	blobs.xlnk_identity
 	, blobs.xlnk_identity_pk_seq
 	, blobs.doc_desc
-	, blobs.doc_desc_id_seq
+	, blobs.doc_desc_pk_seq
 	, blobs.doc_obj
-	, blobs.doc_obj_id_seq
+	, blobs.doc_obj_pk_seq
 	, blobs.doc_med
-	, blobs.doc_med_id_seq
+	, blobs.doc_med_pk_seq
 	, blobs.doc_type
 	, blobs.doc_type_pk_seq
 TO GROUP "gm-doctors";
@@ -146,11 +146,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.15 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.15  2006-01-06 10:04:16  ncq
+-- Revision 1.16  2006-01-11 13:15:51  ncq
+-- - id -> pk
+--
+-- Revision 1.15  2006/01/06 10:04:16  ncq
 -- - move add_table_for_audit() into audit schema
 --
 -- Revision 1.14  2006/01/01 15:49:10  ncq

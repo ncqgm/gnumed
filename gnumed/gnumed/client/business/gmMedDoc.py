@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.37 2006-01-09 22:06:09 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmMedDoc.py,v 1.38 2006-01-11 13:13:53 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -98,14 +98,14 @@ class cDocumentFolder:
 			cmd = "select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
 		else:
 			cmd = """
-				select dm.id, dobj.id
+				select dm.pk, dobj.pk
 				from
 					blobs.doc_med dm
 					blobs.doc_obj dobj
 				where
 					dm.type = (select pk from blobs.doc_type where name='patient photograph') and
 					dm.patient_id=%s and
-					and dobj.doc_id = dm.id
+					and dobj.doc_id = dm.pk
 				limit 1
 			"""
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.id_patient)
@@ -121,10 +121,10 @@ class cDocumentFolder:
 			'TYP': doc_type
 		}
 		if doc_type is None:
-			cmd = """select id from blobs.doc_med where patient_id=%(ID)s"""
+			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s"""
 		elif type(doc_type) == types.StringType:
 			cmd = """
-				select id
+				select pk
 				from blobs.doc_med
 				where
 					patient_id=%(ID)s
@@ -133,7 +133,7 @@ class cDocumentFolder:
 				"""
 		else:
 			cmd = """
-				select id
+				select pk
 				from blobs.doc_med
 				where
 					patient_id=%(ID)s
@@ -191,7 +191,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		from blobs.v_obj4doc
 		where pk_obj=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from blobs.doc_obj where id=%(pk_obj)s and xmin=%(xmin_doc_obj)s for update"""
+		"""select 1 from blobs.doc_obj where pk=%(pk_obj)s and xmin=%(xmin_doc_obj)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update blobs.doc_obj set
@@ -288,7 +288,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# a chunk size of 0 means: all at once
 		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
 			# retrieve binary field
-			cmd = "SELECT data FROM blobs.doc_obj WHERE id=%s"
+			cmd = "SELECT data FROM blobs.doc_obj WHERE pk=%s"
 			data = gmPG.run_ro_query(self.__conn, cmd, None, self.pk_obj)
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve BLOB [%s]' % self.pk_obj)
@@ -308,7 +308,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
 		for chunk_id in range(needed_chunks):
 			pos = (chunk_id*max_chunk_size) + 1
-			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE id=%s"
+			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s"
 			data = gmPG.run_ro_query(self.__conn, cmd, None, pos, max_chunk_size, self.pk_obj)
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
@@ -320,7 +320,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		if remainder > 0:
 			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 			pos = (needed_chunks*max_chunk_size) + 1
-			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE id=%s "
+			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s "
 			data = gmPG.run_ro_query(self.__conn, cmd, pos, remainder, self.pk_obj)
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
@@ -350,7 +350,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		del(img_data)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE id=%s"
+		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
 		result = gmPG.run_commit('blobs', [
 			(cmd, [img_obj, self.pk_obj])
 		])
@@ -370,7 +370,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		img_obj = PgBytea(data)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE id=%s"
+		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
 		result = gmPG.run_commit('blobs', [
 			(cmd, [img_obj, self.pk_obj])
 		])
@@ -387,7 +387,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = """select *, xmin_doc_med from blobs.v_doc_med where pk_doc=%s"""
 
 	_cmds_lock_rows_for_update = [
-		"""select 1 from blobs.doc_med where id=%(pk_doc)s and xmin=%(xmin_doc_med)s for update"""
+		"""select 1 from blobs.doc_med where pk=%(pk_doc)s and xmin=%(xmin_doc_med)s for update"""
 	]
 
 	_cmds_store_payload = [
@@ -452,7 +452,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	def add_part(self, file=None):
 		new_part = create_document_part(self.pk_obj)
 		if new_part is None:
-			_log(gmLog.lErr, 'cannot add part to document [%s]' % self.pk_obj)
+			_log.Log(gmLog.lErr, 'cannot add part to document [%s]' % self.pk_obj)
 			return None
 		if file is not None:
 			if not new_part.update_data_from_file(fname=file):
@@ -521,10 +521,10 @@ def search_for_document(patient_id=None, type_id=None):
 		return None
 
 	if type_id is None:
-		cmd = "SELECT id from blobs.doc_med WHERE patient_id=%s"
+		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
 		doc_ids = gmPG.run_ro_query('blobs', cmd, None, patient_id)
 	else:
-		cmd = "SELECT id from blobs.doc_med WHERE patient_id=%s and type=%s"
+		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s and type=%s"
 		doc_ids = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
 		
 	if doc_ids is None:
@@ -543,9 +543,12 @@ def create_document_part(doc_id):
 	None - failed
 	not None - new document part class instance
 	"""
+
+# FIXME: need to set seq_idx to last+1
+
 	# sanity checks
 	if doc_id is None:
-		_log.Log(gmLog.lErr, 'need document id to create doc part')
+		_log.Log(gmLog.lErr, 'need document pk to create doc part')
 		return None
 	if isinstance (doc_id, cMedDoc):
 		doc_id = doc_id.ID
@@ -597,7 +600,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.37  2006-01-09 22:06:09  ncq
+# Revision 1.38  2006-01-11 13:13:53  ncq
+# - id -> pk
+#
+# Revision 1.37  2006/01/09 22:06:09  ncq
 # - aPKey -> aPK_obj
 #
 # Revision 1.36  2006/01/09 10:42:21  ncq
