@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevisionViews.sql,v $
--- $Id: gmSchemaRevisionViews.sql,v 1.3 2005-12-04 09:45:36 ncq Exp $
+-- $Id: gmSchemaRevisionViews.sql,v 1.4 2006-01-11 13:30:42 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -16,7 +16,7 @@
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.3 $');
+-- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -37,9 +37,8 @@ begin
 		select * from information_schema.columns cols
 			where cols.table_name in (
 				select tabs.table_name from information_schema.tables tabs where
-					tabs.table_schema = ''public'' and
-					tabs.table_type = ''BASE TABLE'' and
-					tabs.table_name not like ''log\_%''
+					tabs.table_schema in (''public'', ''dem'', ''clin'', ''blobs'') and
+					tabs.table_type = ''BASE TABLE''
 				)
 			order by
 				cols.table_schema, cols.table_name, cols.column_name, cols.data_type
@@ -48,7 +47,7 @@ begin
 			|| _row.table_schema || ''.''
 			|| _row.table_name || ''.''
 			|| _row.column_name || ''::''
-			|| _row.data_type || ''\n'';
+			|| _row.udt_name || ''\n'';
 	end loop;
 	return _total;
 end;
@@ -81,7 +80,10 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevisionViews.sql,v $
--- Revision 1.3  2005-12-04 09:45:36  ncq
+-- Revision 1.4  2006-01-11 13:30:42  ncq
+-- - update schema check function
+--
+-- Revision 1.3  2005/12/04 09:45:36  ncq
 -- - just a silly one-line comment
 --
 -- Revision 1.2  2005/10/24 19:28:37  ncq
