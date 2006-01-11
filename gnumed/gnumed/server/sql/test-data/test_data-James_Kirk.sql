@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.64 $
+-- $Revision: 1.65 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -57,7 +57,7 @@ insert into blobs.doc_med (patient_id, type, comment) values (
 
 -- image object
 insert into blobs.doc_obj (doc_id, seq_idx, comment, fk_intended_reviewer, data) VALUES (
-	currval('blobs.doc_med_id_seq'),
+	currval('blobs.doc_med_pk_seq'),
 	1,
 	'a small picture of Kirk',
 	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
@@ -555,7 +555,7 @@ insert into blobs.doc_desc (
 	doc_id,
 	text
 ) values (
-	currval('blobs.doc_med_id_seq'),
+	currval('blobs.doc_med_pk_seq'),
 	'people'
 );
 
@@ -566,7 +566,7 @@ insert into blobs.doc_obj (
 	comment,
 	fk_intended_reviewer
 ) values (
-	currval('blobs.doc_med_id_seq'),
+	currval('blobs.doc_med_pk_seq'),
 	1,
 	'Happy schoolgirls enjoying the afternoon sun catching the smile of
 	 passers-by at an ancient bridge in the paddy fields near Hue.',
@@ -579,7 +579,7 @@ insert into blobs.doc_obj (
 	comment,
 	fk_intended_reviewer
 ) values (
-	currval('blobs.doc_med_id_seq'),
+	currval('blobs.doc_med_pk_seq'),
 	2,
 	'Mekong River Delta Schoolgirls making their way home.',
 	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
@@ -601,7 +601,7 @@ insert into blobs.doc_desc (
 	doc_id,
 	text
 ) values (
-	currval('blobs.doc_med_id_seq'),
+	currval('blobs.doc_med_pk_seq'),
 	'life'
 );
 
@@ -612,7 +612,7 @@ insert into blobs.doc_obj (
 	comment,
 	fk_intended_reviewer
 ) values (
-	currval('blobs.doc_med_id_seq'),
+	currval('blobs.doc_med_pk_seq'),
 	1,
 	'Perfume pagoda river boating',
 	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
@@ -620,11 +620,14 @@ insert into blobs.doc_obj (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.64 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.65 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.64  2006-01-06 10:12:03  ncq
+-- Revision 1.65  2006-01-11 13:31:20  ncq
+-- - id -> pk
+--
+-- Revision 1.64  2006/01/06 10:12:03  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
