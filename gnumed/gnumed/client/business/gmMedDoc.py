@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.38 2006-01-11 13:13:53 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmMedDoc.py,v 1.39 2006-01-11 22:43:36 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -496,8 +496,8 @@ def create_document(patient_id=None, document_type=None):
 		raise ValueError, 'neither patient_id nor document_type may be None'
 
 	# insert document
-	cmd1 = """INSERT INTO blobs.doc_med (patient_id, type) VALUES (%s, %s)"""
-	cmd2 = """select currval('blobs.doc_med_id_seq')"""
+	cmd1 = """insert into blobs.doc_med (patient_id, type) VALUES (%s, %s)"""
+	cmd2 = """select currval('blobs.doc_med_pk_seq')"""
 	result = gmPG.run_commit('blobs', [
 		(cmd1, [patient_id, document_type]),
 		(cmd2, [])
@@ -553,7 +553,7 @@ def create_document_part(doc_id):
 	if isinstance (doc_id, cMedDoc):
 		doc_id = doc_id.ID
 	# insert document
-	cmd1 = "INSERT INTO blobs.doc_obj (doc_id) VALUES (%s)"
+	cmd1 = "insert into blobs.doc_obj (doc_id) VALUES (%s)"
 	cmd2 = "select currval('blobs.doc_obj_pk_seq')"
 	result = gmPG.run_commit('blobs', [
 		(cmd1, [doc_id]),
@@ -600,7 +600,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.38  2006-01-11 13:13:53  ncq
+# Revision 1.39  2006-01-11 22:43:36  ncq
+# - yet another missed id -> pk
+#
+# Revision 1.38  2006/01/11 13:13:53  ncq
 # - id -> pk
 #
 # Revision 1.37  2006/01/09 22:06:09  ncq
