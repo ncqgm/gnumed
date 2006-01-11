@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.46 2006-01-06 10:12:02 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.47 2006-01-11 13:20:31 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -139,24 +139,11 @@ BEGIN
 	-- does name exist ?
 	select into _names_row * from dem.names where id_identity = _id_identity and active = true;
 	if not found then
-		msg := ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.''
+		msg := ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.'';
 		raise exception msg;
 	end if;
-	-- can directly set nickname ?
-	-- if _names_row.preferred is null then
 	update dem.names set preferred = _nick where id = _names_row.id;
 	return _names_row.id;
-	-- end if;
-	-- must create new row
-	-- 1) deactivate old row ...
-	-- update dem.names set active = false where id = _names_row.id;
-	-- 2) insert new row from old row  and new data ...
-	--insert into dem.names (id_identity, active, firstnames, lastnames, preferred, comment)
-	--	values (_id_identity, true, _names_row.firstnames, _names_row.lastnames, _nick, _names_row.comment);
-	--if found then
-	--	return currval(''names_id_seq'');
-	--end if;
-	--return NULL;
 END;' language 'plpgsql';
 
 comment on function dem.set_nickname(integer, text) is
@@ -423,11 +410,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.46 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.47 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.46  2006-01-06 10:12:02  ncq
+-- Revision 1.47  2006-01-11 13:20:31  ncq
+-- - add missing ;
+--
+-- Revision 1.46  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
