@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.47 2006-01-11 13:20:31 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.48 2006-01-11 22:31:39 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -140,7 +140,7 @@ BEGIN
 	select into _names_row * from dem.names where id_identity = _id_identity and active = true;
 	if not found then
 		msg := ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.'';
-		raise exception msg;
+		raise exception ''%'', msg;
 	end if;
 	update dem.names set preferred = _nick where id = _names_row.id;
 	return _names_row.id;
@@ -410,11 +410,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.47 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.48 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.47  2006-01-11 13:20:31  ncq
+-- Revision 1.48  2006-01-11 22:31:39  ncq
+-- - fix another error in set_nickname()
+--
+-- Revision 1.47  2006/01/11 13:20:31  ncq
 -- - add missing ;
 --
 -- Revision 1.46  2006/01/06 10:12:02  ncq
