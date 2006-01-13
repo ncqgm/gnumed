@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -89,7 +89,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
             calling_window = self
         )
         if fname is None:
-            gmGuiHelpers.gm_show_err (
+            gmGuiHelpers.gm_show_error (
                 aMessage = _('Page could not be acquired from source.'),
                 aTitle = _('acquiring page')
             )
@@ -440,7 +440,8 @@ class cDocTree(wx.TreeCtrl):
         )
         exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
         if not os.path.exists(exp_base):
-            _log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
+            _log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is None == tempfile.tempdir == use system defaults
+            exp_base = None
         else:
             _log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
@@ -532,7 +533,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.37  2006-01-01 18:14:25  shilbert
+# Revision 1.38  2006-01-13 11:06:33  ncq
+# - properly use gmGuiHelpers
+# - properly fall back to default temporary directory
+#
+# Revision 1.37  2006/01/01 18:14:25  shilbert
 # - fixed indentation problem
 #
 # Revision 1.36  2006/01/01 17:44:43  ncq
