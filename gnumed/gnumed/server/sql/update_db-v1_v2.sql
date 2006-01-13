@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -591,9 +591,9 @@ insert into blobs.doc_desc select * from public.doc_desc;
 -- adjust sequences
 select setval('blobs.xlnk_identity_pk_seq'::text, (select max(pk) from blobs.xlnk_identity));
 select setval('blobs.doc_type_pk_seq'::text, (select max(pk) from blobs.doc_type));
-select setval('blobs.doc_med_id_seq'::text, (select max(id) from blobs.doc_med));
-select setval('blobs.doc_obj_id_seq'::text, (select max(id) from blobs.doc_obj));
-select setval('blobs.doc_desc_id_seq'::text, (select max(id) from blobs.doc_desc));
+select setval('blobs.doc_med_pk_seq'::text, (select max(id) from blobs.doc_med));
+select setval('blobs.doc_obj_pk_seq'::text, (select max(id) from blobs.doc_obj));
+select setval('blobs.doc_desc_pk_seq'::text, (select max(id) from blobs.doc_desc));
 
 -- drop tables in public schema
 drop table public.doc_desc cascade;
@@ -672,11 +672,14 @@ select setval('audit.audit_fields_pk_audit_seq'::text, (select max(pk_audit) fro
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.20 $');
+select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.20  2006-01-05 16:04:37  ncq
+-- Revision 1.21  2006-01-13 11:17:39  ncq
+-- - id -> pk
+--
+-- Revision 1.20  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.19  2005/12/29 21:48:09  ncq
