@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -280,52 +280,84 @@ limit 1""" % (' and '.join(where_parts))
 			'defwplace': cfg_DEFAULT,
 			'cookie': cookie
 		}
-		# generate query with current user
-		where_parts = [
-			'(vco.workplace = %(wplace)s) or (vco.workplace = %(defwplace)s)',
+		where_parts_given_workplace = [
+			'vco.workplace = %(wplace)s',
+			'vco.option = %(opt)s'
+		]
+		where_parts_default_workplace = [
+			'vco.workplace = %(defwplace)s',
 			'vco.option = %(opt)s'
 		]
 		if cookie is not None:
-			where_parts.append('vco.cookie = %(cookie)s')
-		cmd = """
+			where_parts_given_workplace.append('vco.cookie = %(cookie)s')
+			where_parts_default_workplace.append('vco.cookie = %(cookie)s')
+
+		cmd1 = """
 select
 	vco.pk_cfg_item,
-	vco.type,
-	vco.workplace
+	vco.type
 from cfg.v_cfg_options vco
 where
-	%s
-order by vco.workplace
-limit 1""" % (' and '.join(where_parts))
+	%s""" % (' and '.join(where_parts_given_workplace))
+
+		cmd2 = """
+select
+	vco.pk_cfg_item,
+	vco.type
+from cfg.v_cfg_options vco
+where
+	%s""" % (' and '.join(where_parts_default_workplace))
 
 		# run it
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
+		rows = gmPG_.run_ro_query(self.__conn, cmd1, None, args)
 		# - error
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting option definition')
 			return default
+		# - not found for given workplace
+		if len(rows) == 0:
+			# run it for default workplace
+			rows = gmPG_.run_ro_query(self.__conn, cmd2, None, args)
+			# - error
+			if rows is None:
+				_log.Log(gmLog.lErr, 'error getting option definition')
+				return default
+			if len(rows) == 0:
+				_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
+				# - cannot create default
+				if default is None:
+					return None
+				# - create default
+				_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+#				# try to store specific to *this* workplace
+#				self.set (
+#					option = option,
+#					workplace = workplace,
+#					value = default
+#				)
+				return default
+		# found for given or default workplace, now get value
+		cmd = """select value from cfg.v_cfg_opts_%s where pk_cfg_item=%%(pk)s""" % rows[0][1]
+		args = {'pk': rows[0][0]}
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
+		# - error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting option value')
+			return default
 		# - not found
 		if len(rows) == 0:
-			_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
+			_log.Log(gmLog.lWarn, 'no value for option [%s] in config database' % option)
 			# - cannot create default
 			if default is None:
 				return None
 			# - create default
-			_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
-			self.set (
-				option = option,
-				workplace = workplace,
-				value = default
-			)
+#			_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+#			self.set (
+#				option = option,
+#				workplace = workplace,
+#				value = default
+#			)
 			return default
-		# if default workplace found try to store specific to *this* workplace
-		if rows[0][2] == cfg_DEFAULT:
-			self.set (
-				option = option,
-				value = rows[0][0],
-				workplace = workplace,
-				cookie = cookie
-			)
 		return rows[0][0]
 	#-----------------------------------------------
 	def getID(self, workplace = None, user = None, cookie = None, option = None):
@@ -1409,7 +1441,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.35  2006-01-01 17:22:08  ncq
+# Revision 1.36  2006-01-13 14:57:14  ncq
+# - really fix get_by_workplace() - still needs set() functionality
+#
+# Revision 1.35  2006/01/01 17:22:08  ncq
 # - get_by_workplace always returns default value in case of
 #   errors/option not found except when there is not default given
 #   in which case it will return None on error
