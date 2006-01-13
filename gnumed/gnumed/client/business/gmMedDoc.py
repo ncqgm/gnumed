@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.39 2006-01-11 22:43:36 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmMedDoc.py,v 1.40 2006-01-13 13:48:15 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -332,17 +332,14 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	# store data
 	#--------------------------------------------------------
 	def update_data_from_file(self, fname=None):
-		try:
-			from pyPgSQL.PgSQL import PgBytea
-		except ImportError:
-			# FIXME
-			_log.Log(gmLog.lPanic, 'need pyPgSQL')
+		# sanity check
+		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
+			_log.Log(gmLog.lErr, '[%s] is not a readable file' % fname)
 			return False
 
+		from pyPgSQL.PgSQL import PgBytea
+
 		# read from file and convert (escape)
-		if not os.path.exists(fname):
-			_log.Log(gmLog.lErr, "[%s] does not exist" % fname)
-			return False
 		aFile = open(fname, "rb")
 		img_data = str(aFile.read())
 		aFile.close()
@@ -360,12 +357,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		return True
 	#--------------------------------------------------------
 	def update_data(self, data):
-		try:
-			from pyPgSQL.PgSQL import PgBytea
-		except ImportError:
-			# FIXME
-			_log.Log(gmLog.lPanic, 'need pyPgSQL')
-			return None
+		from pyPgSQL.PgSQL import PgBytea
+
 		# convert (escape)
 		img_obj = PgBytea(data)
 
@@ -376,8 +369,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		])
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
-			return None
-		return 1
+			return False
+		return True
 #============================================================
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -450,34 +443,44 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return parts
 	#--------------------------------------------------------
 	def add_part(self, file=None):
-		new_part = create_document_part(self.pk_obj)
-		if new_part is None:
-			_log.Log(gmLog.lErr, 'cannot add part to document [%s]' % self.pk_obj)
+		# create dummy part
+		cmd1 = """
+insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
+VALUES (
+	%(doc_id)s,
+	(select pk_identity from dem.v_staff where db_user=CURRENT_USER),
+	'dummy part of medical document',
+	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
+)"""
+		cmd2 = "select currval('blobs.doc_obj_pk_seq')"
+		result = gmPG.run_commit('blobs', [
+			(cmd1, [{'doc_id': self.pk_obj}]),
+			(cmd2, [])
+		])
+		if result is None:
+			_log.Log(gmLog.lErr, 'cannot create part for document [%s]' % doc_id)
 			return None
-		if file is not None:
-			if not new_part.update_data_from_file(fname=file):
-				_log.Log(gmLog.lErr, 'cannot import binary data from [%s] into document part' % file)
-				return False
+		# init document part instance
+		part_pk = result[0][0]
+		new_part = cMedDocPart(aPK_obj = part_pk)
+		if not new_part.update_data_from_file(fname=file):
+			_log.Log(gmLog.lErr, 'cannot import binary data from [%s] into document part' % file)
+			cmd = "delete from blobs.doc_obj where pk = %s"
+			result = gmPG.run_commit('blobs', [
+				(cmd, [part_pk])
+			])
+			if result is None:
+				_log.Log(gmLog.lErr, 'cannot delete dummy part [%s] of medical document [%s]' % (part_pk, self.pk_obj))
+			return None
 		return new_part
 	#--------------------------------------------------------
 	def add_parts_from_files(self, files=None):
-		idx = 1
 		for filename in files:
-			new_part = self.add_part()
+			new_part = self.add_part(file=filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
 				_log.Log(gmLog.lErr, msg)
 				return (False, msg, filename)
-			new_part['seq_idx'] = idx
-			if not new_part.save_payload():
-				msg = 'cannot set sequence index on document part [%s]' % filename
-				_log.Log(gmLog.lErr, msg)
-				return (False, msg, filename)
-			if not new_part.update_data_from_file(fname=filename):
-				msg = 'cannot import binary data from [%s] into document part' % filename
-				_log.Log(gmLog.lErr, msg)
-				return (False, msg, filename)
-			idx += 1
 		return (True, '', '')
 	#--------------------------------------------------------
 	def set_reviewed(self, status = None):
@@ -538,35 +541,6 @@ def search_for_document(patient_id=None, type_id=None):
 
 	return docs
 #------------------------------------------------------------
-def create_document_part(doc_id):
-	"""
-	None - failed
-	not None - new document part class instance
-	"""
-
-# FIXME: need to set seq_idx to last+1
-
-	# sanity checks
-	if doc_id is None:
-		_log.Log(gmLog.lErr, 'need document pk to create doc part')
-		return None
-	if isinstance (doc_id, cMedDoc):
-		doc_id = doc_id.ID
-	# insert document
-	cmd1 = "insert into blobs.doc_obj (doc_id) VALUES (%s)"
-	cmd2 = "select currval('blobs.doc_obj_pk_seq')"
-	result = gmPG.run_commit('blobs', [
-		(cmd1, [doc_id]),
-		(cmd2, [])
-	])
-	if result is None:
-		_log.Log(gmLog.lErr, 'cannot create part for document [%s]' % doc_id)
-		return None
-	part_id = result[0][0]
-	# and init new document part instance
-	part = cMedDocPart(aPK_obj=part_id)
-	return part
-#------------------------------------------------------------
 def get_document_types():
 	cmd = "SELECT name FROM blobs.doc_type"
 	rows = gmPG.run_ro_query('blobs', cmd)
@@ -600,7 +574,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.39  2006-01-11 22:43:36  ncq
+# Revision 1.40  2006-01-13 13:48:15  ncq
+# - brush up adding document parts
+#
+# Revision 1.39  2006/01/11 22:43:36  ncq
 # - yet another missed id -> pk
 #
 # Revision 1.38  2006/01/11 13:13:53  ncq
