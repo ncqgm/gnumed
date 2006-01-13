@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.65 $
+-- $Revision: 1.66 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -564,25 +564,29 @@ insert into blobs.doc_obj (
 	doc_id,
 	seq_idx,
 	comment,
-	fk_intended_reviewer
+	fk_intended_reviewer,
+	data
 ) values (
 	currval('blobs.doc_med_pk_seq'),
 	1,
 	'Happy schoolgirls enjoying the afternoon sun catching the smile of
 	 passers-by at an ancient bridge in the paddy fields near Hue.',
-	 (select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	 (select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	 'missing'
 );
 
 insert into blobs.doc_obj (
 	doc_id,
 	seq_idx,
 	comment,
-	fk_intended_reviewer
+	fk_intended_reviewer,
+	data
 ) values (
 	currval('blobs.doc_med_pk_seq'),
 	2,
 	'Mekong River Delta Schoolgirls making their way home.',
-	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	 'missing'
 );
 
 insert into blobs.doc_med (
@@ -610,21 +614,26 @@ insert into blobs.doc_obj (
 	doc_id,
 	seq_idx,
 	comment,
-	fk_intended_reviewer
+	fk_intended_reviewer,
+	data
 ) values (
 	currval('blobs.doc_med_pk_seq'),
 	1,
 	'Perfume pagoda river boating',
-	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00')
+	(select pk_identity from dem.v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
+	 'missing'
 );
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.65 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.66 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.65  2006-01-11 13:31:20  ncq
+-- Revision 1.66  2006-01-13 13:56:29  ncq
+-- - doc_obj must have non-null .data even if just a dummy
+--
+-- Revision 1.65  2006/01/11 13:31:20  ncq
 -- - id -> pk
 --
 -- Revision 1.64  2006/01/06 10:12:03  ncq
