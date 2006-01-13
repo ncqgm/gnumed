@@ -31,3 +31,4 @@ echo "bootstrapping database"
 echo "======================="
 echo "The identity hash of the database \"${GM_CORE_DB}\" is:"
 psql -d ${GM_CORE_DB} -U gm-dbo -c "select md5(gm_concat_table_structure());"
+psql -d ${GM_CORE_DB} -U gm-dbo -c "select md5(gm_concat_table_structure());" >> ${LOG}
