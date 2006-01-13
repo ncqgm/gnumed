@@ -4,13 +4,81 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.16 $ $Date: 2006-01-11 13:15:51 $ $Author: ncq $
+-- $Revision: 1.17 $ $Date: 2006-01-13 13:54:14 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+-- =============================================
 select audit.add_table_for_audit('blobs', 'xlnk_identity');
+
+-- doc_med --
+COMMENT ON TABLE blobs.doc_med IS
+	'a medical document object possibly containing several
+	 data objects such as several pages of a paper document';
+COMMENT ON COLUMN blobs.doc_med.patient_id IS
+	'the patient this document belongs to';
+COMMENT ON COLUMN blobs.doc_med.type IS
+	'semantic type of document (not type of file or mime
+	 type), such as >referral letter<, >discharge summary<, etc.';
+COMMENT ON COLUMN blobs.doc_med.comment IS
+	'additional short comment such as "abdominal", "ward 3,
+	 Dr. Stein", etc.';
+COMMENT ON COLUMN blobs.doc_med.date IS
+	'date of document content creation (such as exam date),
+	 NOT date of document creation or date of import; may
+	 be imprecise such as "7/99"';
+COMMENT ON COLUMN blobs.doc_med.ext_ref IS
+	'external reference string of physical document,
+	 original paper copy can be found with this';
+
+-- doc_obj --
+COMMENT ON TABLE blobs.doc_obj IS
+	'possibly several of these form a medical document
+	 such as multiple scanned pages/images';
+COMMENT ON COLUMN blobs.doc_obj.seq_idx IS
+	'index of this object in the sequence
+	 of objects for this document';
+COMMENT ON COLUMN blobs.doc_obj.comment IS
+	'optional tiny comment for this
+	 object, such as "page 1"';
+comment on column blobs.doc_obj.fk_intended_reviewer is
+	'who is *supposed* to review this item';
+COMMENT ON COLUMN blobs.doc_obj.data IS
+	'actual binary object data;\n
+	 here is why we use bytea:\n
+== --------------------------------------------------\n
+To: leon@oss.minimetria.com\n
+Cc: pgsql-sql@postgresql.org\n
+Subject: Re: [SQL] Recommendation on bytea or blob for binary data like images \n
+Date: Fri, 02 Sep 2005 16:33:09 -0400\n
+Message-ID: <17794.1125693189@sss.pgh.pa.us>\n
+From: Tom Lane <tgl@sss.pgh.pa.us>\n
+List-Archive: <http://archives.postgresql.org/pgsql-sql>\n
+List-Help: <mailto:majordomo@postgresql.org?body=help>\n
+List-ID: <pgsql-sql.postgresql.org>\n
+\n
+leon@oss.minimetria.com writes:\n
+> Hi, I"d like to know what the official recommendation is on which binary\n
+> datatype to use for common small-binary size use.\n
+\n
+If bytea will work for you, it"s definitely the thing to use.  The only\n
+real drawback to bytea is that there"s currently no API to read and\n
+write bytea values in a streaming fashion.  If your objects are small\n
+enough that you can load and store them as units, bytea is fine.\n
+\n
+BLOBs, on the other hand, have a number of drawbacks --- hard to dump,\n
+impossible to secure, etc.\n
+\n
+			regards, tom lane\n
+== --------------------------------------------------';
+
+-- doc_desc --
+COMMENT ON TABLE blobs.doc_desc is
+	'A textual description of the content such
+	 as a result summary. Several of these may
+	 belong to one document object.';
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -146,11 +214,16 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.16 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.16  2006-01-11 13:15:51  ncq
+-- Revision 1.17  2006-01-13 13:54:14  ncq
+-- - move comments to "-dynamic" file
+-- - make doc_obj.seq_idx nullable - there actually may not be a mandatory order to the parts
+-- - make doc_obj.data not null - a part without data is meaningless
+--
+-- Revision 1.16  2006/01/11 13:15:51  ncq
 -- - id -> pk
 --
 -- Revision 1.15  2006/01/06 10:04:16  ncq

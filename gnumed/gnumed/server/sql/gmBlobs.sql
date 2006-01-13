@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.57 $ $Date: 2006-01-11 13:16:20 $ $Author: ncq $
+-- $Revision: 1.58 $ $Date: 2006-01-13 13:54:14 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -14,16 +14,12 @@
 create schema blobs authorization "gm-dbo";
 
 -- =============================================
---\unset ON_ERROR_STOP
-
 create table blobs.xlnk_identity (
 	pk serial primary key,
 	xfk_identity integer unique not null,
 	pupic text unique not null,
 	data text unique default null
 ) inherits (audit.audit_fields);
-
---\set ON_ERROR_STOP 1
 
 -- =============================================
 CREATE TABLE blobs.doc_type (
@@ -58,25 +54,6 @@ CREATE TABLE blobs.doc_med (
 	ext_ref text
 );
 
-COMMENT ON TABLE blobs.doc_med IS
-	'a medical document object possibly containing several
-	 data objects such as several pages of a paper document';
-COMMENT ON COLUMN blobs.doc_med.patient_id IS
-	'the patient this document belongs to';
-COMMENT ON COLUMN blobs.doc_med.type IS
-	'semantic type of document (not type of file or mime
-	 type), such as >referral letter<, >discharge summary<, etc.';
-COMMENT ON COLUMN blobs.doc_med.comment IS
-	'additional short comment such as "abdominal", "ward 3,
-	 Dr. Stein", etc.';
-COMMENT ON COLUMN blobs.doc_med.date IS
-	'date of document content creation (such as exam date),
-	 NOT date of document creation or date of import; may
-	 be imprecise such as "7/99"';
-COMMENT ON COLUMN blobs.doc_med.ext_ref IS
-	'external reference string of physical document,
-	 original paper copy can be found with this';
-
 -- =============================================
 CREATE TABLE blobs.doc_obj (
 	pk serial primary key,
@@ -85,55 +62,14 @@ CREATE TABLE blobs.doc_obj (
 		references blobs.doc_med(pk)
 		on update cascade
 		on delete restrict,
-	seq_idx integer
-		not null,
+	seq_idx integer,
 	comment text,
 	fk_intended_reviewer integer
 		not null
 		references blobs.xlnk_identity(xfk_identity),
 	data bytea
+		not null
 );
-
-COMMENT ON TABLE blobs.doc_obj IS
-	'possibly several of these form a medical document
-	 such as multiple scanned pages/images';
-COMMENT ON COLUMN blobs.doc_obj.seq_idx IS
-	'index of this object in the sequence
-	 of objects for this document';
-COMMENT ON COLUMN blobs.doc_obj.comment IS
-	'optional tiny comment for this
-	 object, such as "page 1"';
-comment on column blobs.doc_obj.fk_intended_reviewer is
-	'who is *supposed* to review this item';
-COMMENT ON COLUMN blobs.doc_obj.data IS
-	'actual binary object data;
-	 here is why we use bytea:
-== --------------------------------------------------
-To: leon@oss.minimetria.com
-Cc: pgsql-sql@postgresql.org
-Subject: Re: [SQL] Recommendation on bytea or blob for binary data like images 
-Date: Fri, 02 Sep 2005 16:33:09 -0400
-Message-ID: <17794.1125693189@sss.pgh.pa.us>
-From: Tom Lane <tgl@sss.pgh.pa.us>
-List-Archive: <http://archives.postgresql.org/pgsql-sql>
-List-Help: <mailto:majordomo@postgresql.org?body=help>
-List-ID: <pgsql-sql.postgresql.org>
-
-leon@oss.minimetria.com writes:
-> Hi, I"d like to know what the official recommendation is on which binary
-> datatype to use for common small-binary size use.
-
-If bytea will work for you, it"s definitely the thing to use.  The only
-real drawback to bytea is that there"s currently no API to read and
-write bytea values in a streaming fashion.  If your objects are small
-enough that you can load and store them as units, bytea is fine.
-
-BLOBs, on the other hand, have a number of drawbacks --- hard to dump,
-impossible to secure, etc.
-
-			regards, tom lane
-== --------------------------------------------------
-	 ';
 
 -- =============================================
 CREATE TABLE blobs.doc_desc (
@@ -146,23 +82,17 @@ CREATE TABLE blobs.doc_desc (
 	unique(doc_id, "text")
 );
 
-COMMENT ON TABLE blobs.doc_desc is
-	'A textual description of the content such
-	 as a result summary. Several of these may
-	 belong to one document object.';
-
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.57 $');
+select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.58 $');
 
 -- =============================================
 -- questions:
 --  - do we need doc_desc linkeable to doc_obj, too ?
 --  IH: no, OCR etc. should span the multiple pages
---  - how do we protect documents from being accessed by unauthorized users ?
---    - on access search for the oid in gmCrypto tables for a matching key/PW hash record ??
 --  - should (potentially large) binary objects be moved to audit tables ?!?
 -- IH: no, doc_med should be audited, but not doc_obj. doc_obj rows never change anyway.
+-- KH: well, they do get deleted, which ought to be audited
 
 -- notes:
 -- - as this uses BYTEA for storing binary data we have the following limitations
@@ -173,7 +103,12 @@ INSERT INTO public.gm_schema_revision (filename, version) VALUES('$RCSfile: gmBl
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.57  2006-01-11 13:16:20  ncq
+-- Revision 1.58  2006-01-13 13:54:14  ncq
+-- - move comments to "-dynamic" file
+-- - make doc_obj.seq_idx nullable - there actually may not be a mandatory order to the parts
+-- - make doc_obj.data not null - a part without data is meaningless
+--
+-- Revision 1.57  2006/01/11 13:16:20  ncq
 -- - id -> pk
 --
 -- Revision 1.56  2006/01/05 16:04:37  ncq
