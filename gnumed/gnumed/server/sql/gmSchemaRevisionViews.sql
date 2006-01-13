@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevisionViews.sql,v $
--- $Id: gmSchemaRevisionViews.sql,v 1.4 2006-01-11 13:30:42 ncq Exp $
+-- $Id: gmSchemaRevisionViews.sql,v 1.5 2006-01-13 14:36:09 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -16,7 +16,7 @@
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.4 $');
+-- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -41,7 +41,7 @@ begin
 					tabs.table_type = ''BASE TABLE''
 				)
 			order by
-				cols.table_schema, cols.table_name, cols.column_name, cols.data_type
+				md5(cols.table_schema || cols.table_name || cols.column_name || cols.data_type)
 	loop
 		_total := _total
 			|| _row.table_schema || ''.''
@@ -80,7 +80,11 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevisionViews.sql,v $
--- Revision 1.4  2006-01-11 13:30:42  ncq
+-- Revision 1.5  2006-01-13 14:36:09  ncq
+-- - need to "order by md5(yadda yadda)" to avoid locale related ordering
+--   differences thereby vorgaukling schema differences
+--
+-- Revision 1.4  2006/01/11 13:30:42  ncq
 -- - update schema check function
 --
 -- Revision 1.3  2005/12/04 09:45:36  ncq
