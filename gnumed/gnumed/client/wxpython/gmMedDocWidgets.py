@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -50,9 +50,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     # internal API
     #--------------------------------------------------------
     def __init_ui_data(self):
+        self._SelBOX_doc_type.Clear()
         # provide choices for document types
         for doc_type in gmMedDoc.get_document_types():
-            self._SelBOX_doc_type.Append(doc_type)
+            self._SelBOX_doc_type.Append(doc_type[1],doc_type[0])
         # FIXME: make this configurable: either now() or last_date()
         self._TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
         self._TBOX_doc_comment.SetValue('')
@@ -73,6 +74,30 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
     #--------------------------------------------------------
     def __valid_for_save(self):
         # FIXME: dummy
+        if len(self.acquired_pages) == 0 or self.acquired_pages is None:
+            gmGuiHelpers.gm_show_error (
+                aMessage = _('No pages to save. Aquire some pages first'),
+                aTitle = _('saving document')
+                )
+            return False
+        
+        print self._SelBOX_doc_type.GetSelection()
+        if self._SelBOX_doc_type.GetSelection() == '' or self._SelBOX_doc_type.GetSelection() is None:
+            gmGuiHelpers.gm_show_error (
+                aMessage = _('No document type applied. Choose a document type'),
+                aTitle = _('saving document')
+                )
+            return False
+        
+        if self._TBOX_doc_comment.GetValue() == '' or self._TBOX_doc_comment.GetValue() is None:
+            gmGuiHelpers.gm_show_error (
+                aMessage = _('No document comment supplied. Add a comment for this document'),
+                aTitle = _('saving document')
+                )
+            return False
+        
+        # validate date before handing it to the db
+        
         return True
     #--------------------------------------------------------
     # event handling API
@@ -158,8 +183,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         doc_folder = pat.get_document_folder()
 
         # create new document
-        # FIXME: need to set doc type from 
-        document_type = self._SelBOX_doc_type.GetSelection()
+        idx = self._SelBOX_doc_type.GetSelection()
+        document_type = self._SelBOX_doc_type.GetClientData(idx)
         new_doc = doc_folder.add_document(document_type)
         if new_doc is None:
             wx.EndBusyCursor()
@@ -534,7 +559,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.39  2006-01-14 10:34:53  shilbert
+# Revision 1.40  2006-01-14 23:21:19  shilbert
+# - fix for correct doc type (pk) handling
+#
+# Revision 1.39  2006/01/14 10:34:53  shilbert
 # - fixed some some bugs which prevented document to be saved in DB
 #
 # Revision 1.38  2006/01/13 11:06:33  ncq
