@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -158,8 +158,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         doc_folder = pat.get_document_folder()
 
         # create new document
-        # FIXME: need to set doc type from self._SelBOX_doc_type.GetSelection()
-        new_doc = doc_folder.add_document()
+        # FIXME: need to set doc type from 
+        document_type = self._SelBOX_doc_type.GetSelection()
+        new_doc = doc_folder.add_document(document_type)
         if new_doc is None:
             wx.EndBusyCursor()
             gmGuiHelpers.gm_show_error (
@@ -227,7 +228,7 @@ original documents.
 
 If you don't care about the ID you can switch
 off this message in the GNUmed configuration.""") % ref
-            gmGuiHelpers._gm_show_info (
+            gmGuiHelpers.gm_show_info (
                 aMessage = msg,
                 aTitle = _('saving document')
             )
@@ -533,7 +534,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.38  2006-01-13 11:06:33  ncq
+# Revision 1.39  2006-01-14 10:34:53  shilbert
+# - fixed some some bugs which prevented document to be saved in DB
+#
+# Revision 1.38  2006/01/13 11:06:33  ncq
 # - properly use gmGuiHelpers
 # - properly fall back to default temporary directory
 #
