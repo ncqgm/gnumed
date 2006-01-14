@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.40 2006-01-13 13:48:15 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmMedDoc.py,v 1.41 2006-01-14 23:24:00 shilbert Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -542,15 +542,15 @@ def search_for_document(patient_id=None, type_id=None):
 	return docs
 #------------------------------------------------------------
 def get_document_types():
-	cmd = "SELECT name FROM blobs.doc_type"
-	rows = gmPG.run_ro_query('blobs', cmd)
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot retrieve document types')
-		return []
-	doc_types = []
-	for row in rows:
-		doc_types.append(row[0])
-	return doc_types
+    cmd = "SELECT pk,name FROM blobs.doc_type"
+    rows = gmPG.run_ro_query('blobs', cmd)
+    if rows is None:
+        _log.Log(gmLog.lErr, 'cannot retrieve document types')
+        return []
+    doc_types = []
+    for row in rows:
+        doc_types.append(row)
+    return doc_types
 #------------------------------------------------------------
 def get_ext_ref():
 	print "*********** gmMedDoc.get_ext_ref() not implemented ***********"
@@ -574,7 +574,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.40  2006-01-13 13:48:15  ncq
+# Revision 1.41  2006-01-14 23:24:00  shilbert
+# - return doc_type and coresponding primary key not just doc_type string
+#
+# Revision 1.40  2006/01/13 13:48:15  ncq
 # - brush up adding document parts
 #
 # Revision 1.39  2006/01/11 22:43:36  ncq
