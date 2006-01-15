@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.44 2006-01-15 15:06:42 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmMedDoc.py,v 1.45 2006-01-15 16:12:05 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -304,6 +304,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# retrieve chunks
 		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
 		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
+		blob_as_str = ''
 		for chunk_id in range(needed_chunks):
 			pos = (chunk_id*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s"
@@ -312,7 +313,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(data[0][0]))
+			blob_as_str = blob_as_str + data[0][0]
+#			aFile.write(str(data[0][0]))
 
 		# retrieve remainder
 		if remainder > 0:
@@ -324,7 +326,10 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(data[0][0]))
+			blob_as_str = blob_as_str + data[0][0]
+#			aFile.write(str(data[0][0]))
+
+		aFile.write(gmPG.dbapi.PgUnQuoteBytea(blob_as_str))
 		return 1
 	#--------------------------------------------------------
 	# store data
@@ -569,7 +574,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.44  2006-01-15 15:06:42  ncq
+# Revision 1.45  2006-01-15 16:12:05  ncq
+# - explicitely use PgUnQuoteBytea() on the concatenated
+#   string when getting Bytea in pieces
+#
+# Revision 1.44  2006/01/15 15:06:42  ncq
 # - return newest-first from get_doc_list()
 #
 # Revision 1.43  2006/01/15 14:58:59  ncq
