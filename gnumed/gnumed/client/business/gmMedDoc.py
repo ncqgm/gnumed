@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.41 2006-01-14 23:24:00 shilbert Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmMedDoc.py,v 1.42 2006-01-15 14:41:21 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -321,7 +321,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 			pos = (needed_chunks*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s "
-			data = gmPG.run_ro_query(self.__conn, cmd, pos, remainder, self.pk_obj)
+			data = gmPG.run_ro_query(self.__conn, cmd, None, pos, remainder, self.pk_obj)
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
 				return None
@@ -574,7 +574,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.41  2006-01-14 23:24:00  shilbert
+# Revision 1.42  2006-01-15 14:41:21  ncq
+# - add missing None in call to run_ro_query()
+#
+# Revision 1.41  2006/01/14 23:24:00  shilbert
 # - return doc_type and coresponding primary key not just doc_type string
 #
 # Revision 1.40  2006/01/13 13:48:15  ncq
