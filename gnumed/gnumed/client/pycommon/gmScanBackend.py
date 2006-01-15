@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.4 2005-11-27 13:05:45 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmScanBackend.py,v 1.5 2006-01-15 10:04:37 shilbert Exp $
+__version__ = "$Revision: 1.5 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -21,136 +21,136 @@ _sane_module = None
 #=======================================================
 class cTwainScanner:
 
-	_src_manager = None
+    _src_manager = None
 
-	def __init__(self, calling_window=None):
-		msg = 'cannot instantiate TWAIN driver class'
-		if not self.__import_module():
-			raise gmExceptions.ConstructorError, msg
+    def __init__(self, calling_window=None):
+        msg = 'cannot instantiate TWAIN driver class'
+        if not self.__import_module():
+            raise gmExceptions.ConstructorError, msg
 
-		self.__calling_window = calling_window
+        self.__calling_window = calling_window
 
-		if not self.__init_src_manager():
-			raise gmExceptions.ConstructorError, msg
+        if not self.__init_src_manager():
+            raise gmExceptions.ConstructorError, msg
 
-		if not self.__init_scanner():
-			raise gmExceptions.ConstructorError, msg
-	#---------------------------------------------------
-	def __import_module(self):
-		global _twain_module
-		if _twain_module is None:
-			# import module
-			try:
-				import twain
-				_twain_module = twain
-			except ImportError:
-				_log.LogException('cannot import TWAIN module (WinTWAIN.py)', sys.exc_info(), verbose=0)
-				return False
-			_log.Log(gmLog.lInfo, "TWAIN version: %s" % _twain_module.Version())
+        if not self.__init_scanner():
+            raise gmExceptions.ConstructorError, msg
+    #---------------------------------------------------
+    def __import_module(self):
+        global _twain_module
+        if _twain_module is None:
+            # import module
+            try:
+                import twain
+                _twain_module = twain
+            except ImportError:
+                _log.LogException('cannot import TWAIN module (WinTWAIN.py)', sys.exc_info(), verbose=0)
+                return False
+            _log.Log(gmLog.lInfo, "TWAIN version: %s" % _twain_module.Version())
 
-			self.__twain_event_handler = {
-				_twain_module.MSG_XFERREADY: self._twain_handle_transfer,
-				_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
-				_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
-				_twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
-			}
-		return True
-	#---------------------------------------------------
-	def __init_src_manager(self):
-		# open scanner manager
-		if cTwainScanner._src_manager is None:
-			# TWAIN talks to us via MS-Windows message queues so we
-			# need to pass it a handle to ourselves
-			cTwainScanner._src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
-			if not cTwainScanner._src_manager:
-				_log.Log(gmLog.lErr, "cannot get a handle for the TWAIN source manager")
-				return False
-			# TWAIN will notify us when the image is scanned
-			cTwainScanner._src_manager.SetCallback(self._twain_event_callback)
-			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(cTwainScanner._src_manager.GetIdentity()))
-		return True
-	#---------------------------------------------------
-	def __init_scanner(self):
-		# FIXME: set source by string
-		self.__scanner = cTwainScanner._src_manager.OpenSource()
-		if not self.__scanner:
-			_log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
-			return False
-		_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
-		_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
-		return True
-	#---------------------------------------------------
-	# TWAIN callback handling
-	#---------------------------------------------------
-	def twain_event_callback(self, twain_event):
-		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
-		return self.__twain_event_handler[twain_event]()
-	#---------------------------------------------------
-	def _twain_close_datasource():
-		_log.Log(gmLog.lInfo, "being asked to close data source")
-		return True
-	#---------------------------------------------------
-	def _twain_save_state():
-		_log.Log(gmLog.lInfo, "being asked to save application state")
-		return True
-	#---------------------------------------------------
-	def _twain_handle_src_event():
-		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
-		return True
-	#---------------------------------------------------
-	def __twain_handle_transfer(self):
-		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
-		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
+            self.__twain_event_handler = {
+                _twain_module.MSG_XFERREADY: self._twain_handle_transfer,
+                _twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
+                _twain_module.MSG_CLOSEDSOK: self._twain_save_state,
+                _twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
+            }
+        return True
+    #---------------------------------------------------
+    def __init_src_manager(self):
+        # open scanner manager
+        if cTwainScanner._src_manager is None:
+            # TWAIN talks to us via MS-Windows message queues so we
+            # need to pass it a handle to ourselves
+            cTwainScanner._src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+            if not cTwainScanner._src_manager:
+                _log.Log(gmLog.lErr, "cannot get a handle for the TWAIN source manager")
+                return False
+            # TWAIN will notify us when the image is scanned
+            cTwainScanner._src_manager.SetCallback(self._twain_event_callback)
+            _log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(cTwainScanner._src_manager.GetIdentity()))
+        return True
+    #---------------------------------------------------
+    def __init_scanner(self):
+        # FIXME: set source by string
+        self.__scanner = cTwainScanner._src_manager.OpenSource()
+        if not self.__scanner:
+            _log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
+            return False
+        _log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
+        _log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
+        return True
+    #---------------------------------------------------
+    # TWAIN callback handling
+    #---------------------------------------------------
+    def twain_event_callback(self, twain_event):
+        _log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
+        return self.__twain_event_handler[twain_event]()
+    #---------------------------------------------------
+    def _twain_close_datasource():
+        _log.Log(gmLog.lInfo, "being asked to close data source")
+        return True
+    #---------------------------------------------------
+    def _twain_save_state():
+        _log.Log(gmLog.lInfo, "being asked to save application state")
+        return True
+    #---------------------------------------------------
+    def _twain_handle_src_event():
+        _log.Log(gmLog.lInfo, "being asked to handle device specific event")
+        return True
+    #---------------------------------------------------
+    def __twain_handle_transfer(self):
+        _log.Log(gmLog.lData, 'receiving image from TWAIN source')
+        _log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
 
-		# get from source
-		try:
-			(external_data_handle, more_images_pending) = self.__scanner.XferImageNatively()
-		except:
-			_log.LogException('XferImageNatively() failed, unable to get global heap image handle', sys.exc_info(), verbose=1)
-			# free external image memory
-			_twain_module.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-			self.__scanner.HideUI()
-			return False
+        # get from source
+        try:
+            (external_data_handle, more_images_pending) = self.__scanner.XferImageNatively()
+        except:
+            _log.LogException('XferImageNatively() failed, unable to get global heap image handle', sys.exc_info(), verbose=1)
+            # free external image memory
+            _twain_module.GlobalHandleFree(external_data_handle)
+            # hide the scanner user interface again
+            self.__scanner.HideUI()
+            return False
 
-		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
+        _log.Log(gmLog.lData, '%s pending images' % more_images_pending)
 
-		try:
-			# convert DIB to standard bitmap file
-			_twain_module.DIBToBMFile(external_data_handle, self.__filename)
-		except:
-			_log.LogException('DIBToBMFile() failed, unable to convert image in global heap handle into file [%s]' % self.__filename, sys.exc_info(), verbose=1)
-			# free external image memory
-			_twain_module.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-			self.__scanner.HideUI()
-			return False
-		# free external image memory
-		_twain_module.GlobalHandleFree(external_data_handle)
-		# hide the scanner user interface again
-		self.__scanner.HideUI()
+        try:
+            # convert DIB to standard bitmap file
+            _twain_module.DIBToBMFile(external_data_handle, self.__filename)
+        except:
+            _log.LogException('DIBToBMFile() failed, unable to convert image in global heap handle into file [%s]' % self.__filename, sys.exc_info(), verbose=1)
+            # free external image memory
+            _twain_module.GlobalHandleFree(external_data_handle)
+            # hide the scanner user interface again
+            self.__scanner.HideUI()
+            return False
+        # free external image memory
+        _twain_module.GlobalHandleFree(external_data_handle)
+        # hide the scanner user interface again
+        self.__scanner.HideUI()
 
-		return True
-	#---------------------------------------------------
-	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
-		if filename is None:
-			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
-			else:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
-		else:
-			if os.path.splitext(filename) != '.bmp':
-				filename = filename + '.bmp'
+        return True
+    #---------------------------------------------------
+    def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
+        if filename is None:
+            if tmpdir is None:
+                (handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+            else:
+                (handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+        else:
+            if os.path.splitext(filename) != '.bmp':
+                filename = filename + '.bmp'
 
-		if not os.path.isfile(filename):
-			_log.Log(gmLog.lErr, 'invalid file name: [%s]')
-			return False
+        if not os.path.isfile(filename):
+            _log.Log(gmLog.lErr, 'invalid file name: [%s]')
+            return False
 
-		self.__filename = filename
+        self.__filename = filename
 
-		TwainScanner.RequestAcquire()
-		return filename
-	#---------------------------------------------------
+        TwainScanner.RequestAcquire()
+        return filename
+    #---------------------------------------------------
 #	def dummy(self):
 #
 #		# make tmp file name
@@ -197,97 +197,105 @@ class cTwainScanner:
 #=======================================================
 class cSaneScanner:
 
-	_src_manager = None
+    _src_manager = None
 
-	def __init__(self, device=None):
-		msg = 'cannot instantiate SANE driver class'
-		if not self.__import_module():
-			raise gmExceptions.ConstructorError, msg
+    def __init__(self, device=None):
+        msg = 'cannot instantiate SANE driver class'
+        if not self.__import_module():
+            raise gmExceptions.ConstructorError, msg
 
-		if not self.__init_src_manager():
-			raise gmExceptions.ConstructorError, msg
+        if not self.__init_src_manager():
+            raise gmExceptions.ConstructorError, msg
 
-		if device is None:
-			# may need to uncomment "test" backend in /etc/sane/dll.conf
-			self.__device = 'test:0'
-		else:
-			self.__device = device
-		_log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
+        if device is None:
+            # may need to uncomment "test" backend in /etc/sane/dll.conf
+            self.__device = 'test:0'
+        else:
+            self.__device = device
+        _log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
 
-		devices = _sane_module.get_devices()
-		_log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
-		if len(devices) == 0:
-			_log.Log(gmLog.lErr, "SANE module did not find any devices")
-			raise gmExceptions.ConstructorError, msg
+        devices = _sane_module.get_devices()
+        _log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
+        if len(devices) == 0:
+            _log.Log(gmLog.lErr, "SANE module did not find any devices")
+            raise gmExceptions.ConstructorError, msg
 
-		if not self.__init_scanner():
-			raise gmExceptions.ConstructorError, msg
-	#---------------------------------------------------
-	def __import_module(self):
-		# import module
-		global _sane_module
-		if _sane_module is None:
-			try:
-				import sane
-				_sane_module = sane
-			except ImportError:
-				_log.LogException('cannot import SANE module', sys.exc_info())
-				return False
-		return True
-	#---------------------------------------------------
-	def __init_src_manager(self):
-		# open scanner manager
-		if cSaneScanner._src_manager is None:
-			# no, so we need to open it now
-			try:
-				init_result = _sane_module.init()
-				_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
-			except:
-				_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
-				return False
-		return True
-	#---------------------------------------------------
-	def __init_scanner(self):
-		try:
-			self.__scanner = _sane_module.open(self.__device)
-		except:
-			_log.LogException('cannot open SANE scanner', sys.exc_info(), verbose=0)
-			return False
+        if not self.__init_scanner():
+            raise gmExceptions.ConstructorError, msg
+    #---------------------------------------------------
+    def __import_module(self):
+        # import module
+        global _sane_module
+        if _sane_module is None:
+            try:
+                import sane
+                _sane_module = sane
+            except ImportError:
+                _log.LogException('cannot import SANE module', sys.exc_info())
+                return False
+        return True
+    #---------------------------------------------------
+    def __init_src_manager(self):
+        # open scanner manager
+        if cSaneScanner._src_manager is None:
+            # no, so we need to open it now
+            try:
+                init_result = _sane_module.init()
+                _log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
+            except:
+                _log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
+                return False
+        return True
+    #---------------------------------------------------
+    def __init_scanner(self):
+        try:
+            self.__scanner = _sane_module.open(self.__device)
+        except:
+            _log.LogException('cannot open SANE scanner', sys.exc_info(), verbose=0)
+            return False
 
-		_log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.__scanner))
-		_log.Log(gmLog.lData, 'SANE device config: %s' % str(self.__scanner.get_parameters()))
-		_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.__scanner.optlist))
-		_log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.__scanner.get_options()))
+        _log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.__scanner))
+        _log.Log(gmLog.lData, 'SANE device config: %s' % str(self.__scanner.get_parameters()))
+        _log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.__scanner.optlist))
+        _log.Log(gmLog.lData, 'SANE device opts  : %s' % str(self.__scanner.get_options()))
 
-		return True
-	#---------------------------------------------------
-	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
-		if filename is None:
-			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
-			else:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
-		else:
-			if os.path.splitext(filename) != '.bmp':
-				filename = filename + '.bmp'
+        return True
+    #---------------------------------------------------
+    def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
+        if filename is None:
+            if tmpdir is None:
+                (handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+            else:
+                (handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+        else:
+            if os.path.splitext(filename) != '.bmp':
+                filename = filename + '.bmp'
 
-		if delay is not None:
-			time.sleep(delay)
-			_log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % delay)
-		try:
-			self.__scanner.start()
-			img = self.__scanner.snap()
-			img.save(filename)
-		except:
-			_log.LogException('Unable to get image from scanner into [%s] !' % filename, sys.exc_info(), verbose=1)
-			return False
-		return filename
-	#---------------------------------------------------
-	def dummy(self):
-		pass
-		# supposedly there is a method *.close() but it does not
-		# seem to work, therefore I put in the following line (else
-		# it reports a busy sane-device on the second and consecutive runs)
+        if delay is not None:
+            time.sleep(delay)
+            _log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % delay)
+        try:
+            self.__scanner.start()
+            img = self.__scanner.snap()
+            img.save(filename)
+        except:
+            _log.LogException('Unable to get image from scanner into [%s] !' % filename, sys.exc_info(), verbose=1)
+            return False
+        return filename
+    #---------------------------------------------------
+    def get_devices():
+        devices = _sane_module.get_devices()
+        _log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
+        if len(devices) == 0:
+            _log.Log(gmLog.lErr, "SANE module did not find any devices")
+            raise gmExceptions.ConstructorError, msg
+        return devices
+    #---------------------------------------------------
+    def dummy(self):
+        pass
+        # supposedly there is a method *.close() but it does not
+        # seem to work, therefore I put in the following line (else
+        # it reports a busy sane-device on the second and consecutive runs)
 #		try:
 #			# by default use the first device
 #			# FIXME: room for improvement - option
@@ -296,35 +304,47 @@ class cSaneScanner:
 #			_log.LogException('cannot open SANE scanner', sys.exc_info(), verbose=1)
 #			return False
 
-		# Set scan parameters
-		# FIXME: get those from config file
-		#self.__scannercontrast=170 ; self.__scannerbrightness=150 ; self.__scannerwhite_level=190
-		#self.__scannerdepth=6
-		#self.__scannerbr_x = 412.0
-		#self.__scannerbr_y = 583.0
+        # Set scan parameters
+        # FIXME: get those from config file
+        #self.__scannercontrast=170 ; self.__scannerbrightness=150 ; self.__scannerwhite_level=190
+        #self.__scannerdepth=6
+        #self.__scannerbr_x = 412.0
+        #self.__scannerbr_y = 583.0
 #==================================================
+
+def report_devices():
+    try:
+        scanner = cTwainScanner(calling_window=calling_window)
+    except gmExceptions.ConstructorError:
+        try:
+            scanner = cSaneScanner(device=device)
+        except gmExceptions.ConstructorError:
+            _log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
+            return None
+    return scanner.get_devices()
+#-----------------------------------------------------    
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
-	try:
-		scanner = cTwainScanner(calling_window=calling_window)
-	except gmExceptions.ConstructorError:
-		try:
-			scanner = cSaneScanner(device=device)
-		except gmExceptions.ConstructorError:
-			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
-			return None
-	return scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
+    try:
+        scanner = cTwainScanner(calling_window=calling_window)
+    except gmExceptions.ConstructorError:
+        try:
+            scanner = cSaneScanner(device=device)
+        except gmExceptions.ConstructorError:
+            _log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
+            return None
+    return scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
 
 #==================================================
 # main
 #==================================================
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-	
-	from Gnumed.pycommon import gmI18N
+    _log.SetAllLogLevels(gmLog.lData)
+    
+    from Gnumed.pycommon import gmI18N
 
-	if not acquire_page_into_file(filename='test.bmp', delay=5):
-		print "error, cannot acquire page"
-	
+    if not acquire_page_into_file(filename='test.bmp', delay=5):
+        print "error, cannot acquire page"
+    
 #	#provide some default options for testing
 #	options = {}
 #	#options['tmpdir'] = tempfile.gettempdir()
@@ -349,7 +369,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.4  2005-11-27 13:05:45  ncq
+# Revision 1.5  2006-01-15 10:04:37  shilbert
+# - scanner device has not been passed on to the acquire_image function - fixed
+#
+# Revision 1.4  2005/11/27 13:05:45  ncq
 # - used calling_window in the wrong place ...
 #
 # Revision 1.3  2005/11/27 10:38:46  ncq
