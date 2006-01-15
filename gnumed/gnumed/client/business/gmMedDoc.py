@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.43 2006-01-15 14:58:59 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmMedDoc.py,v 1.44 2006-01-15 15:06:42 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -124,22 +124,20 @@ class cDocumentFolder:
 			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s"""
 		elif type(doc_type) == types.StringType:
 			cmd = """
-				select pk
-				from blobs.doc_med
-				where
-					patient_id=%(ID)s
-						and
-					type=(select pk from blobs.doc_type where name=%(TYP)s)
-				"""
+select dm.pk
+from blobs.doc_med dm
+where
+	dm.patient_id = %(ID)s and
+	dm.type = (select pk from blobs.doc_type where name=%(TYP)s)
+order by dm.date desc"""
 		else:
 			cmd = """
-				select pk
-				from blobs.doc_med
-				where
-					patient_id=%(ID)s
-						and
-					type=%(TYP)s
-				"""
+select dm.pk
+from blobs.doc_med dm
+where
+	dm.patient_id = %(ID)s and
+	dm.type = %(TYP)s
+order by dm.date desc"""
 		rows = gmPG.run_ro_query('blobs', cmd, None, args)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load document list for patient [%s]' % self.id_patient)
@@ -571,7 +569,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.43  2006-01-15 14:58:59  ncq
+# Revision 1.44  2006-01-15 15:06:42  ncq
+# - return newest-first from get_doc_list()
+#
+# Revision 1.43  2006/01/15 14:58:59  ncq
 # - return translations from get_document_types()
 #
 # Revision 1.42  2006/01/15 14:41:21  ncq
