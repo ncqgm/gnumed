@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -109,7 +109,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 
         # FIXME: load directory from backend config
         fname = self.scan_module.acquire_page_into_file (
-            filename = 'test.bmp',
+            filename = 'test',
             delay = 5,
             calling_window = self
         )
@@ -559,7 +559,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.40  2006-01-14 23:21:19  shilbert
+# Revision 1.41  2006-01-15 10:02:23  shilbert
+# - initial support for multiple image scanner devices
+#
+# Revision 1.40  2006/01/14 23:21:19  shilbert
 # - fix for correct doc type (pk) handling
 #
 # Revision 1.39  2006/01/14 10:34:53  shilbert
