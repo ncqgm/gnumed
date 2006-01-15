@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.5 2006-01-15 10:04:37 shilbert Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmScanBackend.py,v 1.6 2006-01-15 13:16:06 shilbert Exp $
+__version__ = "$Revision: 1.6 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -211,7 +211,7 @@ class cSaneScanner:
             # may need to uncomment "test" backend in /etc/sane/dll.conf
             self.__device = 'test:0'
         else:
-            self.__device = device
+            self.__device = device[0]
         _log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
 
         devices = _sane_module.get_devices()
@@ -283,7 +283,7 @@ class cSaneScanner:
             return False
         return filename
     #---------------------------------------------------
-    def get_devices():
+    def report_devices(self):
         devices = _sane_module.get_devices()
         _log.Log(gmLog.lData, 'SANE device list  : %s' % str(_sane_module.get_devices()))
         if len(devices) == 0:
@@ -312,16 +312,17 @@ class cSaneScanner:
         #self.__scannerbr_y = 583.0
 #==================================================
 
-def report_devices():
+def report_devices(calling_window=None):
     try:
         scanner = cTwainScanner(calling_window=calling_window)
     except gmExceptions.ConstructorError:
         try:
-            scanner = cSaneScanner(device=device)
+            scanner = cSaneScanner(device=None)
+            devices = scanner.report_devices()
         except gmExceptions.ConstructorError:
             _log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
             return None
-    return scanner.get_devices()
+    return devices
 #-----------------------------------------------------    
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
     try:
@@ -369,7 +370,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.5  2006-01-15 10:04:37  shilbert
+# Revision 1.6  2006-01-15 13:16:06  shilbert
+# - support for multiple scanners was added
+#
+# Revision 1.5  2006/01/15 10:04:37  shilbert
 # - scanner device has not been passed on to the acquire_image function - fixed
 #
 # Revision 1.4  2005/11/27 13:05:45  ncq
