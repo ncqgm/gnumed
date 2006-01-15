@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.42 2006-01-15 14:41:21 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmMedDoc.py,v 1.43 2006-01-15 14:58:59 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -542,15 +542,12 @@ def search_for_document(patient_id=None, type_id=None):
 	return docs
 #------------------------------------------------------------
 def get_document_types():
-    cmd = "SELECT pk,name FROM blobs.doc_type"
+    cmd = "SELECT pk_doc_type, l10n_type FROM blobs.v_doc_type"
     rows = gmPG.run_ro_query('blobs', cmd)
     if rows is None:
         _log.Log(gmLog.lErr, 'cannot retrieve document types')
         return []
-    doc_types = []
-    for row in rows:
-        doc_types.append(row)
-    return doc_types
+    return rows
 #------------------------------------------------------------
 def get_ext_ref():
 	print "*********** gmMedDoc.get_ext_ref() not implemented ***********"
@@ -574,7 +571,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.42  2006-01-15 14:41:21  ncq
+# Revision 1.43  2006-01-15 14:58:59  ncq
+# - return translations from get_document_types()
+#
+# Revision 1.42  2006/01/15 14:41:21  ncq
 # - add missing None in call to run_ro_query()
 #
 # Revision 1.41  2006/01/14 23:24:00  shilbert
