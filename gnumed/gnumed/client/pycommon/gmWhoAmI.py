@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -112,6 +112,21 @@ class cWhoAmI(gmBorg.cBorg):
 		self._staff_name = '%s%s.%s' % (result[0][0], result[0][1][:1], result[0][2])
 		return self._staff_name
 	#-----------------------------------------------
+	def get_lastname(self):
+		try:
+			return self._lastname
+		except AttributeError:
+			pass
+
+		cmd = "select lastnames from dem.v_staff where db_user=CURRENT_USER"
+		result = gmPG.run_ro_query('personalia', cmd, None)
+		if result is None:
+			raise ValueError, _('cannot get staff last name')
+		if len(result) == 0:
+			raise ValueError, _('no staff last name on file for current database login')
+		self._lastname = result[0][0]
+		return self._lastname
+	#-----------------------------------------------
 	def get_staff_sign(self):
 		try:
 			return self._staff_sign
@@ -126,6 +141,26 @@ class cWhoAmI(gmBorg.cBorg):
 			raise ValueError, _('no staff sign on file for current database login')
 		self._staff_sign = result[0][0]
 		return self._staff_sign
+	#-----------------------------------------------
+	def get_staff_title(self):
+		try:
+			return self._staff_title
+		except AttributeError:
+			pass
+
+		cmd = "select title, gender from dem.v_staff where db_user=CURRENT_USER"
+		result = gmPG.run_ro_query('personalia', cmd, None)
+		if result is None:
+			raise ValueError, _('error getting staff title')
+		if len(result) == 0:
+			if result[0][1] == 'm':
+				return _('Mr')
+			elif result[0][1] == 'f':
+				return _('Mrs')
+			else:
+				return _('Collegue')
+		self._staff_title = result[0][0]
+		return self._staff_title
 #===================================================
 if __name__ == '__main__':
 	_ = lambda x:x
@@ -137,7 +172,11 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.7  2006-01-07 12:20:19  ncq
+# Revision 1.8  2006-01-15 14:28:40  ncq
+# - get_lastname()
+# - get_staff_title()
+#
+# Revision 1.7  2006/01/07 12:20:19  ncq
 # - dem. schema use
 #
 # Revision 1.6  2005/04/03 20:09:47  ncq
