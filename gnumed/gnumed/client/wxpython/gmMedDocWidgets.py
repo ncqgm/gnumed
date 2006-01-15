@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -106,9 +106,24 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         """inside wxGlade this method should be set
            to be called when the user pressed the scan button
            this can be done by using the EVENT tab to define the EVT macro"""
-
+        device_names = []
+        device_objects = {}
+        devices = self.scan_module.report_devices (
+            calling_window = self
+            )
+        for device in devices:
+            device_names.append(device[2])
+        
+        # wxpython does not support client data in wxSingleChoiceDialog
+        device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
+            aMessage = _('Select an image scanning device'),
+            aTitle = _('device selection'),
+            choices = device_names
+            )
         # FIXME: load directory from backend config
+        print devices[device_idx]
         fname = self.scan_module.acquire_page_into_file (
+            device = devices[device_idx],
             filename = 'test',
             delay = 5,
             calling_window = self
@@ -559,7 +574,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.41  2006-01-15 10:02:23  shilbert
+# Revision 1.42  2006-01-15 13:14:12  shilbert
+# - support for multiple image source finished
+#
+# Revision 1.41  2006/01/15 10:02:23  shilbert
 # - initial support for multiple image scanner devices
 #
 # Revision 1.40  2006/01/14 23:21:19  shilbert
