@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmConfigRegistry"}'
+	'{"gmProviderInboxPlugin","gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -250,11 +250,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.24  2006-01-13 11:17:02  ncq
+-- Revision 1.25  2006-01-15 14:32:15  ncq
+-- - add provider inbox to "Release 0.2" workplace
+--
+-- Revision 1.24  2006/01/13 11:17:02  ncq
 -- - tmp_dir needs item template
 --
 -- Revision 1.23  2006/01/01 17:20:47  ncq
