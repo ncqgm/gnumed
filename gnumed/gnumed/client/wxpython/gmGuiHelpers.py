@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.31 2005-10-27 21:37:29 shilbert Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmGuiHelpers.py,v 1.32 2006-01-15 13:19:16 shilbert Exp $
+__version__ = "$Revision: 1.32 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -61,6 +61,33 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
+#-------------------------------------------------------------------------
+def gm_SingleChoiceDialog(aMessage = None, aTitle = None, aLogLevel = None, choices = None):
+    if aMessage is None:
+        aMessage = _('programmer forgot to specify info message')
+
+    if aLogLevel is not None:
+        log_msg = string.replace(aMessage, '\015', ' ')
+        log_msg = string.replace(log_msg, '\012', ' ')
+        _log.Log(aLogLevel, log_msg)
+
+    if aTitle is None:
+        aTitle = _('generic single choice dialog')
+
+    dlg = wx.SingleChoiceDialog (
+        parent = None,
+        message = aMessage,
+        caption = aTitle,
+        choices = choices,
+        style = wx.OK | wx.CANCEL | wx.CENTRE
+    )
+    btn_pressed = dlg.ShowModal()
+    dlg.Destroy()
+
+    if btn_pressed == wx.ID_OK:
+        return dlg.GetSelection()
+    else:
+        return False
 #-------------------------------------------------------------------------
 def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
@@ -299,7 +326,11 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.31  2005-10-27 21:37:29  shilbert
+# Revision 1.32  2006-01-15 13:19:16  shilbert
+# - gm_SingleChoiceDialog was added
+# - wxpython 2.6 does not support client data associated with item
+#
+# Revision 1.31  2005/10/27 21:37:29  shilbert
 # fixed wxYES|NO into wx.YES|NO
 #
 # Revision 1.30  2005/10/11 21:14:10  ncq
