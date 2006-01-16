@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.9 2006-01-16 19:35:41 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmScanBackend.py,v 1.10 2006-01-16 19:41:29 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -197,8 +197,8 @@ class cSaneScanner:
 		if not _sane_import_module():
 			raise gmExceptions.ConstructorError, msg
 
-		if not self.__init_src_manager():
-			raise gmExceptions.ConstructorError, msg
+#		if not self.__init_src_manager():
+#			raise gmExceptions.ConstructorError, msg
 
 		# FIXME: need to test against devs[x][0]
 #		devs = _sane_module.get_devices()
@@ -213,18 +213,18 @@ class cSaneScanner:
 		if not self.__init_scanner():
 			raise gmExceptions.ConstructorError, msg
 	#---------------------------------------------------
-	def __init_src_manager(self):
-		# open scanner manager
-		if cSaneScanner._src_manager is None:
-			# no, so we need to open it now
-			try:
-				init_result = _sane_module.init()
-			except:
-				_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
-				return False
-			_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
-			_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
-		return True
+#	def __init_src_manager(self):
+#		# open scanner manager
+#		if cSaneScanner._src_manager is None:
+#			# no, so we need to open it now
+#			try:
+#				init_result = _sane_module.init()
+#			except:
+#				_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
+#				return False
+#			_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
+#			_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
+#		return True
 	#---------------------------------------------------
 	def __init_scanner(self):
 		try:
@@ -299,10 +299,17 @@ def _sane_import_module():
 	if _sane_module is None:
 		try:
 			import sane
-			_sane_module = sane
 		except ImportError:
 			_log.LogException('cannot import SANE module', sys.exc_info(), verbose=0)
 			return False
+		_sane_module = sane
+		try:
+			init_result = _sane_module.init()
+		except:
+			_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
+			return False
+		_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
+		_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
 	return True
 #-----------------------------------------------------
 def get_devices():
@@ -313,20 +320,6 @@ def get_devices():
 	if not _sane_import_module():
 		return None
 	return _sane_module.get_devices()
-#-----------------------------------------------------
-def report_devices(calling_window=None):
-	print "report_devices() DEPRECATED, use get_devices()"
-	return []
-#	try:
-#		scanner = cTwainScanner(calling_window=calling_window)
-#	except gmExceptions.ConstructorError:
-#		try:
-#			scanner = cSaneScanner(device=None)
-#			devices = scanner.report_devices()
-#		except gmExceptions.ConstructorError:
-#			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
-#			return None
-#	return devices
 #-----------------------------------------------------
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
@@ -374,7 +367,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.9  2006-01-16 19:35:41  ncq
+# Revision 1.10  2006-01-16 19:41:29  ncq
+# - properly init sane now
+#
+# Revision 1.9  2006/01/16 19:35:41  ncq
 # - can only get sane device list after init()
 #
 # Revision 1.8  2006/01/16 19:27:26  ncq
