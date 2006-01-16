@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -110,18 +110,17 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         device_objects = {}
         devices = self.scan_module.get_devices()
         for device in devices:
-            device_names.append(device[2]+' ('+device[0]+')')
+            device_names.append('%s (%s)' % (device[2], device[0]))
         
         # wxpython does not support client data in wxSingleChoiceDialog
         device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
-            aMessage = _('Select an image scanning device'),
+            aMessage = _('Select an image capture device'),
             aTitle = _('device selection'),
             choices = device_names
-            )
+        )
         # FIXME: load directory from backend config
-        print devices[device_idx]
         fname = self.scan_module.acquire_page_into_file (
-            device = devices[device_idx],
+            device = devices[device_idx][0],
             filename = 'test',
             delay = 5,
             calling_window = self
@@ -255,7 +254,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         cfg = gmCfg.cCfgSQL()
         show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
         wx.EndBusyCursor()
-        if show_id:
+        if show_id and (ref is not None):
             msg = _(
 """The reference ID for the new document is:
 
@@ -572,7 +571,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.44  2006-01-16 20:03:02  shilbert
+# Revision 1.45  2006-01-16 22:10:10  ncq
+# - some cleanup
+#
+# Revision 1.44  2006/01/16 20:03:02  shilbert
 # *** empty log message ***
 #
 # Revision 1.43  2006/01/16 19:37:25  ncq
