@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.10 2006-01-16 19:41:29 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmScanBackend.py,v 1.11 2006-01-16 19:42:18 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -340,6 +340,9 @@ if __name__ == '__main__':
 
 	from Gnumed.pycommon import gmI18N
 
+	print "devices:"
+	print get_devices()
+
 	if not acquire_page_into_file(device='test:0', filename='test.bmp', delay=5):
 		print "error, cannot acquire page"
 	
@@ -367,7 +370,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.10  2006-01-16 19:41:29  ncq
+# Revision 1.11  2006-01-16 19:42:18  ncq
+# - improve unit test
+#
+# Revision 1.10  2006/01/16 19:41:29  ncq
 # - properly init sane now
 #
 # Revision 1.9  2006/01/16 19:35:41  ncq
