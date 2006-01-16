@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.46 2006-01-16 19:23:32 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmMedDoc.py,v 1.47 2006-01-16 19:33:46 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -261,13 +261,15 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# Actually, encodings shouldn't be applied to binary data
 		# (eg. bytea types) in the first place but that is only
 		# reported to be fixed > v7.4.
+		# further tests reveal that at least on PG 8.0 this bug still
+		# manifests itself
 		backend = gmPG.ConnectionPool()
 		self.__conn = backend.GetConnection('blobs', readonly = 0)
 		if self.__conn is None:
 			_log.Log(gmLog.lErr, 'cannot get r/w connection to service [blobs]')
 			return None
 		# this shouldn't actually, really be necessary
-		if self.__conn.version < '8.2':
+		if self.__conn.version < '8.1':
 			cmd = 'reset client_encoding'
 			result = gmPG.run_ro_query(self.__conn, cmd)
 			if result is None:
@@ -275,7 +277,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			print "****************************************************"
 			print "*** if exporting BLOBs suddenly fails and        ***"
-			print "*** you are running PostgreSQL > 8.1 please      ***"
+			print "*** you are running PostgreSQL >= 8.1 please     ***"
 			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
 			print "****************************************************"
 
@@ -311,8 +313,6 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: does this not have the danger of cutting up multi-byte escape sequences ?
 		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
 		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
-#		blob = gmPG.dbapi.PgBytea('')
-#		print "initial type:", blob.__class__
 		for chunk_id in range(needed_chunks):
 			pos = (chunk_id*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s"
@@ -321,9 +321,6 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-#			print "got type:", data[0][0].__class__
-#			blob = blob + data[0][0]
-#			print "type after adding:", blob.__class__
 			aFile.write(str(data[0][0]))
 
 		# retrieve remainder
@@ -336,13 +333,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-#			print "got type:", data[0][0].__class__
-#			blob = blob + data[0][0]
 			aFile.write(str(data[0][0]))
-#			print "type after adding:", blob.__class__
 
-#		aFile.write(gmPG.dbapi.PgUnQuoteBytea(blob))
-#		aFile.write(str(blob))
 		return 1
 	#--------------------------------------------------------
 	# store data
@@ -587,7 +579,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.46  2006-01-16 19:23:32  ncq
+# Revision 1.47  2006-01-16 19:33:46  ncq
+# - need to "reset client_encoding" on 8.0, too
+#
+# Revision 1.46  2006/01/16 19:23:32  ncq
 # - use reset_encoding on blobs more generously
 #
 # Revision 1.45  2006/01/15 16:12:05  ncq
