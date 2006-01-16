@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.45 2006-01-15 16:12:05 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmMedDoc.py,v 1.46 2006-01-16 19:23:32 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -267,11 +267,17 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lErr, 'cannot get r/w connection to service [blobs]')
 			return None
 		# this shouldn't actually, really be necessary
-		if self.__conn.version < '7.4':
+		if self.__conn.version < '8.2':
 			cmd = 'reset client_encoding'
 			result = gmPG.run_ro_query(self.__conn, cmd)
 			if result is None:
 				_log.Log(gmLog.lErr, 'cannot reset client_encoding, BLOB download may fail')
+		else:
+			print "****************************************************"
+			print "*** if exporting BLOBs suddenly fails and        ***"
+			print "*** you are running PostgreSQL > 8.1 please      ***"
+			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
+			print "****************************************************"
 
 		# Windoze sucks: it can't transfer objects of arbitrary size,
 		# or maybe this is due to pyPgSQL ?
@@ -302,9 +308,11 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			return 1
 
 		# retrieve chunks
+		# FIXME: does this not have the danger of cutting up multi-byte escape sequences ?
 		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
 		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
-		blob_as_str = ''
+#		blob = gmPG.dbapi.PgBytea('')
+#		print "initial type:", blob.__class__
 		for chunk_id in range(needed_chunks):
 			pos = (chunk_id*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s"
@@ -313,8 +321,10 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			blob_as_str = blob_as_str + data[0][0]
-#			aFile.write(str(data[0][0]))
+#			print "got type:", data[0][0].__class__
+#			blob = blob + data[0][0]
+#			print "type after adding:", blob.__class__
+			aFile.write(str(data[0][0]))
 
 		# retrieve remainder
 		if remainder > 0:
@@ -326,10 +336,13 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			blob_as_str = blob_as_str + data[0][0]
-#			aFile.write(str(data[0][0]))
+#			print "got type:", data[0][0].__class__
+#			blob = blob + data[0][0]
+			aFile.write(str(data[0][0]))
+#			print "type after adding:", blob.__class__
 
-		aFile.write(gmPG.dbapi.PgUnQuoteBytea(blob_as_str))
+#		aFile.write(gmPG.dbapi.PgUnQuoteBytea(blob))
+#		aFile.write(str(blob))
 		return 1
 	#--------------------------------------------------------
 	# store data
@@ -574,7 +587,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.45  2006-01-15 16:12:05  ncq
+# Revision 1.46  2006-01-16 19:23:32  ncq
+# - use reset_encoding on blobs more generously
+#
+# Revision 1.45  2006/01/15 16:12:05  ncq
 # - explicitely use PgUnQuoteBytea() on the concatenated
 #   string when getting Bytea in pieces
 #
