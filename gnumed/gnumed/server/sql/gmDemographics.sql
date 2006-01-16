@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.62 $
+-- $Revision: 1.63 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -367,6 +367,66 @@ create table dem.lnk_identity2comm (
 	unique (id_identity, url)
 );
 
+-- rlee0001 <robeddielee@hotmail.com> writes:
+-->> > example. For example:
+-->> >       In: 123 456-7890
+-->> >       Out: (123) 456-7890
+-->> >       Stored As:
+-->> >            PHONE = (Virtual Function, with Regexp input parser)
+-->> >                AREA_CODE = 123
+-->> >                PREFIX = 456
+-->> >                SUFFIX = 7890
+-->> > It would be interesting. Combine with item 9 above and you can make
+-->> > "name" output in a structured format like "Last, First". Vb.Net's IDE
+-->> > does this in the properties list for nested properties.
+-->>
+-->> So, create a type that does that. PostgreSQL is extensible. It's got
+-->> data types for ISBNs, Internet addresses and even an XML document type.
+-->> Compared to that a simple phone number field would be trivial.
+-->
+--> Actually I might try to have a go at it just for fun at home. Here at
+--> work I just don't have the ability to create types (AFAIK).
+--
+--The trouble with the phone number idea is that the above doesn't match
+--with any relevant standards.
+--
+--The one thing that *would* match a standard would be ITU-T
+--Recommendation E.164: "The International Public Telecommunication
+--Numbering Plan", May 1997.
+--
+--2.5.  Telephone Numbers
+--
+--   Contact telephone number structure is derived from structures defined
+--   in [E164a].  Telephone numbers described in this mapping are
+--   character strings that MUST begin with a plus sign ("+", ASCII value
+--   0x002B), followed by a country code defined in [E164b], followed by a
+--   dot (".", ASCII value 0x002E), followed by a sequence of digits
+--   representing the telephone number.  An optional "x" attribute is
+--   provided to note telephone extension information.
+--
+--Thus, the structure would break the phone number into three pieces:
+--
+-- 1. Country code
+-- 2. Telephone number
+-- 3. Extension information (optional)
+--
+--My phone number, in EB164 form, looks like:
+-- +01.4166734124
+--
+--What you seem to be after, here, would confine your telno formatting
+--to telephone numbers for Canada and the United States, and would break
+--any time people have a need to express telephone numbers outside those
+--two countries.
+--
+--It would be quite interesting to add an EB164 type, as it could
+--represent phone numbers considerably more compactly than is the case
+--for plain strings.  The 20 digits permissible across 1. and 2. could
+--be encoded in... 68 bits.
+-- 
+--output = ("cbbrowne" "@" "cbbrowne.com")
+--http://www3.sympatico.ca/cbbrowne/nonrdbms.html
+-- Yves Deville
+
 -- ==========================================================
 -- theoretically, the only information needed to establish any kind of
 -- biological family tree would be information about parenthood.
@@ -603,11 +663,14 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.62 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.63 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.62  2006-01-06 10:12:02  ncq
+-- Revision 1.63  2006-01-16 22:12:33  ncq
+-- - add some info re proper phone number handling
+--
+-- Revision 1.62  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
