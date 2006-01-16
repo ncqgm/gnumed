@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -110,7 +110,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         device_objects = {}
         devices = self.scan_module.get_devices()
         for device in devices:
-            device_names.append(device[2])
+            device_names.append(device[2]+' ('+device[0]+')')
         
         # wxpython does not support client data in wxSingleChoiceDialog
         device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
@@ -572,7 +572,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.43  2006-01-16 19:37:25  ncq
+# Revision 1.44  2006-01-16 20:03:02  shilbert
+# *** empty log message ***
+#
+# Revision 1.43  2006/01/16 19:37:25  ncq
 # - use get_devices()
 #
 # Revision 1.42  2006/01/15 13:14:12  shilbert
