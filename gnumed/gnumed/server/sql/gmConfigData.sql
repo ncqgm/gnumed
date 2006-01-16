@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -247,14 +247,44 @@ values (
 	'xxxDEFAULTxxx'
 );
 
+
+-- BLOBs export chunk size
+insert into cfg.cfg_template
+	(name, type, description)
+values (
+	'horstspace.blob_export_chunk_size',
+	'numeric',
+	'if a blob (IOW a bytea field) is larger than
+ this (in bytes), it will be exported in chunks of
+ this size plus the remainder'
+);
+
+insert into cfg.cfg_item
+	(fk_template, owner)
+values (
+	currval('cfg.cfg_template_pk_seq'),
+	'xxxDEFAULTxxx'
+);
+
+-- default to 1 MB
+insert into cfg.cfg_numeric
+	(fk_item, value)
+values (
+	currval('cfg.cfg_item_pk_seq'),
+	1048576
+);
+
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.25  2006-01-15 14:32:15  ncq
+-- Revision 1.26  2006-01-16 22:12:00  ncq
+-- - add blobs export chunk size option
+--
+-- Revision 1.25  2006/01/15 14:32:15  ncq
 -- - add provider inbox to "Release 0.2" workplace
 --
 -- Revision 1.24  2006/01/13 11:17:02  ncq
