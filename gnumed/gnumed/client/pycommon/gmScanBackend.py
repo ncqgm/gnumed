@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.8 2006-01-16 19:27:26 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmScanBackend.py,v 1.9 2006-01-16 19:35:41 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -219,10 +219,11 @@ class cSaneScanner:
 			# no, so we need to open it now
 			try:
 				init_result = _sane_module.init()
-				_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
 			except:
 				_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
 				return False
+			_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
+			_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
 		return True
 	#---------------------------------------------------
 	def __init_scanner(self):
@@ -302,7 +303,6 @@ def _sane_import_module():
 		except ImportError:
 			_log.LogException('cannot import SANE module', sys.exc_info(), verbose=0)
 			return False
-	_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
 	return True
 #-----------------------------------------------------
 def get_devices():
@@ -374,7 +374,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.8  2006-01-16 19:27:26  ncq
+# Revision 1.9  2006-01-16 19:35:41  ncq
+# - can only get sane device list after init()
+#
+# Revision 1.8  2006/01/16 19:27:26  ncq
 # - cleaner layout
 # - report_devices() -> get_devices()
 #
