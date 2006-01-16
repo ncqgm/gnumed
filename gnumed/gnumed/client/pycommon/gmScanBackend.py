@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.7 2006-01-15 14:00:28 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmScanBackend.py,v 1.8 2006-01-16 19:27:26 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -25,8 +25,10 @@ class cTwainScanner:
 
 	def __init__(self, calling_window=None):
 		msg = 'cannot instantiate TWAIN driver class'
-		if not self.__import_module():
+		if not _twain_import_module():
 			raise gmExceptions.ConstructorError, msg
+
+		self.__setup_event_handler()
 
 		self.__calling_window = calling_window
 
@@ -36,25 +38,14 @@ class cTwainScanner:
 		if not self.__init_scanner():
 			raise gmExceptions.ConstructorError, msg
 	#---------------------------------------------------
-	def __import_module(self):
-		global _twain_module
-		if _twain_module is None:
-			# import module
-			try:
-				import twain
-				_twain_module = twain
-			except ImportError:
-				_log.LogException('cannot import TWAIN module (WinTWAIN.py)', sys.exc_info(), verbose=0)
-				return False
-			_log.Log(gmLog.lInfo, "TWAIN version: %s" % _twain_module.Version())
-
-			self.__twain_event_handler = {
-				_twain_module.MSG_XFERREADY: self._twain_handle_transfer,
-				_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
-				_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
-				_twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
-			}
-		return True
+	def __setup_event_handler(self):
+		# FIXME: this means we cannot use more than one TWAIN source at once
+		self.__twain_event_handler = {
+			_twain_module.MSG_XFERREADY: self._twain_handle_transfer,
+			_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
+			_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
+			_twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
+		}
 	#---------------------------------------------------
 	def __init_src_manager(self):
 		# open scanner manager
@@ -197,43 +188,30 @@ class cTwainScanner:
 #=======================================================
 class cSaneScanner:
 
+	# for testing uncomment "test" backend in /etc/sane/dll.conf
+
 	_src_manager = None
 
 	def __init__(self, device=None):
 		msg = 'cannot instantiate SANE driver class'
-		if not self.__import_module():
+		if not _sane_import_module():
 			raise gmExceptions.ConstructorError, msg
 
 		if not self.__init_src_manager():
 			raise gmExceptions.ConstructorError, msg
 
-		if device is None:
-			# may need to uncomment "test" backend in /etc/sane/dll.conf
-			self.__device = 'test:0'
-		else:
-			self.__device = device[0]
-		_log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
+		# FIXME: need to test against devs[x][0]
+#		devs = _sane_module.get_devices()
+#		if device not in devs:
+#			_log.Log(gmLog.lErr, "device [%s] not found in list of devices detected by SANE" % device)
+#			_log.Log(gmLog.lErr, str(devs))
+#			raise gmExceptions.ConstructorError, msg
 
-		devices = _sane_module.get_devices()
-		_log.Log(gmLog.lData, 'SANE device list	 : %s' % str(_sane_module.get_devices()))
-		if len(devices) == 0:
-			_log.Log(gmLog.lErr, "SANE module did not find any devices")
-			raise gmExceptions.ConstructorError, msg
+		self.__device = device
+		_log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
 
 		if not self.__init_scanner():
 			raise gmExceptions.ConstructorError, msg
-	#---------------------------------------------------
-	def __import_module(self):
-		# import module
-		global _sane_module
-		if _sane_module is None:
-			try:
-				import sane
-				_sane_module = sane
-			except ImportError:
-				_log.LogException('cannot import SANE module', sys.exc_info())
-				return False
-		return True
 	#---------------------------------------------------
 	def __init_src_manager(self):
 		# open scanner manager
@@ -283,19 +261,11 @@ class cSaneScanner:
 			return False
 		return filename
 	#---------------------------------------------------
-	def report_devices(self):
-		devices = _sane_module.get_devices()
-		_log.Log(gmLog.lData, 'SANE device list	 : %s' % str(_sane_module.get_devices()))
-		if len(devices) == 0:
-			_log.Log(gmLog.lErr, "SANE module did not find any devices")
-			raise gmExceptions.ConstructorError, msg
-		return devices
-	#---------------------------------------------------
-	def dummy(self):
-		pass
-		# supposedly there is a method *.close() but it does not
-		# seem to work, therefore I put in the following line (else
-		# it reports a busy sane-device on the second and consecutive runs)
+#	def dummy(self):
+#		pass
+#		# supposedly there is a method *.close() but it does not
+#		# seem to work, therefore I put in the following line (else
+#		# it reports a busy sane-device on the second and consecutive runs)
 #		try:
 #			# by default use the first device
 #			# FIXME: room for improvement - option
@@ -303,27 +273,61 @@ class cSaneScanner:
 #		except:
 #			_log.LogException('cannot open SANE scanner', sys.exc_info(), verbose=1)
 #			return False
-
-		# Set scan parameters
-		# FIXME: get those from config file
-		#self.__scannercontrast=170 ; self.__scannerbrightness=150 ; self.__scannerwhite_level=190
-		#self.__scannerdepth=6
-		#self.__scannerbr_x = 412.0
-		#self.__scannerbr_y = 583.0
+#
+#		# Set scan parameters
+#		# FIXME: get those from config file
+#		#self.__scannercontrast=170 ; self.__scannerbrightness=150 ; self.__scannerwhite_level=190
+#		#self.__scannerdepth=6
+#		#self.__scannerbr_x = 412.0
+#		#self.__scannerbr_y = 583.0
 #==================================================
-
-def report_devices(calling_window=None):
-	try:
-		scanner = cTwainScanner(calling_window=calling_window)
-	except gmExceptions.ConstructorError:
+def _twain_import_module():
+	global _twain_module
+	if _twain_module is None:
 		try:
-			scanner = cSaneScanner(device=None)
-			devices = scanner.report_devices()
-		except gmExceptions.ConstructorError:
-			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
-			return None
-	return devices
-#-----------------------------------------------------	  
+			import twain
+			_twain_module = twain
+		except ImportError:
+			_log.LogException('cannot import TWAIN module (WinTWAIN.py)', sys.exc_info(), verbose=0)
+			return False
+		_log.Log(gmLog.lInfo, "TWAIN version: %s" % _twain_module.Version())
+	return True
+#-----------------------------------------------------
+def _sane_import_module():
+	global _sane_module
+	if _sane_module is None:
+		try:
+			import sane
+			_sane_module = sane
+		except ImportError:
+			_log.LogException('cannot import SANE module', sys.exc_info(), verbose=0)
+			return False
+	_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
+	return True
+#-----------------------------------------------------
+def get_devices():
+	if _twain_import_module():
+		# FIXME: implement for TWAIN
+		print "*** TWAIN get_devices() not implemented ***"
+		return []
+	if not _sane_import_module():
+		return None
+	return _sane_module.get_devices()
+#-----------------------------------------------------
+def report_devices(calling_window=None):
+	print "report_devices() DEPRECATED, use get_devices()"
+	return []
+#	try:
+#		scanner = cTwainScanner(calling_window=calling_window)
+#	except gmExceptions.ConstructorError:
+#		try:
+#			scanner = cSaneScanner(device=None)
+#			devices = scanner.report_devices()
+#		except gmExceptions.ConstructorError:
+#			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
+#			return None
+#	return devices
+#-----------------------------------------------------
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
@@ -340,10 +344,10 @@ def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, 
 #==================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	
+
 	from Gnumed.pycommon import gmI18N
 
-	if not acquire_page_into_file(filename='test.bmp', delay=5):
+	if not acquire_page_into_file(device='test:0', filename='test.bmp', delay=5):
 		print "error, cannot acquire page"
 	
 #	#provide some default options for testing
@@ -370,7 +374,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.7  2006-01-15 14:00:28  ncq
+# Revision 1.8  2006-01-16 19:27:26  ncq
+# - cleaner layout
+# - report_devices() -> get_devices()
+#
+# Revision 1.7  2006/01/15 14:00:28  ncq
 # - reconvert spaces to tabs
 #
 # Revision 1.6	2006/01/15 13:16:06	 shilbert
