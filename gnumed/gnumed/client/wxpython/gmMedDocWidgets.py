@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -53,7 +53,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
         self._SelBOX_doc_type.Clear()
         # provide choices for document types
         for doc_type in gmMedDoc.get_document_types():
-            self._SelBOX_doc_type.Append(doc_type[1],doc_type[0])
+            self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
         # FIXME: make this configurable: either now() or last_date()
         self._TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
         self._TBOX_doc_comment.SetValue('')
@@ -108,9 +108,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
            this can be done by using the EVENT tab to define the EVT macro"""
         device_names = []
         device_objects = {}
-        devices = self.scan_module.report_devices (
-            calling_window = self
-            )
+        devices = self.scan_module.get_devices()
         for device in devices:
             device_names.append(device[2])
         
@@ -495,7 +493,7 @@ class cDocTree(wx.TreeCtrl):
             return None
 
         chunksize = cfg.get_by_workplace (
-            option = "doc export chunk size",
+            option = "horstspace.blob_export_chunk_size",
             workplace = _whoami.get_workplace(),
             default = 1 * 1024 * 1024		# 1 MB
         )
@@ -574,7 +572,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.42  2006-01-15 13:14:12  shilbert
+# Revision 1.43  2006-01-16 19:37:25  ncq
+# - use get_devices()
+#
+# Revision 1.42  2006/01/15 13:14:12  shilbert
 # - support for multiple image source finished
 #
 # Revision 1.41  2006/01/15 10:02:23  shilbert
