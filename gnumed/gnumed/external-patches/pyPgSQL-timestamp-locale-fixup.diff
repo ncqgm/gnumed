@@ -9,7 +9,7 @@
 +	# the real fix would be to use value.Format() but getting
 +	# the proper timezone information may be tricky,
 +	# so, this is a hack
-+	val = val.replace(',', '.')
++	val = val.replace(",", ".")
 +	return val
      elif type(value) is DateTimeDeltaType:
  	return "'%s'" % dateTimeDelta2Interval(value)
