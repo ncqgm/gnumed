@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.11 2006-01-16 19:42:18 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmScanBackend.py,v 1.12 2006-01-17 19:45:32 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -70,6 +70,9 @@ class cTwainScanner:
 		_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
 		_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
 		return True
+	#---------------------------------------------------
+	def close(self):
+		return
 	#---------------------------------------------------
 	# TWAIN callback handling
 	#---------------------------------------------------
@@ -197,9 +200,6 @@ class cSaneScanner:
 		if not _sane_import_module():
 			raise gmExceptions.ConstructorError, msg
 
-#		if not self.__init_src_manager():
-#			raise gmExceptions.ConstructorError, msg
-
 		# FIXME: need to test against devs[x][0]
 #		devs = _sane_module.get_devices()
 #		if device not in devs:
@@ -212,19 +212,6 @@ class cSaneScanner:
 
 		if not self.__init_scanner():
 			raise gmExceptions.ConstructorError, msg
-	#---------------------------------------------------
-#	def __init_src_manager(self):
-#		# open scanner manager
-#		if cSaneScanner._src_manager is None:
-#			# no, so we need to open it now
-#			try:
-#				init_result = _sane_module.init()
-#			except:
-#				_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
-#				return False
-#			_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
-#			_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
-#		return True
 	#---------------------------------------------------
 	def __init_scanner(self):
 		try:
@@ -240,6 +227,9 @@ class cSaneScanner:
 
 		return True
 	#---------------------------------------------------
+	def close(self):
+		self.__scanner.close()
+	#---------------------------------------------------
 	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
 			if tmpdir is None:
@@ -253,6 +243,7 @@ class cSaneScanner:
 		if delay is not None:
 			time.sleep(delay)
 			_log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % delay)
+
 		try:
 			self.__scanner.start()
 			img = self.__scanner.snap()
@@ -330,8 +321,9 @@ def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, 
 		except gmExceptions.ConstructorError:
 			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
 			return None
-	return scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
-
+	fname = scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
+	scanner.close()
+	return fname
 #==================================================
 # main
 #==================================================
@@ -343,34 +335,25 @@ if __name__ == '__main__':
 	print "devices:"
 	print get_devices()
 
-	if not acquire_page_into_file(device='test:0', filename='test.bmp', delay=5):
+	print "getting bitmap #1"
+	if not acquire_page_into_file(device='test:0', filename='test1', delay=5):
+		print "error, cannot acquire page"
+
+	print "getting bitmap #2"
+	if not acquire_page_into_file(device='test:0', filename='test2', delay=5):
+		print "error, cannot acquire page"
+
+	print "getting bitmap #3"
+	if not acquire_page_into_file(device='test:0', filename='test3', delay=5):
 		print "error, cannot acquire page"
 	
-#	#provide some default options for testing
-#	options = {}
-#	#options['tmpdir'] = tempfile.gettempdir()
-#	options['delay'] = 5
-#	img = acquire_page(options)
-#	if not img:
-#		print 'Page could not be acquired. Please check the log file for details on what went wrong'
-#	else:
-#		# make tmp file name
-#		# for now we know it's bitmap
-#		# FIXME: should be JPEG, perhaps ?
-#		# FIXME: get extension from config file
-#		scan_tmp_dir = tempfile.gettempdir()
-#		_log.Log(gmLog.lData, 'using tmp dir [%s]' % scan_tmp_dir)
-#		tempfile.tempdir = scan_tmp_dir
-#		tempfile.template = 'obj-'
-#		fname = tempfile.mktemp('.jpg')
-#		# save image file to disk
-#		img.save(fname)
-#		# show image
-#		#img.show()
-
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.11  2006-01-16 19:42:18  ncq
+# Revision 1.12  2006-01-17 19:45:32  ncq
+# - close scanner when done
+# - cleanup
+#
+# Revision 1.11  2006/01/16 19:42:18  ncq
 # - improve unit test
 #
 # Revision 1.10  2006/01/16 19:41:29  ncq
