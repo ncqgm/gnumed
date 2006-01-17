@@ -4,11 +4,11 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.47 2006-01-16 19:33:46 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmMedDoc.py,v 1.48 2006-01-17 20:20:26 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, tempfile, os, shutil, os.path, types
+import sys, tempfile, os, shutil, os.path, types, time
 from cStringIO import StringIO
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmBusinessDBObject
@@ -558,13 +558,22 @@ def get_document_types():
     return rows
 #------------------------------------------------------------
 def get_ext_ref():
-	print "*********** gmMedDoc.get_ext_ref() not implemented ***********"
-	return None
+	"""This needs *considerably* more smarts."""
+	# set up temp file environment for creating unique random directory
+	tempfile.template = ''
+	# create temp dir name
+	dirname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()))
+	# extract name for dir
+	path, doc_ID = os.path.split(dirname)
+	return doc_ID
+
 #============================================================
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+
+	print get_ext_ref()
 
 	print get_document_types()
 
@@ -579,7 +588,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.47  2006-01-16 19:33:46  ncq
+# Revision 1.48  2006-01-17 20:20:26  ncq
+# - implement get_ext_ref()
+#
+# Revision 1.47  2006/01/16 19:33:46  ncq
 # - need to "reset client_encoding" on 8.0, too
 #
 # Revision 1.46  2006/01/16 19:23:32  ncq
