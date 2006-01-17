@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.48 2006-01-17 20:20:26 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmMedDoc.py,v 1.49 2006-01-17 22:01:35 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -121,7 +121,7 @@ class cDocumentFolder:
 			'TYP': doc_type
 		}
 		if doc_type is None:
-			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s"""
+			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s order by date desc"""
 		elif type(doc_type) == types.StringType:
 			cmd = """
 select dm.pk
@@ -144,9 +144,12 @@ order by dm.date desc"""
 			return None
 		if len(rows) == 0:
 			return []
+		print "rows:"
 		doc_ids = []
 		for row in rows:
+			print row
 			doc_ids.append(row[0])
+		print doc_ids
 		return doc_ids
 	#--------------------------------------------------------
 	def get_documents(self, doc_type=None):
@@ -588,7 +591,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.48  2006-01-17 20:20:26  ncq
+# Revision 1.49  2006-01-17 22:01:35  ncq
+# - now really sort by date
+#
+# Revision 1.48  2006/01/17 20:20:26  ncq
 # - implement get_ext_ref()
 #
 # Revision 1.47  2006/01/16 19:33:46  ncq
