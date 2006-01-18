@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -182,7 +182,19 @@ def search_result ():
 	"""
 	return "search_result"
 
+
+def pg_users_changed():
+	"""
+		when the pg_user list is modified , or a user perms changed
 	
+	"""
+	return "pg_users_changed" 
+
+def provider_identity_selected():
+	"""
+		when a provider selection widget selects a existing potential identity provider 
+	"""
+	return "provider_identity_selected"
 #=============================================================	
 if __name__ == "__main__":
 
@@ -209,7 +221,11 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.11  2005-09-11 17:29:16  ncq
+# Revision 1.12  2006-01-18 14:16:01  sjtan
+#
+# extra signals for provider mgmt
+#
+# Revision 1.11  2005/09/11 17:29:16  ncq
 # - pre/post_patient_selection() make much more sense than activating_patient()
 #   and patient_selected()
 #
