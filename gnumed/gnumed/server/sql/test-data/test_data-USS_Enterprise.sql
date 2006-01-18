@@ -4,20 +4,21 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
+delete from cfg.db_logon_banner;
 insert into cfg.db_logon_banner (message) values (
-_('Welcome to the USS Enterprise Medical Department GNUmed database.\n
-\n
-This database is the default installation intended for demonstration of the GNUmed client. It may be running on a publically accessible server on the internet. Therefore any data you enter here is likely to be lost when the database is upgraded. It is also put at risk of unlawful disclosure.\n
-\n
-DO NOT USE THIS DATABASE TO STORE REAL LIVE PATIENT DATA.\n
-\n
-\n
+i18n.i18n('Welcome to the USS Enterprise Medical Department GNUmed database.
+
+This database is the default installation intended for demonstration of the GNUmed client. It may be running on a publicly accessible server on the internet. Therefore any data you enter here is likely to be lost when the database is upgraded. It is also put at risk of unlawful disclosure.
+
+DO NOT USE THIS DATABASE TO STORE REAL LIVE PATIENT DATA.
+
+
 Starfleet Central Medical Facilities')
 );
 
@@ -311,11 +312,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.23  2006-01-06 10:12:03  ncq
+-- Revision 1.24  2006-01-18 23:09:48  ncq
+-- - improve, spell-fix and translate database logon banner
+--
+-- Revision 1.23  2006/01/06 10:12:03  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
