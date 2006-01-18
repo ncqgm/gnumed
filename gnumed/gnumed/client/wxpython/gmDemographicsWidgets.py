@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.76 2006-01-10 14:22:24 sjtan Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmDemographicsWidgets.py,v 1.77 2006-01-18 14:14:39 sjtan Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1462,15 +1462,16 @@ class cNewPatientWizard(wx.wizard.Wizard):
 	  "female" data (number of kids etc)
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent):
+	def __init__(self, parent, title = _('Register new patient'), subtitle = _('Basic patient details') ):
 		"""
 		Creates a new instance of NewPatientWizard
 		@param parent - The parent widget
 		@type parent - A wx.Window instance
 		"""
 		id_wiz = wx.NewId()
-		wx.wizard.Wizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
+		wx.wizard.Wizard.__init__(self, parent, id_wiz, title) #images.getWizTest1Bitmap()
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
+		self.__subtitle = subtitle
 		self.__do_layout()
 	#--------------------------------------------------------
 	def RunWizard(self, activate=False):
@@ -1490,6 +1491,8 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		if activate:
 			person = gmPerson.cPerson(ident)
 			gmPerson.gmCurrentPatient(person)
+
+		return ident
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -1497,7 +1500,7 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		"""Arrange widgets.
 		"""
 		# Create the wizard pages
-		self.basic_pat_details = cBasicPatDetailsPage(self, _('Basic patient details'))
+		self.basic_pat_details = cBasicPatDetailsPage(self, self.__subtitle )
 		self.FitToPage(self.basic_pat_details)
 #============================================================
 class cBasicPatDetailsPageValidator(wx.PyValidator):
@@ -2932,7 +2935,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.76  2006-01-10 14:22:24  sjtan
+# Revision 1.77  2006-01-18 14:14:39  sjtan
+#
+# make reusable
+#
+# Revision 1.76  2006/01/10 14:22:24  sjtan
 #
 # movement to schema dem
 #
