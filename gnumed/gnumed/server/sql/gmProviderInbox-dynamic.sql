@@ -2,7 +2,7 @@
 -- GNUmed - dynamic tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
--- $Id: gmProviderInbox-dynamic.sql,v 1.4 2006-01-09 13:44:02 ncq Exp $
+-- $Id: gmProviderInbox-dynamic.sql,v 1.5 2006-01-22 18:13:37 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -43,12 +43,15 @@ comment on column dem.provider_inbox.fk_staff is
 comment on column dem.provider_inbox.fk_inbox_item_type is
 	'the item (message) type';
 comment on column dem.provider_inbox.comment is
-	'a free-text comment, may be NULL';
+	'a free-text comment, may be NULL but not empty';
 comment on column dem.provider_inbox.ufk_context is
 	'an optional, *u*nchecked *f*oreign *k*ey, it is up to
-	 the application to know what to do with this, it will
+	 the application to know what this points to, it will
 	 have to make sense within the context of the combination
 	 of staff ID, item type, and comment';
+comment on column dem.provider_inbox.data is
+	'arbitrary data an application might wish to attach to
+	 the message, like a cookie, basically';
 comment on column dem.provider_inbox.importance is
 	'the relative importance of this message:\n
 	 -1: lower than most things already in the inbox ("low")\n
@@ -78,10 +81,6 @@ where
 ;
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_provider_inbox cascade;
-\set ON_ERROR_STOP 1
-
 create view dem.v_provider_inbox as
 select
 	(select sign from dem.staff where dem.staff.pk = pi.fk_staff) as provider,
@@ -92,6 +91,7 @@ select
 	vit.l10n_type,
 	pi.comment,
 	pi.ufk_context as pk_context,
+	pi.data as data,
 	pi.pk as pk_provider_inbox,
 	pi.fk_staff as pk_staff,
 	vit.pk_category,
@@ -105,11 +105,16 @@ where
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-dynamic.sql,v $
--- Revision 1.4  2006-01-09 13:44:02  ncq
+-- Revision 1.5  2006-01-22 18:13:37  ncq
+-- - add "data" column to provider inbox and add to view
+-- - improve comments
+-- - default importance to 0
+--
+-- Revision 1.4  2006/01/09 13:44:02  ncq
 -- - add inbox item type category and adjust view
 --
 -- Revision 1.3  2006/01/08 17:40:04  ncq

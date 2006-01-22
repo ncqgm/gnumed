@@ -2,7 +2,7 @@
 -- GNUmed - static tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-static.sql,v $
--- $Id: gmProviderInbox-static.sql,v 1.2 2006-01-09 13:44:02 ncq Exp $
+-- $Id: gmProviderInbox-static.sql,v 1.3 2006-01-22 18:13:37 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -54,7 +54,9 @@ create table dem.provider_inbox (
 		default null
 		check (trim(coalesce(comment, 'xxxDEFAULTxxx')) != ''),
 	ufk_context integer,
+	data text,
 	importance smallint
+		default 0
 		check (importance=-1 or importance=0 or importance=1),
 	unique(fk_staff, fk_inbox_item_type, ufk_context)
 ) inherits (audit.audit_fields);
@@ -63,11 +65,16 @@ select audit.add_table_for_audit('dem', 'provider_inbox');
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-static.sql,v $2', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-static.sql,v $2', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-static.sql,v $
--- Revision 1.2  2006-01-09 13:44:02  ncq
+-- Revision 1.3  2006-01-22 18:13:37  ncq
+-- - add "data" column to provider inbox and add to view
+-- - improve comments
+-- - default importance to 0
+--
+-- Revision 1.2  2006/01/09 13:44:02  ncq
 -- - add inbox item type category and adjust view
 --
 -- Revision 1.1  2006/01/07 15:22:23  ncq
