@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.66 $
+-- $Revision: 1.67 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -624,13 +624,31 @@ insert into blobs.doc_obj (
 	 'missing'
 );
 
+-- notice to provider
+insert into dem.provider_inbox (
+	fk_staff,
+	fk_inbox_item_type,
+	comment,
+	ufk_context,
+	importance
+) values (
+	(select pk_staff from dem.v_staff where sign='LMcC'),
+	(select pk_type from dem.v_inbox_item_type where type='review docs'),
+	'Cpt.Kirk now has some recent Vietnam pictures in his EMR',
+	currval('blobs.doc_med_pk_seq'),
+	-1
+);
+
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.66 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.67 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.66  2006-01-13 13:56:29  ncq
+-- Revision 1.67  2006-01-22 18:14:43  ncq
+-- - add McCoy provider inbox message about Kirk Vietnam holiday pics
+--
+-- Revision 1.66  2006/01/13 13:56:29  ncq
 -- - doc_obj must have non-null .data even if just a dummy
 --
 -- Revision 1.65  2006/01/11 13:31:20  ncq
