@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -66,11 +66,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 	#--------------------------------------------------------
 	def __reload_LBOX_doc_pages(self):
 		self._LBOX_doc_pages.Clear()
-		if len(self.acquired_pages) > 0:    
+		if len(self.acquired_pages) > 0:
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
-				path, name = os.path.split(fname)
-				self._LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
+				self._LBOX_doc_pages.Append(_('page %s (file %s)' % (i+1, fname)), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		# FIXME: dummy
@@ -111,7 +110,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		devices = self.scan_module.get_devices()
 		for device in devices:
 			device_names.append('%s (%s)' % (device[2], device[0]))
-		
+
 		# wxpython does not support client data in wxSingleChoiceDialog
 		device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
 			aMessage = _('Select an image capture device'),
@@ -508,11 +507,11 @@ class cDocTree(wx.TreeCtrl):
 			)
 			return None
 
-		chunksize = cfg.get_by_workplace (
+		chunksize = int(cfg.get_by_workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = _whoami.get_workplace(),
 			default = 1 * 1024 * 1024		# 1 MB
-		)
+		))
 		if chunksize is None:
 			chunksize = 1 * 1024 * 1024		# 1 MB
 
@@ -588,7 +587,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.46  2006-01-21 23:57:18  shilbert
+# Revision 1.47  2006-01-22 18:09:30  ncq
+# - improve file name string in scanned pages list
+# - force int() on int from db cfg
+#
+# Revision 1.46  2006/01/21 23:57:18  shilbert
 # - acquire file from filesystem has been added
 #
 # Revision 1.45  2006/01/16 22:10:10  ncq
