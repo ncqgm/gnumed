@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.48 2006-01-11 22:31:39 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.49 2006-01-22 20:36:43 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -106,6 +106,10 @@ DECLARE
 
 	_id integer;
 BEGIN
+    -- deactivate all the existing names if this name is to become active
+	if _active then
+		update dem.names set active = false where id_identity = _id_identity;
+	end if;
 	-- name already there for this identity ?
 	select into _id id from dem.names where id_identity = _id_identity and firstnames = _first and lastnames = _last;
 	if FOUND then
@@ -113,10 +117,6 @@ BEGIN
 		return _id;
 	end if;
 	-- no, insert new name
-	if _active then
-	    -- deactivate all the existing names
-		update dem.names set active = false where id_identity = _id_identity;
-	end if;
 	insert into dem.names (id_identity, firstnames, lastnames, active) values (_id_identity, _first, _last, _active);
 	if FOUND then
 		return currval(''dem.names_id_seq'');
@@ -410,11 +410,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.48 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.49 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.48  2006-01-11 22:31:39  ncq
+-- Revision 1.49  2006-01-22 20:36:43  ncq
+-- - fix add_name()
+--
+-- Revision 1.48  2006/01/11 22:31:39  ncq
 -- - fix another error in set_nickname()
 --
 -- Revision 1.47  2006/01/11 13:20:31  ncq
