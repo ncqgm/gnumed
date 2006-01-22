@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.50 2006-01-18 23:07:16 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmMedDoc.py,v 1.51 2006-01-22 18:07:34 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -250,7 +250,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		"""Export binary object data into <aFile>.
 
 			- internal helper
-			- writes data to the Python file object <aFile>
+			- writes data to the Python file-like object <aFile>
 		"""
 		# If the client sets an encoding other than the default we
 		# will receive encoding-parsed data which isn't the binary
@@ -270,10 +270,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		# this shouldn't actually, really be necessary
 		if self.__conn.version < '8.1':
-			cmd = 'reset client_encoding'
+			cmd = 'set client_encoding to "sql_ascii"'
 			result = gmPG.run_ro_query(self.__conn, cmd)
-			if result is None:
-				_log.Log(gmLog.lErr, 'cannot reset client_encoding, BLOB download may fail')
 		else:
 			print "****************************************************"
 			print "*** if exporting BLOBs suddenly fails and        ***"
@@ -302,12 +300,9 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			if len(data) == 0:
 				_log.Log(gmLog.lErr, 'BLOB [%s] does not exist' % self.pk_obj)
 				return None
-			if data[0][0] is None:
-				_log.Log (gmLog.lErr, 'BLOB [%s] is NULL' % self.pk_obj)
-				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
-			return 1
+			return True
 
 		# retrieve chunks
 		# FIXME: does this not have the danger of cutting up multi-byte escape sequences ?
@@ -355,10 +350,15 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		del(img_data)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
-		result = gmPG.run_commit('blobs', [
-			(cmd, [img_obj, self.pk_obj])
-		])
+		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
+		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
+		result = gmPG.run_commit2 (
+			link_obj = 'blobs',
+			queries = [
+				(cmd1, []),
+				(cmd2, [img_obj, self.pk_obj])
+			]
+		)
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' (self.pk_obj, fname))
 			return False
@@ -371,9 +371,11 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		img_obj = PgBytea(data)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
+		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
+		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
 		result = gmPG.run_commit('blobs', [
-			(cmd, [img_obj, self.pk_obj])
+			(cmd1, []),
+			(cmd2, [img_obj, self.pk_obj])
 		])
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
@@ -457,7 +459,7 @@ insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
 VALUES (
 	%(doc_id)s,
 	(select pk_identity from dem.v_staff where db_user=CURRENT_USER),
-	'dummy part of medical document',
+	'',
 	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
 )"""
 		cmd2 = "select currval('blobs.doc_obj_pk_seq')"
@@ -588,7 +590,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.50  2006-01-18 23:07:16  ncq
+# Revision 1.51  2006-01-22 18:07:34  ncq
+# - set client encoding to sql_ascii where necessary for blobs handling
+#
+# Revision 1.50  2006/01/18 23:07:16  ncq
 # - cleanup
 #
 # Revision 1.49  2006/01/17 22:01:35  ncq
