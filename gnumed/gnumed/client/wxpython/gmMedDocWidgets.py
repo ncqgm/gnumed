@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -69,7 +69,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		if len(self.acquired_pages) > 0:
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
-				self._LBOX_doc_pages.Append(_('page %s (file %s)' % (i+1, fname)), fname)
+				self._LBOX_doc_pages.Append(_('page %s: %s' % (i+1, fname)), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		if len(self.acquired_pages) == 0 or self.acquired_pages is None:
@@ -585,7 +585,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.48  2006-01-23 17:36:32  ncq
+# Revision 1.49  2006-01-23 22:11:36  ncq
+# - improve display
+#
+# Revision 1.48  2006/01/23 17:36:32  ncq
 # - cleanup
 # - display/use full path with file name after "load file" in scan&index
 # - only add loaded file to file list if not cancelled
