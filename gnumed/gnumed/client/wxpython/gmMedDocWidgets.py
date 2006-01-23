@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -72,15 +72,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 				self._LBOX_doc_pages.Append(_('page %s (file %s)' % (i+1, fname)), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
-		# FIXME: dummy
 		if len(self.acquired_pages) == 0 or self.acquired_pages is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No pages to save. Aquire some pages first'),
 				aTitle = _('saving document')
 				)
 			return False
-		
-		print self._SelBOX_doc_type.GetSelection()
+
 		if self._SelBOX_doc_type.GetSelection() == '' or self._SelBOX_doc_type.GetSelection() is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No document type applied. Choose a document type'),
@@ -139,17 +137,17 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		dlg = wx.FileDialog(
 			parent = None,
 			message = _('Choose a file'),
-			defaultDir = '',
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = "all (*.*)|*.*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg",
-			style = wx.OPEN
+			style = wx.OPEN | wx.HIDE_READONLY
 		)
-		dlg.ShowModal()
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			aFile = dlg.GetPath()
+			self.acquired_pages.append(aFile)
+			self.__reload_LBOX_doc_pages()
 		dlg.Destroy()
-		aFile = os.path.dirname(dlg.GetPath())
-		self.acquired_pages.append(aFile)
-		# update list of pages in GUI
-		self.__reload_LBOX_doc_pages()
 	#--------------------------------------------------------
 	def _show_btn_pressed(self, evt):
 		# did user select a page ?
@@ -587,7 +585,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.47  2006-01-22 18:09:30  ncq
+# Revision 1.48  2006-01-23 17:36:32  ncq
+# - cleanup
+# - display/use full path with file name after "load file" in scan&index
+# - only add loaded file to file list if not cancelled
+#
+# Revision 1.47  2006/01/22 18:09:30  ncq
 # - improve file name string in scanned pages list
 # - force int() on int from db cfg
 #
