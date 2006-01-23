@@ -22,7 +22,7 @@ class cAU_StaffV01(wxgAU_StaffV01.cAU_StaffV01):
     def create_staff(self, event): # wxGlade: cAU_StaffV01.<event_handler>
     	
 	self.role  = self.combo_box_1.GetValue()
-	self.sign = self.text_ctrl_4.GetValue()
+	self.short_alias = self.text_ctrl_4.GetValue()
 	self.comment = self.text_ctrl_5.GetValue()
 	
 	
@@ -47,9 +47,9 @@ class cAU_StaffV01(wxgAU_StaffV01.cAU_StaffV01):
 	self.person = person
 	self.pg_user = pg_username
 
-    def set_staff_data( self, role, sign, comment):
+    def set_staff_data( self, role, short_alias, comment):
    	self.combo_box_1.SetValue(role)
-	self.text_ctrl_4.SetValue(sign)
+	self.text_ctrl_4.SetValue(short_alias)
 	self.text_ctrl_5.SetValue(comment)
 
 	

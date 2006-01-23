@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.168 2006-01-10 23:22:17 sjtan Exp $
+-- $Id: gmClinicalViews.sql,v 1.169 2006-01-23 22:10:57 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1713,7 +1713,7 @@ select
 	cn.clin_when as date,
 	case when ((select 1 from dem.v_staff where db_user = cn.modified_by) is null)
 		then '<' || cn.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = cn.modified_by)
+		else (select short_alias from dem.v_staff where db_user = cn.modified_by)
 	end as provider,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
@@ -2100,7 +2100,7 @@ select
 	cn.clin_when as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = cn.modified_by) is null)
 		then '<' || cn.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = cn.modified_by)
+		else (select short_alias from dem.v_staff where db_user = cn.modified_by)
 	end as modified_by,
 	cn.soap_cat as soap_cat,
 	cn.narrative,
@@ -2122,7 +2122,7 @@ select
 	chi.modified_when as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = chi.modified_by) is null)
 		then '<' || chi.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = chi.modified_by)
+		else (select short_alias from dem.v_staff where db_user = chi.modified_by)
 	end as modified_by,
 	'a' as soap_cat,
 	_('health issue') || ': ' || chi.description || '; '
@@ -2144,7 +2144,7 @@ select
 	cenc.started as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = cenc.modified_by) is null)
 		then '<' || cenc.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = cenc.modified_by)
+		else (select short_alias from dem.v_staff where db_user = cenc.modified_by)
 	end as modified_by,
 	's' as soap_cat,
 	_('encounter') || ': ' || _('RFE') || ': ' || cenc.rfe || '; ' || _('AOE') || ':' as narrative,
@@ -2163,7 +2163,7 @@ select
 	vpep.episode_modified_when as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = vpep.episode_modified_by) is null)
 		then '<' || vpep.episode_modified_by || '>'
-		else (select sign from dem.v_staff where db_user = vpep.episode_modified_by)
+		else (select short_alias from dem.v_staff where db_user = vpep.episode_modified_by)
 	end as modified_by,
 	's' as soap_cat,
 	_('episode') || ': ' || vpep.description as narrative,
@@ -2182,7 +2182,7 @@ select
 	vhxf.clin_when as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = vhxf.modified_by) is null)
 		then '<' || vhxf.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = vhxf.modified_by)
+		else (select short_alias from dem.v_staff where db_user = vhxf.modified_by)
 	end as modified_by,
 	vhxf.soap_cat as soap_cat,
 	_(vhxf.relationship) || ' '
@@ -2205,7 +2205,7 @@ select
 	vpv4i.date as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = vpv4i.modified_by) is null)
 		then '<' || vpv4i.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = vpv4i.modified_by)
+		else (select short_alias from dem.v_staff where db_user = vpv4i.modified_by)
 	end as modified_by,
 	'p' as soap_cat,
 	_('vaccine') || ': ' || vpv4i.vaccine || '; '
@@ -2229,7 +2229,7 @@ select
 	vpa.date as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = vpa.modified_by) is null)
 		then '<' || vpa.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = vpa.modified_by)
+		else (select short_alias from dem.v_staff where db_user = vpa.modified_by)
 	end as modified_by,
 	's' as soap_cat,	-- FIXME: pull in proper soap_cat
 	_('allergene') || ': ' || coalesce(vpa.allergene, '') || '; '
@@ -2254,7 +2254,7 @@ select
 	vlr.sampled_when as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = vlr.modified_by) is null)
 		then '<' || vlr.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = vlr.modified_by)
+		else (select short_alias from dem.v_staff where db_user = vlr.modified_by)
 	end as modified_by,
 	vlr.soap_cat as soap_cat,
 	_('lab') || ': ' || vlr.lab_name || '; '
@@ -2278,7 +2278,7 @@ select
 	vtr.clin_when as clin_when,
 	case when ((select 1 from dem.v_staff where db_user = vtr.modified_by) is null)
 		then '<' || vtr.modified_by || '>'
-		else (select sign from dem.v_staff where db_user = vtr.modified_by)
+		else (select short_alias from dem.v_staff where db_user = vtr.modified_by)
 	end as modified_by,
 	vtr.soap_cat as soap_cat,
 	_('code') || ': ' || vtr.unified_code || '; '
@@ -2466,11 +2466,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.168 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.169 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.168  2006-01-10 23:22:17  sjtan
+-- Revision 1.169  2006-01-23 22:10:57  ncq
+-- - staff.sign -> .short_alias
+--
+-- Revision 1.168  2006/01/10 23:22:17  sjtan
 --
 -- update permissions for views
 --

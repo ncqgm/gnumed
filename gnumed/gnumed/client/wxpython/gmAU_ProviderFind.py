@@ -27,12 +27,12 @@ class cProviderSelector(psw.cPatientSelector):
 			self.provider = cPerson( pat)
 			self.SetValue( self.provider.get_identity()['description'] )
 			
-			result = gmPG.run_ro_query("historica", "select s.pk, db_user, (select name from dem.staff_role r where r.pk = fk_role), sign , comment from dem.staff s where s.fk_identity = %s" % self.provider.getID()  )
+			result = gmPG.run_ro_query("historica", "select s.pk, db_user, (select name from dem.staff_role r where r.pk = fk_role), short_alias , comment from dem.staff s where s.fk_identity = %s" % self.provider.getID()  )
 			if result and wx.MessageDialog(self, _("Warning. Selected Person already staff member. Continue ? ")).ShowModal() <> wx.ID_OK:
 				self.provider = None
 				self.SetValue("")
 			elif result:
-				self.existing_staff = dict(zip(['staff_pk', 'db_user', 'role', 'sign', 'comment'], result[0] ))
+				self.existing_staff = dict(zip(['staff_pk', 'db_user', 'role', 'short_alias', 'comment'], result[0] ))
 			else:
 				self.existing_staff = None
 
@@ -110,19 +110,19 @@ class cAU_ProviderFind(wx.Panel):
 						v = ''
 					e[k] = str(v)
 						
-				p2.set_staff_data(e['role'], e['sign'], e['comment'])
+				p2.set_staff_data(e['role'], e['short_alias'], e['comment'])
 			if dlg2.ShowModal() == wx.ID_OK:
 			
 				
 				existing = gmPG.run_ro_query( 'historica', 'select pk from dem.staff  s where s.fk_identity = %s' % str(person.getID()) )
 				if existing and len(existing) > 0:
 					# need to update staff
-					stmt = "update dem.staff set db_user = '%s' , fk_role = ( select pk from dem.staff_role where name='%s') , sign ='%s', comment='%s' where fk_identity = %s " % (p.pg_user, p2.role, p2.sign ,p2.comment,  person.getID() )
+					stmt = "update dem.staff set db_user = '%s' , fk_role = ( select pk from dem.staff_role where name='%s') , short_alias ='%s', comment='%s' where fk_identity = %s " % (p.pg_user, p2.role, p2.short_alias ,p2.comment,  person.getID() )
 
 				else:
 					# need to insert staff
 	
-					stmt = """insert into dem.staff(  fk_identity, fk_role, db_user, sign, comment) values ( %s, (select pk from dem.staff_role where name = '%s') , '%s', '%s', '%s' )""" % ( person.getID(), p2.role , p.pg_user, p2.sign, p2.comment)
+					stmt = """insert into dem.staff(  fk_identity, fk_role, db_user, short_alias, comment) values ( %s, (select pk from dem.staff_role where name = '%s') , '%s', '%s', '%s' )""" % ( person.getID(), p2.role , p.pg_user, p2.short_alias, p2.comment)
 
 				print "doing ", stmt
 				con = su_login(self)

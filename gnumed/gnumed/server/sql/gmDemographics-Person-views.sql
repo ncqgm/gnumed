@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.49 2006-01-22 20:36:43 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.50 2006-01-23 22:10:57 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -320,7 +320,7 @@ select
 	vbp.title as title,
 	vbp.firstnames as firstnames,
 	vbp.lastnames as lastnames,
-	s.sign as sign,
+	s.short_alias as short_alias,
 	_(sr.name) as role,
 	vbp.dob as dob,
 	vbp.gender as gender,
@@ -410,11 +410,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.49 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.50 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.49  2006-01-22 20:36:43  ncq
+-- Revision 1.50  2006-01-23 22:10:57  ncq
+-- - staff.sign -> .short_alias
+--
+-- Revision 1.49  2006/01/22 20:36:43  ncq
 -- - fix add_name()
 --
 -- Revision 1.48  2006/01/11 22:31:39  ncq

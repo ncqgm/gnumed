@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.63 $
+-- $Revision: 1.64 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -546,7 +546,7 @@ create table dem.staff (
 		unique
 		not null
 		default CURRENT_USER,
-	sign text unique not null,
+	short_alias text unique not null,
 	comment text,
 	unique(fk_role, db_user)
 	-- link to practice
@@ -558,7 +558,7 @@ select audit.add_table_for_audit('dem', 'staff');
 comment on table dem.staff is
 	'one-to-one mapping of database user accounts
 	 (db_user) to staff identities (fk_identity)';
-comment on column dem.staff.sign is
+comment on column dem.staff.short_alias is
 	'a short signature unique to this staff member
 	 to be used in the GUI, actually this is somewhat
 	 redundant with ext_person_id...';
@@ -663,11 +663,14 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.63 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.64 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.63  2006-01-16 22:12:33  ncq
+-- Revision 1.64  2006-01-23 22:10:57  ncq
+-- - staff.sign -> .short_alias
+--
+-- Revision 1.63  2006/01/16 22:12:33  ncq
 -- - add some info re proper phone number handling
 --
 -- Revision 1.62  2006/01/06 10:12:02  ncq

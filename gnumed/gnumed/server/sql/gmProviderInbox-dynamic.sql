@@ -2,7 +2,7 @@
 -- GNUmed - dynamic tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
--- $Id: gmProviderInbox-dynamic.sql,v 1.5 2006-01-22 18:13:37 ncq Exp $
+-- $Id: gmProviderInbox-dynamic.sql,v 1.6 2006-01-23 22:10:57 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -83,7 +83,7 @@ where
 -- ---------------------------------------------
 create view dem.v_provider_inbox as
 select
-	(select sign from dem.staff where dem.staff.pk = pi.fk_staff) as provider,
+	(select short_alias from dem.staff where dem.staff.pk = pi.fk_staff) as provider,
 	pi.importance,
 	vit.category,
 	vit.l10n_category,
@@ -105,11 +105,14 @@ where
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.5 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-dynamic.sql,v $
--- Revision 1.5  2006-01-22 18:13:37  ncq
+-- Revision 1.6  2006-01-23 22:10:57  ncq
+-- - staff.sign -> .short_alias
+--
+-- Revision 1.5  2006/01/22 18:13:37  ncq
 -- - add "data" column to provider inbox and add to view
 -- - improve comments
 -- - default importance to 0

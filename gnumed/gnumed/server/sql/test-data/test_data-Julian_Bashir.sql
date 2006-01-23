@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Julian_Bashir.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -16,7 +16,7 @@ values ('m', '1965-11-21+2:00', 'SD', 'Dr.');
 insert into dem.names (id_identity, active, lastnames, firstnames)
 values (currval('dem.identity_pk_seq'), true, 'Bashir', 'Julian');
 
-insert into dem.staff (fk_identity, fk_role, db_user, sign, comment)
+insert into dem.staff (fk_identity, fk_role, db_user, short_alias, comment)
 values (
 	currval('dem.identity_pk_seq'),
 	(select pk from dem.staff_role where name='doctor'),
@@ -27,11 +27,14 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.12 $');
+select log_script_insertion('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: test_data-Julian_Bashir.sql,v $
--- Revision 1.12  2006-01-06 10:12:03  ncq
+-- Revision 1.13  2006-01-23 22:10:57  ncq
+-- - staff.sign -> .short_alias
+--
+-- Revision 1.12  2006/01/06 10:12:03  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema

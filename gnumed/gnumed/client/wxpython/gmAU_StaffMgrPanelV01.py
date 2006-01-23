@@ -12,7 +12,7 @@ class cAU_StaffMgrPanelV01(cAU_StaffMgrPanel):
 
 	
 	def populate_staff_list(self):
-		result = gmPG.run_ro_query("historica", "select pk_staff, title, firstnames, lastnames, role, dob, db_user, sign, comment from dem.v_staff")
+		result = gmPG.run_ro_query("historica", "select pk_staff, title, firstnames, lastnames, role, dob, db_user, short_alias, comment from dem.v_staff")
 		
 		lc = self.list_ctrl_1
 		
@@ -38,7 +38,7 @@ class cAU_StaffMgrPanelV01(cAU_StaffMgrPanel):
 			for vals in result:
 				pk = vals[0]
 				self.data[pk] = {}
-				for val, key in zip ( vals, titles+['sign', 'comment'] ):
+				for val, key in zip ( vals, titles+['short_alias', 'comment'] ):
 					self.data[pk][key] = val
 
 		for i in range(len(titles)):
@@ -65,7 +65,7 @@ class cAU_StaffMgrPanelV01(cAU_StaffMgrPanel):
 		self.text_ctrl_2.SetValue( vals['db_user'])
 		
 		self.text_ctrl_4.SetValue( vals['role'])
-		self.text_ctrl_5.SetValue( vals['sign'])
+		self.text_ctrl_5.SetValue( vals['short_alias'])
 		self.text_ctrl_6.SetValue( str(vals['comment']))
 
 
