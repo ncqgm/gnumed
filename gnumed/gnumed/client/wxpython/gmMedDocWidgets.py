@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -140,12 +140,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = "all (*.*)|*.*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg",
-			style = wx.OPEN | wx.HIDE_READONLY
+			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST | wx.MULTIPLE
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
-			aFile = dlg.GetPath()
-			self.acquired_pages.append(aFile)
+			files = dlg.GetPaths()
+			for file in files:
+				self.acquired_pages.append(file)
 			self.__reload_LBOX_doc_pages()
 		dlg.Destroy()
 	#--------------------------------------------------------
@@ -290,25 +291,6 @@ off this message in the GNUmed configuration.""") % ref
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
 		self.__init_ui_data()
-	#--------------------------------------------------------
-	def _select_files_btn_pressed (self, evt):
-		# patient file chooser
-		dlg = wx.FileDialog(
-			self,
-			_('choose a file'),
-			'',
-			'',
-			wildcard = "all (*.*)|*.*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg",
-			style = wx.FILE_MUST_EXIST
-		)
-		dlg.ShowModal()
-		dlg.Destroy()
-		fname = dlg.GetPath()
-		if not fname is None:
-			# add file to aquired pages
-			self.acquired_pages.append(fname)
-			# update list of pages in GUI
-			self.__reload_LBOX_doc_pages()
 #============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
@@ -585,7 +567,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.49  2006-01-23 22:11:36  ncq
+# Revision 1.50  2006-01-24 22:32:14  ncq
+# - allow multiple files to be selected at once from file selection dialog
+#
+# Revision 1.49  2006/01/23 22:11:36  ncq
 # - improve display
 #
 # Revision 1.48  2006/01/23 17:36:32  ncq
