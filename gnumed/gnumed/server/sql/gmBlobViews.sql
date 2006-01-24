@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.17 $ $Date: 2006-01-13 13:54:14 $ $Author: ncq $
+-- $Revision: 1.18 $ $Date: 2006-01-24 22:55:19 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -126,12 +126,13 @@ select
 	octet_length(coalesce(dobj.data, '')) as size,
 	vdm.comment as doc_comment,
 	dobj.comment as obj_comment,
+	exists(select 1 from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk) as reviewed,
 	dobj.data as object,
 	vdm.pk_doc as pk_doc,
 	vdm.pk_type as pk_type,
 	dobj.xmin as xmin_doc_obj
 from
-	blobs.v_doc_med vdm,	
+	blobs.v_doc_med vdm,
 	blobs.doc_obj dobj
 where
 	vdm.pk_doc = dobj.doc_id
@@ -214,11 +215,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.17 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.17  2006-01-13 13:54:14  ncq
+-- Revision 1.18  2006-01-24 22:55:19  ncq
+-- - include reviewed status in v_obj4doc
+--
+-- Revision 1.17  2006/01/13 13:54:14  ncq
 -- - move comments to "-dynamic" file
 -- - make doc_obj.seq_idx nullable - there actually may not be a mandatory order to the parts
 -- - make doc_obj.data not null - a part without data is meaningless
