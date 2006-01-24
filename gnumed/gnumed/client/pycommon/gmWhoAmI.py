@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -127,20 +127,20 @@ class cWhoAmI(gmBorg.cBorg):
 		self._lastname = result[0][0]
 		return self._lastname
 	#-----------------------------------------------
-	def get_staff_sign(self):
+	def get_short_alias(self):
 		try:
-			return self._staff_sign
+			return self._short_alias
 		except AttributeError:
 			pass
 
-		cmd = "select sign from dem.v_staff where db_user=CURRENT_USER"
+		cmd = "select short_alias from dem.v_staff where db_user=CURRENT_USER"
 		result = gmPG.run_ro_query('personalia', cmd, None)
 		if result is None:
-			raise ValueError, _('cannot get staff sign')
+			raise ValueError, _('cannot get short staff alias')
 		if len(result) == 0:
-			raise ValueError, _('no staff sign on file for current database login')
-		self._staff_sign = result[0][0]
-		return self._staff_sign
+			raise ValueError, _('no short staff alias on file for current database login')
+		self._short_alias = result[0][0]
+		return self._short_alias
 	#-----------------------------------------------
 	def get_staff_title(self):
 		try:
@@ -172,7 +172,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.8  2006-01-15 14:28:40  ncq
+# Revision 1.9  2006-01-24 21:09:13  ncq
+# - get_staff_sign -> get_short_alias
+#
+# Revision 1.8  2006/01/15 14:28:40  ncq
 # - get_lastname()
 # - get_staff_title()
 #
