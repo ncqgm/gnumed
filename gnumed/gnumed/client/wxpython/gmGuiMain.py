@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.231 2006-01-15 14:29:44 ncq Exp $
-__version__ = "$Revision: 1.231 $"
+# $Id: gmGuiMain.py,v 1.232 2006-01-24 21:09:45 ncq Exp $
+__version__ = "$Revision: 1.232 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -125,7 +125,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
 		self.__setup_main_menu()
 		self.SetupStatusBar()
-		self.SetStatusText(_('You are logged in as %s (%s). DB account <%s>.') % (_whoami.get_staff_name(), _whoami.get_staff_sign(), _whoami.get_db_account()))
+		self.SetStatusText(_('You are logged in as %s (%s). DB account <%s>.') % (_whoami.get_staff_name(), _whoami.get_short_alias(), _whoami.get_db_account()))
 		self.__gb['main.statustext'] = self.SetStatusText
 
 		# set window title via template
@@ -1000,7 +1000,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.231  2006-01-15 14:29:44  ncq
+# Revision 1.232  2006-01-24 21:09:45  ncq
+# - use whoami.get_short_alias
+#
+# Revision 1.231  2006/01/15 14:29:44  ncq
 # - cleanup
 #
 # Revision 1.230  2006/01/09 20:27:04  ncq
