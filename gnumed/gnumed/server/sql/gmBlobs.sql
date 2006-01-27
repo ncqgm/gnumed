@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.58 $ $Date: 2006-01-13 13:54:14 $ $Author: ncq $
+-- $Revision: 1.59 $ $Date: 2006-01-27 22:24:04 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -66,7 +66,9 @@ CREATE TABLE blobs.doc_obj (
 	comment text,
 	fk_intended_reviewer integer
 		not null
-		references blobs.xlnk_identity(xfk_identity),
+		references dem.staff(pk)
+		on update cascade
+		on delete restrict,
 	data bytea
 		not null
 );
@@ -83,8 +85,15 @@ CREATE TABLE blobs.doc_desc (
 );
 
 -- =============================================
+create table blobs.reviewed_doc_objs (
+	primary key (pk),
+	foreign key (fk_reviewed_row) references blobs.doc_obj(pk),
+	unique (fk_reviewed_row, fk_reviewer)
+) inherits (clin.review_root);
+
+-- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.58 $');
+select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.59 $');
 
 -- =============================================
 -- questions:
@@ -103,7 +112,12 @@ select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.58
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.58  2006-01-13 13:54:14  ncq
+-- Revision 1.59  2006-01-27 22:24:04  ncq
+-- - let fk_intended_reviewer reference pk_staff
+-- - disallow deletion of any staff that reviewed a document
+-- - add reviewed_doc_objs
+--
+-- Revision 1.58  2006/01/13 13:54:14  ncq
 -- - move comments to "-dynamic" file
 -- - make doc_obj.seq_idx nullable - there actually may not be a mandatory order to the parts
 -- - make doc_obj.data not null - a part without data is meaningless
