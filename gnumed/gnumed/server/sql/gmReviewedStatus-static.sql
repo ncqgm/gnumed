@@ -2,7 +2,7 @@
 -- GNUmed - tracking of reviewed status of incoming data
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReviewedStatus-static.sql,v $
--- $Id: gmReviewedStatus-static.sql,v 1.4 2006-01-11 13:30:57 ncq Exp $
+-- $Id: gmReviewedStatus-static.sql,v 1.5 2006-01-27 22:27:06 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -17,36 +17,37 @@ create table clin.review_root (
 		not null,
 	fk_reviewer integer
 		not null
-		references clin.xlnk_identity(xfk_identity),
+		references dem.staff(pk)
+		on update cascade
+		on delete restrict,
 	is_technically_abnormal boolean
 		not null,
 	clinically_relevant boolean
 		not null,
 	comment text
 		default null,
+	signature text
+		default null,
+	key_id text
+		default null,
+	key_context text
+		default null,
 	unique (fk_reviewed_row, fk_reviewer)
 ) inherits (audit.audit_fields);
 
--- ---------------------------------------------
-create table clin.reviewed_test_results (
-	primary key (pk),
-	foreign key (fk_reviewed_row) references clin.test_result(pk),
-	unique (fk_reviewed_row, fk_reviewer)
-) inherits (clin.review_root);
-
-create table blobs.reviewed_doc_objs (
-	primary key (pk),
-	foreign key (fk_reviewed_row) references blobs.doc_obj(pk),
-	unique (fk_reviewed_row, fk_reviewer)
-) inherits (clin.review_root);
-
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReviewedStatus-static.sql,v $', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmReviewedStatus-static.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmReviewedStatus-static.sql,v $
--- Revision 1.4  2006-01-11 13:30:57  ncq
+-- Revision 1.5  2006-01-27 22:27:06  ncq
+-- - make review_root.fk_reviewer reference dem.staff(pk)
+-- - add signature/key_id/key_context and comments
+-- - factor out child tables into their schemata
+-- - add source table namespace (schema) to v_reviewed_items
+--
+-- Revision 1.4  2006/01/11 13:30:57  ncq
 -- - id -> pk
 --
 -- Revision 1.3  2006/01/05 16:04:37  ncq

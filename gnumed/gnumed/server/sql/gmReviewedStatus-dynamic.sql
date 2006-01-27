@@ -2,7 +2,7 @@
 -- GNUmed - tracking of reviewed status of incoming data
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReviewedStatus-dynamic.sql,v $
--- $Id: gmReviewedStatus-dynamic.sql,v 1.4 2006-01-23 22:10:57 ncq Exp $
+-- $Id: gmReviewedStatus-dynamic.sql,v 1.5 2006-01-27 22:27:06 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -29,36 +29,48 @@ comment on column clin.review_root.clinically_relevant is
 	 need not correspond to the value of "techically_abnormal"
 	 since abnormal values may be irrelevant while normal
 	 ones can be of significance';
+comment on column clin.review_root.signature is
+	'can store a signature over the content referenced by
+	 fk_reviewed_row such that that cannot be changed without
+	 invalidating the signature';
+comment on column clin.review_root.key_id is
+	'the "id" of the "key" used to generate the signature';
+comment on column clin.review_root.key_context is
+	'the context (algorithm etc) by which the key referenced
+	 via key_id was applied to the content referenced by
+	 fk_reviewed_row to generate the signature';
+
+alter table clin.review_root
+	add constraint sig_must_be_fully_qualified check (
+		((signature is null) and (key_id is null) and (key_context is null))
+			or
+		((signature is not null) and (key_id is not null) and (key_context is not null))
+	);
 
 -- rules !
 
--- ---------------------------------------------
--- review root child tables
-comment on table clin.reviewed_test_results is
-	'review table for test results';
-comment on table blobs.reviewed_doc_objs is
-	'review table for documents - per page !';
-
--- ---------------------------------------------
+-- =============================================
 \unset ON_ERROR_STOP
 drop view clin.v_reviewed_items cascade;
 \set ON_ERROR_STOP 1
 
 create view clin.v_reviewed_items as
 select
-	rr.pk as pk_review_root,
+	(select relnamespace from pg_class where pg_class.oid = rr.tableoid)
+		as src_schema,
+	(select relname from pg_class where pg_class.oid = rr.tableoid)
+		as src_table,
 	rr.fk_reviewed_row as pk_reviewed_row,
-	rr.fk_reviewer as pk_reviewer,
 	rr.is_technically_abnormal as is_technically_abnormal,
 	rr.clinically_relevant as clinically_relevant,
-	case when ((select 1 from dem.v_staff where pk_identity = rr.fk_reviewer) is null)
-		then '<' || rr.fk_reviewer || '>'
-		else (select short_alias from dem.v_staff where pk_identity = rr.fk_reviewer)
-	end as reviewer,
-	(select relname
-	 from pg_class
-	 where pg_class.oid = rr.tableoid
-	) as src_table
+	(select short_alias from dem.v_staff where pk_staff = rr.fk_reviewer)
+		as reviewer,
+	rr.comment,
+	rr.signature,
+	rr.key_id,
+	rr.key_context,
+	rr.pk as pk_review_root,
+	rr.fk_reviewer as pk_reviewer
 from
 	clin.review_root rr
 ;
@@ -67,8 +79,6 @@ from
 grant SELECT, UPDATE, INSERT, DELETE on
 	clin.review_root
 	, clin.review_root_pk_seq
-	, clin.reviewed_test_results
-	, blobs.reviewed_doc_objs
 to group "gm-doctors";
 
 grant select on
@@ -77,11 +87,17 @@ to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmReviewedStatus-dynamic.sql,v $
--- Revision 1.4  2006-01-23 22:10:57  ncq
+-- Revision 1.5  2006-01-27 22:27:06  ncq
+-- - make review_root.fk_reviewer reference dem.staff(pk)
+-- - add signature/key_id/key_context and comments
+-- - factor out child tables into their schemata
+-- - add source table namespace (schema) to v_reviewed_items
+--
+-- Revision 1.4  2006/01/23 22:10:57  ncq
 -- - staff.sign -> .short_alias
 --
 -- Revision 1.3  2006/01/06 10:12:02  ncq
