@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.51 2006-01-22 18:07:34 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmMedDoc.py,v 1.52 2006-01-27 22:16:14 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -183,6 +183,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			ext_ref,
 			doc_comment,
 			obj_comment,
+			reviewed,
+			signed,
 			pk_doc,
 			pk_type,
 			xmin_doc_obj
@@ -590,7 +592,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.51  2006-01-22 18:07:34  ncq
+# Revision 1.52  2006-01-27 22:16:14  ncq
+# - add reviewed/signed to cMedDocPart
+#
+# Revision 1.51  2006/01/22 18:07:34  ncq
 # - set client encoding to sql_ascii where necessary for blobs handling
 #
 # Revision 1.50  2006/01/18 23:07:16  ncq
