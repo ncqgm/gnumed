@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.18 $ $Date: 2006-01-24 22:55:19 $ $Author: ncq $
+-- $Revision: 1.19 $ $Date: 2006-01-27 22:21:58 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -80,6 +80,10 @@ COMMENT ON TABLE blobs.doc_desc is
 	 as a result summary. Several of these may
 	 belong to one document object.';
 
+-- reviewed_doc_objs
+comment on table blobs.reviewed_doc_objs is
+	'review table for documents (per object such as a page)';
+
 -- =============================================
 \unset ON_ERROR_STOP
 drop view blobs.v_doc_type cascade;
@@ -126,7 +130,10 @@ select
 	octet_length(coalesce(dobj.data, '')) as size,
 	vdm.comment as doc_comment,
 	dobj.comment as obj_comment,
-	exists(select 1 from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk) as reviewed,
+	exists(select 1 from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk)
+		as reviewed,
+	(select (signature is not null) from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk)
+		as signed,
 	dobj.data as object,
 	vdm.pk_doc as pk_doc,
 	vdm.pk_type as pk_type,
@@ -203,6 +210,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE on
 	, blobs.doc_med_pk_seq
 	, blobs.doc_type
 	, blobs.doc_type_pk_seq
+	, blobs.reviewed_doc_objs
 TO GROUP "gm-doctors";
 
 -- views
@@ -215,11 +223,15 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.18 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.18  2006-01-24 22:55:19  ncq
+-- Revision 1.19  2006-01-27 22:21:58  ncq
+-- - add signed/reviewed to v_objs4doc
+-- - add grants
+--
+-- Revision 1.18  2006/01/24 22:55:19  ncq
 -- - include reviewed status in v_obj4doc
 --
 -- Revision 1.17  2006/01/13 13:54:14  ncq
