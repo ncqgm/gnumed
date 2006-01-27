@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -400,19 +400,30 @@ class cDocTree(wx.TreeCtrl):
 
 			# now add parts as child nodes
 			for part in parts:
-				p = _('page %2s') % part['seq_idx']
+				pg = _('page %2s') % part['seq_idx']
 
 				if part['obj_comment'] is None:
-					c = _("no comment available")
+					cmt = _("no comment available")
 				else:
-					c = part['obj_comment']
+					cmt = part['obj_comment']
 
 				if part['size'] == 0:
-					s = _('0 bytes - data missing')
+					sz = _('0 bytes - data missing ?')
 				else:
-					s = _('%s bytes') % part['size']
+					sz = _('%s bytes') % part['size']
 
-				label = _('%s: "%s" (%s)') % (p, c, s)
+				if part['reviewed']:
+					rev = ''
+				else:
+					rev = ' [%s]' % _('unreviewed')
+
+				if part['signed']:
+					sig = ''
+					# FIXME: actually verify signature
+				else:
+					sig = ' [%s]' % _('unsigned')
+
+				label = _('%s%s%s: "%s" (%s)') % (pg, rev, sig, cmt, sz)
 
 				part_node = self.AppendItem(doc_node, label)
 				self.SetPyData(part_node, part)
@@ -567,7 +578,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.50  2006-01-24 22:32:14  ncq
+# Revision 1.51  2006-01-27 22:33:44  ncq
+# - display reviewed/signed status in document tree
+#
+# Revision 1.50  2006/01/24 22:32:14  ncq
 # - allow multiple files to be selected at once from file selection dialog
 #
 # Revision 1.49  2006/01/23 22:11:36  ncq
