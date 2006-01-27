@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.169 2006-01-23 22:10:57 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.170 2006-01-27 22:24:45 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -609,6 +609,10 @@ comment on column clin.clin_medication.directions is
 	 such as "with food" etc';
 comment on column clin.clin_medication.is_prn is
 	'true if "pro re nata" (= as required)';
+
+-- reviewed_test_results --
+comment on table clin.reviewed_test_results is
+	'review table for test results';
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -2427,6 +2431,7 @@ grant select, insert, update, delete on
 	, clin.lab_request_pk_seq
 	, clin.lnk_result2lab_req
 	, clin.lnk_result2lab_req_pk_seq
+	, clin.reviewed_test_results
 to group "gm-doctors";
 
 -- views
@@ -2466,11 +2471,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.169 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.170 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.169  2006-01-23 22:10:57  ncq
+-- Revision 1.170  2006-01-27 22:24:45  ncq
+-- - move reviewed_test_results here
+--
+-- Revision 1.169  2006/01/23 22:10:57  ncq
 -- - staff.sign -> .short_alias
 --
 -- Revision 1.168  2006/01/10 23:22:17  sjtan

@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.57 $
+-- $Revision: 1.58 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -367,6 +367,12 @@ create table clin.lnk_result2lab_req (
 );
 
 -- ====================================
+create table clin.reviewed_test_results (
+	primary key (pk),
+	foreign key (fk_reviewed_row) references clin.test_result(pk),
+	unique (fk_reviewed_row, fk_reviewer)
+) inherits (clin.review_root);
+
 -- ====================================
 -- This is just an idea how measurements might be stored. It is far more
 -- measurement-centric compared to gmLab, which might be not a good thing
@@ -383,11 +389,14 @@ create table clin.lnk_result2lab_req (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.57 $');
+select log_script_insertion('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.58 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.57  2006-01-06 10:12:02  ncq
+-- Revision 1.58  2006-01-27 22:24:45  ncq
+-- - move reviewed_test_results here
+--
+-- Revision 1.57  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
