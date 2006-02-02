@@ -10,7 +10,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
--- $Id: gmPublicAccounts.sql,v 1.7 2005-09-19 16:38:51 ncq Exp $
+-- $Id: gmPublicAccounts.sql,v 1.8 2006-02-02 16:20:46 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -21,18 +21,18 @@
 -- value is CURRENT_DATE + interval '4 months' ?
 
 -- ===================================================
-CREATE USER "any-doc"
-	WITH PASSWORD 'any-doc'
-	IN GROUP "gm-doctors", "gm-public"
-;
+select gm_create_user('any-doc', 'any-doc');
 
 -- ===================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================
 -- $Log: gmPublicAccounts.sql,v $
--- Revision 1.7  2005-09-19 16:38:51  ncq
+-- Revision 1.8  2006-02-02 16:20:46  ncq
+-- - use gm_create_user()
+--
+-- Revision 1.7  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.6  2005/07/14 21:31:42  ncq
