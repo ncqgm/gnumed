@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -399,6 +399,7 @@ class db_server:
 				_log.LogException("Cannot add GNUmed database owner [%s] to groups [gm-logins] and [%s]." % (name, self.auth_group), sys.exc_info(), verbose=1)
 				cursor.close()
 				return False
+			self.conn.commit()
 			cursor.close()
 			print "The database owner already exists."
 			print "Please provide the password previously used for it."
@@ -1460,7 +1461,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.21  2006-02-02 16:19:09  ncq
+# Revision 1.22  2006-02-02 18:43:43  ncq
+# - add missing commit()
+#
+# Revision 1.21  2006/02/02 16:19:09  ncq
 # - improve checking for existing/non-existing gm-dbo
 # - enable infrastructure for database-only GNUmed user adding
 #
