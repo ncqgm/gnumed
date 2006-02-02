@@ -2,7 +2,7 @@
 -- GNUmed - tracking of reviewed status of incoming data
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReviewedStatus-static.sql,v $
--- $Id: gmReviewedStatus-static.sql,v 1.5 2006-01-27 22:27:06 ncq Exp $
+-- $Id: gmReviewedStatus-static.sql,v 1.6 2006-02-02 16:46:12 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -26,22 +26,21 @@ create table clin.review_root (
 		not null,
 	comment text
 		default null,
-	signature text
-		default null,
-	key_id text
-		default null,
-	key_context text
-		default null,
 	unique (fk_reviewed_row, fk_reviewer)
 ) inherits (audit.audit_fields);
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReviewedStatus-static.sql,v $', '$Revision: 1.5 $');
+select log_script_insertion('$RCSfile: gmReviewedStatus-static.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmReviewedStatus-static.sql,v $
--- Revision 1.5  2006-01-27 22:27:06  ncq
+-- Revision 1.6  2006-02-02 16:46:12  ncq
+-- - remove signature/key_id/key_context again as discussion
+--   proved it to not be necessary (changes should be audited
+--   and audits should be timestamped and signed)
+--
+-- Revision 1.5  2006/01/27 22:27:06  ncq
 -- - make review_root.fk_reviewer reference dem.staff(pk)
 -- - add signature/key_id/key_context and comments
 -- - factor out child tables into their schemata

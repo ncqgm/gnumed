@@ -2,7 +2,7 @@
 -- GNUmed - tracking of reviewed status of incoming data
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReviewedStatus-dynamic.sql,v $
--- $Id: gmReviewedStatus-dynamic.sql,v 1.5 2006-01-27 22:27:06 ncq Exp $
+-- $Id: gmReviewedStatus-dynamic.sql,v 1.6 2006-02-02 16:46:12 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -29,23 +29,6 @@ comment on column clin.review_root.clinically_relevant is
 	 need not correspond to the value of "techically_abnormal"
 	 since abnormal values may be irrelevant while normal
 	 ones can be of significance';
-comment on column clin.review_root.signature is
-	'can store a signature over the content referenced by
-	 fk_reviewed_row such that that cannot be changed without
-	 invalidating the signature';
-comment on column clin.review_root.key_id is
-	'the "id" of the "key" used to generate the signature';
-comment on column clin.review_root.key_context is
-	'the context (algorithm etc) by which the key referenced
-	 via key_id was applied to the content referenced by
-	 fk_reviewed_row to generate the signature';
-
-alter table clin.review_root
-	add constraint sig_must_be_fully_qualified check (
-		((signature is null) and (key_id is null) and (key_context is null))
-			or
-		((signature is not null) and (key_id is not null) and (key_context is not null))
-	);
 
 -- rules !
 
@@ -66,9 +49,6 @@ select
 	(select short_alias from dem.v_staff where pk_staff = rr.fk_reviewer)
 		as reviewer,
 	rr.comment,
-	rr.signature,
-	rr.key_id,
-	rr.key_context,
 	rr.pk as pk_review_root,
 	rr.fk_reviewer as pk_reviewer
 from
@@ -87,11 +67,16 @@ to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.5 $');
+select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmReviewedStatus-dynamic.sql,v $
--- Revision 1.5  2006-01-27 22:27:06  ncq
+-- Revision 1.6  2006-02-02 16:46:12  ncq
+-- - remove signature/key_id/key_context again as discussion
+--   proved it to not be necessary (changes should be audited
+--   and audits should be timestamped and signed)
+--
+-- Revision 1.5  2006/01/27 22:27:06  ncq
 -- - make review_root.fk_reviewer reference dem.staff(pk)
 -- - add signature/key_id/key_context and comments
 -- - factor out child tables into their schemata
