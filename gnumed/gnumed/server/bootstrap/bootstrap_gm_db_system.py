@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -279,7 +279,7 @@ class user:
 		return None
 #==================================================================
 class db_server:
-	def __init__(self, aSrv_alias, aCfg):
+	def __init__(self, aSrv_alias, aCfg, auth_group):
 		_log.Log(gmLog.lInfo, "bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
@@ -291,6 +291,7 @@ class db_server:
 		self.cfg = aCfg
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
+		self.auth_group = auth_group
 
 		if not self.__bootstrap():
 			raise ConstructorError, "db_server.__init__(): Cannot bootstrap db server."
@@ -344,30 +345,24 @@ class db_server:
 	def __bootstrap_db_users(self):
 		_log.Log(gmLog.lInfo, "bootstrapping database users and groups")
 
-		# create GNUmed owner
-		if self.__create_dbowner() is None:
-			_log.Log(gmLog.lErr, "Cannot install GNUmed database owner.")
-			return None
-
 		# insert standard groups
 		if self.__create_groups() is None:
 			_log.Log(gmLog.lErr, "Cannot create GNUmed standard groups.")
 			return None
 
-		# insert some users if so desired
-		if not _import_schema(self.section, self.conn):
-			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
+		# create GNUmed owner
+		if self.__create_dbowner() is None:
+			_log.Log(gmLog.lErr, "Cannot install GNUmed database owner.")
 			return None
 
-#		# insert some users if so desired
-#		if not _import_schema(aSection = self.section, aSrv_name = self.name, aDB_name = self.template_db, aUser = self.superuser.name):
+#		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
 #			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
 #			return None
 
 		return True
 	#--------------------------------------------------------------
 	def __user_exists(self, aCursor, aUser):
-		cmd = "SELECT usename FROM pg_user WHERE usename='%s'" % aUser
+		cmd = "SELECT usename FROM pg_user WHERE usename = '%s'" % aUser
 		try:
 			aCursor.execute(cmd)
 		except:
@@ -383,33 +378,43 @@ class db_server:
 	def __create_dbowner(self):
 		global _dbowner
 
-		# get owner
-		if _dbowner is None:
-			print "We are about to check whether we need to create the"
-			print "database user who owns all GNUmed database objects."
-			print ""
-			print "If the user exists you will have to provide the"
-			print "password that was previously set for it."
-			print ""
-			print "If the user does not exist yet it will be created"
-			print "and you must provide a new password."
-			print ""
-			print "You will not have to provide a password if it"
-			print "is pre-defined in the configuration file."
-			print ""
-			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
+		print "We are about to check whether we need to create the"
+		print "database user who owns all GNUmed database objects."
+		print ""
 
-		if _dbowner is None:
+		dbowner_alias = self.cfg.get("GnuMed defaults", "database owner alias")
+		if dbowner_alias is None:
 			_log.Log(gmLog.lErr, "Cannot load GNUmed database owner name from config file.")
 			return None
 
 		cursor = self.conn.cursor()
 		# does this user already exist ?
-		if self.__user_exists(cursor, _dbowner.name):
+		name = self.cfg.get('user %s' % dbowner_alias, 'name')
+		if self.__user_exists(cursor, name):
+			cmd = 'alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"' % (name, self.auth_group, name)
+			try:
+				cursor.execute(cmd)
+			except:
+				_log.Log(gmLog.lErr, ">>>[%s]<<< failed." % cmd)
+				_log.LogException("Cannot add GNUmed database owner [%s] to groups [gm-logins] and [%s]." % (name, self.auth_group), sys.exc_info(), verbose=1)
+				cursor.close()
+				return False
 			cursor.close()
+			print "The database owner already exists."
+			print "Please provide the password previously used for it."
+			_dbowner = user(anAlias = dbowner_alias)
 			return True
 
-		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB" % (_dbowner.name, _dbowner.password)
+		print (
+"""The database owner will be created.
+You will have to provide a new password for it
+unless it is pre-defined in the configuration file.
+
+Make sure to remember the password.
+""")
+		_dbowner = user(anAlias = dbowner_alias)
+
+		cmd = 'create user "%s" with password \'%s\' createdb in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
 		try:
 			cursor.execute(cmd)
 		except:
@@ -428,34 +433,34 @@ class db_server:
 		return True
 	#--------------------------------------------------------------
 	def __group_exists(self, aCursor, aGroup):
-		cmd = "SELECT groname FROM pg_group WHERE groname='%s'" % aGroup
+		cmd = "SELECT groname FROM pg_group WHERE groname = '%s'" % aGroup
 		try:
 			aCursor.execute(cmd)
 		except:
 			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
-			return None
+			return False
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
 			_log.Log(gmLog.lInfo, "Group %s exists." % aGroup)
 			return True
 		_log.Log(gmLog.lInfo, "Group %s does not exist." % aGroup)
-		return None
+		return False
 	#--------------------------------------------------------------
 	def __create_group(self, aCursor, aGroup):
 		# does this group already exist ?
 		if self.__group_exists(aCursor, aGroup):
 			return True
 
-		cmd = "CREATE GROUP \"%s\"" % aGroup
+		cmd = 'create group "%s"' % aGroup
 		try:
 			aCursor.execute(cmd)
 		except:
 			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
-			return None
+			return False
 
 		# paranoia is good
 		if not self.__group_exists(aCursor, aGroup):
-			return None
+			return False
 
 		return True
 	#--------------------------------------------------------------
@@ -474,13 +479,13 @@ class db_server:
 		if groups is None:
 			_log.Log(gmLog.lErr, "Cannot load GNUmed group names from config file (section [%s])." % section)
 			return None
+		groups.append(self.auth_group)
 
 		cursor = self.conn.cursor()
-
 		for group in groups:
 			if not self.__create_group(cursor, group):
 				cursor.close()
-				return None
+				return False
 
 		self.conn.commit()
 		cursor.close()
@@ -525,7 +530,7 @@ class database:
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
 		# make sure server is bootstrapped
-		db_server(self.server_alias, self.cfg)
+		db_server(self.server_alias, self.cfg, auth_group = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
@@ -566,19 +571,17 @@ class database:
 		if not self.__bootstrap_proc_langs():
 			_log.Log(gmLog.lErr, "Cannot bootstrap procedural languages.")
 			return None
+		if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
+			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+			return None
 
 		# reconnect as owner to db
 		if not self.__connect_owner_to_db():
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return None
 
-#		# import schema
-#		if not _import_schema(aSection = self.section, aSrv_name = self.server.name, aDB_name = self.name, aUser = self.owner.name):
-#			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
-#			return None
-
 		# import schema
-		if not _import_schema(self.section, self.conn):
+		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
 			return None
 
@@ -826,7 +829,6 @@ begin
 		file.close()
 
 		# import auditing schema
-#		if not _import_schema_file(anSQL_file = '/tmp/audit-trail-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
 		psql = gmPsql.Psql (self.conn)
 		if psql.run ('/tmp/audit-trail-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
@@ -866,7 +868,6 @@ begin
 		file.close()
 
 		# import notification schema
-#		if not _import_schema_file(anSQL_file = '/tmp/notification-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
 		psql = gmPsql.Psql (self.conn)
 		if psql.run('/tmp/notification-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import notification schema definition for database [%s]" % (self.name))
@@ -921,8 +922,7 @@ class gmService:
 			return None
 
 		# import schema
-#		if not _import_schema(aSection = self.section, aSrv_name = self.db.server.name, aDB_name = self.db.name, aUser = _dbowner.name):
-		if not _import_schema(self.section, self.db.conn):
+		if not _import_schema(group=self.section, schema_opt='schema', conn=self.db.conn):
 			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
 			return None
 
@@ -1204,14 +1204,14 @@ def ask_for_confirmation():
 			return None
 	return True
 #--------------------------------------------------------------
-def _import_schema (aSection, aConn):
+def _import_schema (group=None, schema_opt="schema", conn=None):
 	# load schema
-	schema_files = _cfg.get(aSection, "schema")
+	schema_files = _cfg.get(group, schema_opt)
 	if schema_files is None:
 		_log.Log(gmLog.lErr, "Need to know schema definition to install it.")
 		return None
 
-	schema_base_dir = _cfg.get(aSection, "schema base directory")
+	schema_base_dir = _cfg.get(group, "schema base directory")
 	if schema_base_dir is None:
 		_log.Log(gmLog.lWarn, "no schema files base directory specified")
 		# look for base dirs for schema files
@@ -1225,7 +1225,7 @@ def _import_schema (aSection, aConn):
 			schema_base_dir = os.path.expandvars('$GNUMED_DIR/server')
 
 	# and import them
-	psql = gmPsql.Psql (aConn)
+	psql = gmPsql.Psql (conn)
 	for file in schema_files:
 		the_file = os.path.join(schema_base_dir, file)
 #		if _import_schema_file(anSQL_file = the_file, aSrv = aSrv_name, aDB = aDB_name, aUser = aUser):
@@ -1460,7 +1460,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.20  2006-01-03 11:27:52  ncq
+# Revision 1.21  2006-02-02 16:19:09  ncq
+# - improve checking for existing/non-existing gm-dbo
+# - enable infrastructure for database-only GNUmed user adding
+#
+# Revision 1.20  2006/01/03 11:27:52  ncq
 # - log user we are actually running as
 #
 # Revision 1.19  2005/12/27 19:07:11  ncq
