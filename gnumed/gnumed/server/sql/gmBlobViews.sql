@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.19 $ $Date: 2006-01-27 22:21:58 $ $Author: ncq $
+-- $Revision: 1.20 $ $Date: 2006-02-02 17:54:48 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -86,6 +86,26 @@ comment on table blobs.reviewed_doc_objs is
 
 -- =============================================
 \unset ON_ERROR_STOP
+drop function blobs.trf_mark_unreviewed_on_doc_obj_update() cascade;
+\set ON_ERROR_STOP 1
+
+create function blobs.trf_mark_unreviewed_on_doc_obj_update()
+	returns trigger
+	language 'plpgsql'
+	as '
+BEGIN
+	if (NEW.data != OLD.data) or ((NEW.data != OLD.data) is NULL) then
+		delete from blobs.reviewed_doc_objs where fk_reviewed_row = OLD.pk;
+	end if;
+	return NEW;
+END;';
+
+create trigger tr_mark_unreviewed_on_doc_obj_update
+	after update on blobs.doc_obj
+	for each row execute procedure blobs.trf_mark_unreviewed_on_doc_obj_update();
+
+-- =============================================
+\unset ON_ERROR_STOP
 drop view blobs.v_doc_type cascade;
 \set ON_ERROR_STOP 1
 
@@ -120,6 +140,7 @@ where
 -- =============================================
 create view blobs.v_obj4doc as
 select
+	dobj.data as object,
 	vdm.pk_patient as pk_patient,
 	dobj.pk as pk_obj,
 	dobj.seq_idx as seq_idx,
@@ -130,11 +151,21 @@ select
 	octet_length(coalesce(dobj.data, '')) as size,
 	vdm.comment as doc_comment,
 	dobj.comment as obj_comment,
+	dobj.fk_intended_reviewer as pk_intended_reviewer,
 	exists(select 1 from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk)
 		as reviewed,
-	(select (signature is not null) from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk)
-		as signed,
-	dobj.data as object,
+	exists (
+		select 1 from blobs.reviewed_doc_objs
+		where
+			fk_reviewed_row = dobj.pk and
+			fk_reviewer = (select pk from dem.staff where db_user=current_user)
+		) as reviewed_by_you,
+	exists (
+		select 1 from blobs.reviewed_doc_objs
+		where
+			fk_reviewed_row = dobj.pk and
+			fk_reviewer = dobj.fk_intended_reviewer
+		) as reviewed_by_intended_reviewer,
 	vdm.pk_doc as pk_doc,
 	vdm.pk_type as pk_type,
 	dobj.xmin as xmin_doc_obj
@@ -223,11 +254,15 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.19 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.19  2006-01-27 22:21:58  ncq
+-- Revision 1.20  2006-02-02 17:54:48  ncq
+-- - invalidate reviewed status on update to blobs.doc_obj.data
+-- - list status of review by: me/intended reviewer in blobs.v_obj4doc
+--
+-- Revision 1.19  2006/01/27 22:21:58  ncq
 -- - add signed/reviewed to v_objs4doc
 -- - add grants
 --
