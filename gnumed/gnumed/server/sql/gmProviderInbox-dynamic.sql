@@ -2,7 +2,7 @@
 -- GNUmed - dynamic tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
--- $Id: gmProviderInbox-dynamic.sql,v 1.6 2006-01-23 22:10:57 ncq Exp $
+-- $Id: gmProviderInbox-dynamic.sql,v 1.7 2006-02-02 17:55:35 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -81,6 +81,7 @@ where
 ;
 
 -- ---------------------------------------------
+-- FIXME: add UNION to collect unreviewed from blobs.v_obj4doc
 create view dem.v_provider_inbox as
 select
 	(select short_alias from dem.staff where dem.staff.pk = pi.fk_staff) as provider,
@@ -105,11 +106,14 @@ where
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.6 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-dynamic.sql,v $
--- Revision 1.6  2006-01-23 22:10:57  ncq
+-- Revision 1.7  2006-02-02 17:55:35  ncq
+-- - add comment
+--
+-- Revision 1.6  2006/01/23 22:10:57  ncq
 -- - staff.sign -> .short_alias
 --
 -- Revision 1.5  2006/01/22 18:13:37  ncq
