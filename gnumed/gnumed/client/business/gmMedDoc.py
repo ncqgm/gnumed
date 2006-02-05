@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.53 2006-02-05 14:27:13 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmMedDoc.py,v 1.54 2006-02-05 14:36:01 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -536,7 +536,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
 VALUES (
 	%(doc_id)s,
-	(select pk_identity from dem.v_staff where db_user=CURRENT_USER),
+	(select pk_staff from dem.v_staff where db_user=CURRENT_USER),
 	'',
 	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
 )"""
@@ -668,7 +668,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.53  2006-02-05 14:27:13  ncq
+# Revision 1.54  2006-02-05 14:36:01  ncq
+# - intended reviewer now must be staff, not identity
+#
+# Revision 1.53  2006/02/05 14:27:13  ncq
 # - add doc-wide set_reviewed() wrapper to cMedDoc
 # - handle review-related fields to cMedDocPart
 # - add set_reviewed() to cMedDocPart
