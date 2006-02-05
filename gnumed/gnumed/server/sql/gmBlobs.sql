@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.59 $ $Date: 2006-01-27 22:24:04 $ $Author: ncq $
+-- $Revision: 1.60 $ $Date: 2006-02-05 14:29:07 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -55,6 +55,7 @@ CREATE TABLE blobs.doc_med (
 );
 
 -- =============================================
+-- FIXME: audit trail ?
 CREATE TABLE blobs.doc_obj (
 	pk serial primary key,
 	doc_id integer
@@ -87,13 +88,16 @@ CREATE TABLE blobs.doc_desc (
 -- =============================================
 create table blobs.reviewed_doc_objs (
 	primary key (pk),
-	foreign key (fk_reviewed_row) references blobs.doc_obj(pk),
+	foreign key (fk_reviewed_row)
+		references blobs.doc_obj(pk)
+		on update cascade
+		on delete cascade,
 	unique (fk_reviewed_row, fk_reviewer)
 ) inherits (clin.review_root);
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.59 $');
+select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.60 $');
 
 -- =============================================
 -- questions:
@@ -112,7 +116,10 @@ select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.59
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.59  2006-01-27 22:24:04  ncq
+-- Revision 1.60  2006-02-05 14:29:07  ncq
+-- - proper behaviour for blobs.reviewed_doc_objs foreign keys on update/delete
+--
+-- Revision 1.59  2006/01/27 22:24:04  ncq
 -- - let fk_intended_reviewer reference pk_staff
 -- - disallow deletion of any staff that reviewed a document
 -- - add reviewed_doc_objs
