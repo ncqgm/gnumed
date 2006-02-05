@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.52 2006-01-27 22:16:14 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmMedDoc.py,v 1.53 2006-02-05 14:27:13 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -165,6 +165,13 @@ order by dm.date desc"""
 	#--------------------------------------------------------
 	def add_document(self, document_type=None):
 		return create_document(patient_id=self.id_patient, document_type=document_type)
+	#--------------------------------------------------------
+	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
+		# FIXME: this is probably inefficient
+		for doc in self.get_documents():
+			if not doc.set_reviewed(technically_abnormal, clinically_relevant):
+				return False
+		return True
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -184,9 +191,11 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			doc_comment,
 			obj_comment,
 			reviewed,
-			signed,
+			reviewed_by_you,
+			reviewed_by_intended_reviewer,
 			pk_doc,
 			pk_type,
+			pk_intended_reviewer,
 			xmin_doc_obj
 		from blobs.v_obj4doc
 		where pk_obj=%s"""
@@ -196,13 +205,15 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		"""update blobs.doc_obj set
 				seq_idx=%(seq_idx)s,
-				comment=%(obj_comment)s
+				comment=%(obj_comment)s,
+				fk_intended_reviewer=%(pk_intended_reviewer)s
 			where pk=%(pk_doc)s""",
 		"""select xmin_doc_obj from blobs.v_obj4doc where pk_obj = %(pk_doc)s"""
 	]
 	_updatable_fields = [
 		'seq_idx',
-		'obj_comment'
+		'obj_comment',
+		'fk_reviewer'
 	]
 	#--------------------------------------------------------
 	def __del__(self):
@@ -383,6 +394,71 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
 			return False
 		return True
+	#--------------------------------------------------------
+	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
+		# row already there ?
+		cmd = """
+select pk
+from blobs.reviewed_doc_objs
+where
+	fk_reviewed_row = %s and
+	fk_reviewer = (select pk from dem.staff where db_user=current_user)"""
+		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get reviewed status on doc part [%s]' % self.pk_obj);
+			return False
+
+		# INSERT needed
+		if len(rows) == 0:
+			cols = [
+				"fk_reviewed_row",
+				"fk_reviewer",
+				"is_technically_abnormal",
+				"clinically_relevant"
+			]
+			vals = [
+				'%(fk_row)s',
+				'%(fk_reviewer)s',
+				'%(abnormal)s',
+				'%(relevant)s'
+			]
+			args = {
+				'fk_row': self.pk_obj,
+				'fk_reviewer': '(select pk from dem.staff where db_user=current_user)',
+				'abnormal': technically_abnormal,
+				'relevant': clinically_relevant
+			}
+			cmd = """
+insert into blobs.reviewed_doc_objs (
+	%s
+) values (
+	%s
+)""" % (', '.join(cols), ', '.join(vals))
+
+		# UPDATE needed
+		if len(rows) == 1:
+			pk_row = rows[0][0]
+			args = {
+				'abnormal': technically_abnormal,
+				'relevant': clinically_relevant,
+				'pk_row': pk_row
+			}
+			cmd = """
+update blobs.reviewed_doc_objs set
+	is_technically_abnormal = %(abnormal)s,
+	clinically_relevant = %(relevant)s
+where
+	pk=%%(pk_row)s
+"""
+		success, rows = gmPG.run_commits (
+			link_obj = 'blobs',
+			queries = [(cmd, [args])]
+		)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot set reviewed status on doc part [%s]' % self.pk_obj);
+			return False
+
+		return True
 #============================================================
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -470,7 +546,7 @@ VALUES (
 			(cmd2, [])
 		])
 		if result is None:
-			_log.Log(gmLog.lErr, 'cannot create part for document [%s]' % doc_id)
+			_log.Log(gmLog.lErr, 'cannot create part for document [%s]' % self.pk_obj)
 			return None
 		# init document part instance
 		part_pk = result[0][0]
@@ -592,7 +668,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.52  2006-01-27 22:16:14  ncq
+# Revision 1.53  2006-02-05 14:27:13  ncq
+# - add doc-wide set_reviewed() wrapper to cMedDoc
+# - handle review-related fields to cMedDocPart
+# - add set_reviewed() to cMedDocPart
+#
+# Revision 1.52  2006/01/27 22:16:14  ncq
 # - add reviewed/signed to cMedDocPart
 #
 # Revision 1.51  2006/01/22 18:07:34  ncq
