@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -225,8 +225,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		# update business object with metadata
 		# - date of generation
 		new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
-#        # - type of document
-#        new_doc['pk_type'] = self._SelBOX_doc_type.GetSelection()
 		# - external reference
 		ref = gmMedDoc.get_ext_ref()
 		if ref is not None:
@@ -265,7 +263,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 			return False
 
 		# set reviewed status
-		new_doc.set_reviewed(self._ChBOX_reviewed.GetValue())
+		if self._ChBOX_reviewed.GetValue():
+			if not new_doc.set_reviewed (
+				technically_abnormal = self._ChBOX_abnormal.GetValue(),
+				clinically_relevant = self._ChBOX_relevant.GetValue()
+			):
+				msg = _('Error setting "reviewed" status of new document.')
 
 		cfg = gmCfg.cCfgSQL()
 		show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
@@ -408,23 +411,22 @@ class cDocTree(wx.TreeCtrl):
 				else:
 					cmt = part['obj_comment']
 
-				if part['size'] == 0:
-					sz = _('0 bytes - data missing ?')
-				else:
-					sz = _('%s bytes') % part['size']
+#				if part['size'] == 0:
+#					sz = _('0 bytes - data missing ?')
+#				else:
+#					sz = _('%s bytes') % part['size']
 
-				if part['reviewed']:
+				if part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer']:
 					rev = ''
 				else:
 					rev = ' [%s]' % _('unreviewed')
 
-				if part['signed']:
-					sig = ''
-					# FIXME: actually verify signature
-				else:
-					sig = ' [%s]' % _('unsigned')
+#				if part['clinically_relevant']:
+#					rel = ' [%s]' % _('Cave')
+#				else:
+#					rel = ''
 
-				label = _('%s%s%s: "%s" (%s)') % (pg, rev, sig, cmt, sz)
+				label = '%s%s: "%s"' % (pg, rev, cmt)
 
 				part_node = self.AppendItem(doc_node, label)
 				self.SetPyData(part_node, part)
@@ -464,6 +466,8 @@ class cDocTree(wx.TreeCtrl):
 		_log.Log(gmLog.lErr, 'do not know how to compare [%s] with [%s]' % (type(item1), type(item2)))
 		return None
 	#------------------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------------------
 	def _on_activate (self, event):
 		node = event.GetItem()
 		node_data = self.GetPyData(node)
@@ -476,6 +480,69 @@ class cDocTree(wx.TreeCtrl):
 		if isinstance(node_data, gmMedDoc.cMedDoc):
 			return None
 
+		self.__display_part(part = node_data)
+	#--------------------------------------------------------
+	def __on_right_click(self, evt):
+		node = evt.GetItem()
+		self.__curr_node_data = self.GetPyData(node)
+
+		# exclude pseudo root node
+		if self.__curr_node_data is None:
+			return None
+
+		# documents
+		if isinstance(self.__curr_node_data, gmMedDoc.cMedDoc):
+			self.__handle_doc_context()
+
+		# parts
+		if isinstance(self.__curr_node_data, gmMedDoc.cMedDocPart):
+			self.__handle_part_context()
+
+		del self.__curr_node_data
+		evt.Skip()
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __handle_doc_context(self):
+		# build menu
+		descriptions = self.__curr_node_data.get_descriptions()
+		desc_menu = wx.Menu()
+		for desc in descriptions:
+			d_id = wx.NewId()
+			# contract string
+			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
+			tmp = ' '.join(tmp)
+			# but only use first 30 characters
+			tmp = "%s ..." % tmp[:30]
+			desc_menu.AppendItem(wx.MenuItem(desc_menu, d_id, tmp))
+			# connect handler
+			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
+		ID_load_submenu = wx.NewId()
+		menu = wx.Menu(title = _('document menu'))
+		menu.AppendMenu(ID_load_submenu, _('descriptions ...'), desc_menu)
+		self.PopupMenu(menu, wx.DefaultPosition)
+		menu.Destroy()
+	#--------------------------------------------------------
+	def __handle_part_context(self):
+		# build menu
+		menu = wx.Menu(title = _('page menu'))
+		# display file
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, 'Display'))
+		wx.EVT_MENU(menu, ID, self.__display_curr_part)
+		# review item
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, 'Review/Initial'))
+		wx.EVT_MENU(menu, ID, self.__review_curr_part)
+		# show menu
+		self.PopupMenu(menu, wx.DefaultPosition)
+		menu.Destroy()
+	#--------------------------------------------------------
+	def __display_curr_part(self, evt):
+		self.__display_part(part=self.__curr_node_data)
+	#--------------------------------------------------------
+	def __display_part(self, part):
+		"""Display document part."""
 		# but do everything with parts
 		def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
 		cfg = gmCfg.cCfgSQL()
@@ -491,8 +558,8 @@ class cDocTree(wx.TreeCtrl):
 		else:
 			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
-		if node_data['size'] == 0:
-			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % node_data['pk_obj'])
+		if part['size'] == 0:
+			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % part['pk_obj'])
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Document part does not seem to exist in database !'),
 				aTitle = _('showing document')
@@ -508,9 +575,9 @@ class cDocTree(wx.TreeCtrl):
 			chunksize = 1 * 1024 * 1024		# 1 MB
 
 		# retrieve doc part
-		fname = node_data.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
+		fname = part.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
 		if fname is None:
-			_log.Log(gmLog.lErr, "cannot export doc part [%s] data from database" % node_data['pk_obj'])
+			_log.Log(gmLog.lErr, "cannot export doc part [%s] data from database" % part['pk_obj'])
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot export document part from database to file.'),
 				aTitle = _('showing document')
@@ -526,50 +593,14 @@ class cDocTree(wx.TreeCtrl):
 			return None
 		return 1
 	#--------------------------------------------------------
-	def __on_right_click(self, evt):
-		node = evt.GetItem()
-		node_data = self.GetPyData(node)
-
-		# exclude pseudo root node
-		if node_data is None:
-			return None
-
-		# documents
-		if isinstance(node_data, gmMedDoc.cMedDoc):
-			self.__handle_doc_context(doc=node_data)
-
-		# parts
-		if isinstance(node_data, gmMedDoc.cMedDocPart):
-			self.__handle_part_context(node_data)
-		evt.Skip()
+	def __review_curr_part(self, evt):
+		self.__review_part(part=self.__curr_node_data)
 	#--------------------------------------------------------
-	def __handle_doc_context(self, doc=None):
-		# build menu
-		descriptions = doc.get_descriptions()
-		wx.IDs_desc = []
-		desc_menu = wx.Menu()
-		for desc in descriptions:
-			d_id = wx.NewId()
-			wx.IDs_desc.append(d_id)
-			# contract string
-			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
-			tmp = ' '.join(tmp)
-			# but only use first 30 characters
-			tmp = "%s ..." % tmp[:30]
-			desc_menu.AppendItem(wx.MenuItem(desc_menu, d_id, tmp))
-			# connect handler
-			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
-		wx.ID_load_submenu = wx.NewId()
-		menu = wx.Menu(title = _('document menu'))
-		menu.AppendMenu(wx.ID_load_submenu, _('descriptions ...'), desc_menu)
-		self.PopupMenu(menu, wx.DefaultPosition)
-		menu.Destroy()
+	def __review_part(self, part=None):
+		print "reviewing part"
 	#--------------------------------------------------------
 	def __show_description(self, evt):
 		print "showing description"
-	#--------------------------------------------------------
-	def __handle_part_context(self, data):
-		print "handling doc part context menu"
 #============================================================
 # main
 #------------------------------------------------------------
@@ -579,7 +610,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.52  2006-02-05 14:16:29  shilbert
+# Revision 1.53  2006-02-05 15:03:22  ncq
+# - doc tree:
+#   - document part popup menu, stub for review dialog
+#   - improved part display in doc tree
+# - start handling relevant/abnormal check boxes in scan/index
+#
+# Revision 1.52  2006/02/05 14:16:29  shilbert
 # - more checks for required values before commiting document to database
 #
 # Revision 1.51  2006/01/27 22:33:44  ncq
