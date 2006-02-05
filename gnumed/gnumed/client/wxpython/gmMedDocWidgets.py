@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -78,8 +78,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 				aTitle = _('saving document')
 				)
 			return False
-
-		if self._SelBOX_doc_type.GetSelection() == '' or self._SelBOX_doc_type.GetSelection() is None:
+		print 'lala'
+		print self._SelBOX_doc_type.GetSelection()
+		if self._SelBOX_doc_type.GetStringSelection() == '' or self._SelBOX_doc_type.GetSelection() is None or self._SelBOX_doc_type.GetSelection() < 0:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No document type applied. Choose a document type'),
 				aTitle = _('saving document')
@@ -578,7 +579,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.51  2006-01-27 22:33:44  ncq
+# Revision 1.52  2006-02-05 14:16:29  shilbert
+# - more checks for required values before commiting document to database
+#
+# Revision 1.51  2006/01/27 22:33:44  ncq
 # - display reviewed/signed status in document tree
 #
 # Revision 1.50  2006/01/24 22:32:14  ncq
