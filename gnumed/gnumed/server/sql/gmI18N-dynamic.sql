@@ -3,7 +3,7 @@
 -- ======================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N-dynamic.sql,v $
--- $Id: gmI18N-dynamic.sql,v 1.2 2006-01-10 08:44:22 ncq Exp $
+-- $Id: gmI18N-dynamic.sql,v 1.3 2006-02-06 13:18:27 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -33,7 +33,7 @@ comment on table i18n.keys is
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop index idx_orig;
+drop index i18n.idx_orig;
 \set ON_ERROR_STOP 1
 
 create index idx_orig on i18n.translations(orig);
@@ -185,7 +185,7 @@ comment on function i18n.set_curr_lang(text) is
 	 - only if translations for this language are available';
 
 -- =============================================
-create function i18n.force_curr_lang(text)
+create or replace function i18n.force_curr_lang(text)
 	returns unknown
 	language 'plpgsql'
 	security definer
@@ -195,7 +195,7 @@ DECLARE
 BEGIN
     raise notice ''Forcing current language to [%] without checking for translations..'', _lang;
     delete from i18n.curr_lang where user = CURRENT_USER;
-    insert into i18n.curr_lang (lang) values (_lang);
+    insert into i18n.curr_lang(lang) values (_lang);
     return 1;
 END;
 ';
@@ -205,8 +205,8 @@ comment on function i18n.force_curr_lang(text) is
 	 - for "current user"';
 
 -- =============================================
-create function i18n.set_curr_lang(text, name)
-	returns unknown
+create or replace function i18n.set_curr_lang(text, name)
+	returns boolean
 	language 'plpgsql'
 	security definer
 	as '
@@ -216,13 +216,12 @@ DECLARE
 BEGIN
 	if exists(select pk from i18n.translations where lang = _lang) then
 		delete from i18n.curr_lang where user = _user;
-		insert into i18n.curr_lang (user, lang) values (_user, _lang);
-		return 1;
+		insert into i18n.curr_lang("user", lang) values (_user, _lang);
 	else
 		raise exception ''Cannot set current language to [%]. No translations available.'', _lang;
-		return NULL;
+		return False;
 	end if;
-	return NULL;
+	return True;
 END;
 ';
 
@@ -261,11 +260,14 @@ TO group "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmI18N-dynamic.sql,v $
--- Revision 1.2  2006-01-10 08:44:22  ncq
+-- Revision 1.3  2006-02-06 13:18:27  ncq
+-- - quote user when column name
+--
+-- Revision 1.2  2006/01/10 08:44:22  ncq
 -- - drop index does not require "on"
 --
 -- Revision 1.1  2006/01/09 13:42:29  ncq
