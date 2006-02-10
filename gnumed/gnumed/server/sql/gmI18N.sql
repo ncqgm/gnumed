@@ -3,7 +3,7 @@
 -- ======================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.24 2006-01-09 13:42:29 ncq Exp $
+-- $Id: gmI18N.sql,v 1.25 2006-02-10 14:06:40 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -57,11 +57,14 @@ create table i18n.translations (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.24 $');
+select log_script_insertion('$RCSfile: gmI18N.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.24  2006-01-09 13:42:29  ncq
+-- Revision 1.25  2006-02-10 14:06:40  ncq
+-- - proper script insertion logging
+--
+-- Revision 1.24  2006/01/09 13:42:29  ncq
 -- - factor out dynamic stuff
 -- - move into schema "i18n" (except for _())
 --
