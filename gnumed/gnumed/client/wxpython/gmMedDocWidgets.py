@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -15,7 +15,7 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg
 
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
@@ -597,7 +597,11 @@ class cDocTree(wx.TreeCtrl):
 		self.__review_part(part=self.__curr_node_data)
 	#--------------------------------------------------------
 	def __review_part(self, part=None):
-		print "reviewing part"
+		dlg = wxgReviewDocPartDlg.wxgReviewDocPartDlg (
+			parent = self,
+			id = -1
+		)
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	def __show_description(self, evt):
 		print "showing description"
@@ -610,7 +614,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.53  2006-02-05 15:03:22  ncq
+# Revision 1.54  2006-02-10 16:33:19  ncq
+# - popup review dialog from doc part right-click menu
+#
+# Revision 1.53  2006/02/05 15:03:22  ncq
 # - doc tree:
 #   - document part popup menu, stub for review dialog
 #   - improved part display in doc tree
