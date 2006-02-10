@@ -1,36 +1,13 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.44 2006-02-08 15:15:39 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.45 2006-02-10 14:08:58 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-
--- ===================================================================
---		self.__consultation_types = [
---			_('in surgery'),
---			_('home visit'),
---			_('by phone'),
---			_('at specialist'),
---			_('patient absent'),
---			_('by email'),
---			_('other consultation')
---		]
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('in surgery'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('phone consultation'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('fax consultation'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('home visit'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('nursing home visit'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('repeat script'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('hospital visit'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('video conference'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('proxy encounter'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('emergency encounter'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('chart review'));
-INSERT INTO clin.encounter_type (description) values (i18n.i18n('other encounter'));
 
 -- ===================================================================
 insert into clin._enum_allergy_type (value) values (i18n.i18n('allergy'));
@@ -278,11 +255,14 @@ insert into clin.test_type (
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.44 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.45 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.44  2006-02-08 15:15:39  ncq
+-- Revision 1.45  2006-02-10 14:08:58  ncq
+-- - factor out EMR structure clinical schema into its own set of files
+--
+-- Revision 1.44  2006/02/08 15:15:39  ncq
 -- - factor our vaccination stuff into its own set of files
 -- - remove clin.lnk_vacc_ind2code in favour of clin.coded_term usage
 -- - improve comments as discussed on the list
