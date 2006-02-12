@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.9 2005-08-24 09:33:53 ncq Exp $
+# $Id: setup_workspace.sh,v 1.10 2006-02-12 18:07:42 shilbert Exp $
 # license: GPL
 #====================================================
-REV=0.1
+REV=0.2
 
 # clean up
 rm -r ./GNUmed-$REV/
@@ -15,88 +15,95 @@ echo "____________"
 echo "=> client <="
 echo "============"
 
-mkdir -p ./GNUmed-$REV/client
-mkdir -p ./GNUmed-$REV/client/usr/share/gnumed/
-mkdir -p ./GNUmed-$REV/client/usr/share/doc/gnumed/client
-mkdir -p ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/
-mkdir -p ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/importers/
-mkdir -p ./GNUmed-$REV/client/etc/gnumed/
-mkdir -p ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
-mkdir -p ./GNUmed-$REV/client/usr/share/gnumed/pixmaps/
-mkdir -p ./GNUmed-$REV/client/usr/bin/
-mkdir -p ./GNUmed-$REV/client/usr/share/locale/de/LC_MESSAGES/
-mkdir -p ./GNUmed-$REV/client/usr/share/locale/de_DE/LC_MESSAGES/
-mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr/LC_MESSAGES/
-mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr_FR/LC_MESSAGES/
-mkdir -p ./GNUmed-$REV/client/usr/share/locale/es/LC_MESSAGES/
-mkdir -p ./GNUmed-$REV/client/usr/share/locale/es_ES/LC_MESSAGES/
+mkdir -p ./GNUmed-$REV/
+#mkdir -p ./GNUmed-$REV/client/usr/share/gnumed/
+#mkdir -p ./GNUmed-$REV/client/usr/share/doc/gnumed/client
+#mkdir -p ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/
+#mkdir -p ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/importers/
+#mkdir -p ./GNUmed-$REV/client/etc/gnumed/
+#mkdir -p ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
+#mkdir -p ./GNUmed-$REV/client/usr/share/gnumed/pixmaps/
+#mkdir -p ./GNUmed-$REV/client/usr/bin/
+#mkdir -p ./GNUmed-$REV/client/usr/share/locale/de/LC_MESSAGES/
+#mkdir -p ./GNUmed-$REV/client/usr/share/locale/de_DE/LC_MESSAGES/
+#mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr/LC_MESSAGES/
+#mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr_FR/LC_MESSAGES/
+#mkdir -p ./GNUmed-$REV/client/usr/share/locale/es/LC_MESSAGES/
+#mkdir -p ./GNUmed-$REV/client/usr/share/locale/es_ES/LC_MESSAGES/
 
-cp -R ../../client/bitmaps ./GNUmed-$REV/client/usr/share/gnumed/
-cp -R ../../client/business ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
-cp -R ../../client/doc/medical_knowledge ./GNUmed-$REV/client/usr/share/doc/gnumed
-cp -R ../../client/exporters/*.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/
-cp -R ../../client/importers/*.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/importers/
-cp -R ../../client/exporters/gmPatientExporter.conf ./GNUmed-$REV/client/etc/gnumed/
-cp -R ../../client/gm-0_1.conf ./GNUmed-$REV/client/etc/gnumed/gnumed.conf
-cp -R ../../client/pycommon ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
-cp -R ../../client/wxpython ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
-cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
-cp -R ../../client/__init__.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
-cp -R ./gnumed.xpm ./GNUmed-$REV/client/usr/share/gnumed/pixmaps/
-cp -R ./gnumed ./GNUmed-$REV/client/usr/bin/
+cp -R ../../client/ ./GNUmed-$REV/
+cp -R ../../server/ ./GNUmed-$REV/
+#cp -R ../../client/bitmaps ./GNUmed-$REV/client/bitmaps
+#cp -R ../../client/business ./GNUmed-$REV/client/business
+#cp -R ../../client/doc/medical_knowledge ./GNUmed-$REV/client/doc/medical_knowledge
+#cp -R ../../client/exporters/*.py ./GNUmed-$REV/client/exporters/*.py
+#cp -R ../../client/importers/*.py ./GNUmed-$REV/client/importers/*.py
+#cp -R ../../client/exporters/gmPatientExporter.conf ./GNUmed-$REV/client/exporters/gmPatientExporter.conf
+#cp -R ../../client/gm-0_1.conf ./GNUmed-$REV/client/gm-0_1.conf
+#cp -R ../../client/pycommon ./GNUmed-$REV/client/pycommon
+#cp -R ../../client/wxpython ./GNUmed-$REV/client/wxpython
+#cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/sitecustomize.py
+#cp -R ../../client/__init__.py ./GNUmed-$REV/client/__init__.py
+#cp -R ./gnumed.xpm ./GNUmed-$REV/client/gnumed.xpm
+cp -R ./gnumed ./GNUmed-$REV/client/gnumed
 
 # copy user manual from wiki
 echo "downloading Manual zip file from the web"
 rm -vf Main.TWikiGuest_Gnumed.zip
 wget -v http://salaam.homeunix.com/gm-manual/Main.TWikiGuest_Gnumed.zip
-unzip Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual
-cd ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/
+unzip Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/user-manual
+cd ./GNUmed-$REV/client/user-manual/
 ln -s Release-01.html index.html
 cd -
 
 # build up2date *.po and *.mo language files
-cd ../../client/locale/
+cd ./GNUmed-$REV/client/locale/
 ./create-gnumed_mo.sh de
 ./create-gnumed_mo.sh es
 ./create-gnumed_mo.sh fr
 cd -
 
-cp ../../client/locale/de-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/de/LC_MESSAGES/gnumed.mo
-cp ../../client/locale/de-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/de_DE/LC_MESSAGES/gnumed.mo
-cp ../../client/locale/fr-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/fr/LC_MESSAGES/gnumed.mo
-cp ../../client/locale/fr-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/fr_FR/LC_MESSAGES/gnumed.mo
-cp ../../client/locale/es-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/es/LC_MESSAGES/gnumed.mo
-cp ../../client/locale/es-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/es_ES/LC_MESSAGES/gnumed.mo
+#cp ../../client/locale/de-gnumed.mo ./GNUmed-$REV/locale/de/LC_MESSAGES/gnumed.mo
+#cp ../../client/locale/de-gnumed.mo ./GNUmed-$REV/locale/de_DE/LC_MESSAGES/gnumed.mo
+#cp ../../client/locale/fr-gnumed.mo ./GNUmed-$REV/locale/fr/LC_MESSAGES/gnumed.mo
+#cp ../../client/locale/fr-gnumed.mo ./GNUmed-$REV/locale/fr_FR/LC_MESSAGES/gnumed.mo
+#cp ../../client/locale/es-gnumed.mo ./GNUmed-$REV/locale/es/LC_MESSAGES/gnumed.mo
+#cp ../../client/locale/es-gnumed.mo ./GNUmed-$REV/locale/es_ES/LC_MESSAGES/gnumed.mo
 
 #----------------------------------
 echo "____________"
 echo "=> server <="
 echo "============"
 
-mkdir -p ./GNUmed-$REV/server
-mkdir -p ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
-mkdir -p ./GNUmed-$REV/server/usr/share/gnumed/install/server/bootstrap
+#mkdir -p ./GNUmed-$REV/server
+#mkdir -p ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
+#mkdir -p ./GNUmed-$REV/server/usr/share/gnumed/install/server/bootstrap
 
-cp -R ../../client/pycommon ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
-cp -R ../../server/sql ./GNUmed-$REV/server/usr/share/gnumed/install/server
-cp -R ../../server/bootstrap/ ./GNUmed-$REV/server/usr/share/gnumed/install/server/
+#cp -R ../../client/pycommon ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
+cp -R ../../server/ ./GNUmed-$REV/server/
+#cp -R ../../server/bootstrap/ ./GNUmed-$REV/server/usr/share/gnumed/install/server/
 
 #----------------------------------
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/
 cp -R ../../../check-prerequisites.py ./GNUmed-$REV/
 cp -R ../../../check-prerequisites.sh ./GNUmed-$REV/
 cp -R ../../../CHANGELOG ./GNUmed-$REV/
-
+cp -R ./install.sh ./GNUmed-$REV/
 #ln -s ../CHANGELOG ../check-prerequisites.py ../check-prerequisites.sh ../install.sh ../GnuPublicLicense.txt ./GNUmed-$REV/
 
 #----------------------------------
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
+find ./ -name '*.log' -exec rm -v '{}' ';'
 find ./GNUmed-$REV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
+find ./GNUmed-$REV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.9  2005-08-24 09:33:53  ncq
+# Revision 1.10  2006-02-12 18:07:42  shilbert
+# - nearing v0.2
+#
+# Revision 1.9  2005/08/24 09:33:53  ncq
 # - remove CVS/ debris as requested by Debian packager
 #
 # Revision 1.8  2005/08/22 13:51:11  ncq
