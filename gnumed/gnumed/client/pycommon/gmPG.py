@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -234,7 +234,42 @@ class ConnectionPool:
 				ConnectionPool.__conn_use_count['default'] = 0
 	#-----------------------------
 	def Connected(self):
-		return ConnectionPool.__is_connected	
+		return ConnectionPool.__is_connected
+	#-----------------------------
+	def get_connection_for_user(self, user=None, password=None, service="default", encoding=None, extra_verbose=None):
+		"""Get a connection for a given user.
+
+		This will return a connection just as GetConnection() would
+		except that the user to be used for authentication can be
+		specified. All the other parameters are going to be the
+		same, IOW it will connect to the same server, port and database
+		as any other connection obtained through this broker.
+
+		You will have to specify the password, of course, if it
+		is needed for PostgreSQL authentication.
+
+		This will always return a read-write connection.
+		"""
+		if user is None:
+			_log.Log(gmLog.lErr, 'user must be given')
+			raise ValueError, 'gmPG.py::%s.get_connection_for_user(): user name must be given' % self.__class__.__name__
+		# use default encoding if none given
+		if encoding is None:
+			encoding = _default_client_encoding
+
+		logininfo = self.GetLoginInfoFor(service)
+		logininfo.SetUser(user=user)
+		logininfo.SetPassword(passwd=password)
+
+		_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
+		conn = self.__pgconnect(logininfo, readonly = 0, encoding = encoding)
+		if conn is None:
+			return None
+
+		if extra_verbose:
+			conn.conn.toggleShowQuery
+
+		return conn
 	#-----------------------------
 	# notification API
 	#-----------------------------
@@ -1226,7 +1261,7 @@ select exists (
 	return rows[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.61 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.62 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1462,7 +1497,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.61  2006-01-06 10:17:29  ncq
+# Revision 1.62  2006-02-12 14:56:43  ncq
+# - add get_connection_by_user()
+#
+# Revision 1.61  2006/01/06 10:17:29  ncq
 # - properly deal with array columns in get_col_defs()
 #   (needed by audit generator)
 #
