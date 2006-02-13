@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.20 $ $Date: 2006-02-02 17:54:48 $ $Author: ncq $
+-- $Revision: 1.21 $ $Date: 2006-02-13 08:29:51 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -203,6 +203,30 @@ where
 	)
 ;
 -- =============================================
+\unset ON_ERROR_STOP
+drop view blobs.v_reviewed_doc_objects cascade;
+\set ON_ERROR_STOP 1
+
+create view blobs.v_reviewed_doc_objects as
+select
+	rdo.fk_reviewed_row as pk_doc_obj,
+	(select short_alias from dem.v_staff where pk_staff = rdo.fk_reviewer)
+		as reviewer,
+	rdo.is_technically_abnormal as is_technically_abnormal,
+	rdo.clinically_relevant as clinically_relevant,
+	exists(select 1 from blobs.doc_obj where pk=rdo.fk_reviewed_row and fk_intended_reviewer=rdo.fk_reviewer)
+		as is_review_by_responsible_reviewer,
+	exists(select 1 from dem.v_staff where pk_staff=rdo.fk_reviewer and db_user=CURRENT_USER)
+		as is_your_review,
+	rdo.comment,
+	rdo.modified_when as reviewed_when,
+	rdo.modified_by as modified_by,
+	rdo.pk as pk_review_root,
+	rdo.fk_reviewer as pk_reviewer
+from
+	blobs.reviewed_doc_objs rdo
+;
+-- =============================================
 
 -- 
 --CREATE VIEW v_lnk_result2lab_req AS SELECT test_result.id AS fk_result, med_doc.id AS fk_request 
@@ -250,15 +274,19 @@ GRANT SELECT ON
 	, blobs.v_doc_med
 	, blobs.v_obj4doc
 	, blobs.v_latest_mugshot
+	, blobs.v_reviewed_doc_objects
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.20 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.20  2006-02-02 17:54:48  ncq
+-- Revision 1.21  2006-02-13 08:29:51  ncq
+-- - add blobs.v_reviewed_doc_objects
+--
+-- Revision 1.20  2006/02/02 17:54:48  ncq
 -- - invalidate reviewed status on update to blobs.doc_obj.data
 -- - list status of review by: me/intended reviewer in blobs.v_obj4doc
 --
