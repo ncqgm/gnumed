@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -55,56 +55,46 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if len(revs) == 0:
 			return True
 		# find special reviews
-#		me = None
-#		in_charge = None
-#		ordered_revs = []
-#		for rev in revs:
-#			if rev[4]:
-#				in_charge = rev
-#			if rev[5]:
-#				me = rev
-#			if not (rev[4] and rev[5]):
-#				ordered_revs.append(rev)
-		# display them
+		my_rev = None
+		in_charge_rev = None
+		ordered_revs = []
 		for rev in revs:
-#		for rev in ordered_revs:
-			item_idx = self._LCTRL_existing_reviews.InsertItem(info=wx.ListItem())
-			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=0, label=rev[0])
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label=rev[1].Format('%Y-%m-%d'))
-			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label='XX')
-#			if rev[2]:
-			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='XX')
-#			if rev[3]:
-			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='XX')
-			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label='XX')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label=rev[6])
-#		if in_charge is not None:
-#			item_idx = self._LCTRL_existing_reviews.InsertItem(info=wx.ListItem())
-#			self._LCTRL_existing_reviews.SetItemBackgroundColour(item_idx, col=wx.BLUE)
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=0, label=in_charge[0])
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label=in_charge[1].Format('%Y-%m-%d'))
-#			print in_charge[2], type(in_charge[2])
-#			if in_charge[2]:
-#				print "abnormal"
-#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='XXX')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='true')
-#			print in_charge[3], type(in_charge[3])
-#			if in_charge[3]:
-#				print "relevant"
-#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='XXX')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label=in_charge[6])
-#		if me is not None:
-#			item_idx = self._LCTRL_existing_reviews.InsertItem(info=wx.ListItem())
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=0, label = _('%s (you)') % me[0])
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label=me[1].Format('%Y-%m-%d'))
-#			if me[2]:
-#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='x')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='')
-#			if me[3]:
-#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='x')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='')
-#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label=me[6])
+			if rev[4]:
+				in_charge_rev = rev
+			if rev[5]:
+				my_rev = rev
+			if not (rev[4] and rev[5]):
+				ordered_revs.append(rev)
+		# display them
+		if my_rev is not None:
+			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=_('%s (you)') % my_rev[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label = _('%s (you)') % my_rev[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=my_rev[1].Format('%Y-%m-%d %H:%M'))
+			if my_rev[2]:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
+			if my_rev[3]:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=my_rev[6])
+		if in_charge_rev is not None:
+			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=in_charge_rev[0])
+			self._LCTRL_existing_reviews.SetItemBackgroundColour(row_num, col=wx.BLUE)
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=in_charge_rev[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=in_charge_rev[1].Format('%Y-%m-%d %H:%M'))
+			if in_charge_rev[2]:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
+			if in_charge_rev[3]:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=in_charge_rev[6])
+			row_num += 1
+		for rev in ordered_revs:
+			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=rev[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].Format('%Y-%m-%d %H:%M'))
+			if rev[2]:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
+			if rev[3]:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=rev[6])
 		return True
 #============================================================
 # FIXME: this must listen to patient change signals ...
@@ -691,7 +681,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.55  2006-02-13 08:29:19  ncq
+# Revision 1.56  2006-02-13 19:10:14  ncq
+# - actually display previous reviews in list
+#
+# Revision 1.55  2006/02/13 08:29:19  ncq
 # - further work on the doc review control
 #
 # Revision 1.54  2006/02/10 16:33:19  ncq
