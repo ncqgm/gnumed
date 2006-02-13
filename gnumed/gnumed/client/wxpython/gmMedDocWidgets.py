@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -30,6 +30,82 @@ _log.Log(gmLog.lInfo, __version__)
 wx.ID_PNL_main = wx.NewId()
 wx.ID_TB_BTN_show_page = wx.NewId()
 
+#============================================================
+class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
+	def __init__(self, *args, **kwds):
+		self.__part = kwds['part']
+		del kwds['part']
+		wxgReviewDocPartDlg.wxgReviewDocPartDlg.__init__(self, *args, **kwds)
+		self.__init_ui_data()
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __init_ui_data(self):
+		# add list headers
+		self._LCTRL_existing_reviews.InsertColumn(0, _('reviewer'))
+		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
+		self._LCTRL_existing_reviews.InsertColumn(2, _('abnormal'))
+		self._LCTRL_existing_reviews.InsertColumn(3, _('relevant'))
+		self._LCTRL_existing_reviews.InsertColumn(4, _('comment'))
+		self.__reload_existing_reviews()
+	#--------------------------------------------------------
+	def __reload_existing_reviews(self):
+		self._LCTRL_existing_reviews.DeleteAllItems()
+		revs = self.__part.get_reviews()
+		if len(revs) == 0:
+			return True
+		# find special reviews
+#		me = None
+#		in_charge = None
+#		ordered_revs = []
+#		for rev in revs:
+#			if rev[4]:
+#				in_charge = rev
+#			if rev[5]:
+#				me = rev
+#			if not (rev[4] and rev[5]):
+#				ordered_revs.append(rev)
+		# display them
+		for rev in revs:
+#		for rev in ordered_revs:
+			item_idx = self._LCTRL_existing_reviews.InsertItem(info=wx.ListItem())
+			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=0, label=rev[0])
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label=rev[1].Format('%Y-%m-%d'))
+			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label='XX')
+#			if rev[2]:
+			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='XX')
+#			if rev[3]:
+			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='XX')
+			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label='XX')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label=rev[6])
+#		if in_charge is not None:
+#			item_idx = self._LCTRL_existing_reviews.InsertItem(info=wx.ListItem())
+#			self._LCTRL_existing_reviews.SetItemBackgroundColour(item_idx, col=wx.BLUE)
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=0, label=in_charge[0])
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label=in_charge[1].Format('%Y-%m-%d'))
+#			print in_charge[2], type(in_charge[2])
+#			if in_charge[2]:
+#				print "abnormal"
+#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='XXX')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='true')
+#			print in_charge[3], type(in_charge[3])
+#			if in_charge[3]:
+#				print "relevant"
+#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='XXX')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label=in_charge[6])
+#		if me is not None:
+#			item_idx = self._LCTRL_existing_reviews.InsertItem(info=wx.ListItem())
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=0, label = _('%s (you)') % me[0])
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=1, label=me[1].Format('%Y-%m-%d'))
+#			if me[2]:
+#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='x')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=2, label='')
+#			if me[3]:
+#				self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='x')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=3, label='')
+#			self._LCTRL_existing_reviews.SetStringItem(index = item_idx, col=4, label=me[6])
+		return True
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
@@ -597,9 +673,10 @@ class cDocTree(wx.TreeCtrl):
 		self.__review_part(part=self.__curr_node_data)
 	#--------------------------------------------------------
 	def __review_part(self, part=None):
-		dlg = wxgReviewDocPartDlg.wxgReviewDocPartDlg (
+		dlg = cReviewDocPartDlg (
 			parent = self,
-			id = -1
+			id = -1,
+			part = part
 		)
 		dlg.ShowModal()
 	#--------------------------------------------------------
@@ -614,7 +691,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.54  2006-02-10 16:33:19  ncq
+# Revision 1.55  2006-02-13 08:29:19  ncq
+# - further work on the doc review control
+#
+# Revision 1.54  2006/02/10 16:33:19  ncq
 # - popup review dialog from doc part right-click menu
 #
 # Revision 1.53  2006/02/05 15:03:22  ncq
