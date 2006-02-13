@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.54 2006-02-05 14:36:01 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmMedDoc.py,v 1.55 2006-02-13 08:11:28 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -165,13 +165,6 @@ order by dm.date desc"""
 	#--------------------------------------------------------
 	def add_document(self, document_type=None):
 		return create_document(patient_id=self.id_patient, document_type=document_type)
-	#--------------------------------------------------------
-	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
-		# FIXME: this is probably inefficient
-		for doc in self.get_documents():
-			if not doc.set_reviewed(technically_abnormal, clinically_relevant):
-				return False
-		return True
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -344,6 +337,29 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			aFile.write(str(data[0][0]))
 
 		return 1
+	#--------------------------------------------------------
+	def get_reviews(self):
+		cmd = """
+select
+	reviewer,
+	reviewed_when,
+	is_technically_abnormal,
+	clinically_relevant,
+	is_review_by_responsible_reviewer,
+	is_your_review,
+	coalesce(comment, '')
+from blobs.v_reviewed_doc_objects
+where pk_doc_obj = %s
+order by
+	is_your_review desc,
+	is_review_by_responsible_reviewer desc,
+	reviewed_when desc
+;"""
+		data = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
+		if data is None:
+			_log.Log(gmLog.lErr, 'cannot retrieve reviews for doc object [%s]' %  self.pk_obj)
+			return None
+		return data
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
@@ -571,9 +587,12 @@ VALUES (
 				return (False, msg, filename)
 		return (True, '', '')
 	#--------------------------------------------------------
-	def set_reviewed(self, status = None):
-		print "***** missing set_reviewed() *****"
-		return False
+	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
+		# FIXME: this is probably inefficient
+		for part in self.get_parts():
+			if not part.set_reviewed(technically_abnormal, clinically_relevant):
+				return False
+		return True
 #============================================================
 # convenience functions
 #============================================================
@@ -668,7 +687,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.54  2006-02-05 14:36:01  ncq
+# Revision 1.55  2006-02-13 08:11:28  ncq
+# - doc-wide set_reviewed() must be in cMedDoc, not cDocumentFolder
+# - add cMedDocPart.get_reviews()
+#
+# Revision 1.54  2006/02/05 14:36:01  ncq
 # - intended reviewer now must be staff, not identity
 #
 # Revision 1.53  2006/02/05 14:27:13  ncq
