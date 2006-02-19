@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.70 $
+-- $Revision: 1.71 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -65,19 +65,21 @@ insert into blobs.doc_obj (doc_id, seq_idx, comment, fk_intended_reviewer, data)
 );
 
 -- LMcC review
-insert into blobs.reviewed_doc_objs (fk_reviewed_row, fk_reviewer, is_technically_abnormal, clinically_relevant) values (
+insert into blobs.reviewed_doc_objs (fk_reviewed_row, fk_reviewer, is_technically_abnormal, clinically_relevant, comment) values (
 	currval('blobs.doc_obj_pk_seq'),
 	(select pk_staff from dem.v_staff where short_alias='LMcC'),
 	false,
-	true
+	true,
+	'looks unwell'
 );
 
 -- JB review
-insert into blobs.reviewed_doc_objs (fk_reviewed_row, fk_reviewer, is_technically_abnormal, clinically_relevant) values (
+insert into blobs.reviewed_doc_objs (fk_reviewed_row, fk_reviewer, is_technically_abnormal, clinically_relevant, comment) values (
 	currval('blobs.doc_obj_pk_seq'),
 	(select pk_staff from dem.v_staff where short_alias='JB'),
 	false,
-	false
+	false,
+	'this is definitely Kirk'
 );
 
 -- =============================================
@@ -657,11 +659,14 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.70 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.71 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.70  2006-02-13 08:49:07  ncq
+-- Revision 1.71  2006-02-19 13:47:14  ncq
+-- - add review comment to blobs reviews
+--
+-- Revision 1.70  2006/02/13 08:49:07  ncq
 -- - add some reviews
 --
 -- Revision 1.69  2006/01/27 22:27:57  ncq
