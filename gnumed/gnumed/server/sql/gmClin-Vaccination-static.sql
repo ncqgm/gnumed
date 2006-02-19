@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-static.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -88,8 +88,34 @@ create table clin.vacc_regime (
 		references clin.vacc_indication(id)
 		on update cascade
 		on delete restrict,
+	is_active boolean
+		not null
+		default true, 
 	comment text,
 	unique(fk_recommended_by, fk_indication, name)
+) inherits (audit.audit_fields);
+
+-- --------------------------------------------
+create table clin.vacc_regime_constraint (
+	pk serial primary key,
+	description text
+		unique
+		not null
+) inherits (audit.audit_fields);
+
+-- --------------------------------------------
+create table clin.lnk_constraint2vacc_reg (
+	pk serial primary key,
+	fk_vacc_regime integer
+		not null
+		references clin.vacc_regime(id)
+		on update cascade
+		on delete cascade,
+	fk_constraint integer
+		not null
+		references clin.vacc_regime_constraint(pk)
+		on update cascade
+		on delete cascade
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
@@ -194,11 +220,20 @@ alter table clin.vaccination alter column soap_cat set default 'p';
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-static.sql,v $
--- Revision 1.1  2006-02-08 15:15:39  ncq
+-- Revision 1.2  2006-02-19 13:45:05  ncq
+-- - move the rest of the dynamic vacc stuff from gmClinicalViews.sql
+--   into gmClin-Vaccination-dynamic.sql
+-- - add vaccination schedule constraint enumeration data
+-- - add is_active to clin.vacc_regime
+-- - add clin.vacc_regime_constraint
+-- - add clin.lnk_constraint2vacc_reg
+-- - proper grants
+--
+-- Revision 1.1  2006/02/08 15:15:39  ncq
 -- - factor our vaccination stuff into its own set of files
 -- - remove clin.lnk_vacc_ind2code in favour of clin.coded_term usage
 -- - improve comments as discussed on the list
