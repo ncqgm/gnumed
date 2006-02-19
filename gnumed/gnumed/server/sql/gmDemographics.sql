@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.64 $
+-- $Revision: 1.65 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -19,17 +19,15 @@ create schema dem authorization "gm-dbo";
 -- original ISO data (= reference verifiable any time)
 create table dem.country (
 	id serial primary key,
-	code char(2) unique not null,
-	name text not null,
-	deprecated date default null
+	code char(2)
+		unique
+		not null,
+	name text
+		unique
+		not null,
+	deprecated date
+		default null
 );
-
-COMMENT on table dem.country IS
-	'countries coded per ISO 3166-1';
-COMMENT on column dem.country.code IS
-	'international two character country code as per ISO 3166-1';
-COMMENT on column dem.country.deprecated IS
-	'date when this country ceased officially to exist (if applicable)';
 
 -- ===================================================================
 -- state codes: any need for more than 3 characters?
@@ -41,17 +39,6 @@ create table dem.state (
 	name text not null,
 	unique (code, country)
 ) inherits (audit.audit_fields);
-
-select audit.add_table_for_audit('dem', 'state');
-
-COMMENT on table dem.state is
-	'state codes (country specific);
-	 Richard agreed we should require pre-existence,
-	 allow user to mail details for adding a state to developers';
-COMMENT on column dem.state.code is
-	'state code';
-COMMENT on column dem.state.country is
-	'2 character ISO 3166-1 country code';
 
 -- ===================================================================
 -- FIXME: remodel according to XMeld
@@ -78,20 +65,6 @@ create table dem.urb (
 -- - part of one street in one urb
 -- Take that !  :-)
 
-select audit.add_table_for_audit('dem', 'urb');
-
-COMMENT on table dem.urb IS
-	'cities, towns, dwellings ..., eg. "official" places of residence';
-COMMENT on column dem.urb.id_state IS
-	'reference to information about country and state';
-COMMENT on column dem.urb.postcode IS
-	'default postcode for urb.name,
-	 useful for all the smaller urbs that only have one postcode,
-	 also useful as a default when adding new streets to an urb';
-COMMENT on column dem.urb.name IS
-	'the name of the city/town/dwelling';
-COMMENT on column dem.urb.lat_lon is
-	'the location of the urb, as lat/long co-ordinates. Ideally this would be NOT NULL';
 -- ===================================================================
 create table dem.street (
 	id serial primary key,
@@ -107,20 +80,6 @@ create table dem.street (
 	unique(id_urb, name, postcode)
 ) inherits (audit.audit_fields);
 
-select audit.add_table_for_audit('dem', 'street');
-
-COMMENT on table dem.street IS
-	'street names, specific for distinct "urbs"';
-COMMENT on column dem.street.id_urb IS
-	'reference to information postcode, city, country and state';
-COMMENT on column dem.street.name IS
-	'name of this street';
-COMMENT on column dem.street.postcode IS
-	'postcode for systems (such as UK Royal Mail) which specify the street';
-comment on column dem.street.suburb is
-	'the suburb this street is in (if any)';
-comment on column dem.street.lat_lon is
-'the approximate location of the street, as lat/long co-ordinates';
 -- ===================================================================
 create table dem.address (
 	id serial primary key,
@@ -139,37 +98,11 @@ create table dem.address (
 
 -- FIXME: should be unique(coalesce(field, '')) for aux_street, subunit, addendum !
 
-select audit.add_table_for_audit('dem', 'address');
-
-comment on table dem.address is
-	'an address aka a location, void of attached meaning such as type of address';
-comment on column dem.address.id_street is
-	'the street this address is at from
-	 whence the urb is to be found, it
-	 thus indirectly references dem.urb(id)';
-comment on column dem.address.aux_street is
-	'additional street-level information which
-	 formatters would usually put on lines directly
-	 below the street line of an address, such as
-	 postal box directions in CA';
-comment on column dem.address.number is
-	'number of the house';
-comment on column dem.address.subunit is
-	'directions *below* the unit (eg.number) level,
-	 such as appartment number, room number, level,
-	 entrance or even verbal directions';
-comment on column dem.address.addendum is
-	'any additional information that
-	 did not fit anywhere else';
-comment on column dem.address.lat_lon is
-	'the exact location of this address in latitude-longtitude';
-
 -- ===================================================================
 create table dem.address_type (
 	id serial primary key,
 	"name" text unique not null
 );
-
 
 -- ===================================================================
 create table dem.marital_status (
@@ -178,6 +111,7 @@ create table dem.marital_status (
 		unique
 		not null
 );
+
 -- ===================================================================
 create table dem.enum_comm_types (
 	id serial primary key,
@@ -663,11 +597,15 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.64 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.65 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.64  2006-01-23 22:10:57  ncq
+-- Revision 1.65  2006-02-19 13:46:47  ncq
+-- - factor out dynamic DDL
+-- - disallow CR/LF/FF/VT in many single-line demographics fields
+--
+-- Revision 1.64  2006/01/23 22:10:57  ncq
 -- - staff.sign -> .short_alias
 --
 -- Revision 1.63  2006/01/16 22:12:33  ncq

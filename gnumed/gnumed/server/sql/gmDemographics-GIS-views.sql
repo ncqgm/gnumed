@@ -7,10 +7,121 @@
 -- droppable components of GIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- ===================================================================
+-- -- dem.country --
+COMMENT on table dem.country IS
+	'countries coded per ISO 3166-1';
+COMMENT on column dem.country.code IS
+	'international two character country code as per ISO 3166-1';
+COMMENT on column dem.country.deprecated IS
+	'date when this country ceased officially to exist (if applicable)';
+
+alter table dem.country
+	add constraint no_linebreaks check (
+		(position('\f' in coalesce(code, '') || coalesce(name, '')) = 0) and
+		(position('\n' in coalesce(code, '') || coalesce(name, '')) = 0) and
+		(position('\r' in coalesce(code, '') || coalesce(name, '')) = 0) and
+		(position('\013' in coalesce(code, '') || coalesce(name, '')) = 0)
+	);
+
+-- -- dem.state --
+select audit.add_table_for_audit('dem', 'state');
+
+COMMENT on table dem.state is
+	'state codes (country specific);
+	 Richard agreed we should require pre-existence,
+	 allow user to mail details for adding a state to developers';
+COMMENT on column dem.state.code is
+	'state code';
+COMMENT on column dem.state.country is
+	'2 character ISO 3166-1 country code';
+
+alter table dem.state
+	add constraint no_linebreaks check (
+		(position('\f' in coalesce(code, '') || coalesce(country, '') || coalesce(name,'')) = 0) and
+		(position('\n' in coalesce(code, '') || coalesce(country, '') || coalesce(name,'')) = 0) and
+		(position('\r' in coalesce(code, '') || coalesce(country, '') || coalesce(name,'')) = 0) and
+		(position('\013' in coalesce(code, '') || coalesce(country, '') || coalesce(name,'')) = 0)
+	);
+
+-- -- dem.urb --
+select audit.add_table_for_audit('dem', 'urb');
+
+COMMENT on table dem.urb IS
+	'cities, towns, dwellings ..., eg. "official" places of residence';
+COMMENT on column dem.urb.id_state IS
+	'reference to information about country and state';
+COMMENT on column dem.urb.postcode IS
+	'default postcode for urb.name,
+	 useful for all the smaller urbs that only have one postcode,
+	 also useful as a default when adding new streets to an urb';
+COMMENT on column dem.urb.name IS
+	'the name of the city/town/dwelling';
+COMMENT on column dem.urb.lat_lon is
+	'the location of the urb, as lat/long co-ordinates. Ideally this would be NOT NULL';
+
+alter table dem.urb
+	add constraint no_linebreaks check (
+		(position('\f' in coalesce(postcode, '') || coalesce(name,'')) = 0) and
+		(position('\n' in coalesce(postcode, '') || coalesce(name,'')) = 0) and
+		(position('\r' in coalesce(postcode, '') || coalesce(name,'')) = 0) and
+		(position('\013' in coalesce(postcode, '') || coalesce(name,'')) = 0)
+	);
+
+-- -- dem.street --
+select audit.add_table_for_audit('dem', 'street');
+
+COMMENT on table dem.street IS
+	'street names, specific for distinct "urbs"';
+COMMENT on column dem.street.id_urb IS
+	'reference to information postcode, city, country and state';
+COMMENT on column dem.street.name IS
+	'name of this street';
+COMMENT on column dem.street.postcode IS
+	'postcode for systems (such as UK Royal Mail) which specify the street';
+comment on column dem.street.suburb is
+	'the suburb this street is in (if any)';
+comment on column dem.street.lat_lon is
+'the approximate location of the street, as lat/long co-ordinates';
+
+alter table dem.street
+	add constraint no_linebreaks check (
+		(position('\f' in coalesce(postcode, '') || coalesce(suburb, '') || coalesce(name,'')) = 0) and
+		(position('\n' in coalesce(postcode, '') || coalesce(suburb, '') || coalesce(name,'')) = 0) and
+		(position('\r' in coalesce(postcode, '') || coalesce(suburb, '') || coalesce(name,'')) = 0) and
+		(position('\013' in coalesce(postcode, '') || coalesce(suburb, '') || coalesce(name,'')) = 0)
+	);
+
+-- -- dem.address --
+select audit.add_table_for_audit('dem', 'address');
+
+comment on table dem.address is
+	'an address aka a location, void of attached meaning such as type of address';
+comment on column dem.address.id_street is
+	'the street this address is at from
+	 whence the urb is to be found, it
+	 thus indirectly references dem.urb(id)';
+comment on column dem.address.aux_street is
+	'additional street-level information which
+	 formatters would usually put on lines directly
+	 below the street line of an address, such as
+	 postal box directions in CA';
+comment on column dem.address.number is
+	'number of the house';
+comment on column dem.address.subunit is
+	'directions *below* the unit (eg.number) level,
+	 such as appartment number, room number, level,
+	 entrance or even verbal directions';
+comment on column dem.address.addendum is
+	'any additional information that
+	 did not fit anywhere else';
+comment on column dem.address.lat_lon is
+	'the exact location of this address in latitude-longtitude';
 
 -- ===================================================================
 create or replace function dem.gm_upd_default_states()
@@ -357,11 +468,15 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.28 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.27  2006-01-09 13:46:19  ncq
+-- Revision 1.28  2006-02-19 13:46:47  ncq
+-- - factor out dynamic DDL
+-- - disallow CR/LF/FF/VT in many single-line demographics fields
+--
+-- Revision 1.27  2006/01/09 13:46:19  ncq
 -- - adjust to schema "i18n" qualification
 --
 -- Revision 1.26  2006/01/06 10:12:02  ncq
