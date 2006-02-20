@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.179 $
+-- $Revision: 1.180 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -79,18 +79,19 @@ create table clin.soap_cat_ranks (
 
 -- narrative
 create table clin.clin_narrative (
-	pk serial primary key,
-	unique(fk_encounter, fk_episode, narrative, soap_cat)
+	pk serial primary key
 ) inherits (clin.clin_root_item);
 
 alter table clin.clin_narrative add foreign key (fk_encounter)
 		references clin.encounter(pk)
 		on update cascade
 		on delete restrict;
+
 alter table clin.clin_narrative add foreign key (fk_episode)
 		references clin.episode(pk)
 		on update cascade
 		on delete restrict;
+
 alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
 
@@ -397,11 +398,16 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.179 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.180 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.179  2006-02-10 14:08:58  ncq
+-- Revision 1.180  2006-02-20 10:22:32  ncq
+-- - indexing on clin.clin_narrative(narrative) directly was prone to
+--   buffer overrun since it's a text field of unlimited length, so,
+--   index on md5(narrative) now
+--
+-- Revision 1.179  2006/02/10 14:08:58  ncq
 -- - factor out EMR structure clinical schema into its own set of files
 --
 -- Revision 1.178  2006/02/08 15:15:39  ncq

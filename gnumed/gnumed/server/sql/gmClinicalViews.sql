@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.173 2006-02-19 13:45:05 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.174 2006-02-20 10:22:32 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -320,6 +320,7 @@ drop index clin.idx_cri_episode;
 
 drop index clin.idx_clnarr_encounter;
 drop index clin.idx_clnarr_episode;
+drop index clin.idx_clnarr_unique;
 
 drop index clin.idx_clanote_encounter;
 drop index clin.idx_clanote_episode;
@@ -353,6 +354,7 @@ create index idx_cri_episode on clin.clin_root_item(fk_episode);
 
 create index idx_clnarr_encounter on clin.clin_narrative(fk_encounter);
 create index idx_clnarr_episode on clin.clin_narrative(fk_episode);
+create unique index idx_clnarr_unique on clin.clin_narrative(fk_encounter, fk_episode, soap_cat, md5(narrative));
 
 create index idx_clanote_encounter on clin.clin_aux_note(fk_encounter);
 create index idx_clanote_episode on clin.clin_aux_note(fk_episode);
@@ -809,7 +811,7 @@ drop index clin.idx_coded_terms;
 drop function clin.add_coded_term(text, text, text) cascade;
 \set ON_ERROR_STOP 1
 
-create index idx_coded_terms on clin.coded_narrative(term);
+create index idx_coded_terms on clin.coded_narrative(md5(term));
 
 create function clin.add_coded_term(text, text, text) returns boolean as '
 declare
@@ -1604,11 +1606,16 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.173 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.174 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.173  2006-02-19 13:45:05  ncq
+-- Revision 1.174  2006-02-20 10:22:32  ncq
+-- - indexing on clin.clin_narrative(narrative) directly was prone to
+--   buffer overrun since it's a text field of unlimited length, so,
+--   index on md5(narrative) now
+--
+-- Revision 1.173  2006/02/19 13:45:05  ncq
 -- - move the rest of the dynamic vacc stuff from gmClinicalViews.sql
 --   into gmClin-Vaccination-dynamic.sql
 -- - add vaccination schedule constraint enumeration data
