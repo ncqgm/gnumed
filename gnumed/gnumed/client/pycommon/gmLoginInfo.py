@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.4 2004-09-13 09:32:21 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmLoginInfo.py,v 1.5 2006-02-26 18:33:00 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -30,13 +30,13 @@ class LoginInfo:
 	__passwd = ''
 	__host = None
 	__port = 5432
-	__dbname = 'gnumed'
+	__dbname = 'gnumed_v2'
 	__profile = 'default'
 	#------------------------------------------
-	def __init__(self, user, passwd, host, port=5432, database='gnumed', profile='default'):
+	def __init__(self, user, passwd, host, port=5432, database='gnumed_v2', profile='default'):
 		self.SetInfo(user, passwd, host, port, database, profile)
 	#------------------------------------------
-	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed', profile='default'):
+	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed_v2', profile='default'):
 		self.SetUser(user)
 		self.SetPassword(passwd)
 		self.SetHost(host)
@@ -149,7 +149,7 @@ class LoginInfo:
 		self.__passwd = ""
 		self.__host = "localhost"
 		self.__port = 5432
-		self.__dbname = "gnumed"
+		self.__dbname = "gnumed_v2"
 		self.__profile = 'default'
 
 #====================================================================
@@ -158,7 +158,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.4  2004-09-13 09:32:21  ncq
+# Revision 1.5  2006-02-26 18:33:00  ncq
+# - change default to gnumed_v2
+#
+# Revision 1.4  2004/09/13 09:32:21  ncq
 # - remove support for tty/backend opts, we never used them, they
 #   are only documented for old PostgreSQL versions, so axe them
 #
