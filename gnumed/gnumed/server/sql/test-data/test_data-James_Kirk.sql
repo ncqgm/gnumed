@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.72 $
+-- $Revision: 1.73 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -148,8 +148,8 @@ insert into clin.encounter (
 	fk_type,
 	started,
 	last_affirmed,
-	rfe,
-	aoe
+	reason_for_encounter,
+	assessment_of_encounter
 ) values (
 	currval('dem.identity_pk_seq'),
 	-1,
@@ -456,8 +456,8 @@ insert into clin.encounter (
 	fk_type,
 	started,
 	last_affirmed,
-	rfe,
-	aoe
+	reason_for_encounter,
+	assessment_of_encounter
 ) values (
 	currval('dem.identity_pk_seq'),
 	-1,
@@ -678,11 +678,14 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.72 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.73 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.72  2006-02-27 11:30:27  ncq
+-- Revision 1.73  2006-02-27 22:39:33  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.72  2006/02/27 11:30:27  ncq
 -- - add post-AE state health issue which also is an operation
 --
 -- Revision 1.71  2006/02/19 13:47:14  ncq

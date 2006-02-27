@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -42,8 +42,8 @@ insert into clin.encounter (
 	fk_patient,
 	fk_location,
 	fk_type,
-	rfe,
-	aoe
+	reason_for_encounter,
+	assessment_of_encounter
 ) values (
 	currval('dem.identity_pk_seq'),
 	-1,
@@ -93,11 +93,14 @@ insert into clin.lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.23 $');
+select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.23  2006-01-06 10:12:03  ncq
+-- Revision 1.24  2006-02-27 22:39:33  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.23  2006/01/06 10:12:03  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema

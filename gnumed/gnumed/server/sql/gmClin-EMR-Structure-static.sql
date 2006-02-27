@@ -4,7 +4,7 @@
 --		- episodes
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-static.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -102,12 +102,12 @@ create table clin.encounter (
 		on delete restrict,
 	fk_location integer,
 	source_time_zone interval,
-	rfe text
+	reason_for_encounter text
 		default null
-		check (trim(both from coalesce(rfe, 'xxxDEFAULTxxx')) != ''),
-	aoe text
+		check (trim(both from coalesce(reason_for_encounter, 'xxxDEFAULTxxx')) != ''),
+	assessment_of_encounter text
 		default null
-		check (trim(both from coalesce(aoe, 'xxxDEFAULTxxx')) != ''),
+		check (trim(both from coalesce(assessment_of_encounter, 'xxxDEFAULTxxx')) != ''),
 	started timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
@@ -118,11 +118,14 @@ create table clin.encounter (
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-static.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-static.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-static.sql,v $
--- Revision 1.2  2006-02-27 11:21:31  ncq
+-- Revision 1.3  2006-02-27 22:39:32  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.2  2006/02/27 11:21:31  ncq
 -- - add laterality to health issue
 --
 -- Revision 1.1  2006/02/10 14:08:58  ncq

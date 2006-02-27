@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.175 2006-02-27 11:28:12 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.176 2006-02-27 22:39:33 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1251,7 +1251,7 @@ union	-- encounters
 select
 	cenc.fk_patient as pk_patient,
 	's' as soap_cat,
-	cenc.rfe || '; ' || cenc.aoe as narrative,
+	cenc.reason_for_encounter || '; ' || cenc.assessment_of_encounter as narrative,
 	cenc.pk as src_pk,
 	'clin.encounter' as src_table
 from
@@ -1348,7 +1348,7 @@ select
 		else (select short_alias from dem.v_staff where db_user = cenc.modified_by)
 	end as modified_by,
 	's' as soap_cat,
-	_('encounter') || ': ' || _('RFE') || ': ' || cenc.rfe || '; ' || _('AOE') || ':' as narrative,
+	_('encounter') || ': ' || _('RFE') || ': ' || cenc.reason_for_encounter || '; ' || _('AOE') || ':' as narrative,
 	cenc.pk as pk_encounter,
 	-1 as pk_episode,
 	-1 as pk_health_issue,
@@ -1523,7 +1523,7 @@ select
 	_(i.gender) as l10n_gender,
 	wl.registered as registered,
 	vmre.started as start_most_recent_encounter,
-	vmre.rfe as most_recent_rfe,
+	vmre.reason_for_encounter as most_recent_rfe,
 	wl.comment as comment,
 	(select started from clin.encounter ce
 	 where vmre.pk_encounter = ce.pk
@@ -1629,11 +1629,14 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.175 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.176 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.175  2006-02-27 11:28:12  ncq
+-- Revision 1.176  2006-02-27 22:39:33  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.175  2006/02/27 11:28:12  ncq
 -- - add clin.operation
 -- - move dynamic stuff into view definition file
 --

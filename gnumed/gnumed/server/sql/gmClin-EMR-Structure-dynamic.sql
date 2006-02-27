@@ -1,7 +1,7 @@
 -- Project: GNUmed - EMR structure related dynamic relations:
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-dynamic.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -99,11 +99,11 @@ comment on COLUMN clin.encounter.fk_location is
 comment on column clin.encounter.source_time_zone is
 	'time zone of location, used to approximate source time
 	 zone for all timestamps in this encounter';
-comment on column clin.encounter.rfe is
+comment on column clin.encounter.reason_for_encounter is
 	'the RFE for the encounter as related by either
 	 the patient or the provider (say, in a chart
 	 review)';
-comment on column clin.encounter.aoe is
+comment on column clin.encounter.assessment_of_encounter is
 	'the Assessment of Encounter (eg consultation summary)
 	 as determined by the provider, may simply be a
 	 concatenation of soAp narrative, this assessment
@@ -186,8 +186,8 @@ select
 	cle.started as started,
 	et.description as type,
 	_(et.description) as l10n_type,
-	cle.rfe as rfe,
-	cle.aoe as aoe,
+	cle.reason_for_encounter as reason_for_encounter,
+	cle.assessment_of_encounter as assessment_of_encounter,
 	cle.last_affirmed as last_affirmed,
 	cle.fk_location as pk_location,
 	cle.fk_type as pk_type,
@@ -208,8 +208,8 @@ create view clin.v_most_recent_encounters as
 select distinct on (last_affirmed)
 	ce1.pk as pk_encounter,
 	ce1.fk_patient as pk_patient,
-	ce1.rfe as rfe,
-	ce1.aoe as aoe,
+	ce1.reason_for_encounter as reason_for_encounter,
+	ce1.assessment_of_encounter as assessment_of_encounter,
 	et.description as type,
 	_(et.description) as l10n_type,
 	ce1.started as started,
@@ -368,11 +368,14 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.2  2006-02-27 11:21:31  ncq
+-- Revision 1.3  2006-02-27 22:39:32  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.2  2006/02/27 11:21:31  ncq
 -- - add laterality to health issue
 --
 -- Revision 1.1  2006/02/10 14:08:58  ncq

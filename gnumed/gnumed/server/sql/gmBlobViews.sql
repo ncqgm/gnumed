@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.21 $ $Date: 2006-02-13 08:29:51 $ $Author: ncq $
+-- $Revision: 1.22 $ $Date: 2006-02-27 22:39:32 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -14,6 +14,8 @@
 select audit.add_table_for_audit('blobs', 'xlnk_identity');
 
 -- doc_med --
+select audit.add_table_for_audit('blobs', 'doc_med');
+
 COMMENT ON TABLE blobs.doc_med IS
 	'a medical document object possibly containing several
 	 data objects such as several pages of a paper document';
@@ -75,6 +77,8 @@ impossible to secure, etc.\n
 == --------------------------------------------------';
 
 -- doc_desc --
+select audit.add_table_for_audit('blobs', 'doc_desc');
+
 COMMENT ON TABLE blobs.doc_desc is
 	'A textual description of the content such
 	 as a result summary. Several of these may
@@ -279,11 +283,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.21 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.21  2006-02-13 08:29:51  ncq
+-- Revision 1.22  2006-02-27 22:39:32  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.21  2006/02/13 08:29:51  ncq
 -- - add blobs.v_reviewed_doc_objects
 --
 -- Revision 1.20  2006/02/02 17:54:48  ncq

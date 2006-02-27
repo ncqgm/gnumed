@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.60 $ $Date: 2006-02-05 14:29:07 $ $Author: ncq $
+-- $Revision: 1.61 $ $Date: 2006-02-27 22:39:32 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -52,7 +52,7 @@ CREATE TABLE blobs.doc_med (
 		not null
 		default CURRENT_TIMESTAMP,
 	ext_ref text
-);
+) inherits (audit.audit_fields);
 
 -- =============================================
 -- FIXME: audit trail ?
@@ -83,7 +83,7 @@ CREATE TABLE blobs.doc_desc (
 		on update cascade,
 	"text" text,
 	unique(doc_id, "text")
-);
+) inherits (audit.audit_fields);
 
 -- =============================================
 create table blobs.reviewed_doc_objs (
@@ -97,7 +97,7 @@ create table blobs.reviewed_doc_objs (
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.60 $');
+select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.61 $');
 
 -- =============================================
 -- questions:
@@ -116,7 +116,10 @@ select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.60
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.60  2006-02-05 14:29:07  ncq
+-- Revision 1.61  2006-02-27 22:39:32  ncq
+-- - spell out rfe/aoe
+--
+-- Revision 1.60  2006/02/05 14:29:07  ncq
 -- - proper behaviour for blobs.reviewed_doc_objs foreign keys on update/delete
 --
 -- Revision 1.59  2006/01/27 22:24:04  ncq
