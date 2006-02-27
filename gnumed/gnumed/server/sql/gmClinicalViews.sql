@@ -1,11 +1,11 @@
--- project: GnuMed
+-- project: GNUmed
 
 -- purpose: views for easier clinical data access
 -- author: Karsten Hilbert
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.174 2006-02-20 10:22:32 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.175 2006-02-27 11:28:12 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -71,6 +71,32 @@ comment on TABLE clin.clin_narrative is
 	 via link tables.';
 comment on column clin.clin_narrative.clin_when is
 	'when did the item reach clinical reality';
+
+alter table clin.clin_narrative add foreign key (fk_encounter)
+		references clin.encounter(pk)
+		on update cascade
+		on delete restrict;
+
+alter table clin.clin_narrative add foreign key (fk_episode)
+		references clin.episode(pk)
+		on update cascade
+		on delete restrict;
+
+alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
+	check (trim(coalesce(narrative, '')) != '');
+
+-- -- clin.operation --
+select audit.add_table_for_audit('clin', 'operation');
+
+comment on table clin.operation is
+	'data about operations a patient had, links to clin.health_issue,
+	 use clin.health_issue.age_noted for date of operation';
+comment on column clin.operation.fk_health_issue is
+	'which clin.health_issue this row refers to';
+comment on column clin.operation.fk_encounter is
+	'during which encounter we learned of this';
+comment on column clin.operation.clin_where is
+	'where did this operation take place';
 
 -- clin.coded_term
 select audit.add_table_for_audit('clin', 'coded_narrative');
@@ -1603,14 +1629,15 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
--- do simple schema revision tracking
-\unset ON_ERROR_STOP
-delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.174 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.175 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.174  2006-02-20 10:22:32  ncq
+-- Revision 1.175  2006-02-27 11:28:12  ncq
+-- - add clin.operation
+-- - move dynamic stuff into view definition file
+--
+-- Revision 1.174  2006/02/20 10:22:32  ncq
 -- - indexing on clin.clin_narrative(narrative) directly was prone to
 --   buffer overrun since it's a text field of unlimited length, so,
 --   index on md5(narrative) now

@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.180 $
+-- $Revision: 1.181 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -82,18 +82,26 @@ create table clin.clin_narrative (
 	pk serial primary key
 ) inherits (clin.clin_root_item);
 
-alter table clin.clin_narrative add foreign key (fk_encounter)
+-- --------------------------------------------
+-- clin.operation
+create table clin.operation (
+	pk serial
+		primary key,
+	fk_health_issue integer
+		not null
+		references clin.health_issue(pk)
+		on update cascade
+		on delete cascade,
+	fk_encounter integer
+		not null
 		references clin.encounter(pk)
 		on update cascade
-		on delete restrict;
-
-alter table clin.clin_narrative add foreign key (fk_episode)
-		references clin.episode(pk)
-		on update cascade
-		on delete restrict;
-
-alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
-	check (trim(coalesce(narrative, '')) != '');
+		on delete restrict,
+	clin_where text
+		default null,
+	comment text
+		default null
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
 -- coded narrative
@@ -398,11 +406,15 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.180 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.181 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.180  2006-02-20 10:22:32  ncq
+-- Revision 1.181  2006-02-27 11:28:12  ncq
+-- - add clin.operation
+-- - move dynamic stuff into view definition file
+--
+-- Revision 1.180  2006/02/20 10:22:32  ncq
 -- - indexing on clin.clin_narrative(narrative) directly was prone to
 --   buffer overrun since it's a text field of unlimited length, so,
 --   index on md5(narrative) now
