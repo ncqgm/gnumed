@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -189,6 +189,144 @@ limit 1""" % where_clause
 			except:
 				_log.LogException("don't know how to cast [%s] (type [%s])" % (val, type(val)), sys.exc_info(), verbose=0)
 		return val
+	#-----------------------------------------------
+	def get2(self, option=None, workplace=None, cookie=None, bias=None, default=None):
+		"""Retrieve configuration option from backend.
+
+		- bias 'user'
+			When no value is found for "current_user/workplace" look for a value
+			for "current_user" regardless of workspace. The corresponding concept is:
+			"Did *I* set this option anywhere on this site ? If so, reuse the value."
+
+		- bias 'workplace'
+			When no value is found for "current_user/workplace" look for a value
+			for "workplace" regardless of user. The corresponding concept is:
+			"Did anyone set this option for *this workplace* ? If so, reuse that value."
+		"""
+
+		if None in [option, workplace, bias]:
+			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) nor <bias> (%s) may be [None]' % (option, workplace, bias)
+		if str(bias).lower() not in ['user', 'workplace']:
+			raise ValueError, '<bias> must be in [user], [workplace]'
+		bias = str(bias).lower()
+
+		# does this option exist ?
+		cmd = "select type from cfg.cfg_template where name=%s"
+		rows = gmPG.run_ro_query(self.__conn, cmd, None, option)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting option definition for [%s]' % option)
+			return None
+		if len(rows) == 0:
+			if default is None:
+				return None
+			_log.Log(gmLog.lInfo, 'creating option [%s] with default [%s]' % (option, default))
+			success = self.set (
+				workplace = workplace,
+				cookie = cookie,
+				option = option,
+				value = default
+			)
+			if not success:
+				return None
+			return default
+
+		cfg_type = rows[0][1]
+		args = {
+			'opt': option,
+			'wp': workplace,
+			'cookie': cookie
+		}
+
+		# 1) search value with explicit workplace and current user
+		where_parts = [
+			'vco.owner = CURRENT_USER',
+			'vco.workplace = %(wp)s',
+			'vco.option = %(opt)s'
+		]
+		if cookie is not None:
+			where_parts.append('vco.cookie = %(cookie)s')
+		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
+		rows = gmPG.run_ro_query(self.__conn, cmd, None, args)
+		# error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
+			return None
+		# found
+		if len(rows) > 0:
+			return rows[0][0]
+		_log.Log(gmLog.lWarn, 'no user AND workplace specific value for option [%s] in config database' % option)
+
+		# 2) search value with biased query
+		if bias == 'user':
+			# did *I* set this option on *any* workplace ?
+			where_parts = [
+				'vco.owner = CURRENT_USER',
+				'vco.option = %(opt)s'
+			]
+		else:
+			# did *anyone* set this option on *this* workplace ?
+			where_parts = [
+				'vco.workplace = %(wp)s',
+				'vco.option = %(opt)s'
+			]
+		if cookie is not None:
+			where_parts.append('vco.cookie = %(cookie)s')
+		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
+		rows = gmPG.run_ro_query(self.__conn, cmd, None, args)
+		# error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
+			return None
+		# found
+		if len(rows) > 0:
+			# set explicitely for user/workplace
+			self.set (
+				workplace = workplace,
+				cookie = cookie,
+				option = option,
+				value = rows[0][0]
+			)
+			return rows[0][0]
+		_log.Log(gmLog.lWarn, 'no user OR workplace specific value for option [%s] in config database' % option)
+
+		# 3) search value within default site policy
+		where_parts = [
+			'vco.owner = %s' % cfg_DEFAULT,
+			'vco.workplace = %s' % cfg_DEFAULT,
+			'vco.option = %(opt)s'
+		]
+		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
+		rows = gmPG.run_ro_query(self.__conn, cmd, None, args)
+		# error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
+			return None
+		# found
+		if len(rows) > 0:
+			# set explicitely for user/workplace
+			self.set (
+				workplace = workplace,
+				cookie = cookie,
+				option = option,
+				value = rows[0][0]
+			)
+			return rows[0][0]
+		_log.Log(gmLog.lWarn, 'no default site policy value for option [%s] in config database' % option)
+
+		# 4) not found, set default ?
+		if default is None:
+			_log.Log(gmLog.lWarn, 'no default value for option [%s] supplied by caller' % option)
+			return None
+		_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+		success = self.set (
+			workplace = workplace,
+			cookie = cookie,
+			option = option,
+			value = default
+		)
+		if not success:
+			return None
+		return default
 	#-----------------------------------------------
 	def get_by_user(self, option=None, cookie=None, default=None):
 		"""Get config option from database w/o regard for the workplace.
@@ -1441,7 +1579,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.36  2006-01-13 14:57:14  ncq
+# Revision 1.37  2006-02-27 15:39:06  ncq
+# - add cCfg_SQL.get2()
+#
+# Revision 1.36  2006/01/13 14:57:14  ncq
 # - really fix get_by_workplace() - still needs set() functionality
 #
 # Revision 1.35  2006/01/01 17:22:08  ncq
