@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.71 $
+-- $Revision: 1.72 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -105,14 +105,23 @@ insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	(select pk_regime from clin.v_vacc_regimes where regime='HiB (SFCVC)')
 );
 
--- health issue
+-- health issues
 delete from clin.health_issue where
 	id_patient = currval('dem.identity_pk_seq');
 
-insert into clin.health_issue (id_patient, description)
+insert into clin.health_issue (id_patient, description, age_noted, laterality)
 values (
 	currval('dem.identity_pk_seq'),
-	'9/2000 extraterrestrial infection'
+	'post appendectomy/peritonitis',
+	'67 years 11 months',
+	'na'
+);
+
+insert into clin.health_issue (id_patient, description, laterality)
+values (
+	currval('dem.identity_pk_seq'),
+	'9/2000 extraterrestrial infection',
+	'na'
 );
 
 -- episode "knife cut"
@@ -149,6 +158,16 @@ insert into clin.encounter (
 	'2000-9-17 19:33',
 	'bleeding cut forearm L',
 	'?contaminated laceration L forearm'
+);
+
+insert into clin.operation (
+	fk_health_issue,
+	fk_encounter,
+	clin_where
+) values (
+	(select pk from clin.health_issue where description = 'post appendectomy/peritonitis'),
+	currval('clin.encounter_pk_seq'),
+	'Starfleet Central Hospital Ward A-II'
 );
 
 -- subjective
@@ -659,11 +678,14 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.71 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.72 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.71  2006-02-19 13:47:14  ncq
+-- Revision 1.72  2006-02-27 11:30:27  ncq
+-- - add post-AE state health issue which also is an operation
+--
+-- Revision 1.71  2006/02/19 13:47:14  ncq
 -- - add review comment to blobs reviews
 --
 -- Revision 1.70  2006/02/13 08:49:07  ncq
