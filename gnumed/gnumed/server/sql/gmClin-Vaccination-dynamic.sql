@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related dynamic relations
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-dynamic.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -48,7 +48,8 @@ comment on column clin.vaccine.is_live is
 comment on column clin.vaccine.min_age is
 	'minimum age this vaccine is licensed for according to the information by the manufacturer';
 comment on column clin.vaccine.max_age is
-	'maximum age this vaccine is licensed for according to the information by the manufacturer';
+	'maximum age this vaccine is licensed for according to the information
+	 by the manufacturer, use "5555 years" to indicate "no maximum age"';
 
 -- clin.vaccine_batches --
 comment on column clin.vaccine_batches.batch_no is
@@ -104,7 +105,7 @@ comment on column clin.vacc_def.min_age_due is
 	'minimum age at which this shot is due';
 comment on column clin.vacc_def.max_age_due is
 	'maximum age at which this shot is due,
-	 if max_age_due = NULL: no maximum age';
+	 if max_age_due = "5555 years": no maximum age';
 comment on column clin.vacc_def.min_interval is
 	'if (is_booster == true):
 		recommended interval for boostering
@@ -245,6 +246,34 @@ comment on table clin.lnk_constraint2vacc_reg is
 
 -- views --
 \unset ON_ERROR_STOP
+drop view clin.v_vaccine cascade;
+\set ON_ERROR_STOP 1
+
+create view clin.v_vaccine as
+select
+	v.pk as pk_vaccine,
+	v.trade_name,
+	v.short_name,
+	vr.abbreviation as route_abbreviation,
+	vr.description as route_description,
+	_(vr.description) as l10n_route_description,
+	v.is_live,
+	v.min_age,
+	v.max_age,
+	v.comment,
+	v.id_route as pk_route
+from
+	clin.vaccine v,
+	clin.vacc_route vr
+where
+	v.id_route = vr.id
+;
+
+comment on view clin.v_vaccine is
+	'denormalized data about vaccines';
+
+--
+\unset ON_ERROR_STOP
 drop view clin.v_inds4vaccine cascade;
 \set ON_ERROR_STOP 1
 
@@ -253,6 +282,7 @@ select
 	v.trade_name,
 	v.short_name,
 	i.description as indication,
+	_(i.description) as l10n_indication,
 	v.is_live,
 	v.min_age,
 	v.max_age,
@@ -397,16 +427,16 @@ select
 	v.fk_patient as pk_patient,
 	v.id as pk_vaccination,
 	v.clin_when as date,
-	vind.description as indication,
-	_(vind.description) as l10n_indication,
-	vcine.trade_name as vaccine,
-	vcine.short_name as vaccine_short,
+	vi4v.indication,
+	vi4v.l10n_indication,
+	vi4v.trade_name as vaccine,
+	vi4v.short_name as vaccine_short,
 	v.batch_no as batch_no,
 	v.site as site,
 	coalesce(v.narrative, '') as narrative,
-	vind.id as pk_indication,
+	vi4v.pk_vacc_indication as pk_indication,
 	v.fk_provider as pk_provider,
-	vcine.pk as pk_vaccine,
+	vi4v.pk_vaccine as pk_vaccine,
 	vpep.pk_health_issue as pk_health_issue,
 	v.fk_episode as pk_episode,
 	v.fk_encounter as pk_encounter,
@@ -415,18 +445,20 @@ select
 	v.xmin as xmin_vaccination
 from
 	clin.vaccination v,
-	clin.vaccine vcine,
-	clin.lnk_vaccine2inds lv2i,
-	clin.vacc_indication vind,
+--	clin.vaccine vcine,
+--	clin.lnk_vaccine2inds lv2i,
+	clin.v_inds4vaccine vi4v,
+--	clin.vacc_indication vind,
 	clin.v_pat_episodes vpep
 where
 	vpep.pk_episode=v.fk_episode
 		and
-	v.fk_vaccine = vcine.pk
-		and
-	lv2i.fk_vaccine = vcine.pk
-		and
-	lv2i.fk_indication = vind.id
+--	v.fk_vaccine = vcine.pk
+	v.fk_vaccine = vi4v.pk_vaccine
+--		and
+--	lv2i.fk_vaccine = vcine.pk
+--		and
+--	lv2i.fk_indication = vind.id
 ;
 
 comment on view clin.v_pat_vacc4ind is
@@ -576,15 +608,20 @@ grant select on
 	, clin.v_pat_vacc4ind
 	, clin.v_pat_missing_vaccs
 	, clin.v_pat_missing_boosters
+	, clin.v_vaccine
 to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-dynamic.sql,v $
--- Revision 1.2  2006-02-19 13:45:05  ncq
+-- Revision 1.3  2006-02-27 11:24:38  ncq
+-- - explain *_age: NULL -> 5555 years
+-- - add clin.v_vaccine and improve other views
+--
+-- Revision 1.2  2006/02/19 13:45:05  ncq
 -- - move the rest of the dynamic vacc stuff from gmClinicalViews.sql
 --   into gmClin-Vaccination-dynamic.sql
 -- - add vaccination schedule constraint enumeration data
