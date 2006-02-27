@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -193,8 +193,8 @@ class cEncounter(gmClinItem.cClinItem):
 		'last_affirmed',
 		'pk_location',
 		'pk_type',
-		'rfe',
-		'aoe'
+		'reason_for_encounter',
+		'assessment_of_encounter'
 	]
 	#--------------------------------------------------------
 	def set_active(self, staff_id=None):
@@ -511,7 +511,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.75  2005-12-26 05:26:38  sjtan
+# Revision 1.76  2006-02-27 22:38:36  ncq
+# - spell out rfe/aoe as per Richard's request
+#
+# Revision 1.75  2005/12/26 05:26:38  sjtan
 #
 # match schema
 #

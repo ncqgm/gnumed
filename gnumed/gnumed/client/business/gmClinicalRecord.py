@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.194 2006-01-07 13:00:19 ncq Exp $
-__version__ = "$Revision: 1.194 $"
+# $Id: gmClinicalRecord.py,v 1.195 2006-02-27 22:38:36 ncq Exp $
+__version__ = "$Revision: 1.195 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1369,9 +1369,9 @@ where
 			pat_str,
 			encounter['started'],
 			encounter['l10n_type'],
-			encounter['rfe'],
+			encounter['reason_for_encounter'],
 			encounter['last_affirmed'],
-			encounter['aoe']
+			encounter['assessment_of_encounter']
 		)
 		title = _('recording patient encounter')
 		attach = False
@@ -1738,7 +1738,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.194  2006-01-07 13:00:19  ncq
+# Revision 1.195  2006-02-27 22:38:36  ncq
+# - spell out rfe/aoe as per Richard's request
+#
+# Revision 1.194  2006/01/07 13:00:19  ncq
 # - add some schema qualifiers
 #
 # Revision 1.193  2005/12/26 12:03:10  sjtan

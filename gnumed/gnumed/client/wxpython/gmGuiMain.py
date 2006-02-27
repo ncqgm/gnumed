@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.232 2006-01-24 21:09:45 ncq Exp $
-__version__ = "$Revision: 1.232 $"
+# $Id: gmGuiMain.py,v 1.233 2006-02-27 22:38:36 ncq Exp $
+__version__ = "$Revision: 1.233 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -387,14 +387,14 @@ class gmTopLevelFrame(wx.Frame):
 		# - work out suitable default
 		epis = emr.get_episodes_by_encounter()
 		if len(epis) == 0:
-			enc_summary = enc['aoe']
+			enc_summary = enc['assessment_of_encounter']
 		else:
 			enc_summary = ''
 			for epi in epis:
 				enc_summary += '%s; ' % epi['description']
 		# - make this an optional modal dialog
-		if enc['aoe'] is None or (enc['aoe'].find('auto-created') >= 0) or (len(enc['aoe'].strip()) == 0):
-			enc['aoe'] = enc_summary
+		if enc['assessment_of_encounter'] is None or (enc['assessment_of_encounter'].find('auto-created') >= 0) or (len(enc['assessment_of_encounter'].strip()) == 0):
+			enc['assessment_of_encounter'] = enc_summary
 			if not enc.save_payload():
 				gmGuiHelpers.gm_beep_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
 		return True
@@ -862,6 +862,28 @@ Do not rely on this database to work properly in all cases !""")
 
 		return True
 	#----------------------------------------------
+#	def HandleEvent(self, *args, **kwargs):
+#		"""Contains top level exception handler.
+#		"""
+#		try:
+#			wx.App.HandleEvent(args, kwargs)
+#		except:
+#			_log.LogException('unhandled exception caught', verbose=1)
+#			exc_type, val = sys.exc_info()[:2]
+#			msg = _(
+#"""An unhandled exception occurred.
+#
+#This probably indicates a rather severe error and this GNUmed client will be aborted.
+#
+#Type of exception: %s
+#Exception value  : %s
+#""")
+#			gmGuiHelpers.gm_show_error (
+#				aMessage = msg,
+#				aTitle = _('Unhandled exception')
+#			)
+#			raise
+	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
 
@@ -983,7 +1005,7 @@ Do not rely on this database to work properly in all cases !""")
 #==============================================================================
 def main():
 	#create an instance of our GNUmed main application
-	app = gmApp(0)
+	app = gmApp(False)
 	#and enter the main event loop
 	app.MainLoop()
 #==============================================================================
@@ -1000,7 +1022,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.232  2006-01-24 21:09:45  ncq
+# Revision 1.233  2006-02-27 22:38:36  ncq
+# - spell out rfe/aoe as per Richard's request
+#
+# Revision 1.232  2006/01/24 21:09:45  ncq
 # - use whoami.get_short_alias
 #
 # Revision 1.231  2006/01/15 14:29:44  ncq

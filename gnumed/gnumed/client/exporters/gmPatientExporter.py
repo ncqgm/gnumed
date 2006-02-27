@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.76 2005-12-25 13:24:30 sjtan Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmPatientExporter.py,v 1.77 2006-02-27 22:38:36 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -733,13 +733,13 @@ class cEmrExport:
             encounter['last_affirmed'].Format('%H:%M'),
             encounter['l10n_type']
         )
-        if (encounter['aoe'] is not None) and (len(encounter['aoe']) > 0):
-            txt += ' (%s)' % encounter['aoe']
+        if (encounter['assessment_of_encounter'] is not None) and (len(encounter['assessment_of_encounter']) > 0):
+            txt += ' (%s)' % encounter['assessment_of_encounter']
         txt += '\n\n'
 
         # rfe/aoe
-        txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), encounter['rfe'])
-        txt += (' ' * left_margin) + '%s: %s\n' % (_('AOE'), encounter['aoe'])
+        txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), encounter['reason_for_encounter'])
+        txt += (' ' * left_margin) + '%s: %s\n' % (_('AOE'), encounter['assessment_of_encounter'])
 
         # soap
         soap_cat_labels = {
@@ -815,7 +815,7 @@ class cEmrExport:
                             an_encounter['l10n_type'],
                             an_encounter['started'].Format('%A, %Y-%m-%d %H:%M'),
                             an_encounter['last_affirmed'].Format('%m-%d %H:%M'),
-                            an_encounter['aoe']
+                            an_encounter['assessment_of_encounter']
                         )
                     )
                     self.__target.write(self.get_encounter_info(an_episode, an_encounter, 12))
@@ -1260,7 +1260,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.76  2005-12-25 13:24:30  sjtan
+# Revision 1.77  2006-02-27 22:38:36  ncq
+# - spell out rfe/aoe as per Richard's request
+#
+# Revision 1.76  2005/12/25 13:24:30  sjtan
 #
 # schema changes in names .
 #
