@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -96,6 +96,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=rev[6])
 		return True
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_cancel_button_pressed(self, evt):
+		self.OnCancel()
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
@@ -609,7 +614,17 @@ class cDocTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def __display_part(self, part):
 		"""Display document part."""
-		# but do everything with parts
+
+		# sanity check
+		if part['size'] == 0:
+			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % part['pk_obj'])
+			gmGuiHelpers.gm_show_error(
+				aMessage = _('Document part does not seem to exist in database !'),
+				aTitle = _('showing document')
+			)
+			return None
+
+		# get export directory for temporary files
 		def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
 		cfg = gmCfg.cCfgSQL()
 		tmp_dir = cfg.get_by_workplace (
@@ -624,14 +639,7 @@ class cDocTree(wx.TreeCtrl):
 		else:
 			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
-		if part['size'] == 0:
-			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % part['pk_obj'])
-			gmGuiHelpers.gm_show_error(
-				aMessage = _('Document part does not seem to exist in database !'),
-				aTitle = _('showing document')
-			)
-			return None
-
+		# determine database export chunk size
 		chunksize = int(cfg.get_by_workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = _whoami.get_workplace(),
@@ -644,19 +652,37 @@ class cDocTree(wx.TreeCtrl):
 		fname = part.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
 		if fname is None:
 			_log.Log(gmLog.lErr, "cannot export doc part [%s] data from database" % part['pk_obj'])
-			gmGuiHelpers.gm_show_error(
+			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot export document part from database to file.'),
 				aTitle = _('showing document')
 			)
 			return None
 
+		# display it
 		(result, msg) = gmMimeLib.call_viewer_on_file(fname)
 		if not result:
-			gmGuiHelpers.gm_show_error(
+			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot display document part:\n%s') % msg,
 				aTitle = _('displaying page')
 			)
 			return None
+
+		# handle review if wanted
+		review_after_display = cfg.get2 (
+			option = 'horstspace.document_viewer.review_after_display',
+			workplace = _whoami.get_workplace(),
+			bias = 'user',
+			default = 1
+		)
+		# always review
+		if review_after_display == 1:
+			self.__review_part(part=part)
+		# review if no review by me exists
+		elif review_after_display == 2:
+			my_rev = filter(lambda rev: rev['is_review_by_you'], part.get_reviews())
+			if len(my_rev) == 0:
+				self.__review_part(part=part)
+
 		return 1
 	#--------------------------------------------------------
 	def __review_curr_part(self, evt):
@@ -681,7 +707,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.56  2006-02-13 19:10:14  ncq
+# Revision 1.57  2006-02-27 15:42:14  ncq
+# - implement cancel button in review dialog
+# - invoke review after displaying doc part depending on cfg
+#
+# Revision 1.56  2006/02/13 19:10:14  ncq
 # - actually display previous reviews in list
 #
 # Revision 1.55  2006/02/13 08:29:19  ncq
