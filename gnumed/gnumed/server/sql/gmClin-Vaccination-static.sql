@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-static.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -40,10 +40,15 @@ create table clin.vaccine (
 		default false,
 	min_age interval
 		not null
-		check(min_age > interval '0 seconds'),
+		check(min_age between '1 second'::interval and '150 years'::interval),
 	max_age interval
-		default null
-		check((max_age is null) or (max_age >= min_age)),
+		not null
+		default '5555 years'::interval
+		check (
+			(max_age between min_age and '150 years'::interval)
+				or
+			(max_age = '5555 years'::interval)
+		),
 	comment text,
 	unique (trade_name, short_name)
 ) inherits (audit.audit_fields);
@@ -90,7 +95,7 @@ create table clin.vacc_regime (
 		on delete restrict,
 	is_active boolean
 		not null
-		default true, 
+		default true,
 	comment text,
 	unique(fk_recommended_by, fk_indication, name)
 ) inherits (audit.audit_fields);
@@ -149,10 +154,15 @@ create table clin.vacc_def (
 		default null,
 	min_age_due interval
 		not null
-		check (min_age_due > '0 seconds'::interval),
+		check (min_age_due between '1 second'::interval and '150 years'::interval),
 	max_age_due interval
-		default null
-		check ((max_age_due is null) or (max_age_due >= min_age_due)),
+		not null
+		default '5555'::interval
+		check (
+			(max_age_due between min_age_due and '150 years'::interval)
+				or 
+			(max_age_due = '5555'::interval)
+		),
 	min_interval interval
 		default null,
 	comment text,
@@ -220,11 +230,15 @@ alter table clin.vaccination alter column soap_cat set default 'p';
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-static.sql,v $
--- Revision 1.2  2006-02-19 13:45:05  ncq
+-- Revision 1.3  2006-02-27 11:23:26  ncq
+-- - better constrain min_age/max_age in schedule and vaccine
+-- - use "5555 years" not NULL to mean infinite age, PG infinite::interval is in the works
+--
+-- Revision 1.2  2006/02/19 13:45:05  ncq
 -- - move the rest of the dynamic vacc stuff from gmClinicalViews.sql
 --   into gmClin-Vaccination-dynamic.sql
 -- - add vaccination schedule constraint enumeration data
