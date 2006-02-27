@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -274,14 +274,41 @@ values (
 	1048576
 );
 
+-- review docs after displaying them
+insert into cfg.cfg_template
+	(name, type, description)
+values (
+	'horstspace.document_viewer.review_after_display',
+	'numeric',
+	'Whether to display the document review dialog after
+	 displaying a document:
+	 0 - never
+	 1 - always
+	 2 - only if there does not exist any review by the current user'
+);
+
+insert into cfg.cfg_item
+	(fk_template, owner)
+values (
+	currval('cfg.cfg_template_pk_seq'),
+	'xxxDEFAULTxxx'
+);
+
+-- default to always
+insert into cfg.cfg_numeric (fk_item, value)
+values (currval('cfg.cfg_item_pk_seq'), 1);
+
+
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.26 $');
+select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.26  2006-01-16 22:12:00  ncq
+-- Revision 1.27  2006-02-27 15:38:35  ncq
+-- - add option whether to display review after doc
+--
+-- Revision 1.26  2006/01/16 22:12:00  ncq
 -- - add blobs export chunk size option
 --
 -- Revision 1.25  2006/01/15 14:32:15  ncq
