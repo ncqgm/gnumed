@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -544,13 +544,38 @@ insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='poliomyelitis'));
 
 -- =============================================
+-- Typhus --
+------------
+insert into clin.vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from clin.vacc_route where abbreviation='i.m.'),
+	'Typhim Vi',
+	'Typhus',
+	false,
+	'2 years'::interval,
+	'unter 2 Jahren bildet sich kein adäquater Titer'
+);
+
+-- link to indications
+insert into clin.lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('clin.vaccine_pk_seq'), (select id from clin.vacc_indication where description='salmonella typhi'));
+
+-- =============================================
 -- do simple revision tracking
-delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.25 $');
+select log_script_insertion('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.25  2005-12-29 21:48:09  ncq
+-- Revision 1.26  2006-02-27 17:31:47  ncq
+-- - Typhus-Impfstoff hinzugefügt
+--
+-- Revision 1.25  2005/12/29 21:48:09  ncq
 -- - clin.vaccine.id -> pk
 -- - remove clin.vaccine.last_batch_no
 -- - add clin.vaccine_batches
