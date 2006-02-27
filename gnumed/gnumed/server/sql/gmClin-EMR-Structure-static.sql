@@ -4,7 +4,7 @@
 --		- episodes
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-static.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -37,6 +37,9 @@ create table clin.health_issue (
 	description text
 		not null
 		default null,
+	laterality varchar(2)
+		default null
+		check (laterality in (null, 's', 'd', 'sd', 'na')),
 	age_noted interval
 		default null,
 	is_active boolean
@@ -115,11 +118,14 @@ create table clin.encounter (
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-static.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-static.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-static.sql,v $
--- Revision 1.1  2006-02-10 14:08:58  ncq
+-- Revision 1.2  2006-02-27 11:21:31  ncq
+-- - add laterality to health issue
+--
+-- Revision 1.1  2006/02/10 14:08:58  ncq
 -- - factor out EMR structure clinical schema into its own set of files
 --
 --

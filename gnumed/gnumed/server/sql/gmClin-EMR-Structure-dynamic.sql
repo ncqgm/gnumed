@@ -1,7 +1,7 @@
 -- Project: GNUmed - EMR structure related dynamic relations:
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-dynamic.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -36,6 +36,12 @@ comment on column clin.health_issue.id_patient is
 comment on column clin.health_issue.description is
 	'descriptive name of this health issue, may
 	 change over time as evidence increases';
+comment on column clin.health_issue.laterality is
+	'NULL: don''t know
+	 s: sinister - left
+	 d: dexter - right
+	 sd: sinister and dexter - both sides
+	 na: not applicable';
 comment on column clin.health_issue.age_noted is
 	'at what age the patient acquired the condition';
 comment on column clin.health_issue.is_active is
@@ -362,11 +368,14 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.1  2006-02-10 14:08:58  ncq
+-- Revision 1.2  2006-02-27 11:21:31  ncq
+-- - add laterality to health issue
+--
+-- Revision 1.1  2006/02/10 14:08:58  ncq
 -- - factor out EMR structure clinical schema into its own set of files
 --
 --
