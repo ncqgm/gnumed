@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related dynamic relations
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-dynamic.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -51,62 +51,117 @@ comment on column clin.vaccine.max_age is
 	'maximum age this vaccine is licensed for according to the information
 	 by the manufacturer, use "5555 years" to indicate "no maximum age"';
 
+
 -- clin.vaccine_batches --
+select audit.add_table_for_audit('clin', 'vaccine_batches');
+
 comment on column clin.vaccine_batches.batch_no is
 	'serial # of a batch of a given vaccine that
 	 is awaiting usage in the fridge';
 
+
 -- clin.lnk_vaccine2inds --
+select audit.add_table_for_audit('clin', 'lnk_vaccine2inds');
+
 comment on table clin.lnk_vaccine2inds is
 	'links vaccines to their indications';
 
--- clin.vacc_regime --
-select audit.add_table_for_audit('clin', 'vacc_regime');
 
-comment on table clin.vacc_regime is
-	'holds vaccination schedules/regimes/target diseases';
-comment on column clin.vacc_regime.fk_recommended_by is
-	'organization recommending this vaccination';
-comment on column clin.vacc_regime.fk_indication is
-	'vaccination indication this regime is targeted at';
-comment on column clin.vacc_regime.name is
-	'regime name: schedule/disease/target bacterium...';
-comment on column clin.vacc_regime.is_active is
-	'whether this schedule is active or not,
-	 if False: do not *start* patients on this schedule';
+-- clin.vaccination_course --
+select audit.add_table_for_audit('clin', 'vaccination_course');
 
--- clin.lnk_pat2vacc_reg --
-select audit.add_table_for_audit('clin', 'lnk_pat2vacc_reg');
--- select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
+comment on table clin.vaccination_course is
+	'holds vaccination courses defined at a techno-medical level for
+	 a single indication and will in many cases represent a part of
+	 a "recommended multi-epitope schedule",
+	 note that one organization can indeed recommend several courses
+	 for one and the same indication - which then only differ in their
+	 constraints, PostgreSQL does not currently offer the best tools
+	 to enforce such constraints';
+comment on column clin.vaccination_course.fk_recommended_by is
+	'the source/organization which defined this course, can be used to
+	 differentiate several locale-dependant courses for the same indication
+	 and yet tell them apart';
+comment on column clin.vaccination_course.fk_indication is
+	'vaccination indication this course is targeted at';
+comment on column clin.vaccination_course.is_active is
+	'whether this course is active or not,
+	 if False: do not newly *start* patients on this course';
+comment on column clin.vaccination_course.comment is
+	'a free-text comment on this vaccination course';
 
-comment on table clin.lnk_pat2vacc_reg is
-	'links patients to vaccination regimes they are actually on,
-	 this allows for per-patient selection of regimes to be
+
+-- -- clin.vaccination_course_constraint --
+select audit.add_table_for_audit('clin', 'vaccination_course_constraint');
+
+comment on table clin.vaccination_course_constraint is
+	'non-age constraints applying to a certain vaccination course
+	 such as "female only", "Torres-Strait-Islander", etc.';
+comment on column clin.vaccination_course_constraint.description is
+	'description/label/name of the constraint';
+
+
+-- -- clin.lnk_constraint2vacc_course --
+select audit.add_table_for_audit('clin', 'lnk_constraint2vacc_course');
+
+comment on table clin.lnk_constraint2vacc_course is
+	'this table actually links constraints to vaccination courses';
+
+
+-- -- clin.vaccincation_schedule --
+select audit.add_table_for_audit('clin', 'vaccination_schedule');
+
+comment on table clin.vaccination_schedule is
+	'This table holds schedules as recommended by some authority
+	 such as a Vaccination Council. There will be numerous schedules
+	 depending on locale, constraints, age group etc. These schedules
+	 may be single or multi-epitope depending on their definition.';
+comment on column clin.vaccination_schedule.name is
+	'schedule name: single epitope or aggregated multi-epitope';
+
+
+-- -- clin.lnk_vaccination_course2schedule --
+select audit.add_table_for_audit('clin', 'lnk_vaccination_course2schedule');
+
+comment on table clin.lnk_vaccination_course2schedule is
+	'this table links vaccination courses for a single epitope
+	 into schedules defined and recommended by a vaccination
+	 council or similar entity';
+
+
+-- -- clin.lnk_pat2vacc_course --
+select audit.add_table_for_audit('clin', 'lnk_pat2vacc_course');
+-- select add_table_for_notifies('lnk_pat2vacc_course', 'vacc');
+
+comment on table clin.lnk_pat2vacc_course is
+	'links patients to vaccination courses they are actually on,
+	 this allows for per-patient selection of courses to be
 	 followed, eg. children at different ages may be on different
-	 vaccination schedules or some people are on a schedule due
+	 vaccination courses or some people are on a course due
 	 to a trip abroad while most others are not';
 
--- clin.vacc_def --
-select audit.add_table_for_audit('clin', 'vacc_def');
 
-comment on table clin.vacc_def is
-	'defines a given vaccination event for a particular regime';
-comment on column clin.vacc_def.fk_regime is
-	'regime to which this event belongs';
-comment on column clin.vacc_def.is_booster is
+-- -- clin.vaccination_definition --
+select audit.add_table_for_audit('clin', 'vaccination_definition');
+
+comment on table clin.vaccination_definition is
+	'defines a given vaccination event for a particular course';
+comment on column clin.vaccination_definition.fk_course is
+	'course to which this event belongs';
+comment on column clin.vaccination_definition.is_booster is
 	'does this definition represent a booster,
-	 also set for quasi-booster regimes such as
+	 also set for quasi-booster courses such as
 	 Influenza';
-comment on column clin.vacc_def.seq_no is
+comment on column clin.vaccination_definition.seq_no is
 	'sequence number for this vaccination event
-	 within a particular schedule/regime,
+	 within a particular course,
 	 NULL if (is_booster == true)';
-comment on column clin.vacc_def.min_age_due is
+comment on column clin.vaccination_definition.min_age_due is
 	'minimum age at which this shot is due';
-comment on column clin.vacc_def.max_age_due is
+comment on column clin.vaccination_definition.max_age_due is
 	'maximum age at which this shot is due,
 	 if max_age_due = "5555 years": no maximum age';
-comment on column clin.vacc_def.min_interval is
+comment on column clin.vaccination_definition.min_interval is
 	'if (is_booster == true):
 		recommended interval for boostering
 	 id (is_booster == false):
@@ -114,20 +169,20 @@ comment on column clin.vacc_def.min_interval is
 		NULL if seq_no == 1';
 
 \unset ON_ERROR_STOP
-alter table clin.vacc_def
+alter table clin.vaccination_definition
 	drop constraint numbered_shot_xor_booster;
-alter table clin.vacc_def
+alter table clin.vaccination_definition
 	drop constraint sensible_min_interval;
 \set ON_ERROR_STOP 1
 
-alter table clin.vacc_def
+alter table clin.vaccination_definition
 	add constraint numbered_shot_xor_booster
 		check (
 			((is_booster is true) and (seq_no is null)) or
 			((is_booster is false) and (seq_no > 0))
 		);
 
-alter table clin.vacc_def
+alter table clin.vaccination_definition
 	add constraint sensible_min_interval
 		check (
 			((min_interval is null) and (seq_no = 1))
@@ -138,9 +193,9 @@ alter table clin.vacc_def
 		);
 
 \unset ON_ERROR_STOP
-drop trigger tr_ins_booster_must_have_base_immunity on clin.vacc_def;
-drop trigger tr_upd_booster_must_have_base_immunity on clin.vacc_def;
-drop trigger tr_del_booster_must_have_base_immunity on clin.vacc_def;
+drop trigger tr_ins_booster_must_have_base_immunity on clin.vaccination_definition;
+drop trigger tr_upd_booster_must_have_base_immunity on clin.vaccination_definition;
+drop trigger tr_del_booster_must_have_base_immunity on clin.vaccination_definition;
 \set ON_ERROR_STOP 1
 
 -- insert
@@ -153,17 +208,17 @@ BEGIN
 		return NEW;
 	end if;
 	-- only insert booster def if non-booster def exists
-	perform 1 from clin.vacc_def where fk_regime = NEW.fk_regime and seq_no is not null;
+	perform 1 from clin.vaccination_definition where fk_course = NEW.fk_course and seq_no is not null;
 	if FOUND then
 		return NEW;
 	end if;
-	raise exception ''Cannot define booster shot for regime [%]. There is no base immunization definition.'', NEW.fk_regime;
+	raise exception ''Cannot define booster shot for course [%]. There is no base immunization definition.'', NEW.fk_course;
 	return null;
 END;
 ';
 
 create trigger tr_ins_booster_must_have_base_immunity
-	before insert on clin.vacc_def
+	before insert on clin.vaccination_definition
 	for each row execute procedure clin.f_ins_booster_must_have_base_immunity();
 
 -- update
@@ -179,17 +234,17 @@ BEGIN
 		return null;
 	end if;
 	-- after update to booster still non-booster def available ?
-	perform 1 from clin.vacc_def where fk_regime = NEW.fk_regime and seq_no is not null;
+	perform 1 from clin.vaccination_definition where fk_course = NEW.fk_course and seq_no is not null;
 	if FOUND then
 		return null;
 	end if;
-	msg := ''Cannot set vacc def ['' || NEW.pk || ''] to booster for regime ['' || NEW.fk_regime || '']. There would be no base immunization definition left.'';
+	msg := ''Cannot set vacc def ['' || NEW.pk || ''] to booster for course ['' || NEW.fk_course || '']. There would be no base immunization definition left.'';
 	raise exception ''%'', msg;
 	return null;
 END;';
 
 create trigger tr_upd_booster_must_have_base_immunity
-	after update on clin.vacc_def
+	after update on clin.vaccination_definition
 	for each row execute procedure clin.f_upd_booster_must_have_base_immunity();
 
 -- delete
@@ -205,24 +260,24 @@ BEGIN
 		return null;
 	end if;
 	-- any non-booster rows left ?
-	perform 1 from clin.vacc_def where fk_regime = OLD.fk_regime and seq_no is not null;
+	perform 1 from clin.vaccination_definition where fk_course = OLD.fk_course and seq_no is not null;
 	if FOUND then
 		return null;
 	end if;
 	-- *any* rows left ?
-	perform 1 from clin.vacc_def where fk_regime = OLD.fk_regime;
+	perform 1 from clin.vaccination_definition where fk_course = OLD.fk_course;
 	if not FOUND then
 		-- no problem
 		return null;
 	end if;
 	-- any remaining rows can only be booster rows - which is a problem
-	msg := ''Cannot delete last non-booster vacc def ['' || OLD.pk || ''] from regime ['' || OLD.fk_regime || '']. There would be only booster definitions left.'';
+	msg := ''Cannot delete last non-booster vacc def ['' || OLD.pk || ''] from course ['' || OLD.fk_course || '']. There would be only booster definitions left.'';
 	raise exception ''%'', msg;
 	return null;
 END;';
 
 create trigger tr_del_booster_must_have_base_immunity
-	after delete on clin.vacc_def
+	after delete on clin.vaccination_definition
 	for each row execute procedure clin.f_del_booster_must_have_base_immunity();
 
 -- clin.vaccination --
@@ -232,19 +287,21 @@ select add_table_for_notifies('clin', 'vaccination', 'vacc');
 comment on table clin.vaccination is
 	'holds vaccinations actually given';
 
--- clin.vacc_regime_constraint --
-select audit.add_table_for_audit('clin', 'vacc_regime_constraint');
+-- clin.vaccination_course_constraint --
+select audit.add_table_for_audit('clin', 'vaccination_course_constraint');
 
-comment on table clin.vacc_regime_constraint is
-	'holds constraints which apply to a vaccination schedule';
+comment on table clin.vaccination_course_constraint is
+	'holds constraints which apply to a vaccination course';
 
--- clin.lnk_constraint2vacc_reg --
-select audit.add_table_for_audit('clin', 'lnk_constraint2vacc_reg');
+-- clin.lnk_constraint2vacc_course --
+select audit.add_table_for_audit('clin', 'lnk_constraint2vacc_course');
 
-comment on table clin.lnk_constraint2vacc_reg is
-	'links constraints to schedules';
+comment on table clin.lnk_constraint2vacc_course is
+	'links constraints to courses';
 
--- views --
+-- -----------------------------------------------------------------------
+-- -- views --
+-- -----------------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view clin.v_vaccine cascade;
 \set ON_ERROR_STOP 1
@@ -304,48 +361,52 @@ comment on view clin.v_inds4vaccine is
 
 
 \unset ON_ERROR_STOP
-drop view clin.v_vacc_regimes cascade;
+drop view clin.v_vaccination_courses cascade;
 \set ON_ERROR_STOP 1
 
-create view clin.v_vacc_regimes as
+create view clin.v_vaccination_courses as
 select
-	vreg.id as pk_regime,
+	vcourse.pk as pk_course,
 	vind.description as indication,
 	_(vind.description) as l10n_indication,
-	vreg.name as regime,
-	(select max(vdef.seq_no) from clin.vacc_def vdef where vreg.id = vdef.fk_regime)
+	(select name_long from ref_source where ref_source.pk = vcourse.fk_recommended_by)
+		as recommended_by_name_long,
+	(select name_short from ref_source where ref_source.pk = vcourse.fk_recommended_by)
+		as recommended_by_name_short,
+	(select version from ref_source where ref_source.pk = vcourse.fk_recommended_by)
+		as recommended_by_version,
+	(select max(vdef.seq_no) from clin.vaccination_definition vdef where vcourse.pk = vdef.fk_course)
 		as shots,
-	coalesce(vreg.comment, '') as comment,
-	(select vdef.min_age_due from clin.vacc_def vdef where vreg.id = vdef.fk_regime and vdef.seq_no=1)
+	coalesce(vcourse.comment, '') as comment,
+	(select vdef.min_age_due from clin.vaccination_definition vdef where vcourse.pk = vdef.fk_course and vdef.seq_no=1)
 		as min_age_due,
-	vreg.is_active as is_active,
-	vreg.fk_indication as pk_indication,
-	vreg.fk_recommended_by as pk_recommended_by,
-	vreg.xmin as xmin_vacc_regime
+	vcourse.is_active as is_active,
+	vcourse.fk_indication as pk_indication,
+	vcourse.fk_recommended_by as pk_recommended_by,
+	vcourse.xmin as xmin_vaccination_course
 from
-	clin.vacc_regime vreg,
+	clin.vaccination_course vcourse,
 	clin.vacc_indication vind
 where
-	vreg.fk_indication = vind.id
+	vcourse.fk_indication = vind.id
 ;
 
-comment on view clin.v_vacc_regimes is
-	'all vaccination schedules known to the system';
+comment on view clin.v_vaccination_courses is
+	'all vaccination courses known to the system';
 
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
-drop view clin.v_vacc_defs4reg cascade;
+drop view clin.v_vaccination_definitions4course cascade;
 \set ON_ERROR_STOP 1
 
-create view clin.v_vacc_defs4reg as
+create view clin.v_vaccination_definitions4course as
 select
-	vreg.id as pk_regime,
+	vcourse.pk as pk_course,
 	vind.description as indication,
 	_(vind.description) as l10n_indication,
-	vreg.name as regime,
-	coalesce(vreg.comment, '') as reg_comment,
-	vreg.is_active as is_active,
-	vdef.id as pk_vacc_def,
+	coalesce(vcourse.comment, '') as course_comment,
+	vcourse.is_active as is_active,
+	vdef.id as pk_vaccination_definition,
 	vdef.is_booster as is_booster,
 	vdef.seq_no as vacc_seq_no,
 	vdef.min_age_due as age_due_min,
@@ -353,44 +414,69 @@ select
 	vdef.min_interval as min_interval,
 	coalesce(vdef.comment, '') as vacc_comment,
 	vind.id as pk_indication,
-	vreg.fk_recommended_by as pk_recommended_by
+	vcourse.fk_recommended_by as pk_recommended_by
 from
-	clin.vacc_regime vreg,
+	clin.vaccination_course vcourse,
 	clin.vacc_indication vind,
-	clin.vacc_def vdef
+	clin.vaccination_definition vdef
 where
-	vreg.id = vdef.fk_regime
+	vcourse.pk = vdef.fk_course
 		and
-	vreg.fk_indication = vind.id
+	vcourse.fk_indication = vind.id
 order by
 	indication,
 	vacc_seq_no
 ;
 
-comment on view clin.v_vacc_defs4reg is
-	'vaccination event definitions for all schedules known to the system';
+comment on view clin.v_vaccination_definitions4course is
+	'vaccination event definitions for all courses known to the system';
+
 
 -- -----------------------------------------------------
-create view clin.v_vacc_regs4pat as
+\unset ON_ERROR_STOP
+drop view clin.v_vaccination_courses_in_schedule;
+\set ON_ERROR_STOP 1
+
+create view clin.v_vaccination_courses_in_schedule as
+select
+	cvs.name as vaccination_schedule,
+	cvc.is_active as is_active,
+	cvc.fk_recommended_by as pk_recommended_by,
+	cvc.comment as comment_course,
+	cvs.comment as comment_schedule,
+	cvc.pk as pk_vaccination_course,
+	cvc.fk_indication as pk_indication,
+	cvs.pk as pk_vaccination_schedule
+from
+	clin.vaccination_course cvc,
+	clin.vaccination_schedule cvs,
+	clin.lnk_vaccination_course2schedule clvc2s
+where
+	clvc2s.fk_course = cvc.pk
+		and
+	clvc2s.fk_schedule = cvs.pk
+;
+
+-- -----------------------------------------------------
+create view clin.v_vacc_courses4pat as
 select
 	lp2vr.fk_patient as pk_patient,
 	vvr.indication as indication,
 	vvr.l10n_indication as l10n_indication,
-	vvr.regime as regime,
 	vvr.comment as comment,
 	vvr.is_active as is_active,
-	vvr.pk_regime as pk_regime,
+	vvr.pk_course as pk_course,
 	vvr.pk_indication as pk_indication,
 	vvr.pk_recommended_by as pk_recommended_by
 from
-	clin.lnk_pat2vacc_reg lp2vr,
-	clin.v_vacc_regimes vvr
+	clin.lnk_pat2vacc_course lp2vr,
+	clin.v_vaccination_courses vvr
 where
-	vvr.pk_regime = lp2vr.fk_regime
+	vvr.pk_course = lp2vr.fk_course
 ;
 
-comment on view clin.v_vacc_regs4pat is
-	'selection of configured vaccination schedules a patient is actually on';
+comment on view clin.v_vacc_courses4pat is
+	'lists the vaccination courses a patient is actually on';
 
 -- -----------------------------------------------------
 create view clin.v_vaccs_scheduled4pat as
@@ -398,28 +484,28 @@ select
 	vvr4p.pk_patient as pk_patient,
 	vvr4p.indication as indication,
 	vvr4p.l10n_indication as l10n_indication,
-	vvr4p.regime as regime,
-	vvr4p.comment as reg_comment,
+--	vvr4p.course as course,
+	vvr4p.comment as course_comment,
 	vvd4r.is_booster,
 	vvd4r.vacc_seq_no,
 	vvd4r.age_due_min,
 	vvd4r.age_due_max,
 	vvd4r.min_interval,
 	vvd4r.vacc_comment as vacc_comment,
-	vvd4r.pk_vacc_def as pk_vacc_def,
-	vvr4p.pk_regime as pk_regime,
+	vvd4r.pk_vaccination_definition as pk_vaccination_definition,
+	vvr4p.pk_course as pk_course,
 	vvr4p.pk_indication as pk_indication,
 	vvr4p.pk_recommended_by as pk_recommended_by
 from
-	clin.v_vacc_regs4pat vvr4p,
-	clin.v_vacc_defs4reg vvd4r
+	clin.v_vacc_courses4pat vvr4p,
+	clin.v_vaccination_definitions4course vvd4r
 where
-	vvd4r.pk_regime = vvr4p.pk_regime
+	vvd4r.pk_course = vvr4p.pk_course
 ;
 
 comment on view clin.v_vaccs_scheduled4pat is
 	'vaccinations scheduled for a patient according
-	 to the vaccination schedules he/she is on';
+	 to the vaccination courses he/she is on';
 
 -- -----------------------------------------------------
 create view clin.v_pat_vacc4ind as
@@ -445,20 +531,12 @@ select
 	v.xmin as xmin_vaccination
 from
 	clin.vaccination v,
---	clin.vaccine vcine,
---	clin.lnk_vaccine2inds lv2i,
 	clin.v_inds4vaccine vi4v,
---	clin.vacc_indication vind,
 	clin.v_pat_episodes vpep
 where
 	vpep.pk_episode=v.fk_episode
 		and
---	v.fk_vaccine = vcine.pk
 	v.fk_vaccine = vi4v.pk_vaccine
---		and
---	lv2i.fk_vaccine = vcine.pk
---		and
---	lv2i.fk_indication = vind.id
 ;
 
 comment on view clin.v_pat_vacc4ind is
@@ -472,8 +550,8 @@ select
 	vvs4p.pk_patient,
 	vvs4p.indication,
 	vvs4p.l10n_indication,
-	vvs4p.regime,
-	vvs4p.reg_comment,
+--	vvs4p.course,
+	vvs4p.course_comment,
 	vvs4p.vacc_seq_no as seq_no,
 	case when vvs4p.age_due_max is null
 		then (now() + coalesce(vvs4p.min_interval, vvs4p.age_due_min))
@@ -495,7 +573,7 @@ select
 	vvs4p.age_due_max,
 	vvs4p.min_interval,
 	vvs4p.vacc_comment,
-	vvs4p.pk_regime,
+	vvs4p.pk_course,
 	vvs4p.pk_indication,
 	vvs4p.pk_recommended_by
 from
@@ -515,7 +593,7 @@ where
 
 comment on view clin.v_pat_missing_vaccs is
 	'vaccinations a patient has not been given yet according
-	 to the schedules a patient is on and the previously
+	 to the courses a patient is on and the previously
 	 received vaccinations';
 
 -- -----------------------------------------------------
@@ -525,8 +603,8 @@ select
 	vvs4p.pk_patient,
 	vvs4p.indication,
 	vvs4p.l10n_indication,
-	vvs4p.regime,
-	vvs4p.reg_comment,
+--	vvs4p.course,
+	vvs4p.course_comment,
 	vvs4p.vacc_seq_no as seq_no,
 	coalesce(
 		((select max(vpv4i11.date)
@@ -553,7 +631,7 @@ select
 	vvs4p.age_due_max,
 	vvs4p.min_interval,
 	vvs4p.vacc_comment,
-	vvs4p.pk_regime,
+	vvs4p.pk_course,
 	vvs4p.pk_indication,
 	vvs4p.pk_recommended_by
 from
@@ -573,8 +651,37 @@ where
 
 comment on view clin.v_pat_missing_boosters is
 	'boosters a patient has not been given yet according
-	 to the schedules a patient is on and the previously
+	 to the courses a patient is on and the previously
 	 received vaccinations';
+
+-- -----------------------------------------------------
+create or replace function trf_course_must_fit_schedule_constraints()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+BEGIN
+	-- did we check this course before ?
+	if TG_OP = ''UPDATE'' then
+		-- yes
+		if NEW.fk_course = OLD.fk_course then
+			return NEW;
+		end if;
+	end if;
+	-- is the indication already linked ?
+	select 1 from clin.vaccination_course where fk_indication = NEW.fk_indication;
+	perform 1
+		from
+			clin.lnk_vaccination_course2schedule
+		where
+			fk_schedule = NEW.fk_schedule;
+	if FOUND then
+		raise exception ''Cannot link course [%s] into this schedule. The corresponding indication is already linked.'', _fk_course;
+		return false;
+	end if;
+	
+END;';
+
 
 
 -- ============================================
@@ -587,22 +694,23 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.lnk_vaccine2inds_id_seq
 	, clin.vacc_indication
 	, clin.vacc_indication_id_seq
-	, clin.vacc_def
-	, clin.vacc_def_id_seq
-	, clin.vacc_regime
-	, clin.vacc_regime_id_seq
-	, clin.lnk_pat2vacc_reg
-	, clin.lnk_pat2vacc_reg_pk_seq
-	, clin.vacc_regime_constraint
-	, clin.vacc_regime_constraint_pk_seq
-	, clin.lnk_constraint2vacc_reg
-	, clin.lnk_constraint2vacc_reg_pk_seq
+	, clin.vaccination_definition
+	, clin.vaccination_definition_id_seq
+	, clin.vaccination_course
+	, clin.vaccination_course_pk_seq
+	, clin.lnk_pat2vacc_course
+	, clin.lnk_pat2vacc_course_pk_seq
+	, clin.vaccination_course_constraint
+	, clin.vaccination_course_constraint_pk_seq
+	, clin.lnk_constraint2vacc_course
+	, clin.lnk_constraint2vacc_course_pk_seq
 TO GROUP "gm-doctors";
 
 grant select on
-	clin.v_vacc_regimes
-	, clin.v_vacc_defs4reg
-	, clin.v_vacc_regs4pat
+	clin.v_vaccination_courses
+	, clin.v_vaccination_definitions4course
+	, clin.v_vaccination_courses_in_schedule
+	, clin.v_vacc_courses4pat
 	, clin.v_vaccs_scheduled4pat
 	, clin.v_inds4vaccine
 	, clin.v_pat_vacc4ind
@@ -613,11 +721,18 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.3 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-dynamic.sql,v $
--- Revision 1.3  2006-02-27 11:24:38  ncq
+-- Revision 1.4  2006-03-04 16:16:27  ncq
+-- - adjust to regime -> course name change
+-- - enhanced comments
+-- - audit more tables
+-- - add v_vaccination_courses_in_schedule
+-- - adjust grants
+--
+-- Revision 1.3  2006/02/27 11:24:38  ncq
 -- - explain *_age: NULL -> 5555 years
 -- - add clin.v_vaccine and improve other views
 --

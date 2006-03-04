@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-data.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -58,23 +58,30 @@ insert into clin.vacc_indication (description) values (i18n.i18n('varicella'));
 insert into clin.vacc_indication (description) values (i18n.i18n('yellow fever'));
 insert into clin.vacc_indication (description) values (i18n.i18n('yersinia pestis'));
 
-insert into clin.vacc_regime_constraint (description) values (i18n.i18n('female only'));
-insert into clin.vacc_regime_constraint (description) values (i18n.i18n('aboriginal/tsi only'));
-insert into clin.vacc_regime_constraint (description) values (i18n.i18n('seasonal'));
---insert into clin.vacc_regime_constraint (description) values (i18n.i18n(''));
---insert into clin.vacc_regime_constraint (description) values (i18n.i18n(''));
+insert into clin.vaccination_course_constraint (description) values (i18n.i18n('female only'));
+insert into clin.vaccination_course_constraint (description) values (i18n.i18n('aboriginal/tsi only'));
+insert into clin.vaccination_course_constraint (description) values (i18n.i18n('seasonal'));
+--insert into clin.vaccination_course_constraint (description) values (i18n.i18n(''));
+--insert into clin.vaccination_course_constraint (description) values (i18n.i18n(''));
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-data.sql,v $', '$Revision: 1.2 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-data.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-data.sql,v $
--- Revision 1.2  2006-02-19 13:45:05  ncq
+-- Revision 1.3  2006-03-04 16:16:27  ncq
+-- - adjust to regime -> course name change
+-- - enhanced comments
+-- - audit more tables
+-- - add v_vaccination_courses_in_schedule
+-- - adjust grants
+--
+-- Revision 1.2  2006/02/19 13:45:05  ncq
 -- - move the rest of the dynamic vacc stuff from gmClinicalViews.sql
 --   into gmClin-Vaccination-dynamic.sql
 -- - add vaccination schedule constraint enumeration data
--- - add is_active to clin.vacc_regime
+-- - add is_active to clin.vaccination_course
 -- - add clin.vacc_regime_constraint
 -- - add clin.lnk_constraint2vacc_reg
 -- - proper grants
