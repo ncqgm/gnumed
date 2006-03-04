@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -69,64 +69,63 @@ insert into ref_source (
 	'Starfleet Central Medical Facilities, Earth'
 );
 
-delete from clin.vacc_regime where fk_recommended_by = (select pk from ref_source where name_short='SFCVC');
+delete from clin.vaccination_course where fk_recommended_by = (select pk from ref_source where name_short='SFCVC');
 
 -------------
 -- Tetanus --
 -------------
 -- Impfplan definieren
-insert into clin.vacc_regime
-	(fk_recommended_by, fk_indication, name)
+insert into clin.vaccination_course
+	(fk_recommended_by, fk_indication)
 values (
 	(select pk from ref_source where name_short='SFCVC'),
-	(select id from clin.vacc_indication where description='tetanus'),
-	'Tetanus (SFCVC)'
+	(select id from clin.vacc_indication where description='tetanus')
 );
 
 -- Impfzeitpunkte festlegen
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	1,
 	'2 months'::interval,
 	'2 months'::interval
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	2,
 	'3 months'::interval,
 	'3 months'::interval,
 	'4 weeks'::interval
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('clin.vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
+	(currval('clin.vaccination_course_pk_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('clin.vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
+	(currval('clin.vaccination_course_pk_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('clin.vacc_regime_id_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
+	(currval('clin.vaccination_course_pk_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values
-	(currval('clin.vacc_regime_id_seq'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
+	(currval('clin.vaccination_course_pk_seq'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	null,
 	'5 years'::interval,
 	'10 years'::interval,
@@ -140,39 +139,38 @@ values (
 -- HiB --
 ---------
 -- Impfplan definieren
-insert into clin.vacc_regime
-	(fk_recommended_by, fk_indication, name, comment)
+insert into clin.vaccination_course
+	(fk_recommended_by, fk_indication, comment)
 values (
 	(select pk from ref_source where name_short='SFCVC'),
 	(select id from clin.vacc_indication where description='haemophilus influenzae b'),
-	'HiB (SFCVC)',
-	'if combined w/ pertussis vaccine (aP) use DTaP/Dt/Td regime'
+	'if combined w/ pertussis vaccine (aP) use DTaP/Dt/Td course'
 );
 
 -- Impfzeitpunkte festlegen
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	1,
 	'2 months'::interval,
 	'2 months'::interval
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	2,
 	'4 months'::interval,
 	'4 months'::interval,
 	'4 weeks'::interval
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	3,
 	'11 months'::interval,
 	'14 months'::interval,
@@ -183,20 +181,19 @@ values (
 -- Meningokokken C --
 ---------------------
 -- Impfplan definieren
-insert into clin.vacc_regime
-	(fk_recommended_by, fk_indication, name, comment)
+insert into clin.vaccination_course
+	(fk_recommended_by, fk_indication, comment)
 values (
 	(select pk from ref_source where name_short='SFCVC'),
 	(select id from clin.vacc_indication where description='meningococcus C'),
-	'MenC (SFCVC)',
 	'> 12 months of age, meningococcus C'
 );
 
 -- Impfzeitpunkte festlegen
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	1,
 	'12 months'::interval
 );
@@ -312,11 +309,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.24  2006-01-18 23:09:48  ncq
+-- Revision 1.25  2006-03-04 16:25:41  ncq
+-- - adjust to vaccination schema changes
+--
+-- Revision 1.24  2006/01/18 23:09:48  ncq
 -- - improve, spell-fix and translate database logon banner
 --
 -- Revision 1.23  2006/01/06 10:12:03  ncq
