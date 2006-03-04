@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-static.sql,v $
--- $Revision: 1.3 $
+-- $Id: gmClin-Vaccination-static.sql,v 1.4 2006-03-04 16:14:10 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -81,13 +81,13 @@ create table clin.lnk_vaccine2inds (
 		on delete cascade
 		on update cascade,
 	unique (fk_vaccine, fk_indication)
-);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------
-create table clin.vacc_regime (
-	id serial primary key,
-	name text unique not null,
-	fk_recommended_by integer,
+create table clin.vaccination_course (
+	pk serial primary key,
+	fk_recommended_by integer
+		default null,
 	fk_indication integer
 		not null
 		references clin.vacc_indication(id)
@@ -96,12 +96,11 @@ create table clin.vacc_regime (
 	is_active boolean
 		not null
 		default true,
-	comment text,
-	unique(fk_recommended_by, fk_indication, name)
+	comment text
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
-create table clin.vacc_regime_constraint (
+create table clin.vaccination_course_constraint (
 	pk serial primary key,
 	description text
 		unique
@@ -109,42 +108,68 @@ create table clin.vacc_regime_constraint (
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
-create table clin.lnk_constraint2vacc_reg (
+create table clin.lnk_constraint2vacc_course (
 	pk serial primary key,
-	fk_vacc_regime integer
+	fk_vaccination_course integer
 		not null
-		references clin.vacc_regime(id)
+		references clin.vaccination_course(pk)
 		on update cascade
 		on delete cascade,
 	fk_constraint integer
 		not null
-		references clin.vacc_regime_constraint(pk)
+		references clin.vaccination_course_constraint(pk)
+		on update cascade
+		on delete cascade,
+	unique (fk_vaccination_course, fk_constraint)
+) inherits (audit.audit_fields);
+
+-- --------------------------------------------
+create table clin.vaccination_schedule (
+	pk serial primary key,
+	name text
+		unique
+		not null,
+	comment text
+) inherits (audit.audit_fields);
+
+-- --------------------------------------------
+create table clin.lnk_vaccination_course2schedule (
+	pk serial primary key,
+	fk_course integer
+		unique
+		not null
+		references clin.vaccination_course(pk)
+		on update cascade
+		on delete restrict,
+	fk_schedule integer
+		not null
+		references clin.vaccination_schedule(pk)
 		on update cascade
 		on delete cascade
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
-create table clin.lnk_pat2vacc_reg (
+create table clin.lnk_pat2vacc_course (
 	pk serial primary key,
 	fk_patient integer
 		not null
 		references clin.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete cascade,
-	fk_regime integer
+	fk_course integer
 		not null
-		references clin.vacc_regime(id)
+		references clin.vaccination_course(pk)
 		on update cascade
 		on delete restrict,
-	unique(fk_patient, fk_regime)
+	unique(fk_patient, fk_course)
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
-create table clin.vacc_def (
+create table clin.vaccination_definition (
 	id serial primary key,
-	fk_regime integer
+	fk_course integer
 		not null
-		references clin.vacc_regime(id)
+		references clin.vaccination_course(pk)
 		on delete cascade
 		on update cascade,
 	is_booster boolean
@@ -166,8 +191,8 @@ create table clin.vacc_def (
 	min_interval interval
 		default null,
 	comment text,
-	unique(fk_regime, seq_no)
---	,unique(fk_regime, is_booster)
+	unique(fk_course, seq_no)
+--	,unique(fk_course, is_booster)
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
@@ -225,16 +250,21 @@ alter table clin.vaccination alter column soap_cat set default 'p';
 --comment on column clin.lnk_vacc2vacc_def.fk_vacc_def is
 --	'the vaccination event a particular
 --	 vaccination is supposed to cover, allows to
---	 link out-of-band vaccinations into regimes,
+--	 link out-of-band vaccinations into courses,
 --	 not currently used';
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.3 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-static.sql,v $
--- Revision 1.3  2006-02-27 11:23:26  ncq
+-- Revision 1.4  2006-03-04 16:14:10  ncq
+-- - audit many more tables
+-- - rename previous vacc_regime to vaccination_course
+-- - add real vaccination_schedule and lnk_vaccination_course2schedule
+--
+-- Revision 1.3  2006/02/27 11:23:26  ncq
 -- - better constrain min_age/max_age in schedule and vaccine
 -- - use "5555 years" not NULL to mean infinite age, PG infinite::interval is in the works
 --
