@@ -6,34 +6,34 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Typhus.sql,v $
--- $Id: Impfplan-Typhus.sql,v 1.1 2006-02-27 17:31:30 ncq Exp $
+-- $Id: Impfplan-Typhus.sql,v 1.2 2006-03-04 16:24:39 ncq Exp $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- Impfplan erstellen
-insert into clin.vacc_regime
-	(fk_recommended_by, fk_indication, name)
+insert into clin.vaccination_course
+	(fk_recommended_by, fk_indication, comment)
 values (
 	-1,
 	(select id from clin.vacc_indication where description='salmonella typhi'),
-	'Typhusimpfung (Hersteller)'
+	'Herstellerangabe'
 );
 
 -- Impfzeitpunkte definieren
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, comment)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, comment)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	1,
 	'2 years'::interval,
 	'unter 2 Jahren nur bei konkretem Infektionsrisiko oder einer Epidemie impfen'
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, is_booster, min_interval)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, is_booster, min_interval)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	null,
 	'5 years'::interval,
 	true,
@@ -41,11 +41,14 @@ values (
 );
 
 -- =============================================
-select log_script_insertion('$RCSfile: Impfplan-Typhus.sql,v $', '$Revision: 1.1 $');
+select log_script_insertion('$RCSfile: Impfplan-Typhus.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: Impfplan-Typhus.sql,v $
--- Revision 1.1  2006-02-27 17:31:30  ncq
+-- Revision 1.2  2006-03-04 16:24:39  ncq
+-- - adjust to table name changes
+--
+-- Revision 1.1  2006/02/27 17:31:30  ncq
 -- - Typhus-Impfplan
 --
 --

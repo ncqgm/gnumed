@@ -6,14 +6,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-FSME.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- Impfplan erstellen
-insert into clin.vacc_regime
-	(fk_recommended_by, fk_indication, name)
+insert into clin.vaccination_course
+	(fk_recommended_by, fk_indication, comment)
 values (
 	-1,
 	(select id from clin.vacc_indication where description='tick-borne meningoencephalitis'),
@@ -21,19 +21,19 @@ values (
 );
 
 -- Impfzeitpunkte definieren
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	1,
 	'12 months'::interval,
 	'12 years'::interval
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	2,
 	'13 months'::interval,
 	'12 years'::interval,
@@ -41,10 +41,10 @@ values (
 	'frühestmögliche Serokonversion in 14 Tagen, 1-3 Monate nach 1.Impfung'
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	3,
 	'22 months'::interval,
 	'12 years'::interval,
@@ -53,8 +53,8 @@ values (
 );
 
 -- fast path
-insert into clin.vacc_regime
-	(fk_recommended_by, fk_indication, name)
+insert into clin.vaccination_course
+	(fk_recommended_by, fk_indication, comment)
 values (
 	-1,
 	(select id from clin.vacc_indication where description='tick-borne meningoencephalitis'),
@@ -62,19 +62,19 @@ values (
 );
 
 -- Impfzeitpunkte definieren
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	1,
 	'12 months'::interval,
 	'12 years'::interval
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	2,
 	'12 months 7 days'::interval,
 	'12 years'::interval,
@@ -82,10 +82,10 @@ values (
 	'am Tag 7 nach 1.Impfung, frühestmögliche Serokonversion in 14 Tagen'
 );
 
-insert into clin.vacc_def
-	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
+insert into clin.vaccination_definition
+	(fk_course, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
-	currval('clin.vacc_regime_id_seq'),
+	currval('clin.vaccination_course_pk_seq'),
 	3,
 	'12 months 21 days'::interval,
 	'12 years'::interval,
@@ -96,11 +96,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfplan-FSME.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-FSME.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-FSME.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: Impfplan-FSME.sql,v $
--- Revision 1.5  2005-11-25 15:07:28  ncq
+-- Revision 1.6  2006-03-04 16:24:39  ncq
+-- - adjust to table name changes
+--
+-- Revision 1.5  2005/11/25 15:07:28  ncq
 -- - create schema "clin" and move all things clinical into it
 --
 -- Revision 1.4  2005/09/19 16:38:51  ncq
