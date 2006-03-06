@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-static.sql,v $
--- $Id: gmClin-Vaccination-static.sql,v 1.4 2006-03-04 16:14:10 ncq Exp $
+-- $Id: gmClin-Vaccination-static.sql,v 1.5 2006-03-06 09:42:46 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -149,7 +149,7 @@ create table clin.lnk_vaccination_course2schedule (
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------
-create table clin.lnk_pat2vacc_course (
+create table clin.lnk_pat2vaccination_course (
 	pk serial primary key,
 	fk_patient integer
 		not null
@@ -255,11 +255,15 @@ alter table clin.vaccination alter column soap_cat set default 'p';
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-static.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-static.sql,v $
--- Revision 1.4  2006-03-04 16:14:10  ncq
+-- Revision 1.5  2006-03-06 09:42:46  ncq
+-- - spell out more table names
+-- - general cleanup
+--
+-- Revision 1.4  2006/03/04 16:14:10  ncq
 -- - audit many more tables
 -- - rename previous vacc_regime to vaccination_course
 -- - add real vaccination_schedule and lnk_vaccination_course2schedule

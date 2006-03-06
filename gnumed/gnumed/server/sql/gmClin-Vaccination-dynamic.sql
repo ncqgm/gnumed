@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related dynamic relations
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-dynamic.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -115,9 +115,11 @@ comment on table clin.vaccination_schedule is
 	'This table holds schedules as recommended by some authority
 	 such as a Vaccination Council. There will be numerous schedules
 	 depending on locale, constraints, age group etc. These schedules
-	 may be single or multi-epitope depending on their definition.';
+	 may be single or multi-epitope depending on their definition.
+	 A schedule acts as a convenient handle aggregating possibly several
+	 vaccination courses under a common name.';
 comment on column clin.vaccination_schedule.name is
-	'schedule name: single epitope or aggregated multi-epitope';
+	'name of the schedule as defined by some authority';
 
 
 -- -- clin.lnk_vaccination_course2schedule --
@@ -129,11 +131,11 @@ comment on table clin.lnk_vaccination_course2schedule is
 	 council or similar entity';
 
 
--- -- clin.lnk_pat2vacc_course --
-select audit.add_table_for_audit('clin', 'lnk_pat2vacc_course');
--- select add_table_for_notifies('lnk_pat2vacc_course', 'vacc');
+-- -- clin.lnk_pat2vaccination_course --
+select audit.add_table_for_audit('clin', 'lnk_pat2vaccination_course');
+-- select add_table_for_notifies('lnk_pat2vaccination_course', 'vacc');
 
-comment on table clin.lnk_pat2vacc_course is
+comment on table clin.lnk_pat2vaccination_course is
 	'links patients to vaccination courses they are actually on,
 	 this allows for per-patient selection of courses to be
 	 followed, eg. children at different ages may be on different
@@ -460,7 +462,7 @@ where
 -- -----------------------------------------------------
 create view clin.v_vacc_courses4pat as
 select
-	lp2vr.fk_patient as pk_patient,
+	lp2vc.fk_patient as pk_patient,
 	vvr.indication as indication,
 	vvr.l10n_indication as l10n_indication,
 	vvr.comment as comment,
@@ -469,10 +471,10 @@ select
 	vvr.pk_indication as pk_indication,
 	vvr.pk_recommended_by as pk_recommended_by
 from
-	clin.lnk_pat2vacc_course lp2vr,
+	clin.lnk_pat2vaccination_course lp2vc,
 	clin.v_vaccination_courses vvr
 where
-	vvr.pk_course = lp2vr.fk_course
+	vvr.pk_course = lp2vc.fk_course
 ;
 
 comment on view clin.v_vacc_courses4pat is
@@ -655,33 +657,31 @@ comment on view clin.v_pat_missing_boosters is
 	 received vaccinations';
 
 -- -----------------------------------------------------
-create or replace function trf_course_must_fit_schedule_constraints()
+\unset ON_ERROR_STOP
+drop trigger tr_unique_indication_in_schedule on clin.lnk_vaccination_course2schedule;
+\set ON_ERROR_STOP 1
+
+create or replace function clin.trf_unique_indication_in_schedule()
 	returns trigger
 	language 'plpgsql'
 	as '
 DECLARE
+	_msg text;
 BEGIN
-	-- did we check this course before ?
-	if TG_OP = ''UPDATE'' then
-		-- yes
-		if NEW.fk_course = OLD.fk_course then
-			return NEW;
-		end if;
-	end if;
 	-- is the indication already linked ?
-	select 1 from clin.vaccination_course where fk_indication = NEW.fk_indication;
-	perform 1
-		from
-			clin.lnk_vaccination_course2schedule
-		where
-			fk_schedule = NEW.fk_schedule;
+	perform 1 from clin.v_vaccination_courses_in_schedule where
+		pk_vaccination_schedule = NEW.fk_schedule and
+		pk_indication = (select fk_indication from clin.vaccination_course where pk=NEW.fk_course);
 	if FOUND then
-		raise exception ''Cannot link course [%s] into this schedule. The corresponding indication is already linked.'', _fk_course;
+		_msg := ''Cannot link course ['' || NEW.fk_course || ''] into schedule ['' || NEW.fk_schedule || '']. The indication [] is already linked.'';
+		raise exception _msg;
 		return false;
 	end if;
-	
 END;';
 
+create trigger tr_unique_indication_in_schedule
+	before insert or update on clin.lnk_vaccination_course2schedule
+	for each row execute procedure clin.trf_unique_indication_in_schedule();
 
 
 -- ============================================
@@ -698,8 +698,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.vaccination_definition_id_seq
 	, clin.vaccination_course
 	, clin.vaccination_course_pk_seq
-	, clin.lnk_pat2vacc_course
-	, clin.lnk_pat2vacc_course_pk_seq
+	, clin.lnk_pat2vaccination_course
+	, clin.lnk_pat2vaccination_course_pk_seq
 	, clin.vaccination_course_constraint
 	, clin.vaccination_course_constraint_pk_seq
 	, clin.lnk_constraint2vacc_course
@@ -721,11 +721,15 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-dynamic.sql,v $
--- Revision 1.4  2006-03-04 16:16:27  ncq
+-- Revision 1.5  2006-03-06 09:42:46  ncq
+-- - spell out more table names
+-- - general cleanup
+--
+-- Revision 1.4  2006/03/04 16:16:27  ncq
 -- - adjust to regime -> course name change
 -- - enhanced comments
 -- - audit more tables
