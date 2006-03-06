@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.22 $ $Date: 2006-02-27 22:39:32 $ $Author: ncq $
+-- $Revision: 1.23 $ $Date: 2006-03-06 09:39:31 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -34,6 +34,14 @@ COMMENT ON COLUMN blobs.doc_med.date IS
 COMMENT ON COLUMN blobs.doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
+
+
+-- -- lnk_doc_med2episode --
+comment on table blobs.lnk_doc_med2episode is
+	'this allows linking document to episodes,
+	 each document can apply to several episodes
+	 but only once each';
+	 
 
 -- doc_obj --
 COMMENT ON TABLE blobs.doc_obj IS
@@ -283,11 +291,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.22 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.22  2006-02-27 22:39:32  ncq
+-- Revision 1.23  2006-03-06 09:39:31  ncq
+-- - lnk_doc_med2episode
+--
+-- Revision 1.22  2006/02/27 22:39:32  ncq
 -- - spell out rfe/aoe
 --
 -- Revision 1.21  2006/02/13 08:29:51  ncq
