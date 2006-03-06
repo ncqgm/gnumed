@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.74 $
+-- $Revision: 1.75 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -88,19 +88,19 @@ insert into blobs.reviewed_doc_objs (fk_reviewed_row, fk_reviewer, is_technicall
 -- EMR data
 
 -- put him on some vaccination schedules
-delete from clin.lnk_pat2vacc_course where fk_patient = currval('dem.identity_pk_seq');
+delete from clin.lnk_pat2vaccination_course where fk_patient = currval('dem.identity_pk_seq');
 -- tetanus
-insert into clin.lnk_pat2vacc_course (fk_patient, fk_course) values (
+insert into clin.lnk_pat2vaccination_course (fk_patient, fk_course) values (
 	currval('dem.identity_pk_seq'),
 	(select pk_course from clin.v_vaccination_courses where indication='tetanus' and recommended_by_name_short='SFCVC')
 );
 -- meningococcus C
-insert into clin.lnk_pat2vacc_course (fk_patient, fk_course) values (
+insert into clin.lnk_pat2vaccination_course (fk_patient, fk_course) values (
 	currval('dem.identity_pk_seq'),
 	(select pk_course from clin.v_vaccination_courses where indication='meningococcus C' and recommended_by_name_short='SFCVC')
 );
 -- hemophilus B
-insert into clin.lnk_pat2vacc_course (fk_patient, fk_course) values (
+insert into clin.lnk_pat2vaccination_course (fk_patient, fk_course) values (
 	currval('dem.identity_pk_seq'),
 	(select pk_course from clin.v_vaccination_courses where indication='haemophilus influenzae b' and recommended_by_name_short='SFCVC')
 );
@@ -678,11 +678,14 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.74 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.75 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.74  2006-03-04 16:25:41  ncq
+-- Revision 1.75  2006-03-06 09:45:17  ncq
+-- - cleanup
+--
+-- Revision 1.74  2006/03/04 16:25:41  ncq
 -- - adjust to vaccination schema changes
 --
 -- Revision 1.73  2006/02/27 22:39:33  ncq
