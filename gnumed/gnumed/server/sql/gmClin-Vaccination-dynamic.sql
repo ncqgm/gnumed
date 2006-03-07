@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related dynamic relations
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-dynamic.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -673,10 +673,11 @@ BEGIN
 		pk_vaccination_schedule = NEW.fk_schedule and
 		pk_indication = (select fk_indication from clin.vaccination_course where pk=NEW.fk_course);
 	if FOUND then
-		_msg := ''Cannot link course ['' || NEW.fk_course || ''] into schedule ['' || NEW.fk_schedule || '']. The indication [] is already linked.'';
-		raise exception _msg;
-		return false;
+		_msg := ''Cannot link course ['' || NEW.fk_course || ''] into schedule ['' || NEW.fk_schedule || '']. The indication is already linked.'';
+		raise exception ''%'', _msg;
+		return null;
 	end if;
+	return null;
 END;';
 
 create trigger tr_unique_indication_in_schedule
@@ -704,6 +705,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin.vaccination_course_constraint_pk_seq
 	, clin.lnk_constraint2vacc_course
 	, clin.lnk_constraint2vacc_course_pk_seq
+	, clin.vaccination_schedule
+	, clin.vaccination_schedule_pk_seq
+	, clin.lnk_vaccination_course2schedule
+	, clin.lnk_vaccination_course2schedule_pk_seq
 TO GROUP "gm-doctors";
 
 grant select on
@@ -721,11 +726,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.5 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-dynamic.sql,v $
--- Revision 1.5  2006-03-06 09:42:46  ncq
+-- Revision 1.6  2006-03-07 21:14:10  ncq
+-- - fixed trf_unique_indication_in_schedule()
+--
+-- Revision 1.5  2006/03/06 09:42:46  ncq
 -- - spell out more table names
 -- - general cleanup
 --
