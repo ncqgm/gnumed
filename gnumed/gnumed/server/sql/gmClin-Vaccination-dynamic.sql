@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related dynamic relations
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-dynamic.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -333,10 +333,10 @@ comment on view clin.v_vaccine is
 
 --
 \unset ON_ERROR_STOP
-drop view clin.v_inds4vaccine cascade;
+drop view clin.v_indications4vaccine cascade;
 \set ON_ERROR_STOP 1
 
-create view clin.v_inds4vaccine as
+create view clin.v_indications4vaccine as
 select
 	v.trade_name,
 	v.short_name,
@@ -358,7 +358,7 @@ where
 	i.id = lv2i.fk_indication
 ;
 
-comment on view clin.v_inds4vaccine is
+comment on view clin.v_indications4vaccine is
 	'lists indications for vaccines';
 
 
@@ -510,7 +510,7 @@ comment on view clin.v_vaccs_scheduled4pat is
 	 to the vaccination courses he/she is on';
 
 -- -----------------------------------------------------
-create view clin.v_pat_vacc4ind as
+create view clin.v_pat_vaccinations4indication as
 select
 	v.fk_patient as pk_patient,
 	v.id as pk_vaccination,
@@ -533,7 +533,7 @@ select
 	v.xmin as xmin_vaccination
 from
 	clin.vaccination v,
-	clin.v_inds4vaccine vi4v,
+	clin.v_indications4vaccine vi4v,
 	clin.v_pat_episodes vpep
 where
 	vpep.pk_episode=v.fk_episode
@@ -541,7 +541,7 @@ where
 	v.fk_vaccine = vi4v.pk_vaccine
 ;
 
-comment on view clin.v_pat_vacc4ind is
+comment on view clin.v_pat_vaccinations4indication is
 	'vaccinations a patient has actually received for the various
 	 indications, we operate under the assumption that every shot
 	 given counts toward base immunisation, eg. all shots are valid';
@@ -585,7 +585,7 @@ where
 		and
 	vvs4p.vacc_seq_no > (
 		select count(*)
-		from clin.v_pat_vacc4ind vpv4i
+		from clin.v_pat_vaccinations4indication vpv4i
 		where
 			vpv4i.pk_patient = vvs4p.pk_patient
 				and
@@ -610,7 +610,7 @@ select
 	vvs4p.vacc_seq_no as seq_no,
 	coalesce(
 		((select max(vpv4i11.date)
-		  from clin.v_pat_vacc4ind vpv4i11
+		  from clin.v_pat_vaccinations4indication vpv4i11
 		  where
 			vpv4i11.pk_patient = vvs4p.pk_patient
 				and
@@ -621,7 +621,7 @@ select
 	coalesce(
 		(now() - (
 			(select max(vpv4i12.date)
-			from clin.v_pat_vacc4ind vpv4i12
+			from clin.v_pat_vaccinations4indication vpv4i12
 			where
 				vpv4i12.pk_patient = vvs4p.pk_patient
 					and
@@ -643,7 +643,7 @@ where
 		and
 	vvs4p.min_interval < age (
 		(select max(vpv4i13.date)
-			from clin.v_pat_vacc4ind vpv4i13
+			from clin.v_pat_vaccinations4indication vpv4i13
 			where
 				vpv4i13.pk_patient = vvs4p.pk_patient
 					and
@@ -717,8 +717,8 @@ grant select on
 	, clin.v_vaccination_courses_in_schedule
 	, clin.v_vacc_courses4pat
 	, clin.v_vaccs_scheduled4pat
-	, clin.v_inds4vaccine
-	, clin.v_pat_vacc4ind
+	, clin.v_indications4vaccine
+	, clin.v_pat_vaccinations4indication
 	, clin.v_pat_missing_vaccs
 	, clin.v_pat_missing_boosters
 	, clin.v_vaccine
@@ -726,11 +726,15 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.6 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-dynamic.sql,v $
--- Revision 1.6  2006-03-07 21:14:10  ncq
+-- Revision 1.7  2006-03-08 09:23:54  ncq
+-- - improve naming of some views so everyone can understand their meaning
+--   even if being to lazy to read the documentation
+--
+-- Revision 1.6  2006/03/07 21:14:10  ncq
 -- - fixed trf_unique_indication_in_schedule()
 --
 -- Revision 1.5  2006/03/06 09:42:46  ncq
