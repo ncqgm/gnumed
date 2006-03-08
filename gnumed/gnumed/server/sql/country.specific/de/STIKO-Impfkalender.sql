@@ -1,4 +1,4 @@
--- Projekt GnuMed
+-- Projekt GNUmed
 -- Impfkalender der STIKO (Deutschland)
 
 -- Quellen:
@@ -9,16 +9,18 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
--- FIXME: we currently assume that the services [reference]
--- and [historica] reside in the same database (see fk_recommended_by)
-
+set client_encoding to 'latin1';
+-- =============================================
+delete from clin.vaccination_schedule where name like '%(STIKO)%';
 delete from clin.vaccination_course where fk_recommended_by = (select pk from ref_source where name_short='STIKO');
 
+-- FIXME: we currently assume that the services [reference]
+-- and [historica] reside in the same database (see fk_recommended_by)
 delete from ref_source where name_short = 'STIKO';
 insert into ref_source (
 	name_short,
@@ -125,6 +127,30 @@ values (
 	'15 months'::interval,
 	'23 months'::interval,
 	'4 weeks'::interval
+);
+
+------------------
+-- MMR-Schedule --
+------------------
+insert into clin.vaccination_schedule (name, comment) values (
+	'MMR (STIKO)',
+	'Mindestabstand zwischen 2 Impfungen: 4 Wochen'
+);
+
+-- Masern
+insert into clin.lnk_vaccination_course2schedule (fk_course, fk_schedule) values (
+	(select pk_course from clin.v_vaccination_courses where indication = 'measles' and recommended_by_name_short = 'STIKO'),
+	(select pk from clin.vaccination_schedule where name = 'MMR (STIKO)')
+);
+-- Mumps
+insert into clin.lnk_vaccination_course2schedule (fk_course, fk_schedule) values (
+	(select pk_course from clin.v_vaccination_courses where indication = 'mumps' and recommended_by_name_short = 'STIKO'),
+	(select pk from clin.vaccination_schedule where name = 'MMR (STIKO)')
+);
+-- Röteln
+insert into clin.lnk_vaccination_course2schedule (fk_course, fk_schedule) values (
+	(select pk_course from clin.v_vaccination_courses where indication = 'rubella' and recommended_by_name_short = 'STIKO'),
+	(select pk from clin.vaccination_schedule where name = 'MMR (STIKO)')
 );
 
 -------------
@@ -544,13 +570,18 @@ values (
 	'12 months'::interval
 );
 
+
 -- =============================================
 -- do simple revision tracking
-select log_script_insertion('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.19 $');
+select log_script_insertion('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.19  2006-03-04 16:24:39  ncq
+-- Revision 1.20  2006-03-08 09:25:55  ncq
+-- - a bunch of cleanup/rename adjustment
+-- - add first aggregate schedule: MMR
+--
+-- Revision 1.19  2006/03/04 16:24:39  ncq
 -- - adjust to table name changes
 --
 -- Revision 1.18  2006/01/01 20:43:14  ncq
