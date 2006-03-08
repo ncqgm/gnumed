@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.176 2006-02-27 22:39:33 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.177 2006-03-08 09:24:28 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1421,7 +1421,7 @@ select
 	vpv4i.pk_vaccination as src_pk,
 	'vaccination'::text as src_table
 from
-	clin.v_pat_vacc4ind vpv4i
+	clin.v_pat_vaccinations4indication vpv4i
 
 union -- allergies
 select
@@ -1629,11 +1629,14 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.176 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.177 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.176  2006-02-27 22:39:33  ncq
+-- Revision 1.177  2006-03-08 09:24:28  ncq
+-- - adjust to better vacc view names
+--
+-- Revision 1.176  2006/02/27 22:39:33  ncq
 -- - spell out rfe/aoe
 --
 -- Revision 1.175  2006/02/27 11:28:12  ncq
