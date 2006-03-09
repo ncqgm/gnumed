@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -183,8 +183,8 @@ class cEncounter(gmClinItem.cClinItem):
 				last_affirmed=%(last_affirmed)s,
 				fk_location=%(pk_location)s,
 				fk_type=%(pk_type)s,
-				rfe=%(rfe)s,
-				aoe=%(aoe)s
+				reason_for_encounter=%(reason_for_encounter)s,
+				assessment_of_encounter=%(assessment_of_encounter)s
 			where pk=%(pk_encounter)s""",
 		"""select xmin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
@@ -511,7 +511,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.76  2006-02-27 22:38:36  ncq
+# Revision 1.77  2006-03-09 21:11:49  ncq
+# - spell out rfe/aoe
+#
+# Revision 1.76  2006/02/27 22:38:36  ncq
 # - spell out rfe/aoe as per Richard's request
 #
 # Revision 1.75  2005/12/26 05:26:38  sjtan
