@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.233 2006-02-27 22:38:36 ncq Exp $
-__version__ = "$Revision: 1.233 $"
+# $Id: gmGuiMain.py,v 1.234 2006-03-09 21:12:44 ncq Exp $
+__version__ = "$Revision: 1.234 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -35,7 +35,7 @@ except ImportError:
 		raise
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
 
@@ -84,6 +84,7 @@ ID_SEARCH_PATIENT = wx.NewId()
 ID_SEARCH_EMR = wx.NewId()
 ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 ID_DERMTOOL = wx.NewId ()
+ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
 
 #==============================================================================
 
@@ -248,11 +249,17 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 #		self.__gb['main.filemenu'] = menu_gnumed
 
+		menu_gnumed.Append(ID_ENLIST_PATIENT_AS_STAFF, _('New staff'), _('Enlist current patient as new staff member'))
+		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
+
 		# menu "Patient"
 		menu_patient = wx.Menu()
 
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
+
+		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current patient as staff member'))
+		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
 
 		self.mainmenu.Append(menu_patient, '&Patient')
 		self.__gb['main.patientmenu'] = menu_patient
@@ -611,6 +618,14 @@ Search results:
 		"""
 		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
 		wiz.RunWizard(activate=True)
+	#----------------------------------------------
+	def __on_enlist_patient_as_staff(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if pat.is_connected():
+			dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
+			dlg.ShowModal()
+		else:
+			gm_beep_statustext(_('Cannot add staff member. No active patient.'))
 	#----------------------------------------------
 #	def __on_search_patient(self, event):
 #		"""Focus patient search widget."""
@@ -1022,7 +1037,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.233  2006-02-27 22:38:36  ncq
+# Revision 1.234  2006-03-09 21:12:44  ncq
+# - allow current patient to be enlisted as staff from the main menu
+#
+# Revision 1.233  2006/02/27 22:38:36  ncq
 # - spell out rfe/aoe as per Richard's request
 #
 # Revision 1.232  2006/01/24 21:09:45  ncq
