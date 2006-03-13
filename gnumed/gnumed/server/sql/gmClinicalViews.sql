@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.177 2006-03-08 09:24:28 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.178 2006-03-13 17:32:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -512,8 +512,6 @@ where
 	vpep.pk_episode=cri.fk_episode
 		and
 	cri.tableoid=pgc.oid
-order by
-	age
 ;
 
 -- ==========================================================
@@ -1629,11 +1627,14 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.177 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.178 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.177  2006-03-08 09:24:28  ncq
+-- Revision 1.178  2006-03-13 17:32:09  ncq
+-- - remove "order by age" from clin.v_pat_items which would certainly slow down queries
+--
+-- Revision 1.177  2006/03/08 09:24:28  ncq
 -- - adjust to better vacc view names
 --
 -- Revision 1.176  2006/02/27 22:39:33  ncq
