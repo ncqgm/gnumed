@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.234 2006-03-09 21:12:44 ncq Exp $
-__version__ = "$Revision: 1.234 $"
+# $Id: gmGuiMain.py,v 1.235 2006-03-14 21:37:18 ncq Exp $
+__version__ = "$Revision: 1.235 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -85,6 +85,7 @@ ID_SEARCH_EMR = wx.NewId()
 ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 ID_DERMTOOL = wx.NewId ()
 ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
+ID_ADD_NEW_STAFF = wx.NewId()
 
 #==============================================================================
 
@@ -243,14 +244,21 @@ class gmTopLevelFrame(wx.Frame):
 
 		# menu "GNUmed"
 		menu_gnumed = wx.Menu()
+
 #		menu_gnumed.AppendSeparator()
 		menu_gnumed.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
 		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
+
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 #		self.__gb['main.filemenu'] = menu_gnumed
 
-		menu_gnumed.Append(ID_ENLIST_PATIENT_AS_STAFF, _('New staff'), _('Enlist current patient as new staff member'))
-		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
+		# menu "Office"
+		menu_office = wx.Menu()
+
+		menu_office.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
+		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
+
+		self.mainmenu.Append(menu_office, _('&Office'))
 
 		# menu "Patient"
 		menu_patient = wx.Menu()
@@ -387,21 +395,22 @@ class gmTopLevelFrame(wx.Frame):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
-		# update encounter summary
+
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
 
-		# - work out suitable default
-		epis = emr.get_episodes_by_encounter()
-		if len(epis) == 0:
-			enc_summary = enc['assessment_of_encounter']
-		else:
-			enc_summary = ''
-			for epi in epis:
-				enc_summary += '%s; ' % epi['description']
-		# - make this an optional modal dialog
-		if enc['assessment_of_encounter'] is None or (enc['assessment_of_encounter'].find('auto-created') >= 0) or (len(enc['assessment_of_encounter'].strip()) == 0):
-			enc['assessment_of_encounter'] = enc_summary
+		# update encounter summary
+		if ((enc['assessment_of_encounter'] is None)
+		or (enc['assessment_of_encounter'].find('auto-created') >= 0)
+		or (len(enc['assessment_of_encounter'].strip()) == 0)):
+			# - work out suitable default
+			epis = emr.get_episodes_by_encounter()
+			if len(epis) > 0:
+				enc_summary = ''
+				for epi in epis:
+					enc_summary += '%s; ' % epi['description']
+				enc['assessment_of_encounter'] = enc_summary
+			# FIXME: optionally pop up modal dialog to allow editing encounter summary before saving
 			if not enc.save_payload():
 				gmGuiHelpers.gm_beep_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
 		return True
@@ -621,11 +630,19 @@ Search results:
 	#----------------------------------------------
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
-		if pat.is_connected():
-			dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
-			dlg.ShowModal()
-		else:
-			gm_beep_statustext(_('Cannot add staff member. No active patient.'))
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot add staff member. No active patient.'))
+			return False
+		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
+		dlg.ShowModal()
+	#----------------------------------------------
+	def __on_add_new_staff(self, event):
+		"""Create new person and add it as staff."""
+		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
+		if not wiz.RunWizard(activate=True):
+			return False
+		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
+		dlg.ShowModal()
 	#----------------------------------------------
 #	def __on_search_patient(self, event):
 #		"""Focus patient search widget."""
@@ -1037,7 +1054,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.234  2006-03-09 21:12:44  ncq
+# Revision 1.235  2006-03-14 21:37:18  ncq
+# - add menu "Office"
+# - add menu item "add staff member" under "Office" serially calling new patient wizard and add staff dialog
+# - fix encounter summary
+#
+# Revision 1.234  2006/03/09 21:12:44  ncq
 # - allow current patient to be enlisted as staff from the main menu
 #
 # Revision 1.233  2006/02/27 22:38:36  ncq
