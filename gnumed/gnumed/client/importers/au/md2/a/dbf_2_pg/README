@@ -1,0 +1,38 @@
+
+purpose:
+	this utility imports dbf data from a source directory into a named postgresql database.
+	
+
+usage :
+	python create_pgdb.py src-dir -dsn <dbapi-dsn> -dbapi <dbapi python module name>  -create -data -from <tablename> -only tablename1,tablename2,tablename3 -memobase64 tablename4,tablename5 -decrypt tablename6,tabename7.field1 
+
+	  where 
+	  
+	  src-dir is the base directory of the dbf files  
+
+	 -dsn <dsn>  use a dbapi connect dsn
+		dsn format is  'host:port:database:user:pass'
+		dsn examples:
+			 'localhost::test1:testuser:password'     -  uses default port
+			 '::test1:testuser:'            -  is default host, port, password 
+		
+
+	 -dbapi  <dbapi module> - selects particular db module to use 
+	 e.g. 
+	 	pyPgSQL 
+		psycopg 
+
+	 -create: create database using dbapi
+
+	 -data:   load database with dbapi. Normally this needs to be specified, and is not the default.
+
+	 -from <tablename>  : if an upload was interrupted , then all the data in table will be deleted, and postgres uploading resumes from the tablename ( currently dumping is per table). 
+
+	 -only <comma separated list of tables>  - only insert these tables. For building partial databases.
+
+-memobase64 <comma separated list of tables with memo fields requiring base64 encoding>
+               memo fields will be stored as base64 encoded zip files. this is mainly for image data
+
+	 -decrypt  table,table.field  - decrypts all memo fields in a table, or if table.field specified, that memo field in the table.
+ Uses a file pass.txt which holds the password. This is a source application specific parameter.
+
