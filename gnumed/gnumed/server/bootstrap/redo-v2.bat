@@ -9,8 +9,8 @@ set VER=2
 set LOG=redo-v%VER%.log
 set CONF=redo-v%VER%.conf
 
-rem export GM_CORE_DB="gnumed_v${VER}_new"
-set GM_CORE_DB="gnumed_v%VER%"
+rem export GM_CORE_DB=gnumed_v${VER}_new
+set GM_CORE_DB=gnumed_v%VER%
 
 echo %PATH%
 
