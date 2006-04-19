@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -762,30 +762,39 @@ class database:
 			# FIXME: verify that database is owned by "gm-dbo"
 			return True
 
-		# create database
-		# NOTE: we need to pull this nasty trick of ending and restarting
-		# the current transaction to work around pgSQL automatically starting
-		# transactions on activity on cursors
+#		# create database
+#		# NOTE: we need to pull this nasty trick of ending and restarting
+#		# the current transaction to work around pgSQL automatically starting
+#		# transactions on activity on cursors
+#		cmd = """
+#commit;
+#create database \"%s\" with
+#	owner = \"%s\"
+#	template = \"%s\"
+#	encoding = 'unicode';
+#begin
+#""" % (self.name, self.owner.name, self.template_db)
+
 		cmd = """
-commit;
 create database \"%s\" with
 	owner = \"%s\"
 	template = \"%s\"
 	encoding = 'unicode';
-begin
 """ % (self.name, self.owner.name, self.template_db)
-
+		self.conn.autocommit = True
 		cursor = self.conn.cursor()
 		try:
 			cursor.execute(cmd)
-			self.conn.commit()
+#			self.conn.commit()
 		except libpq.Warning, warning:
 			_log.Log(gmLog.lWarn, warning)
 		except:
 			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
 			cursor.close()
+			self.conn.autocommit = False
 			return None
 		cursor.close()
+		self.conn.autocommit = False
 
 		if not self.__db_exists():
 			return None
@@ -1461,7 +1470,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.23  2006-04-19 20:13:34  ncq
+# Revision 1.24  2006-04-19 20:48:32  ncq
+# - try a better way of running "create database"
+#
+# Revision 1.23  2006/04/19 20:13:34  ncq
 # - improve wording, improve error logging
 #
 # Revision 1.22  2006/02/02 18:43:43  ncq
