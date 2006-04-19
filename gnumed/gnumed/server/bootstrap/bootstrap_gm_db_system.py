@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -207,7 +207,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 				print pg_hba_sermon
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
-			_log.Log (gmLog.lWarn, "attempt w/o password failed, retrying")
+			_log.Log (gmLog.lWarn, "attempt w/ blank password failed, retrying with password")
 			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("^FATAL:.*Password authentication failed.*", m):
@@ -508,7 +508,7 @@ class database:
 
 		overrider = self.cfg.get(self.section, 'override name by')
 		if overrider is not None:
-			_log.Log(gmLog.lInfo, 'if environment variable [%s] exists, it override database name in config file' % overrider)
+			_log.Log(gmLog.lInfo, 'if environment variable [%s] exists, it overrides database name in config file' % overrider)
 			self.name = os.getenv(overrider)
 			if self.name is None:
 				_log.Log(gmLog.lInfo, 'environment variable [%s] is not set, using database name from config file' % overrider)
@@ -764,8 +764,8 @@ class database:
 
 		# create database
 		# NOTE: we need to pull this nasty trick of ending and restarting
-		# the current transaction to work around pgSQL automatically associating
-		# cursors with transactions
+		# the current transaction to work around pgSQL automatically starting
+		# transactions on activity on cursors
 		cmd = """
 commit;
 create database \"%s\" with
@@ -781,7 +781,7 @@ begin
 			self.conn.commit()
 		except libpq.Warning, warning:
 			_log.Log(gmLog.lWarn, warning)
-		except StandardError:
+		except:
 			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
 			cursor.close()
 			return None
@@ -1461,7 +1461,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.22  2006-02-02 18:43:43  ncq
+# Revision 1.23  2006-04-19 20:13:34  ncq
+# - improve wording, improve error logging
+#
+# Revision 1.22  2006/02/02 18:43:43  ncq
 # - add missing commit()
 #
 # Revision 1.21  2006/02/02 16:19:09  ncq
