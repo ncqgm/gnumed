@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -833,7 +833,7 @@ create database \"%s\" with
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
 			return None
 		# write schema to file
-		tmpfile = tempfile.gettempdir()+'/audit-trail-schema.sql'
+		tmpfile = tempfile.gettempdir()+'audit-trail-schema.sql'
 		file = open(tmpfile, 'wb')
 		for line in audit_schema:
 			file.write("%s;\n" % line)
@@ -873,7 +873,7 @@ create database \"%s\" with
 			return None
 
 		# write schema to file
-		tmpfile = tempfile.gettempdir()+'/notification-schema.sql'
+		tmpfile = tempfile.gettempdir()+'notification-schema.sql'
 		file = open (tmpfile, 'wb')
 		for line in notification_schema:
 			file.write("%s;\n" % line)
@@ -1472,7 +1472,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.25  2006-04-21 15:25:23  shilbert
+# Revision 1.26  2006-04-21 15:28:59  shilbert
+# - got rid of some surplus '/'
+#
+# Revision 1.25  2006/04/21 15:25:23  shilbert
 # - got rid of some hardcoded path statements
 #
 # Revision 1.24  2006/04/19 20:48:32  ncq
