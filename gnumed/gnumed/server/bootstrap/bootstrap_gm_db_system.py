@@ -31,12 +31,12 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # standard library
-import sys, string, os.path, fileinput, os, time, getpass, glob, re
+import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile
 
 # 3rd party imports
 dbapi = None
@@ -833,14 +833,15 @@ create database \"%s\" with
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
 			return None
 		# write schema to file
-		file = open('/tmp/audit-trail-schema.sql', 'wb')
+		tmpfile = tempfile.gettempdir()+'/audit-trail-schema.sql'
+		file = open(tmpfile, 'wb')
 		for line in audit_schema:
 			file.write("%s;\n" % line)
 		file.close()
 
 		# import auditing schema
 		psql = gmPsql.Psql (self.conn)
-		if psql.run ('/tmp/audit-trail-schema.sql') != 0:
+		if psql.run (tmpfile) != 0:
 			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
 			return None
 
@@ -848,7 +849,7 @@ create database \"%s\" with
 			return True
 
 		try:
-			os.remove('/tmp/audit-trail-schema.sql')
+			os.remove(tmpfile)
 			pass
 		except StandardError:
 			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
@@ -872,14 +873,15 @@ create database \"%s\" with
 			return None
 
 		# write schema to file
-		file = open ('/tmp/notification-schema.sql', 'wb')
+		tmpfile = tempfile.gettempdir()+'/notification-schema.sql'
+		file = open (tmpfile, 'wb')
 		for line in notification_schema:
 			file.write("%s;\n" % line)
 		file.close()
 
 		# import notification schema
 		psql = gmPsql.Psql (self.conn)
-		if psql.run('/tmp/notification-schema.sql') != 0:
+		if psql.run(tmpfile) != 0:
 			_log.Log(gmLog.lErr, "cannot import notification schema definition for database [%s]" % (self.name))
 			return None
 
@@ -887,7 +889,7 @@ create database \"%s\" with
 			return True
 
 		try:
-			os.remove('/tmp/notification-schema.sql')
+			os.remove(tmpfile)
 		except StandardError:
 			_log.LogException('cannot remove notification schema file [/tmp/notification-schema.sql]', sys.exc_info(), verbose = 0)
 		return True
@@ -1470,7 +1472,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.24  2006-04-19 20:48:32  ncq
+# Revision 1.25  2006-04-21 15:25:23  shilbert
+# - got rid of some hardcoded path statements
+#
+# Revision 1.24  2006/04/19 20:48:32  ncq
 # - try a better way of running "create database"
 #
 # Revision 1.23  2006/04/19 20:13:34  ncq
