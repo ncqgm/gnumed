@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.195 2006-02-27 22:38:36 ncq Exp $
-__version__ = "$Revision: 1.195 $"
+# $Id: gmClinicalRecord.py,v 1.196 2006-04-23 16:46:28 ncq Exp $
+__version__ = "$Revision: 1.196 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -351,7 +351,6 @@ where
 			pass
 		# not cached so go get it
 		fields = [
-			'age',
 			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
 			'modified_by',
 			'clin_when',
@@ -362,7 +361,7 @@ where
 			'pk_health_issue',
 			'src_table'
 		]
-		cmd = "select %s from clin.v_pat_items where pk_patient=%%s order by src_table, age" % string.join(fields, ', ')
+		cmd = "select %s from clin.v_pat_items where pk_patient=%%s order by src_table, clin_when" % string.join(fields, ', ')
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG.run_query(curs, None, cmd, self.pk_patient):
@@ -637,6 +636,28 @@ where
 	#--------------------------------------------------------
 	def get_patient_ID(self):
 		return self.pk_patient
+	#--------------------------------------------------------
+	def get_summary(self):
+		cmds = [
+			('clinical', 'select count(*) from clin.v_problem_list where pk_patient=%s', 'problems'),
+			('clinical', 'select count(*) from clin.encounter where fk_patient=%s', 'visits'),
+			('clinical', 'select count(*) from clin.v_pat_items where pk_patient=%s', 'items'),
+			('blobs', 'select count(*) from blobs.doc_med where patient_id=%s', 'documents')
+		]
+		summary = {}
+		for cmd in cmds:
+			service, query, key = cmd
+			rows = gmPG.run_ro_query (
+				service,
+				query,
+				None,
+				self.pk_patient
+			)
+			if rows is None:
+				summary[key] = _('unable to retrieve [%s]') % key
+			else:
+				summary[key] = rows[0][0]
+		return summary
 	#--------------------------------------------------------
 	# allergy API
 	#--------------------------------------------------------
@@ -1441,11 +1462,18 @@ where
 		if (issues is not None) and (issues != [None]) and (len(issues) > 0):
 			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
 				issues.append(issues[0])
-			cmd = """
-select distinct pk_encounter
-from clin.v_pat_items
-where pk_health_issue in %s and pk_patient = %s"""
-			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
+#			cmd = """
+#select distinct pk_encounter
+#from clin.v_pat_items
+#where pk_health_issue in %s and pk_patient = %s"""
+#			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
+			cmd_alt1 = """
+select distinct fk_encounter
+from clin.clin_root_item
+where fk_episode in (
+	select pk_episode from clin.v_pat_episodes where pk_patient=%s
+);"""
+			rows = gmPG.run_ro_query('historica', cmd_alt1, None, (tuple(issues), self.pk_patient))
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
 			else:
@@ -1455,11 +1483,17 @@ where pk_health_issue in %s and pk_patient = %s"""
 		if (episodes is not None) and (episodes != [None]) and (len(episodes) > 0):
 			if len(episodes) == 1:
 				episodes.append(episodes[0])
-			cmd = """
-select distinct pk_encounter
-from clin.v_pat_items
-where pk_episode in %s and pk_patient = %s"""
-			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.pk_patient))
+#			cmd = """
+#select distinct pk_encounter
+#from clin.v_pat_items
+#where pk_episode in %s and pk_patient = %s"""
+#			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.pk_patient))
+			cmd_alt1 = """
+select distinct fk_encounter
+from clin.clin_root_item
+where fk_episode in %s
+;"""
+			rows = gmPG.run_ro_query('historica', cmd_alt1, None, (tuple(episodes)))
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for episodes [%s] (patient [%s])' % (str(episodes), self.pk_patient))
 			else:
@@ -1738,7 +1772,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.195  2006-02-27 22:38:36  ncq
+# Revision 1.196  2006-04-23 16:46:28  ncq
+# - do not select age field from clin.v_pat_items since it doesn't exist anymore
+# - add get_summary()
+# - try faster get_encounters()
+#
+# Revision 1.195  2006/02/27 22:38:36  ncq
 # - spell out rfe/aoe as per Richard's request
 #
 # Revision 1.194  2006/01/07 13:00:19  ncq
