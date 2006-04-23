@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -762,30 +762,16 @@ class database:
 			# FIXME: verify that database is owned by "gm-dbo"
 			return True
 
-#		# create database
-#		# NOTE: we need to pull this nasty trick of ending and restarting
-#		# the current transaction to work around pgSQL automatically starting
-#		# transactions on activity on cursors
-#		cmd = """
-#commit;
-#create database \"%s\" with
-#	owner = \"%s\"
-#	template = \"%s\"
-#	encoding = 'unicode';
-#begin
-#""" % (self.name, self.owner.name, self.template_db)
-
+		# create database
 		cmd = """
 create database \"%s\" with
 	owner = \"%s\"
 	template = \"%s\"
-	encoding = 'unicode';
-""" % (self.name, self.owner.name, self.template_db)
+	encoding = 'unicode';""" % (self.name, self.owner.name, self.template_db)
 		self.conn.autocommit = True
 		cursor = self.conn.cursor()
 		try:
 			cursor.execute(cmd)
-#			self.conn.commit()
 		except libpq.Warning, warning:
 			_log.Log(gmLog.lWarn, warning)
 		except:
@@ -833,7 +819,7 @@ create database \"%s\" with
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
 			return None
 		# write schema to file
-		tmpfile = tempfile.gettempdir()+'audit-trail-schema.sql'
+		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
 		file = open(tmpfile, 'wb')
 		for line in audit_schema:
 			file.write("%s;\n" % line)
@@ -850,9 +836,8 @@ create database \"%s\" with
 
 		try:
 			os.remove(tmpfile)
-			pass
 		except StandardError:
-			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
+			_log.LogException('cannot remove audit trail schema file [%s]' % tmpfile, sys.exc_info(), verbose = 0)
 		return True
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
@@ -873,7 +858,7 @@ create database \"%s\" with
 			return None
 
 		# write schema to file
-		tmpfile = tempfile.gettempdir()+'notification-schema.sql'
+		tmpfile = os.path.join(tempfile.gettempdir(), 'notification-schema.sql')
 		file = open (tmpfile, 'wb')
 		for line in notification_schema:
 			file.write("%s;\n" % line)
@@ -891,7 +876,7 @@ create database \"%s\" with
 		try:
 			os.remove(tmpfile)
 		except StandardError:
-			_log.LogException('cannot remove notification schema file [/tmp/notification-schema.sql]', sys.exc_info(), verbose = 0)
+			_log.LogException('cannot remove notification schema file [%s]' % tmpfile, sys.exc_info(), verbose = 0)
 		return True
 #==================================================================
 class gmService:
@@ -1472,7 +1457,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.26  2006-04-21 15:28:59  shilbert
+# Revision 1.27  2006-04-23 15:12:17  ncq
+# - cleanup
+# - use os.path.join() to properly join paths on different OSs
+#
+# Revision 1.26  2006/04/21 15:28:59  shilbert
 # - got rid of some surplus '/'
 #
 # Revision 1.25  2006/04/21 15:25:23  shilbert
