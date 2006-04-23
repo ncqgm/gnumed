@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.196 2006-04-23 16:46:28 ncq Exp $
-__version__ = "$Revision: 1.196 $"
+# $Id: gmClinicalRecord.py,v 1.197 2006-04-23 16:49:03 ncq Exp $
+__version__ = "$Revision: 1.197 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1462,18 +1462,18 @@ where
 		if (issues is not None) and (issues != [None]) and (len(issues) > 0):
 			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
 				issues.append(issues[0])
-#			cmd = """
-#select distinct pk_encounter
-#from clin.v_pat_items
-#where pk_health_issue in %s and pk_patient = %s"""
-#			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
-			cmd_alt1 = """
-select distinct fk_encounter
-from clin.clin_root_item
-where fk_episode in (
-	select pk_episode from clin.v_pat_episodes where pk_patient=%s
-);"""
-			rows = gmPG.run_ro_query('historica', cmd_alt1, None, (tuple(issues), self.pk_patient))
+			cmd = """
+select distinct pk_encounter
+from clin.v_pat_items
+where pk_health_issue in %s and pk_patient = %s"""
+			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
+#			cmd_alt1 = """
+#select distinct fk_encounter
+#from clin.clin_root_item
+#where fk_episode in (
+#	select pk_episode from clin.v_pat_episodes where pk_patient=%s
+#);"""
+#			rows = gmPG.run_ro_query('historica', cmd_alt1, None, (tuple(issues), self.pk_patient))
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
 			else:
@@ -1772,7 +1772,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.196  2006-04-23 16:46:28  ncq
+# Revision 1.197  2006-04-23 16:49:03  ncq
+# - properly access encounters by health issue
+#
+# Revision 1.196  2006/04/23 16:46:28  ncq
 # - do not select age field from clin.v_pat_items since it doesn't exist anymore
 # - add get_summary()
 # - try faster get_encounters()
