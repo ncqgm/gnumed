@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.178 2006-03-13 17:32:09 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.179 2006-04-23 16:51:39 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -488,7 +488,7 @@ create rule clin_ritem_no_del as
 -- ---------------------------------------------
 create view clin.v_pat_items as
 select
-	extract(epoch from cri.clin_when) as age,
+--	extract(epoch from cri.clin_when) as age,
 	cri.modified_when as modified_when,
 	cri.modified_by as modified_by,
 	cri.clin_when as clin_when,
@@ -1627,11 +1627,15 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.178 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.179 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.178  2006-03-13 17:32:09  ncq
+-- Revision 1.179  2006-04-23 16:51:39  ncq
+-- - remove age calculation from clin.v_pat_items as it wastes cycles, only
+--   calculate age if actually needed, that is, on demand in the SELECT
+--
+-- Revision 1.178  2006/03/13 17:32:09  ncq
 -- - remove "order by age" from clin.v_pat_items which would certainly slow down queries
 --
 -- Revision 1.177  2006/03/08 09:24:28  ncq
