@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.235 2006-03-14 21:37:18 ncq Exp $
-__version__ = "$Revision: 1.235 $"
+# $Id: gmGuiMain.py,v 1.236 2006-04-23 16:49:41 ncq Exp $
+__version__ = "$Revision: 1.236 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -86,6 +86,7 @@ ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 ID_DERMTOOL = wx.NewId ()
 ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
 ID_ADD_NEW_STAFF = wx.NewId()
+ID_EMR_SUMMARY = wx.NewId()
 
 #==============================================================================
 
@@ -260,7 +261,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.mainmenu.Append(menu_office, _('&Office'))
 
-		# menu "Patient"
+		# menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
 
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
@@ -300,6 +301,13 @@ class gmTopLevelFrame(wx.Frame):
 			_("GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file.")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
+		# - summary
+		menu_emr.Append (
+			ID_EMR_SUMMARY,
+			_('Show Summary'),
+			_('Show a summary of the EMR of the active patient')
+		)
+		wx.EVT_MENU(self, ID_EMR_SUMMARY, self.__on_show_emr_summary)
 		# - submenu "show as"
 		menu_emr_show = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
@@ -464,7 +472,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot add health issue. No active patient.'), gmLog.lErr)
+			gmGuiHelpers.gm_beep_statustext(_('Cannot add health issue. No active patient.'))
 			return False
 		ea = gmEMRStructWidgets.cHealthIssueEditArea (
 			self,
@@ -473,20 +481,39 @@ class gmTopLevelFrame(wx.Frame):
 			wx.DefaultSize,
 			wx.NO_BORDER | wx.TAB_TRAVERSAL
 		)
-			
 		popup = gmEditArea.cEditAreaPopup (
 			parent = None,
 			id = -1,
 			title = _('Add health issue (pHx item)'),
 			style = wx.CENTRE | wx.STAY_ON_TOP | wx.CAPTION | wx.SUNKEN_BORDER,
-			name ='',
+			name = '',
 			edit_area = ea
 		)
 		result = popup.ShowModal()
-#		if result == wx.ID_OK:
-#			summary = self.__popup.get_summary()
-#			wx.CallAfter(self.Embed, summary)
+	#----------------------------------------------
+	def __on_show_emr_summary(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot show EMR summary. No active patient.'))
+			return False
+		emr = pat.get_emr()
+		msg = """
 
+Active problems: %(problems)s
+Total visits: %(visits)s
+Total EMR entries: %(items)s
+Stored documents: %(documents)s
+
+""" % emr.get_summary()
+		dlg = wx.MessageDialog (
+			parent = None,
+			message = msg,
+			caption = _('EMR Summary'),
+			style = wx.OK | wx.STAY_ON_TOP
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
+		return True
 	#----------------------------------------------
 	def __on_search_emr(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -1054,7 +1081,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.235  2006-03-14 21:37:18  ncq
+# Revision 1.236  2006-04-23 16:49:41  ncq
+# - add "Show EMR summary" as per list discussion
+#
+# Revision 1.235  2006/03/14 21:37:18  ncq
 # - add menu "Office"
 # - add menu item "add staff member" under "Office" serially calling new patient wizard and add staff dialog
 # - fix encounter summary
