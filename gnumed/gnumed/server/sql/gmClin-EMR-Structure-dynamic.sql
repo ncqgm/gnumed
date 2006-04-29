@@ -1,7 +1,7 @@
 -- Project: GNUmed - EMR structure related dynamic relations:
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-dynamic.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -238,6 +238,7 @@ where
 	)
 ;
 
+
 -- =============================================
 -- episodes stuff
 
@@ -341,7 +342,6 @@ where
 	cep.fk_health_issue=chi.pk
 ;
 
-
 -- =============================================
 -- schema
 grant usage on schema clin to group "gm-doctors";
@@ -368,11 +368,14 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.3 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.3  2006-02-27 22:39:32  ncq
+-- Revision 1.4  2006-04-29 18:47:26  ncq
+-- - cleanup
+--
+-- Revision 1.3  2006/02/27 22:39:32  ncq
 -- - spell out rfe/aoe
 --
 -- Revision 1.2  2006/02/27 11:21:31  ncq
