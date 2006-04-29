@@ -7,7 +7,7 @@
 -- droppable components of GIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -253,7 +253,7 @@ DECLARE
 	msg text;
 BEGIN
 	-- create/get urb
-	SELECT INTO _urb_id create_urb(_urb, _postcode, _state, _country);
+	SELECT INTO _urb_id dem.create_urb(_urb, _postcode, _state, _country);
 	-- create/get and return street
 	SELECT INTO _street_id s.id from dem.street s WHERE s.name ILIKE _street AND s.id_urb = _urb_id AND postcode ILIKE _postcode;
 	IF FOUND THEN
@@ -293,7 +293,7 @@ DECLARE
 	msg text;
 BEGIN
 	-- create/get street
-	SELECT INTO _street_id create_street(_street, _postcode, _urb, _state, _country);
+	SELECT INTO _street_id dem.create_street(_street, _postcode, _urb, _state, _country);
 	-- create/get and return address
 	SELECT INTO _address_id a.id from dem.address a WHERE a.number ILIKE _number and a.id_street = _street_id;
 	IF FOUND THEN
@@ -468,11 +468,16 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.29 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.28  2006-02-19 13:46:47  ncq
+-- Revision 1.29  2006-04-29 12:18:36  sjtan
+--
+-- md5 not working as an index, so use a trigger to check unique narrative.
+-- demographic function named in demographic schema.
+--
+-- Revision 1.28  2006/02/19 13:46:47  ncq
 -- - factor out dynamic DDL
 -- - disallow CR/LF/FF/VT in many single-line demographics fields
 --

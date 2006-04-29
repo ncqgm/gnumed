@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.181 $
+-- $Revision: 1.182 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -81,6 +81,23 @@ create table clin.soap_cat_ranks (
 create table clin.clin_narrative (
 	pk serial primary key
 ) inherits (clin.clin_root_item);
+
+-- this trigger is like a unique constraint - UNIQUE (fk_encounter, narrative, soap_cat) ,
+-- but it uses md5(narrative) to avoid overflowing index buffers.
+
+create or replace function clin.is_unique_narrative() returns trigger as '
+BEGIN
+        perform  * from clin.clin_narrative c where c.soap_cat = NEW.soap_cat and c.fk_encounter = NEW.fk_encounter and md5(c.narrative) = md5(NEW.narrative) ;
+        if found then
+                       raise exception ''Cannot update duplicate narrative in same encounter.'';
+ 		       return OLD;
+        end if;
+        return NEW;
+	END;
+' language 'plpgsql';
+
+create trigger tr_narrative_no_duplicate after update or insert on clin.clin_narrative for each row
+					execute procedure clin.is_unique_narrative();
 
 -- --------------------------------------------
 -- clin.operation
@@ -406,11 +423,16 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.181 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.182 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.181  2006-02-27 11:28:12  ncq
+-- Revision 1.182  2006-04-29 12:18:36  sjtan
+--
+-- md5 not working as an index, so use a trigger to check unique narrative.
+-- demographic function named in demographic schema.
+--
+-- Revision 1.181  2006/02/27 11:28:12  ncq
 -- - add clin.operation
 -- - move dynamic stuff into view definition file
 --
