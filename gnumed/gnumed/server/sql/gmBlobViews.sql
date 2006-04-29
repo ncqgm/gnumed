@@ -1,10 +1,10 @@
--- BLOB views for GNUmed
+-- dynamic BLOB structures GNUmed
 
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.23 $ $Date: 2006-03-06 09:39:31 $ $Author: ncq $
+-- $Revision: 1.24 $ $Date: 2006-04-29 18:19:38 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -13,7 +13,16 @@
 -- =============================================
 select audit.add_table_for_audit('blobs', 'xlnk_identity');
 
--- doc_med --
+-- -- doc_type --
+comment on table blobs.doc_type is
+	'this table enumerates the document types known to the system';
+comment on column blobs.doc_type.name is
+	'the name/label of the document type';
+comment on column blobs.doc_type.is_user is
+	'Whether this document type was supplied at installation/upgrade time or by the user at runtime.';
+
+
+-- -- doc_med --
 select audit.add_table_for_audit('blobs', 'doc_med');
 
 COMMENT ON TABLE blobs.doc_med IS
@@ -21,9 +30,15 @@ COMMENT ON TABLE blobs.doc_med IS
 	 data objects such as several pages of a paper document';
 COMMENT ON COLUMN blobs.doc_med.patient_id IS
 	'the patient this document belongs to';
+comment on COLUMN blobs.doc_med.fk_encounter is
+	'the encounter in which this document was entered into the system';
+comment on COLUMN blobs.doc_med.fk_episode is
+	'the episode this document pertains to, this may not be the only
+	 one applicable to the document (think discharge letters), see also
+	 lnk_doc_med2episode';
 COMMENT ON COLUMN blobs.doc_med.type IS
 	'semantic type of document (not type of file or mime
-	 type), such as >referral letter<, >discharge summary<, etc.';
+	 type), such as "referral letter", "discharge summary", etc.';
 COMMENT ON COLUMN blobs.doc_med.comment IS
 	'additional short comment such as "abdominal", "ward 3,
 	 Dr. Stein", etc.';
@@ -35,15 +50,81 @@ COMMENT ON COLUMN blobs.doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
 
+\unset ON_ERROR_STOP
+drop function blobs.trf_remove_primary_episode_from_link_table() cascade;
+\set ON_ERROR_STOP 1
+
+create function blobs.trf_remove_primary_episode_from_link_table()
+	returns trigger
+	language 'plpgsql'
+	as '
+BEGIN
+	-- if update
+	if TG_OP = ''UPDATE'' then
+		-- and no change
+		if NEW.fk_episode = OLD.fk_episode then
+			-- then do nothing
+			return NEW;
+		end if;
+	end if;
+	-- if already in link table
+	perform 1 from blobs.lnk_doc_med2episode ldm2e where ldm2e.fk_episode = NEW.fk_episode and ldm2e.fk_doc_med = NEW.pk;
+	if FOUND then
+		-- delete from link table
+		delete from blobs.lnk_doc_med2episode where fk_episode = NEW.fk_episode and fk_doc_med = NEW.pk;
+	end if;
+	return NEW;
+END;';
+
+comment on function blobs.trf_remove_primary_episode_from_link_table() is
+	'This trigger function is called when a doc_med row
+	 is inserted or updated. It makes sure the primary
+	 episode listed in doc_med is not duplicated in
+	 lnk_doc_med2episode for the same document. If it
+	 exists in the latter it is removed from there.';
+
+create trigger tr_remove_primary_episode_from_link_table
+	after insert or update on blobs.doc_med
+	for each row execute procedure blobs.trf_remove_primary_episode_from_link_table();
+
 
 -- -- lnk_doc_med2episode --
 comment on table blobs.lnk_doc_med2episode is
-	'this allows linking document to episodes,
+	'this allows linking documents to episodes,
 	 each document can apply to several episodes
 	 but only once each';
-	 
 
--- doc_obj --
+-- FIXME: trigger on insert: fail silently if already in doc_med.fk_episode	 
+\unset ON_ERROR_STOP
+drop function blobs.trf_do_not_duplicate_primary_episode_in_link_table() cascade;
+\set ON_ERROR_STOP 1
+
+create function blobs.trf_do_not_duplicate_primary_episode_in_link_table()
+	returns trigger
+	language 'plpgsql'
+	as '
+BEGIN
+	-- if already in doc_med
+	perform 1 from blobs.doc_med dm where dm.fk_episode = NEW.fk_episode and dm.pk = NEW.fk_doc_med;
+	if FOUND then
+		-- skip the insert/update
+		return null;
+	end if;
+	return NEW;
+END;';
+
+comment on function blobs.trf_do_not_duplicate_primary_episode_in_link_table() is
+	'This trigger function is called before a lnk_doc_med2episode
+	 row is inserted or updated. It makes sure the episode does
+	 not duplicate the primary episode for this document listed
+	 in doc_med. If it does the insert/update is skipped.';
+
+create trigger tr_do_not_duplicate_primary_episode_in_link_table
+	before insert or update on blobs.lnk_doc_med2episode
+	for each row execute procedure blobs.trf_do_not_duplicate_primary_episode_in_link_table();
+
+
+-- -- doc_obj --
 COMMENT ON TABLE blobs.doc_obj IS
 	'possibly several of these form a medical document
 	 such as multiple scanned pages/images';
@@ -291,11 +372,18 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.23 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.23  2006-03-06 09:39:31  ncq
+-- Revision 1.24  2006-04-29 18:19:38  ncq
+-- - comment more columns
+-- - add fk_encounter/fk_episode to doc_med
+-- - trigger to make sure episode is linked to doc in doc_med OR lnk_doc_med2episode only
+-- - doc_med.data now TEXT ! not timestamp (needs to be able to be fuzzy)
+-- - adjust test BLOBs to new situation
+--
+-- Revision 1.23  2006/03/06 09:39:31  ncq
 -- - lnk_doc_med2episode
 --
 -- Revision 1.22  2006/02/27 22:39:32  ncq

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.62 $ $Date: 2006-03-06 09:39:31 $ $Author: ncq $
+-- $Revision: 1.63 $ $Date: 2006-04-29 18:19:38 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -32,8 +32,6 @@ CREATE TABLE blobs.doc_type (
 		default true
 );
 
--- FIXME: add comment
-
 -- =============================================
 CREATE TABLE blobs.doc_med (
 	pk serial primary key,
@@ -42,15 +40,25 @@ CREATE TABLE blobs.doc_med (
 		references blobs.xlnk_identity(xfk_identity)
 		on update cascade
 		on delete cascade,
+	fk_encounter integer
+		not null
+		references clin.encounter(pk)
+		on update cascade
+		on delete restrict,
+	fk_episode integer
+		not null
+		references clin.episode(pk)
+		on update cascade
+		on delete restrict,
 	type integer
 		not null
 		references blobs.doc_type(pk)
 		on update cascade
 		on delete restrict,
 	comment text,
-	"date" timestamp with time zone
+	"date" text
 		not null
-		default CURRENT_TIMESTAMP,
+		default CURRENT_TIMESTAMP::text,
 	ext_ref text
 ) inherits (audit.audit_fields);
 
@@ -113,7 +121,7 @@ create table blobs.reviewed_doc_objs (
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.62 $');
+select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.63 $');
 
 -- =============================================
 -- questions:
@@ -132,7 +140,14 @@ select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.62
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.62  2006-03-06 09:39:31  ncq
+-- Revision 1.63  2006-04-29 18:19:38  ncq
+-- - comment more columns
+-- - add fk_encounter/fk_episode to doc_med
+-- - trigger to make sure episode is linked to doc in doc_med OR lnk_doc_med2episode only
+-- - doc_med.data now TEXT ! not timestamp (needs to be able to be fuzzy)
+-- - adjust test BLOBs to new situation
+--
+-- Revision 1.62  2006/03/06 09:39:31  ncq
 -- - lnk_doc_med2episode
 --
 -- Revision 1.61  2006/02/27 22:39:32  ncq
