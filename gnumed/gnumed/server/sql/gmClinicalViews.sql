@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.179 2006-04-23 16:51:39 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.180 2006-04-29 18:14:42 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -84,6 +84,37 @@ alter table clin.clin_narrative add foreign key (fk_episode)
 
 alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
+
+-- this trigger is like a constraint UNIQUE (fk_encounter, narrative, soap_cat),
+-- but it uses md5(narrative) to avoid overflowing index buffers
+-- FIXME: a) do we really need this ?
+create or replace function clin.is_unique_narrative()
+	returns trigger
+	language 'plpgsql'
+	as '
+BEGIN
+	if TG_OP = ''UPDATE'' then
+		-- allow updating same row without content change
+		if NEW.pk = OLD.PK then
+			return NEW;
+		end if;
+	end if;
+	perform 1 from clin.clin_narrative c where
+		c.soap_cat = NEW.soap_cat and
+		c.fk_encounter = NEW.fk_encounter and
+		c.fk_episode = NEW.fk_episode and
+		md5(c.narrative) = md5(NEW.narrative);
+	if found then
+		raise exception ''clin.is_unique_narrative(): Cannot duplicate narrative in same episode/encounter/SOAP category.'';
+		return null;
+	end if;
+	return NEW;
+	END;
+';
+
+create trigger tr_narrative_no_duplicate
+	before update or insert on clin.clin_narrative
+	for each row execute procedure clin.is_unique_narrative();
 
 -- -- clin.operation --
 select audit.add_table_for_audit('clin', 'operation');
@@ -1627,11 +1658,15 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.179 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.180 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.179  2006-04-23 16:51:39  ncq
+-- Revision 1.180  2006-04-29 18:14:42  ncq
+-- - improve Syan's unique(narrative) trigger constraint
+-- - move it to the dynamic schema part
+--
+-- Revision 1.179  2006/04/23 16:51:39  ncq
 -- - remove age calculation from clin.v_pat_items as it wastes cycles, only
 --   calculate age if actually needed, that is, on demand in the SELECT
 --
