@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.15 2006-01-13 13:52:17 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPatPicWidgets.py,v 1.16 2006-04-29 19:47:36 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -147,7 +147,7 @@ class cPatientPicture(wx.StaticBitmap):
 			return False
 
 		# save in database
-#		doc = gmMedDoc.create_document(self.__pat['ID'], document_type=gmMedDoc.MUGSHOT)
+#		doc = gmMedDoc.create_document(self.__pat['ID'], document_type=gmMedDoc.MUGSHOT, epi/enc)
 #		obj = gmMedDoc.create_document_part(doc)  -> doc.add_part(file=photo)
 
 		self.Show(True)
@@ -184,7 +184,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.15  2006-01-13 13:52:17  ncq
+# Revision 1.16  2006-04-29 19:47:36  ncq
+# - improve commented out code :-)
+#
+# Revision 1.15  2006/01/13 13:52:17  ncq
 # - create_document_part is gone, make comment on new way
 #
 # Revision 1.14  2006/01/01 20:38:03  ncq
