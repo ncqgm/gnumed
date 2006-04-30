@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -204,7 +204,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		# update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
 	#--------------------------------------------------------
-	def _load_btn_pressed(self, evt):
+	def _on_load_button(self, evt):
 		# patient file chooser
 		dlg = wx.FileDialog(
 			parent = None,
@@ -707,7 +707,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.57  2006-02-27 15:42:14  ncq
+# Revision 1.58  2006-04-30 15:52:53  shilbert
+# - event handler for document loading was added
+#
+# Revision 1.57  2006/02/27 15:42:14  ncq
 # - implement cancel button in review dialog
 # - invoke review after displaying doc part depending on cfg
 #
