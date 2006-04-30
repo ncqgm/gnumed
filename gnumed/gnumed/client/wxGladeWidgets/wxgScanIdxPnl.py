@@ -35,6 +35,7 @@ class wxgScanIdxPnl(wx.Panel):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._scan_btn_pressed, self.__btn_scan)
+        self.Bind(wx.EVT_BUTTON, self._on_load_button, self.__btn_load)
         self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
         self.Bind(wx.EVT_BUTTON, self._show_btn_pressed, self.__btn_show_page)
         self.Bind(wx.EVT_BUTTON, self._del_btn_pressed, self.__btn_del_page)
@@ -130,6 +131,10 @@ class wxgScanIdxPnl(wx.Panel):
 
     def _startover_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
         print "Event handler `_startover_btn_pressed' not implemented!"
+        event.Skip()
+
+    def _on_load_button(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_on_load_button' not implemented"
         event.Skip()
 
 # end of class wxgScanIdxPnl
