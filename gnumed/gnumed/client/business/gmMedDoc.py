@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.55 2006-02-13 08:11:28 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmMedDoc.py,v 1.56 2006-05-01 18:43:50 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -120,6 +120,7 @@ class cDocumentFolder:
 			'ID': self.id_patient,
 			'TYP': doc_type
 		}
+		# FIXME: might have to order by on modified_when, date is a string
 		if doc_type is None:
 			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s order by date desc"""
 		elif type(doc_type) == types.StringType:
@@ -163,8 +164,8 @@ order by dm.date desc"""
 				continue
 		return docs
 	#--------------------------------------------------------
-	def add_document(self, document_type=None):
-		return create_document(patient_id=self.id_patient, document_type=document_type)
+	def add_document(self, document_type=None, encounter=None, episode=None):
+		return create_document(patient_id=self.id_patient, document_type=document_type, encounter=encounter, episode=episode)
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
@@ -596,20 +597,16 @@ VALUES (
 #============================================================
 # convenience functions
 #============================================================
-def create_document(patient_id=None, document_type=None):
+def create_document(patient_id=None, document_type=None, encounter=None, episode=None):
 	"""
 	None - failed
 	not None - new document class instance
 	"""
-	# sanity checks
-	if None in [patient_id, document_type]:
-		raise ValueError, 'neither patient_id nor document_type may be None'
-
 	# insert document
-	cmd1 = """insert into blobs.doc_med (patient_id, type) VALUES (%s, %s)"""
+	cmd1 = """insert into blobs.doc_med (patient_id, type, fk_encounter, fk_episode) VALUES (%s, %s, %s, %s)"""
 	cmd2 = """select currval('blobs.doc_med_pk_seq')"""
 	result = gmPG.run_commit('blobs', [
-		(cmd1, [patient_id, document_type]),
+		(cmd1, [patient_id, document_type, encounter, episode]),
 		(cmd2, [])
 	])
 	if result is None:
@@ -687,7 +684,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.55  2006-02-13 08:11:28  ncq
+# Revision 1.56  2006-05-01 18:43:50  ncq
+# - handle encounter/episode in create_document()
+#
+# Revision 1.55  2006/02/13 08:11:28  ncq
 # - doc-wide set_reviewed() must be in cMedDoc, not cDocumentFolder
 # - add cMedDocPart.get_reviews()
 #
