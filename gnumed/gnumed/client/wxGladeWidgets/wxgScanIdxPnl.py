@@ -35,7 +35,7 @@ class wxgScanIdxPnl(wx.Panel):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._scan_btn_pressed, self.__btn_scan)
-        self.Bind(wx.EVT_BUTTON, self._on_load_button, self.__btn_load)
+        self.Bind(wx.EVT_BUTTON, self._load_btn_pressed, self.__btn_load)
         self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
         self.Bind(wx.EVT_BUTTON, self._show_btn_pressed, self.__btn_show_page)
         self.Bind(wx.EVT_BUTTON, self._del_btn_pressed, self.__btn_del_page)
@@ -78,7 +78,7 @@ class wxgScanIdxPnl(wx.Panel):
         __szr_top_left_btns.Add(__lbl_or, 0, wx.LEFT|wx.TOP|wx.BOTTOM|wx.ADJUST_MINSIZE, 3)
         __szr_top_left_btns.Add(self.__btn_load, 0, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
         __szr_top_third.Add(__szr_top_left_btns, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 5)
-        __lbl_doc_episode = wx.StaticText(self, -1, _("episode:"))
+        __lbl_doc_episode = wx.StaticText(self, -1, _("associated episode:"))
         __szr_top_middle.Add(__lbl_doc_episode, 0, wx.LEFT|wx.TOP|wx.ADJUST_MINSIZE, 3)
         __szr_top_middle.Add(self._PhWheel_episode, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 3)
         __lbl_doc_type = wx.StaticText(self, -1, _("document type:"))
@@ -93,10 +93,10 @@ class wxgScanIdxPnl(wx.Panel):
         __szr_top_middle.Add(self._ChBOX_abnormal, 0, wx.LEFT|wx.ADJUST_MINSIZE, 9)
         __szr_top_middle.Add(self._ChBOX_relevant, 0, wx.LEFT|wx.ADJUST_MINSIZE, 9)
         __szr_top_third.Add(__szr_top_middle, 1, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 5)
-        __szr_top_right.Add(self._LBOX_doc_pages, 0, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE|wx.FIXED_MINSIZE, 3)
+        __szr_top_right.Add(self._LBOX_doc_pages, 1, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE|wx.FIXED_MINSIZE, 3)
         __szr_page_actions.Add(self.__btn_show_page, 0, wx.ADJUST_MINSIZE, 0)
         __szr_page_actions.Add(self.__btn_del_page, 0, wx.ADJUST_MINSIZE, 0)
-        __szr_top_right.Add(__szr_page_actions, 1, wx.TOP|wx.EXPAND, 4)
+        __szr_top_right.Add(__szr_page_actions, 0, wx.TOP|wx.EXPAND, 4)
         __szr_top_third.Add(__szr_top_right, 1, wx.LEFT|wx.EXPAND|wx.ADJUST_MINSIZE, 5)
         __szr_main.Add(__szr_top_third, 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 5)
         __szr_main.Add(self._TBOX_description, 1, wx.ALL|wx.EXPAND|wx.ADJUST_MINSIZE, 5)
@@ -133,8 +133,12 @@ class wxgScanIdxPnl(wx.Panel):
         print "Event handler `_startover_btn_pressed' not implemented!"
         event.Skip()
 
-    def _on_load_button(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
-        print "Event handler `_on_load_button' not implemented"
+    def _on_load_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_on_load_btn_pressed' not implemented"
+        event.Skip()
+
+    def _load_btn_pressed(self, event): # wxGlade: wxgScanIdxPnl.<event_handler>
+        print "Event handler `_load_btn_pressed' not implemented"
         event.Skip()
 
 # end of class wxgScanIdxPnl
