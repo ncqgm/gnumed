@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.24 $ $Date: 2006-04-29 18:19:38 $ $Author: ncq $
+-- $Revision: 1.25 $ $Date: 2006-05-01 18:51:07 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -270,6 +270,44 @@ where
 ;
 
 -- =============================================
+create view blobs.v_obj4doc_no_data as
+select
+	vdm.pk_patient as pk_patient,
+	dobj.pk as pk_obj,
+	dobj.seq_idx as seq_idx,
+	vdm.date as date_generated,
+	vdm.type as type,
+	vdm.l10n_type as l10n_type,
+	vdm.ext_ref as ext_ref,
+	octet_length(coalesce(dobj.data, '')) as size,
+	vdm.comment as doc_comment,
+	dobj.comment as obj_comment,
+	dobj.fk_intended_reviewer as pk_intended_reviewer,
+	exists(select 1 from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk)
+		as reviewed,
+	exists (
+		select 1 from blobs.reviewed_doc_objs
+		where
+			fk_reviewed_row = dobj.pk and
+			fk_reviewer = (select pk from dem.staff where db_user=current_user)
+		) as reviewed_by_you,
+	exists (
+		select 1 from blobs.reviewed_doc_objs
+		where
+			fk_reviewed_row = dobj.pk and
+			fk_reviewer = dobj.fk_intended_reviewer
+		) as reviewed_by_intended_reviewer,
+	vdm.pk_doc as pk_doc,
+	vdm.pk_type as pk_type,
+	dobj.xmin as xmin_doc_obj
+from
+	blobs.v_doc_med vdm,
+	blobs.doc_obj dobj
+where
+	vdm.pk_doc = dobj.doc_id
+;
+
+-- =============================================
 create view blobs.v_latest_mugshot as
 select
 	vo4d.pk_patient as pk_patient,
@@ -359,6 +397,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE on
 	, blobs.doc_type
 	, blobs.doc_type_pk_seq
 	, blobs.reviewed_doc_objs
+	, blobs.lnk_doc_med2episode
 TO GROUP "gm-doctors";
 
 -- views
@@ -366,17 +405,23 @@ GRANT SELECT ON
 	blobs.v_doc_type
 	, blobs.v_doc_med
 	, blobs.v_obj4doc
+	, blobs.v_obj4doc_no_data
 	, blobs.v_latest_mugshot
 	, blobs.v_reviewed_doc_objects
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.24 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.24  2006-04-29 18:19:38  ncq
+-- Revision 1.25  2006-05-01 18:51:07  ncq
+-- - add v_obj4doc_no_data for denormalized access to object metadata without
+--   incurring overhead for BLOB data per object
+-- - grants added
+--
+-- Revision 1.24  2006/04/29 18:19:38  ncq
 -- - comment more columns
 -- - add fk_encounter/fk_episode to doc_med
 -- - trigger to make sure episode is linked to doc in doc_med OR lnk_doc_med2episode only
