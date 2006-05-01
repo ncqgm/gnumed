@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.63 2005-10-09 08:15:21 ihaywood Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmPhraseWheel.py,v 1.64 2006-05-01 18:49:49 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -63,6 +63,7 @@ class cPhraseWheel (wx.TextCtrl):
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
+		self._on_set_focus_callbacks = []
 		self.notified_listeners = False
 
 		if kwargs.has_key('id_callback'):
@@ -131,6 +132,12 @@ class cPhraseWheel (wx.TextCtrl):
 			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
 			return False
 		self._on_selection_callbacks.append(callback)
+	#---------------------------------------------------------
+	def add_callback_on_set_focus(self, callback=None):
+		if not callable(callback):
+			_log.Log(gmLog.lWarn, 'ignoring callback [%s] - not callable' % callback)
+			return False
+		self._on_set_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
 		if not callable(callback):
@@ -449,6 +456,14 @@ class cPhraseWheel (wx.TextCtrl):
 	def _on_set_focus(self, event):
 		self._has_focus = True
 		event.Skip()
+		# notify interested parties
+		for callback in self._on_set_focus_callbacks:
+			try:
+				if not callback():
+					print "[%s:_on_set_focus]: %s returned False" % (self.__class__.__name__, str(callback))
+			except:
+				_log.LogException("[%s:_on_set_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
+		# if empty set to first "match"
 		if self.GetValue().strip() == '':
 			# programmers better make sure the turnaround time is limited
 			self._updateMatches()
@@ -457,6 +472,7 @@ class cPhraseWheel (wx.TextCtrl):
 				self.data = self.__currMatches[0]['data']
 				self.input_was_selected = True
 				self._is_modified = False
+		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
 		self._has_focus = False
@@ -474,11 +490,11 @@ class cPhraseWheel (wx.TextCtrl):
 				self._is_modified = False
 			elif no_matches > 1:
 				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
-				return
+				return True
 			else:
 				gmGuiHelpers.gm_beep_statustext(_('There are no matches for this input.'))
 				self.Clear()
-				return
+				return True
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
 			try:
@@ -486,6 +502,7 @@ class cPhraseWheel (wx.TextCtrl):
 					print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
 			except:
 				_log.LogException("[%s:_on_lose_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
+		return True
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -558,7 +575,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.63  2005-10-09 08:15:21  ihaywood
+# Revision 1.64  2006-05-01 18:49:49  ncq
+# - add_callback_on_set_focus()
+#
+# Revision 1.63  2005/10/09 08:15:21  ihaywood
 # SetValue () has optional second parameter to set data.
 #
 # Revision 1.62  2005/10/09 02:19:40  ihaywood
