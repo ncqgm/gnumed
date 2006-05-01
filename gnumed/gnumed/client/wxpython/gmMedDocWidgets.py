@@ -1,7 +1,7 @@
-"""GnuMed medical document handling widgets.
+"""GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -12,7 +12,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions, gmMatchProvider
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg
@@ -55,38 +55,38 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if len(revs) == 0:
 			return True
 		# find special reviews
-		my_rev = None
-		in_charge_rev = None
-		ordered_revs = []
+		review_by_me = None
+		review_by_responsible_doc = None
+		reviews_by_others = []
 		for rev in revs:
 			if rev[4]:
-				in_charge_rev = rev
+				review_by_responsible_doc = rev
 			if rev[5]:
-				my_rev = rev
+				review_by_me = rev
 			if not (rev[4] and rev[5]):
-				ordered_revs.append(rev)
+				reviews_by_others.append(rev)
 		# display them
-		if my_rev is not None:
-			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=_('%s (you)') % my_rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label = _('%s (you)') % my_rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=my_rev[1].Format('%Y-%m-%d %H:%M'))
-			if my_rev[2]:
+		if review_by_me is not None:
+			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=_('%s (you)') % review_by_me[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label = _('%s (you)') % review_by_me[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_me[1].Format('%Y-%m-%d %H:%M'))
+			if review_by_me[2]:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
-			if my_rev[3]:
+			if review_by_me[3]:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=my_rev[6])
-		if in_charge_rev is not None:
-			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=in_charge_rev[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_me[6])
+		if review_by_responsible_doc is not None:
+			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemBackgroundColour(row_num, col=wx.BLUE)
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=in_charge_rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=in_charge_rev[1].Format('%Y-%m-%d %H:%M'))
-			if in_charge_rev[2]:
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=review_by_responsible_doc[0])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].Format('%Y-%m-%d %H:%M'))
+			if review_by_responsible_doc[2]:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
-			if in_charge_rev[3]:
+			if review_by_responsible_doc[3]:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=in_charge_rev[6])
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_responsible_doc[6])
 			row_num += 1
-		for rev in ordered_revs:
+		for rev in reviews_by_others:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=rev[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].Format('%Y-%m-%d %H:%M'))
@@ -111,6 +111,23 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 	
 		# from here on we can init other stuff
 		# that's not part of the wxGlade GUI
+
+		# setup episode phrasewheel with match provider
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			service = 'clinical',
+			queries = [
+"""select pk_episode, description, 1 from clin.v_pat_episodes where
+		episode_open is true and
+		pk_patient=%%(pat)s and
+		description %(fragment_condition)s""",
+"""select pk_episode, description, 1 from clin.v_pat_episodes where
+		pk_patient=%%(pat)s and
+		description %(fragment_condition)s
+"""]
+		)
+		self._PhWheel_episode.setMatchProvider(mp = mp)
+		self._PhWheel_episode.add_callback_on_set_focus(callback=self._on_enter_episode_phrasewheel)
+
 		self.__init_ui_data()
 
 		# do not import globally since we might want to use
@@ -121,8 +138,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui_data(self):
-		self._SelBOX_doc_type.Clear()
+		self._PhWheel_episode.SetValue('')
 		# provide choices for document types
+		self._SelBOX_doc_type.Clear()
 		for doc_type in gmMedDoc.get_document_types():
 			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
 		# FIXME: make this configurable: either now() or last_date()
@@ -131,7 +149,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		self._TBOX_description.SetValue('')
 		# FIXME: set from config item
 		self._ChBOX_reviewed.SetValue(False)
-		# the list holding our objects
+		# the list holding our page files
 		self._LBOX_doc_pages.Clear()
 		self.acquired_pages = []
 	#--------------------------------------------------------
@@ -143,38 +161,42 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 				self._LBOX_doc_pages.Append(_('page %s: %s' % (i+1, fname)), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
-		if len(self.acquired_pages) == 0 or self.acquired_pages is None:
+		title = _('saving document')
+
+		if self.acquired_pages is None or len(self.acquired_pages) == 0:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('No pages to save. Aquire some pages first'),
-				aTitle = _('saving document')
+				aMessage = _('No pages to save. Aquire some pages first.'),
+				aTitle = title
 				)
 			return False
-		print 'lala'
-		print self._SelBOX_doc_type.GetSelection()
-		if self._SelBOX_doc_type.GetStringSelection() == '' or self._SelBOX_doc_type.GetSelection() is None or self._SelBOX_doc_type.GetSelection() < 0:
+
+		sel = self._SelBOX_doc_type.GetStringSelection()
+		if sel == ''or sel is None or sel < 0:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No document type applied. Choose a document type'),
-				aTitle = _('saving document')
-				)
+				aTitle = title
+			)
 			return False
-		
-		if self._TBOX_doc_comment.GetValue() == '' or self._TBOX_doc_comment.GetValue() is None:
+
+		if self._TBOX_doc_comment.GetValue().strip() == '':
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('No document comment supplied. Add a comment for this document'),
-				aTitle = _('saving document')
-				)
+				aMessage = _('No document comment supplied. Add a comment for this document.'),
+				aTitle = title
+			)
 			return False
-		
-		# validate date before handing it to the db
-		
+
+		if self._PhWheel_episode.GetValue().strip() == '':
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('You must select an episode to save this document under.'),
+				aTitle = title
+			)
+			return False
+
 		return True
 	#--------------------------------------------------------
 	# event handling API
 	#--------------------------------------------------------
 	def _scan_btn_pressed(self, evt):
-		"""inside wxGlade this method should be set
-		   to be called when the user pressed the scan button
-		   this can be done by using the EVENT tab to define the EVT macro"""
 		device_names = []
 		device_objects = {}
 		devices = self.scan_module.get_devices()
@@ -204,7 +226,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		# update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
 	#--------------------------------------------------------
-	def _on_load_button(self, evt):
+	def _load_btn_pressed(self, evt):
 		# patient file chooser
 		dlg = wx.FileDialog(
 			parent = None,
@@ -259,32 +281,66 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		self.__reload_LBOX_doc_pages()
 
 		# 3) kill file in the file system
-		try:
-			os.remove(page_fname)
-		except:
-			_log.LogException('Error deleting file.')
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot delete page in file [%s].') % page_fname,
-				aTitle = _('deleting page')
-			)
+		do_delete = gmGuiHelpers.gm_show_question (
+			_(
+"""Do you want to permanently delete the file
+
+ [%s]
+
+from your computer ?
+
+If it is a temporary file for a page you just scanned
+in this makes a lot of sense. In other cases you may
+not want to lose the file.
+
+Pressing [YES] will permanently remove the file
+from your computer.""") % page_fname,
+			_('deleting page')
+		)
+		if do_delete:
+			try:
+				os.remove(page_fname)
+			except:
+				_log.LogException('Error deleting file.')
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('Cannot delete page in file [%s].\n\nYou may not have write access to it.') % page_fname,
+					aTitle = _('deleting page')
+				)
 
 		return 1
 	#--------------------------------------------------------
 	def _save_btn_pressed(self, evt):
-		wx.BeginBusyCursor()
 
 		if not self.__valid_for_save():
-			wx.EndBusyCursor()
-			# __valid_for_save() should display its errors
 			return False
+
+		wx.BeginBusyCursor()
 
 		pat = gmPerson.gmCurrentPatient()
 		doc_folder = pat.get_document_folder()
+		emr = pat.get_emr()
 
 		# create new document
+		episode = self._PhWheel_episode.GetData()
+		if episode is None:
+			episode = emr.add_episode (
+				episode_name = self._PhWheel_episode.GetValue().strip(),
+				is_open = True
+			)
+			if episode is None:
+				wx.EndBusyCursor()
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('Cannot start episode [%s].') % self._PhWheel_episode.GetValue().strip(),
+					aTitle = _('saving document')
+				)
+				return False
+
+		encounter = emr.get_active_encounter()['pk_encounter']
+
 		idx = self._SelBOX_doc_type.GetSelection()
 		document_type = self._SelBOX_doc_type.GetClientData(idx)
-		new_doc = doc_folder.add_document(document_type)
+
+		new_doc = doc_folder.add_document(document_type, encounter, episode)
 		if new_doc is None:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
@@ -366,6 +422,14 @@ off this message in the GNUmed configuration.""") % ref
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
 		self.__init_ui_data()
+	#--------------------------------------------------------
+	def _reviewed_box_checked(self, evt):	
+		print "must enable relevant/abnormal checkboxes here"
+	#--------------------------------------------------------
+	def _on_enter_episode_phrasewheel(self):
+		pat = gmPerson.gmCurrentPatient()
+		self._PhWheel_episode.set_context('pat', pat.getID())
+		return True
 #============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
@@ -447,7 +511,7 @@ class cDocTree(wx.TreeCtrl):
 		# add our documents as first level nodes
 		for doc in docs:
 			if doc['comment'] is not None:
-				cmt = '"%s"' % doc['comment']
+				cmt = '%s' % doc['comment']
 			else:
 				cmt = _('no comment available')
 
@@ -460,8 +524,8 @@ class cDocTree(wx.TreeCtrl):
 				ref = _('no reference ID found')
 
 			label = _('%10s %25s: %s (%s page(s), %s)') % (
-				doc['date'].Format('%Y-%m-%d').ljust(10),
-				doc['l10n_type'].ljust(25),
+				doc['date'][:11].ljust(10),
+				doc['l10n_type'][:26],
 				cmt,
 				page_num,
 				ref
@@ -475,6 +539,7 @@ class cDocTree(wx.TreeCtrl):
 
 			# now add parts as child nodes
 			for part in parts:
+
 				pg = _('page %2s') % part['seq_idx']
 
 				if part['obj_comment'] is None:
@@ -482,10 +547,10 @@ class cDocTree(wx.TreeCtrl):
 				else:
 					cmt = part['obj_comment']
 
-#				if part['size'] == 0:
-#					sz = _('0 bytes - data missing ?')
-#				else:
-#					sz = _('%s bytes') % part['size']
+				if part['size'] == 0:
+					sz = _('0 bytes - data missing ?')
+				else:
+					sz = _('%s bytes') % part['size']
 
 				if part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer']:
 					rev = ''
@@ -497,7 +562,7 @@ class cDocTree(wx.TreeCtrl):
 #				else:
 #					rel = ''
 
-				label = '%s%s: "%s"' % (pg, rev, cmt)
+				label = '%s%s: "%s" (%s)' % (pg, rev, cmt, sz)
 
 				part_node = self.AppendItem(doc_node, label)
 				self.SetPyData(part_node, part)
@@ -679,8 +744,8 @@ class cDocTree(wx.TreeCtrl):
 			self.__review_part(part=part)
 		# review if no review by me exists
 		elif review_after_display == 2:
-			my_rev = filter(lambda rev: rev['is_review_by_you'], part.get_reviews())
-			if len(my_rev) == 0:
+			review_by_me = filter(lambda rev: rev['is_review_by_you'], part.get_reviews())
+			if len(review_by_me) == 0:
 				self.__review_part(part=part)
 
 		return 1
@@ -707,7 +772,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.58  2006-04-30 15:52:53  shilbert
+# Revision 1.59  2006-05-01 18:49:30  ncq
+# - better named variables
+# - match provider in ScanIdxPnl
+# - episode handling on save
+# - as user before deleting files from disc
+# - fix node formatting in doc tree
+#
+# Revision 1.58  2006/04/30 15:52:53  shilbert
 # - event handler for document loading was added
 #
 # Revision 1.57  2006/02/27 15:42:14  ncq
