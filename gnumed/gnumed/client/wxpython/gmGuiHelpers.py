@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.32 2006-01-15 13:19:16 shilbert Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmGuiHelpers.py,v 1.33 2006-05-01 18:47:32 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -133,13 +133,7 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_question(aMessage = None, aTitle = None):
-	# sanity checks
-	if aMessage is None:
-		aMessage = _('programmer forgot to specify question')
-	if aTitle is None:
-		aTitle = _('generic user question dialog')
-
+def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle = 'generic user question dialog'):
 	dlg = wx.MessageDialog(
 		None,
 		aMessage,
@@ -326,7 +320,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.32  2006-01-15 13:19:16  shilbert
+# Revision 1.33  2006-05-01 18:47:32  ncq
+# - cleanup
+#
+# Revision 1.32  2006/01/15 13:19:16  shilbert
 # - gm_SingleChoiceDialog was added
 # - wxpython 2.6 does not support client data associated with item
 #
