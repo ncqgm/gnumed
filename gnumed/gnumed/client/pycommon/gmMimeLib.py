@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.2 2004-10-11 19:08:08 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMimeLib.py,v 1.3 2006-05-01 18:47:16 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,14 +21,18 @@ def guess_mimetype(aFileName = None):
 		return None
 
 	desperate_guess = "application/octet-stream"
-	mime_guesser_cmd = ("file -i -b %s" % aFileName)
-
 	mime_type = desperate_guess
 	ret_code = -1
+
+	# 1) use Python libextractor
+	# - but we don't have docs for that
+
+	# 2) use "file" system command
+	#    -i get mime type
+	#    -b don't display a header
+	mime_guesser_cmd = ('file -i -b "%s"' % aFileName)
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work on Cygwin installations
-	# -i get mime type
-	# -b don't display a header
 	aPipe = os.popen(mime_guesser_cmd, "r")
 	if aPipe is None:
 		_log.Log(gmLog.lData, "Cannot open pipe to [%s]." % mime_guesser_cmd)
@@ -36,8 +40,23 @@ def guess_mimetype(aFileName = None):
 		tmp = aPipe.readline()
 		ret_code = aPipe.close()
 
-	if ret_code is None and tmp != "":
+	if ret_code is None and tmp != '':
 		mime_type = string.replace(tmp, "\n", "")
+	else:
+		_log.Log(gmLog.lErr, "Something went awry while calling `%s`." % mime_guesser_cmd)
+		_log.Log(gmLog.lErr, '%s (%s): exit(%s) -> <%s>' % (os.name, sys.platform, ret_code, tmp))
+
+	# 3) use "extract" shell level libextractor wrapper
+	mime_guesser_cmd = ('extract -p mimetype "%s"' % aFileName)
+	aPipe = os.popen(mime_guesser_cmd, "r")
+	if aPipe is None:
+		_log.Log(gmLog.lData, "Cannot open pipe to [%s]." % mime_guesser_cmd)
+	else:
+		tmp = aPipe.readline()
+		ret_code = aPipe.close()
+
+	if ret_code is None and tmp != '':
+		mime_type = tmp[11:].replace('\n', '')
 	else:
 		_log.Log(gmLog.lErr, "Something went awry while calling `%s`." % mime_guesser_cmd)
 		_log.Log(gmLog.lErr, '%s (%s): exit(%s) -> <%s>' % (os.name, sys.platform, ret_code, tmp))
@@ -60,7 +79,7 @@ def guess_mimetype(aFileName = None):
 		# save resources
 		del gmMimeMagic
 
-		if not tmp is None:
+		if tmp is not None:
 			mime_type = tmp
 
 	_log.Log(gmLog.lData, '"%s" -> <%s>' % (aFileName, mime_type))
@@ -187,7 +206,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.2  2004-10-11 19:08:08  ncq
+# Revision 1.3  2006-05-01 18:47:16  ncq
+# - add use of "extract" command in mimetype guessing
+#
+# Revision 1.2  2004/10/11 19:08:08  ncq
 # - guess_ext_for_file()
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
