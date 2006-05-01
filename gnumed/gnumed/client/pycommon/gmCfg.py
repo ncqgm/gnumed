@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -212,7 +212,7 @@ limit 1""" % where_clause
 
 		# does this option exist ?
 		cmd = "select type from cfg.cfg_template where name=%s"
-		rows = gmPG.run_ro_query(self.__conn, cmd, None, option)
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, option)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting option definition for [%s]' % option)
 			return None
@@ -246,7 +246,7 @@ limit 1""" % where_clause
 		if cookie is not None:
 			where_parts.append('vco.cookie = %(cookie)s')
 		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
-		rows = gmPG.run_ro_query(self.__conn, cmd, None, args)
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
 		# error
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
@@ -272,7 +272,7 @@ limit 1""" % where_clause
 		if cookie is not None:
 			where_parts.append('vco.cookie = %(cookie)s')
 		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
-		rows = gmPG.run_ro_query(self.__conn, cmd, None, args)
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
 		# error
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
@@ -296,7 +296,7 @@ limit 1""" % where_clause
 			'vco.option = %(opt)s'
 		]
 		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
-		rows = gmPG.run_ro_query(self.__conn, cmd, None, args)
+		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
 		# error
 		if rows is None:
 			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
@@ -1579,7 +1579,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.37  2006-02-27 15:39:06  ncq
+# Revision 1.38  2006-05-01 18:44:43  ncq
+# - fix gmPG -> gmPG_ usage
+#
+# Revision 1.37  2006/02/27 15:39:06  ncq
 # - add cCfg_SQL.get2()
 #
 # Revision 1.36  2006/01/13 14:57:14  ncq
