@@ -1,7 +1,7 @@
 -- Project: GNUmed - EMR structure related dynamic relations:
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-dynamic.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -376,12 +376,15 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.5 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.5  2006-05-03 21:28:49  ncq
--- -
+-- Revision 1.6  2006-05-03 21:29:21  ncq
+-- - updated commit message
+--
+-- Revision 1.5  2006/05/03 21:28:49  ncq
+-- - drop constraints before adding them
 --
 -- Revision 1.4  2006/04/29 18:47:26  ncq
 -- - cleanup
