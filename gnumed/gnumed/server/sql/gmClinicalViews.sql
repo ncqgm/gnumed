@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.180 2006-04-29 18:14:42 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.181 2006-05-03 21:30:56 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -82,39 +82,43 @@ alter table clin.clin_narrative add foreign key (fk_episode)
 		on update cascade
 		on delete restrict;
 
+\unset ON_ERROR_STOP
+alter table clin.clin_narrative drop constraint narrative_neither_null_nor_empty;
+\set ON_ERROR_STOP 1
+
 alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
 
+-- NOT NEEDED, index works just fine
 -- this trigger is like a constraint UNIQUE (fk_encounter, narrative, soap_cat),
 -- but it uses md5(narrative) to avoid overflowing index buffers
--- FIXME: a) do we really need this ?
-create or replace function clin.is_unique_narrative()
-	returns trigger
-	language 'plpgsql'
-	as '
-BEGIN
-	if TG_OP = ''UPDATE'' then
-		-- allow updating same row without content change
-		if NEW.pk = OLD.PK then
-			return NEW;
-		end if;
-	end if;
-	perform 1 from clin.clin_narrative c where
-		c.soap_cat = NEW.soap_cat and
-		c.fk_encounter = NEW.fk_encounter and
-		c.fk_episode = NEW.fk_episode and
-		md5(c.narrative) = md5(NEW.narrative);
-	if found then
-		raise exception ''clin.is_unique_narrative(): Cannot duplicate narrative in same episode/encounter/SOAP category.'';
-		return null;
-	end if;
-	return NEW;
-	END;
-';
+--create or replace function clin.is_unique_narrative()
+--	returns trigger
+--	language 'plpgsql'
+--	as '
+--BEGIN
+--	if TG_OP = ''UPDATE'' then
+--		-- allow updating same row without content change
+--		if NEW.pk = OLD.PK then
+--			return NEW;
+--		end if;
+--	end if;
+--	perform 1 from clin.clin_narrative c where
+--		c.soap_cat = NEW.soap_cat and
+--		c.fk_encounter = NEW.fk_encounter and
+--		c.fk_episode = NEW.fk_episode and
+--		md5(c.narrative) = md5(NEW.narrative);
+--	if found then
+--		raise exception ''clin.is_unique_narrative(): Cannot duplicate narrative in same episode/encounter/SOAP category.'';
+--		return null;
+--	end if;
+--	return NEW;
+--	END;
+-- ';
 
-create trigger tr_narrative_no_duplicate
-	before update or insert on clin.clin_narrative
-	for each row execute procedure clin.is_unique_narrative();
+--create trigger tr_narrative_no_duplicate
+--	before update or insert on clin.clin_narrative
+--	for each row execute procedure clin.is_unique_narrative();
 
 -- -- clin.operation --
 select audit.add_table_for_audit('clin', 'operation');
@@ -437,21 +441,19 @@ create index idx_lreq_episode on clin.lab_request(fk_episode);
 -- =============================================
 -- narrative
 \unset ON_ERROR_STOP
-
 drop index clin.idx_narr_soap;
-drop index clin.idx_narr_s;
-drop index clin.idx_narr_o;
-drop index clin.idx_narr_a;
-drop index clin.idx_narr_p;
-
-create index idx_narr_s on clin.clin_narrative(soap_cat) where soap_cat='s';
-create index idx_narr_o on clin.clin_narrative(soap_cat) where soap_cat='o';
-create index idx_narr_a on clin.clin_narrative(soap_cat) where soap_cat='a';
-create index idx_narr_p on clin.clin_narrative(soap_cat) where soap_cat='p';
-
+--drop index clin.idx_narr_s;
+--drop index clin.idx_narr_o;
+--drop index clin.idx_narr_a;
+--drop index clin.idx_narr_p;
 \set ON_ERROR_STOP 1
 
 create index idx_narr_soap on clin.clin_narrative(soap_cat);
+-- comment those out for now as such queries aren't particularly common
+--create index idx_narr_s on clin.clin_narrative(soap_cat) where soap_cat='s';
+--create index idx_narr_o on clin.clin_narrative(soap_cat) where soap_cat='o';
+--create index idx_narr_a on clin.clin_narrative(soap_cat) where soap_cat='a';
+--create index idx_narr_p on clin.clin_narrative(soap_cat) where soap_cat='p';
 
 -- clin.clin_medication
 \unset ON_ERROR_STOP
@@ -465,7 +467,9 @@ create index idx_clin_medication on clin.clin_medication(discontinued) where dis
 drop function clin.f_announce_clin_item_mod() cascade;
 \set ON_ERROR_STOP 1
 
-create function clin.f_announce_clin_item_mod() returns opaque as '
+create function clin.f_announce_clin_item_mod()
+	returns trigger
+	as '
 declare
 	episode_id integer;
 	patient_id integer;
@@ -1658,11 +1662,16 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.180 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.181 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.180  2006-04-29 18:14:42  ncq
+-- Revision 1.181  2006-05-03 21:30:56  ncq
+-- - drop constraints before adding
+-- - comment out trigger doubling unique index
+-- - comment out rarely used indices
+--
+-- Revision 1.180  2006/04/29 18:14:42  ncq
 -- - improve Syan's unique(narrative) trigger constraint
 -- - move it to the dynamic schema part
 --
