@@ -1,7 +1,7 @@
 -- Project: GNUmed - EMR structure related dynamic relations:
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-dynamic.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -49,6 +49,10 @@ comment on column clin.health_issue.is_active is
 comment on column clin.health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
+\unset ON_ERROR_STOP
+alter table clin.health_issue drop constraint issue_name_not_empty;
+\set ON_ERROR_STOP 1
+
 alter table clin.health_issue add constraint issue_name_not_empty
 	check (trim(both from description) != '');
 
@@ -73,6 +77,10 @@ comment on column clin.episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
 	 means open in a temporal sense as in "not closed yet";
 	 only one episode can be open per health issue';
+
+\unset ON_ERROR_STOP
+alter table clin.episode drop constraint only_standalone_epi_has_patient;
+\set ON_ERROR_STOP 1
 
 alter table clin.episode add constraint only_standalone_epi_has_patient
 	check (
@@ -368,11 +376,14 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.4  2006-04-29 18:47:26  ncq
+-- Revision 1.5  2006-05-03 21:28:49  ncq
+-- -
+--
+-- Revision 1.4  2006/04/29 18:47:26  ncq
 -- - cleanup
 --
 -- Revision 1.3  2006/02/27 22:39:32  ncq
