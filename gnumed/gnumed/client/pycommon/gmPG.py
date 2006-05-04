@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -142,6 +142,24 @@ where
 order by
 	cols.ordinal_position"""
 
+query_child_tables = """
+select
+	pgn.nspname as namespace,
+	pgc.relname as table
+from
+	pg_namespace pgn,
+	pg_class pgc
+where
+	pgc.relnamespace = pgn.oid
+		and
+	pgc.oid in (
+		select inhrelid from pg_inherits where inhparent = (
+			select oid from pg_class where
+				relnamespace = (select oid from pg_namespace where nspname = %(schema)s) and
+				relname = %(table)s
+		)
+	)
+;"""
 
 
 # a handy return to dbapi simplicity
@@ -1259,9 +1277,18 @@ select exists (
 		_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
 		return None
 	return rows[0][0]
+	return col_defs
+#---------------------------------------------------
+def get_child_tables(source='default', schema='public', table=None):
+	"""Return child tables of <table>."""
+	rows = run_ro_query(source, query_child_tables, None, {'schema': schema, 'table': table})
+	if rows is None:
+		_log.Log(gmLog.lErr, 'cannot get children of table [%s]' % table)
+		return None
+	return rows
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.63 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.64 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1497,7 +1524,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.63  2006-02-26 18:33:24  ncq
+# Revision 1.64  2006-05-04 17:53:32  ncq
+# - add function/query to get child tables for parent
+#
+# Revision 1.63  2006/02/26 18:33:24  ncq
 # - change default to gnumed_v2
 #
 # Revision 1.62  2006/02/12 14:56:43  ncq
