@@ -1,8 +1,8 @@
 """Test for concurrency detection to work.
 """
 #============================================================
-# $Id: detect-concurrency.py,v 1.1 2005-04-11 17:59:41 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: detect-concurrency.py,v 1.2 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert"
 __license__ = "GPL"
 
@@ -14,7 +14,8 @@ from Gnumed.business import gmClinNarrative, gmPerson
 
 db = gmPG.ConnectionPool()
 pat = gmPerson.ask_for_patient()
-emr = pat.get_clinical_record()
+#gmPerson.set_active_patient(patient=pat)
+emr = pat.get_emr()
 epi = emr.get_episodes()[0]
 
 print "creating new narrative row"
@@ -63,6 +64,11 @@ db.StopListeners()
 
 #============================================================
 # $Log: detect-concurrency.py,v $
-# Revision 1.1  2005-04-11 17:59:41  ncq
+# Revision 1.2  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.1  2005/04/11 17:59:41  ncq
 # - write a test which proves our concurrency detection works
 #

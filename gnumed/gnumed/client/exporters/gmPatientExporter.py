@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.77 2006-02-27 22:38:36 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmPatientExporter.py,v 1.78 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -117,7 +117,7 @@ class cEmrExport:
         """
         Retrieves string containg ASCII vaccination table
         """
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         # patient dob
         
         #patient_dob = mxParser.DateFromString(self.__patient.get_identity().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
@@ -294,7 +294,7 @@ class cEmrExport:
         Iterate over patient scheduled regimes preparing vacc tables dump
         """           
         
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         
         # vaccination regimes
         all_vacc_regimes = emr.get_scheduled_vaccination_regimes()
@@ -387,7 +387,7 @@ class cEmrExport:
         """
         if not self.__patient.is_connected():
             return False
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         filtered_items = []
         filtered_items.extend(emr.get_allergies(
             since=self.__constraints['since'],
@@ -493,7 +493,7 @@ class cEmrExport:
         # which is a sane representation when no patient is selected.
         if not self.__fetch_filtered_items():
             return
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         unlinked_episodes = emr.get_episodes(issues = [None])
         h_issues = []
         h_issues.extend(emr.get_health_issues(id_list = self.__constraints['issues']))
@@ -511,7 +511,7 @@ class cEmrExport:
     #--------------------------------------------------------             
     def _add_health_issue_branch( self, emr_tree, a_health_issue):
             """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
-            emr = self.__patient.get_clinical_record()
+            emr = self.__patient.get_emr()
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
@@ -553,7 +553,7 @@ class cEmrExport:
 	       
     #--------------------------------------------------------             
     def  _update_health_issue_branch(self, emr_tree, a_health_issue):
-            emr = self.__patient.get_clinical_record()
+            emr = self.__patient.get_emr()
             root_node = emr_tree.GetRootItem()
 	    id, cookie = emr_tree.GetFirstChild( root_node)
 	    found = False
@@ -665,7 +665,7 @@ class cEmrExport:
         if issue['is_confidential']:
             txt += _('\n***** CONFIDENTIAL *****\n\n')
 
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         epis = emr.get_episodes(issues=[issue['pk']])
         if epis is None:
             txt += left_margin * ' ' + _('Error retrieving episodes for health issue\n%s') % str(issue)
@@ -696,7 +696,7 @@ class cEmrExport:
     def get_episode_summary (self, episode, left_margin = 0):
         """Dumps episode specific data
         """
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         encs = emr.get_encounters(episodes=[episode['pk_episode']], issues=[episode['pk_health_issue']])
         if encs is None:
             txt = left_margin * ' ' + _('Error retrieving encounters for episode\n%s') % str(episode)
@@ -726,7 +726,7 @@ class cEmrExport:
         """
         Dumps encounter specific data (rfe, aoe and soap)
         """
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         # general
         txt = (' ' * left_margin) + '%s - %s: %s' % (
             encounter['started'].Format('%Y-%m-%d  %H:%M'),
@@ -785,7 +785,7 @@ class cEmrExport:
 
         # fecth all values
         self.__fetch_filtered_items()
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
 
         # dump clinically relevant items summary
         for an_item in self.__filtered_items:
@@ -825,7 +825,7 @@ class cEmrExport:
         Dumps in ASCII format patient's clinical record
         
         """
-        emr = self.__patient.get_clinical_record()
+        emr = self.__patient.get_emr()
         if emr is None:
             _log.Log(gmLog.lErr, 'cannot get EMR text dump')
             print(_(
@@ -1109,7 +1109,7 @@ class cMedistarSOAPExporter:
 	def __export(self, target = None, encounter = None):
 		if not self.__pat.is_connected():
 			return False
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		if encounter is None:
 			encounter = emr.get_active_encounter()
 		# get data
@@ -1219,6 +1219,8 @@ def run():
         patient = gmPerson.ask_for_patient()
         if patient is None:
             break
+        # FIXME: needed ?
+        gmPerson.set_active_patient(patient=patient)
         export_tool.set_patient(patient)
         # Dump patient EMR sections
         export_tool.dump_constraints()
@@ -1260,7 +1262,12 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.77  2006-02-27 22:38:36  ncq
+# Revision 1.78  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.77  2006/02/27 22:38:36  ncq
 # - spell out rfe/aoe as per Richard's request
 #
 # Revision 1.76  2005/12/25 13:24:30  sjtan

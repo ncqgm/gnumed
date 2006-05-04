@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.24 2005-12-29 21:54:35 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmVaccWidgets.py,v 1.25 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -162,7 +162,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		# FIXME: validation ?
 		if self.__data_sink is None:
 			# save directly into database
-			emr = self._patient.get_clinical_record()
+			emr = self._patient.get_emr()
 			# create new vaccination
 			successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue(), episode=episode)
 			if not successfull:
@@ -418,7 +418,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		ind = ind_list.GetClientData(selected_item)
 		# clear list
 		self.LBOX_given_shots.Set([])
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		shots = emr.get_vaccinations(indications = [ind])
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
@@ -445,7 +445,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LBOX_active_schedules.Clear()
 		self.LBOX_missing_shots.Clear()
 
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 
 		t1 = time.time()
 		# populate vaccinated-indications list
@@ -552,7 +552,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.24  2005-12-29 21:54:35  ncq
+# Revision 1.25  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.24  2005/12/29 21:54:35  ncq
 # - adjust to schema changes
 #
 # Revision 1.23  2005/10/21 09:27:11  ncq

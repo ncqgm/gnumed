@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.33 2005-12-31 18:01:54 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmForms.py,v 1.34 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
 
 # standard library 
@@ -76,7 +76,7 @@ class gmFormEngine:
 		# some forms may not have values ...
 		if params is None:
 			params = {}
-		patient_clinical = self.patient.get_clinical_record()
+		patient_clinical = self.patient.get_emr()
 		encounter = patient_clinical.get_active_encounter()['pk_encounter']
 		# FIXME: get_active_episode is no more
 		#episode = patient_clinical.get_active_episode()['pk_episode']
@@ -396,7 +396,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.33  2005-12-31 18:01:54  ncq
+# Revision 1.34  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.33  2005/12/31 18:01:54  ncq
 # - spelling of GNUmed
 # - clean up imports
 #

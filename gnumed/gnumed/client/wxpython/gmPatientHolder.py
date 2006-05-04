@@ -8,8 +8,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.19 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPatientHolder.py,v 1.20 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
@@ -72,11 +72,16 @@ class PatientHolder:
 	#------------------------------------------------
 	# FIXME: what are these 2 for???
 	def get_past_history(self):
-		return self.patient.get_clinical_record().get_past_history()
+		return self.patient.get_emr().get_past_history()
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.19  2005-09-28 21:27:30  ncq
+# Revision 1.20  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.19  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.18  2005/09/28 15:57:48  ncq

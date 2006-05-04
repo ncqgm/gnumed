@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.102 2005-11-07 21:34:00 ihaywood Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmEditArea.py,v 1.103 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -1411,7 +1411,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 		
 	def _save_data(self):
-		clinical = self._patient.get_clinical_record().get_past_history()
+		clinical = self._patient.get_emr().get_past_history()
 		if self.getDataId() is None:
 			id = clinical.create_history( self.get_fields_formatting_values() )
 			self.setDataId(id)
@@ -2344,7 +2344,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.102  2005-11-07 21:34:00  ihaywood
+# Revision 1.103  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.102  2005/11/07 21:34:00  ihaywood
 # gmForms isn't loaded now (not yet needed)
 #
 # gmDermTool no longer dependent on my home directory (thanks Sebastian)

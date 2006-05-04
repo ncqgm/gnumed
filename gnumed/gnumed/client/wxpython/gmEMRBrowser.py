@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.50 2005-12-27 02:52:40 sjtan Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmEMRBrowser.py,v 1.51 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -754,7 +754,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		gmPerson.set_active_patient(person = patient)
+		gmPerson.set_active_patient(patient = patient)
 
 		# display standalone browser
 		application = wx.PyWidgetTester(size=(800,600))
@@ -784,7 +784,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.50  2005-12-27 02:52:40  sjtan
+# Revision 1.51  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.50  2005/12/27 02:52:40  sjtan
 #
 # allow choice of closing old episode, or relinking to old episode, whenever opening a new episode in the present of an already open episode of an issue.
 # Small logic error fixed where the id of the health_issue was passed in as the id of an episode.

@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.236 2006-04-23 16:49:41 ncq Exp $
-__version__ = "$Revision: 1.236 $"
+# $Id: gmGuiMain.py,v 1.237 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.237 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -388,7 +388,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_patient_selected(self, **kwargs):
 		pat = gmPerson.gmCurrentPatient()
 		try:
-			pat.get_clinical_record()
+			pat.get_emr()
 			pat.get_identity()
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=1)
@@ -1081,7 +1081,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.236  2006-04-23 16:49:41  ncq
+# Revision 1.237  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.236  2006/04/23 16:49:41  ncq
 # - add "Show EMR summary" as per list discussion
 #
 # Revision 1.235  2006/03/14 21:37:18  ncq

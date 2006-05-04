@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -76,7 +76,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.22 $" % self.__class__.__name__
+		return "%s $Revision: 1.23 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -138,7 +138,7 @@ class cMacroPrimitives:
 		# FIXME: let user select patient
 		if len(idents) > 1:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
-		if not gmPerson.set_active_patient(person = idents[0]):
+		if not gmPerson.set_active_patient(patient = idents[0]):
 			return (0, _('cannot activate patient [%s] (%s/%s)') % (str(idents[0]), search_term, search_dict))
 		self.__pat.lock()
 		self.__pat_lock_cookie = str(random.random())
@@ -238,7 +238,12 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.22  2005-11-28 23:07:34  ncq
+# Revision 1.23  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.22  2005/11/28 23:07:34  ncq
 # - add shutdown_gnumed()
 #
 # Revision 1.21  2005/11/27 22:08:38  ncq

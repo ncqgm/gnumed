@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.21 2005-12-26 05:26:37 sjtan Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmEMRStructWidgets.py,v 1.22 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -163,7 +163,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	#----------------------------------------------------
 	def __save_new_entry(self):
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_clinical_record()
+		emr = pat.get_emr()
 		# create issue
 		condition = self.fld_condition.GetValue()
 		new_issue = emr.add_health_issue(issue_name = condition)
@@ -380,7 +380,7 @@ class cEpisodePicker(wx.Panel):
 		# populate table and cache episode list
 
 		
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		
 
 	        issues = emr.get_health_issues()
@@ -471,7 +471,7 @@ class cEpisodePicker(wx.Panel):
 			return False
 
 		print 'Creating episode: %s' % self.__PRW_description.GetValue()
-		self.__selected_episode = self.__pat.get_clinical_record().add_episode (
+		self.__selected_episode = self.__pat.get_emr().add_episode (
 			episode_name = self.__PRW_description.GetValue(),
 			pk_health_issue = self.__pk_health_issue
 		)
@@ -649,7 +649,7 @@ class cEpisodeEditor(wx.Panel):
 		self.__LST_episodes.DeleteAllItems()
 
 		# populate table and cache episode list
-		episodes = self.__pat.get_clinical_record().get_episodes()
+		episodes = self.__pat.get_emr().get_episodes()
 		self.__episodes = {}
 		for idx in range(len(episodes)):
 			epi = episodes[idx]
@@ -736,10 +736,10 @@ class cEpisodeEditor(wx.Panel):
 
 		if self.__selected_episode is None:
 			# on new episode
-			#self.__pat.get_clinical_record().add_episode(episode_name= , pk_health_issue=self.__pk_health_issue)
+			#self.__pat.get_emr().add_episode(episode_name= , pk_health_issue=self.__pk_health_issue)
 			print 'Creating episode: %s' % self.__PRW_description.GetValue()
 			# FIXME 
-			self.__selected_episode = self.__pat.get_clinical_record().add_episode (
+			self.__selected_episode = self.__pat.get_emr().add_episode (
 				episode_name = self.__PRW_description.GetValue(),
 				pk_health_issue = self.__pk_health_issue
 			)			
@@ -813,7 +813,7 @@ if __name__ == '__main__':
 				"""
 				Test episode selector dialog
 				"""
-				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['pk']
+				pk_issue = self.__pat.get_emr().get_health_issues()[0]['pk']
 				episode_selector = cEpisodeSelectorDlg(
 					None,
 					-1,
@@ -838,7 +838,7 @@ if __name__ == '__main__':
 				"""
 				Test episode editor dialog
 				"""
-				pk_issue = self.__pat.get_clinical_record().get_health_issues()[0]['pk']
+				pk_issue = self.__pat.get_emr().get_health_issues()[0]['pk']
 				episode_selector = cEpisodeEditorDlg(None, -1,
 				'Episode editor test', pk_health_issue = pk_issue)
 				retval = episode_selector.ShowModal() # Shows it
@@ -878,6 +878,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
 
 		# lauch emr dialogs test application
 		app = testapp(0)
@@ -902,7 +903,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.21  2005-12-26 05:26:37  sjtan
+# Revision 1.22  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.21  2005/12/26 05:26:37  sjtan
 #
 # match schema
 #

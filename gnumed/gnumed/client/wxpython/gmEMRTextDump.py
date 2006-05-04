@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.15 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmEMRTextDump.py,v 1.16 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -61,7 +61,7 @@ class gmEMRDumpPanel(wx.Panel):
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
 			self.txt.SetValue(_('Currently there is no active patient. Cannot retrieve EMR text.'))
 			return None
-		emr = pat.get_clinical_record()
+		emr = pat.get_emr()
 		if emr is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
 			self.txt.SetValue(_(
@@ -127,7 +127,12 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.15  2005-09-28 21:27:30  ncq
+# Revision 1.16  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.15  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.14  2005/09/28 15:57:48  ncq

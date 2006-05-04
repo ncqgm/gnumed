@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.10 2005-10-19 09:14:46 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmSOAPimporter.py,v 1.11 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -98,7 +98,7 @@ class cSOAPImporter:
 			_log.Log(gmLog.lErr, 'cannot verify soap entry')
 			return False
 		# obtain clinical context information
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		epi_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		try:
 			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
@@ -196,6 +196,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
 
 		# now import
 		importer = cSOAPImporter()
@@ -246,7 +247,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.10  2005-10-19 09:14:46  ncq
+# Revision 1.11  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.10  2005/10/19 09:14:46  ncq
 # - remove half-baked support for embedded data, now handled elsewhere
 # - general cleanup/doc fixes
 #

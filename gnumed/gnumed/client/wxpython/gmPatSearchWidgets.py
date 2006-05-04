@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.25 2005-12-14 17:01:51 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPatSearchWidgets.py,v 1.26 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -392,7 +392,7 @@ and hit <ENTER>
 		wx.CallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, pat):
-		if not gmPerson.set_active_patient(pat, forced_reload = self.__always_reload_after_search):
+		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 		# keep list of identities
@@ -714,7 +714,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.25  2005-12-14 17:01:51  ncq
+# Revision 1.26  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.25  2005/12/14 17:01:51  ncq
 # - use improved db cfg option getting
 #
 # Revision 1.24  2005/09/28 21:27:30  ncq

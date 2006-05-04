@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.77 2006-01-18 14:14:39 sjtan Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmDemographicsWidgets.py,v 1.78 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -509,7 +509,7 @@ class PatientListWindow(wx.ListCtrl):
 	def __load_patient (self, patient):
 		wx.BeginBusyCursor ()
 		try:
-			gmPatient.set_active_patient (patient)
+			gmPatient.set_active_patient(patient=patient)
 		except:
 			_log.LogException ("loading patient %d" % patient['id'], sys.exc_info (), verbose=0)
 		wx.EndBusyCursor ()
@@ -1489,8 +1489,8 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
-			person = gmPerson.cPerson(ident)
-			gmPerson.gmCurrentPatient(person)
+			pat = gmPerson.cPerson(ident)
+			gmPerson.gmCurrentPatient(patient=pat)
 
 		return ident
 	#--------------------------------------------------------
@@ -2917,6 +2917,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
 	
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
@@ -2935,7 +2936,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.77  2006-01-18 14:14:39  sjtan
+# Revision 1.78  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.77  2006/01/18 14:14:39  sjtan
 #
 # make reusable
 #

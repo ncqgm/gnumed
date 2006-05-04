@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -598,7 +598,7 @@ class cLabJournalNB(wx.Notebook):
 				_('saving request id')
 			)
 			return None
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		request = emr.add_lab_request(lab=int(self.lab), req_id = req_id)
 		if request is None:
 			gmGuiHelpers.gm_beep_statustext(_('Cannot save lab request.'))
@@ -758,7 +758,7 @@ class cLabDataGrid(wx.Grid):
 				2: profile -> smart sorting first
 				3: profile -> user defined profile order
 		"""
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		# FIXME: there might be too many results to handle in memory
 		results = emr.get_lab_results()
 		if results is None:
@@ -869,7 +869,12 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.17  2005-12-27 18:57:47  ncq
+# Revision 1.18  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.17  2005/12/27 18:57:47  ncq
 # - fix syntax error
 #
 # Revision 1.16  2005/09/28 21:27:30  ncq

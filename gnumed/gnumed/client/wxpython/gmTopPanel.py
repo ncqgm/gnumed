@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.68 2005-11-27 12:56:45 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmTopPanel.py,v 1.69 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -293,7 +293,7 @@ class cMainTopPanel(wx.Panel):
 		pc.Show(1)
 	#----------------------------------------------
 #	def _on_episode_selected(self, evt):
-#		epr = self.curr_pat.get_clinical_record()
+#		epr = self.curr_pat.get_emr()
 #		if epr is None:
 #			return None
 #		ep_name = evt.GetString()
@@ -326,7 +326,7 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__update_allergies)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
-		epr = self.curr_pat.get_clinical_record()
+		epr = self.curr_pat.get_emr()
 		allergies = epr.get_allergies(remove_sensitivities=1)
 		if allergies is None:
 			self.txt_allergies.SetValue(_('error getting allergies'))
@@ -432,7 +432,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.68  2005-11-27 12:56:45  ncq
+# Revision 1.69  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.68  2005/11/27 12:56:45  ncq
 # - use gmEMRStructItems.get_encounter_types()
 #
 # Revision 1.67  2005/09/28 21:38:11  ncq

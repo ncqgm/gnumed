@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -73,6 +73,7 @@ if __name__ == "__main__":
         if patient is None:
             print "None patient. Exiting gracefully..."
             sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
                     
         # display standalone multisash progress notes input
         application = wx.wxPyWidgetTester(size=(800,600))
@@ -101,7 +102,12 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.7  2005-09-26 18:01:52  ncq
+# Revision 1.8  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.7  2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup

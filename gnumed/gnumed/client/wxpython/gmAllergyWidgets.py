@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -135,7 +135,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 		self._add_prompt(line = 6, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
-		emr = self._patient.get_clinical_record()
+		emr = self._patient.get_emr()
 		if emr is None:
 			wx.Bell()
 			_gb['main.statustext'](_('Cannot create allergy: %s') % data)
@@ -314,7 +314,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.LCTRL_allergies.DeleteAllItems()
 
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		allergies = emr.get_allergies()
 		if allergies is None:
 			return False
@@ -340,7 +340,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#-----------------------------------------------
 	def _on_allergy_activated(self, evt):
 		pk_allg = evt.GetData()
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		allgs = emr.get_allergies(ID_list=[pk_allg])
 		self.editarea.set_data(allergy = allgs[0])
 #======================================================================
@@ -352,7 +352,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.13  2006-01-03 12:12:03  ncq
+# Revision 1.14  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.13  2006/01/03 12:12:03  ncq
 # - make epydoc happy re _()
 #
 # Revision 1.12  2005/12/27 18:46:39  ncq

@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 
 import string
 
@@ -119,7 +119,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 			print "GOT no new patient"
 			return
 		# FIXME: are we sure of the ramifications here ?
-		gmPerson.gmCurrentPatient(newId)
+#		gmPerson.gmCurrentPatient(newId)
 		x = self.__getDemographicsWidget()
 		x.Raise()
 

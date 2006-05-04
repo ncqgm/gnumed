@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.66 2006-01-03 12:12:03 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmSOAPWidgets.py,v 1.67 2006-05-04 09:49:20 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -329,7 +329,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		"""Update health problems list.
 		"""
 		self.__LST_problems.Clear()
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		problems = emr.get_problems()
 		for problem in problems:
 			if not problem['problem_active']:
@@ -408,7 +408,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		"""
 		problem_idx = self.__LST_problems.GetSelection()
 		problem = self.__LST_problems.GetClientData(problem_idx)
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 
 		title = _('opening progress note editor')
 		msg = _('Cannot open progress note editor for\n\n'
@@ -632,7 +632,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			return False
 
 		# work out episode name
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		episode = None
 		problem = self.__problem
 		# - new episode, must get name from narrative (or user)
@@ -944,7 +944,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		if note.strip() == '':
 			return True
 		# now save note
-		emr = self.__pat.get_clinical_record()
+		emr = self.__pat.get_emr()
 		if emr is None:
 			_log.Log(gmLog.lErr, 'cannot access clinical record of patient')
 			return False
@@ -992,7 +992,7 @@ if __name__ == "__main__":
 		}		
 		
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_clinical_record()
+		emr = pat.get_emr()
 		soap_lines = []
 		# for each soap cat
 		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
@@ -1059,6 +1059,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
 
 		#test_soap_notebook()
 		test_soap_notebook_panel()
@@ -1116,7 +1117,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.66  2006-01-03 12:12:03  ncq
+# Revision 1.67  2006-05-04 09:49:20  ncq
+# - get_clinical_record() -> get_emr()
+# - adjust to changes in set_active_patient()
+# - need explicit set_active_patient() after ask_for_patient() if wanted
+#
+# Revision 1.66  2006/01/03 12:12:03  ncq
 # - make epydoc happy re _()
 #
 # Revision 1.65  2005/12/27 19:01:07  ncq
