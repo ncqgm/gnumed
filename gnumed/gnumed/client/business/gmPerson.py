@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.61 2006-01-11 13:14:20 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPerson.py,v 1.62 2006-05-04 09:41:05 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -420,28 +420,24 @@ class cPerson:
 			# assume to be an identity.pk then
 			identity = cIdentity (aPK_obj = int(identity))
 
-		self.__ID = identity['pk_identity']  	# = identity.pk = v_basic_person.pk_identity = primary key
+		self._ID = identity['pk_identity']  	# = identity.pk = v_basic_person.pk_identity = primary key
 		self.__db_cache = {'identity': identity}
 
 		# register backend notification interests ...
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "Cannot register person modification interests."
 
-		_log.Log(gmLog.lData, 'Instantiated person [%s].' % self.__ID)
+		_log.Log(gmLog.lData, 'Instantiated person [%s].' % self._ID)
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
 
 		- note that this may be called in a thread
 		"""
-		_log.Log(gmLog.lData, 'cleaning up after person [%s]' % self.__ID)
-		if self.__db_cache.has_key('clinical record'):
-			self.__db_cache['clinical record'].cleanup()
-			del self.__db_cache['clinical record']
+		_log.Log(gmLog.lData, 'cleaning up after person [%s]' % self._ID)
 		if self.__db_cache.has_key('identity'):
 			self.__db_cache['identity'].cleanup()
 			del self.__db_cache['identity']
-		# FIXME: document folder
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -451,14 +447,14 @@ class cPerson:
 		- true/false/None
 		"""
 		cmd = "select exists(select pk from dem.identity where pk = %s)"
-		res = gmPG.run_ro_query('personalia', cmd, None, self.__ID)
+		res = gmPG.run_ro_query('personalia', cmd, None, self._ID)
 		if res is None:
-			_log.Log(gmLog.lErr, 'check for person PK [%s] existence failed' % self.__ID)
+			_log.Log(gmLog.lErr, 'check for person PK [%s] existence failed' % self._ID)
 			return None
 		return res[0][0]
 	#--------------------------------------------------------
 	def _register_interests(self):
-		return 1
+		return True
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -472,64 +468,15 @@ class cPerson:
 			return None
 	#--------------------------------------------------------
 	def getID(self):
-		return self.__ID
-	#--------------------------------------------------------
-	def _getMedDocsList(self):
-		"""Build a complete list of metadata for all documents of this person.
-		"""
-		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
-		tmp = gmPG.run_ro_query('blobs', cmd, None, self.__ID)
-		_log.Log(gmLog.lData, "document IDs: %s" % tmp)
-		if tmp is None:
-			return []
-		docs = []
-		for doc_id in tmp:
-			if doc_id is not None:
-				docs.extend(doc_id)
-		if len(docs) == 0:
-			_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % self.__ID)
-			return None
-		return docs
-	#----------------------------------------------------------
-	def get_emr(self):
-		try:
-			return self.__db_cache['clinical record']
-		except KeyError:
-			pass
-		tstart = time.time()
-		try:
-			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self.__ID)
-		except StandardError:
-			_log.LogException('cannot instantiate clinical record for person [%s]' % self.__ID, sys.exc_info())
-			return None
-		duration = time.time() - tstart
-		print "got EMR class instance in %.3f seconds" % duration
-		return self.__db_cache['clinical record']
-	#--------------------------------------------------------
-	def get_clinical_record(self):
-		return self.get_emr()
+		return self._ID
 	#--------------------------------------------------------
 	def get_identity(self):
 		# because we are instantiated with it, it always exists
 		return self.__db_cache['identity']
 	#--------------------------------------------------------
-	def get_document_folder(self):
-		try:
-			return self.__db_cache['document folder']
-		except KeyError:
-			pass
-		try:
-			# FIXME: we need some way of setting the type of backend such that
-			# to instantiate the correct type of document folder class
-			self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self.__ID)
-		except StandardError:
-			_log.LogException('cannot instantiate document folder for person [%s]' % self.__ID, sys.exc_info())
-			return None
-		return self.__db_cache['document folder']
-	#--------------------------------------------------------
 	def export_data(self):
 		data = {}
-		emr = self.get_clinical_record()
+		emr = self.get_emr()
 		if emr is None:
 			return None
 		data['clinical'] = emr.get_text_dump()
@@ -550,7 +497,6 @@ class cPerson:
 		return API
 	#--------------------------------------------------------
 	# set up handler map
-	_get_handler['document folder'] = get_document_folder
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
 	_get_handler['id'] = getID
@@ -558,26 +504,91 @@ class cPerson:
 	_get_handler['pk_identity'] = getID
 
 #============================================================
+class cPatient(cPerson):
+	"""Represents a Patient.
+
+	- a specializing subclass of cPerson turning it into a patient
+	"""
+	def __init__(self, identity = None):
+		cPerson.__init__(self, identity=identity)
+		self.__db_cache = {}
+	#--------------------------------------------------------
+	def cleanup(self):
+		"""Do cleanups before dying.
+
+		- note that this may be called in a thread
+		"""
+		cPerson.cleanup()
+		if self.__db_cache.has_key('clinical record'):
+			self.__db_cache['clinical record'].cleanup()
+			del self.__db_cache['clinical record']
+		if self.__db_cache.has_key('document folder'):
+			self.__db_cache['document folder'].cleanup()
+			del self.__db_cache['document folder']
+	#----------------------------------------------------------
+	def get_emr(self):
+		try:
+			return self.__db_cache['clinical record']
+		except KeyError:
+			pass
+		try:
+			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._ID)
+		except StandardError:
+			_log.LogException('cannot instantiate clinical record for person [%s]' % self._ID, sys.exc_info())
+			return None
+		return self.__db_cache['clinical record']
+	#--------------------------------------------------------
+	def get_document_folder(self):
+		try:
+			return self.__db_cache['document folder']
+		except KeyError:
+			pass
+		try:
+			# FIXME: we need some way of setting the type of backend such that
+			# to instantiate the correct type of document folder class
+			self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self._ID)
+		except StandardError:
+			_log.LogException('cannot instantiate document folder for person [%s]' % self._ID, sys.exc_info())
+			return None
+		return self.__db_cache['document folder']
+	#--------------------------------------------------------
+	def _getMedDocsList(self):
+		"""Build a complete list of metadata for all documents of this person.
+		"""
+		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
+		tmp = gmPG.run_ro_query('blobs', cmd, None, self._ID)
+		_log.Log(gmLog.lData, "document IDs: %s" % tmp)
+		if tmp is None:
+			return []
+		docs = []
+		for doc_id in tmp:
+			if doc_id is not None:
+				docs.extend(doc_id)
+		if len(docs) == 0:
+			_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % self._ID)
+			return None
+		return docs
+#============================================================
 class gmCurrentPatient(gmBorg.cBorg):
 	"""Patient Borg to hold currently active patient.
 
 	There may be many instances of this but they all share state.
 	"""
-	def __init__(self, person=None, forced_reload=False):
+	def __init__(self, patient=None, forced_reload=False):
 		"""Change or get currently active patient.
 
-		person:
+		patient:
 		* None: get currently active patient
 		* -1: unset currently active patient
-		* cPerson instance: set active patient if possible
+		* cPatient instance: set active patient if possible
 		"""
 		gmBorg.cBorg.__init__(self)
 
-		# make sure we do have a person pointer
+		# make sure we do have a patient pointer
 		try:
-			tmp = self._person
+			tmp = self._patient
 		except AttributeError:
-			self._person = gmNull.cNull()
+			self._patient = gmNull.cNull()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
@@ -588,63 +599,64 @@ class gmCurrentPatient(gmBorg.cBorg):
 			self.unlock()
 
 		# user wants copy of current patient
-		if person is None:
+		if patient is None:
 			return None
 
 		# user wants to explicitely unset current patient
-		if person == -1:
+		if patient == -1:
 			_log.Log(gmLog.lData, 'explicitely unsetting current patient')
 			self.__send_pre_selection_notification()
-			self._person.cleanup()
-			self._person = gmNull.cNull()
+			self._patient.cleanup()
+			self._patient = gmNull.cNull()
 			self.__send_selection_notification()
 			return None
 
-		# must be cPerson instance, then
-		if not isinstance(person, cPerson):
-			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPerson instance' % str(person))
+		# must be cPatient instance, then
+		if not isinstance(patient, cPatient):
+			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
 
 		# same ID, no change needed
-		if (self._person['pk_identity'] == person['pk_identity']) and not forced_reload:
+		if (self._patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
 			return None
 
 		# user wants different patient
-		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._person['pk_identity'], person['pk_identity']))
+		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._patient['pk_identity'], patient['pk_identity']))
 
 		# but not if patient is locked
 		if self._locked:
-			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._person['pk_identity'], person['pk_identity']))
+			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._patient['pk_identity'], patient['pk_identity']))
 			# FIXME: exception ?
 			return None
 
 		# everything seems swell
 		self.__send_pre_selection_notification()
-		self._person.cleanup()
-		self._person = person
+		self._patient.cleanup()
+		self._patient = patient
 		self.__send_selection_notification()
 
 		return None
 	#--------------------------------------------------------
 	def cleanup(self):
-		self._person.cleanup()
+		self._patient.cleanup()
 	#--------------------------------------------------------
 	def get_emr(self):
-		return self._person.get_emr()
+		return self._patient.get_emr()
 	#--------------------------------------------------------
 	def get_clinical_record(self):
-		return self._person.get_emr()
+		print "get_clinical_record() deprecated"
+		return self._patient.get_emr()
 	#--------------------------------------------------------
 	def get_identity(self):
-		return self._person.get_identity()
+		return self._patient.get_identity()
 	#--------------------------------------------------------
 	def get_document_folder(self):
-		return self._person.get_document_folder()
+		return self._patient.get_document_folder()
 	#--------------------------------------------------------
 	def getID(self):
-		return self._person.getID()
+		return self._patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-		return self._person.export_data()
+		return self._patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -679,8 +691,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
 		kwargs = {
-			'pk_identity': self._person['pk_identity'],
-			'patient': self._person['pk_identity'],
+			'pk_identity': self._patient['pk_identity'],
+			'patient': self._patient['pk_identity'],
 			'signal': gmSignals.activating_patient(),
 			'sender': id(self.__class__)
 		}
@@ -689,8 +701,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
-			'pk_identity': self._person['pk_identity'],
-			'patient': self._person,
+			'pk_identity': self._patient['pk_identity'],
+			'patient': self._patient,
 			'signal': gmSignals.patient_selected(),
 			'sender': id(self.__class__)
 		}
@@ -698,7 +710,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
-		if isinstance(self._person, gmNull.cNull):
+		if isinstance(self._patient, gmNull.cNull):
 			return False
 		else:
 			return True
@@ -708,7 +720,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self._person[aVar]
+		return self._patient[aVar]
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -750,6 +762,13 @@ class cPatientSearcher_SQL:
 			return None
 		else:
 			return [cPerson(identity = ident) for ident in identities]
+	#--------------------------------------------------------
+	def get_patients(self, search_term = None, a_locale = None, search_dict = None):
+		identities = self.get_identities(search_term, a_locale, search_dict)
+		if identities is None:
+			return None
+		else:
+			return [cPatient(identity = ident) for ident in identities]
 	#--------------------------------------------------------
 	def get_identities(self, search_term = None, a_locale = None, search_dict = None):
 		"""Get patient identity objects for given parameters.
@@ -1338,25 +1357,21 @@ def create_dummy_identity():
 		return None
 	return gmDemographicRecord.cIdentity (aPK_obj = int(data[0][0]))
 #============================================================
-def set_active_patient(person = None, forced_reload=False):
+def set_active_patient(patient = None, forced_reload=False):
 	"""Set active patient.
 
-	If person is -1 the active patient will be unset.
+	If patient is -1 the active patient will be UNset.
 	"""
-	if person is None:
-		_log.Log(gmLog.lErr, 'programming error: anID is None, must be -1, cPerson instance or cIdentity instance')
-		return False
-	if isinstance(person, cIdentity):
-		person = cPerson(identity=person)
+	if patient is None:
+		raise ValueError, '<patient> is None, must be -1, cPatient or cIdentity instance'
+	if isinstance(patient, cIdentity):
+		patient = cPatient(identity=patient)
 	# attempt to switch
-	tstart = time.time()
 	try:
-		pat = gmCurrentPatient(person, forced_reload=forced_reload)
+		pat = gmCurrentPatient(patient=patient, forced_reload=forced_reload)
 	except:
-		_log.LogException('error changing active patient', sys.exc_info())
+		_log.LogException('error changing active patient to [%s]' % patient, sys.exc_info())
 		return False
-	duration = time.time() - tstart
-	_log.Log(gmLog.lData, "set_active_patient took %3.3f seconds" % duration)
 	return True
 #------------------------------------------------------------
 def prompted_input(prompt, default=None):
@@ -1378,26 +1393,17 @@ def ask_for_patient():
 	"""Text mode UI function to ask for patient."""
 	person_searcher = cPatientSearcher_SQL()
 	search_fragment = prompted_input("\nEnter person search term (eg. 'Kirk') or leave blank to exit")
-	if search_fragment in ['bye', None]:
+	if search_fragment in ['exit', 'quit', 'bye', None]:
 		print "user cancelled patient search"
 		return None
-	persons = person_searcher.get_persons(search_term = search_fragment)
-	if persons is None or len(persons) == 0:
+	pats = person_searcher.get_patients(search_term = search_fragment)
+	if pats is None or len(pats) == 0:
 		prompted_input("No patient matches the query term. Press any key to continue.")
 		return None
-	elif len(persons) > 1:
+	elif len(pats) > 1:
 		prompted_input("Several patients match the query term. Press any key to continue.")
 		return None
-	person = persons[0]
-	try:
-		patient = gmCurrentPatient(person)
-	except:
-		_log.LogException('Unable to set up patient [%s]' % str(person), sys.exc_info())
-		print "Cannot set up active patient."
-		print "Person:", person
-		prompted_input("Press any key to continue.")
-		return None
-	return patient
+	return pats[0]
 #============================================================
 def get_gender_list():
 	global __gender_idx
@@ -1490,16 +1496,38 @@ if __name__ == '__main__':
 		print "ID       ", myPatient['id']
 		identity = myPatient.get_identity()
 		print "identity  ", identity
-#		print "get_names() apparently missing ?"
-#		print "name     ", identity.get_names(1)
-		print "doc ids  ", myPatient['document id list']
-		emr = myPatient.get_clinical_record()
+		print "names     ", identity.get_all_names()
+		docs = myPatient.get_document_folder()
+		print "docs     ", docs
+		emr = myPatient.get_emr()
 		print "EMR      ", emr
 		print "--------------------------------------"
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.61  2006-01-11 13:14:20  ncq
+# Revision 1.62  2006-05-04 09:41:05  ncq
+# - cPerson
+#   - factor out stuff for cPatient
+#   - self.__ID -> self._ID for inheritance
+# - cPatient
+#   - inherit from cPerson
+#   - add patient specific methods
+#   - deprecate get_clinical_record() over get_emr()
+#   - cleanup doc folder instance on cleanup()
+# - gmCurrentPatient
+#   - keyword change person -> patient
+#   - accept cPatient instance
+#   - self._person -> self._patient
+# - cPatientSearcher_SQL
+#   - add get_patients()
+# - set_active_patient()
+#   - raise ValueError on such
+# - ask_for_patient()
+#   - improve breakout detection
+#   - remove side effect of activating patient
+# - make "unit tests" work again
+#
+# Revision 1.61  2006/01/11 13:14:20  ncq
 # - id -> pk
 #
 # Revision 1.60  2006/01/07 13:13:46  ncq
