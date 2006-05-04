@@ -1,7 +1,7 @@
 -- Project: GNUmed - vaccination related dynamic relations
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-Vaccination-dynamic.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert, Richard Terry
 
@@ -486,7 +486,7 @@ select
 	vvr4p.pk_patient as pk_patient,
 	vvr4p.indication as indication,
 	vvr4p.l10n_indication as l10n_indication,
---	vvr4p.course as course,
+--	vvr4p.course as course, -- no name, use name of actual regime if any
 	vvr4p.comment as course_comment,
 	vvd4r.is_booster,
 	vvd4r.vacc_seq_no,
@@ -726,11 +726,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.7 $');
+select log_script_insertion('$RCSfile: gmClin-Vaccination-dynamic.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
 -- $Log: gmClin-Vaccination-dynamic.sql,v $
--- Revision 1.7  2006-03-08 09:23:54  ncq
+-- Revision 1.8  2006-05-04 17:50:54  ncq
+-- - improved comment
+--
+-- Revision 1.7  2006/03/08 09:23:54  ncq
 -- - improve naming of some views so everyone can understand their meaning
 --   even if being to lazy to read the documentation
 --
