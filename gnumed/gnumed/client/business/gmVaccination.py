@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.28 2006-01-10 23:22:53 sjtan Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmVaccination.py,v 1.29 2006-05-04 17:55:08 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,7 +20,7 @@ class cVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination event.
 	"""
 	_cmd_fetch_payload = """
-		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from clin.v_pat_vacc4ind
+		select *, NULL as is_booster, -1 as seq_no, xmin_vaccination from clin.v_pat_vaccinations4indication
 		where pk_vaccination=%s
 		order by date desc"""
 	_cmds_lock_rows_for_update = [
@@ -35,7 +35,7 @@ class cVaccination(gmClinItem.cClinItem):
 				site=%(site)s,
 				batch_no=%(batch_no)s
 			where id=%(pk_vaccination)s""",
-		"""select xmin_vaccination from clin.v_pat_vacc4ind where pk_vaccination=%(pk_vaccination)s"""
+		"""select xmin_vaccination from clin.v_pat_vaccinations4indication where pk_vaccination=%(pk_vaccination)s"""
 		]
 	_updatable_fields = [
 		'date',
@@ -151,40 +151,40 @@ class cMissingBooster(gmClinItem.cClinItem):
 	_updatable_fields = []
 #============================================================
 class cScheduledVaccination(gmClinItem.cClinItem):
-	"""Represents one vaccination scheduled following a regime.
+	"""Represents one vaccination scheduled following a course.
 	"""
 	_cmd_fetch_payload = """select * from clin.v_vaccs_scheduled4pat where pk_vacc_def=%s"""
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
 #============================================================
-class cVaccinationRegime(gmClinItem.cClinItem):
-	"""Represents one vaccination regime.
+class cVaccinationCourse(gmClinItem.cClinItem):
+	"""Represents one vaccination course.
 	"""
 	_cmd_fetch_payload = """
-		select *, xmin_vacc_regime from clin.v_vacc_regimes
-		where pk_regime=%s"""
+		select *, xmin_vaccination_course from clin.v_vaccination_courses
+		where pk_course=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.vacc_regime where id=%(pk_regime)s and xmin=%(xmin_vacc_regime)s for update"""
+		"""select 1 from clin.vaccination_course where id=%(pk_course)s and xmin=%(xmin_vaccination_course)s for update"""
 	]
 	_cmds_store_payload = [
-		"""update clin.vacc_regime set
-				name=%(regime)s,
+		"""update clin.vaccination_course set
+				name=%(course)s,
 				fk_recommended_by=%(pk_recommended_by)s,
 				fk_indication=(select id from clin.vacc_indication where description=%(indication)s),
 				comment=%(comment)s
-			where id=%(pk_regime)s""",
-		"""select xmin_vacc_regime from clin.v_vacc_regimes where pk_regime=%(pk_regime)s"""
+			where id=%(pk_course)s""",
+		"""select xmin_vaccination_course from clin.v_vaccination_courses where pk_course=%(pk_course)s"""
 	]
 	_updatable_fields = [
-		'regime',
+		'course',
 		'pk_recommended_by',
 		'indication',
 		'comment'
 	]
 #============================================================
 class VaccByRecommender:
-	_recommended_regimes = None 
+	_recommended_courses = None 
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -231,9 +231,9 @@ where pk_encounter=%s"""
 
 	return (True, vacc)
 #--------------------------------------------------------
-def get_vacc_regimes():
-	# FIXME: use cVaccinationRegime
-	cmd = 'select name from clin.vacc_regime'
+def get_vacc_courses():
+	# FIXME: use cVaccinationCourse
+	cmd = 'select name from clin.vaccination_course'
 	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
 		return None
@@ -278,7 +278,7 @@ select
 	extract (epoch from d.min_interval ) /60/60/24, 
 	d.seq_no
 from 
-	clin.v_vacc_regimes r, clin.vacc_def d 
+	clin.v_vaccination_courses r, clin.vacc_def d 
 where 
 	d.fk_regime = r.pk_regime 
 order by 
@@ -365,47 +365,46 @@ def get_indications_from_vaccinations(vaccinations=None):
 				inds.append(['vacc -> ind error: %s' % str(vacc), _('vacc -> ind error: %s') % str(vacc)])
 	return (True, inds)
 #--------------------------------------------------------
-def put_patient_on_schedule(patient_id=None, regime=None):
+def put_patient_on_schedule(patient_id=None, course=None):
 	"""
-		Schedules a vaccination regime for a patient
+		Schedules a vaccination course for a patient
 
 		* patient_id = Patient's PK
-		* regime_id = regime object or Vaccination regime's PK
+		* course = course object or Vaccination course's PK
 	"""
-	# FIXME: add method schedule_vaccination_regime() to gmPerson.cPerson
-	if isinstance(regime, cVaccinationRegime):
-		reg_id = regime['pk_regime']
+	# FIXME: add method schedule_vaccination_course() to gmPerson.cPerson
+	if isinstance(course, cVaccinationCourse):
+		course_id = course['pk_course']
 	else:
-		reg_id = regime
+		course_id = course
 
-	# insert new patient - vaccination regime relation
+	# insert new patient - vaccination course relation
 	queries = []
-	cmd = """insert into clin.lnk_pat2vacc_reg (fk_patient, fk_regime)
+	cmd = """insert into clin.lnk_pat2vacc_reg (fk_patient, fk_course)
 			 values (%s, %s)"""
-	queries.append((cmd, [patient_id, reg_id]))
+	queries.append((cmd, [patient_id, course_id]))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
 		return (False, msg)
 	return (True, msg)
 #--------------------------------------------------------
-def remove_patient_from_schedule(patient_id=None, regime=None):
-	"""
-		unSchedules a vaccination regime for a patient
+def remove_patient_from_schedule(patient_id=None, course=None):
+	"""unSchedules a vaccination course for a patient
 
 		* patient_id = Patient's PK
-		* regime_id = regime object or Vaccination regime's PK
+		* course = course object or Vaccination course's PK
 	"""
-	# FIXME: add method schedule_vaccination_regime() to gmPerson.cPerson
-	if isinstance(regime, cVaccinationRegime):
-		reg_id = regime['pk_regime']
+	# FIXME: add method schedule_vaccination_course() to gmPerson.cPerson
+	if isinstance(course, cVaccinationCourse):
+		course_id = course['pk_course']
 	else:
-		reg_id = regime
+		course_id = course
 
-	# delete  patient - vaccination regime relation
+	# delete  patient - vaccination course relation
 	queries = []
-	cmd = """delete from clin.lnk_pat2vacc_reg where fk_patient = %s and fk_regime = %s"""
+	cmd = """delete from clin.lnk_pat2vacc_reg where fk_patient = %s and fk_course = %s"""
 			 
-	queries.append((cmd, [patient_id, reg_id]))
+	queries.append((cmd, [patient_id, course_id]))
 	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
 		return (False, msg)
@@ -524,22 +523,22 @@ if __name__ == '__main__':
 			print field, ':', scheduled_vacc[field]
 		print "updatable:", scheduled_vacc.get_updatable_fields()
 	#--------------------------------------------------------
-	def test_vaccination_regime():
-		vacc_regime = cVaccinationRegime(aPK_obj=7)
-		print "\nVaccination regime:"		
-		print vacc_regime
-		fields = vacc_regime.get_fields()
+	def test_vaccination_course():
+		vaccination_course = cVaccinationCourse(aPK_obj=7)
+		print "\nVaccination course:"		
+		print vaccination_course
+		fields = vaccination_course.get_fields()
 		for field in fields:
-			print field, ':', vacc_regime[field]
-		print "updatable:", vacc_regime.get_updatable_fields()
+			print field, ':', vaccination_course[field]
+		print "updatable:", vaccination_course.get_updatable_fields()
 	#--------------------------------------------------------
 	def test_put_patient_on_schedule():
-		result, msg = put_patient_on_schedule(patient_id=12, regime_id=1)
+		result, msg = put_patient_on_schedule(patient_id=12, course_id=1)
 		print '\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg)
 	#--------------------------------------------------------
 
 	gmPG.set_default_client_encoding('latin1')
-	test_vaccination_regime()
+	test_vaccination_course()
 	#test_put_patient_on_schedule()
 	test_scheduled_vacc()
 	test_vacc()
@@ -547,7 +546,12 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.28  2006-01-10 23:22:53  sjtan
+# Revision 1.29  2006-05-04 17:55:08  ncq
+# - lots of DDL naming adjustments
+#   - many things spelled out at Richard's request
+#   - regime -> course
+#
+# Revision 1.28  2006/01/10 23:22:53  sjtan
 #
 # id has become pk
 #
