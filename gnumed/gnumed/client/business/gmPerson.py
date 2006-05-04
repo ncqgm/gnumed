@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.62 2006-05-04 09:41:05 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPerson.py,v 1.63 2006-05-04 09:59:35 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -502,10 +502,31 @@ class cPerson:
 	_get_handler['id'] = getID
 	_get_handler['pk'] = getID
 	_get_handler['pk_identity'] = getID
+#============================================================
+class cStaffMember(cPerson):
+	"""Represents a staff member which is a person.
+
+	- a specializing subclass of cPerson turning it into a staff member
+	"""
+	def __init__(self, identity = None):
+		cPerson.__init__(self, identity=identity)
+		self.__db_cache = {}
+	#--------------------------------------------------------
+	def cleanup(self):
+		"""Do cleanups before dying.
+
+		- note that this may be called in a thread
+		"""
+		cPerson.cleanup()
+#		try:
+#			self.__db_cache[''].cleanup()	# if has cleanup()
+#			del self.__db_cache['']
+#		except KeyError: pass
+	#--------------------------------------------------------
 
 #============================================================
 class cPatient(cPerson):
-	"""Represents a Patient.
+	"""Represents a patient which is a person.
 
 	- a specializing subclass of cPerson turning it into a patient
 	"""
@@ -1505,7 +1526,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.62  2006-05-04 09:41:05  ncq
+# Revision 1.63  2006-05-04 09:59:35  ncq
+# - add cStaffMember(cPerson)
+#
+# Revision 1.62  2006/05/04 09:41:05  ncq
 # - cPerson
 #   - factor out stuff for cPatient
 #   - self.__ID -> self._ID for inheritance
