@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.14 2005-09-27 20:21:20 ncq Exp $
-$Revision: 1.14 $
+$Id: TODO,v 1.15 2006-05-04 09:32:24 ncq Exp $
+$Revision: 1.15 $
 ====================================================
 post-0.1
 
@@ -29,7 +29,6 @@ phrase wheel:
 
 - cfg.*
 ---------
-Mail to Medys
 
 - LNMP-Rechner
 --------
@@ -66,7 +65,7 @@ xdt2gnumed.py
 -------------------------
 encounter handling
 - connect type picker in main GUI
-- MRC/MCU-type based creation (per patient) in __init__()
+	- MRC/MCU-type based creation (per patient) in __init__()
 ------------------------
 vaccinations widget
 - delete entries
