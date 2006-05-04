@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.197 2006-04-23 16:49:03 ncq Exp $
-__version__ = "$Revision: 1.197 $"
+# $Id: gmClinicalRecord.py,v 1.198 2006-05-04 18:01:39 ncq Exp $
+__version__ = "$Revision: 1.198 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -51,6 +51,7 @@ class cClinicalRecord:
 
 	# handlers for __getitem__()
 	_get_handler = {}
+	_clin_root_item_children_union_query = None
 
 	def __init__(self, aPKey = None):
 		"""Fails if
@@ -58,6 +59,21 @@ class cClinicalRecord:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
+		# this is a hack to speed up get_encounters()
+		clin_root_item_children = gmPG.get_child_tables('clinical', 'clin', 'clin_root_item')
+		if cClinicalRecord._clin_root_item_children_union_query is None:
+			union_phrase = """
+select fk_encounter from
+	%s.%s cn
+		inner join
+	(select pk from clin.episode ep where ep.fk_health_issue in %%s) as epi
+		on (cn.fk_episode =  epi.pk)
+"""
+			cClinicalRecord._clin_root_item_children_union_query = 'union\n'.join (
+				[ union_phrase % (child[0], child[1]) for child in clin_root_item_children ]
+			)
+		# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 		self._conn_pool = gmPG.ConnectionPool()
 
 		self.pk_patient = aPKey			# == identity.pk == primary key
@@ -73,20 +89,14 @@ class cClinicalRecord:
 
 		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
-		t1 = time.time()
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
-		duration = time.time() - t1
-		_log.Log(gmLog.lData, '__initiate_active_encounter() took %s seconds' % duration)
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
 		#  failing this constructor for other reasons ...)
-		t1 = time.time()
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
-		duration = time.time() - t1
-		_log.Log(gmLog.lData, '_register_interests() took %s seconds' % duration)
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.pk_patient)
 	#--------------------------------------------------------
@@ -1023,17 +1033,18 @@ where
 			* indications - indications we want to retrieve vaccination
 				regimes for, must be primary language, not l10n_indication
 		"""
+		# FIXME: use course, not regime
 		try:
 			self.__db_cache['vaccinations']['scheduled regimes']
 		except KeyError:
 			# retrieve vaccination regimes definitions
 			self.__db_cache['vaccinations']['scheduled regimes'] = []
-			cmd = """select distinct on(pk_regime) pk_regime
+			cmd = """select distinct on(pk_course) pk_course
 					 from clin.v_vaccs_scheduled4pat
 					 where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination regimes')
+				_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination courses')
 				del self.__db_cache['vaccinations']['scheduled regimes']
 				return None
 			# Instantiate vaccination items and keep cache
@@ -1041,15 +1052,15 @@ where
 				try:
 					self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationRegime(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
-					_log.LogException('vaccination regime error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
+					_log.LogException('vaccination course error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
 
 		# ok, let's constrain our list
 		filtered_regimes = []
 		filtered_regimes.extend(self.__db_cache['vaccinations']['scheduled regimes'])
 		if ID is not None:
-			filtered_regimes = filter(lambda regime: regime['pk_regime'] == ID, filtered_regimes)
+			filtered_regimes = filter(lambda regime: regime['pk_course'] == ID, filtered_regimes)
 			if len(filtered_regimes) == 0:
-				_log.Log(gmLog.lErr, 'no vaccination regime [%s] found for patient [%s]' % (ID, self.pk_patient))
+				_log.Log(gmLog.lErr, 'no vaccination course [%s] found for patient [%s]' % (ID, self.pk_patient))
 				return []
 			else:
 				return filtered_regimes[0]
@@ -1102,7 +1113,7 @@ where
 		except KeyError:			
 			self.__db_cache['vaccinations']['vaccinated'] = []
 			# Important fetch ordering by indication, date to know if a vaccination is booster
-			cmd= """select * from clin.v_pat_vacc4ind
+			cmd= """select * from clin.v_pat_vaccinations4indication
 					where pk_patient=%s
  					order by indication, date"""
 			rows, idx  = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
@@ -1462,43 +1473,52 @@ where
 		if (issues is not None) and (issues != [None]) and (len(issues) > 0):
 			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
 				issues.append(issues[0])
-			cmd = """
-select distinct pk_encounter
-from clin.v_pat_items
-where pk_health_issue in %s and pk_patient = %s"""
-			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
-#			cmd_alt1 = """
-#select distinct fk_encounter
-#from clin.clin_root_item
-#where fk_episode in (
-#	select pk_episode from clin.v_pat_episodes where pk_patient=%s
-#);"""
-#			rows = gmPG.run_ro_query('historica', cmd_alt1, None, (tuple(issues), self.pk_patient))
+
+			# simply select on clin.v_pat_items - this seems the cleanest but
+			# Syan attests that an explicit union of child tables is way faster,
+			# there seem to be problems with parent table expansion and use
+			# of child table indexes
+#			cmd = """
+#select distinct pk_encounter
+#from clin.v_pat_items
+#where pk_health_issue in %s and pk_patient = %s"""
+			# so if get_encounter() runs very slow on your machine
+			# use the second line instead of the first one
+#			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
+##			rows = gmPG.run_ro_query('historica', cClinicalRecord._clin_root_item_children_union_query, None, (tuple(issues),))
+
+#			if rows is None:
+#				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
+#			else:
+#				enc_ids = map(lambda x:x[0], rows)
+#				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
+
+			# however, this seems like an even better approach:
+			# - find episodes corresponding to the health issues in question
+			cmd = "select distinct pk from clin.episode where fk_health_issue in %(issues)s"
+			rows = gmPG.run_ro_query('historica', cmd, None, {'issues': tuple(issues)})
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
+				_log.Log(gmLog.lErr, 'cannot load episodes for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
 			else:
-				enc_ids = map(lambda x:x[0], rows)
-				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
+				epi_ids = map(lambda x:x[0], rows)
+				if (episodes is None) or (episodes == [None]):
+					episodes = epi_ids
+				else:
+					episodes.extend(epi_ids)
 
 		if (episodes is not None) and (episodes != [None]) and (len(episodes) > 0):
 			if len(episodes) == 1:
 				episodes.append(episodes[0])
-#			cmd = """
-#select distinct pk_encounter
-#from clin.v_pat_items
-#where pk_episode in %s and pk_patient = %s"""
-#			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.pk_patient))
-			cmd_alt1 = """
-select distinct fk_encounter
-from clin.clin_root_item
-where fk_episode in %s
-;"""
-			rows = gmPG.run_ro_query('historica', cmd_alt1, None, (tuple(episodes)))
+			# if the episodes to filter by belong to the patient in question
+			# so will the encounters found with it - hence we need not WHERE
+			# on the patient ...
+			cmd = "select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
+			rows = gmPG.run_ro_query('historica', cmd, None, {'epis': tuple(episodes)})
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load encounters for episodes [%s] (patient [%s])' % (str(episodes), self.pk_patient))
 			else:
-				epi_ids = map(lambda x:x[0], rows)
-				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in epi_ids, filtered_encounters)
+				enc_ids = map(lambda x:x[0], rows)
+				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
 		return filtered_encounters
 	#--------------------------------------------------------		
@@ -1772,7 +1792,16 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.197  2006-04-23 16:49:03  ncq
+# Revision 1.198  2006-05-04 18:01:39  ncq
+# - "properly" include Syan's hack to speed up get_encounters()
+#   - not active but has comment on how and when to activate it
+#   - programmatically finds clin_root_item child tables :-)
+# - vaccination regime -> course adjustments
+# - try yet another approach in get_encounters() which really
+#   should speed things up, too, without resorting to brute-force
+#   child table resolution just yet
+#
+# Revision 1.197  2006/04/23 16:49:03  ncq
 # - properly access encounters by health issue
 #
 # Revision 1.196  2006/04/23 16:46:28  ncq
