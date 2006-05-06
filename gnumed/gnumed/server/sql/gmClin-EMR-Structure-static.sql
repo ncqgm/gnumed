@@ -4,7 +4,7 @@
 --		- episodes
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-static.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -53,8 +53,6 @@ create table clin.health_issue (
 		default false,
 	unique (id_patient, description)
 ) inherits (audit.audit_fields);
-
--- FIXME: Richard also has is_operation, laterality
 
 -- ===================================================================
 -- episode related tables
@@ -118,11 +116,15 @@ create table clin.encounter (
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-static.sql,v $', '$Revision: 1.3 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-static.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-static.sql,v $
--- Revision 1.3  2006-02-27 22:39:32  ncq
+-- Revision 1.4  2006-05-06 18:48:52  ncq
+-- - remove obsolete comment
+-- - improve consistency checking when inserting/updating episodes
+--
+-- Revision 1.3  2006/02/27 22:39:32  ncq
 -- - spell out rfe/aoe
 --
 -- Revision 1.2  2006/02/27 11:21:31  ncq

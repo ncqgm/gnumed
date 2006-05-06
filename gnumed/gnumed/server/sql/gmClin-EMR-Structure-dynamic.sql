@@ -1,7 +1,7 @@
 -- Project: GNUmed - EMR structure related dynamic relations:
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClin-EMR-Structure-dynamic.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Ian Haywood, Karsten Hilbert
 
@@ -89,6 +89,49 @@ alter table clin.episode add constraint only_standalone_epi_has_patient
 		((fk_health_issue is not null) and (fk_patient is null))
 	);
 
+\unset ON_ERROR_STOP
+drop function clin.trf_ensure_episode_issue_patient_consistency() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_ensure_episode_issue_patient_consistency()
+	returns trigger
+	language 'plpgsql'
+	as '
+declare
+	issue_patient integer;
+	msg text;
+begin
+	if NEW.fk_health_issue is not NULL then
+		if NEW.fk_patient is not NULL then
+			select into issue_patient id_patient from clin.health_issue where pk = NEW.fk_health_issue;
+			if issue_patient = NEW.fk_patient then
+				NEW.fk_patient := NULL;
+			end if;
+		end if;
+	end if;
+	-- if unlinking from health issue: carry over patient
+	if TG_OP = ''UPDATE'' then
+		if (NEW.fk_health_issue is NULL) and (OLD.fk_health_issue is not NULL) then
+			select into issue_patient id_patient from clin.health_issue where pk = OLD.fk_health_issue;
+			if NEW.fk_patient is NULL then
+				NEW.fk_patient := issue_patient;
+			else
+				-- do not change patient and unlink from issue at the same time ...
+				if NEW.fk_patient != issue_patient then
+					msg := ''trf_ensure_episode_issue_patient_consistency(): unlinking from health issue and changing patient at the same time is not allowed'';
+					raise exception ''%'', msg;
+				end if;
+			end if;
+		end if;
+	end if;
+	return NEW;
+end;';
+
+create trigger tr_ensure_episode_issue_patient_consistency
+	before insert or update on clin.episode
+	for each row execute procedure clin.trf_ensure_episode_issue_patient_consistency()
+;
+
 -- -- clin.encounter_type --
 comment on TABLE clin.encounter_type is
 	'these are the types of encounter';
@@ -133,7 +176,6 @@ begin
 	else
 		patient_id := NEW.id_patient;
 	end if;
-	-- now, execute() the NOTIFY
 	execute ''notify "health_issue_change_db:'' || patient_id || ''"'';
 	return NULL;
 end;
@@ -376,11 +418,15 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.6 $');
+select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.6  2006-05-03 21:29:21  ncq
+-- Revision 1.7  2006-05-06 18:48:52  ncq
+-- - remove obsolete comment
+-- - improve consistency checking when inserting/updating episodes
+--
+-- Revision 1.6  2006/05/03 21:29:21  ncq
 -- - updated commit message
 --
 -- Revision 1.5  2006/05/03 21:28:49  ncq
