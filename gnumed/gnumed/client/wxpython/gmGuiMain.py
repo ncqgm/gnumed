@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.238 2006-05-04 17:52:04 ncq Exp $
-__version__ = "$Revision: 1.238 $"
+# $Id: gmGuiMain.py,v 1.239 2006-05-06 18:50:43 ncq Exp $
+__version__ = "$Revision: 1.239 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -497,7 +497,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmGuiHelpers.gm_beep_statustext(_('Cannot show EMR summary. No active patient.'))
 			return False
 		emr = pat.get_emr()
-		msg = _("""Active problems: %(problems)s
+		msg = _("""Medical problems: %(problems)s
 Total visits: %(visits)s
 Total EMR entries: %(items)s
 Stored documents: %(documents)s
@@ -1079,7 +1079,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.238  2006-05-04 17:52:04  ncq
+# Revision 1.239  2006-05-06 18:50:43  ncq
+# - improve summary display after user complaint
+#
+# Revision 1.238  2006/05/04 17:52:04  ncq
 # - mark EMR summary for translation
 #
 # Revision 1.237  2006/05/04 09:49:20  ncq
