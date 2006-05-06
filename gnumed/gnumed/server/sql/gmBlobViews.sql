@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.25 $ $Date: 2006-05-01 18:51:07 $ $Author: ncq $
+-- $Revision: 1.26 $ $Date: 2006-05-06 20:47:45 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -220,14 +220,20 @@ select
 	vdt.type as type,
 	vdt.l10n_type as l10n_type,
 	dm.ext_ref as ext_ref,
+	cle.description as episode,
 	dm.comment as comment,
+	cle.is_open as episode_open,
 	dm.type as pk_type,
+	dm.fk_encounter as pk_encounter,
+	dm.fk_episode as pk_episode,
 	dm.xmin as xmin_doc_med
 from
 	blobs.doc_med dm,
-	blobs.v_doc_type vdt
+	blobs.v_doc_type vdt,
+	clin.episode cle
 where
-	vdt.pk_doc_type = dm.type
+	vdt.pk_doc_type = dm.type and
+	cle.pk = dm.fk_episode
 ;
 
 -- =============================================
@@ -412,11 +418,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.25 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.25  2006-05-01 18:51:07  ncq
+-- Revision 1.26  2006-05-06 20:47:45  ncq
+-- - include some episode data in blobs.v_doc_med
+--
+-- Revision 1.25  2006/05/01 18:51:07  ncq
 -- - add v_obj4doc_no_data for denormalized access to object metadata without
 --   incurring overhead for BLOB data per object
 -- - grants added
