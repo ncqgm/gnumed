@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -77,7 +77,6 @@ class cNarrative(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """
 		select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"""
-#		select * , coalesce( (select lastnames ||', '|| firstnames from clin.clin.v_staff where clin.clin.v_staff.pk_staff = clin.v_pat_narrative.pk_provider), 'Anon') as provider,  xmin_clin_narrative from v_pat_narrative where pk_narrative=%s
 	_cmds_lock_rows_for_update = [
 		"""select 1 from clin.clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
 	]
@@ -220,7 +219,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.20  2005-11-27 12:44:57  ncq
+# Revision 1.21  2006-05-06 18:51:55  ncq
+# - remove comment
+#
+# Revision 1.20  2005/11/27 12:44:57  ncq
 # - clinical tables are in schema "clin" now
 #
 # Revision 1.19  2005/10/10 18:27:34  ncq
