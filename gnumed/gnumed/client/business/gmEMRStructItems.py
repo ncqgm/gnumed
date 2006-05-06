@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -80,14 +80,15 @@ class cHealthIssue(gmClinItem.cClinItem):
 		"""ttl in days"""
 		cmd = """
 update clin.episode set is_open = false where pk in (
-	select pk_episode from clin.v_pat_items where
+	-- FIXME: this logic seems wrong
+	select distinct pk_episode from clin.v_pat_items where
 			pk_health_issue = %(issue)s and
-			age > (%(ttl)s || ' days')::interval
+			modified_when < (now() - (%(ttl)s || ' days')::interval)
 	except
 		select pk from clin.episode where
 			is_open and
 			fk_health_issue = %(issue)s and
-			age(modified_when) < (%(ttl)s || ' days')::interval
+			modified_when > (now() - (%(ttl)s || ' days')::interval)
 )"""
 		args = {'issue': self.pk_obj, 'ttl': ttl}
 		success, msg = gmPG.run_commit2 ('historica', [(cmd, [args])])
@@ -511,7 +512,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.77  2006-03-09 21:11:49  ncq
+# Revision 1.78  2006-05-06 18:53:56  ncq
+# - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
+#
+# Revision 1.77  2006/03/09 21:11:49  ncq
 # - spell out rfe/aoe
 #
 # Revision 1.76  2006/02/27 22:38:36  ncq

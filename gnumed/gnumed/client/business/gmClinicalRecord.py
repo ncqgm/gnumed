@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.198 2006-05-04 18:01:39 ncq Exp $
-__version__ = "$Revision: 1.198 $"
+# $Id: gmClinicalRecord.py,v 1.199 2006-05-06 18:53:56 ncq Exp $
+__version__ = "$Revision: 1.199 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1317,8 +1317,7 @@ where
 			where
 				pk_patient=%s
 					and
-				age(last_affirmed) < %s::interval
-			"""
+				last_affirmed > (now() - %s::interval)"""
 		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, sttl)
 		# error
 		if enc_rows is None:
@@ -1352,13 +1351,12 @@ where
 		days, seconds = _encounter_hard_ttl.absvalues()
 		httl = '%s days %s seconds' % (days, seconds)
 		cmd = """
-			select	pk_encounter
+			select pk_encounter
 			from clin.v_most_recent_encounters
 			where
 				pk_patient=%s
 					and
-				age(last_affirmed) between %s::interval and %s::interval
-			"""
+				last_affirmed between (now() - %s::interval) and (now() - %s::interval)"""
 		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, sttl, httl)
 		# error
 		if enc_rows is None:
@@ -1792,7 +1790,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.198  2006-05-04 18:01:39  ncq
+# Revision 1.199  2006-05-06 18:53:56  ncq
+# - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
+#
+# Revision 1.198  2006/05/04 18:01:39  ncq
 # - "properly" include Syan's hack to speed up get_encounters()
 #   - not active but has comment on how and when to activate it
 #   - programmatically finds clin_root_item child tables :-)

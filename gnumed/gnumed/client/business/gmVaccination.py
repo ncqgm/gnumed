@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.29 2006-05-04 17:55:08 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmVaccination.py,v 1.30 2006-05-06 18:53:56 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -101,7 +101,7 @@ class cMissingVaccination(gmClinItem.cClinItem):
 			where
 				pk_patient=%(pat_id)s
 					and
-				age((select dob from dem.identity where pk=%(pat_id)s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
+				(select dob from dem.identity where pk=%(pat_id)s) between (now() - age_due_min) and (now() - coalesce(age_due_max, '115 years'::interval))
 					and
 				indication=%(indication)s
 					and
@@ -546,7 +546,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.29  2006-05-04 17:55:08  ncq
+# Revision 1.30  2006-05-06 18:53:56  ncq
+# - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
+#
+# Revision 1.29  2006/05/04 17:55:08  ncq
 # - lots of DDL naming adjustments
 #   - many things spelled out at Richard's request
 #   - regime -> course

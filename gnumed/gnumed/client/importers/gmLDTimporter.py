@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.24 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmLDTimporter.py,v 1.25 2006-05-06 18:53:56 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -358,7 +358,7 @@ class cLDTImporter:
 		cmd = """
 				select
 					i.gender,
-					case when age(i.dob) > '12 years'::interval
+					case when i.dob < (now() - '12 years'::interval)
 						then false
 						else true
 					end as is_child
@@ -776,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.24 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.25 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -931,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.24 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.25 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -965,7 +965,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.24  2006-05-04 09:49:20  ncq
+# Revision 1.25  2006-05-06 18:53:56  ncq
+# - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
+#
+# Revision 1.24  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
