@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -12,10 +12,10 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals
 from Gnumed.business import gmPerson, gmMedDoc
-from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
 
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
@@ -430,6 +430,25 @@ off this message in the GNUmed configuration.""") % ref
 		pat = gmPerson.gmCurrentPatient()
 		self._PhWheel_episode.set_context('pat', pat.getID())
 		return True
+
+#============================================================
+class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl, gmRegetMixin.cRegetOnPaintMixin):
+
+	def __init__(self, *args, **kwds):
+		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
+		self._doc_tree.Layout()
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__register_interests()
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
+	#-------------------------------------------------------
+	def _populate_with_data(self):
+		if not self._doc_tree.refresh():
+			_log.Log(gmLog.lErr, "cannot update document tree")
+			return False
+		self._doc_tree.SelectItem(self._doc_tree.root)
+		return True
 #============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
@@ -438,7 +457,8 @@ off this message in the GNUmed configuration.""") % ref
 class cDocTree(wx.TreeCtrl):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 	"""
-	def __init__(self, parent, id):
+	def __init__(self, parent, id, *args, **kwds):
+#	def __init__(self, parent, id):
 		"""Set up our specialised tree.
 		"""
 		wx.TreeCtrl.__init__(self, parent, id, style=wx.TR_NO_BUTTONS)
@@ -772,7 +792,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.59  2006-05-01 18:49:30  ncq
+# Revision 1.60  2006-05-07 15:34:01  ncq
+# - add cSelectablySortedDocTreePnl
+#
+# Revision 1.59  2006/05/01 18:49:30  ncq
 # - better named variables
 # - match provider in ScanIdxPnl
 # - episode handling on save
