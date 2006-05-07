@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -23,22 +23,17 @@ except ImportError:
 	from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business import gmPerson, gmMedDoc
-from Gnumed.wxpython import gmGuiHelpers, gmMedDocWidgets
+from Gnumed.wxpython import gmMedDocWidgets
 
 _log = gmLog.gmDefLog
-
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-else:
-	from Gnumed.pycommon import gmGuiBroker
-
 _log.Log(gmLog.lInfo, __version__)
 #== classes for standalone use ==================================
 if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
 
-	from Gnumed.pycommon import gmLoginInfo, gmPG, gmExceptions, gmCfg
-	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
+	from Gnumed.pycommon import gmLoginInfo, gmPG, gmExceptions, gmCfg, gmGuiBroker
+	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord, gmPerson
+	from Gnumed.wxpython import gmGuiHelpers
 
 	wxID_btn_quit = wx.NewId()
 	_cfg = gmCfg.gmDefCfgFile
@@ -167,44 +162,10 @@ if __name__ == '__main__':
 			app.ExitMainLoop()
 #== classes for plugin use ======================================
 else:
-	from Gnumed.wxpython import gmPlugin, gmRegetMixin, images_Archive_plugin, images_Archive_plugin1
-	from Gnumed.pycommon import gmDispatcher, gmSignals
-	from Gnumed.business import gmPerson
+	from Gnumed.wxpython import gmPlugin, images_Archive_plugin, images_Archive_plugin1
 
 	wxID_TB_BTN_show_page = wx.NewId()
 
-	class cPluginTreePanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
-		def __init__(self, parent, id):
-			# set up widgets
-			wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize)
-			gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-			self.__do_layout()
-			self.Layout()
-			self.__register_interests()
-		#--------------------------------------------------------
-		def __do_layout(self):
-			# make document tree
-			self.__doc_tree = gmMedDocWidgets.cDocTree(self, -1)
-
-			# just one vertical sizer
-			sizer = wx.BoxSizer(wx.VERTICAL)
-			sizer.Add(self.__doc_tree, 1, wx.EXPAND, 0)
-
-			self.SetAutoLayout(1)
-			self.SetSizer(sizer)
-			sizer.Fit(self)
-		#--------------------------------------------------------
-		def __register_interests(self):
-			gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
-			#gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
-		#-------------------------------------------------------
-		def _populate_with_data(self):
-			if not self.__doc_tree.refresh():
-				_log.Log(gmLog.lErr, "cannot update document tree")
-				return False
-			self.__doc_tree.SelectItem(self.__doc_tree.root)
-			return True
-	#============================================================
 	class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 		tab_name = _("Documents")
 
@@ -212,7 +173,8 @@ else:
 			return gmShowMedDocs.tab_name
 		#--------------------------------------------------------
 		def GetWidget (self, parent):
-			self._widget = cPluginTreePanel(parent, -1)
+			#self._widget = cPluginTreePanel(parent, -1)
+			self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
 			return self._widget
 		#--------------------------------------------------------
 		def MenuInfo (self):
@@ -263,7 +225,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.63  2005-10-30 22:09:03  shilbert
+# Revision 1.64  2006-05-07 15:39:18  ncq
+# - move plugin tree panel to wxpython/gmMedDocWidgets.py where it belongs
+#
+# Revision 1.63  2005/10/30 22:09:03  shilbert
 # - more wx2.6-ification
 #
 # Revision 1.62  2005/09/28 21:27:30  ncq
