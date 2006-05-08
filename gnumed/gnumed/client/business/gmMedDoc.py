@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.56 2006-05-01 18:43:50 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmMedDoc.py,v 1.57 2006-05-08 16:33:02 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -122,23 +122,21 @@ class cDocumentFolder:
 		}
 		# FIXME: might have to order by on modified_when, date is a string
 		if doc_type is None:
-			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s order by date desc"""
+			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s"""
 		elif type(doc_type) == types.StringType:
 			cmd = """
 select dm.pk
 from blobs.doc_med dm
 where
 	dm.patient_id = %(ID)s and
-	dm.type = (select pk from blobs.doc_type where name=%(TYP)s)
-order by dm.date desc"""
+	dm.type = (select pk from blobs.doc_type where name=%(TYP)s)"""
 		else:
 			cmd = """
 select dm.pk
 from blobs.doc_med dm
 where
 	dm.patient_id = %(ID)s and
-	dm.type = %(TYP)s
-order by dm.date desc"""
+	dm.type = %(TYP)s"""
 		rows = gmPG.run_ro_query('blobs', cmd, None, args)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load document list for patient [%s]' % self.id_patient)
@@ -536,7 +534,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		cmd = "select pk_obj from blobs.v_obj4doc where pk_doc=%s"
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
 		if rows is None:
-			_log.LogException('cannot get parts belonging to document [%s]' % self.pk_obj, sys.exc_info())
+			_log.Log(gmLog.lErr, 'cannot get parts belonging to document [%s]' % self.pk_obj)
 			return None
 		parts = []
 		for row in rows:
@@ -587,6 +585,15 @@ VALUES (
 				_log.Log(gmLog.lErr, msg)
 				return (False, msg, filename)
 		return (True, '', '')
+	#--------------------------------------------------------
+	def has_unreviewed_parts(self):
+		cmd = "select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
+		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot check document [%s] for unreviewed parts' % self.pk_obj)
+			return None
+		# FIXME: this does not detect the document having disappeared which would also return False
+		return rows[0][0]
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# FIXME: this is probably inefficient
@@ -684,7 +691,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.56  2006-05-01 18:43:50  ncq
+# Revision 1.57  2006-05-08 16:33:02  ncq
+# - remove useless order by's
+# - add cMedDoc.has_unreviewed_parts()
+#
+# Revision 1.56  2006/05/01 18:43:50  ncq
 # - handle encounter/episode in create_document()
 #
 # Revision 1.55  2006/02/13 08:11:28  ncq
