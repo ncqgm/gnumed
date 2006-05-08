@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -590,10 +590,10 @@ class cDocTree(wx.TreeCtrl):
 			else:
 				review = ''
 
-			label = _('%s%10s %s: %s (%s page(s), %s)') % (
+			label = _('%s%7s %s: %s (%s page(s), %s)') % (
 				review,
-#				doc['date'].Format('%Y/%m/%d'),
-				doc['date'][:11],
+				doc['date'].Format('%m/%Y'),
+#				doc['date'][:11],
 				doc['l10n_type'][:26],
 				cmt,
 				page_num,
@@ -901,7 +901,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.62  2006-05-08 18:21:29  ncq
+# Revision 1.63  2006-05-08 22:04:23  ncq
+# - sigh, doc_med content date must be timestamp after all so use proper formatting
+#
+# Revision 1.62  2006/05/08 18:21:29  ncq
 # - vastly improved document tree when sorting by episode
 #
 # Revision 1.61  2006/05/08 16:35:32  ncq
