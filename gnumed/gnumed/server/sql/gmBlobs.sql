@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.63 $ $Date: 2006-04-29 18:19:38 $ $Author: ncq $
+-- $Revision: 1.64 $ $Date: 2006-05-08 22:05:28 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -56,9 +56,9 @@ CREATE TABLE blobs.doc_med (
 		on update cascade
 		on delete restrict,
 	comment text,
-	"date" text
+	"date" timestamp with time zone
 		not null
-		default CURRENT_TIMESTAMP::text,
+		default CURRENT_TIMESTAMP,
 	ext_ref text
 ) inherits (audit.audit_fields);
 
@@ -121,7 +121,7 @@ create table blobs.reviewed_doc_objs (
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.63 $');
+select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.64 $');
 
 -- =============================================
 -- questions:
@@ -140,7 +140,11 @@ select public.log_script_insertion('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.63
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.63  2006-04-29 18:19:38  ncq
+-- Revision 1.64  2006-05-08 22:05:28  ncq
+-- - doc_med.date should eventually, really, truly be timestamp with time zone
+--   after discussion on various lists
+--
+-- Revision 1.63  2006/04/29 18:19:38  ncq
 -- - comment more columns
 -- - add fk_encounter/fk_episode to doc_med
 -- - trigger to make sure episode is linked to doc in doc_med OR lnk_doc_med2episode only
