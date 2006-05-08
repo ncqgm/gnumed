@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.60 $
+# $Revision: 1.61 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2006-05-01 20:13+CEST\n"
-"PO-Revision-Date: 2006-05-01 20:24+0100\n"
+"POT-Creation-Date: 2006-05-08 17:55+CEST\n"
+"PO-Revision-Date: 2006-05-08 18:10+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -20,60 +20,60 @@ msgstr ""
 
 #: ../business/gmAllergy.py:77
 #: ../business/gmAllergy.py:109
-#: ../business/gmClinNarrative.py:149
-#: ../business/gmClinNarrative.py:170
-#: ../business/gmEMRStructItems.py:334
-#: ../business/gmEMRStructItems.py:377
-#: ../business/gmEMRStructItems.py:420
+#: ../business/gmClinNarrative.py:148
+#: ../business/gmClinNarrative.py:169
+#: ../business/gmEMRStructItems.py:335
+#: ../business/gmEMRStructItems.py:378
+#: ../business/gmEMRStructItems.py:421
 #: ../business/gmVaccination.py:206
 #: ../business/gmVaccination.py:230
 msgid "internal error, check log"
 msgstr "interner Fehler, Log kontrollieren"
 
 #: ../business/gmAllergy.py:80
-#: ../business/gmClinNarrative.py:152
+#: ../business/gmClinNarrative.py:151
 #: ../business/gmVaccination.py:209
 msgid "consistency error, check log"
 msgstr "Konsistenzfehler, siehe Log"
 
-#: ../business/gmClinicalRecord.py:357
-#: ../business/gmClinicalRecord.py:487
+#: ../business/gmClinicalRecord.py:367
+#: ../business/gmClinicalRecord.py:497
 msgid "modified entry"
 msgstr "revidierter Eintrag"
 
-#: ../business/gmClinicalRecord.py:357
-#: ../business/gmClinicalRecord.py:487
+#: ../business/gmClinicalRecord.py:367
+#: ../business/gmClinicalRecord.py:497
 msgid "original entry"
 msgstr "Originaleintrag"
 
-#: ../business/gmClinicalRecord.py:435
-#: ../business/gmClinicalRecord.py:604
+#: ../business/gmClinicalRecord.py:445
+#: ../business/gmClinicalRecord.py:614
 msgid "%s: encounter (%s)"
 msgstr "%s: Arztkontakt (%s)"
 
-#: ../business/gmClinicalRecord.py:440
-#: ../business/gmClinicalRecord.py:609
+#: ../business/gmClinicalRecord.py:450
+#: ../business/gmClinicalRecord.py:619
 msgid "health issue: %s"
 msgstr "Gesundheitsproblem: %s"
 
-#: ../business/gmClinicalRecord.py:441
-#: ../business/gmClinicalRecord.py:610
+#: ../business/gmClinicalRecord.py:451
+#: ../business/gmClinicalRecord.py:620
 msgid "episode     : %s"
 msgstr "Episode    : %s"
 
-#: ../business/gmClinicalRecord.py:657
+#: ../business/gmClinicalRecord.py:667
 msgid "unable to retrieve [%s]"
 msgstr "kann [%s] nicht laden"
 
-#: ../business/gmClinicalRecord.py:1075
+#: ../business/gmClinicalRecord.py:1086
 msgid "ERROR: cannot retrieve vaccinated indications"
 msgstr "ERROR: kann beimpfte Indikationen nicht laden"
 
-#: ../business/gmClinicalRecord.py:1077
+#: ../business/gmClinicalRecord.py:1088
 msgid "no vaccinations recorded"
 msgstr "keine Impfungen vermerkt"
 
-#: ../business/gmClinicalRecord.py:1379
+#: ../business/gmClinicalRecord.py:1388
 msgid ""
 "A fairly recent encounter exists for patient:\n"
 " %s\n"
@@ -97,15 +97,15 @@ msgstr ""
 "Soll dieser Arzt-Patienten-Kontakt fortgesetzt werden ?\n"
 "Mit \"Nein\" beginnen Sie einen neuen Kontakt."
 
-#: ../business/gmClinicalRecord.py:1397
+#: ../business/gmClinicalRecord.py:1406
 msgid "recording patient encounter"
 msgstr "vermerke Arzt-Patienten-Kontakt"
 
-#: ../business/gmEMRStructItems.py:428
+#: ../business/gmEMRStructItems.py:429
 msgid "chart review"
 msgstr "Akteneinsicht"
 
-#: ../business/gmEMRStructItems.py:428
+#: ../business/gmEMRStructItems.py:429
 msgid "in surgery"
 msgstr "Sprechstunde"
 
@@ -137,11 +137,11 @@ msgstr "Krankenkasse"
 msgid "valid until"
 msgstr "gültig bis"
 
-#: ../business/gmMedDoc.py:520
+#: ../business/gmMedDoc.py:518
 msgid "cannot load descriptions"
 msgstr "kann Beschreibungen nicht laden"
 
-#: ../business/gmMedDoc.py:522
+#: ../business/gmMedDoc.py:520
 msgid "no descriptions available"
 msgstr "keine Beschreibungen verfügbar"
 
@@ -482,7 +482,7 @@ msgid "P"
 msgstr "T"
 
 #: ../exporters/gmPatientExporter.py:979
-#: ../wxpython/gmGuiMain.py:568
+#: ../wxpython/gmGuiMain.py:566
 msgid "emr-journal"
 msgstr "Kartei-Journal"
 
@@ -564,7 +564,7 @@ msgstr ""
 msgid "Unable to start viewer on file [%s]."
 msgstr "Kann Anzeiger für Datei [%s] nicht starten."
 
-#: ../pycommon/gmPG.py:418
+#: ../pycommon/gmPG.py:436
 msgid ""
 "Cannot connect to configuration database with:\n"
 "\n"
@@ -573,7 +573,7 @@ msgstr ""
 "Kann keine Verbindung zur Konfigurationsdatenbank herstellen:\n"
 "[%s]"
 
-#: ../pycommon/gmPG.py:458
+#: ../pycommon/gmPG.py:476
 msgid ""
 "Cannot connect to database with:\n"
 "\n"
@@ -582,22 +582,22 @@ msgstr ""
 "Kann keine Verbindung zur Datenbank herstellen:\n"
 "[%s]"
 
-#: ../pycommon/gmPG.py:780
-#: ../pycommon/gmPG.py:854
-#: ../pycommon/gmPG.py:915
+#: ../pycommon/gmPG.py:798
+#: ../pycommon/gmPG.py:872
+#: ../pycommon/gmPG.py:933
 msgid "SQL: %s"
 msgstr "SQL: %s"
 
-#: ../pycommon/gmPG.py:999
+#: ../pycommon/gmPG.py:1017
 msgid "cannot connect to service [%s]"
 msgstr "kann keine Verbindung zum Dienst [%s] herstellen"
 
-#: ../pycommon/gmPG.py:1334
-#: ../pycommon/gmPG.py:1363
+#: ../pycommon/gmPG.py:1361
+#: ../pycommon/gmPG.py:1390
 msgid "Can't connect to database without login information!"
 msgstr "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut werden!"
 
-#: ../pycommon/gmPG.py:1350
+#: ../pycommon/gmPG.py:1377
 msgid "The wx GUI framework hasn't been initialized yet!"
 msgstr "Die wx-GUI ist noch nicht initialisiert."
 
@@ -851,10 +851,16 @@ msgid ""
 "\n"
 " You can edit your review below."
 msgstr ""
+"Zeigt vorhandene Bewertungen für diesen Teil des Dokuments.\n"
+"\n"
+"Die erste Zeile (mit Bildchen) zeigt Ihre eigene Bewertung, falls eine existiert.\n"
+"Die zweite Zeile (mit blauem Balken) zeigt die Bewertung des verantwortlichen Arztes, falls eine solche existiert.\n"
+"\n"
+"Sie können Ihre Bewertung im unteren Bereich verändern."
 
 #: ../wxGladeWidgets/wxgReviewDocPartDlg.py:39
 msgid "Pick the episode which this document belongs to."
-msgstr ""
+msgstr "Wählen Sie die Episode, zu der das Dokument gehört."
 
 #: ../wxGladeWidgets/wxgReviewDocPartDlg.py:42
 msgid "Check this if you intend to take over responsibility for this document and not just review it."
@@ -919,68 +925,108 @@ msgid "Discard"
 msgstr "Verwerfen"
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:48
-msgid "Acquire a page from an image source. This may bring up an intermediate dialog."
-msgstr "Hole eine Seite aus einer Bildquelle. Ein weiterer Benutzerdialog kann zwischengeschaltet sein."
+msgid "Acquire a page from an image source (scanner, camera). This may bring up an intermediate dialog. It uses Sane (Linux) or TWAIN (Windows)."
+msgstr "Hole eine Seite aus einer Bildquelle (Scanner, Kamera). Ein weiterer Benutzerdialog kann zwischengeschaltet sein. Genutzt werden Sane (Linux) und TWAIN (Windows)."
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:51
-msgid "Acquire a page from the filesystem."
-msgstr "Dateien als Seiten auswählen."
+msgid "Add a file from the filesystem as a new page. Shows a file selector dialog."
+msgstr "Datei von der Festplatte als neue Seite einfügen. Zeigt einen Dialog zur Dateiwahl."
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:52
-msgid "The primary episode this document is to be listed under."
-msgstr ""
+msgid "Required: The primary episode this document is to be listed under."
+msgstr "Pflichfeld: Die Hauptepisode zu der dieses Dokument gehört."
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:53
-msgid "Required: "
-msgstr "Pflichtfeld:"
+msgid "Required: The type of this document."
+msgstr "Pflichtfeld: Typ dieses Dokuments"
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:55
-msgid "Check this to mark the document as reviewed upon import. The default can be set by an option."
-msgstr "Hier ankreuzen, um das Dokument als \"gesehen\" abzuzeichnen. Die Voreinstellung kann über eine Option festgelegt werden."
+msgid "Optional: A short comment identifying the document. Good comments give an idea of the content and source of the document."
+msgstr "Optional: Ein kurzer Kommentar zur Identifikation des Dokuments. Gute Kommentare vermitteln eine Vorstellung von Inhalt und Quelle."
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:56
+msgid "Required: The date when the medical information described in the document was produced. This is free text so you can add approximate dates, too, such as 3/2004 where appropriate."
+msgstr "Pflichtfeld: Das Datum der Erstellung der medizinischen Informationen im Dokument. Dies ist ein Freifeld, sodaß ungenaue Angaben wie 3/2004 gemacht werden können."
+
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:57
+msgid "Check this to mark the document as reviewed upon import. If checked you can (and must) decide on \"technically abnormal\" and \"clinically relevant\", too. The default can be set by an option."
+msgstr "Hier ankreuzen, um das Dokument als \"gesehen\" abzuzeichnen. Falls angekreuzt wird, kann und muß auch über \"außerhalb des Normbereichs\" und \"klinisch signifikant\" entschieden werden. Die Voreinstellung kann über eine Option festgelegt werden."
+
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:58
 msgid "Whether this document report technically abormal results."
 msgstr "Enthält dieses Dokument Werte außerhalb des Normbereichs ?"
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:58
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:60
 msgid "Whether this document reports clinically relevant results. Note that both normal and abnormal resuslts can be relevant."
 msgstr "Enthält dieses Dokument medizinisch bedeutsame Ergebnisse ?  Auch Normalbefunde können medizinisch bedeutsam sein !"
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:60
-msgid "select a page to view from above list"
-msgstr "die anzuzeigende Seite aus der Liste oben wählen"
-
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:61
-msgid "select a page to remove from above list"
-msgstr "die zu löschende Seite aus der Liste oben wählen"
-
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:62
-msgid "A free-text document description."
-msgstr "Eine Beschreibung des Dokuments in freiem Text."
+msgid "This field lists the pages belonging to the current document."
+msgstr "Diese Liste zeigt die Seiten des aktuellen Dokuments."
 
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:63
+msgid "View the page selected in the above list."
+msgstr "Die oben in der Liste markierte Seite anzeigen."
+
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:64
+msgid "Remove the page selected in the above list. Will ask before physical deletion from disk."
+msgstr "Entfernen der oben in der Liste markierten Seite. Löschen von der Festplatte muß extra bestätigt werden."
+
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:65
+msgid "Optional: A free-text document description."
+msgstr "Optional: Eine Beschreibung des Dokuments in freiem Text."
+
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:66
 msgid "Save finished document."
 msgstr "Komplettes Dokument speichern."
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:64
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:67
 msgid "Start over (discards current data)."
 msgstr "Neu beginnen (verwirft die aktuellen Daten)."
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:77
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:80
 msgid "or"
 msgstr "oder"
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:81
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:84
 msgid "associated episode:"
 msgstr "zugehörige Episode"
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:84
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:87
 msgid "document type:"
 msgstr "Dokumententyp:"
 
-#: ../wxGladeWidgets/wxgScanIdxPnl.py:87
+#: ../wxGladeWidgets/wxgScanIdxPnl.py:90
 msgid "document comment"
 msgstr "Kommentar zum Dokument"
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:15
+msgid "age"
+msgstr "Alter"
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:16
+msgid "review status"
+msgstr "gesehen/ungesehen"
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:17
+msgid "episode"
+msgstr "Episode"
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:31
+msgid "Sort newest documents to top of tree."
+msgstr "Sortiere jüngste Dokumente nach oben."
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:33
+msgid "Sort unreviewed documents to top of tree."
+msgstr "Sortiere ungesehene Dokumente nach oben."
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:34
+msgid "Sort documents by the episode they belong to."
+msgstr "Sortiere Dokumente nach der Episode, zu der sie gehören."
+
+#: ../wxGladeWidgets/wxgSelectablySortedDocTreePnl.py:41
+msgid "Sort documents by"
+msgstr "Sortiere Dokumente nach"
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:13
 msgid "Edit staff details"
@@ -1508,7 +1554,7 @@ msgid "[No address recorded]"
 msgstr "[Keine Adresse bekannt]"
 
 #: ../wxpython/gmDemographicsWidgets.py:635
-#: ../wxpython/gmGuiMain.py:758
+#: ../wxpython/gmGuiMain.py:756
 msgid "%d/%m/%y"
 msgstr ""
 
@@ -2024,14 +2070,14 @@ msgid "Cannot export EMR. No active patient."
 msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
 
 #: ../wxpython/gmEMRBrowser.py:51
-#: ../wxpython/gmGuiMain.py:563
-#: ../wxpython/gmGuiMain.py:611
+#: ../wxpython/gmGuiMain.py:561
+#: ../wxpython/gmGuiMain.py:609
 msgid "text files"
 msgstr "Textdateien"
 
 #: ../wxpython/gmEMRBrowser.py:51
-#: ../wxpython/gmGuiMain.py:563
-#: ../wxpython/gmGuiMain.py:611
+#: ../wxpython/gmGuiMain.py:561
+#: ../wxpython/gmGuiMain.py:609
 #: ../wxpython/gui/gmXdtViewer.py:315
 msgid "all files"
 msgstr "alle Dateien"
@@ -2952,23 +2998,37 @@ msgstr "Kann APK-Zusammenfassung nicht speichern."
 msgid "Cannot show EMR summary. No active patient."
 msgstr "Kann Karteizusammenfassung nicht zeigen. Kein Patient aktiv."
 
-#: ../wxpython/gmGuiMain.py:511
+#: ../wxpython/gmGuiMain.py:500
+msgid ""
+"Medical problems: %(problems)s\n"
+"Total visits: %(visits)s\n"
+"Total EMR entries: %(items)s\n"
+"Stored documents: %(documents)s\n"
+"\n"
+msgstr ""
+"Medizinische Probleme: %(problems)s\n"
+"Kontakte: %(visits)s\n"
+"Karteieinträge: %(items)s\n"
+"Dokumente: %(documents)s\n"
+"\n"
+
+#: ../wxpython/gmGuiMain.py:509
 msgid "EMR Summary"
 msgstr "Zusammenfassung der Kartei"
 
-#: ../wxpython/gmGuiMain.py:521
+#: ../wxpython/gmGuiMain.py:519
 msgid "Cannot search EMR. No active patient."
 msgstr "Kann Kartei nicht durchsuchen. Kein Patient aktiv."
 
-#: ../wxpython/gmGuiMain.py:525
+#: ../wxpython/gmGuiMain.py:523
 msgid "Enter search term:"
 msgstr "Suchbegriff:"
 
-#: ../wxpython/gmGuiMain.py:526
+#: ../wxpython/gmGuiMain.py:524
 msgid "Text search of entire EMR"
 msgstr "Textsuche in der Karteikarte"
 
-#: ../wxpython/gmGuiMain.py:540
+#: ../wxpython/gmGuiMain.py:538
 msgid ""
 "Search term was: \"%s\"\n"
 "\n"
@@ -2980,51 +3040,51 @@ msgstr ""
 "Suchergebnisse:\n"
 "%s\n"
 
-#: ../wxpython/gmGuiMain.py:549
+#: ../wxpython/gmGuiMain.py:547
 msgid "search results"
 msgstr "Suchergebnisse"
 
-#: ../wxpython/gmGuiMain.py:560
+#: ../wxpython/gmGuiMain.py:558
 msgid "Cannot export EMR journal. No active patient."
 msgstr "Kann Karteijournal nicht exportieren. Kein Patient aktiv."
 
-#: ../wxpython/gmGuiMain.py:571
+#: ../wxpython/gmGuiMain.py:569
 msgid "Save patient's EMR journal as..."
 msgstr "Speichere Karteikarten des Patienten als Journal in ..."
 
-#: ../wxpython/gmGuiMain.py:591
+#: ../wxpython/gmGuiMain.py:589
 msgid "Error exporting patient EMR as chronological journal."
 msgstr "Fehler beim Exportieren der Karteikarte des Patienten als Journal."
 
-#: ../wxpython/gmGuiMain.py:592
+#: ../wxpython/gmGuiMain.py:590
 msgid "EMR journal export"
 msgstr "Journalexport der Karteikarte"
 
-#: ../wxpython/gmGuiMain.py:608
+#: ../wxpython/gmGuiMain.py:606
 msgid "Cannot export EMR for Medistar. No active patient."
 msgstr "Kann Kartei nicht für MEDISTAR exportieren. Kein Patient aktiv."
 
-#: ../wxpython/gmGuiMain.py:625
+#: ../wxpython/gmGuiMain.py:623
 msgid "Save patient's EMR for MEDISTAR as..."
 msgstr "Speichere Karteikarte des Patienten für MEDISTAR in ..."
 
-#: ../wxpython/gmGuiMain.py:645
+#: ../wxpython/gmGuiMain.py:643
 msgid "Error exporting progress notes of current encounter for MEDISTAR import."
 msgstr "Fehler beim Export der MD-Daten des aktuellen APK für den MEDISTAR-Import."
 
-#: ../wxpython/gmGuiMain.py:646
+#: ../wxpython/gmGuiMain.py:644
 msgid "MEDISTAR progress notes export"
 msgstr "Export Verlaufsnotizen an MEDISTAR"
 
-#: ../wxpython/gmGuiMain.py:661
+#: ../wxpython/gmGuiMain.py:659
 msgid "Cannot add staff member. No active patient."
 msgstr "Kann Mitarbeiter nicht anlegen. Kein Patient aktiv."
 
-#: ../wxpython/gmGuiMain.py:760
+#: ../wxpython/gmGuiMain.py:758
 msgid "no patient"
 msgstr "kein Patient"
 
-#: ../wxpython/gmGuiMain.py:837
+#: ../wxpython/gmGuiMain.py:835
 msgid ""
 "Slave mode requested but personality not set.\n"
 "\n"
@@ -3040,11 +3100,11 @@ msgstr ""
 "\n"
 "Instanztyp in Konfigurationsdatei setzen !"
 
-#: ../wxpython/gmGuiMain.py:843
+#: ../wxpython/gmGuiMain.py:841
 msgid "Starting slave mode"
 msgstr "Starte ferngesteuerte Betriebsart"
 
-#: ../wxpython/gmGuiMain.py:856
+#: ../wxpython/gmGuiMain.py:854
 msgid ""
 "You cannot use this database with a GNUmed client of version 0.2 (\"Librarian\" release) because the table structure is incompatible.\n"
 "\n"
@@ -3054,7 +3114,7 @@ msgstr ""
 "\n"
 "Wählen Sie ein anderes Serverprofil oder fragen Sie den Administrator um Rat."
 
-#: ../wxpython/gmGuiMain.py:861
+#: ../wxpython/gmGuiMain.py:859
 msgid ""
 "\n"
 "\n"
@@ -3072,13 +3132,13 @@ msgstr ""
 "\n"
 "Verlassen Sie sich nicht auf das vollständig fehlerfreie Funktionieren dieser Datenbank !"
 
+#: ../wxpython/gmGuiMain.py:866
 #: ../wxpython/gmGuiMain.py:868
-#: ../wxpython/gmGuiMain.py:870
-#: ../wxpython/gmGuiMain.py:896
+#: ../wxpython/gmGuiMain.py:894
 msgid "Verifying database"
 msgstr "Verifiziere Datenbank"
 
-#: ../wxpython/gmGuiMain.py:878
+#: ../wxpython/gmGuiMain.py:876
 msgid ""
 "The database account [%s] is not associated with\n"
 "any staff member known to GNUmed. You therefor\n"
@@ -3093,15 +3153,15 @@ msgstr ""
 "\n"
 "Bitte wenden Sie sich an den Systembetreuer.\n"
 
-#: ../wxpython/gmGuiMain.py:884
+#: ../wxpython/gmGuiMain.py:882
 msgid "Checking access permissions"
 msgstr "Prüfe Zugangsberechtigung"
 
-#: ../wxpython/gmGuiMain.py:900
+#: ../wxpython/gmGuiMain.py:898
 msgid "GNUmed client"
 msgstr "GNUmed: Hauptprogramm"
 
-#: ../wxpython/gmGuiMain.py:988
+#: ../wxpython/gmGuiMain.py:986
 msgid ""
 "There is no language selected in the database for user [%s].\n"
 "Your system language is currently set to [%s].\n"
@@ -3123,7 +3183,7 @@ msgstr ""
 "diese Abfrage auch durch Löschen der entsprechenden Option in\n"
 "der Konfigurationsdatei reaktivieren."
 
-#: ../wxpython/gmGuiMain.py:1000
+#: ../wxpython/gmGuiMain.py:998
 msgid ""
 "The currently selected database language ('%s') does\n"
 "not match the current system language ('%s').\n"
@@ -3145,7 +3205,7 @@ msgstr ""
 "diese Abfrage auch durch Löschen der entsprechenden Option in\n"
 "der Konfigurationsdatei reaktivieren."
 
-#: ../wxpython/gmGuiMain.py:1033
+#: ../wxpython/gmGuiMain.py:1031
 msgid "checking database language settings"
 msgstr "einstellen der Datenbanksprache"
 
@@ -3604,7 +3664,7 @@ msgstr "Kommentar"
 #: ../wxpython/gmMedDocWidgets.py:70
 #: ../wxpython/gmMedDocWidgets.py:71
 msgid "%s (you)"
-msgstr ""
+msgstr "%s (Sie)"
 
 #: ../wxpython/gmMedDocWidgets.py:164
 #: ../wxpython/gmMedDocWidgets.py:334
@@ -3658,12 +3718,12 @@ msgstr "Zum Anzeigen muß eine Seite markiert sein."
 
 #: ../wxpython/gmMedDocWidgets.py:253
 #: ../wxpython/gmMedDocWidgets.py:262
-#: ../wxpython/gmMedDocWidgets.py:731
+#: ../wxpython/gmMedDocWidgets.py:836
 msgid "displaying page"
 msgstr "zeige Seite"
 
 #: ../wxpython/gmMedDocWidgets.py:261
-#: ../wxpython/gmMedDocWidgets.py:730
+#: ../wxpython/gmMedDocWidgets.py:835
 msgid ""
 "Cannot display document part:\n"
 "%s"
@@ -3761,15 +3821,27 @@ msgstr ""
 "Falls Sie ohne Referenznummern arbeiten, können Sie\n"
 "diesen Hinweis in der Konfiguration von GNUmed abschalten."
 
-#: ../wxpython/gmMedDocWidgets.py:471
+#: ../wxpython/gmMedDocWidgets.py:484
+msgid "available documents (%s)"
+msgstr "archivierte Dokumente (%s)"
+
+#: ../wxpython/gmMedDocWidgets.py:486
+msgid "most recent on top"
+msgstr "neueste zuoberst"
+
+#: ../wxpython/gmMedDocWidgets.py:487
+msgid "unreviewed on top"
+msgstr "unbewertete zuoberst"
+
+#: ../wxpython/gmMedDocWidgets.py:488
+msgid "sorted by episode"
+msgstr "sortiert nach Episode"
+
+#: ../wxpython/gmMedDocWidgets.py:508
 msgid "Cannot load documents. No active patient."
 msgstr "Kann Dokumente nicht laden. Kein Patient aktiv."
 
-#: ../wxpython/gmMedDocWidgets.py:489
-msgid "available documents (most recent on top)"
-msgstr "archivierte Dokumente (neueste zuoberst)"
-
-#: ../wxpython/gmMedDocWidgets.py:499
+#: ../wxpython/gmMedDocWidgets.py:558
 msgid ""
 "Error searching documents for patient\n"
 "[%s %s]."
@@ -3777,61 +3849,61 @@ msgstr ""
 "Fehler beim Suchen nach Dokumenten für:\n"
 "[%s %s]."
 
-#: ../wxpython/gmMedDocWidgets.py:500
+#: ../wxpython/gmMedDocWidgets.py:559
 msgid "loading document list"
 msgstr "Dokumentenliste laden"
 
-#: ../wxpython/gmMedDocWidgets.py:516
-#: ../wxpython/gmMedDocWidgets.py:546
+#: ../wxpython/gmMedDocWidgets.py:577
+#: ../wxpython/gmMedDocWidgets.py:607
 msgid "no comment available"
 msgstr "kein Kommentar verfügbar"
 
-#: ../wxpython/gmMedDocWidgets.py:524
+#: ../wxpython/gmMedDocWidgets.py:585
 msgid "no reference ID found"
 msgstr "keine Referenznummer gefunden"
 
-#: ../wxpython/gmMedDocWidgets.py:526
+#: ../wxpython/gmMedDocWidgets.py:587
 msgid "%10s %25s: %s (%s page(s), %s)"
 msgstr "%10s %25s: %s (%s Seite(n), %s)"
 
-#: ../wxpython/gmMedDocWidgets.py:543
+#: ../wxpython/gmMedDocWidgets.py:604
 msgid "page %2s"
 msgstr "Seite %2s"
 
-#: ../wxpython/gmMedDocWidgets.py:551
+#: ../wxpython/gmMedDocWidgets.py:612
 msgid "0 bytes - data missing ?"
 msgstr "0 Byte - fehlen die Daten ?"
 
-#: ../wxpython/gmMedDocWidgets.py:553
+#: ../wxpython/gmMedDocWidgets.py:614
 msgid "%s bytes"
 msgstr "%s Byte"
 
-#: ../wxpython/gmMedDocWidgets.py:558
+#: ../wxpython/gmMedDocWidgets.py:619
 msgid "unreviewed"
 msgstr "nicht abgezeichnet"
 
-#: ../wxpython/gmMedDocWidgets.py:657
+#: ../wxpython/gmMedDocWidgets.py:762
 msgid "document menu"
 msgstr "Dokumentenmenü"
 
-#: ../wxpython/gmMedDocWidgets.py:658
+#: ../wxpython/gmMedDocWidgets.py:763
 msgid "descriptions ..."
 msgstr "Beschreibungen ..."
 
-#: ../wxpython/gmMedDocWidgets.py:664
+#: ../wxpython/gmMedDocWidgets.py:769
 msgid "page menu"
 msgstr "Seitenmenü"
 
-#: ../wxpython/gmMedDocWidgets.py:687
+#: ../wxpython/gmMedDocWidgets.py:792
 msgid "Document part does not seem to exist in database !"
 msgstr "Dieser Teil des Dokuments scheint in der Datenbank zu fehlen !"
 
-#: ../wxpython/gmMedDocWidgets.py:688
-#: ../wxpython/gmMedDocWidgets.py:722
+#: ../wxpython/gmMedDocWidgets.py:793
+#: ../wxpython/gmMedDocWidgets.py:827
 msgid "showing document"
 msgstr "Dokument zeigen"
 
-#: ../wxpython/gmMedDocWidgets.py:721
+#: ../wxpython/gmMedDocWidgets.py:826
 msgid "Cannot export document part from database to file."
 msgstr "Kann diesen Dokumententeil nicht in eine Datei exportieren."
 
@@ -4258,7 +4330,7 @@ msgstr ""
 
 #: ../wxpython/gmStaffWidgets.py:58
 msgid "Password entries do not match. Please type in the passwords again to rule out typos."
-msgstr ""
+msgstr "Die Passworte stimmen nicht überein. Geben Sie die Passworte neu ein, um Tippfehler auszuschließen."
 
 #: ../wxpython/gmStaffWidgets.py:59
 #: ../wxpython/gmStaffWidgets.py:72
@@ -4275,6 +4347,11 @@ msgid ""
 "\n"
 "Please enter the password for <gm-dbo>:"
 msgstr ""
+"\n"
+"Um der GNUmed-Datenbank einen neuen Mitarbeiter hinzufügen\n"
+"zu können, benötigen wir das Passwort des Datenbank-Besitzers.\n"
+"\n"
+"Bitte geben Sie das Passwort für <gm-dbo> ein:"
 
 #: ../wxpython/gmStaffWidgets.py:79
 msgid ""
@@ -4282,6 +4359,9 @@ msgid ""
 "\n"
 "Therefore cannot add new staff member."
 msgstr ""
+"Verbindung als Besitzer <gm-dbo> der GNUmed-Datenbank fehlgeschlagen.\n"
+"\n"
+"Der neue Mitarbeiter kann daher nicht angelegt werden."
 
 #: ../wxpython/gmStaffWidgets.py:99
 msgid ""
@@ -4289,6 +4369,9 @@ msgid ""
 "\n"
 "Therefore cannot add new staff member."
 msgstr ""
+"Anlegen des neuen Benutzerkontos für die GNUmed-Datenbank schlug fehl.\n"
+"\n"
+"Der neue Mitarbeiter kann daher nicht angelegt werden."
 
 #: ../wxpython/gmTalkback.py:35
 msgid "Don't send"
@@ -5017,7 +5100,7 @@ msgid "import documents"
 msgstr "Dokumente importieren"
 
 #: ../wxpython/gui/gmShowLab.py:64
-#: ../wxpython/gui/gmShowMedDocs.py:76
+#: ../wxpython/gui/gmShowMedDocs.py:71
 msgid ""
 "This patient does not exist in the document database.\n"
 "\"%s %s\""
@@ -5028,19 +5111,19 @@ msgstr ""
 #: ../wxpython/gui/gmShowLab.py:65
 #: ../wxpython/gui/gmShowLab.py:74
 #: ../wxpython/gui/gmShowLab.py:85
-#: ../wxpython/gui/gmShowMedDocs.py:77
-#: ../wxpython/gui/gmShowMedDocs.py:86
-#: ../wxpython/gui/gmShowMedDocs.py:97
+#: ../wxpython/gui/gmShowMedDocs.py:72
+#: ../wxpython/gui/gmShowMedDocs.py:81
+#: ../wxpython/gui/gmShowMedDocs.py:92
 msgid "searching patient"
 msgstr "suche Patient"
 
 #: ../wxpython/gui/gmShowLab.py:73
-#: ../wxpython/gui/gmShowMedDocs.py:85
+#: ../wxpython/gui/gmShowMedDocs.py:80
 msgid "Data in xDT file matches more than one patient in database !"
 msgstr "Die Daten in der xDT-Datei passen auf mehrere Patienten in der Datenbank !"
 
 #: ../wxpython/gui/gmShowLab.py:84
-#: ../wxpython/gui/gmShowMedDocs.py:96
+#: ../wxpython/gui/gmShowMedDocs.py:91
 msgid ""
 "Cannot load patient from database !\n"
 "Aborting."
@@ -5053,12 +5136,12 @@ msgid "Stored lab data"
 msgstr "Gespeicherte Labordaten"
 
 #: ../wxpython/gui/gmShowLab.py:113
-#: ../wxpython/gui/gmShowMedDocs.py:128
+#: ../wxpython/gui/gmShowMedDocs.py:123
 msgid "Quit"
 msgstr "Beenden"
 
 #: ../wxpython/gui/gmShowLab.py:148
-#: ../wxpython/gui/gmShowMedDocs.py:158
+#: ../wxpython/gui/gmShowMedDocs.py:153
 msgid ""
 "Cannot load patient from xDT file\n"
 "[%s]."
@@ -5067,7 +5150,7 @@ msgstr ""
 "[%s]"
 
 #: ../wxpython/gui/gmShowLab.py:149
-#: ../wxpython/gui/gmShowMedDocs.py:159
+#: ../wxpython/gui/gmShowMedDocs.py:154
 msgid "loading patient from xDT file"
 msgstr "Patienten aus xDT-Datei laden"
 
@@ -5079,19 +5162,19 @@ msgstr "Laborwerte"
 msgid "Show &archived lab data"
 msgstr "archivierte Labordaten zeigen"
 
-#: ../wxpython/gui/gmShowMedDocs.py:104
+#: ../wxpython/gui/gmShowMedDocs.py:99
 msgid "stored medical documents"
 msgstr "vorhandene medizinische Dokumente"
 
-#: ../wxpython/gui/gmShowMedDocs.py:209
+#: ../wxpython/gui/gmShowMedDocs.py:170
 msgid "Documents"
 msgstr "Dokumente"
 
-#: ../wxpython/gui/gmShowMedDocs.py:219
+#: ../wxpython/gui/gmShowMedDocs.py:181
 msgid "Show &archived documents"
 msgstr "archivierte &Dokumente zeigen"
 
-#: ../wxpython/gui/gmShowMedDocs.py:231
+#: ../wxpython/gui/gmShowMedDocs.py:193
 msgid "show document"
 msgstr "Dokument zeigen"
 
@@ -5508,6 +5591,14 @@ msgstr "&Verschrieben fuer"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Acquire a page from the filesystem."
+#~ msgstr "Dateien als Seiten auswählen."
+#~ msgid "Required: "
+#~ msgstr "Pflichtfeld:"
+#~ msgid "select a page to view from above list"
+#~ msgstr "die anzuzeigende Seite aus der Liste oben wählen"
+#~ msgid "select a page to remove from above list"
+#~ msgstr "die zu löschende Seite aus der Liste oben wählen"
 #~ msgid "programmer forgot to specify question"
 #~ msgstr "Programmierer hat vergessen, Frage anzugeben."
 #~ msgid "generic user question dialog"
