@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.26 $
+version = $Revision: 1.27 $
 
 #----------------------------------
 [installation]
@@ -221,13 +221,15 @@ $language library dirs$
 [user GnuMed owner]
 name = gm-dbo
 
-# - if this option is commented out and interactive is
-#   "yes" the user will be asked for the password, if we
-#   are non-interactive we fail
-# - if it is not commented out but set to be empty it
-#   is assumed that no password is needed because IDENT
+# - if this option is commented out or missing it is
+#   assumed that no password is needed because IDENT
 #   or TRUST connects are attempted
-#password = 
+#
+# - if it is not commented out but set to be empty and
+#   interactive is "yes" the user will be asked for the
+#   password, if we are non-interactive we leave it empty
+#
+password = 
 
 # - this user will hardly ever need to be changed
 # - this group provides the details for the PostgreSQL
@@ -238,7 +240,6 @@ name = gm-dbo
 # - don't change unless you know what you are doing
 [user postgres]
 name = postgres
-#password =
 
 #----------------------------------
 # don't ask, this is deep magic ;-)
@@ -278,7 +279,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.26  2005-11-18 15:56:55  ncq
+# Revision 1.27  2006-05-08 16:36:29  ncq
+# - better comments
+#
+# Revision 1.26  2005/11/18 15:56:55  ncq
 # - gmconfiguration.sql -> gmConfig-static.sql
 #
 # Revision 1.25  2005/11/09 10:42:47  ncq
