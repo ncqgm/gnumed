@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -263,19 +263,19 @@ class user:
 		if self.password is None:
 			# look into config file
 			self.password = self.cfg.get(self.group, "password")
-			# not defined there
+			# undefined or commented out:
+			# this means the user does not need a password
+			# but connects via IDENT or TRUST
 			if self.password is None:
-				# but we can ask the user
+				_log.Log(gmLog.lInfo, 'password not defined, assuming connect via IDENT/TRUST')
+			# defined but empty:
+			# this means to ask the user if interactive
+			elif self.password == '':
 				if _interactive:
 					self.password = getpass.getpass("I need the password for the GNUmed database user [%s].\nPlease type password: " % self.name)
-				# or we cannot, fail
 				else:
-					raise ConstructorError, "cannot load database user password from config file"
-			# defined but empty: this means the user does not need
-			# a password but connects via IDENT or TRUST
-			elif self.password == '':
-				_log.Log(gmLog.lInfo, 'password explicitely set to be empty, assuming connect via IDENT/TRUST')
-				self.password = None
+					_log.Log(gmLog.lWarn, 'password for database user [%s] set to empty string' % self.name)
+
 		return None
 #==================================================================
 class db_server:
@@ -1457,7 +1457,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.27  2006-04-23 15:12:17  ncq
+# Revision 1.28  2006-05-08 12:39:30  ncq
+# - documented, sane handling of password option in config file
+#
+# Revision 1.27  2006/04/23 15:12:17  ncq
 # - cleanup
 # - use os.path.join() to properly join paths on different OSs
 #
