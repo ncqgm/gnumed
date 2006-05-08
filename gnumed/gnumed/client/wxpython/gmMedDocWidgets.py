@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -433,12 +433,14 @@ off this message in the GNUmed configuration.""") % ref
 
 #============================================================
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl, gmRegetMixin.cRegetOnPaintMixin):
-
+	"""A document tree that can be sorted."""
 	def __init__(self, *args, **kwds):
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
 		self._doc_tree.Layout()
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__register_interests()
+	#-------------------------------------------------------
+	# reget mixin API
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
@@ -449,6 +451,20 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 			return False
 		self._doc_tree.SelectItem(self._doc_tree.root)
 		return True
+	#--------------------------------------------------------
+	# inherited event handlers
+	#--------------------------------------------------------
+	def _on_sort_by_age_selected(self, evt):
+		self._doc_tree.set_sort_mode(mode = 'age')
+		self._doc_tree.refresh()
+	#--------------------------------------------------------
+	def _on_sort_by_review_selected(self, evt):
+		self._doc_tree.set_sort_mode(mode = 'review')
+		self._doc_tree.refresh()
+	#--------------------------------------------------------
+	def _on_sort_by_episode_selected(self, evt):
+		self._doc_tree.set_sort_mode(mode = 'episode')
+		self._doc_tree.refresh()
 #============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
@@ -457,12 +473,24 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 class cDocTree(wx.TreeCtrl):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 	"""
+	_sort_modes = ['age', 'review', 'episode']
+	_root_node_labels = None
+	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
-#	def __init__(self, parent, id):
 		"""Set up our specialised tree.
 		"""
 		wx.TreeCtrl.__init__(self, parent, id, style=wx.TR_NO_BUTTONS)
+
+		tmp = _('available documents (%s)')
+		cDocTree._root_node_labels = {
+			'age': tmp % _('most recent on top'),
+			'review': tmp % _('unreviewed on top'),
+			'episode': tmp % _('sorted by episode')
+		}
+
 		self.root = None
+		self.__sort_mode = None
+		self.set_sort_mode()
 		self.__pat = gmPerson.gmCurrentPatient()
 
 		self.__register_events()
@@ -471,6 +499,30 @@ class cDocTree(wx.TreeCtrl):
 #								wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
 #								, self.log)
 
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self):
+		if not self.__pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext (
+				_('Cannot load documents. No active patient.'),
+				gmLog.lErr
+			)
+			return False
+
+		if not self.__populate_tree():
+			return False
+
+		return True
+	#--------------------------------------------------------
+	def set_sort_mode(self, mode='age'):
+		if mode not in cDocTree._sort_modes:
+			_log.Log(gmLog.Err, 'invalid document tree sort mode [%s], valid modes: %s' % (mode, cDocTree._sort_modes))
+		if self.__sort_mode == mode:
+			return True
+		self.__sort_mode = mode
+	#--------------------------------------------------------
+	# internal API
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect handlers
@@ -485,28 +537,15 @@ class cDocTree(wx.TreeCtrl):
 
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 	#--------------------------------------------------------
-	def refresh(self):
-		if not self.__pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(
-				_('Cannot load documents. No active patient.'),
-				gmLog.lErr
-			)
-			return False
-
-		if not self.__populate_tree():
-			return False
-
-		return True
-	#--------------------------------------------------------
 	def __populate_tree(self):
-		# FIXME: check if patient changed at all
 
+		wx.BeginBusyCursor()
 		# clean old tree
-		if not self.root is None:
+		if self.root is not None:
 			self.DeleteAllItems()
 
 		# init new tree
-		self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
+		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
 		self.SetPyData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
 
@@ -515,14 +554,16 @@ class cDocTree(wx.TreeCtrl):
 		docs = docs_folder.get_documents()
 		if docs is None:
 			name = self.__pat.get_identity().get_names()
-			gmGuiHelpers.gm_show_error(
+			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
 			)
 			# avoid recursion of GUI updating
+			wx.EndBusyCursor()
 			return True
 
 		if len(docs) == 0:
+			wx.EndBusyCursor()
 			return True
 
 		# fill new tree from document list
@@ -551,7 +592,7 @@ class cDocTree(wx.TreeCtrl):
 				ref
 			)
 
-			doc_node = self.AppendItem(self.root, label)
+			doc_node = self.AppendItem(parent = self.root, text = label)
 			self.SetItemBold(doc_node, bold=True)
 			self.SetPyData(doc_node, doc)
 			if len(parts) > 0:
@@ -584,12 +625,15 @@ class cDocTree(wx.TreeCtrl):
 
 				label = '%s%s: "%s" (%s)' % (pg, rev, cmt, sz)
 
-				part_node = self.AppendItem(doc_node, label)
+				part_node = self.AppendItem(parent = doc_node, text = label)
 				self.SetPyData(part_node, part)
+
+		wx.TreeCtrl.SortChildren(self, self.root)
 
 		# and uncollapse
 		self.Expand(self.root)
 
+		wx.EndBusyCursor()
 		return True
 	#------------------------------------------------------------------------
 	def OnCompareItems (self, node1=None, node2=None):
@@ -604,12 +648,53 @@ class cDocTree(wx.TreeCtrl):
 
 		# doc node
 		if isinstance(item1, gmMedDoc.cMedDoc):
-			# compare dates
-			if item1['date'] > item2['date']:
-				return -1
-			if item1['date'] == item2['date']:
-				return 0
-			return 1
+
+			# FIXME: should be "date" but have to wait until fuzzy date problem solved
+			#date_field = 'date'
+			date_field = 'modified_when'
+
+			if self.__sort_mode == 'age':
+				# reverse sort by date
+				if item1[date_field] > item2[date_field]:
+					return -1
+				if item1[date_field] == item2[date_field]:
+					return 0
+				return 1
+
+			elif self.__sort_mode == 'episode':
+				if item1['episode'] < item2['episode']:
+					return -1
+				if item1['episode'] == item2['episode']:
+					# inner sort: reverse by date
+					if item1[date_field] > item2[date_field]:
+						return -1
+					if item1[date_field] == item2[date_field]:
+						return 0
+					return 1
+				return 1
+
+			elif self.__sort_mode == 'review':
+				# equality
+				if item1.has_unreviewed_parts() == item2.has_unreviewed_parts():
+					# inner sort: reverse by date
+					if item1[date_field] > item2[date_field]:
+						return -1
+					if item1[date_field] == item2[date_field]:
+						return 0
+					return 1
+				if item1.has_unreviewed_parts():
+					return -1
+				return 1
+
+			else:
+				_log.Log(gmLog.lErr, 'unknown document sort mode [%s], reverse-sorting by age' % self.__sort_mode)
+				# reverse sort by date
+				if item1[date_field] > item2[date_field]:
+					return -1
+				if item1[date_field] == item2[date_field]:
+					return 0
+				return 1
+
 		# part node
 		if isinstance(item1, gmMedDoc.cMedDocPart):
 			# compare sequence IDs (= "page" numbers)
@@ -792,7 +877,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.60  2006-05-07 15:34:01  ncq
+# Revision 1.61  2006-05-08 16:35:32  ncq
+# - cleanup
+# - add event handlers for sorting
+# - make tree really sort - wxPython seems to forget to call
+#   SortChildren() so call it ourselves
+#
+# Revision 1.60  2006/05/07 15:34:01  ncq
 # - add cSelectablySortedDocTreePnl
 #
 # Revision 1.59  2006/05/01 18:49:30  ncq
