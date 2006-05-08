@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -570,6 +570,7 @@ class cDocTree(wx.TreeCtrl):
 		self.SetItemHasChildren(self.root, True)
 
 		# add our documents as first level nodes
+		episode_nodes = {}
 		for doc in docs:
 			if doc['comment'] is not None:
 				cmt = '%s' % doc['comment']
@@ -584,15 +585,31 @@ class cDocTree(wx.TreeCtrl):
 			else:
 				ref = _('no reference ID found')
 
-			label = _('%10s %25s: %s (%s page(s), %s)') % (
-				doc['date'][:11].ljust(10),
+			if doc.has_unreviewed_parts():
+				review = '!'
+			else:
+				review = ''
+
+			label = _('%s%10s %s: %s (%s page(s), %s)') % (
+				review,
+#				doc['date'].Format('%Y/%m/%d'),
+				doc['date'][:11],
 				doc['l10n_type'][:26],
 				cmt,
 				page_num,
 				ref
 			)
 
-			doc_node = self.AppendItem(parent = self.root, text = label)
+			# need intermediate episode level ?
+			if self.__sort_mode == 'episode':
+				if not episode_nodes.has_key(doc['episode']):
+					episode_nodes[doc['episode']] = self.AppendItem(parent = self.root, text = doc['episode'])
+					self.SetPyData(episode_nodes[doc['episode']], doc['episode'])
+				parent = episode_nodes[doc['episode']]
+			else:
+				parent = self.root
+
+			doc_node = self.AppendItem(parent = parent, text = label)
 			self.SetItemBold(doc_node, bold=True)
 			self.SetPyData(doc_node, doc)
 			if len(parts) > 0:
@@ -628,10 +645,13 @@ class cDocTree(wx.TreeCtrl):
 				part_node = self.AppendItem(parent = doc_node, text = label)
 				self.SetPyData(part_node, part)
 
-		wx.TreeCtrl.SortChildren(self, self.root)
+		self.SortChildren(self.root)
 
 		# and uncollapse
 		self.Expand(self.root)
+		if self.__sort_mode == 'episode':
+			for key in episode_nodes.keys():
+				self.Expand(episode_nodes[key])
 
 		wx.EndBusyCursor()
 		return True
@@ -703,9 +723,13 @@ class cDocTree(wx.TreeCtrl):
 			if item1['seq_idx'] == item2['seq_idx']:
 				return 0
 			return 1
-		# error out
-		_log.Log(gmLog.lErr, 'do not know how to compare [%s] with [%s]' % (type(item1), type(item2)))
-		return None
+
+		# else sort alphabetically
+		if item1 < item2:
+			return -1
+		if item1 == item2:
+			return 0
+		return 1
 	#------------------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
@@ -877,7 +901,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.61  2006-05-08 16:35:32  ncq
+# Revision 1.62  2006-05-08 18:21:29  ncq
+# - vastly improved document tree when sorting by episode
+#
+# Revision 1.61  2006/05/08 16:35:32  ncq
 # - cleanup
 # - add event handlers for sorting
 # - make tree really sort - wxPython seems to forget to call
