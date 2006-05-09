@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.27 $ $Date: 2006-05-08 16:38:27 $ $Author: ncq $
+-- $Revision: 1.28 $ $Date: 2006-05-09 11:37:52 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -282,11 +282,11 @@ select
 	vdm.pk_patient as pk_patient,
 	dobj.pk as pk_obj,
 	dobj.seq_idx as seq_idx,
+	octet_length(coalesce(dobj.data, '')) as size,
 	vdm.date as date_generated,
 	vdm.type as type,
 	vdm.l10n_type as l10n_type,
 	vdm.ext_ref as ext_ref,
-	octet_length(coalesce(dobj.data, '')) as size,
 	vdm.comment as doc_comment,
 	dobj.comment as obj_comment,
 	dobj.fk_intended_reviewer as pk_intended_reviewer,
@@ -323,7 +323,7 @@ from
 	blobs.v_obj4doc_no_data vo4dnd,
 	blobs.doc_obj dobj
 where
-	vo4dnd.pk_doc = dobj.doc_id
+	vo4dnd.pk_obj = dobj.pk
 ;
 
 -- =============================================
@@ -431,11 +431,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.27 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.27  2006-05-08 16:38:27  ncq
+-- Revision 1.28  2006-05-09 11:37:52  ncq
+-- - properly create blobs.v_obj4doc
+--
+-- Revision 1.27  2006/05/08 16:38:27  ncq
 -- - derive blobs.v_obj4doc from blobs.v_obj4doc_no_data
 -- - add modified_when to blobs.v_doc_med for sorting
 --
