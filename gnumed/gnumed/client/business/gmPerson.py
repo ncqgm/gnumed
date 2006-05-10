@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.63 2006-05-04 09:59:35 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmPerson.py,v 1.64 2006-05-10 21:15:58 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,7 @@ import mx.DateTime as mxDT
 
 # GNUmed
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull, gmBusinessDBObject
-from Gnumed.business import gmClinicalRecord, gmMedDoc, gmDemographicRecord
+from Gnumed.business import gmClinicalRecord, gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -523,7 +523,90 @@ class cStaffMember(cPerson):
 #			del self.__db_cache['']
 #		except KeyError: pass
 	#--------------------------------------------------------
+	def get_inbox(self):
+		return gmProviderInbox.cProviderInbox(provider_id = self._ID)
+#============================================================
+class cStaff(gmBusinessDBObject.cBusinessDBObject):
+	_service = "personalia"
+	_cmd_fetch_payload = "select * from dem.v_staff where pk_staff=%s"
+	_cmds_lock_rows_for_update = ["select 1 from dem.staff where pk=%(pk_staff)s and xmin = %(xmin_staff)s"]
+	_cmds_store_payload = [
+		"""update dem.staff set
+			fk_role = %(pk_role)s,
+			short_alias = %(short_alias)s,
+			comment = %(comment)s
+		where pk=%(pk_staff)s""",
+		"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
+	]
+	_updatable_fields = ['pk_role', 'short_alias', 'comment']
+	#--------------------------------------------------------
+	def __init__(self, aPK_obj=None, row=None):
+		# by default get staff corresponding to CURRENT_USER
+		if (aPK_obj is None) and (row is None):
+			cmd = "select * from dem.v_staff where db_user = CURRENT_USER"
+			rows, idx = gmPG.run_ro_query('personalia', cmd, True)
+			if rows is None:
+				raise gmExceptions.ConstructorError, 'error retrieving staff record for CURRENT_USER'
+			if len(rows) == 0:
+				raise gmExceptions.ConstructorError, 'no staff record for CURRENT_USER'
+			row = {
+				'pk_field': 'pk_staff',
+				'idx': idx,
+				'data': rows[0]
+			}
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
+		else:
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=aPK_obj, row=row)
+#============================================================
+class gmLoggedOnStaffMember(gmBorg.cBorg):
+	"""Staff member Borg to hold currently logged on provider.
 
+	There may be many instances of this but they all share state.
+	"""
+	def __init__(self, provider=None):
+		"""Change or get currently logged on provider.
+
+		provider:
+		* None: get currently logged on provider
+		* cStaff instance: change logged on provider (role)
+		"""
+		gmBorg.cBorg.__init__(self)
+
+		# make sure we do have a provider pointer
+		try:
+			tmp = self._provider
+		except AttributeError:
+			self._provider = gmNull.cNull()
+
+		# user wants copy of currently logged on provider
+		if provider is None:
+			return None
+
+		# must be cStaff instance, then
+		if not isinstance(provider, cStaff):
+			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
+
+		# same ID, no change needed
+		if self._provider['pk_staff'] == provider['pk_staff']:
+			return None
+
+		# first invocation
+		if isinstance(self._provider, gmNull.cNull):
+			self._provider = provider
+			return None
+
+		# user wants different patient
+		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self._provider['pk_staff'], provider['pk_staff'])
+	#--------------------------------------------------------
+	def get_staff(self):
+		return self._provider
+	#--------------------------------------------------------
+	# __getitem__ handling
+	#--------------------------------------------------------
+	def __getitem__(self, aVar = None):
+		"""Return any attribute if known how to retrieve it by proxy.
+		"""
+		return self._provider[aVar]
 #============================================================
 class cPatient(cPerson):
 	"""Represents a patient which is a person.
@@ -1454,6 +1537,9 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	gmPG.set_default_client_encoding('latin1')
 
+	me = cStaff()
+	print me
+
 	# module functions
 #	genders, idx = get_gender_list()
 #	print "\n\nRetrieving gender enum (tag, label, weight):"	
@@ -1526,7 +1612,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.63  2006-05-04 09:59:35  ncq
+# Revision 1.64  2006-05-10 21:15:58  ncq
+# - add current provider Borg
+# - add cStaff
+#
+# Revision 1.63  2006/05/04 09:59:35  ncq
 # - add cStaffMember(cPerson)
 #
 # Revision 1.62  2006/05/04 09:41:05  ncq
