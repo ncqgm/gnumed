@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.24 2005-12-27 18:57:29 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmHorstSpace.py,v 1.25 2006-05-10 13:09:57 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -225,10 +225,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		curr_nb_page = self.nb.GetSelection()
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
 		try:
-			print "new page is ", new_page.get_instance()
 			new_page.get_instance()._populate_with_data()
 		except:
-			print "error looking at new page"
+			print "error populating notebook page [%s]" % new_page.get_instance()
+			_log.LogException('error populating next notebook page [%s]' % new_page.get_instance(), sys.exc_info())
 
 		self._curr_page = new_page
 
@@ -331,7 +331,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.24  2005-12-27 18:57:29  ncq
+# Revision 1.25  2006-05-10 13:09:57  ncq
+# - improved error logging in notebook page switching
+#
+# Revision 1.24  2005/12/27 18:57:29  ncq
 # - better document Syan's workaround
 #
 # Revision 1.23  2005/12/26 08:57:26  sjtan
