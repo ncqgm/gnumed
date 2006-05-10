@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.239 2006-05-06 18:50:43 ncq Exp $
-__version__ = "$Revision: 1.239 $"
+# $Id: gmGuiMain.py,v 1.240 2006-05-10 13:08:37 ncq Exp $
+__version__ = "$Revision: 1.240 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,11 +51,6 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.VERSION_STRING)
 
-try:
-	vm = wx.VideoMode()
-	_log.Log(gmLog.lInfo, 'display: %s:%s @ %s bpp @ %sHz' % (vm.w, vm.h, vm.bpp, vm.refresh))
-	del vm
-except: pass
 
 # set up database connection encoding
 encoding = _cfg.get('backend', 'client encoding')
@@ -1061,9 +1056,10 @@ Do not rely on this database to work properly in all cases !""")
 		return None
 #==============================================================================
 def main():
-	#create an instance of our GNUmed main application
+	# create an instance of our GNUmed main application
 	app = gmApp(False)
-	#and enter the main event loop
+	_log.Log(gmLog.lInfo, 'display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+	# and enter the main event loop
 	app.MainLoop()
 #==============================================================================
 # Main
@@ -1079,7 +1075,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.239  2006-05-06 18:50:43  ncq
+# Revision 1.240  2006-05-10 13:08:37  ncq
+# - properly log physical screen size
+#
+# Revision 1.239  2006/05/06 18:50:43  ncq
 # - improve summary display after user complaint
 #
 # Revision 1.238  2006/05/04 17:52:04  ncq
