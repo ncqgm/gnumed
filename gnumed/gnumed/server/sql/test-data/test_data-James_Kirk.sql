@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.76 $
+-- $Revision: 1.77 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -683,17 +683,48 @@ insert into dem.provider_inbox (
 	(select pk_staff from dem.v_staff where short_alias='LMcC'),
 	(select pk_type from dem.v_inbox_item_type where type='review docs'),
 	'Cpt.Kirk now has some recent Vietnam pictures in his EMR',
-	currval('blobs.doc_med_pk_seq'),
+	currval('dem.identity_pk_seq'),
+	-1
+);
+
+-- a few more notices to the provider
+insert into dem.provider_inbox (
+	fk_staff,
+	fk_inbox_item_type,
+	comment,
+	data,
+	importance
+) values (
+	(select pk_staff from dem.v_staff where short_alias='LMcC'),
+	(select pk_type from dem.v_inbox_item_type where type='FYI'),
+	'Mr. Kirk is off to Galactica until 2009',
+	'he took along warm socks',
+	-1
+);
+
+insert into dem.provider_inbox (
+	fk_staff,
+	fk_inbox_item_type,
+	comment,
+	importance
+) values (
+	(select pk_staff from dem.v_staff where short_alias='LMcC'),
+	(select pk_type from dem.v_inbox_item_type where type='memo'),
+	'Beware of Dr.Jekyll !',
 	-1
 );
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.76 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.77 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.76  2006-04-29 18:19:38  ncq
+-- Revision 1.77  2006-05-10 13:05:22  ncq
+-- - add two more intox messages
+-- - set ufk_context to Kirk ID on "review docs" message
+--
+-- Revision 1.76  2006/04/29 18:19:38  ncq
 -- - comment more columns
 -- - add fk_encounter/fk_episode to doc_med
 -- - trigger to make sure episode is linked to doc in doc_med OR lnk_doc_med2episode only
