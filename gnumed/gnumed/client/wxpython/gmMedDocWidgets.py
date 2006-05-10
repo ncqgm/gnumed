@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -436,9 +436,10 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	"""A document tree that can be sorted."""
 	def __init__(self, *args, **kwds):
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
-		self._doc_tree.Layout()
+#		self._doc_tree.Layout()
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__register_interests()
+		self._doc_tree.SetFocus()
 	#-------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -457,14 +458,17 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	def _on_sort_by_age_selected(self, evt):
 		self._doc_tree.set_sort_mode(mode = 'age')
 		self._doc_tree.refresh()
+		self._doc_tree.SetFocus()
 	#--------------------------------------------------------
 	def _on_sort_by_review_selected(self, evt):
 		self._doc_tree.set_sort_mode(mode = 'review')
 		self._doc_tree.refresh()
+		self._doc_tree.SetFocus()
 	#--------------------------------------------------------
 	def _on_sort_by_episode_selected(self, evt):
 		self._doc_tree.set_sort_mode(mode = 'episode')
 		self._doc_tree.refresh()
+		self._doc_tree.SetFocus()
 #============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
@@ -741,11 +745,18 @@ class cDocTree(wx.TreeCtrl):
 		if node_data is None:
 			return None
 
-		# do nothing with documents yet
+		# expand/collapse documents on activation
 		if isinstance(node_data, gmMedDoc.cMedDoc):
-			return None
+			self.Toggle(node)
+			return True
+
+		# string nodes are labels such as episodes which may or may not have children
+		if type(node_data) == type('string'):
+			self.Toggle(node)
+			return True
 
 		self.__display_part(part = node_data)
+		return True
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 		node = evt.GetItem()
@@ -901,7 +912,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.63  2006-05-08 22:04:23  ncq
+# Revision 1.64  2006-05-10 13:07:00  ncq
+# - set focus to doc tree widget after selecting sort mode
+# - collapse/expand doc tree nodes on ENTER/double-click
+#
+# Revision 1.63  2006/05/08 22:04:23  ncq
 # - sigh, doc_med content date must be timestamp after all so use proper formatting
 #
 # Revision 1.62  2006/05/08 18:21:29  ncq
