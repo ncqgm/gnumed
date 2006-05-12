@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -503,7 +503,7 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing config browser")
 
 else:
-	_whoami = gmWhoAmI.cWhoAmI()
+	_whoami = gmWhoAmI.cWhereAmI()
 
 	class gmConfigRegistry(gmPlugin.cNotebookPlugin):
 		"""Class to load this module from an environment that wants a notebook plugin
@@ -514,7 +514,7 @@ else:
 		def GetWidget (self, parent):
 			# get current workplace name
 			workplace = _whoami.get_workplace()
-			currUser = _whoami.get_db_account()
+			currUser = gmPerson.gmCurrentProvider()['db_user']
 			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
 			self._widget = gmConfigEditorPanel(parent,currUser,workplace)
 			return self._widget
@@ -525,14 +525,17 @@ else:
 	def Setup(parent):
 		"""Wrapper to load this module from an environment that wants a panel
 		"""
-		currUser = _whoami.get_db_account()
+		currUser = gmPerson.gmCurrentProvider()['db_user']
 		workplace = _whoami.get_workplace()
 		return gmConfigEditorPanel(parent,currUser,workplace)
 
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.33  2005-10-12 15:42:17  ncq
+# Revision 1.34  2006-05-12 12:19:09  ncq
+# - whoami -> whereami
+#
+# Revision 1.33  2005/10/12 15:42:17  ncq
 # - cleanup
 #
 # Revision 1.32  2005/10/02 11:38:03  sjtan

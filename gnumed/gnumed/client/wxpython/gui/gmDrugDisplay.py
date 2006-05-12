@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 try:
@@ -53,7 +53,7 @@ from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers
 
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
 #============================================================
 # These constants are used when referring to menu items below
 #============================================================
@@ -645,7 +645,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.28  2005-09-28 21:27:30  ncq
+# Revision 1.29  2006-05-12 12:19:09  ncq
+# - whoami -> whereami
+#
+# Revision 1.28  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.27  2005/09/26 18:01:52  ncq
