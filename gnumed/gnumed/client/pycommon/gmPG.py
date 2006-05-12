@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1153,6 +1153,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		close_cursor()
 		return data
 #---------------------------------------------------
+#---------------------------------------------------
 def get_col_indices(aCursor = None):
 	# sanity checks
 	if aCursor is None:
@@ -1287,8 +1288,19 @@ def get_child_tables(source='default', schema='public', table=None):
 		return None
 	return rows
 #---------------------------------------------------
+def get_current_user():
+	cmd = 'select CURRENT_USER'
+	result = run_ro_query('default', cmd)
+	if result is None:
+		_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
+		return None
+	if len(result) == 0:
+		_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
+		return None
+	return result[0][0]
+#---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.64 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.65 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1524,7 +1536,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.64  2006-05-04 17:53:32  ncq
+# Revision 1.65  2006-05-12 12:06:55  ncq
+# - add get_current_user()
+#
+# Revision 1.64  2006/05/04 17:53:32  ncq
 # - add function/query to get child tables for parent
 #
 # Revision 1.63  2006/02/26 18:33:24  ncq
