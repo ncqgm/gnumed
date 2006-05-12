@@ -5,16 +5,12 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.9 2004-03-20 19:45:49 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmXdtObjects.py,v 1.10 2006-05-12 12:05:04 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
 import os.path, sys, fileinput, string, md5, time, linecache, tempfile
-
-# access our modules
-#if __name__ == "__main__":
-#    sys.path.append(os.path.join('..', 'pycommon'))
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -286,7 +282,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.9  2004-03-20 19:45:49  ncq
+# Revision 1.10  2006-05-12 12:05:04  ncq
+# - cleanup
+#
+# Revision 1.9  2004/03/20 19:45:49  ncq
 # - rename gender map
 #
 # Revision 1.8  2004/03/18 11:05:00  shilbert

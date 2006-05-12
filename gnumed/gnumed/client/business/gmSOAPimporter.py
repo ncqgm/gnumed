@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.11 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmSOAPimporter.py,v 1.12 2006-05-12 12:05:04 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -37,7 +37,7 @@ import sys, re
 import mx.DateTime as mxDT
 
 # GnuMed
-from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmWhoAmI, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmDispatcher, gmSignals
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmClinNarrative, gmPerson, gmVaccination
 
@@ -247,7 +247,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.11  2006-05-04 09:49:20  ncq
+# Revision 1.12  2006-05-12 12:05:04  ncq
+# - cleanup
+#
+# Revision 1.11  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
