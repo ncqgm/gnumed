@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.50 2006-01-23 22:10:57 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.51 2006-05-12 12:19:56 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -325,7 +325,9 @@ select
 	vbp.dob as dob,
 	vbp.gender as gender,
 	s.db_user as db_user,
-	s.comment as comment
+	s.comment as comment,
+	s.xmin as xmin_staff,
+	s.fk_role as pk_role
 from
 	dem.staff s,
 	dem.staff_role sr,
@@ -410,11 +412,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.50 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.51 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.50  2006-01-23 22:10:57  ncq
+-- Revision 1.51  2006-05-12 12:19:56  ncq
+-- - add fields to dem.v_staff
+--
+-- Revision 1.50  2006/01/23 22:10:57  ncq
 -- - staff.sign -> .short_alias
 --
 -- Revision 1.49  2006/01/22 20:36:43  ncq
