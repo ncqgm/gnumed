@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.34 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmForms.py,v 1.35 2006-05-12 12:03:01 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
 
 # standard library 
@@ -36,7 +36,7 @@ class gmFormEngine:
 	def __init__ (self, pk_def=None, template=None):
 		self.template = template
 		self.patient = gmPerson.gmCurrentPatient ()
-		self.whoami = gmWhoAmI.cWhoAmI ()
+		self.whoami = gmWhoAmI.cWhereAmI()
 		self.workplace = self.whoami.get_workplace ()
 
 	def process (self):
@@ -396,7 +396,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.34  2006-05-04 09:49:20  ncq
+# Revision 1.35  2006-05-12 12:03:01  ncq
+# - whoami -> whereami
+#
+# Revision 1.34  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

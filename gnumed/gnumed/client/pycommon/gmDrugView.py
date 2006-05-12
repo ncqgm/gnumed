@@ -5,7 +5,7 @@ from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmWhoAmI, gmDrugObject, gmExcept
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
 
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
@@ -395,7 +395,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.6  2005-03-17 20:32:14  hinnef
+# Revision 1.7  2006-05-12 12:06:13  ncq
+# - whoami -> whereami
+#
+# Revision 1.6  2005/03/17 20:32:14  hinnef
 # -fixed module dependencies
 #
 # Revision 1.5  2004/09/18 13:52:41  ncq

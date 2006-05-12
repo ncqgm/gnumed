@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -10,7 +10,7 @@ _cfg = gmCfg.gmDefCfgFile
 
 _log.Log(gmLog.lInfo, __version__)
 #===================================================
-class cWhoAmI(gmBorg.cBorg):
+class cWhereAmI(gmBorg.cBorg):
 	"""Who we are and which workplace we are on.
 
 	- db_account is derived from CURRENT_USER in the database, 
@@ -21,30 +21,30 @@ class cWhoAmI(gmBorg.cBorg):
 	def __init__(self):
 		gmBorg.cBorg.__init__(self)
 	#-----------------------------------------------
-	def __get_db_account(self):
-		cmd = 'select CURRENT_USER'
-		result = gmPG.run_ro_query('default', cmd)
-		if result is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
-			return None
-		if len(result) == 0:
-			_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
-			return None
-		self._db_account = result[0][0]
-		return 1
-	#-----------------------------------------------
-	def get_db_account(self):
-		"""return db account"""
-		try:
-			return self._db_account
-		except AttributeError:
-			pass
-
-		if not self.__get_db_account():
-			_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
-			raise ValueError, 'cannot retrieve database account name'
-
-		return self._db_account
+#	def __get_db_account(self):
+#		cmd = 'select CURRENT_USER'
+#		result = gmPG.run_ro_query('default', cmd)
+#		if result is None:
+#			_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
+#			return None
+#		if len(result) == 0:
+#			_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
+#			return None
+#		self._db_account = result[0][0]
+#		return 1
+#	#-----------------------------------------------
+#	def get_db_account(self):
+#		"""return db account"""
+#		try:
+#			return self._db_account
+#		except AttributeError:
+#			pass
+#
+#		if not self.__get_db_account():
+#			_log.Log(gmLog.lPanic, 'cannot retrieve database account name')
+#			raise ValueError, 'cannot retrieve database account name'
+#
+#		return self._db_account
 	#-----------------------------------------------
 	def get_workplace(self):
 		try:
@@ -66,113 +66,116 @@ class cWhoAmI(gmBorg.cBorg):
 				else:
 					self._workplace = tmp
 		return self._workplace
-	#-----------------------------------------------
-	def get_staff_ID(self):
-		try:
-			return self._staff_ID
-		except AttributeError:
-			pass
-
-		cmd = "select pk_staff from dem.v_staff where db_user=CURRENT_USER"
-		result = gmPG.run_ro_query('personalia', cmd, None)
-		if result is None:
-			raise ValueError, _('cannot resolve db account name to primary key of staff member')
-		if len(result) == 0:
-			raise ValueError, _('no correspondig staff member for current database login')
-		self._staff_ID = result[0][0]
-		return self._staff_ID
-	#-----------------------------------------------
-	def get_staff_identity (self):
-		try:
-			return self._staff_identity
-		except AttributeError:
-			pass
-
-		cmd = "select pk_identity from dem.v_staff where db_user=CURRENT_USER"
-		result = gmPG.run_ro_query('personalia', cmd, None)
-		if result is None:
-			raise ValueError, _('cannot resolve db account name to identity of staff member')
-		if len(result) == 0:
-			raise ValueError, _('no correspondig staff member for current database login')
-		self._staff_identity = result[0][0]
-		return self._staff_identity	
-	#-----------------------------------------------
-	def get_staff_name(self):
-		try:
-			return self._staff_name
-		except AttributeError:
-			pass
-
-		cmd = "select title, firstnames, lastnames from dem.v_staff where db_user=CURRENT_USER"
-		result = gmPG.run_ro_query('personalia', cmd, None)
-		if result is None:
-			raise ValueError, _('cannot get staff name')
-		if len(result) == 0:
-			raise ValueError, _('no staff name on file for current database login')
-		self._staff_name = '%s%s.%s' % (result[0][0], result[0][1][:1], result[0][2])
-		return self._staff_name
-	#-----------------------------------------------
-	def get_lastname(self):
-		try:
-			return self._lastname
-		except AttributeError:
-			pass
-
-		cmd = "select lastnames from dem.v_staff where db_user=CURRENT_USER"
-		result = gmPG.run_ro_query('personalia', cmd, None)
-		if result is None:
-			raise ValueError, _('cannot get staff last name')
-		if len(result) == 0:
-			raise ValueError, _('no staff last name on file for current database login')
-		self._lastname = result[0][0]
-		return self._lastname
-	#-----------------------------------------------
-	def get_short_alias(self):
-		try:
-			return self._short_alias
-		except AttributeError:
-			pass
-
-		cmd = "select short_alias from dem.v_staff where db_user=CURRENT_USER"
-		result = gmPG.run_ro_query('personalia', cmd, None)
-		if result is None:
-			raise ValueError, _('cannot get short staff alias')
-		if len(result) == 0:
-			raise ValueError, _('no short staff alias on file for current database login')
-		self._short_alias = result[0][0]
-		return self._short_alias
-	#-----------------------------------------------
-	def get_staff_title(self):
-		try:
-			return self._staff_title
-		except AttributeError:
-			pass
-
-		cmd = "select title, gender from dem.v_staff where db_user=CURRENT_USER"
-		result = gmPG.run_ro_query('personalia', cmd, None)
-		if result is None:
-			raise ValueError, _('error getting staff title')
-		if len(result) == 0:
-			if result[0][1] == 'm':
-				return _('Mr')
-			elif result[0][1] == 'f':
-				return _('Mrs')
-			else:
-				return _('Collegue')
-		self._staff_title = result[0][0]
-		return self._staff_title
+#	#-----------------------------------------------
+#	def get_staff_ID(self):
+#		try:
+#			return self._staff_ID
+#		except AttributeError:
+#			pass
+#
+#		cmd = "select pk_staff from dem.v_staff where db_user=CURRENT_USER"
+#		result = gmPG.run_ro_query('personalia', cmd, None)
+#		if result is None:
+#			raise ValueError, _('cannot resolve db account name to primary key of staff member')
+##		if len(result) == 0:
+#			raise ValueError, _('no correspondig staff member for current database login')
+#		self._staff_ID = result[0][0]
+#		return self._staff_ID
+#	#-----------------------------------------------
+#	def get_staff_identity (self):
+#		try:
+#			return self._staff_identity
+#		except AttributeError:
+#			pass
+#
+#		cmd = "select pk_identity from dem.v_staff where db_user=CURRENT_USER"
+#		result = gmPG.run_ro_query('personalia', cmd, None)
+#		if result is None:
+#			raise ValueError, _('cannot resolve db account name to identity of staff member')
+#		if len(result) == 0:
+#			raise ValueError, _('no correspondig staff member for current database login')
+#		self._staff_identity = result[0][0]
+#		return self._staff_identity
+#	#-----------------------------------------------
+#	def get_staff_name(self):
+#		try:
+#			return self._staff_name
+#		except AttributeError:
+#			pass
+#
+#		cmd = "select title, firstnames, lastnames from dem.v_staff where db_user=CURRENT_USER"
+#		result = gmPG.run_ro_query('personalia', cmd, None)
+#		if result is None:
+#			raise ValueError, _('cannot get staff name')
+#		if len(result) == 0:
+#			raise ValueError, _('no staff name on file for current database login')
+#		self._staff_name = '%s%s.%s' % (result[0][0], result[0][1][:1], result[0][2])
+#		return self._staff_name
+#	#-----------------------------------------------
+#	def get_lastname(self):
+#		try:
+#			return self._lastname
+#		except AttributeError:
+#			pass
+#
+#		cmd = "select lastnames from dem.v_staff where db_user=CURRENT_USER"
+#		result = gmPG.run_ro_query('personalia', cmd, None)
+#		if result is None:
+#			raise ValueError, _('cannot get staff last name')
+#		if len(result) == 0:
+#			raise ValueError, _('no staff last name on file for current database login')
+#		self._lastname = result[0][0]
+#		return self._lastname
+#	#-----------------------------------------------
+#	def get_short_alias(self):
+#		try:
+#			return self._short_alias
+#		except AttributeError:
+#			pass
+#
+#		cmd = "select short_alias from dem.v_staff where db_user=CURRENT_USER"
+#		result = gmPG.run_ro_query('personalia', cmd, None)
+#		if result is None:
+#			raise ValueError, _('cannot get short staff alias')
+#		if len(result) == 0:
+#			raise ValueError, _('no short staff alias on file for current database login')
+#		self._short_alias = result[0][0]
+#		return self._short_alias
+#	#-----------------------------------------------
+#	def get_staff_title(self):
+#		try:
+#			return self._staff_title
+#		except AttributeError:
+#			pass
+#
+#		cmd = "select title, gender from dem.v_staff where db_user=CURRENT_USER"
+#		result = gmPG.run_ro_query('personalia', cmd, None)
+#		if result is None:
+#			raise ValueError, _('error getting staff title')
+#		if len(result) == 0:
+#			if result[0][1] == 'm':
+#				return _('Mr')
+#			elif result[0][1] == 'f':
+#				return _('Mrs')
+#			else:
+#				return _('Collegue')
+#		self._staff_title = result[0][0]
+#		return self._staff_title
 #===================================================
 if __name__ == '__main__':
 	_ = lambda x:x
 	_log.SetAllLogLevels(gmLog.lData)
-	whoami = cWhoAmI()
+	whoami = cWhereAmI()
 	print "workplace :", whoami.get_workplace()
-	print "db account:", whoami.get_db_account()
-	print "staff ID  :", whoami.get_staff_ID()
-	print "staff name:", whoami.get_staff_name()
+#	print "db account:", whoami.get_db_account()
+#	print "staff ID  :", whoami.get_staff_ID()
+#	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.9  2006-01-24 21:09:13  ncq
+# Revision 1.10  2006-05-12 12:06:13  ncq
+# - whoami -> whereami
+#
+# Revision 1.9  2006/01/24 21:09:13  ncq
 # - get_staff_sign -> get_short_alias
 #
 # Revision 1.8  2006/01/15 14:28:40  ncq
