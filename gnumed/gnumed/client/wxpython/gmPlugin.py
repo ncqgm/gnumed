@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.56 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmPlugin.py,v 1.57 2006-05-12 22:01:02 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,7 +17,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -86,8 +86,9 @@ class cNotebookPlugin:
 		self.gb = gmGuiBroker.GuiBroker()
 		self._set = 'gui'
 		self._widget = None
+		self.__register_events()
 	#-----------------------------------------------------
-	def register (self):
+	def register(self):
 		"""Register ourselves with the main notebook widget."""
 
 		_log.Log(gmLog.lInfo, "set: [%s] class: [%s] name: [%s]" % (self._set, self.__class__.__name__, self.name()))
@@ -152,7 +153,7 @@ class cNotebookPlugin:
 	def name(self):
 		return 'plugin %s' % self.__class__.__name__
 	#-----------------------------------------------------
-	def MenuInfo (self):
+	def MenuInfo(self):
 		"""Return tuple of (menuname, menuitem)."""
 		return None
 	#-----------------------------------------------------
@@ -205,6 +206,12 @@ class cNotebookPlugin:
 			return False
 		self.Raise()
 		return True
+	#-----------------------------------------------------
+	def _on_raise_by_signal(self, **kwds):
+		# does this signal concern us ?
+		if kwds['name'] != self.__class__.__name__:
+			return True
+		return self._on_raise_by_menu(None)
 	#----------------------------------------------------
 	def populate_toolbar (self, tb, widget):
 		"""Populates the toolbar for this widget.
@@ -222,10 +229,12 @@ class cNotebookPlugin:
 	# -----------------------------------------------------
 	def OnShow (self, evt):
 		self.register() # register without changing configuration
-
+	# -----------------------------------------------------
 	def get_instance(self):
 		return self._widget
-
+	# -----------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(self._on_raise_by_signal, gmSignals.display_widget())
 #==================================================================
 class cNotebookPluginOld(cNotebookPlugin):
 	def __init__(self, set=None):
@@ -429,7 +438,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.56  2006-05-12 12:18:11  ncq
+# Revision 1.57  2006-05-12 22:01:02  ncq
+# - add _on_raise_by_signal()
+# - connect to "display_widget" signal
+#
+# Revision 1.56  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #
