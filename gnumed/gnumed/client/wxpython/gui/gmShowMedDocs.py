@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -186,6 +186,13 @@ else:
 				return None
 			return 1
 		#--------------------------------------------------------
+		def _on_raise_by_signal(self, **kwds):
+			if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
+				return False
+			if kwds['sort_mode'] == 'review':
+				self._widget._on_sort_by_review_selected(None)
+			return True
+		#--------------------------------------------------------
 		def populate_toolbar (self, tb, widget):
 			tool1 = tb.AddTool(
 				wxID_TB_BTN_show_page,
@@ -225,7 +232,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.64  2006-05-07 15:39:18  ncq
+# Revision 1.65  2006-05-12 22:02:25  ncq
+# - override _on_raise_by_signal()
+#
+# Revision 1.64  2006/05/07 15:39:18  ncq
 # - move plugin tree panel to wxpython/gmMedDocWidgets.py where it belongs
 #
 # Revision 1.63  2005/10/30 22:09:03  shilbert
