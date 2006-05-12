@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.65 2006-05-12 12:03:55 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPerson.py,v 1.66 2006-05-12 13:53:08 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,7 @@ import mx.DateTime as mxDT
 
 # GNUmed
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull, gmBusinessDBObject
-from Gnumed.business import gmClinicalRecord, gmMedDoc, gmDemographicRecord, gmProviderInbox
+from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -636,6 +636,7 @@ class cPatient(cPerson):
 		except KeyError:
 			pass
 		try:
+			from Gnumed.business import gmClinicalRecord
 			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._ID)
 		except StandardError:
 			_log.LogException('cannot instantiate clinical record for person [%s]' % self._ID, sys.exc_info())
@@ -1612,7 +1613,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.65  2006-05-12 12:03:55  ncq
+# Revision 1.66  2006-05-12 13:53:08  ncq
+# - lazy import gmClinicalRecord
+#
+# Revision 1.65  2006/05/12 12:03:55  ncq
 # - gmLoggedOnStaffMember -> gmCurrentProvider
 #
 # Revision 1.64  2006/05/10 21:15:58  ncq
