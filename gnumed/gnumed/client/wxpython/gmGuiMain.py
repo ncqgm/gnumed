@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.240 2006-05-10 13:08:37 ncq Exp $
-__version__ = "$Revision: 1.240 $"
+# $Id: gmGuiMain.py,v 1.241 2006-05-12 12:20:38 ncq Exp $
+__version__ = "$Revision: 1.241 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -34,7 +34,7 @@ except ImportError:
 		print 'CRITICAL ERROR: Error importing wxPython. Halted.'
 		raise
 
-from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
+from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
@@ -45,7 +45,8 @@ except NameError:
 	_ = lambda x:x
 
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
+_provider = None
 email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -123,14 +124,20 @@ class gmTopLevelFrame(wx.Frame):
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
 		self.__setup_main_menu()
 		self.SetupStatusBar()
-		self.SetStatusText(_('You are logged in as %s (%s). DB account <%s>.') % (_whoami.get_staff_name(), _whoami.get_short_alias(), _whoami.get_db_account()))
+		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
+			_provider['title'],
+			_provider['firstnames'][:1],
+			_provider['lastnames'],
+			_provider['short_alias'],
+			_provider['db_user']
+		))
 		self.__gb['main.statustext'] = self.SetStatusText
 
 		# set window title via template
 		if self.__gb['main.slave_mode']:
-			self.__title_template = _('Slave GNUmed [%s@%s] %s: %s')
+			self.__title_template = _('Slave GNUmed [%s%s.%s@%s] %s: %s')
 		else:
-			self.__title_template = 'GNUmed [%s@%s] %s: %s'
+			self.__title_template = 'GNUmed [%s%s.%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
 		self.__setup_platform()
 		#  let others have access, too
@@ -752,7 +759,14 @@ Search results:
 		else:
 			pat_str = _('no patient')
 
-		title = self.__title_template % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
+		title = self.__title_template % (
+			_provider['title'],
+			_provider['firstnames'][:1],
+			_provider['lastnames'],
+			_whoami.get_workplace(),
+			self.title_activity,
+			pat_str
+		)
 		self.SetTitle(title)
 	#----------------------------------------------
 	#----------------------------------------------
@@ -865,15 +879,17 @@ Do not rely on this database to work properly in all cases !""")
 
 		# check account <-> staff member association
 		try:
-			tmp = _whoami.get_staff_ID()
-		except ValueError:
-			_log.LogException('DB account [%s] not mapped to GNUmed staff member' % _whoami.get_db_account(), sys.exc_info(), verbose=0)
+			global _provider
+			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		except gmExceptions.ConstructorError, ValueError:
+			account = gmPG.get_current_user()
+			_log.LogException('DB account [%s] cannot be used as a GNUmed staff login' % account, sys.exc_info(), verbose=0)
 			msg = _(
-				'The database account [%s] is not associated with\n'
-				'any staff member known to GNUmed. You therefor\n'
-				'cannot use GNUmed with this account.\n\n'
+				'The database account [%s] cannot be used as a\n'
+				'staff member login for GNUmed. There was an\n'
+				'error retrieving staff details for it.\n\n'
 				'Please ask your administrator for help.\n'
-			) % _whoami.get_db_account()
+			) % account
 			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
 			return False
 
@@ -986,7 +1002,7 @@ Do not rely on this database to work properly in all cases !""")
 				"the system language is changed. You can also reactivate\n"
 				"this inquiry by removing the appropriate ignore option\n"
 				"from the configuration file."
-			)  % (_whoami.get_db_account(), gmI18N.system_locale, gmI18N.system_locale)
+			)  % (_provider['db_account'], gmI18N.system_locale, gmI18N.system_locale)
 			_log.Log(gmLog.lData, "database locale currently not set")
 		else:
 			db_lang = result[0][0]
@@ -1075,7 +1091,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.240  2006-05-10 13:08:37  ncq
+# Revision 1.241  2006-05-12 12:20:38  ncq
+# - use gmCurrentProvider
+# - whoami -> whereami
+#
+# Revision 1.240  2006/05/10 13:08:37  ncq
 # - properly log physical screen size
 #
 # Revision 1.239  2006/05/06 18:50:43  ncq
