@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.199 2006-05-06 18:53:56 ncq Exp $
-__version__ = "$Revision: 1.199 $"
+# $Id: gmClinicalRecord.py,v 1.200 2006-05-12 12:02:25 ncq Exp $
+__version__ = "$Revision: 1.200 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -34,12 +34,12 @@ import sys, string, time, copy, traceback
 import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
-from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
+from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative, gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
+_me = gmPerson.gmCurrentProvider()
 
 # in AU the soft timeout better be 4 hours as of 2004
 _encounter_soft_ttl = mxDT.TimeDelta(hours=4)
@@ -59,6 +59,7 @@ class cClinicalRecord:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
+		# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 		# this is a hack to speed up get_encounters()
 		clin_root_item_children = gmPG.get_child_tables('clinical', 'clin', 'clin_root_item')
 		if cClinicalRecord._clin_root_item_children_union_query is None:
@@ -81,7 +82,7 @@ select fk_encounter from
 			raise gmExceptions.ConstructorError, "No patient with PK [%s] in database." % aPKey
 
 		if not self.__provider_exists():
-			raise gmExceptions.ConstructorError, "cannot make sure provider [%s] is in service 'historica'" % _whoami.get_staff_ID()
+			raise gmExceptions.ConstructorError, "cannot make sure provider [%s] is in service 'historica'" % _me['pk_staff']
 
 		self.__db_cache = {
 			'vaccinations': {}
@@ -160,7 +161,7 @@ select fk_encounter from
 	def __provider_exists(self):
 		"""Make sure provider is linked in clinical database.
 		"""
-		pk_provider = _whoami.get_staff_ID()
+		pk_provider = _me['pk_staff']
 		# provider linked in our local clinical database ?
 		cmd = "select exists(select pk from clin.xlnk_identity where xfk_identity = %s)"
 		exists = gmPG.run_ro_query('historica', cmd, None, pk_provider)
@@ -1280,7 +1281,7 @@ where
 			patient_id = self.pk_patient,
 			episode_id = episode['pk_episode'],
 			encounter_id = self.__encounter['pk_encounter'],
-			staff_id = _whoami.get_staff_ID(),
+			staff_id = _me['pk_staff'],
 			vaccine = vaccine
 		)
 	#------------------------------------------------------------------
@@ -1332,7 +1333,7 @@ where
 		except gmExceptions.ConstructorError, msg:
 			_log.LogException(str(msg), sys.exc_info(), verbose=0)
 			return False
-		self.__encounter.set_active(staff_id = _whoami.get_staff_ID())
+		self.__encounter.set_active(staff_id = _me['pk_staff'])
 		_log.Log(gmLog.lData, '"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
@@ -1414,7 +1415,7 @@ where
 			return False
 		# attach to existing
 		self.__encounter = encounter
-		self.__encounter.set_active(staff_id = _whoami.get_staff_ID())
+		self.__encounter.set_active(staff_id = _me['pk_staff'])
 		_log.Log(gmLog.lData, '"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
@@ -1790,7 +1791,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.199  2006-05-06 18:53:56  ncq
+# Revision 1.200  2006-05-12 12:02:25  ncq
+# - use gmCurrentProvider()
+#
+# Revision 1.199  2006/05/06 18:53:56  ncq
 # - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
 #
 # Revision 1.198  2006/05/04 18:01:39  ncq
