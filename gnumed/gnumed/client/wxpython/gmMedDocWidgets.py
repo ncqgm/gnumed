@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -436,7 +436,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	"""A document tree that can be sorted."""
 	def __init__(self, *args, **kwds):
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
-#		self._doc_tree.Layout()
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__register_interests()
 		self._doc_tree.SetFocus()
@@ -459,16 +458,19 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.set_sort_mode(mode = 'age')
 		self._doc_tree.refresh()
 		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_age.SetValue(True)
 	#--------------------------------------------------------
 	def _on_sort_by_review_selected(self, evt):
 		self._doc_tree.set_sort_mode(mode = 'review')
 		self._doc_tree.refresh()
 		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_review.SetValue(True)
 	#--------------------------------------------------------
 	def _on_sort_by_episode_selected(self, evt):
 		self._doc_tree.set_sort_mode(mode = 'episode')
 		self._doc_tree.refresh()
 		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_episode.SetValue(True)
 #============================================================
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
@@ -912,7 +914,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.65  2006-05-12 12:18:11  ncq
+# Revision 1.66  2006-05-12 21:59:35  ncq
+# - set proper radiobutton in _on_sort_by_*()
+#
+# Revision 1.65  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #
