@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.64 2006-05-10 21:15:58 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPerson.py,v 1.65 2006-05-12 12:03:55 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -558,7 +558,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=aPK_obj, row=row)
 #============================================================
-class gmLoggedOnStaffMember(gmBorg.cBorg):
+class gmCurrentProvider(gmBorg.cBorg):
 	"""Staff member Borg to hold currently logged on provider.
 
 	There may be many instances of this but they all share state.
@@ -1612,7 +1612,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.64  2006-05-10 21:15:58  ncq
+# Revision 1.65  2006-05-12 12:03:55  ncq
+# - gmLoggedOnStaffMember -> gmCurrentProvider
+#
+# Revision 1.64  2006/05/10 21:15:58  ncq
 # - add current provider Borg
 # - add cStaff
 #
