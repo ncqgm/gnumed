@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.67 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmSOAPWidgets.py,v 1.68 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,13 +20,12 @@ except ImportError:
 	from wxPython import wx
 
 # GnuMed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmWhoAmI
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash, gmVaccWidgets, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):
@@ -699,7 +698,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
 		# set up clinical context in progress note
 		encounter = emr.get_active_encounter()
-		staff_id = _whoami.get_staff_ID()
+		staff_id = gmPerson.gmCurrentProvider()['pk_staff']
 		clin_ctx = {
 			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: epi_id,
 			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
@@ -1117,7 +1116,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.67  2006-05-04 09:49:20  ncq
+# Revision 1.68  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.67  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

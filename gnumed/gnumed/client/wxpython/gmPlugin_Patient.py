@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.6 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPlugin_Patient.py,v 1.7 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -17,14 +17,13 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
 gmPerson = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
 
 #------------------------------------------------------------------
 class wx.BasePlugin:
@@ -185,7 +184,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.6  2005-09-28 21:27:30  ncq
+# Revision 1.7  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.6  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.5  2005/09/28 15:57:48  ncq

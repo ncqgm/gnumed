@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.25 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmVaccWidgets.py,v 1.26 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,11 +23,10 @@ import mx.DateTime as mxDT
 
 from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
 from Gnumed.business import gmPerson, gmVaccination
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider, gmWhoAmI
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
 #======================================================================
 class cVaccinationEditArea(gmEditArea.cEditArea2):
 	"""
@@ -169,7 +168,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 				gmGuiHelpers.gm_beep_statustext(_('Cannot save vaccination: %s') % data)
 				return False
 			# update it with known data
-			data['pk_provider'] = _whoami.get_staff_ID()
+			data['pk_provider'] = gmPerson.gmCurrentProvider()['pk_staff']
 			data['date'] = self.fld_date_given.GetValue()
 			data['narrative'] = self.fld_progress_note.GetValue()
 			data['site'] = self.fld_site_given.GetValue()
@@ -185,7 +184,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			# pump into data sink
 			data = {
 				'vaccine': self.fld_vaccine.GetValue(),
-				'pk_provider': _whoami.get_staff_ID(),
+				'pk_provider': gmPerson.gmCurrentProvider()['pk_staff'],
 				'date': self.fld_date_given.GetValue(),
 				'narrative': self.fld_progress_note.GetValue(),
 				'site': self.fld_site_given.GetValue(),
@@ -552,7 +551,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.25  2006-05-04 09:49:20  ncq
+# Revision 1.26  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.25  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

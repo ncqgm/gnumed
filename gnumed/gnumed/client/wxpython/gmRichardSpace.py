@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmRichardSpace.py,v $
-# $Id: gmRichardSpace.py,v 1.8 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmRichardSpace.py,v 1.9 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 K. Hilbert <Karsten.Hilbert@gmx.net>,\
 I. Haywood <ihaywood@gnu.org>>\
@@ -29,12 +29,11 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
+from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog
 from Gnumed.wxpython import gmPlugin
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
 		  
 #==============================================================================
 class cLayoutMgr(wx.Panel):
@@ -139,7 +138,11 @@ class cLayoutMgr(wx.Panel):
 
 #==============================================================================
 # $Log: gmRichardSpace.py,v $
-# Revision 1.8  2005-09-28 21:27:30  ncq
+# Revision 1.9  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.8  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.7  2005/09/28 15:57:48  ncq

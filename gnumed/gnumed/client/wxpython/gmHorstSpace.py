@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.25 2006-05-10 13:09:57 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmHorstSpace.py,v 1.26 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -27,13 +27,12 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
 from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
 		  
 #==============================================================================
 class cHorstSpaceLayoutMgr(wx.Panel):
@@ -331,7 +330,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.25  2006-05-10 13:09:57  ncq
+# Revision 1.26  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.25  2006/05/10 13:09:57  ncq
 # - improved error logging in notebook page switching
 #
 # Revision 1.24  2005/12/27 18:57:29  ncq

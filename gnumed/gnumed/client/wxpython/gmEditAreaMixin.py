@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmEditAreaMixin.py,v $
-# $Id: gmEditAreaMixin.py,v 1.1 2005-12-05 07:47:34 ihaywood Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmEditAreaMixin.py,v 1.2 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "I. Haywood"
 
 #======================================================================
@@ -18,7 +18,7 @@ try:
 except ImportError:
         from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI, gmI18N, gmBusinessDBObject
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmI18N, gmBusinessDBObject
 from Gnumed.pycommon.gmPG import unwrap_error as ue
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 from Gnumed.business import gmForms

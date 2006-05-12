@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.78 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmDemographicsWidgets.py,v 1.79 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -35,7 +35,7 @@ from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
 _log = gmLog.gmDefLog
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
 _cfg = gmCfg.gmDefCfgFile
 _name_gender_map = None
 
@@ -2936,7 +2936,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.78  2006-05-04 09:49:20  ncq
+# Revision 1.79  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.78  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.103 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmEditArea.py,v 1.104 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -17,13 +17,12 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI, gmI18N
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
-_whoami = gmWhoAmI.cWhoAmI()
 
 ID_PROGRESSNOTES = wx.NewId()
 gmSECTION_SUMMARY = 1
@@ -2344,7 +2343,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.103  2006-05-04 09:49:20  ncq
+# Revision 1.104  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.103  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

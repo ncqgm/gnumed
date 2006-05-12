@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -25,7 +25,7 @@ except ImportError:
 	import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
 	from wxPython import grid
 
-from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider, gmGuiBroker
+from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmMatchProvider, gmGuiBroker
 from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
@@ -35,7 +35,6 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lInfo, __version__)
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhoAmI()
 
 [	wx.ID_LAB_GRID,
 	wx.ID_NB_LabJournal,
@@ -634,7 +633,7 @@ class cLabJournalNB(wx.Notebook):
 		
 		for result in reviewed_results:
 			result['reviewed'] = 'true'
-			result['pk_reviewer'] = _whoami.get_staff_ID()
+			result['pk_reviewer'] = gmPerson.gmCurrentProvider()['pk_staff']
 			if not result['abnormal']:
 				result['abnormal'] = ''
 			successfull, error = result.save_payload()
@@ -869,7 +868,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.18  2006-05-04 09:49:20  ncq
+# Revision 1.19  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.18  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

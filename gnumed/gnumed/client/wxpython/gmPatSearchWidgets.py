@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.26 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPatSearchWidgets.py,v 1.27 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -23,12 +23,11 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmWhoAmI, gmCfg
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmCfg
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 
 _log = gmLog.gmDefLog
-_whoami = gmWhoAmI.cWhoAmI()
 
 _log.Log(gmLog.lInfo, __version__)
 
@@ -714,7 +713,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.26  2006-05-04 09:49:20  ncq
+# Revision 1.27  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.26  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

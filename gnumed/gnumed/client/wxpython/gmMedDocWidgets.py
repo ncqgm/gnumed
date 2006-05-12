@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -18,7 +18,7 @@ from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
 
 _log = gmLog.gmDefLog
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
 
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -912,7 +912,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.64  2006-05-10 13:07:00  ncq
+# Revision 1.65  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.64  2006/05/10 13:07:00  ncq
 # - set focus to doc tree widget after selecting sort mode
 # - collapse/expand doc tree nodes on ENTER/double-click
 #

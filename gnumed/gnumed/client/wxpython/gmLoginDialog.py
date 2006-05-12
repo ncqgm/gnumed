@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.65 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmLoginDialog.py,v 1.66 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -26,7 +26,7 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
 
 #====================================================
 class cLoginParamChoices:
@@ -471,7 +471,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.65  2005-09-28 21:27:30  ncq
+# Revision 1.66  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.65  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.64  2005/09/27 20:44:59  ncq

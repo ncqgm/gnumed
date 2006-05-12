@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.55 2005-12-26 08:57:26 sjtan Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmPlugin.py,v 1.56 2006-05-12 12:18:11 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -25,7 +25,7 @@ gmPerson = None
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhoAmI()
+_whoami = gmWhoAmI.cWhereAmI()
 
 
 #==============================================================================
@@ -429,7 +429,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.55  2005-12-26 08:57:26  sjtan
+# Revision 1.56  2006-05-12 12:18:11  ncq
+# - whoami -> whereami cleanup
+# - use gmCurrentProvider()
+#
+# Revision 1.55  2005/12/26 08:57:26  sjtan
 #
 # repaint may not be signalled on some platforms ( gtk ? ); repaint occurs if 1) the emrbrowser is the selected notebook page AND
 # 2) the frame is re-sized.  This suggests repaint is best done on notebook page changed. This workaround goes to
