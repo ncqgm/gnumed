@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.30 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmDateTimeInput.py,v 1.31 2006-05-12 12:08:51 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -200,26 +200,37 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 #		wx.EVT_KILL_FOCUS(self, self.__on_lose_focus)
 		#wx.EVT_KEY_DOWN (self, self.__on_key_pressed)
 
-		if globals ().has_key ('wx.USE_UNICODE') and wx.USE_UNICODE:
-			self.__tooltip = _(
-				u"""------------------------------------------------------------------------------
-				Date input field
-				
-				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
-				<ALT-K>:         Kalender
-				+/- X d/w/m:     X days/weeks/months ago/from now
-				------------------------------------------------------------------------------
-""")
-		else:
-			self.__tooltip = _(
-				"""------------------------------------------------------------------------------
-				Date input field
-				
-				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
-				<ALT-K>:         Kalender
-				+/- X d/w/m:     X days/weeks/months ago/from now
-				------------------------------------------------------------------------------
-""")
+		self.__tooltip = _(
+"""------------------------------------------------------------------------------
+Date input field
+
+ <ALT-c>:         calendar
+ +/- X d/w/m:     X days/weeks/months ago/from now
+
+ There are a few more <ALT-?> shortcuts for yesterday, today,
+ tomorrow, etc which depend upon your language settings. Please
+ refer to the documentation.
+------------------------------------------------------------------------------""")
+#		if globals ().has_key ('wx.USE_UNICODE') and wx.USE_UNICODE:
+#			self.__tooltip = _(
+#				u"""------------------------------------------------------------------------------
+#				Date input field
+#				
+#				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
+#				<ALT-K>:         Kalender
+#				+/- X d/w/m:     X days/weeks/months ago/from now
+#				------------------------------------------------------------------------------
+#""")
+#		else:
+#			self.__tooltip = _(
+#				"""------------------------------------------------------------------------------
+#				Date input field
+#				
+#				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
+#				<ALT-K>:         Kalender
+#				+/- X d/w/m:     X days/weeks/months ago/from now
+#				------------------------------------------------------------------------------
+#""")
 		self.SetToolTip(wx.ToolTip(self.__tooltip))
 	#----------------------------------------------
 	def on_list_item_selected (self):
@@ -387,7 +398,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.30  2005-09-28 21:27:30  ncq
+# Revision 1.31  2006-05-12 12:08:51  ncq
+# - comment out proposed fix for unicode problems
+#
+# Revision 1.30  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.29  2005/09/28 15:57:47  ncq
