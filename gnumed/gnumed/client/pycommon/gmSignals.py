@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -134,6 +134,14 @@ def application_init():
 	return "application_init"
 
 #-------------------------------------------------------------
+def display_widget():
+	"""Request a widget to be displayed.
+
+	- name: the widget name
+	- additional keywords: widget specific
+	"""
+	return "display_widget"
+#-------------------------------------------------------------
 def user_error ():
 	"an error of interest to the user"
 	return "user_error"
@@ -221,7 +229,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.12  2006-01-18 14:16:01  sjtan
+# Revision 1.13  2006-05-12 21:58:30  ncq
+# - add display_widget() signal
+#
+# Revision 1.12  2006/01/18 14:16:01  sjtan
 #
 # extra signals for provider mgmt
 #
