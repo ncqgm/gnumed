@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.3 2006-05-12 13:48:27 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.4 2006-05-12 13:53:34 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmPG
@@ -17,7 +17,7 @@ class cProviderInbox:
 	def __init__(self, provider_id=None):
 		if provider_id is None:
 			from Gnumed.business import gmPerson
-			self.__provider_id = gmPerson.gmCurrentProvider['pk_staff']
+			self.__provider_id = gmPerson.gmCurrentProvider()['pk_staff']
 		else:
 			self.__provider_id = provider_id
 	#--------------------------------------------------------
@@ -48,7 +48,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.3  2006-05-12 13:48:27  ncq
+# Revision 1.4  2006-05-12 13:53:34  ncq
+# - missing ()
+#
+# Revision 1.3  2006/05/12 13:48:27  ncq
 # - properly import gmPerson
 #
 # Revision 1.2  2006/05/12 12:04:30  ncq
