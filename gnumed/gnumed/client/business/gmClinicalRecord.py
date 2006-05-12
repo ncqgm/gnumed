@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.200 2006-05-12 12:02:25 ncq Exp $
-__version__ = "$Revision: 1.200 $"
+# $Id: gmClinicalRecord.py,v 1.201 2006-05-12 13:54:26 ncq Exp $
+__version__ = "$Revision: 1.201 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -34,12 +34,12 @@ import sys, string, time, copy, traceback
 import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
-from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative, gmPerson
+from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
-_me = gmPerson.gmCurrentProvider()
+_me = None
 
 # in AU the soft timeout better be 4 hours as of 2004
 _encounter_soft_ttl = mxDT.TimeDelta(hours=4)
@@ -59,7 +59,12 @@ class cClinicalRecord:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
-		# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+		global _me
+		if _me is None:
+			from Gnumed.business import gmPerson
+			_me = gmPerson.gmCurrentProvider()
+
+		# ...........................................
 		# this is a hack to speed up get_encounters()
 		clin_root_item_children = gmPG.get_child_tables('clinical', 'clin', 'clin_root_item')
 		if cClinicalRecord._clin_root_item_children_union_query is None:
@@ -73,7 +78,7 @@ select fk_encounter from
 			cClinicalRecord._clin_root_item_children_union_query = 'union\n'.join (
 				[ union_phrase % (child[0], child[1]) for child in clin_root_item_children ]
 			)
-		# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		# ...........................................
 
 		self._conn_pool = gmPG.ConnectionPool()
 
@@ -1791,7 +1796,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.200  2006-05-12 12:02:25  ncq
+# Revision 1.201  2006-05-12 13:54:26  ncq
+# - lazy import gmPerson
+#
+# Revision 1.200  2006/05/12 12:02:25  ncq
 # - use gmCurrentProvider()
 #
 # Revision 1.199  2006/05/06 18:53:56  ncq
