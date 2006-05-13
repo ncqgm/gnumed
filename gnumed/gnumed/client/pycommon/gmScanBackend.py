@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.14 2006-05-13 23:18:11 shilbert Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmScanBackend.py,v 1.15 2006-05-13 23:42:13 shilbert Exp $
+__version__ = "$Revision: 1.15 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -78,9 +78,11 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def _twain_event_callback(self, twain_event):
 		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
-		return self.__twain_event_handler[twain_event]()
+		self.__twain_event_handler[twain_event]()
+		self._scanner = None
+		return
 	#---------------------------------------------------
-	def _twain_close_datasource():
+	def _twain_close_datasource(self):
 		_log.Log(gmLog.lInfo, "being asked to close data source")
 		return True
 	#---------------------------------------------------
@@ -311,7 +313,7 @@ def get_devices():
 	if _twain_import_module():
 		# FIXME: implement for TWAIN
 		print "*** TWAIN get_devices() not implemented ***"
-		return []
+		return ['twain']
 	if not _sane_import_module():
 		return None
 	return _sane_module.get_devices()
@@ -353,7 +355,10 @@ if __name__ == '__main__':
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.14  2006-05-13 23:18:11  shilbert
+# Revision 1.15  2006-05-13 23:42:13  shilbert
+# - getting there, TWAIN now lets me take more than one image in one session
+#
+# Revision 1.14  2006/05/13 23:18:11  shilbert
 # - fix more TWAIN issues
 #
 # Revision 1.13  2006/05/13 21:36:15  shilbert
