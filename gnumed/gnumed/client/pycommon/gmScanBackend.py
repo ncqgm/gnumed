@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.13 2006-05-13 21:36:15 shilbert Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmScanBackend.py,v 1.14 2006-05-13 23:18:11 shilbert Exp $
+__version__ = "$Revision: 1.14 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -127,22 +127,26 @@ class cTwainScanner:
 		return True
 	#---------------------------------------------------
 	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
-		if filename is None:
-			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
-			else:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		
+		if not tmpdir:
+			tmpdir = tempfile.gettempdir()
+			
+	
+		if not filename:
+			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		
 		else:
 			if os.path.splitext(filename) != '.bmp':
 				filename = filename + '.bmp'
 
 		if not os.path.isfile(filename):
-			_log.Log(gmLog.lErr, 'invalid file name: [%s]')
+			_log.Log(gmLog.lErr, 'invalid file name and/or path: [%s]' %filename)
+			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
 			return False
 
 		self.__filename = filename
 
-		TwainScanner.RequestAcquire()
+		self.__scanner.RequestAcquire()
 		return filename
 	#---------------------------------------------------
 #	def dummy(self):
@@ -349,7 +353,10 @@ if __name__ == '__main__':
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.13  2006-05-13 21:36:15  shilbert
+# Revision 1.14  2006-05-13 23:18:11  shilbert
+# - fix more TWAIN issues
+#
+# Revision 1.13  2006/05/13 21:36:15  shilbert
 # - fixed some TWAIN rleated issues
 #
 # Revision 1.12  2006/01/17 19:45:32  ncq
