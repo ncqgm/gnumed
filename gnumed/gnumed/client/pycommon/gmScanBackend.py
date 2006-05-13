@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.12 2006-01-17 19:45:32 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmScanBackend.py,v 1.13 2006-05-13 21:36:15 shilbert Exp $
+__version__ = "$Revision: 1.13 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -76,7 +76,7 @@ class cTwainScanner:
 	#---------------------------------------------------
 	# TWAIN callback handling
 	#---------------------------------------------------
-	def twain_event_callback(self, twain_event):
+	def _twain_event_callback(self, twain_event):
 		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
 		return self.__twain_event_handler[twain_event]()
 	#---------------------------------------------------
@@ -92,7 +92,7 @@ class cTwainScanner:
 		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
 		return True
 	#---------------------------------------------------
-	def __twain_handle_transfer(self):
+	def _twain_handle_transfer(self):
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
 		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
 
@@ -349,7 +349,10 @@ if __name__ == '__main__':
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.12  2006-01-17 19:45:32  ncq
+# Revision 1.13  2006-05-13 21:36:15  shilbert
+# - fixed some TWAIN rleated issues
+#
+# Revision 1.12  2006/01/17 19:45:32  ncq
 # - close scanner when done
 # - cleanup
 #
