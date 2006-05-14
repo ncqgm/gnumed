@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.66 2006-05-12 13:53:08 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmPerson.py,v 1.67 2006-05-14 21:44:22 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ import sys, os.path, time, re, string, types
 import mx.DateTime as mxDT
 
 # GNUmed
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull, gmBusinessDBObject
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull, gmBusinessDBObject, gmCfg
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
@@ -600,6 +600,22 @@ class gmCurrentProvider(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def get_staff(self):
 		return self._provider
+	#--------------------------------------------------------
+	def get_workplace(self):
+		workplace = 'xxxDEFAULTxxx'
+		if gmCfg.gmDefCfgFile is None:
+			print _('No config file to read workplace name from !')
+		else:
+			tmp = gmCfg.gmDefCfgFile.get('workplace', 'name')
+			if tmp is None:
+				print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
+			else:
+				# if gmCfg.gmDefCfgFile returned a list type, use only first element
+				if type(tmp) == type([]):
+					workplace = tmp[0]
+				else:
+					workplace = tmp
+		return workplace
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -1613,7 +1629,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.66  2006-05-12 13:53:08  ncq
+# Revision 1.67  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.66  2006/05/12 13:53:08  ncq
 # - lazy import gmClinicalRecord
 #
 # Revision 1.65  2006/05/12 12:03:55  ncq

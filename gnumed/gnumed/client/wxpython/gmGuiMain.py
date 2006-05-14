@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.242 2006-05-14 18:09:05 ncq Exp $
-__version__ = "$Revision: 1.242 $"
+# $Id: gmGuiMain.py,v 1.243 2006-05-14 21:44:22 ncq Exp $
+__version__ = "$Revision: 1.243 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -34,7 +34,7 @@ except ImportError:
 		print 'CRITICAL ERROR: Error importing wxPython. Halted.'
 		raise
 
-from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
+from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
@@ -45,7 +45,6 @@ except NameError:
 	_ = lambda x:x
 
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhereAmI()
 _provider = None
 email_logger = None
 _log = gmLog.gmDefLog
@@ -121,7 +120,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['EmergencyExit'] = self._clean_exit
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
+		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % gmPerson.gmCurrentProvider().get_workplace())
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -147,7 +146,7 @@ class gmTopLevelFrame(wx.Frame):
 			cfg = gmCfg.cCfgSQL()
 			self.layout_style = cfg.get_by_workplace (
 				option = 'main.window.layout_style',
-				workplace = _whoami.get_workplace(),
+				workplace = gmPerson.gmCurrentProvider().get_workplace(),
 				default = 'status_quo'
 			)
 			#----------------------
@@ -199,7 +198,7 @@ class gmTopLevelFrame(wx.Frame):
 		# width
 		prev_width = cfg.get_by_workplace (
 			option = 'main.window.width',
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			default = desired_width
 		)
 		if prev_width is not None:
@@ -208,7 +207,7 @@ class gmTopLevelFrame(wx.Frame):
 		# height
 		prev_height = cfg.get_by_workplace (
 			option = 'main.window.height',
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			default = desired_height
 		)
 		if prev_height is not None:
@@ -692,19 +691,19 @@ Search results:
 		curr_width, curr_height = self.GetClientSizeTuple()
 		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
 		gmCfg.setDBParam(
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			option = 'main.window.width',
 			value = curr_width
 		)
 		gmCfg.setDBParam(
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			option = 'main.window.height',
 			value = curr_height
 		)
 		# user changed the sidebar size -- remember that
 		if self.bar_width > -1 and self.bar_width != 210:
 			gmCfg.setDBParam(
-				workplace = _whoami.get_workplace(),
+				workplace = gmPerson.gmCurrentProvider().get_workplace(),
 				option = 'main.window.sidebar_width',
 				value = self.bar_width
 			)
@@ -763,7 +762,7 @@ Search results:
 			_provider['title'],
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
-			_whoami.get_workplace(),
+			gmPerson.gmCurrentProvider().get_workplace(),
 			self.title_activity,
 			pat_str
 		)
@@ -1091,7 +1090,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.242  2006-05-14 18:09:05  ncq
+# Revision 1.243  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.242  2006/05/14 18:09:05  ncq
 # - db_account -> db_user
 #
 # Revision 1.241  2006/05/12 12:20:38  ncq

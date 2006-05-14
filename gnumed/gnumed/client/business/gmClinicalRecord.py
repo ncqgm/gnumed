@@ -1,4 +1,4 @@
-"""GNUmed preliminary clinical patient record.
+"""GNUmed clinical patient record.
 
 This is a clinical record object intended to let a useful
 client-side API crystallize from actual use in true XP fashion.
@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.201 2006-05-12 13:54:26 ncq Exp $
-__version__ = "$Revision: 1.201 $"
+# $Id: gmClinicalRecord.py,v 1.202 2006-05-14 21:44:22 ncq Exp $
+__version__ = "$Revision: 1.202 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -28,17 +28,18 @@ __license__ = "GPL"
 #===================================================
 
 # standard libs
-import sys, string, time, copy, traceback
+import sys, string, time, copy
 
 # 3rd party
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N
 from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
+
 _me = None
 
 # in AU the soft timeout better be 4 hours as of 2004
@@ -1678,6 +1679,7 @@ where
 			self.__db_cache[key].extend(obj)
 		except:
 			print sys.exc_info()[0], sys.exc_info()[1]
+			import traceback
 			traceback.print_tb(sys.exc_info()[2])
 
 #============================================================
@@ -1796,7 +1798,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.201  2006-05-12 13:54:26  ncq
+# Revision 1.202  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.201  2006/05/12 13:54:26  ncq
 # - lazy import gmPerson
 #
 # Revision 1.200  2006/05/12 12:02:25  ncq

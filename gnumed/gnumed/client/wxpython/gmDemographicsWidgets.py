@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.79 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmDemographicsWidgets.py,v 1.80 2006-05-14 21:44:22 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -30,12 +30,11 @@ except ImportError:
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
-from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N, gmMatchProvider, gmPG
+from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
 _log = gmLog.gmDefLog
-_whoami = gmWhoAmI.cWhereAmI()
 _cfg = gmCfg.gmDefCfgFile
 _name_gender_map = None
 
@@ -372,8 +371,8 @@ class PatientListWindow(wx.ListCtrl):
 			size = wx.Size (400,10),
 			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_VRULES | wx.LC_HRULES
 		)
-		opt_val, set = gmCfg.getDBParam(
-			workplace = _whoami.get_workplace(),
+		opt_val, set = gmCfg.getDBParam (
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			option="widgets.demographics.patientlist.column_sizes"
 		)
 		self.main_window = main_window
@@ -584,7 +583,7 @@ class PatientListWindow(wx.ListCtrl):
 		for col in range (0, self.patientlist.GetColumnCount()): 			# get widths of columns
 			pat_cols_widths.append(self.patientlist.GetColumnWidth(col))		# add to the list
 		gmCfg.setDBParam (										# set the value for the current user/workplace
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			option = "widgets.demographics.patientlist.column_sizes",
 			value = pat_cols_widths
 		)
@@ -2936,7 +2935,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.79  2006-05-12 12:18:11  ncq
+# Revision 1.80  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.79  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

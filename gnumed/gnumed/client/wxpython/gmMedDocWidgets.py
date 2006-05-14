@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -12,13 +12,12 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
 
 _log = gmLog.gmDefLog
-_whoami = gmWhoAmI.cWhereAmI()
 
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -852,7 +851,7 @@ class cDocTree(wx.TreeCtrl):
 		cfg = gmCfg.cCfgSQL()
 		tmp_dir = cfg.get_by_workplace (
 			option = "horstspace.tmp_dir",
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			default = def_tmp_dir
 		)
 		exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
@@ -865,7 +864,7 @@ class cDocTree(wx.TreeCtrl):
 		# determine database export chunk size
 		chunksize = int(cfg.get_by_workplace (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			default = 1 * 1024 * 1024		# 1 MB
 		))
 		if chunksize is None:
@@ -893,7 +892,7 @@ class cDocTree(wx.TreeCtrl):
 		# handle review if wanted
 		review_after_display = cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
-			workplace = _whoami.get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			bias = 'user',
 			default = 1
 		)
@@ -930,7 +929,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.67  2006-05-14 20:43:38  ncq
+# Revision 1.68  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.67  2006/05/14 20:43:38  ncq
 # - properly use get_devices() in gmScanBackend
 #
 # Revision 1.66  2006/05/12 21:59:35  ncq

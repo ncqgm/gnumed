@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.57 2006-05-12 22:01:02 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPlugin.py,v 1.58 2006-05-14 21:44:22 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,7 +17,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -25,15 +25,13 @@ gmPerson = None
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_whoami = gmWhoAmI.cWhereAmI()
-
 
 #==============================================================================
 class cLoadProgressBar (wx.ProgressDialog):
 	def __init__(self, nr_plugins):
 		wx.ProgressDialog.__init__(
 			self,
-			title = _("GNUmed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
+			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPerson.gmCurrentProvider().get_workplace(), nr_plugins),
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
@@ -349,7 +347,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	FIXME: look at gmRichardSpace to see how to load plugins
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
-	curr_workplace = _whoami.get_workplace()
+	curr_workplace = gmPerson.gmCurrentProvider().get_workplace()
 
 	p_list, match = gmCfg.getDBParam (
 		workplace = curr_workplace,
@@ -438,7 +436,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.57  2006-05-12 22:01:02  ncq
+# Revision 1.58  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.57  2006/05/12 22:01:02  ncq
 # - add _on_raise_by_signal()
 # - connect to "display_widget" signal
 #

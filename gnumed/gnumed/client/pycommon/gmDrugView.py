@@ -1,11 +1,10 @@
 #========================================================
 import sys, string, re, types
 
-from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmWhoAmI, gmDrugObject, gmExceptions
+from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDrugObject, gmExceptions
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhereAmI()
 
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
@@ -31,7 +30,7 @@ class DrugView:
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		
-		currWorkplace = _whoami.get_workplace()
+		currWorkplace = gmPerson.gmCurrentProvider().get_workplace()
 		if currWorkplace is None:
 			# assume we are outside gnumed
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
@@ -395,7 +394,11 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.7  2006-05-12 12:06:13  ncq
+# Revision 1.8  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.7  2006/05/12 12:06:13  ncq
 # - whoami -> whereami
 #
 # Revision 1.6  2005/03/17 20:32:14  hinnef

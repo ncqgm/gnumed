@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 try:
@@ -49,11 +49,10 @@ if __name__ == "__main__":
 	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
-from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI, gmExceptions
+from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers
 
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhereAmI()
 #============================================================
 # These constants are used when referring to menu items below
 #============================================================
@@ -98,7 +97,7 @@ class DrugDisplay(wx.Panel):
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		# this is necessary to enable stand alone use of the drug browser
-		currworkplace = _whoami.get_workplace()
+		currworkplace = gmPerson.gmCurrentProvider().get_workplace()
 		if currworkplace is None:
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
@@ -645,7 +644,11 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.29  2006-05-12 12:19:09  ncq
+# Revision 1.30  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.29  2006/05/12 12:19:09  ncq
 # - whoami -> whereami
 #
 # Revision 1.28  2005/09/28 21:27:30  ncq

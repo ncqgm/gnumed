@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.66 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmLoginDialog.py,v 1.67 2006-05-14 21:44:22 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,13 +20,12 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmWhoAmI, gmI18N, gmNull
+from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 _cfg = gmCfg.gmDefCfgFile
-_whoami = gmWhoAmI.cWhereAmI()
 
 #====================================================
 class cLoginParamChoices:
@@ -37,7 +36,7 @@ class cLoginParamChoices:
 		self.password = ''
 		self.profilelist = [_('default fallback: public GNUmed database')]
 		self.profiles = {
-			_('default fallback: public GNUmed database'): {'host': 'salaam.homeunix.com', 'port': 5432, 'database': 'gnumed_v1'}
+			_('default fallback: public GNUmed database'): {'host': 'salaam.homeunix.com', 'port': 5432, 'database': 'gnumed_v2'}
 		}
 
 #====================================================
@@ -89,9 +88,9 @@ class LoginPanel(wx.Panel):
 			self.topsizer.Add(wx.StaticText (self, -1, _("Cannot find image") + bitmap, style=wx.ALIGN_CENTRE), 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
 
 		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
-			paramsbox_caption = _("Slave Login - %s" % _whoami.get_workplace())
+			paramsbox_caption = _("Slave Login - %s" % gmPerson.gmCurrentProvider().get_workplace())
 		else:
-			paramsbox_caption = _("Login - %s" % _whoami.get_workplace())
+			paramsbox_caption = _("Login - %s" % gmPerson.gmCurrentProvider().get_workplace())
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -471,7 +470,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.66  2006-05-12 12:18:11  ncq
+# Revision 1.67  2006-05-14 21:44:22  ncq
+# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
+# - remove use of gmWhoAmI.py
+#
+# Revision 1.66  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #
