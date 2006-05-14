@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -200,15 +200,31 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		device_names = []
 		device_objects = {}
 		devices = self.scan_module.get_devices()
-		for device in devices:
-			device_names.append('%s (%s)' % (device[2], device[0]))
 
-		# wxpython does not support client data in wxSingleChoiceDialog
-		device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
-			aMessage = _('Select an image capture device'),
-			aTitle = _('device selection'),
-			choices = device_names
-		)
+		if devices is False:
+			gmGuiHelpers.gm_beep_statustext (
+				_('There is no scanner support installed on this machine.'),
+				gmLog.lWarn
+			)
+			return None
+
+		# TWAIN doesn't have get_devices() :-(
+		if devices it not None:
+			if len(devices) == 0:
+				gmGuiHelpers.gm_beep_statustext (
+					_('Cannot find an active scanner.'),
+					gmLog.lWarn
+				)
+				return None
+			for device in devices:
+				device_names.append('%s (%s)' % (device[2], device[0]))
+			# wxpython does not support client data in wxSingleChoiceDialog
+			device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
+				aMessage = _('Select an image capture device'),
+				aTitle = _('device selection'),
+				choices = device_names
+			)
+
 		# FIXME: load directory from backend config
 		fname = self.scan_module.acquire_page_into_file (
 			device = devices[device_idx][0],
@@ -914,7 +930,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.66  2006-05-12 21:59:35  ncq
+# Revision 1.67  2006-05-14 20:43:38  ncq
+# - properly use get_devices() in gmScanBackend
+#
+# Revision 1.66  2006/05/12 21:59:35  ncq
 # - set proper radiobutton in _on_sort_by_*()
 #
 # Revision 1.65  2006/05/12 12:18:11  ncq
