@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.15 2006-05-13 23:42:13 shilbert Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmScanBackend.py,v 1.16 2006-05-14 20:42:20 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -129,20 +129,17 @@ class cTwainScanner:
 		return True
 	#---------------------------------------------------
 	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
-		
 		if not tmpdir:
 			tmpdir = tempfile.gettempdir()
-			
-	
+
 		if not filename:
 			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
-		
 		else:
 			if os.path.splitext(filename) != '.bmp':
 				filename = filename + '.bmp'
 
 		if not os.path.isfile(filename):
-			_log.Log(gmLog.lErr, 'invalid file name and/or path: [%s]' %filename)
+			_log.Log(gmLog.lErr, 'invalid file name and/or path: [%s]' % filename)
 			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
 			return False
 
@@ -311,12 +308,12 @@ def _sane_import_module():
 #-----------------------------------------------------
 def get_devices():
 	if _twain_import_module():
-		# FIXME: implement for TWAIN
-		print "*** TWAIN get_devices() not implemented ***"
-		return ['twain']
-	if not _sane_import_module():
+		# TWAIN does not support get_devices():
+		# devices can only be selected from within TWAIN itself
 		return None
-	return _sane_module.get_devices()
+	if _sane_import_module():
+		return _sane_module.get_devices()
+	return False
 #-----------------------------------------------------
 def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
@@ -355,7 +352,10 @@ if __name__ == '__main__':
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.15  2006-05-13 23:42:13  shilbert
+# Revision 1.16  2006-05-14 20:42:20  ncq
+# - properly handle get_devices()
+#
+# Revision 1.15  2006/05/13 23:42:13  shilbert
 # - getting there, TWAIN now lets me take more than one image in one session
 #
 # Revision 1.14  2006/05/13 23:18:11  shilbert
