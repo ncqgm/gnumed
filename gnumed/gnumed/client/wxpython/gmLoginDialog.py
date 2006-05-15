@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.67 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmLoginDialog.py,v 1.68 2006-05-15 07:05:07 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,6 +22,7 @@ except ImportError:
 
 from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -470,7 +471,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.67  2006-05-14 21:44:22  ncq
+# Revision 1.68  2006-05-15 07:05:07  ncq
+# - must import gmPerson now
+#
+# Revision 1.67  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #

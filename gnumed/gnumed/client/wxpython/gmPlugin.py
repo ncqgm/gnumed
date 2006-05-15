@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.58 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmPlugin.py,v 1.59 2006-05-15 07:05:07 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,8 +20,7 @@ except ImportError:
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
-
-gmPerson = None
+from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -169,10 +168,6 @@ class cNotebookPlugin:
 
 		- convenience method for your can_receive_focus() handlers
 		"""
-		global gmPerson
-		if gmPerson is None:
-			from Gnumed.business import gmPerson as _gmPerson
-			gmPerson = _gmPerson
 		# fail if no patient selected
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
@@ -436,7 +431,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.58  2006-05-14 21:44:22  ncq
+# Revision 1.59  2006-05-15 07:05:07  ncq
+# - must import gmPerson now
+#
+# Revision 1.58  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #
