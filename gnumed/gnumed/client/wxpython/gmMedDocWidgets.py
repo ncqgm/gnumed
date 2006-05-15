@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -208,7 +208,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 			return None
 
 		# TWAIN doesn't have get_devices() :-(
-		if devices it not None:
+		if devices is not None:
 			if len(devices) == 0:
 				gmGuiHelpers.gm_beep_statustext (
 					_('Cannot find an active scanner.'),
@@ -929,7 +929,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.68  2006-05-14 21:44:22  ncq
+# Revision 1.69  2006-05-15 07:02:28  ncq
+# - it -> is
+#
+# Revision 1.68  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #
