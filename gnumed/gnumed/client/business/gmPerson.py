@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.67 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmPerson.py,v 1.68 2006-05-15 13:24:13 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -814,20 +814,19 @@ class gmCurrentPatient(gmBorg.cBorg):
 		kwargs = {
 			'pk_identity': self._patient['pk_identity'],
 			'patient': self._patient['pk_identity'],
-			'signal': gmSignals.activating_patient(),
+			'signal': gmSignals.pre_patient_selection(),
 			'sender': id(self.__class__)
 		}
-		gmDispatcher.send(gmSignals.activating_patient(), kwds=kwargs)
+		gmDispatcher.send(gmSignals.pre_patient_selection(), kwds=kwargs)
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
 			'pk_identity': self._patient['pk_identity'],
 			'patient': self._patient,
-			'signal': gmSignals.patient_selected(),
+			'signal': gmSignals.post_patient_selection(),
 			'sender': id(self.__class__)
 		}
-		#gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
@@ -1629,7 +1628,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.67  2006-05-14 21:44:22  ncq
+# Revision 1.68  2006-05-15 13:24:13  ncq
+# - signal "activating_patient" -> "pre_patient_selection"
+# - signal "patient_selected" -> "post_patient_selection"
+#
+# Revision 1.67  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #

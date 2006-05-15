@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.79 2006-01-07 13:13:46 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmDemographicRecord.py,v 1.80 2006-05-15 13:24:13 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -419,13 +419,13 @@ class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
 #============================================================
 # callbacks
 #------------------------------------------------------------
-def _patient_selected(**kwargs):
-	print "received patient_selected notification"
+def _post_patient_selection(**kwargs):
+	print "received post_patient_selection notification"
 	print kwargs['kwds']
 #============================================================
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
+	gmDispatcher.connect(_post_patient_selection, gmSignals.post_patient_selection())
 	while 1:
 		pID = raw_input('a patient: ')
 		if pID == '':
@@ -447,7 +447,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.79  2006-01-07 13:13:46  ncq
+# Revision 1.80  2006-05-15 13:24:13  ncq
+# - signal "activating_patient" -> "pre_patient_selection"
+# - signal "patient_selected" -> "post_patient_selection"
+#
+# Revision 1.79  2006/01/07 13:13:46  ncq
 # - more schema qualifications
 #
 # Revision 1.78  2006/01/07 11:23:24  ncq
