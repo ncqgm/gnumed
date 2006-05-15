@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.32 2005-10-27 21:55:09 shilbert Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmManual.py,v 1.33 2006-05-15 13:40:02 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -88,78 +88,72 @@ class ManualHtmlPanel(wx.Panel):
 		self.SetAutoLayout(True)
 
 		self.already_loaded = None
-
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		self.FirstLoad()
+		return 1
+	#--------------------------------------------------------
 	def FirstLoad(self):
 		if not self.already_loaded:
 			self.already_loaded = 1
 			self.OnShowDefault(None)
-
+	#--------------------------------------------------------
 	def ShowTitle(self, title):
 		self.infoline.Clear()
 		self.infoline.WriteText(title)
-
+	#--------------------------------------------------------
 	def OnShowDefault(self, event):
 		name = os.path.join(self.docdir, _manual_path)
 		if os.access (name, os.F_OK):
 			self.html.LoadPage(name)
 		else:
 			_log.Log (gmLog.lErr, "cannot load document %s" % name)
-
-
+	#--------------------------------------------------------
 	def OnLoadFile(self, event):
 		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.OPEN)
 		if dlg.ShowModal():
 			path = dlg.GetPath()
 			self.html.LoadPage(path)
 		dlg.Destroy()
-
-
+	#--------------------------------------------------------
 	def OnBack(self, event):
 		if not self.html.HistoryBack():
 			_log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
-
-
+	#--------------------------------------------------------
 	def OnForward(self, event):
 		if not self.html.HistoryForward():
 			_log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
-
-
+	#--------------------------------------------------------
 	def OnViewSource(self, event):
-		xxx
+		return 1
 		# FIXME:
 		#from wxPython.lib.dialogs import wx.ScrolledMessageDialog
 		source = self.html.GetParser().GetSource()
 		dlg = wx.ScrolledMessageDialog(self, source, _('HTML Source'))
 		dlg.ShowModal()
 		dlg.Destroy()
-
-
+	#--------------------------------------------------------
 	def OnPrint(self, event):
 		self.printer.PrintFile(self.html.GetOpenedPage())
 #===========================================================
-class gmManual (gmPlugin.cNotebookPluginOld):
-	"""
-	Plugin to encapsulate the manual window
-	"""
-	tab_name = _('Manual')
+class gmManual (gmPlugin.cNotebookPlugin):
+	"""Plugin to encapsulate the manual window."""
 
+	tab_name = _('Manual')
+	#--------------------------------------------------------
 	def name (self):
 		return gmManual.tab_name
-
+	#--------------------------------------------------------
+	def GetWidget (self, parent):
+		self._widget = ManualHtmlPanel (parent, self.gb['main.frame'])
+		return self._widget
+	#--------------------------------------------------------
 	def MenuInfo (self):
 		return ('help', '&Manual')
-
-	def GetWidget (self, parent):
-		self.HtmlPanel = ManualHtmlPanel (parent, self.gb['main.frame'])
-		return self.HtmlPanel
-
-	def populate_with_data(self):
-		# no use reloading if invisible
-		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-			return 1
-		self.HtmlPanel.FirstLoad()
-		return 1
-
+	#--------------------------------------------------------
+	def can_receive_focus(self):
+		return True
+	#--------------------------------------------------------
 	def populate_toolbar (self, tb, widget):
 		tool1 = tb.AddTool(
 			ID_MANUALCONTENTS,
@@ -255,7 +249,10 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.32  2005-10-27 21:55:09  shilbert
+# Revision 1.33  2006-05-15 13:40:02  ncq
+# - turn into new-style notebook plugin
+#
+# Revision 1.32  2005/10/27 21:55:09  shilbert
 # wxHTMLEasyPrinting caused gmManual to hang
 # needs to be reimplemented
 #
