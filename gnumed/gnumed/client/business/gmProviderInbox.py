@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.4 2006-05-12 13:53:34 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.5 2006-05-15 14:38:43 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmPG
@@ -31,7 +31,8 @@ select
 	type,
 	category,
 	pk_context,
-	data
+	data,
+	pk_inbox_item
 from dem.v_provider_inbox vpi
 where pk_staff = %s
 order by importance desc"""
@@ -39,7 +40,13 @@ order by importance desc"""
 		if rows is None:
 			return [[1, _('error'), _('error'), _('unable to get provider inbox messages from database')]]
 		return rows
-
+	#--------------------------------------------------------
+	def delete_message(self, pk=None):
+		cmd = "delete from dem.provider_inbox where pk=%s"
+		status, data = gmPG.run_commit2(link_obj = 'demographics', queries = [(cmd, [pk])])
+		if not status:
+			return False
+		return True
 #============================================================
 if __name__ == '__main__':
 	inbox = cProviderInbox()
@@ -48,7 +55,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.4  2006-05-12 13:53:34  ncq
+# Revision 1.5  2006-05-15 14:38:43  ncq
+# - include message PK in load list
+# - add delete_message()
+#
+# Revision 1.4  2006/05/12 13:53:34  ncq
 # - missing ()
 #
 # Revision 1.3  2006/05/12 13:48:27  ncq
