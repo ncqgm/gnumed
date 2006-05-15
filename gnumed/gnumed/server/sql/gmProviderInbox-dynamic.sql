@@ -2,7 +2,7 @@
 -- GNUmed - dynamic tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
--- $Id: gmProviderInbox-dynamic.sql,v 1.7 2006-02-02 17:55:35 ncq Exp $
+-- $Id: gmProviderInbox-dynamic.sql,v 1.8 2006-05-15 20:50:57 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -96,7 +96,8 @@ select
 	pi.pk as pk_provider_inbox,
 	pi.fk_staff as pk_staff,
 	vit.pk_category,
-	pi.fk_inbox_item_type as pk_type
+	pi.fk_inbox_item_type as pk_type,
+	pi.pk as pk_inbox_item
 from
 	dem.provider_inbox pi,
 	dem.v_inbox_item_type vit
@@ -105,12 +106,28 @@ where
 ;
 
 -- =============================================
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	dem.provider_inbox
+	, dem.provider_inbox_pk_seq
+	, dem.inbox_item_type
+	, dem.inbox_item_type_pk_seq
+TO GROUP "gm-doctors";
+
+GRANT SELECT ON
+	dem.v_provider_inbox
+TO GROUP "gm-doctors";
+
+-- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.7 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-dynamic.sql,v $
--- Revision 1.7  2006-02-02 17:55:35  ncq
+-- Revision 1.8  2006-05-15 20:50:57  ncq
+-- - add pk_item, pk_type to inbox view
+-- - add grants
+--
+-- Revision 1.7  2006/02/02 17:55:35  ncq
 -- - add comment
 --
 -- Revision 1.6  2006/01/23 22:10:57  ncq
