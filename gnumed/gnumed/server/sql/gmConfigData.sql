@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmProviderInboxPlugin","gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmConfigRegistry"}'
+	'{"gmProviderInboxPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmManual","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -301,11 +301,14 @@ values (currval('cfg.cfg_item_pk_seq'), 1);
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.27 $');
+select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.27  2006-02-27 15:38:35  ncq
+-- Revision 1.28  2006-05-15 13:42:52  ncq
+-- - move Manual plugin further back in line
+--
+-- Revision 1.27  2006/02/27 15:38:35  ncq
 -- - add option whether to display review after doc
 --
 -- Revision 1.26  2006/01/16 22:12:00  ncq
