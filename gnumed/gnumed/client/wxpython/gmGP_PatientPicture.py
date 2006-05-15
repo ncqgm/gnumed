@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.13 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmGP_PatientPicture.py,v 1.14 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -55,12 +55,12 @@ class cPatientPicture (wx.StaticBitmap):
 			wx.Size(self.x, self.y)
 		)
 
-		gmDispatcher.connect(receiver=self._on_patient_selected, signal=gmSignals.patient_selected())
+		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal=gmSignals.post_patient_selection())
 
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		print "updating patient photo, needs to be implemented, async"
 
-	# FIXME: do this async from _on_patient_selected
+	# FIXME: do this async from _on_post_patient_selection
 	def newPatient (self, signal, kwds):
 		global current_patient
 		global current_photo
@@ -108,7 +108,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.13  2005-09-28 21:27:30  ncq
+# Revision 1.14  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.13  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.12  2005/09/28 15:57:48  ncq

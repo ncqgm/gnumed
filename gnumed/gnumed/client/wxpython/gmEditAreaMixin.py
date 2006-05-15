@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmEditAreaMixin.py,v $
-# $Id: gmEditAreaMixin.py,v 1.2 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEditAreaMixin.py,v 1.3 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "I. Haywood"
 
 #======================================================================
@@ -82,7 +82,7 @@ class cEditAreaMixin:
         elif dtd:
             self._load_dtd (dtd)
         if isinstance (self, wx.Panel):
-            gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.OnClear)
+            gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self.OnClear)
             gmDispatcher.connect(signal=gmSignals.pre_patient_selection(), receiver=self.OnSave)
         else:
             wx.Bind (wx.EVT_CLOSE, self.OnClose, self)

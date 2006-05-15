@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.69 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmTopPanel.py,v 1.70 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -272,7 +272,7 @@ class cMainTopPanel(wx.Panel):
 		wx.EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
 	#----------------------------------------------
 	def _on_lock(self, evt):
@@ -305,13 +305,13 @@ class cMainTopPanel(wx.Panel):
 #				gmLog.lErr
 #			)
 	#----------------------------------------------
-	def _on_patient_selected(self, **kwargs):
+	def _on_post_patient_selection(self, **kwargs):
 		# needed because GUI stuff can't be called from a thread (and that's
 		# where we are coming from via backend listener -> dispatcher)
-		wx.CallAfter(self.__on_patient_selected, **kwargs)
+		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 		wx.CallAfter(self.__update_allergies, **kwargs)
 	#----------------------------------------------
-	def __on_patient_selected(self, **kwargs):
+	def __on_post_patient_selection(self, **kwargs):
 		ident = self.curr_pat.get_identity()
 		age = ident['medical_age']
 		# FIXME: if the age is below, say, 2 hours we should fire
@@ -432,7 +432,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.69  2006-05-04 09:49:20  ncq
+# Revision 1.70  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.69  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

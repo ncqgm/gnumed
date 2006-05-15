@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -458,7 +458,7 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	# reget mixin API
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
 	#-------------------------------------------------------
 	def _populate_with_data(self):
 		if not self._doc_tree.refresh():
@@ -929,7 +929,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.69  2006-05-15 07:02:28  ncq
+# Revision 1.70  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.69  2006/05/15 07:02:28  ncq
 # - it -> is
 #
 # Revision 1.68  2006/05/14 21:44:22  ncq

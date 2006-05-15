@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.27 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPatSearchWidgets.py,v 1.28 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -385,9 +385,9 @@ and hit <ENTER>
 		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 	#----------------------------------------------
-	def _on_patient_selected(self, **kwargs):
+	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, pat):
@@ -713,7 +713,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.27  2006-05-12 12:18:11  ncq
+# Revision 1.28  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.27  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

@@ -145,7 +145,7 @@ class cAU_VaccV01Panel(wx.Panel):
         # end wxGlade
 
 	# gnumed events
-	gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+	gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 
 
     def __set_properties(self):
@@ -469,7 +469,7 @@ class cAU_VaccV01Panel(wx.Panel):
 	wx.MessageDialog( self,"Accepted add", style = wx.OK).ShowModal()
 	
 
-    def _on_patient_selected(self):
+    def _on_post_patient_selection(self):
     
     	self._populate_vaccination_history_list()
     	self._populate_vacc_regime_tree()
@@ -650,7 +650,7 @@ class cAU_VaccV01Panel(wx.Panel):
 			if len(failures):
 				wx.MessageDialog(self, _("Failed to  delist patient from %s") % ',  '.join( [ f['regime'] for f in failures] ) , style = wx.OK  ).ShowModal()
 	
-	self._on_patient_selected()
+	self._on_post_patient_selection()
 		
 # end of class cAU_VaccV01Panel
 

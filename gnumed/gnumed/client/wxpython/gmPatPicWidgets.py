@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.16 2006-04-29 19:47:36 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPatPicWidgets.py,v 1.17 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -90,7 +90,7 @@ class cPatientPicture(wx.StaticBitmap):
 		wx.EVT_MENU(self, ID_RemovePhoto, self._on_RemovePhoto)
 
 		# dispatcher signals
-		gmDispatcher.connect(receiver=self._on_patient_selected, signal=gmSignals.patient_selected())
+		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal=gmSignals.post_patient_selection())
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
 		if not self.__pat.is_connected():
@@ -171,7 +171,7 @@ class cPatientPicture(wx.StaticBitmap):
 			_('remove patient photograph')
 		)
 	#-----------------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 #		print "pulling patient photo from DB, needs to be implemented, async"
 		self.__set_pic_from_file()
 
@@ -184,7 +184,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.16  2006-04-29 19:47:36  ncq
+# Revision 1.17  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.16  2006/04/29 19:47:36  ncq
 # - improve commented out code :-)
 #
 # Revision 1.15  2006/01/13 13:52:17  ncq

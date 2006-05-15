@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.243 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.243 $"
+# $Id: gmGuiMain.py,v 1.244 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.244 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -380,13 +380,13 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MAXIMIZE(self, self.OnMaximize)
 
 		# intra-client signals
-		gmDispatcher.connect(self._on_activating_patient, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self.on_patient_selected, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self.on_post_patient_selection, gmSignals.post_patient_selection())
 	#-----------------------------------------------
-	def on_patient_selected(self, **kwargs):
-		wx.CallAfter(self.__on_patient_selected, **kwargs)
+	def on_post_patient_selection(self, **kwargs):
+		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 	#----------------------------------------------
-	def __on_patient_selected(self, **kwargs):
+	def __on_post_patient_selection(self, **kwargs):
 		pat = gmPerson.gmCurrentPatient()
 		try:
 			pat.get_emr()
@@ -396,10 +396,10 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		self.updateTitle()
 	#----------------------------------------------
-	def _on_activating_patient(self, **kwargs):
-		wx.CallAfter(self.__on_activating_patient, **kwargs)
+	def _on_pre_patient_selection(self, **kwargs):
+		wx.CallAfter(self.__on_pre_patient_selection, **kwargs)
 	#----------------------------------------------
-	def __on_activating_patient(self, **kwargs):
+	def __on_pre_patient_selection(self, **kwargs):
 
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
@@ -1090,7 +1090,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.243  2006-05-14 21:44:22  ncq
+# Revision 1.244  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.243  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #

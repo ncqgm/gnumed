@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.68 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmSOAPWidgets.py,v 1.69 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -177,19 +177,19 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.activating_patient(), receiver=self._on_activating_patient)
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.pre_patient_selection(), receiver=self._on_pre_patient_selection)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
 		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
 	#--------------------------------------------------------
-	def _on_activating_patient(self):
+	def _on_pre_patient_selection(self):
 		"""Another patient is about to be activated."""
 #		print "[%s]: another patient is about to become active" % self.__class__.__name__
 #		print "need code to:"
 #		print "- ask user about unsaved progress notes"
 		pass
 	#--------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		"""Patient changed."""
 		self.DeleteAllPages()
 		self.add_editor()
@@ -366,11 +366,11 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
 		# FIXME: issues modified missing
 	#--------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		"""Patient changed."""
 		self._schedule_data_reget()
 	#--------------------------------------------------------
@@ -910,7 +910,7 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self._on_discard_note)
 
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_note)
+		gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._save_note)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_note)
 
 		return True
@@ -1116,7 +1116,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.68  2006-05-12 12:18:11  ncq
+# Revision 1.69  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.68  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.26 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmVaccWidgets.py,v 1.27 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -393,7 +393,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 #		wx.EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
 		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
 	#----------------------------------------------------
 	# event handlers
@@ -525,7 +525,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 		return True
 	#----------------------------------------------------
-	def _on_patient_selected(self, **kwargs):
+	def _on_post_patient_selection(self, **kwargs):
 		return 1
 		# FIXME:
 #		if has_focus:
@@ -551,7 +551,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.26  2006-05-12 12:18:11  ncq
+# Revision 1.27  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.26  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

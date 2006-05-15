@@ -95,7 +95,7 @@ class cAU_DrugV01Panel(wx.Panel):
         # end wxGlade
 
 	# gnumed events
-	gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+	gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 
 
     def __set_properties(self):
@@ -382,7 +382,7 @@ class cAU_DrugV01Panel(wx.Panel):
         event.Skip()
 
 
-    def _on_patient_selected(self):
+    def _on_post_patient_selection(self):
     	print self, "got on patient selected"
 	p = gmPerson.gmCurrentPatient()	
 	emr = p.get_emr()

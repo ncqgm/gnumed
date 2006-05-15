@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.51 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmEMRBrowser.py,v 1.52 2006-05-15 13:35:59 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -201,7 +201,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_TREE_SEL_CHANGED(self.__emr_tree, self.__emr_tree.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK(self.__emr_tree, self.__emr_tree.GetId(), self.__on_tree_item_right_clicked)
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
 		gmDispatcher.connect(signal=gmSignals.clin_item_updated(), receiver = self._on_clin_item_updated)
 	#--------------------------------------------------------
@@ -209,7 +209,7 @@ class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Dump EMR to file."""		   
 		self.__exporter.dump_emr_gui(parent = self)
 	#--------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		"""Patient changed."""
 		self._schedule_data_reget()
 	#--------------------------------------------------------
@@ -610,10 +610,10 @@ class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._on_patient_selected)
+		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
 		return 1
 	#--------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	# reget mixin API
@@ -784,7 +784,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.51  2006-05-04 09:49:20  ncq
+# Revision 1.52  2006-05-15 13:35:59  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.51  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

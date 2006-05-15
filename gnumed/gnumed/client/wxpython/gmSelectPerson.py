@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 
 import string
 
@@ -48,7 +48,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		style = wx.TAB_TRAVERSAL, service = 'demographica' ):
 
 		SQLSimpleSearch.__init__(self, parent, id, pos, size, style, service)
-		#gmDispatcher.connect(self.dummy, gmSignals.patient_selected())
+		#gmDispatcher.connect(self.dummy, gmSignals.post_patient_selection())
 
 		#add a bottom row sizer to hold a few buttons
 		self.__selectedPersonId=None
@@ -162,15 +162,15 @@ class DlgSelectPerson(SQLSimpleSearch):
 			item = self.listctrlSearchResults.GetItem(index,i)
 			kwargs[data[i]] = item.GetText()
 		_log.Log(gmLog.lData, "kwargs for PATIENT: %s" % kwargs)
-		kwargs['signal']= gmSignals.patient_selected()
+		kwargs['signal']= gmSignals.post_patient_selection()
 		kwargs['sender'] = 'patient.selector'
-		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+		gmDispatcher.send(gmSignals.post_patient_selection(), kwds=kwargs)
 		return self._selectedPersonId
 
 
 	def GetSelectedPersonId(self):
 		"""Theoretically no need for this function - whoever is interested in the
-		selected patient, should register interest in gmSignals.patient_selected()
+		selected patient, should register interest in gmSignals.post_patient_selection()
 		with gmDispatcher"""
 		return self._selectedPersonId
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 		print "selected #%(ID)d" % (kwds)
 
 	#tell the dispatcher about this callback function and the event we are interested in
-	gmDispatcher.connect(callback, gmSignals.patient_selected())
+	gmDispatcher.connect(callback, gmSignals.post_patient_selection())
 
 	_ = lambda x:x
 	app = wxPyWidgetTester(size = (600, 300))

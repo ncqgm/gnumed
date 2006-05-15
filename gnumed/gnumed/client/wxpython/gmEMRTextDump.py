@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.16 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmEMRTextDump.py,v 1.17 2006-05-15 13:35:59 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -47,10 +47,10 @@ class gmEMRDumpPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._on_patient_selected)
+		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
 		return 1
 	#--------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		pass
 		# FIXME: if has_focus ...
 	#--------------------------------------------------------
@@ -127,7 +127,12 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.16  2006-05-04 09:49:20  ncq
+# Revision 1.17  2006-05-15 13:35:59  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.16  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

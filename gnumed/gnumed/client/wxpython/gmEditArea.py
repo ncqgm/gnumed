@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.104 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmEditArea.py,v 1.105 2006-05-15 13:35:59 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -317,9 +317,9 @@ class cEditAreaPopup(wx.Dialog):
 		wx.EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
 
 		# client internal signals
-#		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+#		gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
 #		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
-#		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+#		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
 
 		return 1
 	#--------------------------------------------------------
@@ -411,8 +411,8 @@ class cEditArea2(wx.Panel):
 	def __register_events(self):
 		# client internal signals
 		if self._patient.is_connected():
-			gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
-			gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+			gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
+			gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
 
 		# wxPython events
@@ -421,8 +421,8 @@ class cEditArea2(wx.Panel):
 		return 1
 	#--------------------------------------------------------
 	def __deregister_events(self):
-		gmDispatcher.disconnect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
-		gmDispatcher.disconnect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+		gmDispatcher.disconnect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
+		gmDispatcher.disconnect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
 		gmDispatcher.disconnect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
 	#--------------------------------------------------------
 	# handlers
@@ -471,7 +471,7 @@ class cEditArea2(wx.Panel):
 		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
-	def _on_activating_patient(self, **kwds):
+	def _on_pre_patient_selection(self, **kwds):
 		"""Just before new patient becomes active."""
 		# remember wxCallAfter
 		if not self._patient.is_connected():
@@ -484,7 +484,7 @@ class cEditArea2(wx.Panel):
 		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
-	def on_patient_selected( self, **kwds):
+	def on_post_patient_selection( self, **kwds):
 		"""Just after new patient became active."""
 		# remember to use wxCallAfter()
 		self.reset_ui()
@@ -821,9 +821,9 @@ class cEditArea(wx.Panel):
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+		gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
 
 		return 1
 	#--------------------------------------------------------
@@ -854,7 +854,7 @@ class cEditArea(wx.Panel):
 		self.set_data()
 		event.Skip()
 	#--------------------------------------------------------
-	def on_patient_selected( self, **kwds):
+	def on_post_patient_selection( self, **kwds):
 		# remember to use wxCallAfter()
 		self.set_data()
 	#--------------------------------------------------------
@@ -867,7 +867,7 @@ class cEditArea(wx.Panel):
 		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
-	def _on_activating_patient(self, **kwds):
+	def _on_pre_patient_selection(self, **kwds):
 		# remember wxCallAfter
 		if not self._patient.is_connected():
 			return True
@@ -2343,7 +2343,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.104  2006-05-12 12:18:11  ncq
+# Revision 1.105  2006-05-15 13:35:59  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.104  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.80 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmDemographicsWidgets.py,v 1.81 2006-05-15 13:35:59 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -670,7 +670,7 @@ class DemographicDetailWindow(wx.Panel):
 		self.__createdemographicgui()
 		#self.__connect ()
 		if listen:
-			gmDispatcher.connect (self._on_patient_selected, gmSignals.patient_selected ())
+			gmDispatcher.connect (self._on_post_patient_selection, gmSignals.post_patient_selection ())
 
 		
 	def  __createdemographicgui(self):
@@ -1062,7 +1062,7 @@ class DemographicDetailWindow(wx.Panel):
 			self.lb_nok.Append (s, i)
 
 
-	def _on_patient_selected (self, **kwargs):
+	def _on_post_patient_selection (self, **kwargs):
 		self.load_identity (kwargs['patient'].get_identity ())
 		
 	def load_identity (self, identity):
@@ -1867,10 +1867,10 @@ class cPatEditionNotebook(wx.Notebook):
 		Configure enabled event signals
 		"""
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.activating_patient(), receiver=self._on_activating_patient)
+		gmDispatcher.connect(signal=gmSignals.pre_patient_selection(), receiver=self._on_pre_patient_selection)
 		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
 	#--------------------------------------------------------
-	def _on_activating_patient(self):
+	def _on_pre_patient_selection(self):
 		"""Another patient is about to be activated."""
 #		print "[%s]: another patient is about to become active" % self.__class__.__name__
 #		print "need code to ask user about unsaved patient details"
@@ -2708,9 +2708,9 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self._on_save)
 		wx.EVT_BUTTON(self.__BTN_restore, self.__BTN_restore.GetId(), self._on_restore)
 		# internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 	#--------------------------------------------------------
-	def _on_patient_selected(self):
+	def _on_post_patient_selection(self):
 		"""Patient changed."""
 		self._schedule_data_reget()
 	#--------------------------------------------------------
@@ -2935,7 +2935,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.80  2006-05-14 21:44:22  ncq
+# Revision 1.81  2006-05-15 13:35:59  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.80  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #

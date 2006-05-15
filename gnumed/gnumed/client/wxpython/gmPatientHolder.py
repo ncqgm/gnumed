@@ -8,8 +8,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.20 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPatientHolder.py,v 1.21 2006-05-15 13:36:00 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
@@ -27,18 +27,18 @@ except ImportError:
 class PatientHolder:
 	def __init__(self):
 		# patient is about to change
-		gmDispatcher.connect(self._on_activating_patient, gmSignals.activating_patient())
+		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
 		# new patient has been selected
-		gmDispatcher.connect(self._on_patient_selected, gmSignals.patient_selected())
+		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
 		self.patient = gmPerson.gmCurrentPatient()
 	#------------------------------------------------
-	def _on_patient_selected( self, **kwds):
+	def _on_post_patient_selection( self, **kwds):
 		try:
 			wx.CallAfter(self._updateUI_wrapper)
 		except:
 			gmLog.gmDefLog.LogException( "updateUI problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 	#------------------------------------------------
-	def _on_activating_patient (self, **kwds):
+	def _on_pre_patient_selection (self, **kwds):
 		# this needs to work synchronously, otherwise
 		# gmCurrentPatient will have changed by the
 		# time we save the data
@@ -76,7 +76,12 @@ class PatientHolder:
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.20  2006-05-04 09:49:20  ncq
+# Revision 1.21  2006-05-15 13:36:00  ncq
+# - signal cleanup:
+#   - activating_patient -> pre_patient_selection
+#   - patient_selected -> post_patient_selection
+#
+# Revision 1.20  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
