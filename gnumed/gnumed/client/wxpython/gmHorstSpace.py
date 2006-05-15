@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.26 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmHorstSpace.py,v 1.27 2006-05-15 13:36:49 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -60,7 +60,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			size = wx.Size(320,240),
 			style = wx.NB_BOTTOM
 		)
-		#nb_szr = wx.NotebookSizer(self.nb)
 		# plugins
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['horstspace.notebook'] = self.nb # FIXME: remove per Ian's API suggestion
@@ -95,8 +94,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		wx.EVT_NOTEBOOK_PAGE_CHANGED (self.nb, self.ID_NOTEBOOK, self._on_notebook_page_changed)
 		# - popup menu on right click in notebook
 		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
-
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
@@ -140,7 +137,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		# force-refresh first notebook page
 		page = self.nb.GetPage(0)
-		print page
 		page.Refresh()
 
 #		if first_plugin is not None:
@@ -155,23 +151,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	# external callbacks
 	#----------------------------------------------
-	def _on_patient_selected(self):
-		# this workaround forces a change in notebook tab to
-		# force a refresh on the old one when a new patient is
-		# selected
-		# it's useful to confirm the identity of the selected
-		# patient so force the notebook to display demographics for now
-		# FIXME: later make this go to the "patient summary" tab
-		self.nb.SetSelection(1)
-	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed.
 		"""
 		_log.Log(gmLog.lData, 'about to switch notebook tabs')
-
-		# FIXME: this is the place to tell the old page to
-		# make it's state permanent somehow, in general, call
-		# any "validators" for the old page here
 
 		self.__new_page_already_checked = False
 		self.__id_prev_nb_page = self.nb.GetSelection()
@@ -330,7 +313,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.26  2006-05-12 12:18:11  ncq
+# Revision 1.27  2006-05-15 13:36:49  ncq
+# - cleanup
+#
+# Revision 1.26  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #
