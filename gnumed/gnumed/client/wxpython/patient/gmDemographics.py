@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.35 2005-09-26 18:01:53 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmDemographics.py,v 1.36 2006-05-15 13:42:02 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, SJ Tan"
 
 
@@ -387,7 +387,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		# load the demographic text controls
 		# send a signal to other objects
 		kwds = {'title':pat_title, 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
-		gmDispatcher.send (gmSignals.patient_selected (), sender='Terry Patient Selector', kwds=kwds )
+		gmDispatcher.send (gmSignals.post_patient_selection (), sender='Terry Patient Selector', kwds=kwds )
 
 	def FindPatient (self, name):
 		self.patientslist.SetQueryStr (gmPatientNameQuery.MakeQuery (name), service='personalia')
@@ -422,7 +422,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 #
 #	def RegisterInterests(self):
 #		pass
-#		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
+#		gmDispatcher.connect(self.OnSelected, gmSignals.post_patient_selection())
 #
 #	def OnSelected (self, **kwargs):
 #		pass
@@ -435,7 +435,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.35  2005-09-26 18:01:53  ncq
+# Revision 1.36  2006-05-15 13:42:02  ncq
+# - use new signals for activating_patient/patient_selected
+#
+# Revision 1.35  2005/09/26 18:01:53  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
