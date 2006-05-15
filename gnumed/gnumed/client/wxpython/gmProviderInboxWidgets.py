@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.5 2006-05-15 13:39:31 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmProviderInboxWidgets.py,v 1.6 2006-05-15 14:46:38 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -94,7 +94,9 @@ Leaving message in inbox.""") % handler_key,
 			)
 			return False
 		if not handle_item(pk_context = msg[6]):
-			print "handler returned False"
+			_log.Log(gmLog.lErr, 'item handler returned "false"')
+			_log.Log(gmLog.lErr, 'handler key: [%s]' % handler_key)
+			_log.Log(gmLog.lErr, 'message: %s' % str(msg))
 			return False
 		return True
 	#--------------------------------------------------------
@@ -107,17 +109,35 @@ Leaving message in inbox.""") % handler_key,
 		self._TXT_inbox_item_comment.SetValue(tmp)
 	#--------------------------------------------------------
 	def _lst_item_right_clicked(self, evt):
-		pass
-		# popup context menu
+		self.__focussed_msg = self.__msgs[evt.m_itemIndex]
+		# build menu
+		menu = wx.Menu(title = _('Inbox Message menu'))
+		# - delete message
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, 'delete message'))
+		wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
+		# show menu
+		self.PopupMenu(menu, wx.DefaultPosition)
+		menu.Destroy()
 	#--------------------------------------------------------
 	# item handlers
+	#--------------------------------------------------------
+	def _on_delete_focussed_msg(self, evt):
+		inbox = gmProviderInbox.cProviderInbox()
+		if not inbox.delete_message(self.__focussed_msg[8]):
+			gmGuiHelpers.gm_beep_statustext (
+				_('Cannot remove message from Inbox.')
+			)
+			return False
+		self._populate_with_data()
+		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None):
 		if not gmPerson.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_context)):
 			gmGuiHelpers.gm_show_error (
 				_('Supposedly there are unreviewed documents'
-				'for patient [%s]. However, I cannot find'
-				'that patient in the GNUmed database.'
+				  'for patient [%s]. However, I cannot find'
+				  'that patient in the GNUmed database.'
 				) % pk_context,
 				_('handling provider inbox item'),
 				gmLog.lErr
@@ -127,7 +147,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.5  2006-05-15 13:39:31  ncq
+# Revision 1.6  2006-05-15 14:46:38  ncq
+# - implement message deletion via context menu popup
+#
+# Revision 1.5  2006/05/15 13:39:31  ncq
 # - cleanup
 #
 # Revision 1.4  2006/05/12 22:04:22  ncq
