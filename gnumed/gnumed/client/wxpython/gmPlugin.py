@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.59 2006-05-15 07:05:07 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPlugin.py,v 1.60 2006-05-15 13:38:52 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -67,9 +67,6 @@ class cLoadProgressBar (wx.ProgressDialog):
 		self.prev_plugin = plugin
 		self.idx += 1
 			
-
-
-
 #==================================================================
 # TODO: remove set argument
 
@@ -79,7 +76,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 class cNotebookPlugin:
 	"""Base class for plugins which provide a full notebook page.
 	"""
-	def __init__(self, set=None):
+	def __init__(self):
 		self.gb = gmGuiBroker.GuiBroker()
 		self._set = 'gui'
 		self._widget = None
@@ -229,6 +226,20 @@ class cNotebookPlugin:
 	def __register_events(self):
 		gmDispatcher.connect(self._on_raise_by_signal, gmSignals.display_widget())
 #==================================================================
+class cPatientChange_PluginMixin:
+	"""This mixin adds listening to patient change signals."""
+	def __init__(self):
+		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+	# -----------------------------------------------------
+	def _pre_patient_selection(self, **kwds):
+		print "%s._pre_patient_selection() not implemented" % self.__class__.__name__
+		print "should usually be used to commit unsaved data"
+	# -----------------------------------------------------
+	def _post_patient_selection(self, **kwds):
+		print "%s._post_patient_selection() not implemented" % self.__class__.__name__
+		print "should usually be used to initialize state"
+#==================================================================
 class cNotebookPluginOld(cNotebookPlugin):
 	def __init__(self, set=None):
 		print "%s: class cNotebookPluginOld used, please convert" % self.__class__.__name__
@@ -260,6 +271,7 @@ class cNotebookPluginOld(cNotebookPlugin):
 #------------------------------------------------------------------
 def raise_notebook_plugin(plugin_name = None):
 	"""plugin_name is a plugin internal name"""
+	print "gmPlugin.raise_notebook_plugin() deprecated, use <display_widget> signal instead"
 	gb = gmGuiBroker.GuiBroker()
 	try:
 		plugin = gb['horstspace.notebook.gui'][plugin_name]
@@ -314,9 +326,6 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 
 	module_from_package = __gm_import('Gnumed.wxpython.%s.%s' % (aPackage, plugin_name))
 	# find name of class of plugin (must be the same as the plugin module filename)
-	#print
-	#print "module_from_package", module_from_package
-	#print
 	plugin_class = module_from_package.__dict__[plugin_name]
 
 	if not issubclass(plugin_class, cNotebookPlugin):
@@ -325,7 +334,7 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 
 	_log.Log(gmLog.lInfo, plugin_name)
 	try:
-		plugin = plugin_class(set = aPackage)
+		plugin = plugin_class()
 	except:
 		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
@@ -431,7 +440,13 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.59  2006-05-15 07:05:07  ncq
+# Revision 1.60  2006-05-15 13:38:52  ncq
+# - remove "set" argument from notebook plugin __init__
+# - cPatientChange_PluginMixin
+# 	- inherit from this to listen to patient change signals
+# - add depreciation warning to raise_notebook_plugin()
+#
+# Revision 1.59  2006/05/15 07:05:07  ncq
 # - must import gmPerson now
 #
 # Revision 1.58  2006/05/14 21:44:22  ncq
