@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -92,17 +92,11 @@ def clin_item_updated():
 #-------------------------------------------------------------
 def pre_patient_selection():
 	"""the currently active patient is about to be changed"""
-	return 'activating_patient'
-
-def activating_patient():
-	return pre_patient_selection()
+	return 'pre_patient_selection'
 
 def post_patient_selection():
 	"""another patient has been selected to be the currently active patient"""
-	return 'patient_selected'
-
-def patient_selected():
-	return post_patient_selection()
+	return 'post_patient_selection'
 
 def patient_modified():
 	"the current patients demographic data has been modified"
@@ -229,7 +223,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.13  2006-05-12 21:58:30  ncq
+# Revision 1.14  2006-05-15 13:25:55  ncq
+# - remove signals "activating_patient" and "patient_selected"
+#
+# Revision 1.13  2006/05/12 21:58:30  ncq
 # - add display_widget() signal
 #
 # Revision 1.12  2006/01/18 14:16:01  sjtan
