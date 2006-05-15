@@ -3,8 +3,8 @@
 # later to evolve into a more complete "provider-centric hub"
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmProviderInboxPlugin.py,v $
-# $Id: gmProviderInboxPlugin.py,v 1.1 2006-01-15 14:30:56 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmProviderInboxPlugin.py,v 1.2 2006-05-15 11:07:26 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -15,10 +15,8 @@ except ImportError:
     from wxPython import wx
 
 from Gnumed.wxpython import gmPlugin, gmProviderInboxWidgets
-from Gnumed.pycommon import gmLog
-_log = gmLog.gmDefLog
 
-#====================================
+#======================================================================
 class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate the provider inbox window."""
 
@@ -38,7 +36,10 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 		return 1
 #======================================================================
 # $Log: gmProviderInboxPlugin.py,v $
-# Revision 1.1  2006-01-15 14:30:56  ncq
+# Revision 1.2  2006-05-15 11:07:26  ncq
+# - cleanup
+#
+# Revision 1.1  2006/01/15 14:30:56  ncq
 # - first crude cut at this
 #
 #
