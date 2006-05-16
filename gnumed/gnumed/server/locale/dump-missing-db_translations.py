@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-"""GnuMed database i18n dumper.
+"""GNUmed database i18n dumper.
 
 This script dumps all the strings in the database
 for which no translation is given.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.5 2006-01-09 13:48:23 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: dump-missing-db_translations.py,v 1.6 2006-05-16 15:56:20 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -51,7 +51,10 @@ if __name__ == '__main__':
 	print "done"
 #============================================================
 # $Log: dump-missing-db_translations.py,v $
-# Revision 1.5  2006-01-09 13:48:23  ncq
+# Revision 1.6  2006-05-16 15:56:20  ncq
+# - cleanup
+#
+# Revision 1.5  2006/01/09 13:48:23  ncq
 # - adjust to schema "i18n"
 #
 # Revision 1.4  2005/03/31 20:11:22  ncq
