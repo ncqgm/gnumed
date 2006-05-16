@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -272,14 +272,30 @@ select i18n.upd_tx('de_DE', 'transsexual phenotype female', 'transsexuell, weibl
 select i18n.upd_tx('de_DE', 'h', 'h');
 select i18n.upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
 
+select i18n.upd_tx('de_DE', 'doctor', 'Arzt');
+select i18n.upd_tx('de_DE', 'nurse', 'Arzthelferin');
+select i18n.upd_tx('de_DE', 'secretary', 'Sekretärin');
+
+select i18n.upd_tx('de_DE', 'clinical', 'medizinisch');
+select i18n.upd_tx('de_DE', 'personal', 'persönlich');
+select i18n.upd_tx('de_DE', 'administrative', 'Verwaltung');
+select i18n.upd_tx('de_DE', 'review lab', 'Labor durchsehen');
+select i18n.upd_tx('de_DE', 'review docs', 'Dokumente durchsehen');
+select i18n.upd_tx('de_DE', 'FYI', 'zur Kenntnisnahme');
+select i18n.upd_tx('de_DE', 'memo', 'Memo');
+select i18n.upd_tx('de_DE', 'noted at age', 'aufgefallen im Alter von');
+select i18n.upd_tx('de_DE', 'unreviewed documents for patient', 'neue Dokumente für Patient');
+
 -- =============================================
 -- do simple revision tracking
-delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.10 $');
+select log_script_insertion('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.10  2006-01-09 13:46:19  ncq
+-- Revision 1.11  2006-05-16 16:01:35  ncq
+-- - translate a bunch of strings
+--
+-- Revision 1.10  2006/01/09 13:46:19  ncq
 -- - adjust to schema "i18n" qualification
 --
 -- Revision 1.9  2005/09/19 16:38:52  ncq
