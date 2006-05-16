@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.6 2006-05-15 14:46:38 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmProviderInboxWidgets.py,v 1.7 2006-05-16 15:56:03 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -71,6 +71,10 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 			self._LCTRL_provider_inbox.SetStringItem(index = item_idx, col=2, label=msg[2])
 			self._LCTRL_provider_inbox.SetStringItem(index = item_idx, col=3, label=msg[3])
 
+		# FIXME: isn't there a way to say "resize all cols" ?
+		self._LCTRL_provider_inbox.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
+		self._LCTRL_provider_inbox.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
+		self._LCTRL_provider_inbox.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE)
 		self._LCTRL_provider_inbox.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE)
 	#--------------------------------------------------------
 	# event handlers
@@ -147,7 +151,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.6  2006-05-15 14:46:38  ncq
+# Revision 1.7  2006-05-16 15:56:03  ncq
+# - properly resize columns
+#
+# Revision 1.6  2006/05/15 14:46:38  ncq
 # - implement message deletion via context menu popup
 #
 # Revision 1.5  2006/05/15 13:39:31  ncq
