@@ -2,7 +2,7 @@
 -- GNUmed - dynamic tables for the provider inbox
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmProviderInbox-dynamic.sql,v $
--- $Id: gmProviderInbox-dynamic.sql,v 1.9 2006-05-16 08:21:48 ncq Exp $
+-- $Id: gmProviderInbox-dynamic.sql,v 1.10 2006-05-16 16:01:06 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -117,7 +117,7 @@ select
 		as type,
 	_('review docs')
 		as l10n_type,
-	(select _('unreviewed documents for patient [') || vbp.lastnames || ', ' || vbp.firstnames || ']'
+	(select _('unreviewed documents for patient') || ' [' || vbp.lastnames || ', ' || vbp.firstnames || ']'
 	 from dem.v_basic_person vbp
 	 where vbp.pk_identity=vo4dnd.pk_patient)
 	 	as comment,
@@ -139,6 +139,8 @@ where
 	reviewed is False
 ;
 
+select i18n.i18n('unreviewed documents for patient');
+
 -- =============================================
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	dem.provider_inbox
@@ -153,11 +155,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.9 $');
+select log_script_insertion('$RCSfile: gmProviderInbox-dynamic.sql,v $2', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmProviderInbox-dynamic.sql,v $
--- Revision 1.9  2006-05-16 08:21:48  ncq
+-- Revision 1.10  2006-05-16 16:01:06  ncq
+-- - improve inbox view and prepare for translation
+--
+-- Revision 1.9  2006/05/16 08:21:48  ncq
 -- - remove field duplication from inbox view
 -- - UNION in unreviewed documents - auto-messages in your inbox :-)
 --
