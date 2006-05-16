@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -148,6 +148,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		self._TBOX_description.SetValue('')
 		# FIXME: set from config item
 		self._ChBOX_reviewed.SetValue(False)
+		self._ChBOX_abnormal.Disable()
+		self._ChBOX_abnormal.SetValue(False)
+		self._ChBOX_relevant.Disable()
+		self._ChBOX_relevant.SetValue(False)
 		# the list holding our page files
 		self._LBOX_doc_pages.Clear()
 		self.acquired_pages = []
@@ -438,14 +442,14 @@ off this message in the GNUmed configuration.""") % ref
 	def _startover_btn_pressed(self, evt):
 		self.__init_ui_data()
 	#--------------------------------------------------------
-	def _reviewed_box_checked(self, evt):	
-		print "must enable relevant/abnormal checkboxes here"
+	def _reviewed_box_checked(self, evt):
+		self._ChBOX_abnormal.Enable(enable = self._ChBOX_reviewed.GetValue())
+		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
 	#--------------------------------------------------------
 	def _on_enter_episode_phrasewheel(self):
 		pat = gmPerson.gmCurrentPatient()
 		self._PhWheel_episode.set_context('pat', pat.getID())
 		return True
-
 #============================================================
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A document tree that can be sorted."""
@@ -929,7 +933,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.70  2006-05-15 13:36:00  ncq
+# Revision 1.71  2006-05-16 15:54:39  ncq
+# - properly handle check boxes
+#
+# Revision 1.70  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
