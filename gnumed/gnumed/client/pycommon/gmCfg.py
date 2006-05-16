@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -230,22 +230,23 @@ limit 1""" % where_clause
 				return None
 			return default
 
-		cfg_type = rows[0][1]
+		cfg_type = rows[0][0]
 		args = {
 			'opt': option,
 			'wp': workplace,
-			'cookie': cookie
+			'cookie': cookie,
+			'def': cfg_DEFAULT
 		}
 
 		# 1) search value with explicit workplace and current user
 		where_parts = [
-			'vco.owner = CURRENT_USER',
-			'vco.workplace = %(wp)s',
-			'vco.option = %(opt)s'
+			'vco_X.owner = CURRENT_USER',
+			'vco_X.workplace = %(wp)s',
+			'vco_X.option = %(opt)s'
 		]
 		if cookie is not None:
-			where_parts.append('vco.cookie = %(cookie)s')
-		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
+			where_parts.append('vco_X.cookie = %(cookie)s')
+		cmd = "select vco_X.value from cfg.v_cfg_opts_%s vco_X where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
 		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
 		# error
 		if rows is None:
@@ -260,18 +261,18 @@ limit 1""" % where_clause
 		if bias == 'user':
 			# did *I* set this option on *any* workplace ?
 			where_parts = [
-				'vco.owner = CURRENT_USER',
-				'vco.option = %(opt)s'
+				'vco_X.owner = CURRENT_USER',
+				'vco_X.option = %(opt)s'
 			]
 		else:
 			# did *anyone* set this option on *this* workplace ?
 			where_parts = [
-				'vco.workplace = %(wp)s',
-				'vco.option = %(opt)s'
+				'vco_X.workplace = %(wp)s',
+				'vco_X.option = %(opt)s'
 			]
 		if cookie is not None:
-			where_parts.append('vco.cookie = %(cookie)s')
-		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
+			where_parts.append('vco_X.cookie = %(cookie)s')
+		cmd = "select vco_X.value from cfg.v_cfg_opts_%s vco_X where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
 		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
 		# error
 		if rows is None:
@@ -291,11 +292,11 @@ limit 1""" % where_clause
 
 		# 3) search value within default site policy
 		where_parts = [
-			'vco.owner = %s' % cfg_DEFAULT,
-			'vco.workplace = %s' % cfg_DEFAULT,
-			'vco.option = %(opt)s'
+			'vco_X.owner = %(def)s',
+			'vco_X.workplace = %(def)s',
+			'vco_X.option = %(opt)s'
 		]
-		cmd = "select vco_.value from v_cfg_opts_%s vco_ where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
+		cmd = "select vco_X.value from cfg.v_cfg_opts_%s vco_X where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
 		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
 		# error
 		if rows is None:
@@ -1579,7 +1580,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.38  2006-05-01 18:44:43  ncq
+# Revision 1.39  2006-05-16 15:50:07  ncq
+# - several small fixes in get2() regarding
+#   less travelled codepathes
+#
+# Revision 1.38  2006/05/01 18:44:43  ncq
 # - fix gmPG -> gmPG_ usage
 #
 # Revision 1.37  2006/02/27 15:39:06  ncq
