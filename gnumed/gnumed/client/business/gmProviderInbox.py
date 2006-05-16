@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.5 2006-05-15 14:38:43 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.6 2006-05-16 08:20:28 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmPG
@@ -32,7 +32,7 @@ select
 	category,
 	pk_context,
 	data,
-	pk_inbox_item
+	pk_provider_inbox
 from dem.v_provider_inbox vpi
 where pk_staff = %s
 order by importance desc"""
@@ -55,7 +55,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.5  2006-05-15 14:38:43  ncq
+# Revision 1.6  2006-05-16 08:20:28  ncq
+# - remove field duplication
+#
+# Revision 1.5  2006/05/15 14:38:43  ncq
 # - include message PK in load list
 # - add delete_message()
 #
