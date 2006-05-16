@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.3 2006-05-01 18:47:16 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMimeLib.py,v 1.4 2006-05-16 15:50:51 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -100,7 +100,7 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 		aFileName = """%s"""
 
 	mailcaps = mailcap.getcaps()
-	(cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = "\'%s\'" % aFileName)
+	(cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = '%s' % aFileName)
 	# FIXME: actually we should check for "x-token" flags such as x-docsys
 
 	#if (cmd is None) and ()
@@ -152,9 +152,9 @@ def call_viewer_on_file(aFile = None):
 
 	# sigh ! let's be off to work
 	mime_type = guess_mimetype(aFile)
-	_log.Log(gmLog.lData, "mime type : %s" % mime_type)
+	_log.Log(gmLog.lData, "mime type : <%s>" % mime_type)
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
-	_log.Log(gmLog.lData, "viewer cmd: '%s'" % viewer_cmd)
+	_log.Log(gmLog.lData, "viewer cmd: <%s>" % viewer_cmd)
 
 	if viewer_cmd != None:
 		os.system(viewer_cmd)
@@ -192,8 +192,7 @@ def call_viewer_on_file(aFile = None):
 			_log.LogException(msg, sys.exc_info(), verbose=0)
 			return None, msg
 
-	# clean up if necessary
-	# don't kill the file from under the (async) viewer
+	# don't kill the file from under the (possibly async) viewer
 #	if file_to_display != aFile:
 #		os.remove(file_to_display)
 
@@ -206,7 +205,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.3  2006-05-01 18:47:16  ncq
+# Revision 1.4  2006-05-16 15:50:51  ncq
+# - properly escape filename
+#
+# Revision 1.3  2006/05/01 18:47:16  ncq
 # - add use of "extract" command in mimetype guessing
 #
 # Revision 1.2  2004/10/11 19:08:08  ncq
