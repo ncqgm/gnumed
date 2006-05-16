@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.77 $
+-- $Revision: 1.78 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -672,21 +672,6 @@ insert into blobs.doc_obj (
 	 'missing'
 );
 
--- notice to provider
-insert into dem.provider_inbox (
-	fk_staff,
-	fk_inbox_item_type,
-	comment,
-	ufk_context,
-	importance
-) values (
-	(select pk_staff from dem.v_staff where short_alias='LMcC'),
-	(select pk_type from dem.v_inbox_item_type where type='review docs'),
-	'Cpt.Kirk now has some recent Vietnam pictures in his EMR',
-	currval('dem.identity_pk_seq'),
-	-1
-);
-
 -- a few more notices to the provider
 insert into dem.provider_inbox (
 	fk_staff,
@@ -716,11 +701,15 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.77 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.78 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.77  2006-05-10 13:05:22  ncq
+-- Revision 1.78  2006-05-16 08:22:39  ncq
+-- - unreviewed docs auto-create virtual inbox messages
+--   now so remove explicit one
+--
+-- Revision 1.77  2006/05/10 13:05:22  ncq
 -- - add two more intox messages
 -- - set ufk_context to Kirk ID on "review docs" message
 --
