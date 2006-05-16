@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.57 2006-05-08 16:33:02 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmMedDoc.py,v 1.58 2006-05-16 15:47:19 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -426,20 +426,18 @@ where
 		# INSERT needed
 		if len(rows) == 0:
 			cols = [
-				"fk_reviewed_row",
 				"fk_reviewer",
+				"fk_reviewed_row",
 				"is_technically_abnormal",
 				"clinically_relevant"
 			]
 			vals = [
 				'%(fk_row)s',
-				'%(fk_reviewer)s',
 				'%(abnormal)s',
 				'%(relevant)s'
 			]
 			args = {
 				'fk_row': self.pk_obj,
-				'fk_reviewer': '(select pk from dem.staff where db_user=current_user)',
 				'abnormal': technically_abnormal,
 				'relevant': clinically_relevant
 			}
@@ -447,6 +445,7 @@ where
 insert into blobs.reviewed_doc_objs (
 	%s
 ) values (
+	(select pk from dem.staff where db_user=current_user),
 	%s
 )""" % (', '.join(cols), ', '.join(vals))
 
@@ -465,12 +464,12 @@ update blobs.reviewed_doc_objs set
 where
 	pk=%%(pk_row)s
 """
-		success, rows = gmPG.run_commits (
+		success, data = gmPG.run_commit2 (
 			link_obj = 'blobs',
 			queries = [(cmd, [args])]
 		)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot set reviewed status on doc part [%s]' % self.pk_obj);
+			_log.Log(gmLog.lErr, 'cannot set reviewed status on doc part [%s]' % self.pk_obj)
 			return False
 
 		return True
@@ -691,7 +690,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.57  2006-05-08 16:33:02  ncq
+# Revision 1.58  2006-05-16 15:47:19  ncq
+# - various small fixes re setting review status
+#
+# Revision 1.57  2006/05/08 16:33:02  ncq
 # - remove useless order by's
 # - add cMedDoc.has_unreviewed_parts()
 #
