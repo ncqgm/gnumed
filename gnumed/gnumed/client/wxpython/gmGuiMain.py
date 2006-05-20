@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.244 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.244 $"
+# $Id: gmGuiMain.py,v 1.245 2006-05-20 18:36:45 ncq Exp $
+__version__ = "$Revision: 1.245 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -980,7 +980,7 @@ Do not rely on this database to work properly in all cases !""")
 	def __set_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
 			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
-			return 1
+			return True
 
 		db_lang = None
 		# get current database locale
@@ -991,7 +991,7 @@ Do not rely on this database to work properly in all cases !""")
 			# knows her stuff and fail graciously
 			_log.Log(gmLog.lWarn, 'cannot get database language')
 			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed')
-			return None
+			return False
 		if len(result) == 0:
 			msg = _(
 				"There is no language selected in the database for user [%s].\n"
@@ -1018,13 +1018,13 @@ Do not rely on this database to work properly in all cases !""")
 			# check if we can match up system and db language somehow
 			if db_lang == gmI18N.system_locale_level['full']:
 				_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
-				return 1
+				return True
 			if db_lang == gmI18N.system_locale_level['country']:
 				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, gmI18N.system_locale))
-				return 1
+				return True
 			if db_lang == gmI18N.system_locale_level['language']:
 				_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, gmI18N.system_locale))
-				return 1
+				return True
 			# no match
 			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, gmI18N.system_locale))
 
@@ -1033,9 +1033,9 @@ Do not rely on this database to work properly in all cases !""")
 		# are we to ignore *this* mismatch ?
 		if gmI18N.system_locale == ignored_sys_lang:
 			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
-			return 1
+			return True
 		# no, so ask user
-		dlg = wx.MessageDialog(
+		dlg = wx.MessageDialog (
 			parent = None,
 			message = msg,
 			caption = _('checking database language settings'),
@@ -1053,22 +1053,35 @@ Do not rely on this database to work properly in all cases !""")
 			]
 			_cfg.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
 			_cfg.store()
-			return 1
+			return True
 
 		# try setting database language (only possible if translation exists)
 		cmd = "select i18n.set_curr_lang(%s) "
 		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 			if len (lang) > 0:
 				# FIXME: we would need to run that on all databases we connect to ...
-				result = gmPG.run_commit('default', [
-					(cmd, [lang])
-					])
+				result = gmPG.run_commit('default', [ (cmd, [lang]) ])
 				if result is None:
 					_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
 					continue
 				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
-				return 1
-		return None
+				return True
+
+		# user wanted to set the DB language but that failed
+		# so try falling back to Englisch
+		set_default = gmGuiHelpers.gm_show_question (
+			_(
+				'Failed to set database language to [%s].\n\n'
+				'No translations available.\n\n'
+				'Do you want to set the database language to English ?'
+			) % gmI18N.system_locale,
+			_('setting database language')
+		)
+		if set_default:
+			cmd = "select i18n.force_curr_lang('en_GB')"
+			gmPG.run_commit('default', [ (cmd, [1]) ])
+
+		return False
 #==============================================================================
 def main():
 	# create an instance of our GNUmed main application
@@ -1090,7 +1103,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.244  2006-05-15 13:36:00  ncq
+# Revision 1.245  2006-05-20 18:36:45  ncq
+# - reset DB language to EN on failing to set it to the user's locale
+#
+# Revision 1.244  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
