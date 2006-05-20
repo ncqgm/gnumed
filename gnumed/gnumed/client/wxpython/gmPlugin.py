@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.60 2006-05-15 13:38:52 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPlugin.py,v 1.61 2006-05-20 18:54:49 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -68,8 +68,6 @@ class cLoadProgressBar (wx.ProgressDialog):
 		self.idx += 1
 			
 #==================================================================
-# TODO: remove set argument
-
 # This is for NOTEBOOK plugins. Please write other base
 # classes for other types of plugins.
 #==================================================================
@@ -180,8 +178,11 @@ class cNotebookPlugin:
 		return 1
 	#-----------------------------------------------------
 	def receive_focus(self):
-		"""We *are* receiving focus via wx.EVT_NotebookPageChanged."""
-		pass
+		"""We *are* receiving focus via wx.EVT_NotebookPageChanged.
+
+		This can be used to populate the plugin widget on receiving focus.
+		"""
+		return True
 	#-----------------------------------------------------
 	def Raise(self):
 		"""Raise ourselves."""
@@ -219,9 +220,6 @@ class cNotebookPlugin:
 	# -----------------------------------------------------
 	def OnShow (self, evt):
 		self.register() # register without changing configuration
-	# -----------------------------------------------------
-	def get_instance(self):
-		return self._widget
 	# -----------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(self._on_raise_by_signal, gmSignals.display_widget())
@@ -440,7 +438,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.60  2006-05-15 13:38:52  ncq
+# Revision 1.61  2006-05-20 18:54:49  ncq
+# - provide default receive_focus() and document it
+# - remove get_instance()
+#
+# Revision 1.60  2006/05/15 13:38:52  ncq
 # - remove "set" argument from notebook plugin __init__
 # - cPatientChange_PluginMixin
 # 	- inherit from this to listen to patient change signals
