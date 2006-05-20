@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.7 2006-05-16 15:56:03 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmProviderInboxWidgets.py,v 1.8 2006-05-20 18:55:21 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -81,7 +81,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
 		msg = self.__msgs[evt.m_itemIndex]
-		handler_key = '%s.%s' % (msg[1], msg[2])
+		handler_key = '%s.%s' % (msg[4], msg[5])
 		try:
 			handle_item = cProviderInboxPnl._item_handlers[handler_key]
 		except KeyError:
@@ -151,7 +151,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.7  2006-05-16 15:56:03  ncq
+# Revision 1.8  2006-05-20 18:55:21  ncq
+# - calculate handler via original category/type not i18ned one
+#
+# Revision 1.7  2006/05/16 15:56:03  ncq
 # - properly resize columns
 #
 # Revision 1.6  2006/05/15 14:46:38  ncq
