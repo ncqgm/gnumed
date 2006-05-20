@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.58 2006-05-16 15:47:19 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmMedDoc.py,v 1.59 2006-05-20 18:29:21 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -545,6 +545,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return parts
 	#--------------------------------------------------------
 	def add_part(self, file=None):
+		"""Add a part to the document."""
 		# create dummy part
 		cmd1 = """
 insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
@@ -576,13 +577,23 @@ VALUES (
 			return None
 		return new_part
 	#--------------------------------------------------------
-	def add_parts_from_files(self, files=None):
+	def add_parts_from_files(self, files=None, reviewer=None):
 		for filename in files:
+
 			new_part = self.add_part(file=filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
 				_log.Log(gmLog.lErr, msg)
 				return (False, msg, filename)
+
+			if reviewer is None:
+				continue
+			new_part['fk_reviewer'] = reviewer
+			if not new_part.save_payload():
+				msg = 'cannot set reviewer to [%s]' % reviewer
+				_log.Log(gmLog.lErr, msg)
+				return (False, msg, filename)
+
 		return (True, '', '')
 	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
@@ -690,7 +701,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.58  2006-05-16 15:47:19  ncq
+# Revision 1.59  2006-05-20 18:29:21  ncq
+# - allow setting reviewer in add_parts_from_files()
+#
+# Revision 1.58  2006/05/16 15:47:19  ncq
 # - various small fixes re setting review status
 #
 # Revision 1.57  2006/05/08 16:33:02  ncq
