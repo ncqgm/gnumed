@@ -3,8 +3,8 @@
 # later to evolve into a more complete "provider-centric hub"
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmProviderInboxPlugin.py,v $
-# $Id: gmProviderInboxPlugin.py,v 1.3 2006-05-15 13:41:05 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmProviderInboxPlugin.py,v 1.4 2006-05-20 18:56:03 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -39,6 +39,9 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin, gmPlugin.cPatientChange_Pl
 	def can_receive_focus(self):
 		return True
 	#--------------------------------------------------------
+	def receive_focus(self):
+		self._widget._populate_with_data()
+	#--------------------------------------------------------
 	# gmPlugin.cPatientChange_PluginMixin API
 	#--------------------------------------------------------
 	def _pre_patient_selection(self, **kwds):
@@ -49,7 +52,10 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin, gmPlugin.cPatientChange_Pl
 		return True
 #======================================================================
 # $Log: gmProviderInboxPlugin.py,v $
-# Revision 1.3  2006-05-15 13:41:05  ncq
+# Revision 1.4  2006-05-20 18:56:03  ncq
+# - use receive_focus() interface
+#
+# Revision 1.3  2006/05/15 13:41:05  ncq
 # - use patient change signal mixin
 # - raise ourselves when patient has changed
 #

@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -479,10 +479,6 @@ class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def RevertChanges(self,event):
 		self.configEntryParamCtrl.RevertToSaved()
 		
-	def _populate_with_data(self):
-		self.configTree.update()
-		return True
-
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -520,7 +516,10 @@ else:
 
 		def MenuInfo (self):
 			return ('tools', _('&ConfigRegistry'))
-			
+
+		def receive_focus(self):
+			self._widget.configTree.update()
+
 	def Setup(parent):
 		"""Wrapper to load this module from an environment that wants a panel
 		"""
@@ -530,7 +529,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.36  2006-05-14 21:44:22  ncq
+# Revision 1.37  2006-05-20 18:56:03  ncq
+# - use receive_focus() interface
+#
+# Revision 1.36  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #

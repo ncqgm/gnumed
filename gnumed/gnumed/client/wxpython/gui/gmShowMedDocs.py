@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -186,6 +186,9 @@ else:
 				return None
 			return 1
 		#--------------------------------------------------------
+#		def receive_focus(self):
+#			self._widget._populate_with_data()
+		#--------------------------------------------------------
 		def _on_raise_by_signal(self, **kwds):
 			if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
 				return False
@@ -232,7 +235,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.65  2006-05-12 22:02:25  ncq
+# Revision 1.66  2006-05-20 18:56:03  ncq
+# - use receive_focus() interface
+#
+# Revision 1.65  2006/05/12 22:02:25  ncq
 # - override _on_raise_by_signal()
 #
 # Revision 1.64  2006/05/07 15:39:18  ncq

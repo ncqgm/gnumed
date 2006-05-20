@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.33 2006-05-15 13:40:02 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmManual.py,v 1.34 2006-05-20 18:56:03 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -89,10 +89,6 @@ class ManualHtmlPanel(wx.Panel):
 
 		self.already_loaded = None
 	#--------------------------------------------------------
-	def _populate_with_data(self):
-		self.FirstLoad()
-		return 1
-	#--------------------------------------------------------
 	def FirstLoad(self):
 		if not self.already_loaded:
 			self.already_loaded = 1
@@ -150,6 +146,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 	#--------------------------------------------------------
 	def MenuInfo (self):
 		return ('help', '&Manual')
+	#--------------------------------------------------------
+	def receive_focus(self):
+		self._widget.FirstLoad()
+		return True
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		return True
@@ -249,7 +249,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.33  2006-05-15 13:40:02  ncq
+# Revision 1.34  2006-05-20 18:56:03  ncq
+# - use receive_focus() interface
+#
+# Revision 1.33  2006/05/15 13:40:02  ncq
 # - turn into new-style notebook plugin
 #
 # Revision 1.32  2005/10/27 21:55:09  shilbert
