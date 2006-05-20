@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.64 2006-05-01 18:49:49 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPhraseWheel.py,v 1.65 2006-05-20 18:54:15 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -48,6 +48,7 @@ class cPhraseWheel (wx.TextCtrl):
 		self.__matcher = aMatchProvider
 		self.__real_matcher = None
 		self.__currMatches = []
+		self.__input_was_selected = False
 
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.allow_multiple_phrases()
@@ -56,7 +57,7 @@ class cPhraseWheel (wx.TextCtrl):
 		self.left_part = ''
 		self.right_part = ''
 		self.data = None
-		self.input_was_selected = False
+		
 		self.selection_only = selection_only
 		self._has_focus = False
 		self._is_modified  = False
@@ -159,7 +160,7 @@ class cPhraseWheel (wx.TextCtrl):
 			for item in matches:
 				if item['label'] == value:
 					self.data = item['data']
-					self.input_was_selected = True
+					self.__input_was_selected = True
 		else:
 			self.data = data
 	#-------------------------------------------------------
@@ -191,7 +192,7 @@ class cPhraseWheel (wx.TextCtrl):
 #		if len (matches) == 1:
 #			self.data = matches[0]['data']
 #			self.SetValue (matches[0]['label'])
-#			self.input_was_selected = True
+#			self.__input_was_selected = True
 #			for notify_listener in self._on_selection_callbacks:
 				# get data associated with selected item
 #				notify_listener(self.data)
@@ -257,7 +258,7 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
-		if self.input_was_selected:
+		if self.__input_was_selected:
 			return 1
 
 		if not self._has_focus:
@@ -317,7 +318,7 @@ class cPhraseWheel (wx.TextCtrl):
 		# remember that we did so
 		self.notified_listeners = 1
 		# remember that the current value was selected from the list
-		self.input_was_selected = True
+		self.__input_was_selected = True
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -394,7 +395,7 @@ class cPhraseWheel (wx.TextCtrl):
 		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
 		# dirty "selected" flag
-		self.input_was_selected = False
+		self.__input_was_selected = False
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
@@ -470,7 +471,7 @@ class cPhraseWheel (wx.TextCtrl):
 			if len(self.__currMatches) > 0:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-				self.input_was_selected = True
+				self.__input_was_selected = True
 				self._is_modified = False
 		return True
 	#--------------------------------------------------------
@@ -481,12 +482,12 @@ class cPhraseWheel (wx.TextCtrl):
 		self.__timer.Stop()
 		self._hide_picklist()
 		# can/must we auto-set the value from the match list ?
-		if (self.selection_only) and (not self.input_was_selected) and (self.GetValue().strip() != ''):
+		if (self.selection_only) and (not self.__input_was_selected) and (self.GetValue().strip() != ''):
 			self._updateMatches()
 			no_matches = len(self.__currMatches)
 			if no_matches == 1:
 				self.data = self.__currMatches[0]['data']
-				self.input_was_selected = True
+				self.__input_was_selected = True
 				self._is_modified = False
 			elif no_matches > 1:
 				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
@@ -575,7 +576,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.64  2006-05-01 18:49:49  ncq
+# Revision 1.65  2006-05-20 18:54:15  ncq
+# - cleanup
+#
+# Revision 1.64  2006/05/01 18:49:49  ncq
 # - add_callback_on_set_focus()
 #
 # Revision 1.63  2005/10/09 08:15:21  ihaywood
