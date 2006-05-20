@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.31 2006-05-12 12:08:51 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmDateTimeInput.py,v 1.32 2006-05-20 18:37:10 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -85,6 +85,7 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
+		# FIXME: popup calendar to pick from
 		return None
 	#--------------------------------------------------------
 	# date fragment expanders
@@ -398,7 +399,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.31  2006-05-12 12:08:51  ncq
+# Revision 1.32  2006-05-20 18:37:10  ncq
+# - cleanup
+#
+# Revision 1.31  2006/05/12 12:08:51  ncq
 # - comment out proposed fix for unicode problems
 #
 # Revision 1.30  2005/09/28 21:27:30  ncq

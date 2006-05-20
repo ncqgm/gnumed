@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.27 2006-05-15 13:36:49 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmHorstSpace.py,v 1.28 2006-05-20 18:37:10 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -200,17 +200,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		"""
 		_log.Log(gmLog.lData, 'notebook tabs were switched')
 
-		# FIXME: we can maybe change title bar information here
-
 		id_new_page = event.GetSelection()
 		id_old_page = event.GetOldSelection()
 		curr_nb_page = self.nb.GetSelection()
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
-		try:
-			new_page.get_instance()._populate_with_data()
-		except:
-			print "error populating notebook page [%s]" % new_page.get_instance()
-			_log.LogException('error populating next notebook page [%s]' % new_page.get_instance(), sys.exc_info())
 
 		self._curr_page = new_page
 
@@ -313,7 +306,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.27  2006-05-15 13:36:49  ncq
+# Revision 1.28  2006-05-20 18:37:10  ncq
+# - cleanup
+#
+# Revision 1.27  2006/05/15 13:36:49  ncq
 # - cleanup
 #
 # Revision 1.26  2006/05/12 12:18:11  ncq
