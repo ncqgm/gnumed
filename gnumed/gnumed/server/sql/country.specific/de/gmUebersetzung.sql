@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -286,13 +286,18 @@ select i18n.upd_tx('de_DE', 'memo', 'Memo');
 select i18n.upd_tx('de_DE', 'noted at age', 'aufgefallen im Alter von');
 select i18n.upd_tx('de_DE', 'unreviewed documents for patient', 'neue Dokumente für Patient');
 
+select i18n.upd_tx('de_DE', ' (closed)', ' (beendet)')
+
 -- =============================================
 -- do simple revision tracking
-select log_script_insertion('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.11 $');
+select log_script_insertion('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.11  2006-05-16 16:01:35  ncq
+-- Revision 1.12  2006-05-20 18:56:20  ncq
+-- - translate "closed" for episodes
+--
+-- Revision 1.11  2006/05/16 16:01:35  ncq
 -- - translate a bunch of strings
 --
 -- Revision 1.10  2006/01/09 13:46:19  ncq

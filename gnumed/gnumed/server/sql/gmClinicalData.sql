@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.45 2006-02-10 14:08:58 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.46 2006-05-20 18:56:20 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -51,6 +51,8 @@ select i18n.i18n('notes');
 select i18n.i18n('code');
 select i18n.i18n('name');
 select i18n.i18n('value');
+
+select i18n.i18n(' (closed)');
 
 -- ===================================================================
 -- clinical narrative types
@@ -255,11 +257,14 @@ insert into clin.test_type (
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.45 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.45  2006-02-10 14:08:58  ncq
+-- Revision 1.46  2006-05-20 18:56:20  ncq
+-- - translate "closed" for episodes
+--
+-- Revision 1.45  2006/02/10 14:08:58  ncq
 -- - factor out EMR structure clinical schema into its own set of files
 --
 -- Revision 1.44  2006/02/08 15:15:39  ncq
