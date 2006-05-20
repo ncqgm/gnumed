@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -104,12 +104,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 	def __init__(self, *args, **kwds):
-		# init ancestor
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
-		# now we *are* a wxgScanIdxDocsPnl child without any additional properties
-	
-		# from here on we can init other stuff
-		# that's not part of the wxGlade GUI
 
 		# setup episode phrasewheel with match provider
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -119,13 +114,27 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		episode_open is true and
 		pk_patient=%%(pat)s and
 		description %(fragment_condition)s""",
-"""select pk_episode, description, 1 from clin.v_pat_episodes where
+"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
 		pk_patient=%%(pat)s and
 		description %(fragment_condition)s
 """]
 		)
 		self._PhWheel_episode.setMatchProvider(mp = mp)
 		self._PhWheel_episode.add_callback_on_set_focus(callback=self._on_enter_episode_phrasewheel)
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			service = 'personalia',
+			queries = ["""
+select
+	pk_staff,
+	short_alias || ' (' || title || firstnames || ' ' || lastnames || ')',
+	1
+from dem.v_staff
+where
+	short_alias || ' ' || firstnames || ' ' || lastnames || ' ' || db_user %(fragment_condition)s"""]
+		)
+		mp.setThresholds(1, 2, 3)
+		self._PhWheel_reviewer.setMatchProvider(mp = mp)
 
 		self.__init_ui_data()
 
@@ -138,6 +147,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		self._PhWheel_episode.SetValue('')
+		# FIXME: should be set to patient's primary doc
+		self._PhWheel_reviewer.selection_only = True
+		me = gmPerson.gmCurrentProvider()
+		self._PhWheel_reviewer.SetValue (
+			value = '%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
+			data = me['pk_staff']
+		)
 		# provide choices for document types
 		self._SelBOX_doc_type.Clear()
 		for doc_type in gmMedDoc.get_document_types():
@@ -170,11 +186,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No pages to save. Aquire some pages first.'),
 				aTitle = title
-				)
+			)
 			return False
 
 		sel = self._SelBOX_doc_type.GetStringSelection()
-		if sel == ''or sel is None or sel < 0:
+		if sel == '' or sel is None or sel < 0:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No document type applied. Choose a document type'),
 				aTitle = title
@@ -191,6 +207,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 		if self._PhWheel_episode.GetValue().strip() == '':
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('You must select an episode to save this document under.'),
+				aTitle = title
+			)
+			return False
+
+		if self._PhWheel_reviewer.GetData() is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('You need to select the doctor who must review the document from the list of staff members.'),
 				aTitle = title
 			)
 			return False
@@ -399,7 +422,7 @@ from your computer.""") % page_fname,
 				return False
 
 		# add document parts from files
-		success, msg, filename = new_doc.add_parts_from_files(files=self.acquired_pages)
+		success, msg, filename = new_doc.add_parts_from_files(files=self.acquired_pages, reviewer=self._PhWheel_reviewer.GetData())
 		if not success:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
@@ -437,6 +460,7 @@ off this message in the GNUmed configuration.""") % ref
 
 		# prepare for next document
 		self.__init_ui_data()
+		gmGuiHelpers.gm_beep_statustext(_('Successfully saved new document.'))
 		return True
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
@@ -933,7 +957,15 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.71  2006-05-16 15:54:39  ncq
+# Revision 1.72  2006-05-20 18:53:39  ncq
+# - cleanup
+# - mark closed episodes in phrasewheel
+# - add match provider to reviewer selection phrasewheel
+# - handle reviewer phrasewheel
+# - set reviewer in add_parts_from_files()
+# - signal successful document saving
+#
+# Revision 1.71  2006/05/16 15:54:39  ncq
 # - properly handle check boxes
 #
 # Revision 1.70  2006/05/15 13:36:00  ncq
