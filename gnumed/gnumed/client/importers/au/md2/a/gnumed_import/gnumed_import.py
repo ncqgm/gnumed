@@ -80,6 +80,8 @@ def get_dbapi(dbapi_n):
 #for normalization of birthdate , as this is required in gnumed_v2 in order to insert an identity.
 DEFAULT_BIRTHDATE = '1-1-1960'
 
+#for finding the pg_user for the dr_id
+global_dr_id_to_pg_user= {}
 
 #confrom is the connection to a dumped dbf to postgres database, which has the source data.
 #conto is the connection to a gnumed_v2 database, which will take the converted data.
@@ -176,7 +178,7 @@ def insert_ext_id(cu, id, pk_exttype, text):
 	
 
 #---------------------------------------------------
-def process_dr( dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no, worktime, cat):
+def process_dr( dr_id, dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no, worktime, cat):
 	print dr, sex, dob, phone, fax, email , reg_no, prov_no, pres_no, worktime, cat
 	
 	dr = dr.upper()
@@ -192,6 +194,15 @@ def process_dr( dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no, workt
 	surname = names[-1]
 	firstnames = ' '.join(names[:-1])
 	print "first, sur", firstnames, surname
+	
+	username = '-'.join([firstnames] + [surname])
+
+	global_dr_id_to_pg_user[int(dr_id)] = username
+
+	print '*' * 100
+	print "added to drid to pg_user ", dr_id, username
+	print '*' * 100
+	print
 	
 	cu = conto.cursor()
 	cu.execute('begin')
@@ -220,7 +231,6 @@ def process_dr( dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no, workt
 
 
 		group = "gm-doctors"
-		username = '-'.join([firstnames] + [surname])
 
 		stmt = """select count(*) from pg_roles where rolname='%s'""" % esc(username)
 		cu.execute(stmt)
@@ -230,6 +240,7 @@ def process_dr( dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no, workt
 			stmt = """create user "%s" nologin in group "%s" """ % ( esc(username) , group)
 			print stmt
 			cu.execute(stmt)
+
 
 		rolename = "doctor"
 		stmt_insert_staff = "insert into dem.staff( fk_identity, fk_role, db_user, short_alias ) values ( %d, (select pk from dem.staff_role where name = '%s' ) , '%s', '%s') "  % ( id, rolename, username, username[0] + username.split('-')[-1]) 
@@ -246,7 +257,7 @@ def process_dr( dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no, workt
 
 def transfer_drs():
 	cu = confrom.cursor()
-	cu.execute('select dr, sex,dob, phone, fax, email, reg_no, prov_no, pres_no, drcode as worktime_cat, category from dr')
+	cu.execute('select dr_no, dr, sex,dob, phone, fax, email, reg_no, prov_no, pres_no, drcode as worktime_cat, category from dr')
 	r  = cu.fetchall()
 	
 	for row in r:
@@ -432,6 +443,7 @@ def process_patient(  ur_no, title, firstname, knownas, surname, sex, dob, decda
 
 #-------------------------------------------------
 def process_patient_progress(ur_no, id_patient):
+	to_user = global_dr_id_to_pg_user
 	# progress note maps to an encounter and episode
 
 	# TODO need to add modified_by to all inserts to use non-login users as well
@@ -446,7 +458,7 @@ def process_patient_progress(ur_no, id_patient):
 		print stmt
 		cu.execute(stmt)
 
-	prog_stmt = "select notes, exam, history, reason, reasoncode, visitdate, starttime, endtime, update from progress where ur_no = '%s' order by visitdate, starttime" % esc(ur_no) 
+	prog_stmt = "select dr_no ::int, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime, update from progress where ur_no = '%s' order by visitdate, starttime" % esc(ur_no) 
 
 	print prog_stmt
 	cu.execute(prog_stmt)
@@ -458,7 +470,8 @@ def process_patient_progress(ur_no, id_patient):
 	
 	# insert as unlinked episode, and encounter with narrative
 	for r in rr:
-		notes, exam, history, reason, reasoncode, visitdate, starttime, endtime,update  = r
+		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime,update  = r
+		print "row is ", r
 		if reason and len(reason.strip()):
 			reason = reason.strip().lower()
 			l = by_reason.get(reason, [])
@@ -494,10 +507,15 @@ def process_patient_progress(ur_no, id_patient):
 	
 	last_datepart = None
 	for r in rr:
-		notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update = r
+		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update = r
 		print "PROCESSING progress =\n notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update"
 		print notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update
-		
+	
+		pg_user = to_user.get(dr_id, None)
+		if pg_user is None:
+			pg_user = 'current_user'
+		else:
+			pg_user = "'"+esc(pg_user)+"'"
 		
 		datepart = ''
 		if visitdate and str(visitdate).strip() <> '':
@@ -533,7 +551,7 @@ def process_patient_progress(ur_no, id_patient):
 			reason = 'xxxDEFAULTxxx'
 
 		# check encounter exists
-		stmt = "select count(*) from clin.encounter where fk_patient = %d and rfe = '%s' and started = '%s' and last_affirmed = '%s' " % ( id_patient, esc(reason), esc(started), esc(lastaffirmed) )
+		stmt = "select count(*) from clin.encounter where fk_patient = %d and reason_for_encounter = '%s' and started = '%s' and last_affirmed = '%s' " % ( id_patient, esc(reason), esc(started), esc(lastaffirmed) )
 		print stmt
 		cu2.execute(stmt)
 		[n] = cu2.fetchone()
@@ -541,7 +559,7 @@ def process_patient_progress(ur_no, id_patient):
 			# skip as encounter already entered
 			continue
 		# create an encounter
-		stmt = "insert into clin.encounter ( fk_patient, rfe, started, last_affirmed) values ( %d, '%s', '%s', '%s')" % ( id_patient, esc( reason), esc(started), esc(lastaffirmed) )
+		stmt = "insert into clin.encounter ( modified_by, fk_patient, reason_for_encounter, started, last_affirmed) values (%s, %d, '%s', '%s', '%s')" % (pg_user, id_patient, esc( reason), esc(started), esc(lastaffirmed) )
 
 		print stmt
 
@@ -552,7 +570,7 @@ def process_patient_progress(ur_no, id_patient):
 
 		#create an unlinked episode
 
-		stmt = "insert into clin.episode ( fk_patient, description, is_open) values (%d, '%s', false)" % ( id_patient, esc(reason))
+		stmt = "insert into clin.episode ( modified_by, fk_patient, description, is_open) values (%s, %d, '%s', false)" % (pg_user, id_patient, esc(reason))
 
 		print stmt
 
@@ -611,8 +629,11 @@ def process_patient_progress(ur_no, id_patient):
 			if n < 0:
 				n = x.find('Review')
 				
+			# read text upto Action, Management or Review, and set as previous state	
 			if n > 0:
 				cat[state].append(x[:n])
+
+			# set next state to 'p'	
 			if n >= 0:
 				x= x[n:]
 				state = 'p'
@@ -630,17 +651,23 @@ def process_patient_progress(ur_no, id_patient):
 		for (soap_cat, narrative) in narratives:
 			if narrative.strip() == '':
 				continue
-			stmt = "insert into clin.clin_narrative( fk_encounter, fk_episode, clin_when, soap_cat, narrative) values (%d,%d,'%s','%s', '%s') " % ( pk_encounter, pk_episode, esc(started),soap_cat,  esc( narrative) )
+			query = "select count(*) from clin.clin_narrative where fk_encounter = %d and fk_episode = %d and soap_cat = '%s' and md5(narrative) = md5('%s')"
+			r_qry = query % ( pk_encounter, pk_episode, soap_cat, esc(narrative) )
+			cu2.execute(r_qry)
+			[cnt] = cu2.fetchone()
+			if cnt > 0:
+				print "*" * 100
+				print "duplicate narrative found"
+				print "*" * 100
+				print "skipping"
+				print
+				continue
+			stmt = "insert into clin.clin_narrative(modified_by, fk_encounter, fk_episode, clin_when, soap_cat, narrative) values (%s, %d,%d,'%s','%s', '%s') " % (pg_user, pk_encounter, pk_episode, esc(started),soap_cat,  esc( narrative) )
 
 
 			print stmt
 			cu2.execute(stmt)
 			
-		
-		#stmt = "insert into clin.clin_narrative( fk_encounter, fk_episode, clin_when, soap_cat, narrative) values (%d,%d,'%s','s', '%s') " % ( pk_encounter, pk_episode, esc(started), esc( rtf2plain.rtf2plain(notes)) )
-
-		#print stmt
-		#cu2.execute(stmt)
 		
 	for reason, pnotes in by_reason.items():
 		# arbitrary, 3 visits for same reason consitutes a health issue
@@ -661,7 +688,7 @@ def process_patient_progress(ur_no, id_patient):
 				[pk_issue] = cu2.fetchone()
 			
 			for r in pnotes:
-				notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update = r
+				dr_id,notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update = r
 				
 				(pk_episode, started, lastaffirmed) = map_time_to_episode.get( str(visitdate) + ' '+str(starttime), (None,None,None) )
 				if pk_episode:
@@ -673,7 +700,103 @@ def process_patient_progress(ur_no, id_patient):
 
 	return map_time_to_episode			
 			
+def process_patient_history( ur_no, pat_id) :
+
+	to_user = global_dr_id_to_pg_user
+	cu = confrom.cursor()
+	cu2 = conto.cursor()
+
+	stmt = "select dob ::date from dem.identity where pk = %d" % pat_id
+
+	cu2.execute(stmt)
+	[dob] = cu2.fetchone()
+
+
+	stmt = """
+	select dr_no ::int , delcode, month, year, condition, comment, update, side, active, hide , histcode ,
+	case when ( month is null or length(btrim(month)) = 0) and length(btrim(year)) = 4 
+		then ('01-01-'||replace(year, 'O', '0') ) ::date 
+	 when length(month) > 8 then 
+	   	to_date ( month, 'dd/MM/YYYY')
+	else 
+		 now() 
+	end as date_noted
+	from history where ur_no = '%s' order by year, month, update, dr_no, condition
+	""" 
+
+	real_stmt  = stmt % esc( ur_no)
+	cu.execute(real_stmt)
+
+	rows = cu.fetchall()
+
+
+	for (dr_id, delcode, month, year, condition, comment, update, side, active, hide, histcode, date_noted) in rows:
+		if date_noted is None or str(date_noted).strip() == '':
+			date_noted = 'now()'
+		else:
+			date_noted = "'" + esc(date_noted) +"'"
+
+		pg_user = to_user.get(dr_id, None)
+		if not pg_user:
+			pg_user = 'current_user'
+		else:
+			pg_user ="'"+esc(pg_user) + "'"
 		
+		if not condition or condition.strip() == '':
+			continue
+
+		query ="""
+		select count(*) from clin.health_issue where id_patient = %d and description = '%s' 
+			""" % ( pat_id, esc(condition) )
+			
+		cu2.execute(query)
+		[cnt] = cu2.fetchone()
+		if cnt == 0:
+		
+			stmt = """
+			insert into clin.health_issue ( 
+				description, modified_by, modified_when, age_noted, laterality , is_active, is_confidential , id_patient
+			) 
+			values (
+				'%s', %s, to_timestamp('%s', 'YYYYMMddhhmiss' ) , age ( %s, '%s' ) , 
+				 case when '%s'='B' then 'sd'  
+				 	  when '%s'='L' then 's'  
+					  when '%s'='R' then 'd' 
+					  else 'na' end ,
+				'%s', '%s' , %d
+			) 
+				"""
+		else:
+			stmt = """
+				update clin.health_issue set description='%s', modified_by = %s, modified_when = to_timestamp('%s', 'YYYYMMddhhmiss' ) , 
+				age_noted = age ( %s, '%s') ,
+				laterality =  case when '%s'='B' then 'sd'
+				                      when '%s'='L' then 's'
+									                        when '%s'='R' then 'd'
+															                      else 'na' end ,
+				is_active = '%s', is_confidential = '%s' where id_patient = %d and description = 
+				""" + "'" + esc(condition) +"'"
+			
+		real_stmt = stmt	%  ( esc( condition),  pg_user, esc(update) , date_noted, dob, esc(side) , esc(side),esc(side) , active, hide , pat_id ) 
+	
+		print real_stmt
+		cu2.execute(real_stmt)
+
+		
+		if comment and comment.strip() <> '':
+			stmt2 = """
+				insert into clin.episode ( modified_by, modified_when, fk_health_issue, description, is_open) values
+				( 
+				%s, to_timestamp('%s', 'YYYYMMddhhmiss'), currval('clin.health_issue_pk_seq'), '%s', false
+				) """ %  (  pg_user , esc(update), esc(comment) )
+		
+			cu2.execute(stmt2)
+
+			
+	
+
+	
+
 	
 #-----------------------------------
 blocksize = 100
@@ -704,9 +827,11 @@ def transfer_patients():
 		
 		for r in rr:
 			print "processing patient #", totalpats
-			id = process_patient( *r)
-			if id:
-				process_patient_progress( r[0], id )
+			id_patient = process_patient( *r)
+			if id_patient:
+				ur_no = r[0]
+				process_patient_progress( ur_no, id_patient )
+				process_patient_history( ur_no , id_patient )
 			totalpats += 1
 			conto.commit()
 		
