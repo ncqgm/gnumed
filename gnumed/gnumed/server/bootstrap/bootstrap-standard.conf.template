@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.27 $
+version = $Revision: 1.28 $
 
 #----------------------------------
 [installation]
@@ -132,7 +132,8 @@ $schema$
 #----------------------------------
 [server local host]
 
-# can be a host name or an IP address
+# can be a host name or an IP address,
+# if left empty local UNIX domain sockets are used
 name = 127.0.0.1
 
 # the port on which to connect to the server,
@@ -279,7 +280,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.27  2006-05-08 16:36:29  ncq
+# Revision 1.28  2006-05-24 15:33:18  ncq
+# - add comment on empty hostname
+#
+# Revision 1.27  2006/05/08 16:36:29  ncq
 # - better comments
 #
 # Revision 1.26  2005/11/18 15:56:55  ncq
