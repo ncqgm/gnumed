@@ -10,13 +10,22 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.1 2006-05-22 12:00:00 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.2 2006-05-24 09:59:57 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import mx.DateTime as mxDT
+
+(	acc_years,
+	acc_months,
+	acc_days,
+	acc_hours,
+	acc_minutes,
+	acc_seconds,
+	acc_subseconds
+) = range(1,8)
 
 _accuracy_strings = {
 	1: 'years',
@@ -54,7 +63,12 @@ class cFuzzyTimestamp:
 	Unfortunately, one cannot directly derive a class from mx.DateTime.DateTime :-(
 	"""
 	#-----------------------------------------------------------------------
-	def __init__(self, timestamp=None, accuracy=7, modifier=''):
+	def __init__(self, timestamp=None, accuracy=acc_subseconds, modifier=''):
+
+		if timestamp is None:
+			timestamp = mxDT.now()
+			accuracy = acc_subseconds
+			modifier = ''
 
 		if type(timestamp) != mxDT.DateTimeType:
 			raise TypeError, '%s.__init__(): <timestamp> must be of mx.DateTime.DateTime type' % self.__class__.__name__
@@ -84,8 +98,16 @@ class cFuzzyTimestamp:
 			id(self)
 		)
 		return tmp
-	#-----------------------------------------------------------------------+
+	#-----------------------------------------------------------------------
 	# external API
+	#-----------------------------------------------------------------------
+	def strftime(self, format_string):
+		if self.accuracy == 7:
+			return self.timestamp.strftime(format_string)
+		return self.format_accurately()
+	#-----------------------------------------------------------------------
+	def Format(self, format_string):
+		return self.strftime(format_string)
 	#-----------------------------------------------------------------------
 	def format_accurately(self):
 		if self.accuracy == 1:
@@ -127,12 +149,14 @@ if __name__ == '__main__':
 	print "  str()           :", str(ts)
 	print "  repr()          :", repr(ts)
 
-	fts = cFuzzyTimestamp(timestamp=ts)
+	fts = cFuzzyTimestamp()
 	print "\nfuzzy timestamp <%s '%s'>" % ('class', fts.__class__.__name__)
 	for accuracy in range(1,8):
 		fts.accuracy = accuracy
 		print "  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy])
 		print "  format_accurately:", fts.format_accurately()
+		print "  strftime()       :", fts.strftime('%c')
+		print "  Format()         :", fts.Format('%c')
 		print "  print ...        :", fts
 		print "  print '%%s' %% ... : %s" % fts
 		print "  str()            :", str(fts)
@@ -141,7 +165,12 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.1  2006-05-22 12:00:00  ncq
+# Revision 1.2  2006-05-24 09:59:57  ncq
+# - add constants for accuracy values
+# - __init__() now defaults to now()
+# - add accuracy-aware Format()/strftime() proxies
+#
+# Revision 1.1  2006/05/22 12:00:00  ncq
 # - first cut at this
 #
 #
