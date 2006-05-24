@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -159,7 +159,7 @@ where
 		for doc_type in gmMedDoc.get_document_types():
 			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
 		# FIXME: make this configurable: either now() or last_date()
-		self._TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
+		self._PhWheel_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
 		self._TBOX_doc_comment.SetValue('')
 		self._TBOX_description.SetValue('')
 		# FIXME: set from config item
@@ -393,7 +393,8 @@ from your computer.""") % page_fname,
 
 		# update business object with metadata
 		# - date of generation
-		new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
+		#new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
+		new_doc['date'] = self._TBOX_doc_date.GetData().timestamp
 		# - external reference
 		ref = gmMedDoc.get_ext_ref()
 		if ref is not None:
@@ -957,7 +958,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.72  2006-05-20 18:53:39  ncq
+# Revision 1.73  2006-05-24 10:34:51  ncq
+# - use cFuzzyTimestampInput
+#
+# Revision 1.72  2006/05/20 18:53:39  ncq
 # - cleanup
 # - mark closed episodes in phrasewheel
 # - add match provider to reviewer selection phrasewheel
