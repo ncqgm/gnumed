@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -74,7 +74,7 @@ CREATE OR REPLACE FUNCTION audit.ft_ins_%s()
 BEGIN
 	NEW.row_version := 0;
 	NEW.modified_when := CURRENT_TIMESTAMP;
-	NEW.modified_by := CURRENT_USER;
+	NEW.modified_by := SESSION_USER;
 	return NEW;
 END;'"""
 
@@ -92,7 +92,7 @@ CREATE OR REPLACE FUNCTION audit.ft_upd_%s()
 BEGIN
 	NEW.row_version := OLD.row_version + 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
-	NEW.modified_by := CURRENT_USER;
+	NEW.modified_by := SESSION_USER;
 	INSERT INTO audit.%s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
@@ -130,7 +130,9 @@ tmpl_create_audit_trail_table = """
 create table audit.%s (
 %s
 ) inherits (%s);"""
-#grant insert on %s.%s to group "gm-public" 
+
+#grant insert on %s.%s to group "gm-public"
+
 #------------------------------------------------------------------
 #------------------------------------------------------------------
 def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
@@ -264,7 +266,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.25  2006-01-05 16:07:11  ncq
+# Revision 1.26  2006-05-24 12:10:46  ncq
+# - use session_user
+#
+# Revision 1.25  2006/01/05 16:07:11  ncq
 # - generate audit trail tables and functions in schema "audit"
 # - adjust configuration
 # - audit trigger functions now "security definer" (== gm-dbo)
