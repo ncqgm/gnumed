@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.5 2006-02-26 18:33:00 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmLoginInfo.py,v 1.6 2006-05-24 12:50:21 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -28,7 +28,7 @@ class LoginInfo:
 	# private variables
 	__user = 'guest'
 	__passwd = ''
-	__host = None
+	__host = ''
 	__port = 5432
 	__dbname = 'gnumed_v2'
 	__profile = 'default'
@@ -36,7 +36,7 @@ class LoginInfo:
 	def __init__(self, user, passwd, host, port=5432, database='gnumed_v2', profile='default'):
 		self.SetInfo(user, passwd, host, port, database, profile)
 	#------------------------------------------
-	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed_v2', profile='default'):
+	def SetInfo(self, user, passwd, host='', port=5432, dbname='gnumed_v2', profile='default'):
 		self.SetUser(user)
 		self.SetPassword(passwd)
 		self.SetHost(host)
@@ -70,9 +70,10 @@ class LoginInfo:
 		port = str(self.GetPort())
 		# for local UNIX domain sockets connections: leave host/port empty
 		# IH: *PLEASE* option of local TCP/IP connection must be available
-		if host in ['', 'localhost']:
-			host = ""
-			port = ""
+#		if host in ['', 'localhost']:
+#			host = ""
+		if host == '':
+			port = ''
 		dsn = "%s:%s:%s:%s" % (
 			host,
 			self.GetDatabase(),
@@ -86,9 +87,10 @@ class LoginInfo:
 		host = self.GetHost()
 		port = str(self.GetPort())
 		# for local UNIX domain sockets connections: leave host/port empty
-		if host in ['', 'localhost']:
-			host = ""
-			port = ""
+#		if host in ['', 'localhost']:
+#			host = ''
+		if host == '':
+			port = ''
 		dsn = "%s:%s:%s:%s:%s" % (
 			host,
 			port,
@@ -147,7 +149,7 @@ class LoginInfo:
 
 		self.__user = "guest"
 		self.__passwd = ""
-		self.__host = "localhost"
+		self.__host = ''
 		self.__port = 5432
 		self.__dbname = "gnumed_v2"
 		self.__profile = 'default'
@@ -158,7 +160,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.5  2006-02-26 18:33:00  ncq
+# Revision 1.6  2006-05-24 12:50:21  ncq
+# - now only empty string '' means use local UNIX domain socket connections
+#
+# Revision 1.5  2006/02/26 18:33:00  ncq
 # - change default to gnumed_v2
 #
 # Revision 1.4  2004/09/13 09:32:21  ncq

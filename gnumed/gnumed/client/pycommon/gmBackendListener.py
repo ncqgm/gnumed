@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -148,8 +148,8 @@ class BackendListener:
 	#-------------------------------
 	def __connect(self, database, user, password, host, port=5432):
 		try:
-			if host in ['', 'localhost']:
-				host = '' # use local connexions for localhost as it is more secure
+#			if host in ['', 'localhost']:
+#				host = '' # use local connexions for localhost as it is more secure
 			auth = "dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
 			cnx = libpq.PQconnectdb(auth)
 		except libpq.Error, msg:
@@ -294,7 +294,10 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.8  2005-01-27 17:23:14  ncq
+# Revision 1.9  2006-05-24 12:50:21  ncq
+# - now only empty string '' means use local UNIX domain socket connections
+#
+# Revision 1.8  2005/01/27 17:23:14  ncq
 # - just some cleanup
 #
 # Revision 1.7  2005/01/12 14:47:48  ncq

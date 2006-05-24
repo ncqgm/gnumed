@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -490,7 +490,6 @@ class ConnectionPool:
 		hostport = "0"
 
 		try:
-#			conn = dbapi.connect(dsn, host=hostport)
 			conn = dbapi.connect(dsn)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
@@ -1300,7 +1299,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.65 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.66 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1362,7 +1361,7 @@ def __request_login_params_tui():
 
 	print "\nPlease enter the required login parameters:"
 	try:
-		host = __prompted_input("host [localhost]: ", 'localhost')
+		host = __prompted_input("host ['' = non-TCP/IP]: ", '')
 		database = __prompted_input("database [gnumed_v2]: ", 'gnumed_v2')
 		user = __prompted_input("user name: ", '')
 		password = getpass.getpass("password (not shown): ")
@@ -1536,7 +1535,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.65  2006-05-12 12:06:55  ncq
+# Revision 1.66  2006-05-24 12:50:21  ncq
+# - now only empty string '' means use local UNIX domain socket connections
+#
+# Revision 1.65  2006/05/12 12:06:55  ncq
 # - add get_current_user()
 #
 # Revision 1.64  2006/05/04 17:53:32  ncq
