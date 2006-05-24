@@ -1,21 +1,13 @@
 #!/usr/bin/env python
-################################################################
+#===========================================================
 # gnumed.py - launcher for the main gnumed GUI client module
-# --------------------------------------------------------------
-#
-# @copyright: author
-################################################################
-# This source code is protected by the GPL licensing scheme.
-# Details regarding the GPL are available at http://www.gnu.org
-# You may use and share it as long as you don't deny this right
-# to anybody else.
+#===========================================================
 
-"""GNUmed
+__doc__ = """
+GNUmed
 ======
 This is the launcher for the main GNUmed GUI client. It is
 intended to be used as a standalone program.
-
-Command line arguments:
 
 --quiet
  Be extra quiet and show only _real_ errors in the log.
@@ -44,24 +36,35 @@ Command line arguments:
  Use unicode (1) or non-unicode (0) gettext. This is needed for older
  (< 2.5) and non-unicode compiled wx.Widgets/wxPython libraries.
 --lang-gettext=<language>
-Explicitely set the language to use in gettext translation. The very
-same effect can be achieved by setting the environment variable $LANG
-from a launcher script.
+ Explicitely set the language to use in gettext translation. The very
+ same effect can be achieved by setting the environment variable $LANG
+ from a launcher script.
 --override-schema-check
  Continue loading the client even if the database schema version
  and the client software version cannot be verified to be compatible.
 --help, -h, or -?
- Well, show this help.
+ Show this help.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.91 $"
+# $Id: gnumed.py,v 1.92 2006-05-24 09:56:02 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-# standard modules
+
+# standard library
 import sys, os, os.path, signal
 
+#==========================================================
+# don't run as module
+if __name__ != "__main__":
+	print "GNUmed startup: This should not be imported as a module !"
+	print "---------------------------------------------------------"
+	print __doc__
+	sys.exit(0)
+
+#==========================================================
 # advise not to run as root
 if os.name in ['posix'] and os.geteuid() == 0:
 	print """
@@ -74,13 +77,8 @@ against. Please run GNUmed as a non-root user.
 """
 	sys.exit(1)
 
-if __name__ != "__main__":
-	print "GNUmed startup: This should not be imported as a module !"
-	print "---------------------------------------------------------"
-	print __doc__
-	sys.exit(0)
 #==========================================================
-# Python 2.3 on Mandrake seems to turn True/False deprecation warnings
+# Python 2.3 on Mandrake turns True/False deprecation warnings
 # into exceptions, so revert them to warnings again
 try:
 	import warnings
@@ -89,6 +87,17 @@ try:
 except:
 	pass
 
+#==========================================================
+def handle_uncaught_exception(t, v, tb):
+	print "============================"
+	print "Unhandled exception caught !"
+	print "Type :", t
+	print "Value:", v
+	print "============================"
+	# FIXME: allow user to mail report to developers from here
+	sys.__excepthook__(t,v,tb)
+
+#==========================================================
 import_error_sermon = """
 CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
@@ -388,6 +397,9 @@ def get_base_dir():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
+# set up top level exception handler
+sys.excepthook = handle_uncaught_exception
+
 setup_logging()
 setup_locale()
 
@@ -478,7 +490,11 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.91  2005-12-27 19:02:41  ncq
+# Revision 1.92  2006-05-24 09:56:02  ncq
+# - cleanup
+# - hook sys.excepthook
+#
+# Revision 1.91  2005/12/27 19:02:41  ncq
 # - document --overide-schema-check
 #
 # Revision 1.90  2005/12/23 15:43:23  ncq
