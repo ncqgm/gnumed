@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.65 2006-05-20 18:54:15 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPhraseWheel.py,v 1.66 2006-05-24 09:47:34 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -60,7 +60,6 @@ class cPhraseWheel (wx.TextCtrl):
 		
 		self.selection_only = selection_only
 		self._has_focus = False
-		self._is_modified  = False
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
@@ -152,20 +151,28 @@ class cPhraseWheel (wx.TextCtrl):
 		"""
 		return self.data
 	#---------------------------------------------------------
-	def SetValue (self, value, data = None):
-		wx.TextCtrl.SetValue (self, value)
-		self._is_modified = False
-		if self.selection_only and data is None:
-			stat, matches = self.__matcher.getMatches(aFragment = value)
-			for item in matches:
-				if item['label'] == value:
-					self.data = item['data']
-					self.__input_was_selected = True
-		else:
+	def SetValue (self, value, data=None):
+		wx.TextCtrl.SetValue(self, value)
+		self.__input_was_selected = False
+
+		# set data item if available
+		if data is not None:
 			self.data = data
-	#-------------------------------------------------------
-	def IsModified (self):
-		return wx.TextCtrl.IsModified (self) or self._is_modified
+			return True
+
+		# or try to find one from matches
+		stat, matches = self.__matcher.getMatches(aFragment = value)
+		for match in matches:
+			if match['label'] == value:
+				self.data = match['data']
+				self.__input_was_selected = True
+				return True
+
+		# not found
+		self.data = None
+		if self.selection_only:
+			return False
+		return True
 	#--------------------------------------------------------
 	def set_context (self, context, val):
 		if self.__real_matcher:
@@ -249,7 +256,7 @@ class cPhraseWheel (wx.TextCtrl):
 			self._picklist.Clear()
 			if matched:
 				for item in self.__currMatches:
-					self._picklist.Append(str(item['label']), clientData = str(item['data']))
+					self._picklist.Append(str(item['label']), clientData = item['data'])
 		else:
 			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
 	#--------------------------------------------------------
@@ -296,6 +303,9 @@ class cPhraseWheel (wx.TextCtrl):
 			self.__picklist_win.Hide()		# dismiss the dropdown list window
 		self.__picklist_visible = False
 	#--------------------------------------------------------
+	def _calc_display_string(self):
+		return self._picklist.GetString(self._picklist.GetSelection())
+	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
 	def on_list_item_selected (self):
@@ -303,20 +313,22 @@ class cPhraseWheel (wx.TextCtrl):
 		self._hide_picklist()
 
 		# update our display
-		selection_idx = self._picklist.GetSelection()
 		if self.__handle_multiple_phrases:
-			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
+			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
 		else:
-			wx.TextCtrl.SetValue (self, self._picklist.GetString(selection_idx))
-			self.Navigate ()
-		self._is_modified = True
+			wx.TextCtrl.SetValue (self, self._calc_display_string())
+			self.Navigate()
+		self.MarkDirty()
+
 		# get data associated with selected item
-		self.data = self._picklist.GetClientData(selection_idx)
+		self.data = self._picklist.GetClientData(self._picklist.GetSelection())
+
 		# and tell the listeners about the user's selection
 		for call_listener in self._on_selection_callbacks:
 			call_listener(self.data)
 		# remember that we did so
 		self.notified_listeners = 1
+
 		# remember that the current value was selected from the list
 		self.__input_was_selected = True
 	#--------------------------------------------------------
@@ -419,8 +431,8 @@ class cPhraseWheel (wx.TextCtrl):
 		sz = self.GetSize()
 		# resize: as wide as the textctrl, and 1-10 times the height
 		rows = len(self.__currMatches)
-		if rows == 0:
-			rows = 1
+		if rows < 2:
+			rows = 2
 		if rows > 10:
 			rows = 10
 		new_size = (sz.width, sz.height*rows)
@@ -446,7 +458,7 @@ class cPhraseWheel (wx.TextCtrl):
 		# display list - but only if we have more than one match
 		if len(self.__currMatches) > 0:
 			# show it
-			self.on_resize (None)
+			self.on_resize(None)
 			self.__show_picklist()
 		else:
 			# we may have had a pick list window so we
@@ -455,8 +467,10 @@ class cPhraseWheel (wx.TextCtrl):
 			self._hide_picklist()
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
+
 		self._has_focus = True
 		event.Skip()
+
 		# notify interested parties
 		for callback in self._on_set_focus_callbacks:
 			try:
@@ -464,6 +478,7 @@ class cPhraseWheel (wx.TextCtrl):
 					print "[%s:_on_set_focus]: %s returned False" % (self.__class__.__name__, str(callback))
 			except:
 				_log.LogException("[%s:_on_set_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
+
 		# if empty set to first "match"
 		if self.GetValue().strip() == '':
 			# programmers better make sure the turnaround time is limited
@@ -472,23 +487,28 @@ class cPhraseWheel (wx.TextCtrl):
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
 				self.__input_was_selected = True
-				self._is_modified = False
+				self.MarkDirty()
+
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
+
 		self._has_focus = False
 		event.Skip()
+
 		# don't need timer and pick list anymore
 		self.__timer.Stop()
 		self._hide_picklist()
+
 		# can/must we auto-set the value from the match list ?
 		if (self.selection_only) and (not self.__input_was_selected) and (self.GetValue().strip() != ''):
 			self._updateMatches()
 			no_matches = len(self.__currMatches)
 			if no_matches == 1:
+				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
 				self.__input_was_selected = True
-				self._is_modified = False
+				self.MarkDirty()
 			elif no_matches > 1:
 				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
 				return True
@@ -496,6 +516,7 @@ class cPhraseWheel (wx.TextCtrl):
 				gmGuiHelpers.gm_beep_statustext(_('There are no matches for this input.'))
 				self.Clear()
 				return True
+
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
 			try:
@@ -576,7 +597,15 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.65  2006-05-20 18:54:15  ncq
+# Revision 1.66  2006-05-24 09:47:34  ncq
+# - remove superfluous self._is_modified, use MarkDirty() instead
+# - cleanup SetValue()
+# - client data in picklist better be object, not string
+# - add _calc_display_string() for better reuse in subclasses
+# - fix "pick list windows too small if one match" at the cost of extra
+#   empty row when no horizontal scrollbar needed ...
+#
+# Revision 1.65  2006/05/20 18:54:15  ncq
 # - cleanup
 #
 # Revision 1.64  2006/05/01 18:49:49  ncq
