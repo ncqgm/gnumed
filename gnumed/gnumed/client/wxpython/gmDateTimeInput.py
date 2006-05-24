@@ -1,17 +1,17 @@
 # -*- coding: iso-8859-1 -*-
-"""GnuMed date input widget
+"""GNUmed date input widget
 
-All GnuMed date input should happen via classes in
+All GNUmed date input should happen via classes in
 this module. Initially this is just a plain text box
-but using this throughout GnuMed will allow us to
+but using this throughout GNUmed will allow us to
 transparently add features.
 
 @copyright: author(s)
 """
-############################################################################
+#==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.32 2006-05-20 18:37:10 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmDateTimeInput.py,v 1.33 2006-05-24 10:12:37 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,7 +24,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N
+from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N, gmFuzzyTimestamp
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -52,8 +52,24 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 		self.__shifting_base = None
 		self.__expanders = []
 		self.__expanders.append(self.__single_number)
+		self.__expanders.append(self.__single_char)
 		self.__expanders.append(self.__explicit_offset)
+		self.set_single_character_triggers()
 		gmMatchProvider.cMatchProvider.__init__(self)
+	#--------------------------------------------------------
+	def set_single_character_triggers(self, triggers = 'ndmy'):
+		"""Set trigger characters.
+
+		Default is 'ndmy':
+			n - now
+			d - toDay
+			m - toMorrow	Someone please suggest a synonym !
+			y - yesterday
+
+		This also defines the significance of
+		the order of the characters.
+		"""
+		self.__single_char_triggers = triggers[:4]
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -91,55 +107,220 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	# date fragment expanders
 	#--------------------------------------------------------
 	def __single_number(self, aFragment):
+		"""This matches on single numbers.
+
+		Spaces or tabs are discarded.
+		"""
+
 		if not re.match("^(\s|\t)*\d+(\s|\t)*$", aFragment):
 			return None
+
 		val = aFragment.replace(' ', '')
 		val = int(val.replace('\t', ''))
 
 		matches = []
 
-		# day X of this month (if later than today or past explicitely allowed)
+		# day X of this month
 		if (val <= month_length[self.__now.month]) and (val > 0):
-			if (self.__now.day <= val) or (self.__allow_past):
-				target_date = self.__now + mxDT.RelativeDateTime(day = val)
-				tmp = {
-					'data': target_date,
-					'label': _('day %d this month (a %s)') % (val, target_date.strftime('%A'))
-				}
-				matches.append(tmp)
+			ts = self.__now + mxDT.RelativeDateTime(day = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_days
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('%d. of %s (this month) - a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
+			}
+			matches.append(tmp)
 
 		# day X of next month
 		if (val <= month_length[(self.__now + mxDT.RelativeDateTime(months = 1)).month]) and (val > 0):
-			target_date = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
+			ts = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_days
+			)
 			tmp = {
 				'data': target_date,
-				'label': _('day %d next month (a %s)') % (val, target_date.strftime('%A'))
+				'label': _('%d. of %s (next month) - a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
 			}
 			matches.append(tmp)
-		# X days from now (if <32)
-		if val < 32:
-			target_date = self.__now + mxDT.RelativeDateTime(days = val)
+
+		# day X of last month
+		if (val <= month_length[(self.__now + mxDT.RelativeDateTime(months = -1)).month]) and (val > 0):
+			ts = self.__now + mxDT.RelativeDateTime(months = -1, day = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_days
+			)
 			tmp = {
 				'data': target_date,
-				'label': _('in %d day(s) (a %s)') % (val, target_date.strftime('%A'))
+				'label': _('%d. of %s (last month) - a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
 			}
 			matches.append(tmp)
-		# X weeks from now (if <5)
-		if val < 7:
-			target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
+
+		# X days from now
+		ts = self.__now + mxDT.RelativeDateTime(days = val)
+		target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+			timestamp = ts
+		)
+		tmp = {
+			'data': target_date,
+			'label': _('in %d day(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
+		}
+		matches.append(tmp)
+
+		# X weeks from now
+		ts = self.__now + mxDT.RelativeDateTime(weeks = val)
+		target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+			timestamp = ts
+		)
+		tmp = {
+			'data': target_date,
+			'label': _('in %d week(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
+		}
+		matches.append(tmp)
+
+		# month X of ...
+		if val < 13 and val > 0:
+			# ... this year
+			ts = self.__now + mxDT.RelativeDateTime(month = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_months
+			)
 			tmp = {
 				'data': target_date,
-				'label': _('in %d week(s) (a %s)') % (val, target_date.strftime('%A'))
+				'label': _('%s this year (%s)') % (ts.strftime('%B'), target_date)
 			}
 			matches.append(tmp)
-		# day of this week
-		# day of next week
+
+			# ... next year
+			ts = self.__now + mxDT.RelativeDateTime(years = 1, month = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_months
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('%s next year (%s)') % (ts.strftime('%B'), target_date)
+			}
+			matches.append(tmp)
+
+			# ... last year
+			ts = self.__now + mxDT.RelativeDateTime(years = -1, month = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_months
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('%s last year (%s)') % (ts.strftime('%B'), target_date)
+			}
+			matches.append(tmp)
+
+		# day X of ...
+		if val < 8 and val > 0:
+			# ... this week
+			ts = self.__now + mxDT.RelativeDateTime(weekday = (val-1, 0))
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_days
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('%s this week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
+			}
+			matches.append(tmp)
+
+			# ... next week
+			ts = self.__now + mxDT.RelativeDateTime(weeks = +1, weekday = (val-1, 0))
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_days
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('%s next week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
+			}
+			matches.append(tmp)
+
+			# ... last week
+			ts = self.__now + mxDT.RelativeDateTime(weeks = -1, weekday = (val-1, 0))
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_days
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('%s last week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
+			}
+			matches.append(tmp)
+
 		return matches
+	#--------------------------------------------------------
+	def __single_char(self, aFragment):
+		"""This matches on single characters.
+
+		Spaces and tabs are discarded."""
+
+		if not re.match('^(\s|\t)*[%s](\s|\t)*$' % self.__single_char_triggers, aFragment):
+			return None
+
+		val = aFragment.strip().lower()
+
+		# FIXME: handle uebermorgen/vorgestern ?
+
+		# right now
+		if val == self.__single_char_triggers[0]:
+			ts = self.__now
+			return [{
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp (
+					timestamp = ts,
+					accuracy = gmFuzzyTimestamp.acc_subseconds
+				),
+				'label': _('right now (%s, %s)') % (ts.strftime('%A'), ts)
+			}]
+
+		# today
+		if val == self.__single_char_triggers[1]:
+			return [{
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp (
+					timestamp = self.__now,
+					accuracy = gmFuzzyTimestamp.acc_days
+				),
+				'label': _('today (%s)') % self.__now.strftime('%A, %Y-%m-%d')
+			}]
+
+		# tomorrow
+		if val == self.__single_char_triggers[2]:
+			ts = self.__now + mxDT.RelativeDateTime(days = +1)
+			return [{
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp (
+					timestamp = ts,
+					accuracy = gmFuzzyTimestamp.acc_days
+				),
+				'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d')
+			}]
+
+		# yesterday
+		if val == self.__single_char_triggers[3]:
+			ts = self.__now + mxDT.RelativeDateTime(days = -1)
+			return [{
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp (
+					timestamp = ts,
+					accuracy = gmFuzzyTimestamp.acc_days
+				),
+				'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d')
+			}]
+
+		return None
 	#--------------------------------------------------------
 	def __explicit_offset(self, aFragment):
 		# "+/-XXd/w/m/t"
 		if not re.match("^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[mdtw](\s|\t)*$", aFragment):
 			return None
+
 		# allow past ?
 		is_future = 1
 		if string.find(aFragment, '-') > -1:
@@ -178,176 +359,67 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 		}
 		return [tmp]
 #==================================================
-class gmDateInput(gmPhraseWheel.cPhraseWheel):
+class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
+
 	def __init__(self, *args, **kwargs):
+
+		# setup custom match provider
 		matcher = cMatchProvider_Date()
 		matcher.setWordSeparators('xxx_do_not_separate_words_xxx')
 #		matcher.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 		matcher.setThresholds(aWord = 998, aSubstring = 999)
-
-		if not kwargs.has_key('id_callback'):
-			kwargs['id_callback'] =  self.__selected
 		kwargs['aMatchProvider'] = matcher
+
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.allow_multiple_phrases(None)
-		
+		self.selection_only = False
+
 		self.__display_format = _('%Y-%m-%d')
-		self.__default_text = _('enter date here')
 
-		self.SetValue(self.__default_text)
-		self.SetSelection (-1,-1)
-
-		wx.EVT_CHAR(self, self.__on_char)
-#		wx.EVT_KILL_FOCUS(self, self.__on_lose_focus)
-		#wx.EVT_KEY_DOWN (self, self.__on_key_pressed)
-
-		self.__tooltip = _(
-"""------------------------------------------------------------------------------
-Date input field
-
- <ALT-c>:         calendar
- +/- X d/w/m:     X days/weeks/months ago/from now
-
- There are a few more <ALT-?> shortcuts for yesterday, today,
- tomorrow, etc which depend upon your language settings. Please
- refer to the documentation.
-------------------------------------------------------------------------------""")
-#		if globals ().has_key ('wx.USE_UNICODE') and wx.USE_UNICODE:
-#			self.__tooltip = _(
-#				u"""------------------------------------------------------------------------------
-#				Date input field
-#				
-#				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
-#				<ALT-K>:         Kalender
-#				+/- X d/w/m:     X days/weeks/months ago/from now
-#				------------------------------------------------------------------------------
-#""")
-#		else:
-#			self.__tooltip = _(
-#				"""------------------------------------------------------------------------------
-#				Date input field
-#				
-#				<ALT-v/g/h/m/ü>: vorgestern/gestern/heute/morgen/übermorgen
-#				<ALT-K>:         Kalender
-#				+/- X d/w/m:     X days/weeks/months ago/from now
-#				------------------------------------------------------------------------------
-#""")
-		self.SetToolTip(wx.ToolTip(self.__tooltip))
-	#----------------------------------------------
-	def on_list_item_selected (self):
-		"""Gets called when user selected a list item."""
-		self._hide_picklist()
-
-		selection_idx = self._picklist.GetSelection()
-		data = self._picklist.GetClientData(selection_idx)
-
-		self.SetValue(data.strftime(self.__display_format))
-
-		if self.notify_caller is not None:
-			for f in self.notify_caller:
-				f(data)
-	#----------------------------------------------
-	# event handlers
-	#----------------------------------------------
-	def __on_char(self, evt):
-		keycode = evt.GetKeyCode()
-
-		if evt.AltDown():
-			if keycode in [ord('h'), ord('H')]:
-				date = mxDT.now()
-				self.SetValue(date.strftime(self.__display_format))
-				return True
-			if keycode in [ord('m'), ord('M')]:
-				date = mxDT.now() + mxDT.RelativeDateTime(days = 1)
-				self.SetValue(date.strftime(self.__display_format))
-				return True
-			if keycode in [ord('g'), ord('G')]:
-				date = mxDT.now() - mxDT.RelativeDateTime(days = 1)
-				self.SetValue(date.strftime(self.__display_format))
-				return True
-			if keycode in [ord('ü'), ord('Ü')]:
-				date = mxDT.now() + mxDT.RelativeDateTime(days = 2)
-				self.SetValue(date.strftime(self.__display_format))
-				return True
-			if keycode in [ord('v'), ord('V')]:
-				date = mxDT.now() - mxDT.RelativeDateTime(days = 2)
-				self.SetValue(date.strftime(self.__display_format))
-				return True
-			if keycode in [ord('k'), ord('K')]:
-				print "Kalender noch nicht implementiert"
-				return True
-
-		evt.Skip()
+	#--------------------------------------------------------
+	# internal helpers
 	#--------------------------------------------------------
 	def __validate(self):
+		if self.data is not None:
+			return True
+
 		# skip empty value
 		if self.GetValue().strip() == '':
 			return True
+
 		try:
 			# FIXME: make this way more generous in accepting date input
 			date = time.strptime(self.GetValue(), self.__display_format)
 		except:
-			_log.LogException('Invalid date. [%s] does not match [%s].' % (self.GetValue(), self.__display_format), sys.exc_info())
-			# FIXME: Gtk-WARNING **: GtkEntry - did not receive focus-out-event
-			#        in wxwindows 2.4.x
-			#gmGuiHelpers.gm_show_error(msg, _('Invalid date format'), gmLog.lErr)
 			msg = _('Invalid date. Date format: %s ' % self.__display_format)
 			gmGuiHelpers.gm_beep_statustext(msg)
 			self.SetBackgroundColour('pink')
 			self.Refresh()
 			return False
-			
+
 		# valid date		
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.Refresh()
 		return True
 	#--------------------------------------------------------
+	# phrasewheel internal API
+	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-		self.__validate()
+#		self.__validate()
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
-	#----------------------------------------------
-	def __on_key_pressed (self, key):
-		"""Is called when a key is pressed."""
-		if key.GetKeyCode in (ord('h'), ord('H')):
-			date = mxDT.now()
-			self.SetValue(date.strftime(self.__display_format))
-			return
-		if key.GetKeyCode in (ord('m'), ord('M')):
-			date = mxDT.now() + mxDT.RelativeDateTime(days = 1)
-			self.SetValue(date.strftime(self.__display_format))
-			return
-		if key.GetKeyCode in (ord('g'), ord('G')):
-			date = mxDT.now() - mxDT.RelativeDateTime(days = 1)
-			self.SetValue(date.strftime(self.__display_format))
-			return
-		if key.GetKeyCode in (ord('ü'), ord('Ü')):
-			date = mxDT.now() + mxDT.RelativeDateTime(days = 2)
-			self.SetValue(date.strftime(self.__display_format))
-			return
-		if key.GetKeyCode in (ord('v'), ord('V')):
-			date = mxDT.now() - mxDT.RelativeDateTime(days = 2)
-			self.SetValue(date.strftime(self.__display_format))
-			return
-
-		key.Skip()
-	#--------------------------------------------------------		
-	def SetValue(self, val):
-		gmPhraseWheel.cPhraseWheel.SetValue(self, val)
-		if (len(val.strip()) > 0) and (val != self.__default_text):
-			self.__validate()		
-	#----------------------------------------------
-	def __selected(self, data):
-		pass
-	#----------------------------------------------
-	def set_value(self, aValue = None):
-		"""Only set value if it's a valid one."""
-		pass
-	#----------------------------------------------	
-	def set_range(self, list_of_ranges):
-	#----------------------------------------------
-		pass
+	#--------------------------------------------------------
+	def _calc_display_string(self):
+		data = self._picklist.GetClientData(self._picklist.GetSelection())
+		return '%s' % data
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def SetValue(self, val, data=None):
+		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
+#		if (len(val.strip()) > 0):
+#			self.__validate()
 #==================================================
-class gmTimeInput(wx.TextCtrl):
+class cTimeInput(wx.TextCtrl):
 	def __init__(self, parent, *args, **kwargs):
 		if len(args) < 2:
 			if not kwargs.has_key('value'):
@@ -378,7 +450,7 @@ if __name__ == '__main__':
 				style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE
 			)
 
-			date_wheel = gmDateInput(
+			date_wheel = cFuzzyTimestampInput (
 				parent = frame,
 				id = -1,
 				pos = (50, 50),
@@ -389,17 +461,40 @@ if __name__ == '__main__':
 			frame.Show (1)
 			return 1
 	#--------------------------------------------------------
-	app = TestApp ()
-	app.MainLoop ()
-
-#	app = wxPyWidgetTester(size = (200, 80))
-#	app.SetWidget(gmTimeInput, -1)
+#	app = TestApp()
 #	app.MainLoop()
+
+#	app = wx.PyWidgetTester(size = (200, 300))
+#	app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
+#	app.MainLoop()
+
+	mp = cMatchProvider_Date()
+	mp.setWordSeparators('xxx_do_not_separate_words_xxx')
+	mp.setThresholds(aWord = 998, aSubstring = 999)
+	val = None
+	while val != 'exit':
+		val = raw_input('Enter date fragment: ')
+		found, matches = mp.getMatches(aFragment=val)
+		for match in matches:
+			print match['label']
+			print match['data']
+			print "-------------------------"
+
 #==================================================
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.32  2006-05-20 18:37:10  ncq
+# Revision 1.33  2006-05-24 10:12:37  ncq
+# - cleanup
+# - timestamp match provider:
+#   - use fuzzy timestamp
+#   - i18n()ize single character triggers
+#   - improve phrasewheel strings
+# - fuzzy timestamp phrasewheel
+#   - a lot of cleanup
+# - proper test code
+#
+# Revision 1.32  2006/05/20 18:37:10  ncq
 # - cleanup
 #
 # Revision 1.31  2006/05/12 12:08:51  ncq
