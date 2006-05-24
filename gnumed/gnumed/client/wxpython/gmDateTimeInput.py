@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.33 2006-05-24 10:12:37 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmDateTimeInput.py,v 1.34 2006-05-24 10:35:38 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -46,7 +46,7 @@ month_length = {
 }
 
 #============================================================
-class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
+class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def __init__(self):
 		self.__allow_past = 1 
 		self.__shifting_base = None
@@ -364,7 +364,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		# setup custom match provider
-		matcher = cMatchProvider_Date()
+		matcher = cMatchProvider_FuzzyTimestamp()
 		matcher.setWordSeparators('xxx_do_not_separate_words_xxx')
 #		matcher.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 		matcher.setThresholds(aWord = 998, aSubstring = 999)
@@ -468,7 +468,7 @@ if __name__ == '__main__':
 #	app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
 #	app.MainLoop()
 
-	mp = cMatchProvider_Date()
+	mp = cMatchProvider_FuzzyTimestamp()
 	mp.setWordSeparators('xxx_do_not_separate_words_xxx')
 	mp.setThresholds(aWord = 998, aSubstring = 999)
 	val = None
@@ -484,7 +484,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.33  2006-05-24 10:12:37  ncq
+# Revision 1.34  2006-05-24 10:35:38  ncq
+# - better named match provider
+#
+# Revision 1.33  2006/05/24 10:12:37  ncq
 # - cleanup
 # - timestamp match provider:
 #   - use fuzzy timestamp
