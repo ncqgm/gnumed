@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.202 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.202 $"
+# $Id: gmClinicalRecord.py,v 1.203 2006-05-25 22:10:43 ncq Exp $
+__version__ = "$Revision: 1.203 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1479,26 +1479,19 @@ where
 			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
 				issues.append(issues[0])
 
-			# simply select on clin.v_pat_items - this seems the cleanest but
-			# Syan attests that an explicit union of child tables is way faster,
-			# there seem to be problems with parent table expansion and use
-			# of child table indexes
-#			cmd = """
-#select distinct pk_encounter
-#from clin.v_pat_items
-#where pk_health_issue in %s and pk_patient = %s"""
-			# so if get_encounter() runs very slow on your machine
-			# use the second line instead of the first one
-#			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
-##			rows = gmPG.run_ro_query('historica', cClinicalRecord._clin_root_item_children_union_query, None, (tuple(issues),))
+			# Syan attests that an explicit union of child tables is way faster
+			# as there seem to be problems with parent table expansion and use
+			# of child table indexes, so if get_encounter() runs very slow on
+			# your machine use the lines below
 
+#			rows = gmPG.run_ro_query('historica', cClinicalRecord._clin_root_item_children_union_query, None, (tuple(issues),))
 #			if rows is None:
 #				_log.Log(gmLog.lErr, 'cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
 #			else:
 #				enc_ids = map(lambda x:x[0], rows)
 #				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
-			# however, this seems like an even better approach:
+			# however, this seems like the proper approach:
 			# - find episodes corresponding to the health issues in question
 			cmd = "select distinct pk from clin.episode where fk_health_issue in %(issues)s"
 			rows = gmPG.run_ro_query('historica', cmd, None, {'issues': tuple(issues)})
@@ -1507,16 +1500,14 @@ where
 			else:
 				epi_ids = map(lambda x:x[0], rows)
 				if (episodes is None) or (episodes == [None]):
-					episodes = epi_ids
-				else:
-					episodes.extend(epi_ids)
+					episodes = []
+				episodes.extend(epi_ids)
 
 		if (episodes is not None) and (episodes != [None]) and (len(episodes) > 0):
 			if len(episodes) == 1:
 				episodes.append(episodes[0])
-			# if the episodes to filter by belong to the patient in question
-			# so will the encounters found with it - hence we need not WHERE
-			# on the patient ...
+			# if the episodes to filter by belong to the patient in question so will
+			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			cmd = "select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
 			rows = gmPG.run_ro_query('historica', cmd, None, {'epis': tuple(episodes)})
 			if rows is None:
@@ -1798,7 +1789,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.202  2006-05-14 21:44:22  ncq
+# Revision 1.203  2006-05-25 22:10:43  ncq
+# - improve comment in get_encounters()
+#
+# Revision 1.202  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #
