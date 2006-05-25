@@ -87,6 +87,7 @@ global_dr_id_to_pg_user= {}
 #conto is the connection to a gnumed_v2 database, which will take the converted data.
 confrom = None
 conto = None
+orig_user = 'gm-dbo'
 
 quotes = "\" \' \`".split(' ')
 def esc(s):
@@ -485,24 +486,6 @@ def process_patient_progress(ur_no, id_patient):
 	
 	cu2 = conto.cursor()
 
-	# ensure clin.xlnk_identity for id_patient exists
-	while 1:
-		stmt = "select count(*) from clin.xlnk_identity where xfk_identity = %d " % id_patient
-		print stmt
-		cu2.execute(stmt)
-		[n]  = cu2.fetchone()
-		print n
-		if n == 1:
-			break
-		if n == 0:
-			stmt = "insert into clin.xlnk_identity( xfk_identity , pupic) values ( %d , '%d')" % ( id_patient, id_patient)
-			print
-			cu2.execute(stmt)
-	
-		if n > 1:
-			print """this should never occur,  unique constraint "xlnk_identity_xfk_identity_key" """
-
-	
 	map_time_to_episode = {}
 	
 	last_datepart = None
@@ -513,7 +496,7 @@ def process_patient_progress(ur_no, id_patient):
 	
 		pg_user = to_user.get(dr_id, None)
 		if pg_user is None:
-			pg_user = 'current_user'
+			pg_user = 'default'
 		else:
 			pg_user = "'"+esc(pg_user)+"'"
 		
@@ -558,8 +541,14 @@ def process_patient_progress(ur_no, id_patient):
 		if n > 0:
 			# skip as encounter already entered
 			continue
+
+		auth_stmt = "set session authorization %s" % pg_user
+		print auth_stmt
+
+		cu2.execute(auth_stmt)
+
 		# create an encounter
-		stmt = "insert into clin.encounter ( modified_by, fk_patient, reason_for_encounter, started, last_affirmed) values (%s, %d, '%s', '%s', '%s')" % (pg_user, id_patient, esc( reason), esc(started), esc(lastaffirmed) )
+		stmt = "insert into clin.encounter (  fk_patient, reason_for_encounter, started, last_affirmed) values ( %d, '%s', '%s', '%s')" % ( id_patient, esc( reason), esc(started), esc(lastaffirmed) )
 
 		print stmt
 
@@ -570,7 +559,7 @@ def process_patient_progress(ur_no, id_patient):
 
 		#create an unlinked episode
 
-		stmt = "insert into clin.episode ( modified_by, fk_patient, description, is_open) values (%s, %d, '%s', false)" % (pg_user, id_patient, esc(reason))
+		stmt = "insert into clin.episode (  fk_patient, description, is_open) values ( %d, '%s', false)" % ( id_patient, esc(reason))
 
 		print stmt
 
@@ -662,7 +651,7 @@ def process_patient_progress(ur_no, id_patient):
 				print "skipping"
 				print
 				continue
-			stmt = "insert into clin.clin_narrative(modified_by, fk_encounter, fk_episode, clin_when, soap_cat, narrative) values (%s, %d,%d,'%s','%s', '%s') " % (pg_user, pk_encounter, pk_episode, esc(started),soap_cat,  esc( narrative) )
+			stmt = "insert into clin.clin_narrative( fk_encounter, fk_episode, clin_when, soap_cat, narrative) values ( %d,%d,'%s','%s', '%s') " % ( pk_encounter, pk_episode, esc(started),soap_cat,  esc( narrative) )
 
 
 			print stmt
@@ -697,9 +686,30 @@ def process_patient_progress(ur_no, id_patient):
 					cu2.execute(stmt)
 
 					
+	cu2.execute("set session authorization '%s'" % esc( orig_user) )
 
 	return map_time_to_episode			
 			
+def ensure_xlnk_identity(id_patient):
+	cu2 = conto.cursor()
+	# ensure clin.xlnk_identity for id_patient exists
+	while 1:
+		stmt = "select count(*) from clin.xlnk_identity where xfk_identity = %d " % id_patient
+		print stmt
+		cu2.execute(stmt)
+		[n]  = cu2.fetchone()
+		print n
+		if n == 1:
+			break
+		if n == 0:
+			stmt = "insert into clin.xlnk_identity( xfk_identity , pupic) values ( %d , '%d')" % ( id_patient, id_patient)
+			print
+			cu2.execute(stmt)
+	
+		if n > 1:
+			print """this should never occur,  unique constraint "xlnk_identity_xfk_identity_key" """
+
+	
 def process_patient_history( ur_no, pat_id) :
 
 	to_user = global_dr_id_to_pg_user
@@ -738,9 +748,12 @@ def process_patient_history( ur_no, pat_id) :
 
 		pg_user = to_user.get(dr_id, None)
 		if not pg_user:
-			pg_user = 'current_user'
+			pg_user = 'default'
+
 		else:
 			pg_user ="'"+esc(pg_user) + "'"
+
+		print "*"*100, "pg_user is ", pg_user	
 		
 		if not condition or condition.strip() == '':
 			continue
@@ -755,10 +768,10 @@ def process_patient_history( ur_no, pat_id) :
 		
 			stmt = """
 			insert into clin.health_issue ( 
-				description, modified_by, modified_when, age_noted, laterality , is_active, is_confidential , id_patient
+				description,  modified_when, age_noted, laterality , is_active, is_confidential , id_patient
 			) 
 			values (
-				'%s', %s, to_timestamp('%s', 'YYYYMMddhhmiss' ) , age ( %s, '%s' ) , 
+				'%s',  to_timestamp('%s', 'YYYYMMddhhmiss' ) , age ( %s, '%s' ) , 
 				 case when '%s'='B' then 'sd'  
 				 	  when '%s'='L' then 's'  
 					  when '%s'='R' then 'd' 
@@ -768,7 +781,7 @@ def process_patient_history( ur_no, pat_id) :
 				"""
 		else:
 			stmt = """
-				update clin.health_issue set description='%s', modified_by = %s, modified_when = to_timestamp('%s', 'YYYYMMddhhmiss' ) , 
+				update clin.health_issue set description='%s',  modified_when = to_timestamp('%s', 'YYYYMMddhhmiss' ) , 
 				age_noted = age ( %s, '%s') ,
 				laterality =  case when '%s'='B' then 'sd'
 				                      when '%s'='L' then 's'
@@ -776,25 +789,40 @@ def process_patient_history( ur_no, pat_id) :
 															                      else 'na' end ,
 				is_active = '%s', is_confidential = '%s' where id_patient = %d and description = 
 				""" + "'" + esc(condition) +"'"
-			
-		real_stmt = stmt	%  ( esc( condition),  pg_user, esc(update) , date_noted, dob, esc(side) , esc(side),esc(side) , active, hide , pat_id ) 
+		
+		auth_stmt = "set session authorization %s" % pg_user  # pg_user already quoted , or is CURRENT_USER
+		cu2.execute(auth_stmt)
+		
+		real_stmt = stmt	%  ( esc( condition),   esc(update) , date_noted, dob, esc(side) , esc(side),esc(side) , active, hide , pat_id ) 
 	
 		print real_stmt
 		cu2.execute(real_stmt)
 
 		
 		if comment and comment.strip() <> '':
+			
 			stmt2 = """
-				insert into clin.episode ( modified_by, modified_when, fk_health_issue, description, is_open) values
+				insert into clin.episode (  modified_when, fk_health_issue, description, is_open) values
 				( 
-				%s, to_timestamp('%s', 'YYYYMMddhhmiss'), currval('clin.health_issue_pk_seq'), '%s', false
-				) """ %  (  pg_user , esc(update), esc(comment) )
+				 to_timestamp('%s', 'YYYYMMddhhmiss'), currval('clin.health_issue_pk_seq'), '%s', false
+				) """ %  (  esc(update), esc('Comment on health issue:') )
+
 		
 			cu2.execute(stmt2)
+			stmt3 = """
+insert into clin.encounter (  fk_patient, reason_for_encounter, started, last_affirmed) values ( %d, '%s',  '%s', '%s')
+					""" % ( pat_id, esc( 'auto' ), esc(date_noted), esc(date_noted) )
 
+			cu2.execute(stmt3)
+
+			stmt4 = """
+				insert into clin.clin_narrative(  modified_when, fk_encounter, fk_episode, clin_when, soap_cat, narrative) values ( '%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'), '%s','%s', '%s') 	
+				""" % ( esc(date_noted) , esc(date_noted) , 's', esc(comment) )
 			
+			cu2.execute(stmt4)
 	
 
+		cu2.execute("set session authorization '%s'" % esc( orig_user) )
 	
 
 	
@@ -829,6 +857,7 @@ def transfer_patients():
 			print "processing patient #", totalpats
 			id_patient = process_patient( *r)
 			if id_patient:
+				ensure_xlnk_identity(id_patient)
 				ur_no = r[0]
 				process_patient_progress( ur_no, id_patient )
 				process_patient_history( ur_no , id_patient )
@@ -885,13 +914,16 @@ if __name__== "__main__":
 		if "-to" in sys.argv:
 			i = sys.argv.index('-to')
 			dsnto = sys.argv[i+1]
-
+			
 		dbapi_n = 'pyPgSQL'
 
 		if "-dbapi" in sys.argv:
 			i = sys.argv.index('-dbapi')
 			dbapi_n = sys.argv[i+1]
 
+		if dbapi_n == 'pyPgSQL' and dsnto:
+			global orig_user
+			orig_user = dsnto.split(':')[-2]
 
 		dbapi = get_dbapi(dbapi_n)	
 		
