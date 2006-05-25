@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.69 2006-05-25 12:07:29 sjtan Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmPerson.py,v 1.70 2006-05-25 22:12:50 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -707,9 +707,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		# make sure we do have a patient pointer
 		try:
-			tmp = self._patient
+			tmp = self.patient
 		except AttributeError:
-			self._patient = gmNull.cNull()
+			self.patient = gmNull.cNull()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
@@ -727,8 +727,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 		if patient == -1:
 			_log.Log(gmLog.lData, 'explicitely unsetting current patient')
 			self.__send_pre_selection_notification()
-			self._patient.cleanup()
-			self._patient = gmNull.cNull()
+			self.patient.cleanup()
+			self.patient = gmNull.cNull()
 			self.__send_selection_notification()
 			return None
 
@@ -737,47 +737,47 @@ class gmCurrentPatient(gmBorg.cBorg):
 			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
 
 		# same ID, no change needed
-		if (self._patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
+		if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
 			return None
 
 		# user wants different patient
-		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._patient['pk_identity'], patient['pk_identity']))
+		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self.patient['pk_identity'], patient['pk_identity']))
 
 		# but not if patient is locked
 		if self._locked:
-			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._patient['pk_identity'], patient['pk_identity']))
+			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient['pk_identity']))
 			# FIXME: exception ?
 			return None
 
 		# everything seems swell
 		self.__send_pre_selection_notification()
-		self._patient.cleanup()
-		self._patient = patient
+		self.patient.cleanup()
+		self.patient = patient
 		self.__send_selection_notification()
 
 		return None
 	#--------------------------------------------------------
 	def cleanup(self):
-		self._patient.cleanup()
+		self.patient.cleanup()
 	#--------------------------------------------------------
 	def get_emr(self):
-		return self._patient.get_emr()
+		return self.patient.get_emr()
 	#--------------------------------------------------------
 	def get_clinical_record(self):
 		print "get_clinical_record() deprecated"
-		return self._patient.get_emr()
+		return self.patient.get_emr()
 	#--------------------------------------------------------
 	def get_identity(self):
-		return self._patient.get_identity()
+		return self.patient.get_identity()
 	#--------------------------------------------------------
 	def get_document_folder(self):
-		return self._patient.get_document_folder()
+		return self.patient.get_document_folder()
 	#--------------------------------------------------------
 	def getID(self):
-		return self._patient.getID()
+		return self.patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-		return self._patient.export_data()
+		return self.patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -812,8 +812,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
 		kwargs = {
-			'pk_identity': self._patient['pk_identity'],
-			'patient': self._patient['pk_identity'],
+			'pk_identity': self.patient['pk_identity'],
+			'patient': self.patient['pk_identity'],
 			'signal': gmSignals.pre_patient_selection(),
 			'sender': id(self.__class__)
 		}
@@ -822,15 +822,15 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
-			'pk_identity': self._patient['pk_identity'],
-			'patient': self._patient,
+			'pk_identity': self.patient['pk_identity'],
+			'patient': self.patient,
 			'signal': gmSignals.post_patient_selection(),
 			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
-		if isinstance(self._patient, gmNull.cNull):
+		if isinstance(self.patient, gmNull.cNull):
 			return False
 		else:
 			return True
@@ -840,7 +840,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self._patient[aVar]
+		return self.patient[aVar]
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -1628,7 +1628,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.69  2006-05-25 12:07:29  sjtan
+# Revision 1.70  2006-05-25 22:12:50  ncq
+# - self._patient -> self.patient to be more pythonic
+#
+# Revision 1.69  2006/05/25 12:07:29  sjtan
 #
 # base class method needs self object.
 #
