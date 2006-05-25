@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.16 2006-05-01 18:46:05 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmMatchProvider.py,v 1.17 2006-05-25 22:13:30 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -180,15 +180,17 @@ class cMatchProvider:
 		"""Immediately start learning new items."""
 		self.__learnNewItems = True
 	#--------------------------------------------------------
-	def set_context (self, name, val):
+	def set_context (self, name=None, val=None):
 		"""Set value to provide context information	for matches.
 
 		The matching code may ignore it depending on its exact
 		implementation. Names and values of the context depend
 		on what is being matched.
 		"""
+		if name is None:
+			return False
 		self._context_val[name] = val
-		#print 'context %s : %s' % (name, val)
+		return True
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -620,7 +622,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.16  2006-05-01 18:46:05  ncq
+# Revision 1.17  2006-05-25 22:13:30  ncq
+# - robustify set_context()
+#
+# Revision 1.16  2006/05/01 18:46:05  ncq
 # - cleanup
 #
 # Revision 1.15  2005/06/14 18:54:40  ncq
