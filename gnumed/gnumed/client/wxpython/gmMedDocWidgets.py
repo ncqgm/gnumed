@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -40,13 +40,24 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui_data(self):
+		# set associated episode (add "currently" to avoid popping up pick list)
+		self._PhWheel_episode.SetValue('%s (currently)' % self.__part['episode'], self.__part['pk_episode'])
+
 		# add list headers
 		self._LCTRL_existing_reviews.InsertColumn(0, _('reviewer'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
-		self._LCTRL_existing_reviews.InsertColumn(2, _('abnormal'))
-		self._LCTRL_existing_reviews.InsertColumn(3, _('relevant'))
+		self._LCTRL_existing_reviews.InsertColumn(2, _('+/-'))
+		self._LCTRL_existing_reviews.InsertColumn(3, _('!'))
 		self._LCTRL_existing_reviews.InsertColumn(4, _('comment'))
+
 		self.__reload_existing_reviews()
+
+		if self._LCTRL_existing_reviews.GetItemCount():
+			self._LCTRL_existing_reviews.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_existing_reviews.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
@@ -54,29 +65,29 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if len(revs) == 0:
 			return True
 		# find special reviews
-		review_by_me = None
+#		review_by_me = None
 		review_by_responsible_doc = None
 		reviews_by_others = []
 		for rev in revs:
 			if rev[4]:
 				review_by_responsible_doc = rev
-			if rev[5]:
-				review_by_me = rev
+#			if rev[5]:
+#				review_by_me = rev
 			if not (rev[4] and rev[5]):
 				reviews_by_others.append(rev)
 		# display them
-		if review_by_me is not None:
-			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=_('%s (you)') % review_by_me[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label = _('%s (you)') % review_by_me[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_me[1].Format('%Y-%m-%d %H:%M'))
-			if review_by_me[2]:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
-			if review_by_me[3]:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_me[6])
+#		if review_by_me is not None:
+#			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=_('%s (you)') % review_by_me[0])
+#			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label = _('%s (you)') % review_by_me[0])
+#			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_me[1].Format('%Y-%m-%d %H:%M'))
+#			if review_by_me[2]:
+#				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
+#			if review_by_me[3]:
+#				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
+#			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_me[6])
 		if review_by_responsible_doc is not None:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetItemBackgroundColour(row_num, col=wx.BLUE)
+			self._LCTRL_existing_reviews.SetItemTextColour(row_num, col=wx.BLUE)
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].Format('%Y-%m-%d %H:%M'))
 			if review_by_responsible_doc[2]:
@@ -99,7 +110,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_cancel_button_pressed(self, evt):
-		self.OnCancel()
+		self.OnCancel(evt)
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
@@ -159,7 +170,8 @@ where
 		for doc_type in gmMedDoc.get_document_types():
 			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
 		# FIXME: make this configurable: either now() or last_date()
-		self._PhWheel_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
+		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
+		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
 		self._TBOX_doc_comment.SetValue('')
 		self._TBOX_description.SetValue('')
 		# FIXME: set from config item
@@ -958,7 +970,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.73  2006-05-24 10:34:51  ncq
+# Revision 1.74  2006-05-25 22:22:39  ncq
+# - adjust to rearranged review dialog
+# - nicely resize review columns
+# - remove current users review from "other reviews" list
+# - let user edit own review below "other reviews" list
+# - properly use fuzzy timestamp in scan/index panel
+#
+# Revision 1.73  2006/05/24 10:34:51  ncq
 # - use cFuzzyTimestampInput
 #
 # Revision 1.72  2006/05/20 18:53:39  ncq
