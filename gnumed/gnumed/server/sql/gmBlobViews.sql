@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.28 $ $Date: 2006-05-09 11:37:52 $ $Author: ncq $
+-- $Revision: 1.29 $ $Date: 2006-05-25 22:26:24 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -279,17 +279,30 @@ where
 -- =============================================
 create view blobs.v_obj4doc_no_data as
 select
-	vdm.pk_patient as pk_patient,
-	dobj.pk as pk_obj,
-	dobj.seq_idx as seq_idx,
-	octet_length(coalesce(dobj.data, '')) as size,
-	vdm.date as date_generated,
-	vdm.type as type,
-	vdm.l10n_type as l10n_type,
-	vdm.ext_ref as ext_ref,
-	vdm.comment as doc_comment,
-	dobj.comment as obj_comment,
-	dobj.fk_intended_reviewer as pk_intended_reviewer,
+	vdm.pk_patient
+		as pk_patient,
+	dobj.pk
+		as pk_obj,
+	dobj.seq_idx
+		as seq_idx,
+	octet_length(coalesce(dobj.data, ''))
+		as size,
+	vdm.date
+		as date_generated,
+	vdm.type
+		as type,
+	vdm.l10n_type
+		as l10n_type,
+	vdm.ext_ref
+		as ext_ref,
+	vdm.episode
+		as episode,
+	vdm.comment
+		as doc_comment,
+	dobj.comment
+		as obj_comment,
+	dobj.fk_intended_reviewer
+		as pk_intended_reviewer,
 	exists(select 1 from blobs.reviewed_doc_objs where fk_reviewed_row=dobj.pk)
 		as reviewed,
 	exists (
@@ -304,9 +317,14 @@ select
 			fk_reviewed_row = dobj.pk and
 			fk_reviewer = dobj.fk_intended_reviewer
 		) as reviewed_by_intended_reviewer,
-	vdm.pk_doc as pk_doc,
-	vdm.pk_type as pk_type,
-	dobj.xmin as xmin_doc_obj
+	vdm.pk_doc
+		as pk_doc,
+	vdm.pk_type
+		as pk_type,
+	vdm.pk_episode
+		as pk_episode,
+	dobj.xmin
+		as xmin_doc_obj
 from
 	blobs.v_doc_med vdm,
 	blobs.doc_obj dobj
@@ -431,11 +449,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.28 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.28  2006-05-09 11:37:52  ncq
+-- Revision 1.29  2006-05-25 22:26:24  ncq
+-- - reformat blobs.v_obj4doc_no_data and add episode name and pk
+--
+-- Revision 1.28  2006/05/09 11:37:52  ncq
 -- - properly create blobs.v_obj4doc
 --
 -- Revision 1.27  2006/05/08 16:38:27  ncq
