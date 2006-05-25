@@ -1,4 +1,5 @@
-"""
+"""GNUmed phrasewheel.
+
 A class, extending wx.TextCtrl, which has a drop-down pick list,
 automatically filled based on the inital letters typed. Based on the
 interface of Richard Terry's Visual Basic client
@@ -9,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.66 2006-05-24 09:47:34 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmPhraseWheel.py,v 1.67 2006-05-25 22:24:20 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -48,7 +49,7 @@ class cPhraseWheel (wx.TextCtrl):
 		self.__matcher = aMatchProvider
 		self.__real_matcher = None
 		self.__currMatches = []
-		self.__input_was_selected = False
+		self._input_was_selected = False
 
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.allow_multiple_phrases()
@@ -153,7 +154,7 @@ class cPhraseWheel (wx.TextCtrl):
 	#---------------------------------------------------------
 	def SetValue (self, value, data=None):
 		wx.TextCtrl.SetValue(self, value)
-		self.__input_was_selected = False
+		self._input_was_selected = False
 
 		# set data item if available
 		if data is not None:
@@ -165,7 +166,7 @@ class cPhraseWheel (wx.TextCtrl):
 		for match in matches:
 			if match['label'] == value:
 				self.data = match['data']
-				self.__input_was_selected = True
+				self._input_was_selected = True
 				return True
 
 		# not found
@@ -199,7 +200,7 @@ class cPhraseWheel (wx.TextCtrl):
 #		if len (matches) == 1:
 #			self.data = matches[0]['data']
 #			self.SetValue (matches[0]['label'])
-#			self.__input_was_selected = True
+#			self._input_was_selected = True
 #			for notify_listener in self._on_selection_callbacks:
 				# get data associated with selected item
 #				notify_listener(self.data)
@@ -265,7 +266,7 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
-		if self.__input_was_selected:
+		if self._input_was_selected:
 			return 1
 
 		if not self._has_focus:
@@ -330,7 +331,7 @@ class cPhraseWheel (wx.TextCtrl):
 		self.notified_listeners = 1
 
 		# remember that the current value was selected from the list
-		self.__input_was_selected = True
+		self._input_was_selected = True
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -407,7 +408,7 @@ class cPhraseWheel (wx.TextCtrl):
 		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
 		# dirty "selected" flag
-		self.__input_was_selected = False
+		self._input_was_selected = False
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
@@ -486,7 +487,7 @@ class cPhraseWheel (wx.TextCtrl):
 			if len(self.__currMatches) > 0:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-				self.__input_was_selected = True
+				self._input_was_selected = True
 				self.MarkDirty()
 
 		return True
@@ -501,13 +502,13 @@ class cPhraseWheel (wx.TextCtrl):
 		self._hide_picklist()
 
 		# can/must we auto-set the value from the match list ?
-		if (self.selection_only) and (not self.__input_was_selected) and (self.GetValue().strip() != ''):
+		if (self.selection_only) and (not self._input_was_selected) and (self.GetValue().strip() != ''):
 			self._updateMatches()
 			no_matches = len(self.__currMatches)
 			if no_matches == 1:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-				self.__input_was_selected = True
+				self._input_was_selected = True
 				self.MarkDirty()
 			elif no_matches > 1:
 				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
@@ -597,7 +598,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.66  2006-05-24 09:47:34  ncq
+# Revision 1.67  2006-05-25 22:24:20  ncq
+# - self.__input_was_selected -> self._input_was_selected
+#   because subclasses need access to it
+#
+# Revision 1.66  2006/05/24 09:47:34  ncq
 # - remove superfluous self._is_modified, use MarkDirty() instead
 # - cleanup SetValue()
 # - client data in picklist better be object, not string
