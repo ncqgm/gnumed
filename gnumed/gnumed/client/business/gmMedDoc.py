@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.59 2006-05-20 18:29:21 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmMedDoc.py,v 1.60 2006-05-25 22:11:36 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -171,26 +171,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	_service = 'blobs'
 
 	_cmd_fetch_payload = """
-		select
-			pk_patient,
-			pk_obj,
-			seq_idx,
-			date_generated,
-			type,
-			l10n_type,
-			size,
-			ext_ref,
-			doc_comment,
-			obj_comment,
-			reviewed,
-			reviewed_by_you,
-			reviewed_by_intended_reviewer,
-			pk_doc,
-			pk_type,
-			pk_intended_reviewer,
-			xmin_doc_obj
-		from blobs.v_obj4doc
-		where pk_obj=%s"""
+		select * from blobs.v_obj4doc_no_data where pk_obj=%s"""
 	_cmds_lock_rows_for_update = [
 		"""select 1 from blobs.doc_obj where pk=%(pk_obj)s and xmin=%(xmin_doc_obj)s for update"""
 	]
@@ -200,7 +181,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				comment=%(obj_comment)s,
 				fk_intended_reviewer=%(pk_intended_reviewer)s
 			where pk=%(pk_doc)s""",
-		"""select xmin_doc_obj from blobs.v_obj4doc where pk_obj = %(pk_doc)s"""
+		"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_doc)s"""
 	]
 	_updatable_fields = [
 		'seq_idx',
@@ -530,7 +511,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		)
 	#--------------------------------------------------------
 	def get_parts(self):
-		cmd = "select pk_obj from blobs.v_obj4doc where pk_doc=%s"
+		cmd = "select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot get parts belonging to document [%s]' % self.pk_obj)
@@ -701,7 +682,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.59  2006-05-20 18:29:21  ncq
+# Revision 1.60  2006-05-25 22:11:36  ncq
+# - use blobs.v_obj4doc_no_data
+#
+# Revision 1.59  2006/05/20 18:29:21  ncq
 # - allow setting reviewer in add_parts_from_files()
 #
 # Revision 1.58  2006/05/16 15:47:19  ncq
