@@ -1,4 +1,4 @@
-"""GnuMed EMR structure editors
+"""GNUmed EMR structure editors
 
 	This module contains widgets to create and edit EMR structural
 	elements (issues, enconters, episodes).
@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.22 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmEMRStructWidgets.py,v 1.23 2006-05-25 22:19:25 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ except ImportError:
 	from wxPython import wx
 
 # GNUmed
-from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
 from Gnumed.pycommon.gmPyCompat import *
@@ -33,6 +33,86 @@ _log.Log(gmLog.lInfo, __version__)
 dialog_CANCELLED = -1
 dialog_OK = -2
 
+#============================================================
+class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let user select an episode.
+
+	User can select an episode from the existing episodes of a
+	patient. Selection is done with a phrasewheel so the user
+	can type the episode name and matches will be shown. Typing
+	"*" will show the entire list of episodes. Closed episodes
+	will be marked as such. If the user types an episode name not
+	in the list of existing episodes a new episode can be created
+	from it if the programmer activated that feature.
+
+	If keyword <patient_id> is set to None or left out the control
+	will listen to patient change signals and therefor act on
+	gmPerson.gmCurrentPatient().
+	"""
+
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			service = 'clinical',
+			queries = [
+"""select pk_episode, description, 1 from clin.v_pat_episodes where
+		episode_open is true and
+		pk_patient=%%(pat)s and
+		description %(fragment_condition)s""",
+"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
+		pk_patient=%%(pat)s and
+		description %(fragment_condition)s
+"""]
+			)
+
+		try: kwargs['patient_id']
+		except KeyError: kwargs['patient_id'] = None
+
+		if kwargs['patient_id'] is None:
+			self.self_manage_patient = True
+			self.__register_patient_change_signals()
+			pat = gmPerson.gmCurrentPatient()
+			if pat.is_connected():
+				mp.set_context('pat', pat.getID())
+		else:
+			self.self_manage_patient = False
+			mp.set_context('pat', int(kwargs['patient_id']))
+
+		del kwargs['patient_id']
+
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def set_patient(self, patient_id=None):
+		if self.self_manage_patient:
+			return False
+		self.set_context('pat', patient_id)
+		return True
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __register_patient_change_signals(self):
+		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+	#--------------------------------------------------------
+	def _pre_patient_selection(self, evt):
+		if self.fixed_patient:
+			return True
+		# FIXME: do more things here ?
+		return True
+	#--------------------------------------------------------
+	def _post_patient_selection(self, evt):
+		if self.fixed_patient:
+			return True
+		patient = gmPerson.gmCurrentPatient().patient
+		self.set_context('pat', patient.getID())
+		return True
 #============================================================
 class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	"""Edit Area for Health Issues.
@@ -759,11 +839,11 @@ class cEpisodeEditor(wx.Panel):
 if __name__ == '__main__':
 
 	_log.SetAllLogLevels(gmLog.lData)
-	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
+#	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
 	
-	ID_EPISODE_SELECTOR = wx.NewId()
-	ID_EPISODE_EDITOR = wx.NewId()
-	ID_EXIT = wx.NewId()
+#	ID_EPISODE_SELECTOR = wx.NewId()
+#	ID_EPISODE_EDITOR = wx.NewId()
+#	ID_EXIT = wx.NewId()
 	
 	#================================================================	
 	class testapp (wx.App):
@@ -860,50 +940,67 @@ if __name__ == '__main__':
 				self.ExitMainLoop ()
 				
 	#================================================================
-	import sys
-	from Gnumed.pycommon import gmCfg, gmPG
+#	import sys
+#	from Gnumed.pycommon import gmCfg, gmPG
 
-	_cfg = gmCfg.gmDefCfgFile	 
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
+#	_cfg = gmCfg.gmDefCfgFile	 
+#	if _cfg is None:
+#		_log.Log(gmLog.lErr, "Cannot run without config file.")
+#		sys.exit("Cannot run without config file.")
 
-	try:
-		# make sure we have a db connection
-		gmPG.set_default_client_encoding('latin1')
-		pool = gmPG.ConnectionPool()
+#	try:
+#		# make sure we have a db connection
+#		gmPG.set_default_client_encoding('latin1')
+#		pool = gmPG.ConnectionPool()
 
-		# obtain patient
-		patient = gmPerson.ask_for_patient()
-		if patient is None:
-			print "No patient. Exiting gracefully..."
-			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+#		# obtain patient
+#		patient = gmPerson.ask_for_patient()
+#		if patient is None:
+#			print "No patient. Exiting gracefully..."
+#			sys.exit(0)
+#		gmPerson.set_active_patient(patient=patient)
 
 		# lauch emr dialogs test application
-		app = testapp(0)
-		app.MainLoop()
+#		app = testapp(0)
+#		app.MainLoop()
 				
 		# clean up
-		if patient is not None:
-			try:
-				patient.cleanup()
-			except:
-				print "error cleaning up patient"
-	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-		# but re-raise them
-		raise
-	try:
-		pool.StopListeners()
-	except:
-		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-		raise
+#		if patient is not None:
+#			try:
+#				patient.cleanup()
+#			except:
+#				print "error cleaning up patient"
+#	except StandardError:
+#		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+#		# but re-raise them
+#		raise
+#	try:
+#		pool.StopListeners()
+#	except:
+#		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+#		raise
 
-	_log.Log (gmLog.lInfo, "closing notes input...")
+#	_log.Log (gmLog.lInfo, "closing notes input...")
+
+	# obtain patient
+	pat = gmPerson.ask_for_patient()
+	if pat is None:
+		print "No patient. Exiting gracefully..."
+		sys.exit(0)
+
+	app = wx.PyWidgetTester(size = (200, 300))
+	gmPerson.set_active_patient(patient=pat)
+	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+#	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20), patient_id=pat.getID())
+	app.MainLoop()
+
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.22  2006-05-04 09:49:20  ncq
+# Revision 1.23  2006-05-25 22:19:25  ncq
+# - add preconfigured episode selection/creation phrasewheel
+# - cleanup, fix unit test
+#
+# Revision 1.22  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
