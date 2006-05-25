@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.68 2006-05-15 13:24:13 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmPerson.py,v 1.69 2006-05-25 12:07:29 sjtan Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -638,7 +638,7 @@ class cPatient(cPerson):
 
 		- note that this may be called in a thread
 		"""
-		cPerson.cleanup()
+		cPerson.cleanup(self)
 		if self.__db_cache.has_key('clinical record'):
 			self.__db_cache['clinical record'].cleanup()
 			del self.__db_cache['clinical record']
@@ -1628,7 +1628,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.68  2006-05-15 13:24:13  ncq
+# Revision 1.69  2006-05-25 12:07:29  sjtan
+#
+# base class method needs self object.
+#
+# Revision 1.68  2006/05/15 13:24:13  ncq
 # - signal "activating_patient" -> "pre_patient_selection"
 # - signal "patient_selected" -> "post_patient_selection"
 #
