@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.181 2006-05-03 21:30:56 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.182 2006-05-27 14:52:07 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -941,7 +941,7 @@ comment on view clin.v_codes4diag is
 	  namely once per associated code';
 
 -- -----------------------------
-create view clin.v_pat_narrative as
+create view clin.v_pat_narrative_old as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
@@ -962,6 +962,49 @@ from
 	clin.v_pat_items vpi
 where
 	cn.pk_item = vpi.pk_item
+;
+
+comment on view clin.v_pat_narrative_old is
+	'patient SOAP narrative;
+	 this view aggregates all clin.clin_narrative rows
+	 and adds denormalized context using v_pat_items, slow';
+
+-- ---------------------------------------------
+\unset ON_ERROR_STOP
+drop view clin.v_pat_narrative cascade;
+\set ON_ERROR_STOP 1
+
+create view clin.v_pat_narrative as
+SELECT
+	cep.fk_patient
+		AS pk_patient,
+	cn.clin_when
+		AS date, 
+	CASE WHEN (( SELECT 1 FROM dem.v_staff WHERE v_staff.db_user = cn.modified_by)) IS NULL
+		THEN ('<'::text || cn.modified_by::text) || '>'::text
+		ELSE (SELECT v_staff.short_alias FROM dem.v_staff WHERE v_staff.db_user = cn.modified_by)
+	END AS provider,
+	cn.soap_cat
+		as soap_cat,
+	cn.narrative
+		as narrative,
+	cn.pk_item
+		as pk_item,
+	cn.pk
+		AS pk_narrative,
+	cep.fk_health_issue
+		AS pk_health_issue,
+	cn.fk_episode
+		AS pk_episode,
+	cn.fk_encounter
+		AS pk_encounter,
+	cn.xmin
+		AS xmin_clin_narrative
+FROM
+	clin.clin_narrative cn,
+	clin.episode cep
+WHERE
+	cep.pk = cn.fk_episode
 ;
 
 comment on view clin.v_pat_narrative is
@@ -1662,11 +1705,14 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.181 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.182 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.181  2006-05-03 21:30:56  ncq
+-- Revision 1.182  2006-05-27 14:52:07  ncq
+-- - added Syan's faster version of clin.v_pat_narrative
+--
+-- Revision 1.181  2006/05/03 21:30:56  ncq
 -- - drop constraints before adding
 -- - comment out trigger doubling unique index
 -- - comment out rarely used indices
