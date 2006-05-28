@@ -1,4 +1,4 @@
-"""gmRegetMixin - GnuMed data change callback mixin.
+"""gmRegetMixin - GNUmed data change callback mixin.
 
 Widget code can mix in this class as a base class and
 thus gain the infrastructure to update it's display
@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.24 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmRegetMixin.py,v 1.25 2006-05-28 16:14:18 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -34,10 +34,6 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 #===========================================================================
 class cRegetOnPaintMixin:
 	"""Mixin to add redisplay_data-on-wx.EVT_PAINT aspect.
@@ -53,42 +49,59 @@ class cRegetOnPaintMixin:
 		try:
 			wx.EVT_PAINT(self, self._on_paint_event)
 		except:
-			_log.Log(gmLog.lErr, 'you likely need to call "cRegetOnPaintMixin.__init__()" later in your __init__()')
+			print 'you likely need to call "cRegetOnPaintMixin.__init__(self)" later in %s__init__()' % self.__class__.__name__
 			raise
-		wx.EVT_SET_FOCUS(self, self._on_focus_event)
+#		wx.EVT_SET_FOCUS(self, self._on_focus_event)
 	#-----------------------------------------------------
 	def _on_paint_event(self, event):
-		"""Repopulate UI if data is stale."""
-#		dc = wx.PaintDC(self)
+		"""Called just before the widget is repainted.
+
+		Checks whether data needs to be refetched.
+		"""
+		print "cRegetOnPaintMixin._on_paint_event() for", self.__class__.__name__
+		self.repopulate_ui()
+		event.Skip()
+	#-----------------------------------------------------
+#	def _on_focus_event(self, event):
+#		"""Doubtful whether that's the proper way to do it but seems OK."""
+#		print "cRegetOnPaintMixin._on_focus_event() for", self.__class__.__name__
+#		self.Refresh()
+#		event.Skip()
+	#-----------------------------------------------------
+	def repopulate_ui(self):
+		"""Checks whether data must be refetched and 
+
+		Called on different occasions such as "notebook page
+		raised" or "paint event received".
+		"""
+		print "cRegetOnPaintMixin.repopulate_ui() for", self.__class__.__name__
 		if self._data_stale:
-			self.__populate_with_data()
-		event.Skip()		# FIXME: needed ?
-	#-----------------------------------------------------
-	def _on_focus_event(self, event):
-		"""Doubtful whether that's the proper way to do it but seems OK."""
-		self.Refresh()
-	#-----------------------------------------------------
-	def __populate_with_data(self):
-		if self._populate_with_data():
-			self._data_stale = False
-		else:
+			if self._populate_with_data():
+				self._data_stale = False
+				return True
 			self._data_stale = True
+			return False
+		return True
 	#-----------------------------------------------------
 	def _populate_with_data(self):
-		"""Override in includers !
+		"""Actually fills the UI with data.
 
-		- must fill widget controls with data
+		This must be overridden in child classes !
 		"""
-		print "[%s] _populate_with_data() not implemented" % self.__class__.__name__
-		_log.Log(gmLog.lErr, 'not implemented for %s' % self.__class__.__name__)
+		raise NotImplementedError, "[%s] _populate_with_data() not implemented" % self.__class__.__name__
 		return False
 	#-----------------------------------------------------
 	def _schedule_data_reget(self):
-		"""Flag data as stale and redisplay if needed.
+		"""Flag data as stale and schedule refetch/redisplay.
 
 		- if not visible schedules reget only
-		- if visible redisplays immediately (virtue of Refresh() calling _on_paint_event())
+		- if visible redisplays immediately (virtue of Refresh() calling _on_paint_event() if visible)
+
+		Called whenever data changes become known such as from
+		database listener threads, dispatcher signals etc.
 		"""
+		print "cRegetOnPaintMixin._schedule_data_reget() for", self.__class__.__name__
+
 		self._data_stale = True
 
 		# Master Robin Dunn says this is The Way(tm) but
@@ -128,7 +141,13 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.24  2005-09-28 21:27:30  ncq
+# Revision 1.25  2006-05-28 16:14:18  ncq
+# - cleanup, remove gmLog dependancy, improve docs
+# - comment out on-set-focus listening
+# - lots of debugging help for the time being
+# - add repopulate_ui() for external callers
+#
+# Revision 1.24  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.23  2005/09/28 15:57:48  ncq
