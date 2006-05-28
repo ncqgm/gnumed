@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,20 +24,23 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 
 	def name(self):
 		return gmEMRBrowserPlugin.tab_name
-
+	#-------------------------------------------------
 	def GetWidget(self, parent):
-		self._widget = gmEMRBrowser.cEMRBrowserPanel(parent, -1)
+		self._widget = gmEMRBrowser.cSplittedEMRTreeBrowserPnl(parent, -1)
+#		self._widget = gmEMRBrowser.cEMRBrowserPanel(parent, -1)
+#		self._widget = gmEMRBrowser.cScrolledEMRTreePnl(parent, -1)
+#		from Gnumed.wxpython import gmMedDocWidgets
+#		self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
 		return self._widget
-
+	#-------------------------------------------------
 	def MenuInfo(self):
 		return ('emr_show', _('tree view'))
-
+	#-------------------------------------------------
 	def can_receive_focus(self):
 		# need patient
 		if not self._verify_patient_avail():
 			return None
 		return 1
-
 #======================================================================
 # main
 #----------------------------------------------------------------------
@@ -103,7 +106,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.10  2006-05-04 09:49:20  ncq
+# Revision 1.11  2006-05-28 16:18:52  ncq
+# - use new splitter plugin class
+#
+# Revision 1.10  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
