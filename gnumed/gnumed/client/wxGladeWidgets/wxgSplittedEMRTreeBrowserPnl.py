@@ -13,9 +13,9 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
         # begin wxGlade: wxgSplittedEMRTreeBrowserPnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.Panel.__init__(self, *args, **kwds)
-        self.__splitter_browser = wx.SplitterWindow(self, -1, style=wx.SP_3D|wx.SP_BORDER)
-        self.__pnl_right_side = wx.Panel(self.__splitter_browser, -1, style=wx.NO_BORDER)
-        self.__pnl_left_side = wx.Panel(self.__splitter_browser, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._splitter_browser = wx.SplitterWindow(self, -1, style=wx.SP_3D|wx.SP_BORDER)
+        self.__pnl_right_side = wx.Panel(self._splitter_browser, -1, style=wx.NO_BORDER)
+        self.__pnl_left_side = wx.Panel(self._splitter_browser, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
         self._pnl_emr_tree = gmEMRBrowser.cScrolledEMRTreePnl(self.__pnl_left_side, -1)
         self._TCTRL_item_details = wx.TextCtrl(self.__pnl_right_side, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_WORDWRAP|wx.NO_BORDER)
 
@@ -43,8 +43,8 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
         self.__pnl_right_side.SetSizer(__szr_right_side)
         __szr_right_side.Fit(self.__pnl_right_side)
         __szr_right_side.SetSizeHints(self.__pnl_right_side)
-        self.__splitter_browser.SplitVertically(self.__pnl_left_side, self.__pnl_right_side)
-        __szr_main.Add(self.__splitter_browser, 1, wx.EXPAND, 0)
+        self._splitter_browser.SplitVertically(self.__pnl_left_side, self.__pnl_right_side)
+        __szr_main.Add(self._splitter_browser, 1, wx.EXPAND, 0)
         self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
