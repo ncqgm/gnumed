@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.28 2006-05-20 18:37:10 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmHorstSpace.py,v 1.29 2006-05-28 15:45:52 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -212,6 +212,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
+			self.__new_page_already_checked = False
 			event.Skip()
 			return
 
@@ -223,28 +224,15 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		# check the new page just for good measure
 		if new_page.can_receive_focus():
-			_log.Log(gmLog.lData, 'we are lucky: new page *can* receive focus :-)')
+			_log.Log(gmLog.lData, 'we are lucky: new page *can* receive focus')
 			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
+			self.__new_page_already_checked = False
 			event.Skip()
 			return
 
 		_log.Log(gmLog.lWarn, 'new page cannot receive focus but too late for veto')
-		# we should try the following trick now to de-advance the selection
-		#wx.CallAfter(self.nb.SetSelection, self.__id_prev_nb_page)
-
-		# let's try a trick
-#		if id_old_page != id_new_page:
-#			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(id_old_page)')
-#			wx.CallAfter(self.nb.SetSelection, id_old_page)
-#		# or two
-#		elif self.__id_prev_page != id_new_page:
-#			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(self.__id_prev_page)')
-#			wx.CallAfter(self.nb.SetSelection, self.__id_prev_page)
-#		else:
-#			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
-
 		event.Skip()
 		return
 	#----------------------------------------------
@@ -306,7 +294,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.28  2006-05-20 18:37:10  ncq
+# Revision 1.29  2006-05-28 15:45:52  ncq
+# - cleanup page activation code and reinit already_checked helper var
+#
+# Revision 1.28  2006/05/20 18:37:10  ncq
 # - cleanup
 #
 # Revision 1.27  2006/05/15 13:36:49  ncq
