@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.203 2006-05-25 22:10:43 ncq Exp $
-__version__ = "$Revision: 1.203 $"
+# $Id: gmClinicalRecord.py,v 1.204 2006-05-28 15:25:18 ncq Exp $
+__version__ = "$Revision: 1.204 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1451,6 +1451,13 @@ where
 		until - final date for encounter items, DateTime instance
 		episodes - PKs of the episodes the encounters belong to (many-to-many relation)
 		issues - PKs of the health issues the encounters belong to (many-to-many relation)
+
+		NOTE: if you specify *both* issue(s) and episode(s)
+		you will get the *aggregate* of all encounters even
+		if the episode(s) all belong to the health issues.
+		IOW, the issues broaden the episode list rather than
+		the episode list narrowing the episodes-from-issues
+		list.
 		"""
 		try:
 			self.__db_cache['encounters']
@@ -1789,7 +1796,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.203  2006-05-25 22:10:43  ncq
+# Revision 1.204  2006-05-28 15:25:18  ncq
+# - ever better docs in get_encounters() just short of a proper fix
+#
+# Revision 1.203  2006/05/25 22:10:43  ncq
 # - improve comment in get_encounters()
 #
 # Revision 1.202  2006/05/14 21:44:22  ncq
