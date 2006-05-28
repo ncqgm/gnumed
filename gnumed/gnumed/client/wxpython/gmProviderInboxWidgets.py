@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.8 2006-05-20 18:55:21 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmProviderInboxWidgets.py,v 1.9 2006-05-28 16:19:54 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -36,7 +36,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 	def __init__(self, *args, **kwds):
 		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
 		self.__init_ui()
-		self._populate_with_data()
+		self.repopulate_ui()
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
 	#--------------------------------------------------------
 	def __init_ui(self):
@@ -56,7 +56,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 	#--------------------------------------------------------
 	# gmPlugin.cNotebookPlugin API
 	#--------------------------------------------------------
-	def _populate_with_data(self):
+	def repopulate_ui(self):
 		"""Fill UI with data."""
 		self._LCTRL_provider_inbox.DeleteAllItems()
 
@@ -133,7 +133,7 @@ Leaving message in inbox.""") % handler_key,
 				_('Cannot remove message from Inbox.')
 			)
 			return False
-		self._populate_with_data()
+		self.repopulate_ui()
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None):
@@ -151,7 +151,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.8  2006-05-20 18:55:21  ncq
+# Revision 1.9  2006-05-28 16:19:54  ncq
+# - repopulate_ui() needed for receive_focus() from plugin base class
+#
+# Revision 1.8  2006/05/20 18:55:21  ncq
 # - calculate handler via original category/type not i18ned one
 #
 # Revision 1.7  2006/05/16 15:56:03  ncq
