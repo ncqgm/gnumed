@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.53 2006-05-28 16:23:10 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmEMRBrowser.py,v 1.54 2006-05-28 20:53:28 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -130,9 +130,7 @@ class cEMRTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def __populate_tree(self):
 		"""Updates EMR browser data."""
-		print self.__class__.__name__, "__populate_tree()"
-
-		# FIXME: auto select the previously self.__selected_node if not None
+		# FIXME: auto select the previously self.__curr_node if not None
 		# FIXME: error handling
 
 		wx.BeginBusyCursor()
@@ -204,15 +202,14 @@ class cEMRTree(wx.TreeCtrl):
 		# print " move all episodes to another issue"
 	#--------------------------------------------------------
 	# episodes
-	def __handle_episode_context(self, episode=None, pos=wx.DefaultPosition):
-		self.__selected_episode = episode
-		self.__epi_context_popup.SetTitle(_('Episode %s') % episode['description'])
-		self.parent.PopupMenu(self.__epi_context_popup, pos)
+	def __handle_episode_context(self, pos=wx.DefaultPosition):
+		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
+		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
 	def __rename_episode(self, event):
 		dlg = wx.TextEntryDialog (
 			parent = self,
-			message = _('Old: "%s"\nPlease type the new description:\n') % self.__selected_episode['description'],
+			message = _('Old: "%s"\nPlease type the new description:\n') % self.__curr_node_data['description'],
 			caption = _('Renaming episode ...'),
 			defaultValue = ''
 		)
@@ -222,14 +219,14 @@ class cEMRTree(wx.TreeCtrl):
 		new_name = dlg.GetValue().strip()
 		if new_name == '':
 			return
-		if new_name == self.__selected_episode['description']:
+		if new_name == self.__curr_node_data['description']:
 			return
-		if self.__selected_episode.rename(new_name):
+		if self.__curr_node_data.rename(new_name):
 			# avoid collapsing view
-			self.SetItemText( self.__selected_node, new_name)
+			self.SetItemText( self.__curr_node, new_name)
 			return
 		gmGuiHelpers.gm_show_error(
-			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_episode['description'], new_name),
+			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
 			_('Error renaming episode ...'),
 			gmLog.lErr
 		)
@@ -237,30 +234,28 @@ class cEMRTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def __close_episode(self, event):
 		print "closing episode"
-		print self.__selected_episode
+		print self.__curr_node_data
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		print "deleting episode"
-		print self.__selected_episode
+		print self.__curr_node_data
 	#--------------------------------------------------------
 	def __relink_episode(self, event):
 		print "relinking episode"
-		print self.__selected_episode
+		print self.__curr_node_data
 	#--------------------------------------------------------
 	def __relink_episode_encounters(self, event):
 		print "relinking encounters of episode"
-		print self.__selected_episode
+		print self.__curr_node_data
 	#--------------------------------------------------------
 	# encounters
-	def __handle_encounter_context(self, encounter = None, pos=wx.DefaultPosition):
-		self.__selected_encounter = encounter
+	def __handle_encounter_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
 	def __relink_encounter_data2episode(self, event):
 
-		node = self.GetSelection()
-		node_parent = self.GetItemParent(node)
-		curr_episode = self.GetPyData(node_parent)
+		node_parent = self.GetItemParent(self.__curr_node)
+		owning_episode = self.GetPyData(node_parent)
 
 		episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
 			None,
@@ -269,9 +264,9 @@ class cEMRTree(wx.TreeCtrl):
 			msg = _(
 				'The EMR entries in this encounter were attached to episode:\n "%s"\n'
 				"Please select the episode you want to move them to:"
-			) % curr_episode['description'],
+			) % owning_episode['description'],
 			action_txt = _('move entries'),
-			pk_health_issue = curr_episode['pk_health_issue']
+			pk_health_issue = owning_episode['pk_health_issue']
 		)
 		retval = episode_selector.ShowModal()
 		target = episode_selector.get_selected_episode()
@@ -285,9 +280,9 @@ class cEMRTree(wx.TreeCtrl):
 				self.EnsureVisible(target_episode_node)
 			else:
 				print "No target episode node found"
-			self.__selected_encounter.transfer_clinical_data (
-				from_episode = curr_episode,
-				to_episode = target
+			self.__curr_node_data.transfer_clinical_data (
+				from_episode = owning_episode,
+				to_episode = target_episode_node
 			)
 		
 		# FIXME: GNUmed internal signal
@@ -326,15 +321,14 @@ class cEMRTree(wx.TreeCtrl):
 		self.Delete(node)
 	#--------------------------------------------------------
 	# health issues
-	def __handle_issue_context(self, issue=None, pos=wx.DefaultPosition):
-		self.__selected_issue = issue
+	def __handle_issue_context(self, pos=wx.DefaultPosition):
 #		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__issue_context_popup, pos)
 	#--------------------------------------------------------
 	def __rename_issue(self, event):
 		dlg = wx.TextEntryDialog (
 			parent = self,
-			message = _('Old: "%s"\nPlease type the new description:\n') % self.__selected_issue['description'],
+			message = _('Old: "%s"\nPlease type the new description:\n') % self.__curr_node_data['description'],
 			caption = _('Renaming health issue ...'),
 			defaultValue = ''
 		)
@@ -344,14 +338,14 @@ class cEMRTree(wx.TreeCtrl):
 		new_name = dlg.GetValue().strip()
 		if new_name == '':
 			return
-		if new_name == self.__selected_issue['description']:
+		if new_name == self.__curr_node_data['description']:
 			return
-		if self.__selected_issue.rename(new_name):
+		if self.__curr_node_data.rename(new_name):
 			#DEBUG why doesn't a refresh occur ?
-			self.SetItemText(self.__selected_node, new_name)
+			self.SetItemText(self.__curr_node, new_name)
 			return
 		gmGuiHelpers.gm_show_error (
-			_('Cannot rename health issue from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_issue['description'], new_name),
+			_('Cannot rename health issue from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
 			_('Error renaming health issue ...'),
 			gmLog.lErr
 		)
@@ -395,19 +389,20 @@ class cEMRTree(wx.TreeCtrl):
 		"""Displays information for a selected tree node."""
 		# retrieve the selected EMR element
 		sel_item = event.GetItem()
-		sel_item_obj = self.GetPyData(sel_item)
-		self.__selected_node = sel_item
+		node_data = self.GetPyData(sel_item)
+		self.__curr_node = sel_item
 
 		# update displayed text
-		if isinstance(sel_item_obj, (gmEMRStructItems.cHealthIssue, types.DictType)):
-			txt = self.__exporter.get_issue_info(issue=sel_item_obj)
-		elif isinstance(sel_item_obj, gmEMRStructItems.cEpisode):
-			txt = self.__exporter.get_episode_summary(episode=sel_item_obj)
-		elif isinstance(sel_item_obj, gmEMRStructItems.cEncounter):
+		if isinstance(node_data, (gmEMRStructItems.cHealthIssue, types.DictType)):
+			txt = self.__exporter.get_issue_info(issue=node_data)
+		elif isinstance(node_data, gmEMRStructItems.cEpisode):
+			txt = self.__exporter.get_episode_summary(episode=node_data)
+		elif isinstance(node_data, gmEMRStructItems.cEncounter):
 			epi = self.GetPyData(self.GetItemParent(sel_item))
-			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj)
+			txt = self.__exporter.get_encounter_info(episode=epi, encounter=node_data)
 		else:
 			txt = _('Summary') + '\n=======\n\n' + self.__exporter.get_summary_info(0)
+
 		if self.__narr_display is not None:
 			self.__narr_display.Clear()
 			self.__narr_display.WriteText(txt)
@@ -420,19 +415,17 @@ class cEMRTree(wx.TreeCtrl):
 		# FIXME: should then update the context
 
 		node = event.GetItem()
-		node_data = self.GetPyData(node)
 		self.SelectItem(node)
-		self.__selected_node = node
+		self.__curr_node_data = self.GetPyData(node)
+		self.__curr_node = node
 
-		# FIXME: get position from tree item
-#		pos = (event.GetX(), event.GetY())
 		pos = wx.DefaultPosition
-		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
-			self.__handle_issue_context(issue=node_data, pos=pos)
-		elif isinstance(node_data, gmEMRStructItems.cEpisode):
-			self.__handle_episode_context(episode=node_data, pos=pos)
-		elif isinstance(node_data, gmEMRStructItems.cEncounter):
-			self.__handle_encounter_context(encounter=node_data, pos=pos)
+		if isinstance(self.__curr_node_data, gmEMRStructItems.cHealthIssue):
+			self.__handle_issue_context(pos=pos)
+		elif isinstance(self.__curr_node_data, gmEMRStructItems.cEpisode):
+			self.__handle_episode_context(pos=pos)
+		elif isinstance(self.__curr_node_data, gmEMRStructItems.cEncounter):
+			self.__handle_encounter_context(pos=pos)
 		elif node == self.GetRootItem():
 			self.__handle_root_context()
 		else:
@@ -451,7 +444,6 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl, gmRegetMi
 		wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl.__init__(self, *args, **kwds)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__register_interests()
-#		self._emr_tree.set_narrative_display(narrative_display=self)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -460,20 +452,10 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl, gmRegetMi
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		"""Fills UI with data."""
-		print self.__class__.__name__, "_populate_with_data()"
-
 		if not self._emr_tree.refresh():
 			_log.Log(gmLog.lErr, "cannot update EMR tree")
 			return False
 		return True
-#	#--------------------------------------------------------
-#	# fake narrative display API
-#	#--------------------------------------------------------
-#	def Clear(self):
-#		print "-- starting new narrative display ----------------------"
-#	#--------------------------------------------------------
-#	def WriteText(self, txt):
-#		print txt
 #============================================================
 class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTreeBrowserPnl):
 	"""A splitter window holding an EMR tree.
@@ -487,102 +469,11 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		"""Fills UI with data."""
-		print self.__class__.__name__, "repopulate_ui()"
-
 		if not self._pnl_emr_tree._populate_with_data():
 			_log.Log(gmLog.lErr, "cannot update EMR tree")
 			return False
+		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
 		return True
-#============================================================
-class cEMRBrowserPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
-
-	def __init__(self, parent, id=-1):
-		"""
-		Contructs a new instance of EMR browser panel
-
-		parent - Wx parent widget
-		id - Wx widget id
-		"""
-		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER)
-
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-
-		self.__do_layout()
-		self.__register_interests()
-	#--------------------------------------------------------
-	def Refresh(self):
-		print self.__class__.__name__, "Refresh()"
-		wx.Panel.Refresh(self)
-#		self.__tree_narr_splitter.Refresh()
-#		self.__narr_TextCtrl.Refresh()
-#		self.__emr_tree.Refresh()
-#		self.__emr_tree.refresh()
-	#--------------------------------------------------------
-	def __do_layout(self):
-		"""Arranges EMR browser layout."""
-
-		# splitter window
-		self.__tree_narr_splitter = wx.SplitterWindow(self, -1)
-
-		# narrative details text control
-		self.__narr_TextCtrl = wx.TextCtrl (
-			self.__tree_narr_splitter,
-			-1,
-			style = wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_DONTWRAP
-		)
-
-		# emr tree
-		self.__emr_tree = cEMRTree (
-			self.__tree_narr_splitter,
-			-1,
-			narr_display = self.__narr_TextCtrl
-		)
-
-		# set up splitter
-		# FIXME: read/save value from/into backend
-		self.__tree_narr_splitter.SetMinimumPaneSize(20)
-		self.__tree_narr_splitter.SplitVertically(self.__emr_tree, self.__narr_TextCtrl)
-
-		self.__szr_main = wx.BoxSizer(wx.VERTICAL)
-		self.__szr_main.Add(self.__tree_narr_splitter, 1, wx.EXPAND, 0)
-
-		self.SetAutoLayout(1)
-		self.SetSizer(self.__szr_main)
-		self.__szr_main.Fit(self)
-		self.__szr_main.SetSizeHints(self)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
-#		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
-#		gmDispatcher.connect(signal=gmSignals.clin_item_updated(), receiver = self._on_clin_item_updated)
-	#--------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-	def _populate_with_data(self):
-		"""Fills UI with data."""
-		print self.__class__.__name__, "_populate_with_data()"
-
-		if not self.__emr_tree.refresh():
-			_log.Log(gmLog.lErr, "cannot update EMR tree")
-			return False
-
-		# Set sash position
-		self.__tree_narr_splitter.SetSashPosition(self.__tree_narr_splitter.GetSizeTuple()[0]/3, True)
-
-		return True
-#	#--------------------------------------------------------
-#	def _on_episodes_modified(self):
-#		"""Episode changed."""
-#		#less drastic ui update more usable
-#		self._schedule_data_reget()
-#		print "DEBUG ======================SIGNALLED EPISODE_MODIFIED==============="
-#		#self.__exporter.refresh_historical_tree( self.__emr_tree)
-#	#--------------------------------------------------------
-#	def _on_clin_item_updated(self):
-#		#self.__exporter.refresh_historical_tree( self.__emr_tree)
-#		self._schedule_data_reget()
 #================================================================
 class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, *args, **kwargs):
@@ -788,7 +679,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.53  2006-05-28 16:23:10  ncq
+# Revision 1.54  2006-05-28 20:53:28  ncq
+# - cleanup, fix some variables and typos
+#
+# Revision 1.53  2006/05/28 16:23:10  ncq
 # - cleanup
 # - dedicated cEMRTree akin to cDocTree
 # - wxGladify tree widgets
