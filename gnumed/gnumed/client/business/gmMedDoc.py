@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.60 2006-05-25 22:11:36 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmMedDoc.py,v 1.61 2006-05-28 15:25:50 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -480,7 +480,8 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		'pk_type',
 		'comment',
 		'date',
-		'ext_ref'
+		'ext_ref',
+		'episode'
 	]
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
@@ -682,7 +683,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.60  2006-05-25 22:11:36  ncq
+# Revision 1.61  2006-05-28 15:25:50  ncq
+# - add "episode" field to doc_part
+#
+# Revision 1.60  2006/05/25 22:11:36  ncq
 # - use blobs.v_obj4doc_no_data
 #
 # Revision 1.59  2006/05/20 18:29:21  ncq
