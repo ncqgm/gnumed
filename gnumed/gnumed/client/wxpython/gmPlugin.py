@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.61 2006-05-20 18:54:49 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPlugin.py,v 1.62 2006-05-28 15:59:16 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -80,6 +80,8 @@ class cNotebookPlugin:
 		self._widget = None
 		self.__register_events()
 	#-----------------------------------------------------
+	# plugin load API
+	#-----------------------------------------------------
 	def register(self):
 		"""Register ourselves with the main notebook widget."""
 
@@ -146,8 +148,21 @@ class cNotebookPlugin:
 		return 'plugin %s' % self.__class__.__name__
 	#-----------------------------------------------------
 	def MenuInfo(self):
-		"""Return tuple of (menuname, menuitem)."""
+		"""Return tuple of (menuname, menuitem).
+
+		None: no menu entry wanted
+		"""
 		return None
+	#-----------------------------------------------------
+	def populate_toolbar (self, tb, widget):
+		"""Populates the toolbar for this widget.
+
+		- tb is the toolbar to populate
+		- widget is the widget returned by GetWidget()		# FIXME: is this really needed ?
+		"""
+		pass
+	#-----------------------------------------------------
+	# activation API
 	#-----------------------------------------------------
 	def can_receive_focus(self):
 		"""Called when this plugin is *about to* receive focus.
@@ -156,7 +171,15 @@ class cNotebookPlugin:
 		plugin activation will be veto()ed (if it can be).
 		"""
 		# FIXME: fail if locked
-		return 1
+		return True
+	#-----------------------------------------------------
+	def receive_focus(self):
+		"""We *are* receiving focus via wx.EVT_NotebookPageChanged.
+
+		This can be used to populate the plugin widget on receiving focus.
+		"""
+		self._widget.repopulate_ui()
+		return True
 	#-----------------------------------------------------
 	def _verify_patient_avail(self):
 		"""Check for patient availability.
@@ -177,13 +200,6 @@ class cNotebookPlugin:
 		set_statustext(txt)
 		return 1
 	#-----------------------------------------------------
-	def receive_focus(self):
-		"""We *are* receiving focus via wx.EVT_NotebookPageChanged.
-
-		This can be used to populate the plugin widget on receiving focus.
-		"""
-		return True
-	#-----------------------------------------------------
 	def Raise(self):
 		"""Raise ourselves."""
 		nb_pages = self.gb['horstspace.notebook.pages']
@@ -203,14 +219,6 @@ class cNotebookPlugin:
 		if kwds['name'] != self.__class__.__name__:
 			return True
 		return self._on_raise_by_menu(None)
-	#----------------------------------------------------
-	def populate_toolbar (self, tb, widget):
-		"""Populates the toolbar for this widget.
-
-		- tb is the toolbar to populate
-		- widget is the widget returned by GetWidget()		# FIXME: is this really needed ?
-		"""
-		pass
 	# -----------------------------------------------------
 	# event handlers for the popup window
 	def on_load (self, evt):
@@ -438,7 +446,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.61  2006-05-20 18:54:49  ncq
+# Revision 1.62  2006-05-28 15:59:16  ncq
+# - cleanup
+# - receive_focus() now calls self._widget.repopulate_ui()
+#
+# Revision 1.61  2006/05/20 18:54:49  ncq
 # - provide default receive_focus() and document it
 # - remove get_instance()
 #
