@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxGladeWidgets/README,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 This directory contains Python code as generated from *.wxg
 XML files by wxGlade. The classes define what certain parts
@@ -8,10 +8,14 @@ classes in client/wxpython/.
 
 DO NOT EDIT THE CODE IN THE FILES IN THIS DIRECTORY !
 
-It will be overwritten the next time someone changes the GUI
-with wxGlade and puts the file in here. All your changes
-will be lost. If you want to make your changes permanent
-edit the appropriate *.wxg file in client/wxg/ (preferably
-using wxGlade), regenerate the GUI code and put it here.
+(Unless you know exactly what you are doing. Editing may in
+some cases be necessary to add import statements.)
+
+The code may be overwritten the next time someone changes
+the GUI with wxGlade and puts the new version back in here.
+All your changes may be lost. If you want to make your
+changes permanent edit the appropriate *.wxg file in
+client/wxg/ (preferably using wxGlade), regenerate the GUI
+code and put it here.
 
 Karsten
