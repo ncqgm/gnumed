@@ -1,7 +1,7 @@
 """GNUmed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re, time
@@ -12,7 +12,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
@@ -41,10 +41,10 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		# set associated episode (add "currently" to avoid popping up pick list)
-		self._PhWheel_episode.SetValue('%s (currently)' % self.__part['episode'], self.__part['pk_episode'])
+		self._PhWheel_episode.SetValue(_('%s ') % self.__part['episode'], self.__part['pk_episode'])
 
 		# add list headers
-		self._LCTRL_existing_reviews.InsertColumn(0, _('reviewer'))
+		self._LCTRL_existing_reviews.InsertColumn(0, _('by'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
 		self._LCTRL_existing_reviews.InsertColumn(2, _('+/-'))
 		self._LCTRL_existing_reviews.InsertColumn(3, _('!'))
@@ -52,7 +52,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		self.__reload_existing_reviews()
 
-		if self._LCTRL_existing_reviews.GetItemCount():
+		if self._LCTRL_existing_reviews.GetItemCount() > 0:
 			self._LCTRL_existing_reviews.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
@@ -110,28 +110,32 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_cancel_button_pressed(self, evt):
-		self.OnCancel(evt)
+		wx.Dialog.OnCancel(evt)
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		pk_episode = self._PhWheel_episode.GetData()
+		if pk_episode is None:
+			# create new episode
+			print "must create new episode"
+			print "allow picking health issue"
+		elif pk_episode != self.__part['pk_episode']:
+			# relink to another episode, since the phrasewheel operates
+			# on the active patient only all episodes really should
+			# belong to it so we don't check patient change
+			self.__part['pk_episode'] = pk_episode
+	#--------------------------------------------------------
+	def _on_reviewed_box_checked(self, evt):
+		state = self._ChBOX_review.GetValue()
+		self._ChBOX_abnormal.Enable(enable = state)
+		self._ChBOX_relevant.Enable(enable = state)
+		self._ChBOX_responsible.Enable(enable = state)
+		self._ChBOX_sign_all_pages.Enable(enable = state)
+
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
 	def __init__(self, *args, **kwds):
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
-
-		# setup episode phrasewheel with match provider
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			service = 'clinical',
-			queries = [
-"""select pk_episode, description, 1 from clin.v_pat_episodes where
-		episode_open is true and
-		pk_patient=%%(pat)s and
-		description %(fragment_condition)s""",
-"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
-		pk_patient=%%(pat)s and
-		description %(fragment_condition)s
-"""]
-		)
-		self._PhWheel_episode.setMatchProvider(mp = mp)
-		self._PhWheel_episode.add_callback_on_set_focus(callback=self._on_enter_episode_phrasewheel)
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			service = 'personalia',
@@ -482,11 +486,6 @@ off this message in the GNUmed configuration.""") % ref
 	def _reviewed_box_checked(self, evt):
 		self._ChBOX_abnormal.Enable(enable = self._ChBOX_reviewed.GetValue())
 		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
-	#--------------------------------------------------------
-	def _on_enter_episode_phrasewheel(self):
-		pat = gmPerson.gmCurrentPatient()
-		self._PhWheel_episode.set_context('pat', pat.getID())
-		return True
 #============================================================
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A document tree that can be sorted."""
@@ -494,7 +493,7 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__register_interests()
-		self._doc_tree.SetFocus()
+
 	#-------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -502,10 +501,13 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
 	#-------------------------------------------------------
 	def _populate_with_data(self):
+		"""Fills UI with data."""
+		print self.__class__.__name__, "_populate_with_data()"
+
 		if not self._doc_tree.refresh():
 			_log.Log(gmLog.lErr, "cannot update document tree")
 			return False
-		self._doc_tree.SelectItem(self._doc_tree.root)
+#		self._doc_tree.SelectItem(self._doc_tree.root)
 		return True
 	#--------------------------------------------------------
 	# inherited event handlers
@@ -541,7 +543,8 @@ class cDocTree(wx.TreeCtrl):
 	def __init__(self, parent, id, *args, **kwds):
 		"""Set up our specialised tree.
 		"""
-		wx.TreeCtrl.__init__(self, parent, id, style=wx.TR_NO_BUTTONS)
+		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER
+		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
 		tmp = _('available documents (%s)')
 		cDocTree._root_node_labels = {
@@ -556,11 +559,6 @@ class cDocTree(wx.TreeCtrl):
 		self.__pat = gmPerson.gmCurrentPatient()
 
 		self.__register_events()
-
-#		self.tree = MyTreeCtrl(self, tID, wx.DefaultPosition, wx.DefaultSize,
-#								wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
-#								, self.log)
-
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -584,7 +582,7 @@ class cDocTree(wx.TreeCtrl):
 			return True
 		self.__sort_mode = mode
 	#--------------------------------------------------------
-	# internal API
+	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect handlers
@@ -708,6 +706,7 @@ class cDocTree(wx.TreeCtrl):
 				self.SetPyData(part_node, part)
 
 		self.SortChildren(self.root)
+		self.SelectItem(self.root)
 
 		# and uncollapse
 		self.Expand(self.root)
@@ -970,7 +969,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.74  2006-05-25 22:22:39  ncq
+# Revision 1.75  2006-05-28 16:40:16  ncq
+# - add ' ' to initial episode SetValue() to avoid popping up pick list
+# - better labels in list of existing reviews
+# - handle checkbox for review
+# - start save handling
+# - use episode selection phrasewheel
+#
+# Revision 1.74  2006/05/25 22:22:39  ncq
 # - adjust to rearranged review dialog
 # - nicely resize review columns
 # - remove current users review from "other reviews" list
