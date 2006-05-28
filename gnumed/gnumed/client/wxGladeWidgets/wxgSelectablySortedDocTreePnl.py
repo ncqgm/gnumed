@@ -67,32 +67,3 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 
 # end of class wxgSelectablySortedDocTreePnl
 
-
-class cSelectablySortedDocTreePnl(wx.ScrolledWindow):
-    def __init__(self, *args, **kwds):
-        # content of this block not found: did you rename this class?
-        pass
-
-    def __set_properties(self):
-        # content of this block not found: did you rename this class?
-        pass
-
-    def __do_layout(self):
-        # content of this block not found: did you rename this class?
-        pass
-
-    def _on_sort_by_age_selected(self, event): # wxGlade: cSelectablySortedDocTreePnl.<event_handler>
-        print "Event handler `_on_sort_by_age_selected' not implemented!"
-        event.Skip()
-
-    def _on_sort_by_review_selected(self, event): # wxGlade: cSelectablySortedDocTreePnl.<event_handler>
-        print "Event handler `_on_sort_by_review_selected' not implemented!"
-        event.Skip()
-
-    def _on_sort_by_episode_selected(self, event): # wxGlade: cSelectablySortedDocTreePnl.<event_handler>
-        print "Event handler `_on_sort_by_episode_selected' not implemented!"
-        event.Skip()
-
-# end of class cSelectablySortedDocTreePnl
-
-

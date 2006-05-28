@@ -26,11 +26,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_CHECKBOX, self._on_toggled_review, self._ChBOX_review)
-        self.Bind(wx.EVT_CHECKBOX, self._on_toggled_abnormal, self._ChBOX_abnormal)
-        self.Bind(wx.EVT_CHECKBOX, self._on_toggled_responsible, self._ChBOX_responsible)
-        self.Bind(wx.EVT_CHECKBOX, self._on_toggled_relevant, self._ChBOX_relevant)
-        self.Bind(wx.EVT_CHECKBOX, self._toggled_sign_all_pages, self._ChBOX_sign_all_pages)
+        self.Bind(wx.EVT_CHECKBOX, self._on_reviewed_box_checked, self._ChBOX_review)
         self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
         self.Bind(wx.EVT_BUTTON, self._on_cancel_button_pressed, self._BTN_cancel)
         # end wxGlade
@@ -87,36 +83,17 @@ class wxgReviewDocPartDlg(wx.Dialog):
         self.Centre()
         # end wxGlade
 
-    def _on_toggled_abnormal(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_toggled_abnormal' not implemented!"
-        event.Skip()
 
-    def _on_toggled_responsible(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_toggled_responsible' not implemented!"
-        event.Skip()
-
-    def _on_toggled_relevant(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_toggled_relevant' not implemented!"
-        event.Skip()
-
-    def _toggled_entire_doc(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_toggled_entire_doc' not implemented!"
+    def _on_reviewed_box_checked(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
+        print "Event handler `_on_reviewed_box_checked' not implemented"
         event.Skip()
 
     def _on_save_button_pressed(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_save_button_pressed' not implemented!"
+        print "Event handler `_on_save_button_pressed' not implemented"
         event.Skip()
 
     def _on_cancel_button_pressed(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_cancel_button_pressed' not implemented!"
-        event.Skip()
-
-    def _toggled_sign_all_pages(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_toggled_sign_all_pages' not implemented"
-        event.Skip()
-
-    def _on_toggled_review(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_toggled_review' not implemented"
+        print "Event handler `_on_cancel_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgReviewDocPartDlg
