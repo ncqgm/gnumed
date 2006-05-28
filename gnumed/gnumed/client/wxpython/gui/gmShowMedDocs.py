@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -167,13 +167,14 @@ else:
 	wxID_TB_BTN_show_page = wx.NewId()
 
 	class gmShowMedDocs(gmPlugin.cNotebookPlugin):
+		"""Plugin to encapsulate document tree."""
+
 		tab_name = _("Documents")
 
 		def name (self):
 			return gmShowMedDocs.tab_name
 		#--------------------------------------------------------
 		def GetWidget (self, parent):
-			#self._widget = cPluginTreePanel(parent, -1)
 			self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
 			return self._widget
 		#--------------------------------------------------------
@@ -185,9 +186,6 @@ else:
 			if not self._verify_patient_avail():
 				return None
 			return 1
-		#--------------------------------------------------------
-#		def receive_focus(self):
-#			self._widget._populate_with_data()
 		#--------------------------------------------------------
 		def _on_raise_by_signal(self, **kwds):
 			if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
@@ -235,7 +233,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.66  2006-05-20 18:56:03  ncq
+# Revision 1.67  2006-05-28 16:17:58  ncq
+# - cleanup
+# - populate now handled by plugin base class already
+#
+# Revision 1.66  2006/05/20 18:56:03  ncq
 # - use receive_focus() interface
 #
 # Revision 1.65  2006/05/12 22:02:25  ncq
