@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.81 2006-05-15 13:35:59 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmDemographicsWidgets.py,v 1.82 2006-05-28 20:49:44 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1186,10 +1186,10 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.TTC_dob = gmDateTimeInput.gmDateInput (
+		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput (
 			parent = PNL_form,
-			id = -1,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+			id = -1
+#			, validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
 		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (yyyy-mm-dd)"))
 
@@ -1613,6 +1613,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
 			self.form_DTD['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetData()
 			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
@@ -1972,10 +1973,10 @@ class cPatIdentityPanel(wx.Panel):
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.TTC_dob = gmDateTimeInput.gmDateInput (
+		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput (
 			parent = PNL_form,
-			id = -1,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+			id = -1
+#			, validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
 		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
 
@@ -2147,7 +2148,8 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.__dtd with values from controls
 			self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
-			self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+#			self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+			self.__dtd['dob'] = pageCtrl.TTC_dob.GetData()
 			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
@@ -2935,7 +2937,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.81  2006-05-15 13:35:59  ncq
+# Revision 1.82  2006-05-28 20:49:44  ncq
+# - gmDateInput -> cFuzzyTimestampInput
+#
+# Revision 1.81  2006/05/15 13:35:59  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
