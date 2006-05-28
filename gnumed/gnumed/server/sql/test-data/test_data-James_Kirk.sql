@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.78 $
+-- $Revision: 1.79 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -672,7 +672,34 @@ insert into blobs.doc_obj (
 	 'missing'
 );
 
--- a few more notices to the provider
+-- episode "scar pain"
+insert into clin.episode (
+	description,
+	fk_health_issue,
+	is_open
+) values (
+	'scar problems left arm',
+	currval('clin.health_issue_pk_seq'),
+	'true'::boolean
+);
+
+
+-- =============================================
+-- new episode "back pain"
+-- =============================================
+insert into clin.episode (
+	fk_patient,
+	description,
+	is_open
+) values (
+	currval('dem.identity_pk_seq'),
+	'back pain',
+	'true'::boolean
+);
+
+-- =============================================
+-- a few notices to the provider
+-- =============================================
 insert into dem.provider_inbox (
 	fk_staff,
 	fk_inbox_item_type,
@@ -701,11 +728,15 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.78 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.79 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.78  2006-05-16 08:22:39  ncq
+-- Revision 1.79  2006-05-28 15:23:33  ncq
+-- - add a couple more episodes, also trigger duplicate narrative bug
+--   so we can debug it
+--
+-- Revision 1.78  2006/05/16 08:22:39  ncq
 -- - unreviewed docs auto-create virtual inbox messages
 --   now so remove explicit one
 --
