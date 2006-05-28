@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.182 2006-05-27 14:52:07 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.183 2006-05-28 15:22:25 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -521,6 +521,10 @@ create rule clin_ritem_no_del as
 	do instead select clin.f_protect_clin_root_item();
 
 -- ---------------------------------------------
+\unset ON_ERROR_STOP
+drop view clin.v_pat_items cascade;
+\set ON_ERROR_STOP 1
+
 create view clin.v_pat_items as
 select
 --	extract(epoch from cri.clin_when) as age,
@@ -825,6 +829,9 @@ comment on view clin.v_results4lab_req is
 
 -- ==========================================================
 -- allergy stuff
+\unset ON_ERROR_STOP
+drop view clin.v_pat_allergies cascade;
+\set ON_ERROR_STOP 1
 
 create view clin.v_pat_allergies as
 select
@@ -941,7 +948,7 @@ comment on view clin.v_codes4diag is
 	  namely once per associated code';
 
 -- -----------------------------
-create view clin.v_pat_narrative_old as
+create view clin.v_pat_narrative as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
@@ -964,19 +971,18 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
-comment on view clin.v_pat_narrative_old is
-	'patient SOAP narrative;
-	 this view aggregates all clin.clin_narrative rows
-	 and adds denormalized context using v_pat_items, slow';
+comment on view clin.v_pat_narrative is
+	'patient narrative aggregated from all clin_root_item child tables;
+	 the narrative is unprocessed and denormalized context using v_pat_items is added';
 
 -- ---------------------------------------------
 \unset ON_ERROR_STOP
-drop view clin.v_pat_narrative cascade;
+drop view clin.v_pat_narrative_soap cascade;
 \set ON_ERROR_STOP 1
 
-create view clin.v_pat_narrative as
+create view clin.v_pat_narrative_soap as
 SELECT
-	cep.fk_patient
+	vpep.pk_patient
 		AS pk_patient,
 	cn.clin_when
 		AS date, 
@@ -992,7 +998,7 @@ SELECT
 		as pk_item,
 	cn.pk
 		AS pk_narrative,
-	cep.fk_health_issue
+	vpep.pk_health_issue
 		AS pk_health_issue,
 	cn.fk_episode
 		AS pk_episode,
@@ -1002,13 +1008,13 @@ SELECT
 		AS xmin_clin_narrative
 FROM
 	clin.clin_narrative cn,
-	clin.episode cep
+	clin.v_pat_episodes vpep
 WHERE
-	cep.pk = cn.fk_episode
+	vpep.pk_episode = cn.fk_episode
 ;
 
-comment on view clin.v_pat_narrative is
-	'patient SOAP narrative;
+comment on view clin.v_pat_narrative_soap is
+	'patient SOAP-only narrative;
 	 this view aggregates all clin.clin_narrative rows
 	 and adds denormalized context';
 
@@ -1261,6 +1267,10 @@ where
 
 -- =============================================
 -- problem list
+
+\unset ON_ERROR_STOP
+drop view clin.v_problem_list cascade;
+\set ON_ERROR_STOP 1
 
 create view clin.v_problem_list as
 select	-- all the (open) episodes
@@ -1705,11 +1715,17 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.182 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.183 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.182  2006-05-27 14:52:07  ncq
+-- Revision 1.183  2006-05-28 15:22:25  ncq
+-- - robustify somewhat
+-- - the old v_pat_narrative was correct after all, but
+--   Syan's new one is still useful and faster for SOAP-only
+--   progress note narrative so keep it as v_pat_narrative_soap
+--
+-- Revision 1.182  2006/05/27 14:52:07  ncq
 -- - added Syan's faster version of clin.v_pat_narrative
 --
 -- Revision 1.181  2006/05/03 21:30:56  ncq
