@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.78 2006-05-04 09:49:20 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmPatientExporter.py,v 1.79 2006-05-30 13:36:35 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -524,7 +524,8 @@ class cEmrExport:
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
                episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
                emr_tree.SetPyData(episode_node, an_episode)
-	       encounters = self._get_encounters( a_health_issue, an_episode, emr )
+#	       encounters = self._get_encounters( a_health_issue, an_episode, emr )
+	       encounters = self._get_encounters( an_episode, emr )
 	       self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
 	       return episode_node
 	       
@@ -541,15 +542,16 @@ class cEmrExport:
 		   
 		   
     #--------------------------------------------------------             
-    def _get_encounters ( self, a_health_issue, an_episode, emr ):
+#    def _get_encounters ( self, a_health_issue, an_episode, emr ):
+    def _get_encounters ( self, an_episode, emr ):
                encounters = emr.get_encounters (
                    since = self.__constraints['since'],
                    until = self.__constraints['until'],
                    id_list = self.__constraints['encounters'],
-                   episodes = [an_episode['pk_episode']],
-                   issues = [a_health_issue['pk']]
+                   episodes = [an_episode['pk_episode']]
+#                   ,issues = [a_health_issue['pk']]
                )
-	       return encounters
+               return encounters
 	       
     #--------------------------------------------------------             
     def  _update_health_issue_branch(self, emr_tree, a_health_issue):
@@ -612,7 +614,8 @@ class cEmrExport:
 				id_encounter,cookie = emr_tree.GetNextChild(id_episode, cookie)
 				
 			# remove encounters in tree not in existing encounters in episode
-			encounters = self._get_encounters( a_health_issue, an_episode, emr )
+#			encounters = self._get_encounters( a_health_issue, an_episode, emr )
+			encounters = self._get_encounters( an_episode, emr )
 			existing_enc_pk = [ enc['pk_encounter'] for enc in encounters]
 			missing_enc_pk = [ pk  for pk in tree_enc.keys() if pk not in existing_enc_pk]
 			for pk in missing_enc_pk:
@@ -1262,7 +1265,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.78  2006-05-04 09:49:20  ncq
+# Revision 1.79  2006-05-30 13:36:35  ncq
+# - properly use get_encounters()
+#
+# Revision 1.78  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
