@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.25 2006-05-28 16:14:18 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmRegetMixin.py,v 1.26 2006-05-31 09:48:14 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -58,7 +58,6 @@ class cRegetOnPaintMixin:
 
 		Checks whether data needs to be refetched.
 		"""
-		print "cRegetOnPaintMixin._on_paint_event() for", self.__class__.__name__
 		self.repopulate_ui()
 		event.Skip()
 	#-----------------------------------------------------
@@ -74,7 +73,6 @@ class cRegetOnPaintMixin:
 		Called on different occasions such as "notebook page
 		raised" or "paint event received".
 		"""
-		print "cRegetOnPaintMixin.repopulate_ui() for", self.__class__.__name__
 		if self._data_stale:
 			if self._populate_with_data():
 				self._data_stale = False
@@ -100,8 +98,6 @@ class cRegetOnPaintMixin:
 		Called whenever data changes become known such as from
 		database listener threads, dispatcher signals etc.
 		"""
-		print "cRegetOnPaintMixin._schedule_data_reget() for", self.__class__.__name__
-
 		self._data_stale = True
 
 		# Master Robin Dunn says this is The Way(tm) but
@@ -141,7 +137,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.25  2006-05-28 16:14:18  ncq
+# Revision 1.26  2006-05-31 09:48:14  ncq
+# - cleanup
+#
+# Revision 1.25  2006/05/28 16:14:18  ncq
 # - cleanup, remove gmLog dependancy, improve docs
 # - comment out on-set-focus listening
 # - lots of debugging help for the time being

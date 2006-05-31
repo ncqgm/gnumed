@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.24 2006-05-28 15:40:51 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmEMRStructWidgets.py,v 1.25 2006-05-31 09:46:20 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -102,9 +102,6 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
 	#--------------------------------------------------------
 	def _pre_patient_selection(self):
-#		if not self.self_manage_patient:
-#			return True
-		# FIXME: do more things here ?
 		return True
 	#--------------------------------------------------------
 	def _post_patient_selection(self):
@@ -996,7 +993,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.24  2006-05-28 15:40:51  ncq
+# Revision 1.25  2006-05-31 09:46:20  ncq
+# - cleanup
+#
+# Revision 1.24  2006/05/28 15:40:51  ncq
 # - fix typo in variable
 #
 # Revision 1.23  2006/05/25 22:19:25  ncq
