@@ -20,15 +20,14 @@ class wxgReviewDocPartDlg(wx.Dialog):
         self._ChBOX_responsible = wx.CheckBox(self, -1, _("take over responsibility"))
         self._ChBOX_relevant = wx.CheckBox(self, -1, _("clinically relevant"))
         self._ChBOX_sign_all_pages = wx.CheckBox(self, -1, _("sign all pages"))
-        self._BTN_save = wx.Button(self, -1, _("Save"))
-        self._BTN_cancel = wx.Button(self, -1, _("Cancel"))
+        self._BTN_save = wx.Button(self, wx.ID_OK, _("Save"))
+        self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_CHECKBOX, self._on_reviewed_box_checked, self._ChBOX_review)
-        self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-        self.Bind(wx.EVT_BUTTON, self._on_cancel_button_pressed, self._BTN_cancel)
+        self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, id=wx.ID_OK)
         # end wxGlade
 
     def __set_properties(self):
@@ -46,6 +45,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
         self._ChBOX_sign_all_pages.Enable(False)
         self._ChBOX_sign_all_pages.SetValue(1)
         self._BTN_save.SetToolTipString(_("Save your review."))
+        self._BTN_cancel.SetToolTipString(_("Cancel this review."))
         self._BTN_cancel.SetFocus()
         self._BTN_cancel.SetDefault()
         # end wxGlade
@@ -73,7 +73,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
         __szr_box_review.Add(__szr_grid_review, 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_box_review, 1, wx.EXPAND, 0)
         __szr_bottom.Add(self._BTN_save, 0, wx.ADJUST_MINSIZE, 0)
-        __szr_bottom.Add(self._BTN_cancel, 0, wx.ADJUST_MINSIZE, 0)
+        __szr_bottom.Add(self._BTN_cancel, 0, 0, 0)
         __szr_main.Add(__szr_bottom, 0, wx.EXPAND, 0)
         self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
@@ -90,10 +90,6 @@ class wxgReviewDocPartDlg(wx.Dialog):
 
     def _on_save_button_pressed(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
         print "Event handler `_on_save_button_pressed' not implemented"
-        event.Skip()
-
-    def _on_cancel_button_pressed(self, event): # wxGlade: wxgReviewDocPartDlg.<event_handler>
-        print "Event handler `_on_cancel_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgReviewDocPartDlg
