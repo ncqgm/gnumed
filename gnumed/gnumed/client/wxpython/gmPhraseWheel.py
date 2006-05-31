@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.67 2006-05-25 22:24:20 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmPhraseWheel.py,v 1.68 2006-05-31 10:28:27 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -68,12 +68,11 @@ class cPhraseWheel (wx.TextCtrl):
 		self.notified_listeners = False
 
 		if kwargs.has_key('id_callback'):
+			print "[%s]: <id_callback> argument deprecated" % self.__class__.__name__
 			self.add_callback_on_selection(kwargs['id_callback'])
 			del kwargs['id_callback']
 
 		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
-		# unnecessary as we are using styles
-		#self.SetBackgroundColour (wxColour (200, 100, 100))
 
 		# set event handlers
 		self.__register_events()
@@ -100,14 +99,9 @@ class cPhraseWheel (wx.TextCtrl):
 			)
 	#--------------------------------------------------------
 	def __register_events(self):
-		# 1) entered text changed
-		wx.EVT_TEXT (self, self.GetId(), self.__on_text_update)
-		# - user pressed <enter>
-		wx.EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
-		# 2) a key was pressed
-		wx.EVT_KEY_DOWN (self, self.__on_key_pressed)
-		# 3) evil user wants to resize widget
-		wx.EVT_SIZE (self, self.on_resize)
+		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
+		wx.EVT_KEY_DOWN (self, self._on_key_pressed)
+		wx.EVT_SIZE (self, self._on_resize)
 		wx.EVT_SET_FOCUS(self, self._on_set_focus)
 		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
 	#--------------------------------------------------------
@@ -335,7 +329,7 @@ class cPhraseWheel (wx.TextCtrl):
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
-	def __on_enter (self, *args, **kwargs):
+	def _on_enter (self):
 		"""Called when the user pressed <ENTER>.
 
 		FIXME: this might be exploitable for some nice statistics ...
@@ -345,7 +339,7 @@ class cPhraseWheel (wx.TextCtrl):
 			# tell the input field about it
 			self.on_list_item_selected()
 		else:
-			self.Navigate ()
+			self.Navigate()
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
 		# if we already have a pick list go to next item
@@ -384,9 +378,8 @@ class cPhraseWheel (wx.TextCtrl):
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def __on_key_pressed (self, key):
+	def _on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
-		key.Skip()
 
 		# user moved down
 		if key.GetKeyCode() == wx.WXK_DOWN:
@@ -401,10 +394,13 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# user pressed <ENTER>
 		if key.GetKeyCode() == wx.WXK_RETURN:
-			self.__on_enter()
+			self._on_enter()
 			return
+
+		key.Skip()
+		return
 	#--------------------------------------------------------
-	def __on_text_update (self, event):
+	def _on_text_update (self, event):
 		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
 		# dirty "selected" flag
@@ -428,7 +424,7 @@ class cPhraseWheel (wx.TextCtrl):
 				notify_listener(None)
 			self.notified_listeners = False
 	#--------------------------------------------------------
-	def on_resize (self, event):
+	def _on_resize (self, event):
 		sz = self.GetSize()
 		# resize: as wide as the textctrl, and 1-10 times the height
 		rows = len(self.__currMatches)
@@ -459,7 +455,7 @@ class cPhraseWheel (wx.TextCtrl):
 		# display list - but only if we have more than one match
 		if len(self.__currMatches) > 0:
 			# show it
-			self.on_resize(None)
+			self._on_resize(None)
 			self.__show_picklist()
 		else:
 			# we may have had a pick list window so we
@@ -564,7 +560,7 @@ if __name__ == '__main__':
 				size = (180, 30),
 				aMatchProvider = mp1
 			)
-			ww1.on_resize (None)
+			ww1._on_resize (None)
 
 			print "Do you want to test the database connected phrase wheel ?"
 			yes_no = raw_input('y/n: ')
@@ -588,7 +584,7 @@ if __name__ == '__main__':
 					size = (180, 30),
 					aMatchProvider = mp2
 				)
-				ww2.on_resize (None)
+				ww2._on_resize (None)
 
 			frame.Show (1)
 			return 1
@@ -598,7 +594,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.67  2006-05-25 22:24:20  ncq
+# Revision 1.68  2006-05-31 10:28:27  ncq
+# - cleanup
+# - deprecation warning for <id_callback> argument
+#
+# Revision 1.67  2006/05/25 22:24:20  ncq
 # - self.__input_was_selected -> self._input_was_selected
 #   because subclasses need access to it
 #
