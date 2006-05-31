@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.61 2006-05-28 15:25:50 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmMedDoc.py,v 1.62 2006-05-31 09:45:19 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -180,13 +180,13 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				seq_idx=%(seq_idx)s,
 				comment=%(obj_comment)s,
 				fk_intended_reviewer=%(pk_intended_reviewer)s
-			where pk=%(pk_doc)s""",
-		"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_doc)s"""
+			where pk=%(pk_obj)s""",
+		"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_obj)s"""
 	]
 	_updatable_fields = [
 		'seq_idx',
 		'obj_comment',
-		'fk_reviewer'
+		'pk_intended_reviewer'
 	]
 	#--------------------------------------------------------
 	def __del__(self):
@@ -341,6 +341,9 @@ order by
 			return None
 		return data
 	#--------------------------------------------------------
+	def get_containing_document(self):
+		return cMedDoc(aPK_obj = self._payload[self._idx['pk_doc']])
+	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
 	def update_data_from_file(self, fname=None):
@@ -471,7 +474,8 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 				type=%(pk_type)s,
 				comment=%(comment)s,
 				date=%(date)s,
-				ext_ref=%(ext_ref)s
+				ext_ref=%(ext_ref)s,
+				fk_episode=%(pk_episode)s
 			where pk=%(pk_doc)s""",
 		"""select xmin_doc_med from blobs.v_doc_med where pk_doc=%(pk_doc)s"""
 		]
@@ -481,7 +485,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		'comment',
 		'date',
 		'ext_ref',
-		'episode'
+		'pk_episode'
 	]
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
@@ -561,7 +565,6 @@ VALUES (
 	#--------------------------------------------------------
 	def add_parts_from_files(self, files=None, reviewer=None):
 		for filename in files:
-
 			new_part = self.add_part(file=filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
@@ -571,9 +574,11 @@ VALUES (
 			if reviewer is None:
 				continue
 			new_part['fk_reviewer'] = reviewer
-			if not new_part.save_payload():
+			success, data = new_part.save_payload()
+			if not success:
 				msg = 'cannot set reviewer to [%s]' % reviewer
 				_log.Log(gmLog.lErr, msg)
+				_log.Log(gmLog.lErr, str(data))
 				return (False, msg, filename)
 
 		return (True, '', '')
@@ -591,6 +596,16 @@ VALUES (
 		# FIXME: this is probably inefficient
 		for part in self.get_parts():
 			if not part.set_reviewed(technically_abnormal, clinically_relevant):
+				return False
+		return True
+	#--------------------------------------------------------
+	def set_intended_reviewer(self, reviewer=None):
+		for part in self.get_parts():
+			part['pk_intended_reviewer'] = reviewer
+			success, data = part.save_payload()
+			if not success:
+				_log.Log(gmLog.lErr, 'cannot set reviewer to [%s]' % reviewer)
+				_log.Log(gmLog.lErr, str(data))
 				return False
 		return True
 #============================================================
@@ -683,7 +698,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.61  2006-05-28 15:25:50  ncq
+# Revision 1.62  2006-05-31 09:45:19  ncq
+# - fix doc part saving/locking - reference to PK was wrong, I wonder how it ever worked
+# - add get_containing_document() and set_intended_reviewer() to cMedDocPart
+# - make pk_episode in cMedDoc editable
+# - some more error checking
+#
+# Revision 1.61  2006/05/28 15:25:50  ncq
 # - add "episode" field to doc_part
 #
 # Revision 1.60  2006/05/25 22:11:36  ncq
