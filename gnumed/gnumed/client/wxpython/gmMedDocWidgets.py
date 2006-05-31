@@ -1,9 +1,11 @@
 """GNUmed medical document handling widgets.
 """
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.75 $"
-__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
+# $Id: gmMedDocWidgets.py,v 1.76 2006-05-31 12:17:04 ncq Exp $
+__version__ = "$Revision: 1.76 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+
 import os.path, sys, re, time
 
 try:
@@ -40,11 +42,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui_data(self):
-		# set associated episode (add "currently" to avoid popping up pick list)
-		self._PhWheel_episode.SetValue(_('%s ') % self.__part['episode'], self.__part['pk_episode'])
+		# set associated episode (add " " to avoid popping up pick list)
+		self._PhWheel_episode.SetValue('%s ' % self.__part['episode'], self.__part['pk_episode'])
 
 		# add list headers
-		self._LCTRL_existing_reviews.InsertColumn(0, _('by'))
+		self._LCTRL_existing_reviews.InsertColumn(0, _('seen by'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
 		self._LCTRL_existing_reviews.InsertColumn(2, _('+/-'))
 		self._LCTRL_existing_reviews.InsertColumn(3, _('!'))
@@ -58,6 +60,17 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
+
+		# init my review if any
+		if self.__part['reviewed_by_you']:
+			revs = self.__part.get_reviews()
+			for rev in revs:
+				if rev[5]:
+					self._ChBOX_abnormal.SetValue(bool(rev[2]))
+					self._ChBOX_relevant.SetValue(bool(rev[3]))
+					break
+
+		return True
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
@@ -65,26 +78,14 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if len(revs) == 0:
 			return True
 		# find special reviews
-#		review_by_me = None
 		review_by_responsible_doc = None
 		reviews_by_others = []
 		for rev in revs:
 			if rev[4]:
 				review_by_responsible_doc = rev
-#			if rev[5]:
-#				review_by_me = rev
-			if not (rev[4] and rev[5]):
+			if not (rev[4] or rev[5]):
 				reviews_by_others.append(rev)
 		# display them
-#		if review_by_me is not None:
-#			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=_('%s (you)') % review_by_me[0])
-#			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label = _('%s (you)') % review_by_me[0])
-#			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_me[1].Format('%Y-%m-%d %H:%M'))
-#			if review_by_me[2]:
-#				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
-#			if review_by_me[3]:
-#				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
-#			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_me[6])
 		if review_by_responsible_doc is not None:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, col=wx.BLUE)
@@ -109,20 +110,75 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def _on_cancel_button_pressed(self, evt):
-		wx.Dialog.OnCancel(evt)
-	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
+		"""Save the metadata to the backend."""
+
+		evt.Skip()
+
+		doc = self.__part.get_containing_document()
+
+		# 1) handle associated episode
+		epi_name = self._PhWheel_episode.GetValue().strip()
 		pk_episode = self._PhWheel_episode.GetData()
+		# - create new episode
 		if pk_episode is None:
-			# create new episode
-			print "must create new episode"
-			print "allow picking health issue"
-		elif pk_episode != self.__part['pk_episode']:
-			# relink to another episode, since the phrasewheel operates
-			# on the active patient only all episodes really should
-			# belong to it so we don't check patient change
-			self.__part['pk_episode'] = pk_episode
+			# FIXME: allow attaching to health issue
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			epi = emr.add_episode(episode_name=epi_name, is_open=True)
+			if epi is None:
+				gmGuiHelpers.gm_show_error (
+					_('Cannot create episode\n [%s]'),
+					_('editing document properties')
+				)
+			else:
+				doc['pk_episode'] = epi['pk_episode']
+		# - relink to another episode
+		elif pk_episode != doc['pk_episode']:
+			# since the phrasewheel operates on the active
+			# patient only all episodes really should belong
+			# to it so we don't check patient change
+			doc['pk_episode'] = pk_episode
+
+		# 2) handle review
+		if self._ChBOX_review.GetValue():
+			provider = gmPerson.gmCurrentProvider()
+			abnormal = self._ChBOX_abnormal.GetValue()
+			relevant = self._ChBOX_relevant.GetValue()
+			msg = None
+			# - on all pages
+			if self._ChBOX_sign_all_pages.GetValue():
+				if not doc.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
+					msg = _('Error setting "reviewed" status of this document.')
+				if self._ChBOX_responsible.GetValue():
+					if not doc.set_reviewer(reviewer = provider['pk_staff']):
+						msg = _('Error setting responsible clinician for this document.')
+			# - just on this page
+			else:
+				if not self.__part.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
+					msg = _('Error setting "reviewed" status of this page.')
+				if self._ChBOX_responsible.GetValue():
+					self.__part['pk_intended_reviewer'] = provider['pk_staff']
+
+			# FIXME: if msg is not None
+
+			success, data = self.__part.save_payload()
+			if not success:
+				gmGuiHelpers.gm_show_error (
+					_('Error saving document review.'),
+					_('editing document properties')
+				)
+				return False
+
+		success, data = doc.save_payload()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot link the document to episode\n\n [%s]') % epi_name,
+				_('editing document properties')
+			)
+			return False
+
+		return True
 	#--------------------------------------------------------
 	def _on_reviewed_box_checked(self, evt):
 		state = self._ChBOX_review.GetValue()
@@ -130,7 +186,6 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._ChBOX_relevant.Enable(enable = state)
 		self._ChBOX_responsible.Enable(enable = state)
 		self._ChBOX_sign_all_pages.Enable(enable = state)
-
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
@@ -502,8 +557,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	#-------------------------------------------------------
 	def _populate_with_data(self):
 		"""Fills UI with data."""
-		print self.__class__.__name__, "_populate_with_data()"
-
 		if not self._doc_tree.refresh():
 			_log.Log(gmLog.lErr, "cannot update document tree")
 			return False
@@ -969,7 +1022,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.75  2006-05-28 16:40:16  ncq
+# Revision 1.76  2006-05-31 12:17:04  ncq
+# - cleanup, string improvements
+# - review dialog:
+#   - init review of current user if any
+#   - do not list review of current user under reviews by other people ...
+#   - implement save action
+#
+# Revision 1.75  2006/05/28 16:40:16  ncq
 # - add ' ' to initial episode SetValue() to avoid popping up pick list
 # - better labels in list of existing reviews
 # - handle checkbox for review
