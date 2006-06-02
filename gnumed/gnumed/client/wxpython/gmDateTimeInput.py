@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.35 2006-06-02 10:12:09 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmDateTimeInput.py,v 1.36 2006-06-02 13:17:50 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -56,7 +56,10 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		self.__expanders.append(self.__explicit_offset)
 		self.__expanders.append(self.__single_slash)
 		self.set_single_character_triggers()
+		self.set_offset_chars()
 		gmMatchProvider.cMatchProvider.__init__(self)
+	#--------------------------------------------------------
+	# external API
 	#--------------------------------------------------------
 	def set_single_character_triggers(self, triggers = 'ndmy'):
 		"""Set trigger characters.
@@ -67,10 +70,25 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			m - toMorrow	Someone please suggest a synonym !
 			y - yesterday
 
-		This also defines the significance of
-		the order of the characters.
+		This also defines the significance of the order of the characters.
 		"""
-		self.__single_char_triggers = triggers[:4]
+		self.__single_char_triggers = triggers[:4].lower()
+	#--------------------------------------------------------
+	def set_offset_chars(self, offset_chars = 'hdwmy'):
+		"""Set offset characters.
+
+		Default is 'hdwm':
+			h - hours
+			d - days
+			w - weeks
+			m - months
+			y - years
+
+		This also defines the significance of the order of the characters.
+		"""
+		self.__offset_chars = offset_chars[:5].lower()
+	#--------------------------------------------------------
+	# base class API
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -82,6 +100,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 		self.__now = mxDT.now()
+		aFragment = aFragment.strip()
 		matches = []
 		for expander in self.__expanders:
 			items = expander(aFragment)
@@ -124,12 +143,9 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			- Mai/19xx
 		"""
 
-		if not re.match("^(\s|\t)*\d{1,2}/{1}(\s|\t)*$", aFragment):
+		if not re.match("^\d{1,2}/{1}$", aFragment):
 			return None
-
-		val = aFragment.replace(' ', '')
-		val = val.replace('\t', '')
-		val = int(val.replace('/', ''))
+		val = int(aFragment.replace('/', ''))
 
 		matches = []
 
@@ -153,16 +169,18 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 
 		if val < 13 and val > 0:
 			matches.append ({
-				'data': None,
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__now, accuracy = gmFuzzyTimestamp.acc_months),
 				'label': '%.2d/%s' % (val, self.__now.year)
 			})
+			ts = self.__now + mxDT.RelativeDateTime(years = 1)
 			matches.append ({
-				'data': None,
-				'label': '%.2d/%s' % (val, (self.__now + mxDT.RelativeDateTime(years = 1)).year)
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = ts, accuracy = gmFuzzyTimestamp.acc_months),
+				'label': '%.2d/%s' % (val, ts.year)
 			})
+			ts = self.__now + mxDT.RelativeDateTime(years = -1)
 			matches.append ({
-				'data': None,
-				'label': '%.2d/%s' % (val, (self.__now + mxDT.RelativeDateTime(years = -1)).year)
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = ts, accuracy = gmFuzzyTimestamp.acc_months),
+				'label': '%.2d/%s' % (val, ts.year)
 			})
 			matches.append ({
 				'data': None,
@@ -196,11 +214,9 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 
 		Spaces or tabs are discarded.
 		"""
-		if not re.match("^(\s|\t)*\d+(\s|\t)*$", aFragment):
+		if not re.match("^\d+$", aFragment):
 			return None
-
-		val = aFragment.replace(' ', '')
-		val = int(val.replace('\t', ''))
+		val = int(aFragment)
 
 		matches = []
 
@@ -404,10 +420,9 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 
 		Spaces and tabs are discarded."""
 
-		if not re.match('^(\s|\t)*[%s](\s|\t)*$' % self.__single_char_triggers, aFragment):
+		if not re.match('^[%s]$' % self.__single_char_triggers, aFragment):
 			return None
-
-		val = aFragment.strip().lower()
+		val = aFragment.lower()
 
 		# FIXME: handle uebermorgen/vorgestern ?
 
@@ -458,43 +473,69 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def __explicit_offset(self, aFragment):
 		# "+/-XXd/w/m/t"
-		if not re.match("^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[mdtw](\s|\t)*$", aFragment):
+		if not re.match("^(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[%s]$" % self.__offset_chars, aFragment):
 			return None
+		aFragment = aFragment.lower()
 
 		# allow past ?
-		is_future = 1
+		is_future = True
 		if string.find(aFragment, '-') > -1:
-			is_future = 0 
-			if not self.__allow_past:
-				return None
+			is_future = False
 
 		val = int(re.search('\d{1,2}', aFragment).group())
-		target_date = None
-		if re.search('[dt]', aFragment):
+
+		ts = None
+		# hours
+		if aFragment[-1] == self.__offset_chars[0]:
 			if is_future:
-				target_date = self.__now + mxDT.RelativeDateTime(days = val)
-				label = _('in %d day(s) (on a %s)') % (val, target_date.strftime('%A'))
+				ts = self.__now + mxDT.RelativeDateTime(hours = val)
+				label = _('in %d hour(s) - %s') % (val, ts.strftime('%H:%M'))
 			else:
-				target_date = self.__now - mxDT.RelativeDateTime(days = val)
-				label = _('%d day(s) ago (on a %s)') % (val, target_date.strftime('%A'))
-		elif re.search('[w]', aFragment):
+				ts = self.__now - mxDT.RelativeDateTime(hours = val)
+				label = _('%d hour(s) ago - %s') % (val, ts.strftime('%H:%M'))
+			accuracy = gmFuzzyTimestamp.acc_subseconds
+		# days
+		elif aFragment[-1] == self.__offset_chars[1]:
 			if is_future:
-				target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
-				label = _('in %d week(s) (on a %s)') % (val, target_date.strftime('%A'))
+				ts = self.__now + mxDT.RelativeDateTime(days = val)
+				label = _('in %d day(s) - %s') % (val, ts.strftime('%A, %x'))
 			else:
-				target_date = self.__now - mxDT.RelativeDateTime(weeks = val)
-				label = _('%d week(s) ago (on a %s)') % (val, target_date.strftime('%A'))
-		elif re.search('[m]', aFragment):
+				ts = self.__now - mxDT.RelativeDateTime(days = val)
+				label = _('%d day(s) ago - %s') % (val, ts.strftime('%A, %x'))
+			accuracy = gmFuzzyTimestamp.acc_days
+		# weeks
+		elif aFragment[-1] == self.__offset_chars[2]:
 			if is_future:
-				target_date = self.__now + mxDT.RelativeDateTime(months = val)
-				label = _('in %d month(s) (on a %s)') % (val, target_date.strftime('%A'))
+				ts = self.__now + mxDT.RelativeDateTime(weeks = val)
+				label = _('in %d week(s) - %s') % (val, ts.strftime('%A, %x'))
 			else:
-				target_date = self.__now - mxDT.RelativeDateTime(months = val)
-				label = _('%d month(s) ago (on a %s)') % (val, target_date.strftime('%A'))
-		if target_date is None:
+				ts = self.__now - mxDT.RelativeDateTime(weeks = val)
+				label = _('%d week(s) ago - %s)') % (val, ts.strftime('%A, %x'))
+			accuracy = gmFuzzyTimestamp.acc_days
+		# months
+		elif aFragment[-1] == self.__offset_chars[3]:
+			if is_future:
+				ts = self.__now + mxDT.RelativeDateTime(months = val)
+				label = _('in %d month(s) - %s') % (val, ts.strftime('%A, %x'))
+			else:
+				ts = self.__now - mxDT.RelativeDateTime(months = val)
+				label = _('%d month(s) ago - %s') % (val, ts.strftime('%A, %x'))
+			accuracy = gmFuzzyTimestamp.acc_days
+		# years
+		elif aFragment[-1] == self.__offset_chars[4]:
+			if is_future:
+				ts = self.__now + mxDT.RelativeDateTime(years = val)
+				label = _('in %d year(s) - %s') % (val, ts.strftime('%A, %x'))
+			else:
+				ts = self.__now - mxDT.RelativeDateTime(years = val)
+				label = _('%d year(s) ago - %s') % (val, ts.strftime('%A, %x'))
+			accuracy = gmFuzzyTimestamp.acc_months
+
+		if ts is None:
 			return None
+
 		tmp = {
-			'data': target_date,
+			'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = ts, accuracy = accuracy),
 			'label': label
 		}
 		return [tmp]
@@ -514,50 +555,88 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.allow_multiple_phrases(None)
 		self.selection_only = False
 
-		self.__display_format = _('%Y-%m-%d')
+#		self.__display_format = _('%Y-%m-%d')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __validate(self):
+	def __text2timestamp(self):
 		# does have timestamp object associated with it
 		if self.data is not None:
 			return True
 
+		val = self.GetValue().strip()
+
 		# skip empty value
-		if self.GetValue().strip() == '':
+		if val == '':
 			return True
 
+		# xx/yyyy ?
+		if re.match("^\d{1,2}/{1}\d{4}$", val):
+			parts = val.split('/')
+			self.data = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = self.__now + mxDT.RelativeDateTime(year = int(part[1]), month = int(part[0])),
+				accuracy = gmFuzzyTimestamp.acc_months
+			)
+			return True
+
+		# date ?
 		try:
-			# FIXME: make this way more generous in accepting date input
-			date = time.strptime(self.GetValue(), self.__display_format)
-		except:
-			msg = _('Invalid date. Date format: %s ' % self.__display_format)
-			gmGuiHelpers.gm_beep_statustext(msg)
-			self.SetBackgroundColour('pink')
-			self.Refresh()
+			date = mxDT.Parser.DateFromString (
+				text = val,
+				formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
+			)
+			accuracy = gmFuzzyTimestamp.acc_days
+			# time, too ?
+			time = mxDT.Parser.TimeFromString(text = val)
+			datetime = date + time
+			if datetime != date:
+				accuracy = gmFuzzyTimestamp.acc_subseconds
+			self.data = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = datetime,
+				accuracy = accuracy
+			)
+			return True
+		except ValueError:
+			msg = _('Cannot parse <%s> into proper timestamp.')
 			return False
 
-		# valid date		
-		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self.Refresh()
+#		try:
+#			# FIXME: make this way more generous in accepting date input
+#			date = time.strptime(val, self.__display_format)
+#		except:
+#			msg = _('Invalid date. Date format: %s ' % self.__display_format)
+#			gmGuiHelpers.gm_beep_statustext(msg)
+#			self.SetBackgroundColour('pink')
+#			self.Refresh()
+#			return False
+
+		# valid date
 		return True
 	#--------------------------------------------------------
 	# phrasewheel internal API
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-		self.__validate()
+		if not self.__text2timestamp():
+			self.SetBackgroundColour('pink')
+			self.Refresh()
+		else:
+			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self.Refresh()
+
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#--------------------------------------------------------
 	def _calc_display_string(self):
 		data = self._picklist.GetClientData(self._picklist.GetSelection())
+		if data is None:
+			data = self._picklist.GetStringSelection()
 		return '%s' % data
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def SetValue(self, val, data=None):
 		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
-#		if (len(val.strip()) > 0):
-#			self.__validate()
+		if self.data is None:
+			self.__text2timestamp()
 #==================================================
 class cTimeInput(wx.TextCtrl):
 	def __init__(self, parent, *args, **kwargs):
@@ -625,7 +704,13 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.35  2006-06-02 10:12:09  ncq
+# Revision 1.36  2006-06-02 13:17:50  ncq
+# - add configurable offset chars for i18n
+# - various cleanups and optimizations
+# - fix __explicit_offset to use proper fuzzy timestamp
+# - __validate() -> __text2timestamp() and smarten up
+#
+# Revision 1.35  2006/06/02 10:12:09  ncq
 # - cleanup
 # - add more fragment expanders
 #
