@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.34 2006-05-24 10:35:38 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmDateTimeInput.py,v 1.35 2006-06-02 10:12:09 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -51,9 +51,10 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		self.__allow_past = 1 
 		self.__shifting_base = None
 		self.__expanders = []
-		self.__expanders.append(self.__single_number)
+		self.__expanders.append(self.__numbers_only)
 		self.__expanders.append(self.__single_char)
 		self.__expanders.append(self.__explicit_offset)
+		self.__expanders.append(self.__single_slash)
 		self.set_single_character_triggers()
 		gmMatchProvider.cMatchProvider.__init__(self)
 	#--------------------------------------------------------
@@ -106,12 +107,95 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	# date fragment expanders
 	#--------------------------------------------------------
-	def __single_number(self, aFragment):
+	def __single_slash(self, aFragment):
+		"""Expand fragments containt a single slash.
+
+		"5/"
+			- 2005/					(2000 - 2025)
+			- 1995/					(1990 - 1999)
+			- Mai/current year
+			- Mai/next year
+			- Mai/last year
+			- Mai/200x
+			- Mai/20xx
+			- Mai/199x
+			- Mai/198x
+			- Mai/197x
+			- Mai/19xx
+		"""
+
+		if not re.match("^(\s|\t)*\d{1,2}/{1}(\s|\t)*$", aFragment):
+			return None
+
+		val = aFragment.replace(' ', '')
+		val = val.replace('\t', '')
+		val = int(val.replace('/', ''))
+
+		matches = []
+
+		if val < 100 and val >= 0:
+			matches.append ({
+				'data': None,
+				'label': '%s/' % (val + 1900)
+			})
+
+		if val < 26 and val >= 0:
+			matches.append ({
+				'data': None,
+				'label': '%s/' % (val + 2000)
+			})
+
+		if val < 10 and val >= 0:
+			matches.append ({
+				'data': None,
+				'label': '%s/' % (val + 1990)
+			})
+
+		if val < 13 and val > 0:
+			matches.append ({
+				'data': None,
+				'label': '%.2d/%s' % (val, self.__now.year)
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/%s' % (val, (self.__now + mxDT.RelativeDateTime(years = 1)).year)
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/%s' % (val, (self.__now + mxDT.RelativeDateTime(years = -1)).year)
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/200' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/20' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/199' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/198' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/197' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%.2d/19' % val
+			})
+
+		return matches
+	#--------------------------------------------------------
+	def __numbers_only(self, aFragment):
 		"""This matches on single numbers.
 
 		Spaces or tabs are discarded.
 		"""
-
 		if not re.match("^(\s|\t)*\d+(\s|\t)*$", aFragment):
 			return None
 
@@ -121,7 +205,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		matches = []
 
 		# day X of this month
-		if (val <= month_length[self.__now.month]) and (val > 0):
+		if val <= month_length[self.__now.month]:
 			ts = self.__now + mxDT.RelativeDateTime(day = val)
 			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
 				timestamp = ts,
@@ -134,7 +218,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			matches.append(tmp)
 
 		# day X of next month
-		if (val <= month_length[(self.__now + mxDT.RelativeDateTime(months = 1)).month]) and (val > 0):
+		if val <= month_length[(self.__now + mxDT.RelativeDateTime(months = 1)).month]:
 			ts = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
 			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
 				timestamp = ts,
@@ -147,7 +231,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			matches.append(tmp)
 
 		# day X of last month
-		if (val <= month_length[(self.__now + mxDT.RelativeDateTime(months = -1)).month]) and (val > 0):
+		if val <= month_length[(self.__now + mxDT.RelativeDateTime(months = -1)).month]:
 			ts = self.__now + mxDT.RelativeDateTime(months = -1, day = val)
 			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
 				timestamp = ts,
@@ -160,29 +244,31 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			matches.append(tmp)
 
 		# X days from now
-		ts = self.__now + mxDT.RelativeDateTime(days = val)
-		target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
-			timestamp = ts
-		)
-		tmp = {
-			'data': target_date,
-			'label': _('in %d day(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
-		}
-		matches.append(tmp)
+		if val <= 400:				# more than a year ahead in days ?? nah !
+			ts = self.__now + mxDT.RelativeDateTime(days = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('in %d day(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
+			}
+			matches.append(tmp)
 
 		# X weeks from now
-		ts = self.__now + mxDT.RelativeDateTime(weeks = val)
-		target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
-			timestamp = ts
-		)
-		tmp = {
-			'data': target_date,
-			'label': _('in %d week(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
-		}
-		matches.append(tmp)
+		if val <= 50:				# pregnancy takes about 40 weeks :-)
+			ts = self.__now + mxDT.RelativeDateTime(weeks = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts
+			)
+			tmp = {
+				'data': target_date,
+				'label': _('in %d week(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
+			}
+			matches.append(tmp)
 
 		# month X of ...
-		if val < 13 and val > 0:
+		if val < 13:
 			# ... this year
 			ts = self.__now + mxDT.RelativeDateTime(month = val)
 			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
@@ -191,7 +277,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			)
 			tmp = {
 				'data': target_date,
-				'label': _('%s this year (%s)') % (ts.strftime('%B'), target_date)
+				'label': _('%s (%s this year)') % (target_date, ts.strftime('%B'))
 			}
 			matches.append(tmp)
 
@@ -203,7 +289,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			)
 			tmp = {
 				'data': target_date,
-				'label': _('%s next year (%s)') % (ts.strftime('%B'), target_date)
+				'label': _('%s (%s next year)') % (target_date, ts.strftime('%B'))
 			}
 			matches.append(tmp)
 
@@ -215,12 +301,30 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			)
 			tmp = {
 				'data': target_date,
-				'label': _('%s last year (%s)') % (ts.strftime('%B'), target_date)
+				'label': _('%s (%s last year)') % (target_date, ts.strftime('%B'))
 			}
 			matches.append(tmp)
 
+			# fragment expansion
+			matches.append ({
+				'data': None,
+				'label': '%s/200' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%s/199' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%s/198' % val
+			})
+			matches.append ({
+				'data': None,
+				'label': '%s/19' % val
+			})
+
 		# day X of ...
-		if val < 8 and val > 0:
+		if val < 8:
 			# ... this week
 			ts = self.__now + mxDT.RelativeDateTime(weekday = (val-1, 0))
 			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
@@ -256,6 +360,42 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 				'label': _('%s last week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
 			}
 			matches.append(tmp)
+
+		if val < 100:
+			matches.append ({
+				'data': None,
+				'label': '%s/' % (1900 + val)
+			})
+
+		if val == 200:
+			tmp = {
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__now, accuracy = gmFuzzyTimestamp.acc_days),
+				'label': '%s' % target_date
+			}
+			matches.append(tmp)
+			matches.append ({
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__now, accuracy = gmFuzzyTimestamp.acc_months),
+				'label': '%s/%.2d' % (self.__now.year, self.__now.month)
+			})
+			matches.append ({
+				'data': None,
+				'label': '%s/' % self.__now.year
+			})
+			matches.append ({
+				'data': None,
+				'label': '%s/' % (self.__now.year + 1)
+			})
+			matches.append ({
+				'data': None,
+				'label': '%s/' % (self.__now.year - 1)
+			})
+
+		if val < 200 and val >= 190:
+			for i in range(10):
+				matches.append ({
+					'data': None,
+					'label': '%s%s/' % (val, i)
+				})
 
 		return matches
 	#--------------------------------------------------------
@@ -375,11 +515,11 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = False
 
 		self.__display_format = _('%Y-%m-%d')
-
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __validate(self):
+		# does have timestamp object associated with it
 		if self.data is not None:
 			return True
 
@@ -405,7 +545,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	# phrasewheel internal API
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-#		self.__validate()
+		self.__validate()
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#--------------------------------------------------------
 	def _calc_display_string(self):
@@ -473,18 +613,23 @@ if __name__ == '__main__':
 	mp.setThresholds(aWord = 998, aSubstring = 999)
 	val = None
 	while val != 'exit':
+		print "************************************"
 		val = raw_input('Enter date fragment: ')
 		found, matches = mp.getMatches(aFragment=val)
 		for match in matches:
 			print match['label']
 			print match['data']
-			print "-------------------------"
+			print "---------------"
 
 #==================================================
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.34  2006-05-24 10:35:38  ncq
+# Revision 1.35  2006-06-02 10:12:09  ncq
+# - cleanup
+# - add more fragment expanders
+#
+# Revision 1.34  2006/05/24 10:35:38  ncq
 # - better named match provider
 #
 # Revision 1.33  2006/05/24 10:12:37  ncq
