@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.68 2006-05-31 10:28:27 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmPhraseWheel.py,v 1.69 2006-06-02 09:59:03 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -405,6 +405,8 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# dirty "selected" flag
 		self._input_was_selected = False
+		# invalidate associated data object
+		self.data = None
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
@@ -419,7 +421,6 @@ class cPhraseWheel (wx.TextCtrl):
 		if self.notified_listeners:
 			# Aargh! we told the listeners that we selected <foo>
 			# but now the user is typing again !
-			self.data = None
 			for notify_listener in self._on_selection_callbacks:
 				notify_listener(None)
 			self.notified_listeners = False
@@ -594,7 +595,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.68  2006-05-31 10:28:27  ncq
+# Revision 1.69  2006-06-02 09:59:03  ncq
+# - must invalidate associated data object *as soon as*
+#   the text in the control changes
+#
+# Revision 1.68  2006/05/31 10:28:27  ncq
 # - cleanup
 # - deprecation warning for <id_callback> argument
 #
