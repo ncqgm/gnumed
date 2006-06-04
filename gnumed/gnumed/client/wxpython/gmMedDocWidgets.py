@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.76 2006-05-31 12:17:04 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmMedDocWidgets.py,v 1.77 2006-06-04 21:51:43 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -42,11 +42,17 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui_data(self):
-		# set associated episode (add " " to avoid popping up pick list)
+		# associated episode (add " " to avoid popping up pick list)
 		self._PhWheel_episode.SetValue('%s ' % self.__part['episode'], self.__part['pk_episode'])
+		self._SelBOX_doc_type.Clear()
+		for doc_type in gmMedDoc.get_document_types():
+			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
+		self._SelBOX_doc_type.SetStringSelection(self.__part['l10n_type'])
+		self._TCTRL_doc_comment.SetValue(self.__part['doc_comment'])
+		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
+		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
 
-		# add list headers
-		self._LCTRL_existing_reviews.InsertColumn(0, _('seen by'))
+		self._LCTRL_existing_reviews.InsertColumn(0, _('who'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
 		self._LCTRL_existing_reviews.InsertColumn(2, _('+/-'))
 		self._LCTRL_existing_reviews.InsertColumn(3, _('!'))
@@ -61,6 +67,13 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 
+		me = gmPerson.gmCurrentProvider()
+		if self.__part['pk_intended_reviewer'] == me['pk_staff']:
+			msg = _('(you are the primary reviewer)')
+		else:
+			msg = _('(someone else is the primary reviewer)')
+		self._TCTRL_responsible.SetValue(msg)
+
 		# init my review if any
 		if self.__part['reviewed_by_you']:
 			revs = self.__part.get_reviews()
@@ -74,14 +87,14 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
-		revs = self.__part.get_reviews()
+		revs = self.__part.get_reviews()		# FIXME: this is ugly as sin, it should be dicts, not lists
 		if len(revs) == 0:
 			return True
 		# find special reviews
 		review_by_responsible_doc = None
 		reviews_by_others = []
 		for rev in revs:
-			if rev[4]:
+			if rev[4] and not rev[5]:
 				review_by_responsible_doc = rev
 			if not (rev[4] or rev[5]):
 				reviews_by_others.append(rev)
@@ -140,6 +153,16 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			# to it so we don't check patient change
 			doc['pk_episode'] = pk_episode
 
+		doc_type = self._SelBOX_doc_type.GetClientData(self._SelBOX_doc_type.GetSelection())
+		if doc_type != doc['pk_type']:
+			doc['pk_type'] = doc_type
+
+		if self._TCTRL_doc_comment.IsModified():
+			doc['comment'] = self._TCTRL_doc_comment.GetValue().strip()
+
+		if self._PhWheel_doc_date.IsModified():
+			doc['date'] = self._PhWheel_doc_date.GetData().timestamp
+
 		# 2) handle review
 		if self._ChBOX_review.GetValue():
 			provider = gmPerson.gmCurrentProvider()
@@ -162,13 +185,13 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 			# FIXME: if msg is not None
 
-			success, data = self.__part.save_payload()
-			if not success:
-				gmGuiHelpers.gm_show_error (
-					_('Error saving document review.'),
-					_('editing document properties')
-				)
-				return False
+		success, data = self.__part.save_payload()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_('Error saving document review.'),
+				_('editing document properties')
+			)
+			return False
 
 		success, data = doc.save_payload()
 		if not success:
@@ -216,7 +239,18 @@ where
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui_data(self):
+		# -----------------------------
 		self._PhWheel_episode.SetValue('')
+		# -----------------------------
+		# provide choices for document types
+		self._SelBOX_doc_type.Clear()
+		for doc_type in gmMedDoc.get_document_types():
+			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
+		# -----------------------------
+		# FIXME: make this configurable: either now() or last_date()
+		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
+		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
+		self._TBOX_doc_comment.SetValue('')
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
 		me = gmPerson.gmCurrentProvider()
@@ -224,21 +258,16 @@ where
 			value = '%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
 		)
-		# provide choices for document types
-		self._SelBOX_doc_type.Clear()
-		for doc_type in gmMedDoc.get_document_types():
-			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
-		# FIXME: make this configurable: either now() or last_date()
-		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
-		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
-		self._TBOX_doc_comment.SetValue('')
-		self._TBOX_description.SetValue('')
+		# -----------------------------
 		# FIXME: set from config item
 		self._ChBOX_reviewed.SetValue(False)
 		self._ChBOX_abnormal.Disable()
 		self._ChBOX_abnormal.SetValue(False)
 		self._ChBOX_relevant.Disable()
 		self._ChBOX_relevant.SetValue(False)
+		# -----------------------------
+		self._TBOX_description.SetValue('')
+		# -----------------------------
 		# the list holding our page files
 		self._LBOX_doc_pages.Clear()
 		self.acquired_pages = []
@@ -464,7 +493,6 @@ from your computer.""") % page_fname,
 
 		# update business object with metadata
 		# - date of generation
-		#new_doc['date'] = self._TBOX_doc_date.GetLineText(0).strip()
 		new_doc['date'] = self._TBOX_doc_date.GetData().timestamp
 		# - external reference
 		ref = gmMedDoc.get_ext_ref()
@@ -905,6 +933,7 @@ class cDocTree(wx.TreeCtrl):
 			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
 		ID_load_submenu = wx.NewId()
 		menu = wx.Menu(title = _('document menu'))
+		# FIXME: add item "reorder pages"
 		menu.AppendMenu(ID_load_submenu, _('descriptions ...'), desc_menu)
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
@@ -914,11 +943,11 @@ class cDocTree(wx.TreeCtrl):
 		menu = wx.Menu(title = _('page menu'))
 		# display file
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, 'Display'))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Display page')))
 		wx.EVT_MENU(menu, ID, self.__display_curr_part)
-		# review item
+		# edit metadata
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, 'Review/Initial'))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Edit properties')))
 		wx.EVT_MENU(menu, ID, self.__review_curr_part)
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
@@ -1022,7 +1051,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.76  2006-05-31 12:17:04  ncq
+# Revision 1.77  2006-06-04 21:51:43  ncq
+# - handle doc type/comment/date in properties editor dialog
+#
+# Revision 1.76  2006/05/31 12:17:04  ncq
 # - cleanup, string improvements
 # - review dialog:
 #   - init review of current user if any
