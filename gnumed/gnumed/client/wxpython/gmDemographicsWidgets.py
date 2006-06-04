@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.82 2006-05-28 20:49:44 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmDemographicsWidgets.py,v 1.83 2006-06-04 21:16:27 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1224,7 +1224,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
 		queries = []
-		queries.append("select distinct postcode, postcode from street where postcode %(fragment_condition)s")
+		queries.append("select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
@@ -1240,9 +1240,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		queries.append ("""
 		select distinct on (s1,s2) s1, s2 from (
 			select * from (
-				select street as s1, street as s2, 1 as rank from v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
+				select street as s1, street as s2, 1 as rank from dem.v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select name as s1, name as s2, 2 as rank from street where name %(fragment_condition)s
+				select name as s1, name as s2, 2 as rank from dem.street where name %(fragment_condition)s
 			) as q1 order by rank, s1
 		) as q2
 		""")
@@ -1267,9 +1267,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		queries.append("""
 		select distinct on (u1,u2) u1, u2 from (
 			select * from (		
-				select urb as u1, urb as u2, 1 as rank from v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
+				select urb as u1, urb as u2, 1 as rank from dem.v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select name as u1, name as u2, 2 as rank from urb where name %(fragment_condition)s
+				select name as u1, name as u2, 2 as rank from dem.urb where name %(fragment_condition)s
 			) as t1 order by rank, u1
 		) as q2
 		""")
@@ -1290,13 +1290,13 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		queries.append("""
 		select distinct on (code, name) code, name from (
 			select * from (
-				select code_state as code, state as name, 1 as rank from v_zip2data
+				select code_state as code, state as name, 1 as rank from dem.v_zip2data
 					where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
-				union select code as code, name as name, 2 as rank from state
+				union select code as code, name as name, 2 as rank from dem.state
 					where name %(fragment_condition)s and country ilike %%(country)s
-				union select code_state as code, state as name, 3 as rank from v_zip2data
+				union select code_state as code, state as name, 3 as rank from dem.v_zip2data
 					where code_state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
-				union select code as code, name as name, 3 as rank from state
+				union select code as code, name as name, 3 as rank from dem.state
 					where code %(fragment_condition)s and country ilike %%(country)s
 			) as q2 order by rank, name
 		) as q1""")
@@ -1320,14 +1320,14 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		select distinct on (code, name) code, name from (
 			select * from (
 				-- localized to user
-				select code_country as code, _(country) as name, 1 as rank from v_zip2data where _(country) %(fragment_condition)s and zip ilike %%(zip)s
+				select code_country as code, _(country) as name, 1 as rank from dem.v_zip2data where _(country) %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select code as code, _(name) as name, 2 as rank from country where _(name) %(fragment_condition)s
+				select code as code, _(name) as name, 2 as rank from dem.country where _(name) %(fragment_condition)s
 					union
 				-- non-localized
-				select code_country as code, country as name, 3 as rank from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
+				select code_country as code, country as name, 3 as rank from dem.v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
 					union
-				select code as code, name as name, 4 as rank from country where name %(fragment_condition)s
+				select code as code, name as name, 4 as rank from dem.country where name %(fragment_condition)s
 			) as q2 order by rank, name
 		) as q1""")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
@@ -1350,7 +1350,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		queries = []
-		queries.append("select distinct name, name from occupation where name %(fragment_condition)s")
+		queries.append("select distinct name, name from dem.occupation where name %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)		
 		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
@@ -2937,7 +2937,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.82  2006-05-28 20:49:44  ncq
+# Revision 1.83  2006-06-04 21:16:27  ncq
+# - fix missing dem. prefixes
+#
+# Revision 1.82  2006/05/28 20:49:44  ncq
 # - gmDateInput -> cFuzzyTimestampInput
 #
 # Revision 1.81  2006/05/15 13:35:59  ncq
