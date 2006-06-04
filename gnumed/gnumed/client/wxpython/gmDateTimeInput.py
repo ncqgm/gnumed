@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.36 2006-06-02 13:17:50 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmDateTimeInput.py,v 1.37 2006-06-04 21:50:32 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -391,7 +391,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			matches.append(tmp)
 			matches.append ({
 				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__now, accuracy = gmFuzzyTimestamp.acc_months),
-				'label': '%s/%.2d' % (self.__now.year, self.__now.month)
+				'label': '%.2d/%s' % (self.__now.month, self.__now.year)
 			})
 			matches.append ({
 				'data': None,
@@ -552,10 +552,9 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		kwargs['aMatchProvider'] = matcher
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.allow_multiple_phrases(None)
+		self.allow_multiple_phrases(False)
 		self.selection_only = False
 
-#		self.__display_format = _('%Y-%m-%d')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -704,7 +703,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.36  2006-06-02 13:17:50  ncq
+# Revision 1.37  2006-06-04 21:50:32  ncq
+# - cleanup
+#
+# Revision 1.36  2006/06/02 13:17:50  ncq
 # - add configurable offset chars for i18n
 # - various cleanups and optimizations
 # - fix __explicit_offset to use proper fuzzy timestamp
