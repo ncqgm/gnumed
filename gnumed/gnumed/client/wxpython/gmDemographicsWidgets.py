@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.83 2006-06-04 21:16:27 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmDemographicsWidgets.py,v 1.84 2006-06-04 21:31:44 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1189,7 +1189,6 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput (
 			parent = PNL_form,
 			id = -1
-#			, validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
 		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (yyyy-mm-dd)"))
 
@@ -1343,8 +1342,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# phone
 		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
-		self.TTC_phone = wx.TextCtrl(PNL_form, -1,
-		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
+		self.TTC_phone = wx.TextCtrl(PNL_form, -1)
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
 
 		# occupation
@@ -2321,8 +2319,7 @@ class cPatContactsPanel(wx.Panel):
 		
 		# phone
 		STT_phone = wx.StaticText(self.PNL_form, -1, _('Phone'))
-		self.TTC_phone = wx.TextCtrl(self.PNL_form, -1,
-		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
+		self.TTC_phone = wx.TextCtrl(self.PNL_form, -1)
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
 		self.SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		self.SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
@@ -2937,7 +2934,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.83  2006-06-04 21:16:27  ncq
+# Revision 1.84  2006-06-04 21:31:44  ncq
+# - allow characters in phone URL
+#
+# Revision 1.83  2006/06/04 21:16:27  ncq
 # - fix missing dem. prefixes
 #
 # Revision 1.82  2006/05/28 20:49:44  ncq
