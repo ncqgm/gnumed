@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.85 2006-06-04 21:38:49 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmDemographicsWidgets.py,v 1.86 2006-06-04 22:23:03 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1291,13 +1291,13 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		select distinct on (code, name) code, name from (
 			select * from (
 				select code_state as code, state as name, 1 as rank from dem.v_zip2data
-					where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+					where state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
 				union select code as code, name as name, 2 as rank from dem.state
-					where name %(fragment_condition)s and country ilike %%(country)s
+					where name %(fragment_condition)s and l10n_country ilike %%(country)s
 				union select code_state as code, state as name, 3 as rank from dem.v_zip2data
-					where code_state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+					where code_state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
 				union select code as code, name as name, 3 as rank from dem.state
-					where code %(fragment_condition)s and country ilike %%(country)s
+					where code %(fragment_condition)s and l10n_country ilike %%(country)s
 			) as q2 order by rank, name
 		) as q1""")
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
@@ -1320,7 +1320,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		select distinct on (code, name) code, name from (
 			select * from (
 				-- localized to user
-				select code_country as code, _(country) as name, 1 as rank from dem.v_zip2data where _(country) %(fragment_condition)s and zip ilike %%(zip)s
+				select code_country as code, l10n_country as name, 1 as rank from dem.v_zip2data where l10n_country %(fragment_condition)s and zip ilike %%(zip)s
 					union
 				select code as code, _(name) as name, 2 as rank from dem.country where _(name) %(fragment_condition)s
 					union
@@ -2271,9 +2271,9 @@ class cPatContactsPanel(wx.Panel):
 		queries.append("""
 		select distinct on (code,name) code, name from (
 			select * from (				
-				select code_state as code, state as name, 1 as rank from dem.v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+				select code_state as code, state as name, 1 as rank from dem.v_zip2data where state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
 					union
-				select code as code, name as name, 2 as rank from dem.state where name %(fragment_condition)s and country ilike %%(country)s
+				select code as code, name as name, 2 as rank from dem.state where name %(fragment_condition)s and l10n_country ilike %%(country)s
 			) as q1 order by rank, name
 		) as q2				
 		""")
@@ -2296,7 +2296,7 @@ class cPatContactsPanel(wx.Panel):
 		queries.append("""
 		select distinct on (code,name) code, name from (
 			select * from (						
-				select code_country as code, country as name, 1 as rank from dem.v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
+				select code_country as code, l10n_country as name, 1 as rank from dem.v_zip2data where l10n_country %(fragment_condition)s and zip ilike %%(zip)s
 					union
 				select code as code, _(name) as name, 2 as rank from dem.country where _(name) %(fragment_condition)s
 			) as q1 order by rank, name
@@ -2381,7 +2381,6 @@ class cPatContactsPanel(wx.Panel):
 		if data is None:
 			data = '%'
 		self.PRW_state.set_context(context='country', val=data)
-		#print 'country [%s] -> state' % data
 		return True
 	#--------------------------------------------------------
 	def on_zip_set(self):
@@ -2393,7 +2392,6 @@ class cPatContactsPanel(wx.Panel):
 		self.PRW_town.set_context(context='zip', val=zip_code)
 		self.PRW_state.set_context(context='zip', val=zip_code)
 		self.PRW_country.set_context(context='zip', val=zip_code)
-		#print "zip [%s]-> street, town, state, country" % zip_code
 		return True
 	#--------------------------------------------------------
 	def on_town_set (self, data):
@@ -2936,7 +2934,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.85  2006-06-04 21:38:49  ncq
+# Revision 1.86  2006-06-04 22:23:03  ncq
+# - consistently use l10n_country
+#
+# Revision 1.85  2006/06/04 21:38:49  ncq
 # - make state red as it's mandatory
 #
 # Revision 1.84  2006/06/04 21:31:44  ncq
