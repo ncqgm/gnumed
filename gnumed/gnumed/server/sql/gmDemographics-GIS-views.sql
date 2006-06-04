@@ -7,7 +7,7 @@
 -- droppable components of GIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -20,6 +20,10 @@ COMMENT on column dem.country.code IS
 	'international two character country code as per ISO 3166-1';
 COMMENT on column dem.country.deprecated IS
 	'date when this country ceased officially to exist (if applicable)';
+
+\unset ON_ERROR_STOP
+alter table dem.country drop constraint no_linebreaks;
+\set ON_ERROR_STOP 1
 
 alter table dem.country
 	add constraint no_linebreaks check (
@@ -40,6 +44,10 @@ COMMENT on column dem.state.code is
 	'state code';
 COMMENT on column dem.state.country is
 	'2 character ISO 3166-1 country code';
+
+\unset ON_ERROR_STOP
+alter table dem.state drop constraint no_linebreaks;
+\set ON_ERROR_STOP 1
 
 alter table dem.state
 	add constraint no_linebreaks check (
@@ -65,6 +73,10 @@ COMMENT on column dem.urb.name IS
 COMMENT on column dem.urb.lat_lon is
 	'the location of the urb, as lat/long co-ordinates. Ideally this would be NOT NULL';
 
+\unset ON_ERROR_STOP
+alter table dem.urb drop constraint no_linebreaks;
+\set ON_ERROR_STOP 1
+
 alter table dem.urb
 	add constraint no_linebreaks check (
 		(position('\f' in coalesce(postcode, '') || coalesce(name,'')) = 0) and
@@ -88,6 +100,10 @@ comment on column dem.street.suburb is
 	'the suburb this street is in (if any)';
 comment on column dem.street.lat_lon is
 'the approximate location of the street, as lat/long co-ordinates';
+
+\unset ON_ERROR_STOP
+alter table dem.street drop constraint no_linebreaks;
+\set ON_ERROR_STOP 1
 
 alter table dem.street
 	add constraint no_linebreaks check (
@@ -330,6 +346,7 @@ create view dem.v_zip2street as
 		stt.code as code_state,
 		urb.name as urb,
 		c.name as country,
+		_(c.name) as l10n_country,
 		stt.country as code_country
 	from
 		dem.street str,
@@ -389,7 +406,8 @@ create view dem.v_uniq_zipped_urbs as
 		urb.name as name,
 		stt.name as state,
 		stt.code as code_state,
-		_(c.name) as country,
+		c.name as country,
+		_(c.name) as l10n_country,
 		stt.country as code_country
 	from
 		dem.urb,
@@ -433,6 +451,7 @@ create view dem.v_zip2data as
 		vz2s.state,
 		vz2s.code_state,
 		vz2s.country,
+		vz2s.l10n_country,
 		vz2s.code_country
 	from dem.v_zip2street vz2s
 		union
@@ -444,6 +463,7 @@ create view dem.v_zip2data as
 		vuzu.state,
 		vuzu.code_state,
 		vuzu.country,
+		vuzu.l10n_country,
 		vuzu.code_country
 	from
 		dem.v_uniq_zipped_urbs vuzu
@@ -468,11 +488,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.30 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.29  2006-04-29 12:18:36  sjtan
+-- Revision 1.30  2006-06-04 22:23:45  ncq
+-- - add l10n_country to v_zip2data, v_zip_uniq_urbs and v_zip2street
+--
+-- Revision 1.29  2006/04/29 12:18:36  sjtan
 --
 -- md5 not working as an index, so use a trigger to check unique narrative.
 -- demographic function named in demographic schema.
