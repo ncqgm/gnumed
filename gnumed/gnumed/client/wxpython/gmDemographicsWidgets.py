@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.84 2006-06-04 21:31:44 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmDemographicsWidgets.py,v 1.85 2006-06-04 21:38:49 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -931,7 +931,7 @@ class DemographicDetailWindow(wx.Panel):
  		self._update_address_fields_on_selection()
 
 	def __urb_set (self, id_urb):
-		state, postcode = gmDemographicRecord,getUrb (id_urb)
+		state, postcode = gmDemographicRecord.getUrb (id_urb)
 		self.txt_state.SetValue (state)
 		self.txt_postcode.SetValue (postcode)
 
@@ -1285,6 +1285,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
+		STT_state.SetForegroundColour('red')
 		queries = []
 		queries.append("""
 		select distinct on (code, name) code, name from (
@@ -2265,6 +2266,7 @@ class cPatContactsPanel(wx.Panel):
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(self.PNL_form, -1, _('State'))
+		STT_state.SetForegroundColour('red')
 		queries = []
 		queries.append("""
 		select distinct on (code,name) code, name from (
@@ -2934,7 +2936,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.84  2006-06-04 21:31:44  ncq
+# Revision 1.85  2006-06-04 21:38:49  ncq
+# - make state red as it's mandatory
+#
+# Revision 1.84  2006/06/04 21:31:44  ncq
 # - allow characters in phone URL
 #
 # Revision 1.83  2006/06/04 21:16:27  ncq
