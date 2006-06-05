@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.77 2006-06-04 21:51:43 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmMedDocWidgets.py,v 1.78 2006-06-05 21:36:20 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -51,6 +51,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._TCTRL_doc_comment.SetValue(self.__part['doc_comment'])
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
+		if self.__part['ext_ref'] is not None:
+			self._TCTRL_reference.SetValue(self.__part['ext_ref'])
 
 		self._LCTRL_existing_reviews.InsertColumn(0, _('who'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
@@ -163,6 +165,9 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if self._PhWheel_doc_date.IsModified():
 			doc['date'] = self._PhWheel_doc_date.GetData().timestamp
 
+		if self._TCTRL_reference.IsModified():
+			doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
+
 		# 2) handle review
 		if self._ChBOX_review.GetValue():
 			provider = gmPerson.gmCurrentProvider()
@@ -235,6 +240,9 @@ where
 		# this module without requiring any scanner to be available
 		from Gnumed.pycommon import gmScanBackend
 		self.scan_module = gmScanBackend
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		pass
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -493,7 +501,7 @@ from your computer.""") % page_fname,
 
 		# update business object with metadata
 		# - date of generation
-		new_doc['date'] = self._TBOX_doc_date.GetData().timestamp
+		new_doc['date'] = self._PhWheel_doc_date.GetData().timestamp
 		# - external reference
 		ref = gmMedDoc.get_ext_ref()
 		if ref is not None:
@@ -576,7 +584,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__register_interests()
-
 	#-------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -588,7 +595,7 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		if not self._doc_tree.refresh():
 			_log.Log(gmLog.lErr, "cannot update document tree")
 			return False
-#		self._doc_tree.SelectItem(self._doc_tree.root)
+		self._doc_tree.SelectItem(self._doc_tree.root)
 		return True
 	#--------------------------------------------------------
 	# inherited event handlers
@@ -610,15 +617,17 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.refresh()
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_episode.SetValue(True)
+	#--------------------------------------------------------
+	def _on_sort_by_type_selected(self, evt):
+		self._doc_tree.set_sort_mode(mode = 'type')
+		self._doc_tree.refresh()
+		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_type.SetValue(True)
 #============================================================
-		# NOTE:	 For some reason tree items have to have a data object in
-		#		 order to be sorted.  Since our compare just uses the labels
-		#		 we don't need any real data, so we'll just use None.
-
 class cDocTree(wx.TreeCtrl):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 	"""
-	_sort_modes = ['age', 'review', 'episode']
+	_sort_modes = ['age', 'review', 'episode', 'type']
 	_root_node_labels = None
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
@@ -631,7 +640,8 @@ class cDocTree(wx.TreeCtrl):
 		cDocTree._root_node_labels = {
 			'age': tmp % _('most recent on top'),
 			'review': tmp % _('unreviewed on top'),
-			'episode': tmp % _('sorted by episode')
+			'episode': tmp % _('sorted by episode'),
+			'type': tmp % _('sorted by type')
 		}
 
 		self.root = None
@@ -711,7 +721,7 @@ class cDocTree(wx.TreeCtrl):
 		self.SetItemHasChildren(self.root, True)
 
 		# add our documents as first level nodes
-		episode_nodes = {}
+		intermediate_nodes = {}
 		for doc in docs:
 			if doc['comment'] is not None:
 				cmt = '%s' % doc['comment']
@@ -734,19 +744,23 @@ class cDocTree(wx.TreeCtrl):
 			label = _('%s%7s %s: %s (%s page(s), %s)') % (
 				review,
 				doc['date'].Format('%m/%Y'),
-#				doc['date'][:11],
 				doc['l10n_type'][:26],
 				cmt,
 				page_num,
 				ref
 			)
 
-			# need intermediate episode level ?
+			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				if not episode_nodes.has_key(doc['episode']):
-					episode_nodes[doc['episode']] = self.AppendItem(parent = self.root, text = doc['episode'])
-					self.SetPyData(episode_nodes[doc['episode']], doc['episode'])
-				parent = episode_nodes[doc['episode']]
+				if not intermediate_nodes.has_key(doc['episode']):
+					intermediate_nodes[doc['episode']] = self.AppendItem(parent = self.root, text = doc['episode'])
+					self.SetPyData(intermediate_nodes[doc['episode']], None)
+				parent = intermediate_nodes[doc['episode']]
+			elif self.__sort_mode == 'type':
+				if not intermediate_nodes.has_key(doc['l10n_type']):
+					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
+					self.SetPyData(intermediate_nodes[doc['l10n_type']], None)
+				parent = intermediate_nodes[doc['l10n_type']]
 			else:
 				parent = self.root
 
@@ -791,9 +805,9 @@ class cDocTree(wx.TreeCtrl):
 
 		# and uncollapse
 		self.Expand(self.root)
-		if self.__sort_mode == 'episode':
-			for key in episode_nodes.keys():
-				self.Expand(episode_nodes[key])
+		if self.__sort_mode in ['episode', 'type']:
+			for key in intermediate_nodes.keys():
+				self.Expand(intermediate_nodes[key])
 
 		wx.EndBusyCursor()
 		return True
@@ -846,6 +860,18 @@ class cDocTree(wx.TreeCtrl):
 					return 1
 				if item1.has_unreviewed_parts():
 					return -1
+				return 1
+
+			elif self.__sort_mode == 'type':
+				if item1['l10n_type'] < item2['l10n_type']:
+					return -1
+				if item1['l10n_type'] == item2['l10n_type']:
+					# inner sort: reverse by date
+					if item1[date_field] > item2[date_field]:
+						return -1
+					if item1[date_field] == item2[date_field]:
+						return 0
+					return 1
 				return 1
 
 			else:
@@ -1051,7 +1077,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.77  2006-06-04 21:51:43  ncq
+# Revision 1.78  2006-06-05 21:36:20  ncq
+# - add ext_ref field to properties editor
+# - add repopulate_ui() to cScanIdxPnl since it's a notebook plugin
+# - add "type" sort mode to doc tree
+#
+# Revision 1.77  2006/06/04 21:51:43  ncq
 # - handle doc type/comment/date in properties editor dialog
 #
 # Revision 1.76  2006/05/31 12:17:04  ncq
