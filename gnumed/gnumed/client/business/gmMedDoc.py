@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.62 2006-05-31 09:45:19 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmMedDoc.py,v 1.63 2006-06-05 21:52:00 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -446,8 +446,7 @@ update blobs.reviewed_doc_objs set
 	is_technically_abnormal = %(abnormal)s,
 	clinically_relevant = %(relevant)s
 where
-	pk=%%(pk_row)s
-"""
+	pk=%(pk_row)s"""
 		success, data = gmPG.run_commit2 (
 			link_obj = 'blobs',
 			queries = [(cmd, [args])]
@@ -698,7 +697,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.62  2006-05-31 09:45:19  ncq
+# Revision 1.63  2006-06-05 21:52:00  ncq
+# - fix one double %
+#
+# Revision 1.62  2006/05/31 09:45:19  ncq
 # - fix doc part saving/locking - reference to PK was wrong, I wonder how it ever worked
 # - add get_containing_document() and set_intended_reviewer() to cMedDocPart
 # - make pk_episode in cMedDoc editable
