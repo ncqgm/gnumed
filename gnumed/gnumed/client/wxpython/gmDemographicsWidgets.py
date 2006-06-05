@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.86 2006-06-04 22:23:03 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmDemographicsWidgets.py,v 1.87 2006-06-05 21:33:03 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1290,14 +1290,33 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		queries.append("""
 		select distinct on (code, name) code, name from (
 			select * from (
-				select code_state as code, state as name, 1 as rank from dem.v_zip2data
-					where state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
-				union select code as code, name as name, 2 as rank from dem.state
-					where name %(fragment_condition)s and l10n_country ilike %%(country)s
-				union select code_state as code, state as name, 3 as rank from dem.v_zip2data
-					where code_state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
-				union select code as code, name as name, 3 as rank from dem.state
-					where code %(fragment_condition)s and l10n_country ilike %%(country)s
+					-- context: state name, country, zip
+					select
+						code_state as code, state as name, 1 as rank
+					from dem.v_zip2data
+					where
+						state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
+				union
+					-- context: state name and country
+					select
+						code as code, name as name, 2 as rank
+					from dem.state
+					where
+						name %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
+				union
+					-- context: state code, country, zip
+					select
+						code_state as code, state as name, 3 as rank
+					from dem.v_zip2data
+					where
+						code_state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
+				union
+					-- context: state code, country
+					select
+						code as code, name as name, 3 as rank
+					from dem.state
+					where
+						code %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
 			) as q2 order by rank, name
 		) as q1""")
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
@@ -1533,19 +1552,13 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# dob validation
-		try:
-			date = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
-		except:
-			# FIXME: un-hardcode the format in the error message
-			#msg = _('Invalid date. Date format: %s ' % DATE_FORMAT)
-			msg = _('Invalid date. Date format: %s ' % 'yyyy-mm-dd')
+		if not pageCtrl.TTC_dob.is_valid_timestamp():
+			msg = _('Cannot parse <%s> into proper timestamp.')
 			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
 			pageCtrl.TTC_dob.SetBackgroundColour('pink')
 			pageCtrl.TTC_dob.Refresh()
 			pageCtrl.TTC_dob.SetFocus()
 			return False
-			
-		# valid date		
 		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		pageCtrl.TTC_dob.Refresh()
 						
@@ -2122,19 +2135,16 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# dob validation
-		try:
-			date = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
-		except:
-			msg = _('Invalid date. Date format: %s ' % DATE_FORMAT)
-			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)			
+		if not pageCtrl.TTC_dob.is_valid_timestamp():
+			msg = _('Cannot parse <%s> into proper timestamp.')
+			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
 			pageCtrl.TTC_dob.SetBackgroundColour('pink')
 			pageCtrl.TTC_dob.Refresh()
 			pageCtrl.TTC_dob.SetFocus()
 			return False
-			
-		# valid date
 		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		pageCtrl.TTC_dob.Refresh()		
+		pageCtrl.TTC_dob.Refresh()
+
 		return True
 	#--------------------------------------------------------
 	def TransferFromWindow(self):
@@ -2273,7 +2283,11 @@ class cPatContactsPanel(wx.Panel):
 			select * from (				
 				select code_state as code, state as name, 1 as rank from dem.v_zip2data where state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
 					union
-				select code as code, name as name, 2 as rank from dem.state where name %(fragment_condition)s and l10n_country ilike %%(country)s
+				select
+					code as code, name as name, 2 as rank
+				from dem.state
+				where
+					name %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
 			) as q1 order by rank, name
 		) as q2				
 		""")
@@ -2934,7 +2948,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.86  2006-06-04 22:23:03  ncq
+# Revision 1.87  2006-06-05 21:33:03  ncq
+# - Sebastian is too good at finding bugs, so fix them:
+#   - proper queries for new-patient wizard phrasewheels
+#   - properly validate timestamps
+#
+# Revision 1.86  2006/06/04 22:23:03  ncq
 # - consistently use l10n_country
 #
 # Revision 1.85  2006/06/04 21:38:49  ncq
