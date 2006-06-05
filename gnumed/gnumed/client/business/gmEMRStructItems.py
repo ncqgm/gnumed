@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.78 $"
+__version__ = "$Revision: 1.79 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -344,8 +344,8 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	# already there ?
 	try:
 		episode = cEpisode(id_patient=patient_id, name=episode_name)
-		if episode['is_open'] != is_open:
-			episode['is_open'] = is_open
+		if episode['episode_open'] != is_open:
+			episode['episode_open'] = is_open
 			episode.save_payload()
 		return (True, episode)
 	except gmExceptions.ConstructorError:
@@ -512,7 +512,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.78  2006-05-06 18:53:56  ncq
+# Revision 1.79  2006-06-05 22:00:53  ncq
+# - must be "episode_open", not "is_open"
+#
+# Revision 1.78  2006/05/06 18:53:56  ncq
 # - select age(...) <> ...; -> select ... <> now() - ...; as per Syan
 #
 # Revision 1.77  2006/03/09 21:11:49  ncq
