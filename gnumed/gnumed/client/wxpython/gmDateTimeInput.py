@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.37 2006-06-04 21:50:32 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmDateTimeInput.py,v 1.38 2006-06-05 21:30:08 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -55,6 +55,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		self.__expanders.append(self.__single_char)
 		self.__expanders.append(self.__explicit_offset)
 		self.__expanders.append(self.__single_slash)
+		self.__expanders.append(self.__single_dot)
 		self.set_single_character_triggers()
 		self.set_offset_chars()
 		gmMatchProvider.cMatchProvider.__init__(self)
@@ -124,10 +125,51 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		# FIXME: popup calendar to pick from
 		return None
 	#--------------------------------------------------------
+	def __single_dot(self, aFragment):
+		"""Expand fragments containing a single dot.
+
+		Standard colloquial date format in Germany: day.month.year
+
+		"14."
+			- 14th current month this year
+			- 14th next month this year
+		"""
+		if not re.match("^\d{1,2}\.{1}$", aFragment):
+			return None
+		val = int(aFragment.replace('.', ''))
+
+		matches = []
+
+		# day X of this month
+		ts = self.__now + mxDT.RelativeDateTime(day = val)
+		if val > 0 and val <= month_length[ts.month]:
+			matches.append ({
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = ts, accuracy = gmFuzzyTimestamp.acc_days),
+				'label': '%s.%s.%s - a %s this month' % (ts.day, ts.month, ts.year, ts.strftime('%A'))
+			})
+
+		# day X of next month
+		ts = self.__now + mxDT.RelativeDateTime(day = val, months = +1)
+		if val > 0 and val <= month_length[ts.month]:
+			matches.append ({
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = ts, accuracy = gmFuzzyTimestamp.acc_days),
+				'label': '%s.%s.%s - a %s next month' % (ts.day, ts.month, ts.year, ts.strftime('%A'))
+			})
+
+		# day X of last month
+		ts = self.__now + mxDT.RelativeDateTime(day = val, months = -1)
+		if val > 0 and val <= month_length[ts.month]:
+			matches.append ({
+				'data': gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = ts, accuracy = gmFuzzyTimestamp.acc_days),
+				'label': '%s.%s.%s - a %s last month' % (ts.day, ts.month, ts.year, ts.strftime('%A'))
+			})
+
+		return matches
+	#--------------------------------------------------------
 	# date fragment expanders
 	#--------------------------------------------------------
 	def __single_slash(self, aFragment):
-		"""Expand fragments containt a single slash.
+		"""Expand fragments containing a single slash.
 
 		"5/"
 			- 2005/					(2000 - 2025)
@@ -142,7 +184,6 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 			- Mai/197x
 			- Mai/19xx
 		"""
-
 		if not re.match("^\d{1,2}/{1}$", aFragment):
 			return None
 		val = int(aFragment.replace('/', ''))
@@ -636,6 +677,12 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
 		if self.data is None:
 			self.__text2timestamp()
+	#--------------------------------------------------------
+	def is_valid_timestamp(self):
+		self.__text2timestamp()
+		if self.data is None:
+			return False
+		return True
 #==================================================
 class cTimeInput(wx.TextCtrl):
 	def __init__(self, parent, *args, **kwargs):
@@ -703,7 +750,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.37  2006-06-04 21:50:32  ncq
+# Revision 1.38  2006-06-05 21:30:08  ncq
+# - add single-dot expander so German 23. expands to 23rd this month this year
+# - add is_valid_timestamp() to external API so patient wizard can use it
+#
+# Revision 1.37  2006/06/04 21:50:32  ncq
 # - cleanup
 #
 # Revision 1.36  2006/06/02 13:17:50  ncq
