@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.69 2006-06-02 09:59:03 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmPhraseWheel.py,v 1.70 2006-06-05 21:36:40 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -39,7 +39,7 @@ class cPhraseWheel (wx.TextCtrl):
 	default_phrase_separators = re.compile('[;/|]+')
 
 	def __init__ (
-		self, parent=None, id=-1, value="",
+		self, parent=None, id=-1, value='',
 		aMatchProvider = None,
 		aDelay = 150,
 		selection_only = False,
@@ -66,11 +66,6 @@ class cPhraseWheel (wx.TextCtrl):
 		self._on_lose_focus_callbacks = []
 		self._on_set_focus_callbacks = []
 		self.notified_listeners = False
-
-		if kwargs.has_key('id_callback'):
-			print "[%s]: <id_callback> argument deprecated" % self.__class__.__name__
-			self.add_callback_on_selection(kwargs['id_callback'])
-			del kwargs['id_callback']
 
 		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
 
@@ -556,7 +551,6 @@ if __name__ == '__main__':
 			ww1 = cPhraseWheel(
 				parent = frame,
 				id = -1,
-				#id_callback = clicked,
 				pos = (50, 50),
 				size = (180, 30),
 				aMatchProvider = mp1
@@ -595,7 +589,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.69  2006-06-02 09:59:03  ncq
+# Revision 1.70  2006-06-05 21:36:40  ncq
+# - cleanup
+#
+# Revision 1.69  2006/06/02 09:59:03  ncq
 # - must invalidate associated data object *as soon as*
 #   the text in the control changes
 #

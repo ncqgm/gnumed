@@ -7,7 +7,7 @@
 -- droppable components of GIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -334,7 +334,6 @@ COMMENT ON function dem.create_address(text, text, text, text, text, text) IS
 -- ===================================================================
 \unset ON_ERROR_STOP
 drop view dem.v_zip2street cascade;
-drop view dem.v_zip2street;
 \set ON_ERROR_STOP 1
 
 create view dem.v_zip2street as
@@ -418,7 +417,7 @@ create view dem.v_uniq_zipped_urbs as
 		urb.postcode is not null
 			and
 		-- are not found in "street" with this zip code
-		not exists(
+		not exists (
 			select 1 from
 				dem.v_zip2street vz2str,
 				dem.urb
@@ -488,11 +487,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.31 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.30  2006-06-04 22:23:45  ncq
+-- Revision 1.31  2006-06-05 21:38:09  ncq
+-- - cleanup
+--
+-- Revision 1.30  2006/06/04 22:23:45  ncq
 -- - add l10n_country to v_zip2data, v_zip_uniq_urbs and v_zip2street
 --
 -- Revision 1.29  2006/04/29 12:18:36  sjtan
