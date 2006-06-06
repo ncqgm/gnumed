@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.246 2006-06-06 10:22:23 ncq Exp $
-__version__ = "$Revision: 1.246 $"
+# $Id: gmGuiMain.py,v 1.247 2006-06-06 20:48:31 ncq Exp $
+__version__ = "$Revision: 1.247 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -673,7 +673,8 @@ Search results:
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_del_staff(self, event):
-		print "deleting staff member"
+		dlg = gmStaffWidgets.cDelistStaffMemberDlg(parent=self, id=-1)
+		dlg.ShowModal()
 	#----------------------------------------------
 #	def __on_search_patient(self, event):
 #		"""Focus patient search widget."""
@@ -1108,7 +1109,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.246  2006-06-06 10:22:23  ncq
+# Revision 1.247  2006-06-06 20:48:31  ncq
+# - actually implement delisting staff member
+#
+# Revision 1.246  2006/06/06 10:22:23  ncq
 # - menu_office -> menu_administration
 # - menu_reference -> menu_knowledge
 # - cleanup
