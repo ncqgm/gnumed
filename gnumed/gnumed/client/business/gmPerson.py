@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.70 2006-05-25 22:12:50 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmPerson.py,v 1.71 2006-06-06 20:47:39 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -534,11 +534,12 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		"""update dem.staff set
 			fk_role = %(pk_role)s,
 			short_alias = %(short_alias)s,
-			comment = %(comment)s
+			comment = %(comment)s,
+			is_active = %(is_active)s
 		where pk=%(pk_staff)s""",
 		"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
 	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment']
+	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active']
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
@@ -1497,8 +1498,8 @@ def set_active_patient(patient = None, forced_reload=False):
 def prompted_input(prompt, default=None):
 	"""Obtains entry from standard input.
 
-	promp - Promt text to display in standard output
-	default - Default value (for user to press only intro)
+	prompt - Prompt text to display in standard output
+	default - Default value (for user to press enter only)
 	"""
 	msg = '%s (CTRL-C aborts) [%s]: ' % (prompt, default)
 	try:
@@ -1546,6 +1547,25 @@ def get_comm_list():
 		for row in rows:
 			__comm_list.append(row[0])
 	return __comm_list
+#============================================================
+def get_staff_list(active_only=False):
+	if active_only:
+		cmd = "select * from dem.v_staff where is_active"
+	else:
+		cmd = "select * from dem.v_staff"
+	rows, idx = gmPG.run_ro_query('personalia', cmd, True)
+	if rows is None:
+		_log.Log(gmLog.lPanic, 'cannot retrieve staff list from database')
+		return None
+	staff_list = []
+	for row in rows:
+		obj_row = {
+			'idx': idx,
+			'data': row,
+			'pk_field': 'pk_staff'
+		}
+		staff_list.append(cStaff(row=obj_row))
+	return staff_list
 #============================================================
 # main/testing
 #============================================================
@@ -1628,7 +1648,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.70  2006-05-25 22:12:50  ncq
+# Revision 1.71  2006-06-06 20:47:39  ncq
+# - add is_active to staff class
+# - add get_staff_list()
+#
+# Revision 1.70  2006/05/25 22:12:50  ncq
 # - self._patient -> self.patient to be more pythonic
 #
 # Revision 1.69  2006/05/25 12:07:29  sjtan
