@@ -15,6 +15,7 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
         self._rbtn_sort_by_age = wx.RadioButton(self, -1, _("age"), style=wx.RB_GROUP)
         self._rbtn_sort_by_review = wx.RadioButton(self, -1, _("review status"))
         self._rbtn_sort_by_episode = wx.RadioButton(self, -1, _("episode"))
+        self._rbtn_sort_by_type = wx.RadioButton(self, -1, _("type"))
         self._doc_tree = gmMedDocWidgets.cDocTree(self, -1)
 
         self.__set_properties()
@@ -23,6 +24,7 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_age_selected, self._rbtn_sort_by_age)
         self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_review_selected, self._rbtn_sort_by_review)
         self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_episode_selected, self._rbtn_sort_by_episode)
+        self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_type_selected, self._rbtn_sort_by_type)
         # end wxGlade
 
     def __set_properties(self):
@@ -32,6 +34,7 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
         self._rbtn_sort_by_age.SetValue(1)
         self._rbtn_sort_by_review.SetToolTipString(_("Sort unreviewed documents to top of tree."))
         self._rbtn_sort_by_episode.SetToolTipString(_("Sort documents by the episode they belong to."))
+        self._rbtn_sort_by_type.SetToolTipString(_("Sort documents by their type."))
         # end wxGlade
 
     def __do_layout(self):
@@ -40,9 +43,10 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
         __szr_top_radio = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_sort = wx.StaticText(self, -1, _("Sort documents by"))
         __szr_top_radio.Add(__lbl_sort, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 5)
-        __szr_top_radio.Add(self._rbtn_sort_by_age, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
-        __szr_top_radio.Add(self._rbtn_sort_by_review, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
-        __szr_top_radio.Add(self._rbtn_sort_by_episode, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
+        __szr_top_radio.Add(self._rbtn_sort_by_age, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_top_radio.Add(self._rbtn_sort_by_review, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_top_radio.Add(self._rbtn_sort_by_episode, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_top_radio.Add(self._rbtn_sort_by_type, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 10)
         __szr_main.Add(__szr_top_radio, 0, wx.EXPAND, 0)
         __hline_middle = wx.StaticLine(self, -1)
         __szr_main.Add(__hline_middle, 0, wx.EXPAND, 0)
@@ -63,6 +67,10 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 
     def _on_sort_by_episode_selected(self, event): # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
         print "Event handler `_on_sort_by_episode_selected' not implemented!"
+        event.Skip()
+
+    def _on_sort_by_type_selected(self, event): # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+        print "Event handler `_on_sort_by_type_selected' not implemented"
         event.Skip()
 
 # end of class wxgSelectablySortedDocTreePnl
