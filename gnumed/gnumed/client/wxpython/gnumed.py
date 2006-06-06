@@ -47,8 +47,8 @@ intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.92 2006-05-24 09:56:02 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gnumed.py,v 1.93 2006-06-06 20:56:24 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -89,11 +89,11 @@ except:
 
 #==========================================================
 def handle_uncaught_exception(t, v, tb):
-	print "============================"
-	print "Unhandled exception caught !"
-	print "Type :", t
-	print "Value:", v
-	print "============================"
+	print ",========================================================"
+	print "| Unhandled exception caught !"
+	print "| Type :", t
+	print "| Value:", v
+	print "`========================================================"
 	# FIXME: allow user to mail report to developers from here
 	sys.__excepthook__(t,v,tb)
 
@@ -490,7 +490,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.92  2006-05-24 09:56:02  ncq
+# Revision 1.93  2006-06-06 20:56:24  ncq
+# - cleanup
+#
+# Revision 1.92  2006/05/24 09:56:02  ncq
 # - cleanup
 # - hook sys.excepthook
 #
