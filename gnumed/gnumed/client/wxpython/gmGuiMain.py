@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.245 2006-05-20 18:36:45 ncq Exp $
-__version__ = "$Revision: 1.245 $"
+# $Id: gmGuiMain.py,v 1.246 2006-06-06 10:22:23 ncq Exp $
+__version__ = "$Revision: 1.246 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -252,17 +252,20 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
 
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
-#		self.__gb['main.filemenu'] = menu_gnumed
 
-		# menu "Office"
-		menu_office = wx.Menu()
+		# -- menu "Administration" --------------------
+		menu_admin = wx.Menu()
 
-		menu_office.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
+		menu_admin.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
-		self.mainmenu.Append(menu_office, _('&Office'))
+		ID_DEL_STAFF = wx.NewId()
+		menu_admin.Append(ID_DEL_STAFF, _('Remove staff member'), _('Remove someone from the list of staff'))
+		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_del_staff)
 
-		# menu "Patient" ---------------------------
+		self.mainmenu.Append(menu_admin, _('&Administration'))
+
+		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
 
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
@@ -274,7 +277,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_patient, '&Patient')
 		self.__gb['main.patientmenu'] = menu_patient
 
-		# menu "EMR" ---------------------------
+		# -- menu "EMR" ---------------------------
 		menu_emr = wx.Menu()
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
@@ -341,14 +344,13 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_tools = wx.Menu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
-		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"),
-					_("A tool to aid dermatology diagnosis"))
+		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
 		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
 
-		# menu "Reference"
-		self.menu_reference = wx.Menu()
-		self.__gb['main.referencemenu'] = self.menu_reference
-		self.mainmenu.Append(self.menu_reference, _("&Reference"))
+		# menu "Knowledge"
+		menu_knowledge = wx.Menu()
+		self.__gb['main.knowledgemenu'] = menu_knowledge
+		self.mainmenu.Append(menu_knowledge, _("&Knowledge"))
 
 		# menu "Help"
 		help_menu = wx.Menu()
@@ -669,6 +671,9 @@ Search results:
 			return False
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
+	#----------------------------------------------
+	def __on_del_staff(self, event):
+		print "deleting staff member"
 	#----------------------------------------------
 #	def __on_search_patient(self, event):
 #		"""Focus patient search widget."""
@@ -1103,7 +1108,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.245  2006-05-20 18:36:45  ncq
+# Revision 1.246  2006-06-06 10:22:23  ncq
+# - menu_office -> menu_administration
+# - menu_reference -> menu_knowledge
+# - cleanup
+#
+# Revision 1.245  2006/05/20 18:36:45  ncq
 # - reset DB language to EN on failing to set it to the user's locale
 #
 # Revision 1.244  2006/05/15 13:36:00  ncq

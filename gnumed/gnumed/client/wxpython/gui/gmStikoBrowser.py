@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -142,7 +142,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 		return gmStikoBrowser.tab_name
 
 	def MenuInfo (self):
-		return ('reference', _('&StIKo'))
+		return ('knowledge', _('&StIKo'))
 
 	def GetWidget (self, parent):
 		return StikoHtmlPanel (parent, self.gb['main.frame'])
@@ -243,7 +243,12 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.19  2005-09-28 21:27:30  ncq
+# Revision 1.20  2006-06-06 10:22:23  ncq
+# - menu_office -> menu_administration
+# - menu_reference -> menu_knowledge
+# - cleanup
+#
+# Revision 1.19  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.18  2005/09/26 18:01:52  ncq
