@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.65 $
+-- $Revision: 1.66 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -482,6 +482,9 @@ create table dem.staff (
 		default CURRENT_USER,
 	short_alias text unique not null,
 	comment text,
+	is_active boolean
+		not null
+		default TRUE,
 	unique(fk_role, db_user)
 	-- link to practice
 ) inherits (audit.audit_fields);
@@ -597,11 +600,14 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.65 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.66 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.65  2006-02-19 13:46:47  ncq
+-- Revision 1.66  2006-06-06 20:58:29  ncq
+-- - add dem.staff.is_active and propagate it
+--
+-- Revision 1.65  2006/02/19 13:46:47  ncq
 -- - factor out dynamic DDL
 -- - disallow CR/LF/FF/VT in many single-line demographics fields
 --

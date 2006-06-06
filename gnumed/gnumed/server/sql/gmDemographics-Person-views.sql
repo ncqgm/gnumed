@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.51 2006-05-12 12:19:56 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.52 2006-06-06 20:58:29 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -326,6 +326,7 @@ select
 	vbp.gender as gender,
 	s.db_user as db_user,
 	s.comment as comment,
+	s.is_active as is_active,
 	s.xmin as xmin_staff,
 	s.fk_role as pk_role
 from
@@ -412,11 +413,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.51 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.52 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.51  2006-05-12 12:19:56  ncq
+-- Revision 1.52  2006-06-06 20:58:29  ncq
+-- - add dem.staff.is_active and propagate it
+--
+-- Revision 1.51  2006/05/12 12:19:56  ncq
 -- - add fields to dem.v_staff
 --
 -- Revision 1.50  2006/01/23 22:10:57  ncq
