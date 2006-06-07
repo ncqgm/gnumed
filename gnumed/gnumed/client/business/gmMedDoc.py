@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.63 2006-06-05 21:52:00 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmMedDoc.py,v 1.64 2006-06-07 20:22:01 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -572,7 +572,7 @@ VALUES (
 
 			if reviewer is None:
 				continue
-			new_part['fk_reviewer'] = reviewer
+			new_part['pk_intended_reviewer'] = reviewer
 			success, data = new_part.save_payload()
 			if not success:
 				msg = 'cannot set reviewer to [%s]' % reviewer
@@ -697,7 +697,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.63  2006-06-05 21:52:00  ncq
+# Revision 1.64  2006-06-07 20:22:01  ncq
+# - must be pk_intended_reviewer
+#
+# Revision 1.63  2006/06/05 21:52:00  ncq
 # - fix one double %
 #
 # Revision 1.62  2006/05/31 09:45:19  ncq
