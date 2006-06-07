@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.204 2006-05-28 15:25:18 ncq Exp $
-__version__ = "$Revision: 1.204 $"
+# $Id: gmClinicalRecord.py,v 1.205 2006-06-07 22:01:57 ncq Exp $
+__version__ = "$Revision: 1.205 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1057,7 +1057,7 @@ where
 			# Instantiate vaccination items and keep cache
 			for row in rows:
 				try:
-					self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationRegime(aPK_obj=row[0]))
+					self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError:
 					_log.LogException('vaccination course error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
 
@@ -1796,7 +1796,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.204  2006-05-28 15:25:18  ncq
+# Revision 1.205  2006-06-07 22:01:57  ncq
+# - cVaccinationRegime -> cVaccinationCourse
+#
+# Revision 1.204  2006/05/28 15:25:18  ncq
 # - ever better docs in get_encounters() just short of a proper fix
 #
 # Revision 1.203  2006/05/25 22:10:43  ncq
