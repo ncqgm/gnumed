@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.64 2006-06-07 20:22:01 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmMedDoc.py,v 1.65 2006-06-07 22:07:14 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -364,15 +364,15 @@ order by
 		# insert the data
 		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
 		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
-		result = gmPG.run_commit2 (
+		success, data = gmPG.run_commit2 (
 			link_obj = 'blobs',
 			queries = [
 				(cmd1, []),
 				(cmd2, [img_obj, self.pk_obj])
 			]
 		)
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' (self.pk_obj, fname))
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]: %s' (self.pk_obj, fname, str(data)))
 			return False
 		return True
 	#--------------------------------------------------------
@@ -452,7 +452,7 @@ where
 			queries = [(cmd, [args])]
 		)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot set reviewed status on doc part [%s]' % self.pk_obj)
+			_log.Log(gmLog.lErr, 'cannot set reviewed status on doc part [%s]: %s' % (self.pk_obj, str(data)))
 			return False
 
 		return True
@@ -509,10 +509,14 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_description(self, description):
 		cmd = "insert into blobs.doc_desc (doc_id, text) values (%s, %s)"
-		return gmPG.run_commit2 (
+		success, data = gmPG.run_commit2 (
 			link_obj = 'blobs',
 			queries = [(cmd, [self.pk_obj, str(description)])]
 		)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot add description to document [%s]: %s' % (self.pk_obj, str(data)))
+			return False
+		return True
 	#--------------------------------------------------------
 	def get_parts(self):
 		cmd = "select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
@@ -541,15 +545,19 @@ VALUES (
 	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
 )"""
 		cmd2 = "select currval('blobs.doc_obj_pk_seq')"
-		result = gmPG.run_commit('blobs', [
-			(cmd1, [{'doc_id': self.pk_obj}]),
-			(cmd2, [])
-		])
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot create part for document [%s]' % self.pk_obj)
+		success, data = gmPG.run_commit2 (
+			link_obj = 'blobs',
+			queries = [
+				(cmd1, [{'doc_id': self.pk_obj}]),
+				(cmd2, [])
+			]
+		)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot create part for document [%s]: %s' % (self.pk_obj, str(data)))
 			return None
 		# init document part instance
-		part_pk = result[0][0]
+		rows, idx = data
+		part_pk = rows[0][0]
 		new_part = cMedDocPart(aPK_obj = part_pk)
 		if not new_part.update_data_from_file(fname=file):
 			_log.Log(gmLog.lErr, 'cannot import binary data from [%s] into document part' % file)
@@ -564,6 +572,7 @@ VALUES (
 	#--------------------------------------------------------
 	def add_parts_from_files(self, files=None, reviewer=None):
 		for filename in files:
+
 			new_part = self.add_part(file=filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
@@ -572,6 +581,7 @@ VALUES (
 
 			if reviewer is None:
 				continue
+
 			new_part['pk_intended_reviewer'] = reviewer
 			success, data = new_part.save_payload()
 			if not success:
@@ -579,6 +589,8 @@ VALUES (
 				_log.Log(gmLog.lErr, msg)
 				_log.Log(gmLog.lErr, str(data))
 				return (False, msg, filename)
+
+			del new_part
 
 		return (True, '', '')
 	#--------------------------------------------------------
@@ -697,7 +709,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.64  2006-06-07 20:22:01  ncq
+# Revision 1.65  2006-06-07 22:07:14  ncq
+# - use run_commit2() only to ensure better transaction handling
+# - fix one suspicious faulty handling of run_commit2() return values
+# - add a "del new_part" just for good measure
+#
+# Revision 1.64  2006/06/07 20:22:01  ncq
 # - must be pk_intended_reviewer
 #
 # Revision 1.63  2006/06/05 21:52:00  ncq
