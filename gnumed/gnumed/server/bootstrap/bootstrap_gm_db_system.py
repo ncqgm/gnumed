@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -304,7 +304,7 @@ class db_server:
 		self.superuser = user(anAlias = self.cfg.get(self.section, "super user alias"))
 
 		# connect to server level template database
-		if not self.__connect_to_srv_template():
+		if not self.__connect_superuser_to_srv_template():
 			_log.Log(gmLog.lErr, "Cannot connect to server template database.")
 			return None
 
@@ -316,7 +316,7 @@ class db_server:
 		self.conn.close()
 		return True
 	#--------------------------------------------------------------
-	def __connect_to_srv_template(self):
+	def __connect_superuser_to_srv_template(self):
 		_log.Log(gmLog.lInfo, "connecting to server template database")
 
 		# sanity checks
@@ -1457,7 +1457,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.28  2006-05-08 12:39:30  ncq
+# Revision 1.29  2006-06-09 14:43:35  ncq
+# - improve function naming
+#
+# Revision 1.28  2006/05/08 12:39:30  ncq
 # - documented, sane handling of password option in config file
 #
 # Revision 1.27  2006/04/23 15:12:17  ncq
