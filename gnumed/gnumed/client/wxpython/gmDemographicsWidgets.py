@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.87 2006-06-05 21:33:03 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmDemographicsWidgets.py,v 1.88 2006-06-09 14:40:24 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2772,7 +2772,7 @@ def create_identity_from_dtd(dtd=None):
 	"""
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
-		dob = dtd['dob'],
+		dob = dtd['dob'].timestamp,
 		lastnames = capitalize_first(dtd['lastnames']),
 		firstnames = capitalize_first(dtd['firstnames'])
 	)
@@ -2948,7 +2948,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.87  2006-06-05 21:33:03  ncq
+# Revision 1.88  2006-06-09 14:40:24  ncq
+# - use fuzzy.timestamp for create_identity()
+#
+# Revision 1.87  2006/06/05 21:33:03  ncq
 # - Sebastian is too good at finding bugs, so fix them:
 #   - proper queries for new-patient wizard phrasewheels
 #   - properly validate timestamps
