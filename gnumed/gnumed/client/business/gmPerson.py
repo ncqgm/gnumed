@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.71 2006-06-06 20:47:39 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmPerson.py,v 1.72 2006-06-09 14:38:42 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1550,9 +1550,9 @@ def get_comm_list():
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
-		cmd = "select * from dem.v_staff where is_active"
+		cmd = "select * from dem.v_staff where is_active order by can_login desc, short_alias asc"
 	else:
-		cmd = "select * from dem.v_staff"
+		cmd = "select * from dem.v_staff order by can_login desc, is_active desc, short_alias asc"
 	rows, idx = gmPG.run_ro_query('personalia', cmd, True)
 	if rows is None:
 		_log.Log(gmLog.lPanic, 'cannot retrieve staff list from database')
@@ -1648,7 +1648,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.71  2006-06-06 20:47:39  ncq
+# Revision 1.72  2006-06-09 14:38:42  ncq
+# - sort result of get_staff_list()
+#
+# Revision 1.71  2006/06/06 20:47:39  ncq
 # - add is_active to staff class
 # - add get_staff_list()
 #
