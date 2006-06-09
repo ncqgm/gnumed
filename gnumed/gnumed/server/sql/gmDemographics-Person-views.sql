@@ -5,13 +5,13 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.52 2006-06-06 20:58:29 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.53 2006-06-09 14:44:21 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop index idx_identity_dob;
-drop index idx_names_last_first;
-drop index idx_names_firstnames;
+drop index dem.idx_identity_dob;
+drop index dem.idx_names_last_first;
+drop index dem.idx_names_firstnames;
 \set ON_ERROR_STOP 1
 
 create index idx_identity_dob on dem.identity(dob);
@@ -24,7 +24,7 @@ create index idx_names_firstnames on dem.names(firstnames);
 
 -- allow only unique names
 \unset ON_ERROR_STOP
-drop index idx_uniq_act_name;
+drop index dem.idx_uniq_act_name;
 create unique index idx_uniq_act_name on dem.names(id_identity) where active = true;
 \set ON_ERROR_STOP 1
 
@@ -327,6 +327,23 @@ select
 	s.db_user as db_user,
 	s.comment as comment,
 	s.is_active as is_active,
+	(select (
+		select exists (
+			SELECT 1
+			from pg_group
+			where
+				(SELECT usesysid from pg_user where usename = s.db_user) = any(grolist) and
+				groname=current_database()
+		)
+	) AND (
+		select exists (
+			SELECT 1
+			from pg_group
+			where
+				(SELECT usesysid from pg_user where usename = s.db_user) = any(grolist) and
+				groname='gm-logins'
+		)
+	)) as can_login,
 	s.xmin as xmin_staff,
 	s.fk_role as pk_role
 from
@@ -389,7 +406,7 @@ from
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop index idx_lnk_pers2rel;
+drop index dem.idx_lnk_pers2rel;
 \set ON_ERROR_STOP 1
 
 create index idx_lnk_pers2rel on dem.lnk_person2relative(id_identity, id_relation_type);
@@ -413,11 +430,15 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.52 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.53 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.52  2006-06-06 20:58:29  ncq
+-- Revision 1.53  2006-06-09 14:44:21  ncq
+-- - cleanup
+-- - add dem.v_staff.can_login
+--
+-- Revision 1.52  2006/06/06 20:58:29  ncq
 -- - add dem.staff.is_active and propagate it
 --
 -- Revision 1.51  2006/05/12 12:19:56  ncq
