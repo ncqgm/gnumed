@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.78 2006-06-05 21:36:20 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmMedDocWidgets.py,v 1.79 2006-06-09 14:42:19 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -213,7 +213,9 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._ChBOX_abnormal.Enable(enable = state)
 		self._ChBOX_relevant.Enable(enable = state)
 		self._ChBOX_responsible.Enable(enable = state)
-		self._ChBOX_sign_all_pages.Enable(enable = state)
+		# NOTE: for now *always* apply to all pages so we can
+		# NOTE: offer review from document level as well
+		#self._ChBOX_sign_all_pages.Enable(enable = state)
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
@@ -961,6 +963,11 @@ class cDocTree(wx.TreeCtrl):
 		menu = wx.Menu(title = _('document menu'))
 		# FIXME: add item "reorder pages"
 		menu.AppendMenu(ID_load_submenu, _('descriptions ...'), desc_menu)
+		# edit metadata
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
+		wx.EVT_MENU(menu, ID, self.__review_curr_part)
+		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
 	#--------------------------------------------------------
@@ -973,7 +980,7 @@ class cDocTree(wx.TreeCtrl):
 		wx.EVT_MENU(menu, ID, self.__display_curr_part)
 		# edit metadata
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Edit properties')))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
 		wx.EVT_MENU(menu, ID, self.__review_curr_part)
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
@@ -1056,7 +1063,11 @@ class cDocTree(wx.TreeCtrl):
 		return 1
 	#--------------------------------------------------------
 	def __review_curr_part(self, evt):
-		self.__review_part(part=self.__curr_node_data)
+		if isinstance(self.__curr_node_data, gmMedDoc.cMedDocPart):
+			self.__review_part(part=self.__curr_node_data)
+		else:
+			parts = self.__curr_node_data.get_parts()
+			self.__review_part(part=parts[0])
 	#--------------------------------------------------------
 	def __review_part(self, part=None):
 		dlg = cReviewDocPartDlg (
@@ -1064,7 +1075,8 @@ class cDocTree(wx.TreeCtrl):
 			id = -1,
 			part = part
 		)
-		dlg.ShowModal()
+		if dlg.ShowModal() == wx.ID_OK:
+			self.__populate_tree()
 	#--------------------------------------------------------
 	def __show_description(self, evt):
 		print "showing description"
@@ -1077,7 +1089,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.78  2006-06-05 21:36:20  ncq
+# Revision 1.79  2006-06-09 14:42:19  ncq
+# - allow review from document
+# - always apply review to all pages
+#
+# Revision 1.78  2006/06/05 21:36:20  ncq
 # - add ext_ref field to properties editor
 # - add repopulate_ui() to cScanIdxPnl since it's a notebook plugin
 # - add "type" sort mode to doc tree
