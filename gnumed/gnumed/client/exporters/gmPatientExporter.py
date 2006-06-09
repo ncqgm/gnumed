@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.79 2006-05-30 13:36:35 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPatientExporter.py,v 1.80 2006-06-09 14:39:23 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -374,8 +374,8 @@ class cEmrExport:
         txt = ''
         if isinstance(item, gmAllergy.cAllergy):
             txt += self.get_allergy_output(item, left_margin)
-        elif isinstance(item, gmVaccination.cVaccination):
-            txt += self.get_vaccination_output(item, left_margin)
+#        elif isinstance(item, gmVaccination.cVaccination):
+ #           txt += self.get_vaccination_output(item, left_margin)
         elif isinstance(item, gmPathLab.cLabResult):
             txt += self.get_lab_result_output(item, left_margin)
             self.lab_new_encounter = False
@@ -395,15 +395,15 @@ class cEmrExport:
             encounters=self.__constraints['encounters'],
             episodes=self.__constraints['episodes'],
             issues=self.__constraints['issues']))
-        try:
-                filtered_items.extend(emr.get_vaccinations(
-                    since=self.__constraints['since'],
-                    until=self.__constraints['until'],
-                    encounters=self.__constraints['encounters'],
-                    episodes=self.__constraints['episodes'],
-                    issues=self.__constraints['issues']))
-        except:
-                _log.Error("vaccination error? outside regime")
+#        try:
+ #               filtered_items.extend(emr.get_vaccinations(
+  #                  since=self.__constraints['since'],
+   #                 until=self.__constraints['until'],
+    #                encounters=self.__constraints['encounters'],
+     #               episodes=self.__constraints['episodes'],
+      #              issues=self.__constraints['issues']))
+       # except:
+        #        _log.Error("vaccination error? outside regime")
 
         filtered_items.extend(emr.get_lab_results(
             since=self.__constraints['since'],
@@ -456,8 +456,8 @@ class cEmrExport:
         txt = ''
         if isinstance(item, gmAllergy.cAllergy):
             txt += self.get_allergy_summary(item, left_margin)
-        elif isinstance(item, gmVaccination.cVaccination):
-            txt += self.get_vaccination_summary(item, left_margin)
+#        elif isinstance(item, gmVaccination.cVaccination):
+ #           txt += self.get_vaccination_summary(item, left_margin)
         elif isinstance(item, gmPathLab.cLabResult) and \
 	    True: 
             #(item['relevant'] == True or item['abnormal'] == True):
@@ -843,7 +843,7 @@ class cEmrExport:
         for allergy in       emr.get_allergies():
             self.__target.write("    " + allergy['descriptor'] + "\n\n")
         self.__target.write("2) Vaccination status (* indicates booster):\n")
-        self.get_vacc_table()
+#        self.get_vacc_table()
         self.__target.write("\n3) Historical:\n\n")
         self.dump_historical_tree()
 
@@ -1265,7 +1265,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.79  2006-05-30 13:36:35  ncq
+# Revision 1.80  2006-06-09 14:39:23  ncq
+# - comment out vaccination handling for now
+#
+# Revision 1.79  2006/05/30 13:36:35  ncq
 # - properly use get_encounters()
 #
 # Revision 1.78  2006/05/04 09:49:20  ncq
