@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.248 2006-06-07 21:04:19 ncq Exp $
-__version__ = "$Revision: 1.248 $"
+# $Id: gmGuiMain.py,v 1.249 2006-06-10 05:12:42 ncq Exp $
+__version__ = "$Revision: 1.249 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -260,8 +260,8 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
 		ID_DEL_STAFF = wx.NewId()
-		menu_admin.Append(ID_DEL_STAFF, _('Remove staff member'), _('Remove someone from the list of staff'))
-		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_del_staff)
+		menu_admin.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
+		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_edit_staff_list)
 
 		self.mainmenu.Append(menu_admin, _('&Administration'))
 
@@ -672,8 +672,8 @@ Search results:
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
-	def __on_del_staff(self, event):
-		dlg = gmStaffWidgets.cDelistStaffMemberDlg(parent=self, id=-1)
+	def __on_edit_staff_list(self, event):
+		dlg = gmStaffWidgets.cEditStaffListDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
 #	def __on_search_patient(self, event):
@@ -1109,7 +1109,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.248  2006-06-07 21:04:19  ncq
+# Revision 1.249  2006-06-10 05:12:42  ncq
+# - edit staff list
+#
+# Revision 1.248  2006/06/07 21:04:19  ncq
 # - fix re-setting DB lang to en_GB on failure to set preferred lang
 #
 # Revision 1.247  2006/06/06 20:48:31  ncq
