@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.4 2006-06-09 14:43:02 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmStaffWidgets.py,v 1.5 2006-06-10 05:13:06 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,15 +21,15 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmPG
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgDelistStaffMemberDlg
+from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 #==========================================================================
-class cDelistStaffMemberDlg(wxgDelistStaffMemberDlg.wxgDelistStaffMemberDlg):
+class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 
 	def __init__(self, *args, **kwds):
-		wxgDelistStaffMemberDlg.wxgDelistStaffMemberDlg.__init__(self, *args, **kwds)
+		wxgEditStaffListDlg.wxgEditStaffListDlg.__init__(self, *args, **kwds)
 		self.__init_ui_data()
 	#--------------------------------------------------------
 	# internal API
@@ -74,15 +74,21 @@ class cDelistStaffMemberDlg(wxgDelistStaffMemberDlg.wxgDelistStaffMemberDlg):
 			self._LCTRL_staff.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_staff.SetColumnWidth(col=5, width=wx.LIST_AUTOSIZE)
 
-		self._btn_delete_staff.Enable(False)
+		self._btn_delete.Enable(False)
+		self._btn_deactivate.Enable(False)
+		self._btn_activate.Enable(False)
 	#--------------------------------------------------------
 	def _on_listitem_selected(self, evt):
-		self._btn_delete_staff.Enable(True)
+		self._btn_delete.Enable(True)
+		self._btn_deactivate.Enable(True)
+		self._btn_activate.Enable(True)
 	#--------------------------------------------------------
 	def _on_listitem_deselected(self, evt):
-		self._btn_delete_staff.Enable(False)
+		self._btn_delete.Enable(False)
+		self._btn_deactivate.Enable(False)
+		self._btn_activate.Enable(False)
 	#--------------------------------------------------------
-	def _on_delist_button_pressed(self, evt):
+	def _on_deactivate_button_pressed(self, evt):
 		pk = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
 		# 1) inactivate staff entry
@@ -207,7 +213,10 @@ Please enter the password for <gm-dbo>:"""),
 		self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.4  2006-06-09 14:43:02  ncq
+# Revision 1.5  2006-06-10 05:13:06  ncq
+# - improved "edit staff list"
+#
+# Revision 1.4  2006/06/09 14:43:02  ncq
 # - improve staff member handling
 #
 # Revision 1.3  2006/06/06 20:54:36  ncq
