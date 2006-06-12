@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.65 2006-06-07 22:07:14 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmMedDoc.py,v 1.66 2006-06-12 20:48:48 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -37,6 +37,9 @@ class cDocumentFolder:
 #			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
 		_log.Log(gmLog.lData, 'instantiated document folder for patient [%s]' % self.id_patient)
+	#--------------------------------------------------------
+	def cleanup(self):
+		pass
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -709,7 +712,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.65  2006-06-07 22:07:14  ncq
+# Revision 1.66  2006-06-12 20:48:48  ncq
+# - add missing cleanup() to folder class
+#
+# Revision 1.65  2006/06/07 22:07:14  ncq
 # - use run_commit2() only to ensure better transaction handling
 # - fix one suspicious faulty handling of run_commit2() return values
 # - add a "del new_part" just for good measure
