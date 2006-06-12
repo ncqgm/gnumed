@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.72 2006-06-09 14:38:42 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmPerson.py,v 1.73 2006-06-12 18:28:32 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -736,6 +736,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# must be cPatient instance, then
 		if not isinstance(patient, cPatient):
 			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
+			raise TypeError, 'gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1 or cPatient instance but is: %s' % str(patient)
 
 		# same ID, no change needed
 		if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
@@ -1648,7 +1649,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.72  2006-06-09 14:38:42  ncq
+# Revision 1.73  2006-06-12 18:28:32  ncq
+# - added missing raise in gmCurrentPatient.__init__()
+#
+# Revision 1.72  2006/06/09 14:38:42  ncq
 # - sort result of get_staff_list()
 #
 # Revision 1.71  2006/06/06 20:47:39  ncq
