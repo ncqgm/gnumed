@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.88 2006-06-09 14:40:24 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmDemographicsWidgets.py,v 1.89 2006-06-12 18:31:31 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1506,8 +1506,8 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
-			pat = gmPerson.cPerson(ident)
-			gmPerson.gmCurrentPatient(patient=pat)
+			pat = gmPerson.cPatient(identity = ident)
+			gmPerson.gmCurrentPatient(patient = pat)
 
 		return ident
 	#--------------------------------------------------------
@@ -2948,7 +2948,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.88  2006-06-09 14:40:24  ncq
+# Revision 1.89  2006-06-12 18:31:31  ncq
+# - must create *patient* not person from new patient wizard
+#   if to be activated as patient :-)
+#
+# Revision 1.88  2006/06/09 14:40:24  ncq
 # - use fuzzy.timestamp for create_identity()
 #
 # Revision 1.87  2006/06/05 21:33:03  ncq
