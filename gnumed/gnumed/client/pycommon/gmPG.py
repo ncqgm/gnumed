@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -490,7 +490,12 @@ class ConnectionPool:
 		hostport = "0"
 
 		try:
-			conn = dbapi.connect(dsn)
+			# must set encoding at the module level
+			if encoding in (None, ''):
+				_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
+				conn = dbapi.connect(dsn=dsn, unicode_results=0)
+			else:
+				conn = dbapi.connect(dsn=dsn, client_encoding=encoding, unicode_results=0)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
@@ -981,6 +986,8 @@ def run_commit(link_obj = None, queries = None, return_err_msg = None):
 	  - 1: if all queries succeeded (also 0 queries)
       - data: if the last query returned rows
 	"""
+	print "DEPRECATION WARNING: gmPG.run_commit() is deprecated, use run_commit2() instead"
+
 	# sanity checks
 	if link_obj is None:
 		raise TypeError, 'gmPG.run_commit(): link_obj must be of type service name, connection or cursor'
@@ -1299,7 +1306,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.66 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.67 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1535,7 +1542,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.66  2006-05-24 12:50:21  ncq
+# Revision 1.67  2006-06-12 21:26:21  ncq
+# - explicitely tell pyPgSQL module about client_encoding ...
+#
+# Revision 1.66  2006/05/24 12:50:21  ncq
 # - now only empty string '' means use local UNIX domain socket connections
 #
 # Revision 1.65  2006/05/12 12:06:55  ncq
