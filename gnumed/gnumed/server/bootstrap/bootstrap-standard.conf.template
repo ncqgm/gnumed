@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.28 $
+version = $Revision: 1.29 $
 
 #----------------------------------
 [installation]
@@ -246,6 +246,7 @@ name = postgres
 # don't ask, this is deep magic ;-)
 # meditate over it and enlightenment will be thine
 [pg/SQL]
+name = plpgsql
 library name = plpgsql.so
 
 # if <procedural language library check> is set to "no"
@@ -280,7 +281,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.28  2006-05-24 15:33:18  ncq
+# Revision 1.29  2006-06-13 21:12:04  ncq
+# - name option to language section
+# - add 8.1 library pathes for UNIX and Windows
+#
+# Revision 1.28  2006/05/24 15:33:18  ncq
 # - add comment on empty hostname
 #
 # Revision 1.27  2006/05/08 16:36:29  ncq
