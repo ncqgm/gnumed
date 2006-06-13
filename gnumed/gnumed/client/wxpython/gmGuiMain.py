@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.249 2006-06-10 05:12:42 ncq Exp $
-__version__ = "$Revision: 1.249 $"
+# $Id: gmGuiMain.py,v 1.250 2006-06-13 20:35:46 ncq Exp $
+__version__ = "$Revision: 1.250 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -787,7 +787,7 @@ Search results:
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime(gmI18N.gmTimeformat, t)
+		st = time.strftime('%c', t)
 		self.SetStatusText(st,1)
 	#----------------------------------------------
 #	def on_user_error (self, signal, message):
@@ -1109,7 +1109,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.249  2006-06-10 05:12:42  ncq
+# Revision 1.250  2006-06-13 20:35:46  ncq
+# - use localized date/time format taken from datetime library
+#
+# Revision 1.249  2006/06/10 05:12:42  ncq
 # - edit staff list
 #
 # Revision 1.248  2006/06/07 21:04:19  ncq
