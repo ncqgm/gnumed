@@ -47,8 +47,8 @@ intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.93 2006-06-06 20:56:24 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gnumed.py,v 1.94 2006-06-13 20:36:57 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -98,7 +98,16 @@ def handle_uncaught_exception(t, v, tb):
 	sys.__excepthook__(t,v,tb)
 
 #==========================================================
-import_error_sermon = """
+_log = None
+_cfg = None
+_email_logger = None
+gmLog = None
+_old_sig_hup = None
+_old_sig_term = None
+
+#==========================================================
+def setup_logging():
+	import_error_sermon = """
 CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
 Please make sure you have:
@@ -110,14 +119,6 @@ Please make sure you have:
 If you still encounter errors after checking the above
 rquirements please ask on the mailing list.
 """
-_log = None
-_cfg = None
-_email_logger = None
-gmLog = None
-_old_sig_hup = None
-_old_sig_term = None
-#==========================================================
-def setup_logging():
 	try:
 		from Gnumed.pycommon import gmLog as _gmLog
 		from Gnumed.pycommon import gmCLI as _gmCLI
@@ -154,67 +155,66 @@ def setup_logging():
 
 	return 1
 #==========================================================
-# FIXME: consolidate setup_locale/setup_encoding/gmI18N.py into gmLocalize etc.
 def setup_locale():
-	import locale
+#	import locale
+
 	# logging state of affairs
-	_log.Log(gmLog.lData, 'startup locale settings (should be C locale): %s' % locale.setlocale(locale.LC_ALL))
-	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
-	try:
-		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
-	except ValueError:
-		_log.LogException('the OS locale setup seems faulty')
-		return False
-	_log.Log(gmLog.lData, 'initial database of locale conventions:')
-	data = locale.localeconv()
-	for key in data.keys():
-		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
+#	_log.Log(gmLog.lData, 'startup locale settings (should be C locale): %s' % locale.setlocale(locale.LC_ALL))
+#	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
+#	try:
+#		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
+#	except ValueError:
+#		_log.LogException('the OS locale setup seems faulty')
+#		return False
+#	_log.Log(gmLog.lData, 'initial database of locale conventions:')
+#	data = locale.localeconv()
+#	for key in data.keys():
+#		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
 
 	# setting locale to user default
-	_log.Log(gmLog.lInfo, 'trying to set application locale to user default')
-	try:
-		locale.setlocale(locale.LC_ALL, '')
-	except locale.Error:
-		_log.Log(gmLog.lErr, 'cannot set application locale to user default')
-		return False
+#	_log.Log(gmLog.lInfo, 'trying to set application locale to user default')
+#	try:
+#		locale.setlocale(locale.LC_ALL, '')
+#	except locale.Error:
+#		_log.Log(gmLog.lErr, 'cannot set application locale to user default')
+#		return False
 
 	# logging state of affairs again
-	_log.Log(gmLog.lInfo, 'user default locale settings: %s' % locale.setlocale(locale.LC_ALL))
-	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
-	_log.Log(gmLog.lData, 'database of user locale conventions:')
-	data = locale.localeconv()
-	for key in data.keys():
-		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
+#	_log.Log(gmLog.lInfo, 'user default locale settings: %s' % locale.setlocale(locale.LC_ALL))
+#	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
+#	_log.Log(gmLog.lData, 'database of user locale conventions:')
+#	data = locale.localeconv()
+#	for key in data.keys():
+#		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
 
-
-	try:
-		info_codes = {
-			locale.CODESET: 'codeset',
-			locale.D_T_FMT : 'date/time format',
-			locale.D_FMT : 'date format',
-			locale.T_FMT : 'time format',
-			locale.T_FMT_AMPM : 'time format am/pm',
-			locale.RADIXCHAR : 'radix character',
-			locale.THOUSEP : 'thousand separator',
-			locale.YESEXPR : 'regex for "yes"',
-			locale.NOEXPR : 'regex for "no"',
-			locale.CRNCYSTR : 'currency symbol'
-#			, locale.ERA : 'era',
-#			locale.ERA_D_T_FMT : 'date/time format for era',
-#			locale.ERA_D_FMT : 'date format for era',
-#			locale.ALT_DIGITS : 'alternative digit representation'
-		}
-	except:
-		info_codes = {}
-		_log.Log(gmLog.lData, 'Locale setup failed. Maybe we are on MS Windows.')
+#	try:
+#		info_codes = {
+#			locale.CODESET: 'codeset',
+#			locale.D_T_FMT : 'date/time format',
+#			locale.D_FMT : 'date format',
+#			locale.T_FMT : 'time format',
+#			locale.T_FMT_AMPM : 'time format am/pm',
+#			locale.RADIXCHAR : 'radix character',
+#			locale.THOUSEP : 'thousand separator',
+#			locale.YESEXPR : 'regex for "yes"',
+#			locale.NOEXPR : 'regex for "no"',
+#			locale.CRNCYSTR : 'currency symbol'
+			#, locale.ERA : 'era',
+			#locale.ERA_D_T_FMT : 'date/time format for era',
+			#locale.ERA_D_FMT : 'date format for era',
+			#locale.ALT_DIGITS : 'alternative digit representation'
+#		}
+#	except:
+#		info_codes = {}
+#		_log.Log(gmLog.lData, 'Locale setup failed. Maybe we are on MS Windows.')
 		
-	for code in info_codes.keys():
-		try:
-			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
-		except ValueError, AttributeError:
-			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
-		except:
-			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
+#	for code in info_codes.keys():
+#		try:
+#			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
+#		except ValueError, AttributeError:
+#			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
+#		except:
+#			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
 
 	return True
 #==========================================================
@@ -401,7 +401,10 @@ def get_base_dir():
 sys.excepthook = handle_uncaught_exception
 
 setup_logging()
-setup_locale()
+
+from Gnumed.pycommon import gmI18N
+gmI18N.activate_locale()
+gmI18N.install_domain()
 
 # help requested ?
 if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
@@ -490,7 +493,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.93  2006-06-06 20:56:24  ncq
+# Revision 1.94  2006-06-13 20:36:57  ncq
+# - use gmI18N only, don't mess with locale ourselves
+#
+# Revision 1.93  2006/06/06 20:56:24  ncq
 # - cleanup
 #
 # Revision 1.92  2006/05/24 09:56:02  ncq
