@@ -38,13 +38,13 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.14 2006-06-12 21:41:46 ncq Exp $
+# $Id: gmI18N.py,v 1.15 2006-06-13 20:34:40 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import gettext, sys, os.path, string, os, re
+import gettext, sys, os.path, string, os, re, locale
 import gmLog, gmCLI
 
 _log = gmLog.gmDefLog
@@ -92,7 +92,66 @@ def __split_locale_into_levels():
 	# trim '_<COUNTRY>@<variant>' part
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 #---------------------------------------------------------------------------
-def __get_system_locale():
+def __log_locale_settings(message=None):
+	_locale_categories = {
+		'LC_ALL': locale.LC_ALL,
+		'LC_CTYPE': locale.LC_CTYPE,
+		'LC_COLLATE': locale.LC_COLLATE,
+		'LC_TIME': locale.LC_TIME,
+		'LC_MONETARY': locale.LC_MONETARY,
+		'LC_MESSAGES': locale.LC_MESSAGES,
+		'LC_NUMERIC': locale.LC_NUMERIC
+	}
+	if message is not None:
+		_log.Log(gmLog.lData, message)
+
+	_log.Log(gmLog.lData, 'Python string encoding is set to: [%s]' % sys.getdefaultencoding())
+
+	for category in _locale_categories.keys():
+		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_locale_categories[category])))
+		_log.Log (gmLog.lData, '[%s]: %s' % (category, str(locale.getlocale(_locale_categories[category]))))
+
+	_log.Log(gmLog.lData, 'database of locale conventions:')
+	data = locale.localeconv()
+	for key in data.keys():
+		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
+
+	try:
+		info_codes = {
+			locale.CODESET: 'codeset',
+			locale.D_T_FMT : 'date/time format',
+			locale.D_FMT : 'date format',
+			locale.T_FMT : 'time format',
+			locale.T_FMT_AMPM : 'time format am/pm',
+			locale.RADIXCHAR : 'radix character',
+			locale.THOUSEP : 'thousand separator',
+			locale.YESEXPR : 'regex for "yes"',
+			locale.NOEXPR : 'regex for "no"',
+			locale.CRNCYSTR : 'currency symbol'
+#			, locale.ERA : 'era',
+#			locale.ERA_D_T_FMT : 'date/time format for era',
+#			locale.ERA_D_FMT : 'date format for era',
+#			locale.ALT_DIGITS : 'alternative digit representation'
+		}
+	except:
+		info_codes = {}
+		_log.Log(gmLog.lData, 'Locale setup failed. Maybe we are on MS Windows.')
+		
+	for code in info_codes.keys():
+		try:
+			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
+		except ValueError, AttributeError:
+			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
+		except:
+			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
+
+	try:
+		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
+	except ValueError:
+		_log.LogException('the OS locale setup seems faulty')
+
+#---------------------------------------------------------------------------
+def activate_locale():
 	"""Get system locale from environment."""
 	global system_locale
 	global system_locale_level
@@ -125,14 +184,12 @@ def __get_system_locale():
 #	else:
 #		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
-	# use locale system
-	import locale
+	# logging state of affairs
+	__log_locale_settings('unmodified startup locale settings (should be [C])')
+
+	# activate user-preferred locale
 	try:
-		# activate user-preferred locale
-		# previously we needed this:
-#		system_locale = locale.setlocale(locale.LC_MESSAGES, '')
-		# but the docs tell us to do this:
-#		system_locale = locale.setlocale(locale.LC_ALL, '')
+		# check whether already set
 		system_locale, enc = locale.getlocale()
 		_log.Log(gmLog.lData, 'pre-set user preferred locale: locale = [%s], encoding = [%s]' % (system_locale, enc))
 		if system_locale is None:
@@ -152,6 +209,9 @@ def __get_system_locale():
 
 	# generate system locale levels
 	__split_locale_into_levels()
+
+	# logging state of affairs
+	__log_locale_settings('locale settings after activating user default locale')
 #---------------------------------------------------------------------------
 def __install_domain_old():
 	"""Install a text domain suitable for the main script.
@@ -242,9 +302,8 @@ def __install_domain_old():
 	dummy.install()
 	return 1
 #---------------------------------------------------------------------------
-def __install_domain():
-	"""Install a text domain suitable for the main script.
-	"""
+def install_domain():
+	"""Install a text domain suitable for the main script."""
 	# set up environment
 	text_domain = ''
 	# text domain given on command line ?
@@ -327,30 +386,26 @@ def __install_domain():
 #===========================================================================
 # Main
 #---------------------------------------------------------------------------
-__get_system_locale()
-__install_domain()
-
-# gmTimeFormat is used to define a standard way of
-# displaying a date as a string,
-# this is marked for translation by _(),
-# this way this variable can be used as a crude
-# means of date formatting localization
-gmTimeformat = _("%Y-%m-%d  %H:%M:%S")
-_log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
-
-tmp = _('translate this or i18n will not work properly !')
-
 if __name__ == "__main__":
 	print "======================================================================"
 	print __doc__
 	print "======================================================================"
 	print "authors:", __author__
 	print "license:", __license__, "; version:", __version__
+	activate_locale()
 	print "system locale: ", system_locale, "; levels:", system_locale_level
+	install_domain()
+	# == do not remove this line =============================
+	tmp = _('translate this or i18n will not work properly !')
+	# ========================================================
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.14  2006-06-12 21:41:46  ncq
+# Revision 1.15  2006-06-13 20:34:40  ncq
+# - now has *explicit* activate_locale() and install_domain()
+# - much improved logging
+#
+# Revision 1.14  2006/06/12 21:41:46  ncq
 # - improved locale setting logging
 #
 # Revision 1.13  2005/10/30 15:50:01  ncq
