@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.73 2006-06-12 18:28:32 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmPerson.py,v 1.74 2006-06-14 10:22:46 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -72,7 +72,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			'insert':
 				"""
 					INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
-					VALUES (%(pk_master)s, create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));
+					VALUES (%(pk_master)s, dem.create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));
 				""",
 			'delete':
 				"""delete from dem.lnk_person_org_address where id_identity = %s and id_address = %s"""
@@ -120,7 +120,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			'insert':
 				"""
 					INSERT INTO dem.lnk_job2person (id_identity, id_occupation)
-					VALUES (%(pk_master)s, create_occupation(%(occupation)s))
+					VALUES (%(pk_master)s, dem.create_occupation(%(occupation)s))
 				"""
 		}
 	}
@@ -1649,7 +1649,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.73  2006-06-12 18:28:32  ncq
+# Revision 1.74  2006-06-14 10:22:46  ncq
+# - create_* stored procs are in schema dem.* now
+#
+# Revision 1.73  2006/06/12 18:28:32  ncq
 # - added missing raise in gmCurrentPatient.__init__()
 #
 # Revision 1.72  2006/06/09 14:38:42  ncq

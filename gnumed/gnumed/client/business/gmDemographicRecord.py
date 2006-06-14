@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.80 2006-05-15 13:24:13 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmDemographicRecord.py,v 1.81 2006-06-14 10:22:46 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -135,7 +135,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		address is a dict of {'number', 'street', 'addendum', 'city', 'postcode', 'type'}
 		type is one of the IDs returned by getAddressTypes
 		"""
-		cmd = "insert into dem.lnk_person_org_address (id_type, id_address, id_org, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
+		cmd = "insert into dem.lnk_person_org_address (id_type, id_address, id_org, id_identity) values (%(type)s, dem.create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
 		address['pk_identity'] = person['pk_identity']
 		address['org_id'] = self.getId()
 		if not id_addr:
@@ -447,7 +447,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.80  2006-05-15 13:24:13  ncq
+# Revision 1.81  2006-06-14 10:22:46  ncq
+# - create_* stored procs are in schema dem.* now
+#
+# Revision 1.80  2006/05/15 13:24:13  ncq
 # - signal "activating_patient" -> "pre_patient_selection"
 # - signal "patient_selected" -> "post_patient_selection"
 #
