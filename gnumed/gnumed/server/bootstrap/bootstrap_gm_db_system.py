@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -618,15 +618,51 @@ class database:
 			_log.Log(gmLog.lErr, "Need language name to install it !")
 			return None
 
+		lang_name = self.cfg.get(aLanguage, "name")
+		if self.__lang_exists(lang_name):
+			return True
+
+		# this should work on at least PG 8.1 and likely on 8.0 as well
+		cmd = 'create language %(lang)s'
+		cursor = self.conn.cursor()
+		if not _run_query(cursor, cmd, {'lang': lang_name}):
+			cursor.close()
+			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
+		else:
+			self.conn.commit()
+			cursor.close()
+		if self.__lang_exists(lang_name):
+			_log.Log(gmLog.lInfo, 'no-parameter install of [%s] succeeded' % aLanguage)
+			return True
+
+		# this uses $libdir
+		tmp = self.cfg.get(aLanguage, "call handler")
+		if tmp is None:
+			_log.Log(gmLog.lErr, "no call handler cmd specified in config file")
+			return None
+		call_handler_cmd = ('\r'.join(tmp)) % ('$libdir/' + lang_name)
+		tmp = self.cfg.get(aLanguage, "language activation")
+		if tmp is None:
+			_log.Log(gmLog.lErr, "no language activation cmd specified in config file")
+			return None
+		activate_lang_cmd = '\r'.join(tmp)
+		cmd = '%s\r%s' % (call_handler_cmd, activate_lang_cmd)
+		cursor = self.conn.cursor()
+		if not _run_query(cursor, cmd):
+			cursor.close()
+			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
+		else:
+			self.conn.commit()
+			cursor.close()
+		if self.__lang_exists(lang_name):
+			_log.Log(gmLog.lInfo, '$libdir install of [%s] succeeded' % aLanguage)
+			return True
+
+		# brute force absolute path
 		lib_name = self.cfg.get(aLanguage, "library name")
 		if lib_name is None:
 			_log.Log(gmLog.lErr, "no language library name specified in config file")
 			return None
-
-#		# FIXME: what about *.so.1.3.5 ?
-		if self.__lang_exists(lib_name.replace(".so", "", 1)):
-			return True
-#			self.__drop_lang(aLanguage)
 
 		# do we check for library file existence ?
 		check_for_lib = self.cfg.get(self.section, "procedural language library check")
@@ -675,7 +711,7 @@ class database:
 		self.conn.commit()
 		cursor.close()
 
-		if not self.__lang_exists(lib_name.replace(".so", "", 1)):
+		if not self.__lang_exists(lang_name):
 			return None
 
 		_log.Log(gmLog.lInfo, "procedural language [%s] successfully installed" % aLanguage)
@@ -707,10 +743,10 @@ class database:
 		tmp = aCursor.rowcount
 		aCursor.close()
 		if tmp == 1:
-			_log.Log(gmLog.lInfo, "Language %s exists." % aLanguage)
+			_log.Log(gmLog.lInfo, "Language <%s> exists." % aLanguage)
 			return True
 
-		_log.Log(gmLog.lInfo, "Language %s does not exist." % aLanguage)
+		_log.Log(gmLog.lInfo, "Language <%s> does not exist." % aLanguage)
 		return None
 	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
@@ -1166,12 +1202,20 @@ def bootstrap_notifications():
 			return None
 	return True
 #------------------------------------------------------------------
-def _run_query(aCurs, aQuery):
-	try:
-		aCurs.execute(aQuery)
-	except:
-		_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
-		return None
+def _run_query(aCurs, aQuery, args=None):
+	if args is None:
+		try:
+			aCurs.execute(aQuery)
+		except:
+			_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
+			return None
+	else:
+		try:
+			aCurs.execute(aQuery, args)
+		except:
+			_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
+			_log.Log(gmLog.lErr, str(args))
+			return None
 	return True
 #------------------------------------------------------------------
 def ask_for_confirmation():
@@ -1457,7 +1501,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.29  2006-06-09 14:43:35  ncq
+# Revision 1.30  2006-06-14 14:35:01  ncq
+# - use 8.1 and post-7.4 language installation features
+#
+# Revision 1.29  2006/06/09 14:43:35  ncq
 # - improve function naming
 #
 # Revision 1.28  2006/05/08 12:39:30  ncq
