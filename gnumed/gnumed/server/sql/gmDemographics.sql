@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.66 $
+-- $Revision: 1.67 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -183,6 +183,7 @@ comment on column dem.identity.title IS
 	 Also, there are some incredible rants of titles.';
 
 -- ===================================================================
+-- FIXME: rename to "trait"
 create table dem.enum_ext_id_types (
 	pk serial primary key,
 	name text,
@@ -600,11 +601,14 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.66 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.67 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.66  2006-06-06 20:58:29  ncq
+-- Revision 1.67  2006-06-14 14:35:21  ncq
+-- - add comment
+--
+-- Revision 1.66  2006/06/06 20:58:29  ncq
 -- - add dem.staff.is_active and propagate it
 --
 -- Revision 1.65  2006/02/19 13:46:47  ncq
