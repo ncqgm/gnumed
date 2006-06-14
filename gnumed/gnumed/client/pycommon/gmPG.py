@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -495,7 +495,7 @@ class ConnectionPool:
 				_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
 				conn = dbapi.connect(dsn=dsn, unicode_results=0)
 			else:
-				conn = dbapi.connect(dsn=dsn, client_encoding=encoding, unicode_results=0)
+				conn = dbapi.connect(dsn=dsn, client_encoding=(encoding, 'strict'), unicode_results=0)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
@@ -1306,7 +1306,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.67 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.68 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1542,7 +1542,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.67  2006-06-12 21:26:21  ncq
+# Revision 1.68  2006-06-14 14:33:52  ncq
+# - start being even more strict about character encoding issues
+#
+# Revision 1.67  2006/06/12 21:26:21  ncq
 # - explicitely tell pyPgSQL module about client_encoding ...
 #
 # Revision 1.66  2006/05/24 12:50:21  ncq
