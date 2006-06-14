@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.15 2006-06-13 20:34:40 ncq Exp $
+# $Id: gmI18N.py,v 1.16 2006-06-14 15:53:17 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -106,6 +106,12 @@ def __log_locale_settings(message=None):
 		_log.Log(gmLog.lData, message)
 
 	_log.Log(gmLog.lData, 'Python string encoding is set to: [%s]' % sys.getdefaultencoding())
+	_log.Log(gmLog.lData, 'preferred encoding: [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
+
+	try:
+		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
+	except ValueError:
+		_log.LogException('the OS locale setup seems faulty')
 
 	for category in _locale_categories.keys():
 		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_locale_categories[category])))
@@ -144,11 +150,6 @@ def __log_locale_settings(message=None):
 			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
 		except:
 			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
-
-	try:
-		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
-	except ValueError:
-		_log.LogException('the OS locale setup seems faulty')
 
 #---------------------------------------------------------------------------
 def activate_locale():
@@ -206,6 +207,20 @@ def activate_locale():
 	if system_locale in [None, 'C']:
 		_log.Log(gmLog.lErr, 'the system locale is not set to anything or is [C], assuming [en_EN]')
 		system_locale = "en_EN"
+	else:
+		python_enc = sys.getdefaultencoding()
+		loc, locale_enc = locale.getlocale()
+		if locale_enc is None:
+			locale_enc = python_enc
+		if (python_enc == 'ascii') or (python_enc != locale_enc):
+			_log.Log(gmLog.lInfo, 'Python string encoding (%s) is <ascii> or does not match locale defined encoding (%s)' % (python_enc, locale_enc))
+			_log.Log(gmLog.lInfo, 'trying to set Python string encoding to [%s]' % locale_enc)
+			try:
+				sys.setdefaultencoding(locale_enc)
+			except AttributeError:
+				_log.Log(gmLog.lErr, 'Python string encoding must have been set already')
+			except LookupError:
+				_log.Log(gmLog.lErr, 'invalid encoding [%s], cannot set Python string encoding' % locale_enc)
 
 	# generate system locale levels
 	__split_locale_into_levels()
@@ -401,7 +416,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.15  2006-06-13 20:34:40  ncq
+# Revision 1.16  2006-06-14 15:53:17  ncq
+# - attempt setting Python string encoding if appears to not be set
+#
+# Revision 1.15  2006/06/13 20:34:40  ncq
 # - now has *explicit* activate_locale() and install_domain()
 # - much improved logging
 #
