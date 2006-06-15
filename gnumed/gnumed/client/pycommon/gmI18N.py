@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.16 2006-06-14 15:53:17 ncq Exp $
+# $Id: gmI18N.py,v 1.17 2006-06-15 07:55:35 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -102,20 +102,29 @@ def __log_locale_settings(message=None):
 		'LC_MESSAGES': locale.LC_MESSAGES,
 		'LC_NUMERIC': locale.LC_NUMERIC
 	}
+
 	if message is not None:
 		_log.Log(gmLog.lData, message)
 
+	_log.Log(gmLog.lData, 'currently, locale is set to:')
+	for category in _locale_categories.keys():
+		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_locale_categories[category])))
+		_log.Log (gmLog.lData, '[%s]: %s' % (category, str(locale.getlocale(_locale_categories[category]))))
+
 	_log.Log(gmLog.lData, 'Python string encoding is set to: [%s]' % sys.getdefaultencoding())
-	_log.Log(gmLog.lData, 'preferred encoding: [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
+	_log.Log(gmLog.lData, 'preferred encoding in locale: [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
 
 	try:
 		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
 	except ValueError:
 		_log.LogException('the OS locale setup seems faulty')
 
-	for category in _locale_categories.keys():
-		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_locale_categories[category])))
-		_log.Log (gmLog.lData, '[%s]: %s' % (category, str(locale.getlocale(_locale_categories[category]))))
+	_log.Log(gmLog.lData, 'locale related environment variables (LANG is typically used):')
+	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
+		try:
+			_log.Log(gmLog.lData, '${%s}=%s' % (var, os.environ[var]))
+		except KeyError:
+			_log.Log(gmLog.lData, '${%s} not set' % (var))
 
 	_log.Log(gmLog.lData, 'database of locale conventions:')
 	data = locale.localeconv()
@@ -157,34 +166,6 @@ def activate_locale():
 	global system_locale
 	global system_locale_level
 
-#	env_key = 'LANGUAGE'
-#	if os.environ.has_key(env_key):
-#		system_locale = os.environ[env_key]
-#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-#	else:
-#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
-
-#	env_key = 'LC_ALL'
-#	if os.environ.has_key(env_key):
-#		system_locale = os.environ[env_key]
-#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-#	else:
-#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
-
-#	env_key = 'LC_MESSAGES'
-#	if os.environ.has_key(env_key):
-#		system_locale = os.environ[env_key]
-#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-#	else:
-#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
-
-#	env_key = 'LANG'
-#	if os.environ.has_key(env_key):
-#		system_locale = os.environ[env_key]
-#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-#	else:
-#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
-
 	# logging state of affairs
 	__log_locale_settings('unmodified startup locale settings (should be [C])')
 
@@ -192,7 +173,7 @@ def activate_locale():
 	try:
 		# check whether already set
 		system_locale, enc = locale.getlocale()
-		_log.Log(gmLog.lData, 'pre-set user preferred locale: locale = [%s], encoding = [%s]' % (system_locale, enc))
+		_log.Log(gmLog.lData, 'currently set locale: locale = [%s], encoding = [%s]' % (system_locale, enc))
 		if system_locale is None:
 			system_locale = locale.setlocale(locale.LC_ALL, '')
 			_log.Log(gmLog.lData, 'user default locale set to: [%s]' % system_locale)
@@ -416,7 +397,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.16  2006-06-14 15:53:17  ncq
+# Revision 1.17  2006-06-15 07:55:35  ncq
+# - ever better logging of affairs
+#
+# Revision 1.16  2006/06/14 15:53:17  ncq
 # - attempt setting Python string encoding if appears to not be set
 #
 # Revision 1.15  2006/06/13 20:34:40  ncq
