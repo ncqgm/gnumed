@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.38 2006-06-05 21:30:08 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmDateTimeInput.py,v 1.39 2006-06-15 15:35:30 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -636,19 +636,8 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 				accuracy = accuracy
 			)
 			return True
-		except ValueError:
-			msg = _('Cannot parse <%s> into proper timestamp.')
+		except (ValueError, mxDT.RangeError):
 			return False
-
-#		try:
-#			# FIXME: make this way more generous in accepting date input
-#			date = time.strptime(val, self.__display_format)
-#		except:
-#			msg = _('Invalid date. Date format: %s ' % self.__display_format)
-#			gmGuiHelpers.gm_beep_statustext(msg)
-#			self.SetBackgroundColour('pink')
-#			self.Refresh()
-#			return False
 
 		# valid date
 		return True
@@ -657,6 +646,8 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
 		if not self.__text2timestamp():
+			msg = _('Cannot parse <%s> into proper timestamp.') % self.GetValue().strip()
+			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, msg)
 			self.SetBackgroundColour('pink')
 			self.Refresh()
 		else:
@@ -750,7 +741,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.38  2006-06-05 21:30:08  ncq
+# Revision 1.39  2006-06-15 15:35:30  ncq
+# - better error handling
+#
+# Revision 1.38  2006/06/05 21:30:08  ncq
 # - add single-dot expander so German 23. expands to 23rd this month this year
 # - add is_valid_timestamp() to external API so patient wizard can use it
 #
