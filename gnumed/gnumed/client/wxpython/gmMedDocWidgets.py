@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.80 2006-06-15 07:13:21 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmMedDocWidgets.py,v 1.81 2006-06-15 21:41:16 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -473,8 +473,8 @@ from your computer.""") % page_fname,
 		emr = pat.get_emr()
 
 		# create new document
-		episode = self._PhWheel_episode.GetData()
-		if episode is None:
+		pk_episode = self._PhWheel_episode.GetData()
+		if pk_episode is None:
 			episode = emr.add_episode (
 				episode_name = self._PhWheel_episode.GetValue().strip(),
 				is_open = True
@@ -486,13 +486,14 @@ from your computer.""") % page_fname,
 					aTitle = _('saving document')
 				)
 				return False
+			pk_episode = episode['pk_episode']
 
 		encounter = emr.get_active_encounter()['pk_encounter']
 
 		idx = self._SelBOX_doc_type.GetSelection()
 		document_type = self._SelBOX_doc_type.GetClientData(idx)
 
-		new_doc = doc_folder.add_document(document_type, encounter, episode['pk_episode'])
+		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)
 		if new_doc is None:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
@@ -1089,7 +1090,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.80  2006-06-15 07:13:21  ncq
+# Revision 1.81  2006-06-15 21:41:16  ncq
+# - episode selector phrasewheel returns PK, not instance
+#
+# Revision 1.80  2006/06/15 07:13:21  ncq
 # - used PK of episode instance in add_document
 #
 # Revision 1.79  2006/06/09 14:42:19  ncq
