@@ -47,8 +47,8 @@ intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.94 2006-06-13 20:36:57 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gnumed.py,v 1.95 2006-06-15 21:34:46 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -88,22 +88,23 @@ except:
 	pass
 
 #==========================================================
-def handle_uncaught_exception(t, v, tb):
-	print ",========================================================"
-	print "| Unhandled exception caught !"
-	print "| Type :", t
-	print "| Value:", v
-	print "`========================================================"
-	# FIXME: allow user to mail report to developers from here
-	sys.__excepthook__(t,v,tb)
-
-#==========================================================
 _log = None
 _cfg = None
 _email_logger = None
 gmLog = None
 _old_sig_hup = None
 _old_sig_term = None
+
+#==========================================================
+def handle_uncaught_exception(t, v, tb):
+	print ",========================================================"
+	print "| Unhandled exception caught !"
+	print "| Type :", t
+	print "| Value:", v
+	print "`========================================================"
+	_log.LogException('unhandled exception caught', (t,v,tb))
+	# FIXME: allow user to mail report to developers from here
+	sys.__excepthook__(t,v,tb)
 
 #==========================================================
 def setup_logging():
@@ -493,7 +494,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.94  2006-06-13 20:36:57  ncq
+# Revision 1.95  2006-06-15 21:34:46  ncq
+# - log unhandled exceptions, too
+#
+# Revision 1.94  2006/06/13 20:36:57  ncq
 # - use gmI18N only, don't mess with locale ourselves
 #
 # Revision 1.93  2006/06/06 20:56:24  ncq
