@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.5 2006-06-10 05:13:06 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmStaffWidgets.py,v 1.6 2006-06-15 20:57:49 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -74,50 +74,85 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 			self._LCTRL_staff.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_staff.SetColumnWidth(col=5, width=wx.LIST_AUTOSIZE)
 
+		# disable buttons
+		self._btn_save.Enable(False)
 		self._btn_delete.Enable(False)
 		self._btn_deactivate.Enable(False)
 		self._btn_activate.Enable(False)
+		# clear editor
+		self._TCTRL_name.SetValue('')
+		self._TCTRL_alias.SetValue('')
+		self._TCTRL_account.SetValue('')
+		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
-	def _on_listitem_selected(self, evt):
-		self._btn_delete.Enable(True)
-		self._btn_deactivate.Enable(True)
-		self._btn_activate.Enable(True)
-	#--------------------------------------------------------
-	def _on_listitem_deselected(self, evt):
-		self._btn_delete.Enable(False)
-		self._btn_deactivate.Enable(False)
-		self._btn_activate.Enable(False)
-	#--------------------------------------------------------
-	def _on_deactivate_button_pressed(self, evt):
-		pk = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
+	def __get_gmdbo_connection(self, procedure=None):
+		if procedure is None:
+			procedure = _('<restricted procedure>')
 
-		# 1) inactivate staff entry
-		staff = gmPerson.cStaff(aPK_obj=pk)
-		staff['is_active'] = False
-		staff.save_payload()				# FIXME: error handling
-
-		# 2) disable database account login
-		# - get password for gm-dbo
+		# 1) get password for gm-dbo
 		pwd_gm_dbo = wx.GetPasswordFromUser (
 			message = _("""
-To add a new staff member to the database we
-need the password of the GNUmed database owner.
+%s
+This is a restricted procedure. We need the
+password for the GNUmed database owner.
 
-Please enter the password for <gm-dbo>:"""),
-			caption = _('Delisting GNUmed staff member'),
+Please enter the password for <gm-dbo>:""") % procedure,
+			caption = procedure,
 			parent = self
 		)
-		# - connect as gm-dbo
+
+		# 2) connect as gm-dbo
 		pool = gmPG.ConnectionPool()
 		conn = pool.get_connection_for_user(user='gm-dbo', password=pwd_gm_dbo, extra_verbose=True)
 		if conn is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot connect as the GNUmed database user <gm-dbo>.\n\nTherefore cannot disable staff member.'),
-				aTitle = _('Disabling GNUmed staff member'),
+				aMessage = _('Cannot connect as the GNUmed database user <gm-dbo>.'),
+				aTitle = procedure,
 				aLogLevel = gmLog.lErr
 			)
+			return None
+
+		return conn
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_listitem_selected(self, evt):
+		self._btn_save.Enable(True)
+		self._btn_delete.Enable(True)
+		self._btn_deactivate.Enable(True)
+		self._btn_activate.Enable(True)
+		# fill editor
+		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
+		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		self._TCTRL_name.SetValue('%s.%s %s' % (staff['title'], staff['firstnames'], staff['lastnames']))
+		self._TCTRL_alias.SetValue(staff['short_alias'])
+		self._TCTRL_account.SetValue(staff['db_user'])
+		self._TCTRL_comment.SetValue(staff['comment'])
+	#--------------------------------------------------------
+	def _on_listitem_deselected(self, evt):
+		self._btn_save.Enable(False)
+		self._btn_delete.Enable(False)
+		self._btn_deactivate.Enable(False)
+		self._btn_activate.Enable(False)
+		# clear editor
+		self._TCTRL_name.SetValue('')
+		self._TCTRL_alias.SetValue('')
+		self._TCTRL_account.SetValue('')
+		self._TCTRL_comment.SetValue('')
+	#--------------------------------------------------------
+	def _on_deactivate_button_pressed(self, evt):
+		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
+
+		conn = self.__get_gmdbo_connection(procedure = _('Deactivating GNUmed staff member.'))
+		if conn is None:
 			return False
-		# - run disable query
+
+		# 1) inactivate staff entry
+		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff['is_active'] = False
+		staff.save_payload(conn=conn)				# FIXME: error handling
+
+		# 2) disable database account login
 		queries = [('select gm_disable_user(%s)', [staff['db_user']])]
 		success, data = gmPG.run_commit2 (
 			link_obj = conn,
@@ -213,7 +248,10 @@ Please enter the password for <gm-dbo>:"""),
 		self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.5  2006-06-10 05:13:06  ncq
+# Revision 1.6  2006-06-15 20:57:49  ncq
+# - actually do something with the improved staff list editor
+#
+# Revision 1.5  2006/06/10 05:13:06  ncq
 # - improved "edit staff list"
 #
 # Revision 1.4  2006/06/09 14:43:02  ncq
