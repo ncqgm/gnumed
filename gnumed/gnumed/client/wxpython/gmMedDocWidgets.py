@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.79 2006-06-09 14:42:19 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmMedDocWidgets.py,v 1.80 2006-06-15 07:13:21 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -492,7 +492,7 @@ from your computer.""") % page_fname,
 		idx = self._SelBOX_doc_type.GetSelection()
 		document_type = self._SelBOX_doc_type.GetClientData(idx)
 
-		new_doc = doc_folder.add_document(document_type, encounter, episode)
+		new_doc = doc_folder.add_document(document_type, encounter, episode['pk_episode'])
 		if new_doc is None:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
@@ -1089,7 +1089,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.79  2006-06-09 14:42:19  ncq
+# Revision 1.80  2006-06-15 07:13:21  ncq
+# - used PK of episode instance in add_document
+#
+# Revision 1.79  2006/06/09 14:42:19  ncq
 # - allow review from document
 # - always apply review to all pages
 #
