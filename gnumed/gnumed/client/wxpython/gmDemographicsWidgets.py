@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.89 2006-06-12 18:31:31 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmDemographicsWidgets.py,v 1.90 2006-06-15 15:37:55 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1494,7 +1494,7 @@ class cNewPatientWizard(wx.wizard.Wizard):
 	def RunWizard(self, activate=False):
 		"""Create new patient.
 
-		activate, too, if told to do so (and patient successfully created
+		activate, too, if told to do so (and patient successfully created)
 		"""
 		if not wx.wizard.Wizard.RunWizard(self, self.basic_pat_details):
 			return False
@@ -1524,7 +1524,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered all
 	the required conditional values in the page (eg., to properly
-	create an address, all the related fields mut be filled).
+	create an address, all the related fields must be filled).
 	"""
 	#--------------------------------------------------------
 	def __init__(self, dtd):
@@ -1553,8 +1553,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		pageCtrl = self.GetWindow().GetParent()
 		# dob validation
 		if not pageCtrl.TTC_dob.is_valid_timestamp():
-			msg = _('Cannot parse <%s> into proper timestamp.')
-			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
+			msg = _('Cannot parse <%s> into proper timestamp.') % pageCtrl.TTC_dob.GetValue()
+			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, msg)
 			pageCtrl.TTC_dob.SetBackgroundColour('pink')
 			pageCtrl.TTC_dob.Refresh()
 			pageCtrl.TTC_dob.SetFocus()
@@ -1624,7 +1624,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
-			self.form_DTD['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetData()
 			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
@@ -2157,7 +2156,6 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.__dtd with values from controls
 			self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
-#			self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 			self.__dtd['dob'] = pageCtrl.TTC_dob.GetData()
 			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
@@ -2782,7 +2780,7 @@ def create_identity_from_dtd(dtd=None):
 	_log.Log(gmLog.lData, 'identity created: %s' % new_identity)
 	
 	return new_identity
-#============================================================				
+#============================================================
 def update_identity_from_dtd(identity, dtd=None):
 	"""
 	Update patient details with data supplied by
@@ -2795,8 +2793,8 @@ def update_identity_from_dtd(identity, dtd=None):
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
-	if identity['dob'] != dtd['dob']:
-		identity['dob'] = dtd['dob']
+	if identity['dob'] != dtd['dob'].timestamp:
+		identity['dob'] = dtd['dob'].timestamp
 	if len(dtd['title']) > 0 and identity['title'] != capitalize_first(dtd['title']):
 		identity['title'] = capitalize_first(dtd['title'])
 	# FIXME: error checking
@@ -2948,7 +2946,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.89  2006-06-12 18:31:31  ncq
+# Revision 1.90  2006-06-15 15:37:55  ncq
+# - properly handle DOB in new-patient wizard
+#
+# Revision 1.89  2006/06/12 18:31:31  ncq
 # - must create *patient* not person from new patient wizard
 #   if to be activated as patient :-)
 #
