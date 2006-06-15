@@ -10,7 +10,7 @@ class wxgProviderInboxPnl(wx.Panel):
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.Panel.__init__(self, *args, **kwds)
         self._msg_welcome = wx.StaticText(self, -1, _("Programmer must override this text."), style=wx.ALIGN_CENTRE)
-        self._LCTRL_provider_inbox = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER|wx.SUNKEN_BORDER)
+        self._LCTRL_provider_inbox = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
         self._TXT_inbox_item_comment = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.TE_LINEWRAP|wx.TE_WORDWRAP)
 
         self.__set_properties()
