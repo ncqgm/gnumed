@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.74 2006-06-14 10:22:46 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmPerson.py,v 1.75 2006-06-15 07:54:04 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -535,11 +535,12 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			fk_role = %(pk_role)s,
 			short_alias = %(short_alias)s,
 			comment = %(comment)s,
-			is_active = %(is_active)s
+			is_active = %(is_active)s,
+			db_user = %(db_user)s
 		where pk=%(pk_staff)s""",
 		"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
 	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active']
+	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
@@ -558,6 +559,23 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
 		else:
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=aPK_obj, row=row)
+
+		# are we SELF ?
+		cmd = "select CURRENT_USER"
+		rows = gmPG.run_ro_query('personalia', cmd)
+		if (rows is None) or (len(rows) == 0):
+			raise gmExceptions.ConstructorError, 'cannot retrieve CURRENT_USER'
+		if rows[0][0] == self._payload[self._idx['db_user']]:
+			self.__is_current_user = True
+		else:
+			self.__is_current_user = False
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if attribute == 'db_user':
+			if self.__is_current_user:
+				_log.Log(gmLog.lData, 'will not modify database account association of CURRENT_USER staff member')
+				return
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 #============================================================
 class gmCurrentProvider(gmBorg.cBorg):
 	"""Staff member Borg to hold currently logged on provider.
@@ -1649,7 +1667,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.74  2006-06-14 10:22:46  ncq
+# Revision 1.75  2006-06-15 07:54:04  ncq
+# - allow editing of db_user in cStaff except where cStaff represents CURRENT_USER
+#
+# Revision 1.74  2006/06/14 10:22:46  ncq
 # - create_* stored procs are in schema dem.* now
 #
 # Revision 1.73  2006/06/12 18:28:32  ncq
