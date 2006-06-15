@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -60,14 +60,15 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	dem.org_id_seq,
 	dem.lnk_org2comm,
 	dem.lnk_org2comm_id_seq,
-	dem.staff_role,
-	dem.staff,
 	dem.marital_status
 TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.17  2006-05-15 14:47:27  ncq
+-- Revision 1.18  2006-06-15 21:04:18  ncq
+-- - actually, only gm-dbo should be able to edit dem.staff
+--
+-- Revision 1.17  2006/05/15 14:47:27  ncq
 -- - move inbox grants to inbox dynamic script
 -- - include message pk into inbox view
 --
