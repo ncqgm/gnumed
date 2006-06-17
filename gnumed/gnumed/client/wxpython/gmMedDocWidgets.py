@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.81 2006-06-15 21:41:16 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmMedDocWidgets.py,v 1.82 2006-06-17 14:10:32 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -1045,12 +1045,12 @@ class cDocTree(wx.TreeCtrl):
 			)
 			return None
 
-		# handle review if wanted
+		# handle review after display
 		review_after_display = cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
 			workplace = gmPerson.gmCurrentProvider().get_workplace(),
 			bias = 'user',
-			default = 1
+			default = 2
 		)
 		# always review
 		if review_after_display == 1:
@@ -1090,7 +1090,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.81  2006-06-15 21:41:16  ncq
+# Revision 1.82  2006-06-17 14:10:32  ncq
+# - make review-after-display-if-needed the default
+#
+# Revision 1.81  2006/06/15 21:41:16  ncq
 # - episode selector phrasewheel returns PK, not instance
 #
 # Revision 1.80  2006/06/15 07:13:21  ncq
