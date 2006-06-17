@@ -2,12 +2,12 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.4 2006-05-16 15:50:51 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMimeLib.py,v 1.5 2006-06-17 13:15:10 shilbert Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import os, mailcap, string, sys, mimetypes
+import os, mailcap, string, sys, mimetypes, shutil
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -205,7 +205,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.4  2006-05-16 15:50:51  ncq
+# Revision 1.5  2006-06-17 13:15:10  shilbert
+# - shutil import was added to make it work on Windows
+#
+# Revision 1.4  2006/05/16 15:50:51  ncq
 # - properly escape filename
 #
 # Revision 1.3  2006/05/01 18:47:16  ncq
