@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.12 2006-05-12 12:05:04 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmSOAPimporter.py,v 1.13 2006-06-17 13:58:39 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -62,7 +62,7 @@ class cSOAPImporter:
 	
 	#-----------------------------------------------------------
 	def __init__(self):
-		self.__pat = gmPerson.gmCurrentPatient()		
+		pass
 	#-----------------------------------------------------------
 	# external API
 	#-----------------------------------------------------------
@@ -74,12 +74,12 @@ class cSOAPImporter:
 		@param bundle: GnuMed SOAP input data (as described in module's information)
 		@type bundle: list of dicts
 		"""
-		# process each entry in soap bundle independantly
+		# process each entry in soap bundle independently
 		for soap_entry in bundle:
 			if not self.__import_narrative(soap_entry):
 				_log.Log(gmLog.lErr, 'skipping soap entry')
 				continue
-		gmDispatcher.send( gmSignals.clin_item_updated())
+		gmDispatcher.send(gmSignals.clin_item_updated())
 		return True
 	#-----------------------------------------------------------
 	# internal helpers
@@ -87,8 +87,8 @@ class cSOAPImporter:
 	def __import_narrative(self, soap_entry):
 		"""Import soap entry into GnuMed backend.
 
-		@param soap_entry: dictionary containing information related to one
-						   SOAP input line
+		@param soap_entry: dictionary containing information related
+						   to one SOAP input line
 		@type soap_entry: dictionary with keys 'soap', 'types', 'text'
 
 		FIXME: Later we may want to allow for explicitely setting a staff ID to be
@@ -98,7 +98,7 @@ class cSOAPImporter:
 			_log.Log(gmLog.lErr, 'cannot verify soap entry')
 			return False
 		# obtain clinical context information
-		emr = self.__pat.get_emr()
+		emr = gmPerson.gmCurrentPatient().get_emr()
 		epi_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		try:
 			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
@@ -114,15 +114,14 @@ class cSOAPImporter:
 			encounter_id = enc_id
 		)
 
-		# attach types
-		if soap_entry.has_key(soap_bundle_TYPES_KEY):
-			print "code missing to attach types to imported narrative"
+#		# attach types
+#		if soap_entry.has_key(soap_bundle_TYPES_KEY):
+#			print "code missing to attach types to imported narrative"
 
 		return status
 	#-----------------------------------------------------------
 	def __verify_soap_entry(self, soap_entry):
-		"""
-		Perform basic integrity check of a supplied SOAP entry
+		"""Perform basic integrity check of a supplied SOAP entry.
 		
 		@param soap_entry: dictionary containing information related to one
 						   SOAP input
@@ -247,7 +246,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.12  2006-05-12 12:05:04  ncq
+# Revision 1.13  2006-06-17 13:58:39  ncq
+# - cleanup
+#
+# Revision 1.12  2006/05/12 12:05:04  ncq
 # - cleanup
 #
 # Revision 1.11  2006/05/04 09:49:20  ncq

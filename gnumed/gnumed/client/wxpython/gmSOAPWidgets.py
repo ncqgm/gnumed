@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.69 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmSOAPWidgets.py,v 1.70 2006-06-17 14:00:03 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -477,8 +477,7 @@ class cSOAPLineDef:
 # FIXME: living elsewhere
 class cPopupDataHolder:
 
-	_data_savers = {
-	}
+	_data_savers = {}
 
 	def __init__(self):
 		self.__data = {}
@@ -716,15 +715,15 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# dump embedded data to backend
 		if not self.__embedded_data_holder.save():
 			gmGuiHelpers.gm_show_error (
-				_('Error saving progress note.'),
+				_('Error saving embedded data.'),
 				_('saving progress note'),
 				gmLog.lErr
 			)
 			return False
-		self.__embedded_data.holder.clear()
+		self.__embedded_data_holder.clear()
 
 		return True
-
+	#--------------------------------------------------------
 	def get_problem(self):
 		return self.__problem
 #============================================================
@@ -1116,7 +1115,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.69  2006-05-15 13:36:00  ncq
+# Revision 1.70  2006-06-17 14:00:03  ncq
+# - cleanup
+#
+# Revision 1.69  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
