@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.6 2006-06-15 20:57:49 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmStaffWidgets.py,v 1.7 2006-06-17 16:45:19 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -30,13 +30,6 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 
 	def __init__(self, *args, **kwds):
 		wxgEditStaffListDlg.wxgEditStaffListDlg.__init__(self, *args, **kwds)
-		self.__init_ui_data()
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __init_ui_data(self):
-		lbl_active = {True: _('active'), False: _('inactive')}
-		lbl_login = {True: _('can login'), False: _('can not login')}
 
 		self._LCTRL_staff.InsertColumn(0, _('Alias'))
 		self._LCTRL_staff.InsertColumn(1, _('DB account'))
@@ -44,6 +37,14 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._LCTRL_staff.InsertColumn(3, _('Name'))
 		self._LCTRL_staff.InsertColumn(4, _('Comment'))
 		self._LCTRL_staff.InsertColumn(5, _('Status'))
+
+		self.__init_ui_data()
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __init_ui_data(self):
+		lbl_active = {True: _('active'), False: _('inactive')}
+		lbl_login = {True: _('can login'), False: _('can not login')}
 
 		self._LCTRL_staff.DeleteAllItems()
 		staff_list = gmPerson.get_staff_list()
@@ -85,35 +86,6 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_account.SetValue('')
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
-	def __get_gmdbo_connection(self, procedure=None):
-		if procedure is None:
-			procedure = _('<restricted procedure>')
-
-		# 1) get password for gm-dbo
-		pwd_gm_dbo = wx.GetPasswordFromUser (
-			message = _("""
-%s
-This is a restricted procedure. We need the
-password for the GNUmed database owner.
-
-Please enter the password for <gm-dbo>:""") % procedure,
-			caption = procedure,
-			parent = self
-		)
-
-		# 2) connect as gm-dbo
-		pool = gmPG.ConnectionPool()
-		conn = pool.get_connection_for_user(user='gm-dbo', password=pwd_gm_dbo, extra_verbose=True)
-		if conn is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot connect as the GNUmed database user <gm-dbo>.'),
-				aTitle = procedure,
-				aLogLevel = gmLog.lErr
-			)
-			return None
-
-		return conn
-	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_listitem_selected(self, evt):
@@ -140,10 +112,41 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		self._TCTRL_account.SetValue('')
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
+	def _on_activate_button_pressed(self, evt):
+		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
+
+		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Activating GNUmed staff member.'))
+		if conn is None:
+			return False
+
+		# 1) inactivate staff entry
+		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff['is_active'] = True
+		staff.save_payload(conn=conn)				# FIXME: error handling
+
+		# 2) enable database account login
+		queries = [('select gm_create_user(%s, %s)', [staff['db_user'], 'flying wombat'])]
+		success, data = gmPG.run_commit2 (
+			link_obj = conn,
+			queries = queries,
+			end_tx = True
+		)
+		conn.close()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Failed to activate GNUmed database user.'),
+				aTitle = _('Activating GNUmed staff member'),
+				aLogLevel = gmLog.lErr
+			)
+			return False
+
+		self.__init_ui_data()
+		return True
+	#--------------------------------------------------------
 	def _on_deactivate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = self.__get_gmdbo_connection(procedure = _('Deactivating GNUmed staff member.'))
+		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Deactivating GNUmed staff member.'))
 		if conn is None:
 			return False
 
@@ -159,10 +162,37 @@ Please enter the password for <gm-dbo>:""") % procedure,
 			queries = queries,
 			end_tx = True
 		)
+		conn.close()
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Failed to disable GNUmed database user.'),
 				aTitle = _('Disabling GNUmed staff member'),
+				aLogLevel = gmLog.lErr
+			)
+			return False
+
+		self.__init_ui_data()
+		return True
+	#--------------------------------------------------------
+#	def _on_delete_button_pressed(self, event):
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, event):
+		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
+
+		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Modifying GNUmed staff member.'))
+		if conn is None:
+			return False
+
+		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff['short_alias'] = self._TCTRL_alias.GetValue()
+		staff['db_user'] = self._TCTRL_account.GetValue()
+		staff['comment'] = self._TCTRL_comment.GetValue()
+		success, data = staff.save_payload(conn=conn)
+		conn.close()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Failed to save changes to GNUmed database user.'),
+				aTitle = _('Modifying GNUmed staff member'),
 				aLogLevel = gmLog.lErr
 			)
 			return False
@@ -248,7 +278,12 @@ Please enter the password for <gm-dbo>:"""),
 		self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.6  2006-06-15 20:57:49  ncq
+# Revision 1.7  2006-06-17 16:45:19  ncq
+# - only insert column labels once
+# - use get_dbowner_connection() in gmGuiHelpers
+# - implement activate()/save() on staff details
+#
+# Revision 1.6  2006/06/15 20:57:49  ncq
 # - actually do something with the improved staff list editor
 #
 # Revision 1.5  2006/06/10 05:13:06  ncq
