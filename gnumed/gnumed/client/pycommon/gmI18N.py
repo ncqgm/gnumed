@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.17 2006-06-15 07:55:35 ncq Exp $
+# $Id: gmI18N.py,v 1.18 2006-06-17 11:49:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -93,15 +93,12 @@ def __split_locale_into_levels():
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
-	_locale_categories = {
-		'LC_ALL': locale.LC_ALL,
-		'LC_CTYPE': locale.LC_CTYPE,
-		'LC_COLLATE': locale.LC_COLLATE,
-		'LC_TIME': locale.LC_TIME,
-		'LC_MONETARY': locale.LC_MONETARY,
-		'LC_MESSAGES': locale.LC_MESSAGES,
-		'LC_NUMERIC': locale.LC_NUMERIC
-	}
+	_locale_categories = {}
+	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
+		try:
+			_locale_categories[category] = getattr(locale, category)
+		except AttributeError:
+			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
 
 	if message is not None:
 		_log.Log(gmLog.lData, message)
@@ -397,7 +394,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.17  2006-06-15 07:55:35  ncq
+# Revision 1.18  2006-06-17 11:49:26  ncq
+# - make locale.LC_* robust against platform diffs
+#
+# Revision 1.17  2006/06/15 07:55:35  ncq
 # - ever better logging of affairs
 #
 # Revision 1.16  2006/06/14 15:53:17  ncq
