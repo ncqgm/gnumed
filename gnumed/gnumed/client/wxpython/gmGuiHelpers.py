@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.33 2006-05-01 18:47:32 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmGuiHelpers.py,v 1.34 2006-06-17 16:42:48 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -27,7 +27,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -173,6 +173,33 @@ def gm_beep_statustext(aMessage=None, aLogLevel=None):
 
 	_set_status_text(aMessage)
 	return 1
+#-------------------------------------------------------------------------
+def get_dbowner_connection(procedure=None):
+	if procedure is None:
+		procedure = _('<restricted procedure>')
+
+	# 1) get password for gm-dbo
+	pwd_gm_dbo = wx.GetPasswordFromUser (
+		message = _("""
+%s
+This is a restricted procedure. We need the
+password for the GNUmed database owner.
+
+Please enter the password for <gm-dbo>:""") % procedure,
+		caption = procedure
+	)
+
+	# 2) connect as gm-dbo
+	pool = gmPG.ConnectionPool()
+	conn = pool.get_connection_for_user(user='gm-dbo', password=pwd_gm_dbo, extra_verbose=False)
+	if conn is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot connect as the GNUmed database user <gm-dbo>.'),
+			aTitle = procedure,
+			aLogLevel = gmLog.lErr
+		)
+		return None
+	return conn
 #------------------------------------------------------------------------
 def gm_icon (name):
 	"""
@@ -320,7 +347,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.33  2006-05-01 18:47:32  ncq
+# Revision 1.34  2006-06-17 16:42:48  ncq
+# - add get_dbowner_connection()
+#
+# Revision 1.33  2006/05/01 18:47:32  ncq
 # - cleanup
 #
 # Revision 1.32  2006/01/15 13:19:16  shilbert
