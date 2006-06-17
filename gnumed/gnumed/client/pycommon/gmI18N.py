@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.19 2006-06-17 12:25:22 ncq Exp $
+# $Id: gmI18N.py,v 1.20 2006-06-17 12:36:40 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -94,7 +94,7 @@ def __split_locale_into_levels():
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
 	_locale_categories = {}
-	for category in 'asdf LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
+	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
 			_locale_categories[category] = getattr(locale, category)
 		except:
@@ -394,7 +394,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.19  2006-06-17 12:25:22  ncq
+# Revision 1.20  2006-06-17 12:36:40  ncq
+# - remove testing cruft
+#
+# Revision 1.19  2006/06/17 12:25:22  ncq
 # - for some extremly strange reason "AttributeError" is not accepted as
 #   an exception name in "except AttributeError:"
 #
