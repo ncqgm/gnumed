@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.18 2006-06-17 11:49:26 ncq Exp $
+# $Id: gmI18N.py,v 1.19 2006-06-17 12:25:22 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -94,10 +94,10 @@ def __split_locale_into_levels():
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
 	_locale_categories = {}
-	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
+	for category in 'asdf LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
 			_locale_categories[category] = getattr(locale, category)
-		except AttributeError:
+		except:
 			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
 
 	if message is not None:
@@ -394,7 +394,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.18  2006-06-17 11:49:26  ncq
+# Revision 1.19  2006-06-17 12:25:22  ncq
+# - for some extremly strange reason "AttributeError" is not accepted as
+#   an exception name in "except AttributeError:"
+#
+# Revision 1.18  2006/06/17 11:49:26  ncq
 # - make locale.LC_* robust against platform diffs
 #
 # Revision 1.17  2006/06/15 07:55:35  ncq
