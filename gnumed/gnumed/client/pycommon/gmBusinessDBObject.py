@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.31 2005-11-19 08:47:56 ihaywood Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmBusinessDBObject.py,v 1.32 2006-06-17 16:41:30 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -296,8 +296,9 @@ class cBusinessDBObject:
 		# 1) backend payload cache
 		if attribute in self.__class__._updatable_fields:
 			try:
-				self._payload[self._idx[attribute]] = value
-				self._is_modified = True
+				if self._payload[self._idx[attribute]] != value:
+					self._payload[self._idx[attribute]] = value
+					self._is_modified = True
 				return
 			except KeyError:
 				_log.Log(gmLog.lWarn, '[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
@@ -363,6 +364,9 @@ class cBusinessDBObject:
 		self._payload = data[0]
 		return True
 	#--------------------------------------------------------
+	def __noop(self):
+		pass
+	#--------------------------------------------------------
 	def save_payload(self, conn=None):
 		"""Store updated values (if any) in database.
 		Optionally accepts a pre-existing connection
@@ -378,8 +382,10 @@ class cBusinessDBObject:
 		for field in self._idx.keys():
 			params[field] = self._payload[self._idx[field]]
 		self.modified_payload = params
+		close_conn = self.__noop
 		if conn is None:
 			conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
+			close_conn = conn.close
 		if conn is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			return (False, (1, _('Cannot connect to database.')))
@@ -390,7 +396,7 @@ class cBusinessDBObject:
 			# error
 			if not successful:
 				conn.rollback()
-				conn.close()
+				close_conn()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, error locking row' % (self.__class__.__name__, self.pk_obj))
 				return (False, result)
 			# query succeeded but failed to find the row to lock
@@ -400,7 +406,7 @@ class cBusinessDBObject:
 			data, idx = result
 			if len(data) == 0:
 				conn.rollback()
-				conn.close()
+				close_conn()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, concurrency conflict' % (self.__class__.__name__, self.pk_obj))
 				# store current content so user can still play with it ...
 				self.modified_payload = params
@@ -413,7 +419,7 @@ class cBusinessDBObject:
 			# uh oh
 			if len(data) > 1:
 				conn.rollback()
-				conn.close()
+				close_conn()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, deep sh*t' % (self.__class__.__name__, self.pk_obj))
 				_log.Log(gmLog.lPanic, '[%s:%s]: integrity violation, more than one matching row' % (self.__class__.__name__, self.pk_obj))
 				_log.Log(gmLog.lPanic, 'HINT: shut down/investigate application/database immediately')
@@ -427,14 +433,14 @@ class cBusinessDBObject:
 		successful, result = gmPG.run_commit2(link_obj = conn, queries = queries, get_col_idx = True)
 		if not successful:
 			conn.rollback()
-			conn.close()
+			close_conn()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lErr, params)
 			return (False, result)
 		rows, idx = result
 		if rows is None:
 			conn.rollback()
-			conn.close()
+			close_close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, last query did not return XMIN values' % (self.__class__.__name__, self.pk_obj))
 			return (False, result)
 		# update cached XMIN values
@@ -444,7 +450,7 @@ class cBusinessDBObject:
 				self._payload[self._idx[key]] = row[idx[key]]
 			except KeyError:
 				conn.rollback()
-				conn.close()
+				close_close()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
 				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
@@ -455,13 +461,13 @@ class cBusinessDBObject:
 			successful, result = gmPG.run_commit2(link_obj = conn, queries=self._subtable_cmd_queue)
 			if not successful:
 				conn.rollback()
-				conn.close()
+				close_conn()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot change subtables' % (self.__class__.__name__, self.pk_obj))
 				return (False, result)
 			self._subtable_cmd_queue = []
 		try:
 			conn.commit()
-			conn.close()
+			close_conn()
 		except:
 			typ, val, tb = sys.exc_info() 
 			return (False, (1, val))
@@ -561,7 +567,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.31  2005-11-19 08:47:56  ihaywood
+# Revision 1.32  2006-06-17 16:41:30  ncq
+# - only modify self._data if it actually changes
+# - don't close the connection if it was passed in
+#
+# Revision 1.31  2005/11/19 08:47:56  ihaywood
 # tiny bugfixes
 #
 # Revision 1.30  2005/10/19 09:12:00  ncq
