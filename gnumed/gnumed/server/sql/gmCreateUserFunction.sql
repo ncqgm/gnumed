@@ -1,7 +1,7 @@
 -- GNUmed functions to manage database accounts
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCreateUserFunction.sql,v $
--- $Id: gmCreateUserFunction.sql,v 1.4 2006-06-06 20:57:29 ncq Exp $
+-- $Id: gmCreateUserFunction.sql,v 1.5 2006-06-17 16:46:29 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -20,21 +20,33 @@ DECLARE
 	_query text;
 BEGIN
 	perform 1 from pg_user where usename = _username;
-	if FOUND then
-		return true;
+	if not FOUND then
+		_query := ''create user '' || quote_ident(_username)
+					|| '' with password '' || quote_literal(_password)
+					|| '';'';
+		execute _query;
+		perform 1 from pg_user where usename = _username;
+		if not FOUND then
+			raise exception ''cannot create user [%]'', _username;
+			return false;
+		end if;
 	end if;
+
+	_query := ''alter group "gm-logins" add user '' || quote_ident(_username) || '';'';
+	execute _query;
+
+	_query := ''alter group "gm-doctors" add user '' || quote_ident(_username) || '';'';
+	execute _query;
+
+	_query := ''alter group "gm-public" add user '' || quote_ident(_username) || '';'';
+	execute _query;
+
 	-- satisfy "database = samegroup" in pg_hba.conf
 	select into _database current_database();
-	_query := ''create user '' || quote_ident(_username)
-				|| '' with password '' || quote_literal(_password)
-				|| '' in group "gm-doctors", "gm-public", "gm-logins", '' || quote_ident(_database)
-				|| '';'';
+	_query := ''alter group '' || quote_ident(_database) || '' add user '' || quote_ident(_username) || '';'';
 	execute _query;
-	perform 1 from pg_user where usename = _username;
-	if FOUND then
-		return true;
-	end if;
-	return false;
+
+	return true;
 END;';
 
 revoke all on function gm_create_user(name, text) from public;
@@ -116,11 +128,14 @@ comment on function gm_disable_user(name) is
 	 limit execution of this function.';
 
 -- ===================================================
---select log_script_insertion('$RCSfile: gmCreateUserFunction.sql,v $', '$Revision: 1.4 $');
+--select log_script_insertion('$RCSfile: gmCreateUserFunction.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================
 -- $Log: gmCreateUserFunction.sql,v $
--- Revision 1.4  2006-06-06 20:57:29  ncq
+-- Revision 1.5  2006-06-17 16:46:29  ncq
+-- - make gm_create_user() more useful: enable accounts if account pre-exists
+--
+-- Revision 1.4  2006/06/06 20:57:29  ncq
 -- - add gm_disable_user()
 --
 -- Revision 1.3  2006/04/23 15:15:20  ncq
