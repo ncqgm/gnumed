@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.70 2006-06-17 14:00:03 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmSOAPWidgets.py,v 1.71 2006-06-17 14:26:30 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -506,18 +506,16 @@ class cPopupDataHolder:
 		return True
 	#--------------------------------------------------------
 	def save(self):
-		print "saving popup data"
 		for popup_type in self.__data.keys():
-			print "type", popup_type
 			try:
 				saver_func = self.__data_savers[popup_type]
 			except KeyError:
 				_log.LogException('no saver for popup data type [%s] configured' % popup_type)
 				return False
 			for desc in self.__data[popup_type].keys():
-				print "desc", self.__data[popup_type][desc]
 				data = self.__data[popup_type][desc]['data']
 				saver_func(data)
+		return True
 	#--------------------------------------------------------
 	def clear(self):
 		self.__data = {}
@@ -1115,7 +1113,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.70  2006-06-17 14:00:03  ncq
+# Revision 1.71  2006-06-17 14:26:30  ncq
+# - missing return True
+#
+# Revision 1.70  2006/06/17 14:00:03  ncq
 # - cleanup
 #
 # Revision 1.69  2006/05/15 13:36:00  ncq
