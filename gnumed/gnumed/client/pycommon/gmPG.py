@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -790,7 +790,10 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 					return (False, (2, 'l'))
 				# FIXME: handle more types of errors
 				_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
-				_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+				try:
+					_log.Log(gmLog.lErr, 'argument: %s'  % str(args)[:2048])
+				except MemoryError:+
+					pass
 				_log.LogException("query failed on link [%s]" % service, exc_info)
 				if extra_verbose:
 					__log_PG_settings(curs)
@@ -804,7 +807,10 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 			if extra_verbose:
 				duration = time.time() - t1
 				_log.Log(gmLog.lData, 'query: %s'  % query[:2048])
-				_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+				try:
+					_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+				except MemoryError:
+					pass
 				_log.Log(gmLog.lData, 'query succeeded on link [%s]' % service)
 				_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 		# done with queries
@@ -863,7 +869,10 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
 			_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
-			_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+			try:
+				_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+			except MemoryError:
+				pass
 			_log.LogException("query failed on link [%s]" % conn, exc_info)
 			if extra_verbose:
 				__log_PG_settings(curs)
@@ -878,7 +887,10 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 		if extra_verbose:
 			duration = time.time() - t1
 			_log.Log(gmLog.lData, 'query: %s'  % query[:2048])
-			_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+			try:
+				_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+			except MemoryError:
+				pass
 			_log.Log(gmLog.lData, 'query succeeded on link [%s]' % conn)
 			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 	# done with queries
@@ -927,7 +939,10 @@ def __commit2cursor(cursor=None, queries=None, extra_verbose=False, get_col_idx=
 				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
 			_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
-			_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+			try:
+				_log.Log(gmLog.lErr, 'args : %s'  % str(args)[:2048])
+			except MemoryError:
+				pass
 			_log.LogException("query failed on link [%s]" % cursor, exc_info)
 			if extra_verbose:
 				__log_PG_settings(curs)
@@ -939,7 +954,10 @@ def __commit2cursor(cursor=None, queries=None, extra_verbose=False, get_col_idx=
 		if extra_verbose:
 			duration = time.time() - t1
 			_log.Log(gmLog.lData, 'query: %s'  % query[:2048])
-			_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+			try:
+				_log.Log(gmLog.lData, 'args : %s'  % str(args)[:2048])
+			except MemoryError:
+				pass
 			_log.Log(gmLog.lData, 'query succeeded on link [%s]' % cursor)
 			_log.Log(gmLog.lData, '%s rows affected/returned in %3.3f seconds' % (curs.rowcount, duration))
 
@@ -1133,7 +1151,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		global last_ro_cursor_desc
 		last_ro_cursor_desc = curs.description
 	except:
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery[:250], str(args)[:250], link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery[:250], str(args)[:250], link_obj), sys.exc_info(), verbose = _query_logging_verbosity)		# this can fail on *large* args
 		__log_PG_settings(curs)
 		close_cursor()
 		close_conn(link_obj)
@@ -1316,7 +1334,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.69 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.70 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1552,7 +1570,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.69  2006-06-18 12:25:37  ncq
+# Revision 1.70  2006-06-18 21:54:36  ncq
+# - logging dies when args are huge (str(args) flukes) so work around it
+#
+# Revision 1.69  2006/06/18 12:25:37  ncq
 # - log failing cursor.fetchall() (yes, it happens, think SQL injection attacks)
 #
 # Revision 1.68  2006/06/14 14:33:52  ncq
