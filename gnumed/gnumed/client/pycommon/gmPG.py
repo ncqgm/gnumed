@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1148,7 +1148,17 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		data = None
 		_log.Log(gmLog.lErr, 'query did not return rows')
 	else:
-		data = curs.fetchall()
+		try:
+			data = curs.fetchall()
+		except:
+			_log.LogException('cursor.fetchall() failed on link [%s]' % link_obj, sys.exc_info(), verbose = _query_logging_verbosity)
+			close_cursor()
+			close_conn(link_obj)
+			if get_col_idx is None:
+				return None
+			else:
+				return None, None
+
 	# can "close" before closing cursor since it just decrements the ref counter
 	close_conn(link_obj)
 	if get_col_idx:
@@ -1306,7 +1316,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.68 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.69 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1542,7 +1552,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.68  2006-06-14 14:33:52  ncq
+# Revision 1.69  2006-06-18 12:25:37  ncq
+# - log failing cursor.fetchall() (yes, it happens, think SQL injection attacks)
+#
+# Revision 1.68  2006/06/14 14:33:52  ncq
 # - start being even more strict about character encoding issues
 #
 # Revision 1.67  2006/06/12 21:26:21  ncq
