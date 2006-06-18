@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.32 2006-06-17 16:41:30 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmBusinessDBObject.py,v 1.33 2006-06-18 13:20:29 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -369,6 +369,7 @@ class cBusinessDBObject:
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
 		"""Store updated values (if any) in database.
+
 		Optionally accepts a pre-existing connection
 		- returns a tuple (<True|False>, <data>)
 		- True: success
@@ -407,7 +408,9 @@ class cBusinessDBObject:
 			if len(data) == 0:
 				conn.rollback()
 				close_conn()
-				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, concurrency conflict' % (self.__class__.__name__, self.pk_obj))
+				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, concurrency conflict (lock query succeeded but did not find row to lock)' % (self.__class__.__name__, self.pk_obj))
+				_log.Log(gmLog.lErr, query)
+				_log.Log(gmLog.lErr, params)
 				# store current content so user can still play with it ...
 				self.modified_payload = params
 				# update from backend
@@ -422,7 +425,7 @@ class cBusinessDBObject:
 				close_conn()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, deep sh*t' % (self.__class__.__name__, self.pk_obj))
 				_log.Log(gmLog.lPanic, '[%s:%s]: integrity violation, more than one matching row' % (self.__class__.__name__, self.pk_obj))
-				_log.Log(gmLog.lPanic, 'HINT: shut down/investigate application/database immediately')
+				_log.Log(gmLog.lPanic, 'HINT: shut down application and backup database immediately')
 				_log.Log(gmLog.lErr, query)
 				_log.Log(gmLog.lErr, params)
 				return (False, (1, _('Database integrity violation detected. Immediate shutdown strongly advisable.')))
@@ -440,7 +443,7 @@ class cBusinessDBObject:
 		rows, idx = result
 		if rows is None:
 			conn.rollback()
-			close_close()
+			close_conn()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, last query did not return XMIN values' % (self.__class__.__name__, self.pk_obj))
 			return (False, result)
 		# update cached XMIN values
@@ -450,7 +453,7 @@ class cBusinessDBObject:
 				self._payload[self._idx[key]] = row[idx[key]]
 			except KeyError:
 				conn.rollback()
-				close_close()
+				close_conn()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
 				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
@@ -567,7 +570,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.32  2006-06-17 16:41:30  ncq
+# Revision 1.33  2006-06-18 13:20:29  ncq
+# - cleanup, better logging
+#
+# Revision 1.32  2006/06/17 16:41:30  ncq
 # - only modify self._data if it actually changes
 # - don't close the connection if it was passed in
 #
