@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevisionViews.sql,v $
--- $Id: gmSchemaRevisionViews.sql,v 1.5 2006-01-13 14:36:09 ncq Exp $
+-- $Id: gmSchemaRevisionViews.sql,v 1.6 2006-06-18 13:30:32 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -16,7 +16,7 @@
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.5 $');
+-- select log_script_insertion('$RCSfile: gmSchemaRevisionViews.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -26,6 +26,7 @@
 create or replace function gm_concat_table_structure()
 	returns text
 	language 'plpgsql'
+	security definer
 	as '
 declare
 	_row record;
@@ -80,7 +81,10 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevisionViews.sql,v $
--- Revision 1.5  2006-01-13 14:36:09  ncq
+-- Revision 1.6  2006-06-18 13:30:32  ncq
+-- - gm_concat_table_structure() must be SECURITY DEFINER
+--
+-- Revision 1.5  2006/01/13 14:36:09  ncq
 -- - need to "order by md5(yadda yadda)" to avoid locale related ordering
 --   differences thereby vorgaukling schema differences
 --
