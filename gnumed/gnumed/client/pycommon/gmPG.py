@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -792,7 +792,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 				_log.Log(gmLog.lErr, 'query: %s'  % query[:2048])
 				try:
 					_log.Log(gmLog.lErr, 'argument: %s'  % str(args)[:2048])
-				except MemoryError:+
+				except MemoryError:
 					pass
 				_log.LogException("query failed on link [%s]" % service, exc_info)
 				if extra_verbose:
@@ -1334,7 +1334,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.70 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.71 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1570,7 +1570,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.70  2006-06-18 21:54:36  ncq
+# Revision 1.71  2006-06-18 22:15:38  shilbert
+# - removed surplus character
+#
+# Revision 1.70  2006/06/18 21:54:36  ncq
 # - logging dies when args are huge (str(args) flukes) so work around it
 #
 # Revision 1.69  2006/06/18 12:25:37  ncq
