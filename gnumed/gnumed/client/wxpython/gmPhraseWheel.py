@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.70 2006-06-05 21:36:40 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmPhraseWheel.py,v 1.71 2006-06-18 13:47:29 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -148,6 +148,7 @@ class cPhraseWheel (wx.TextCtrl):
 		# set data item if available
 		if data is not None:
 			self.data = data
+			self._input_was_selected = True
 			return True
 
 		# or try to find one from matches
@@ -589,7 +590,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.70  2006-06-05 21:36:40  ncq
+# Revision 1.71  2006-06-18 13:47:29  ncq
+# - set self.input_was_selected=True if SetValue() does have data with it
+#
+# Revision 1.70  2006/06/05 21:36:40  ncq
 # - cleanup
 #
 # Revision 1.69  2006/06/02 09:59:03  ncq
