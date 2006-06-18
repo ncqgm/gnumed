@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.66 2006-06-12 20:48:48 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmMedDoc.py,v 1.67 2006-06-18 13:19:55 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -377,6 +377,9 @@ order by
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]: %s' (self.pk_obj, fname, str(data)))
 			return False
+
+		# must update XMIN now ...
+		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
 	def update_data(self, data):
@@ -395,6 +398,9 @@ order by
 		if result is None:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
 			return False
+
+		# must update XMIN now ...
+		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
@@ -633,14 +639,19 @@ def create_document(patient_id=None, document_type=None, encounter=None, episode
 	# insert document
 	cmd1 = """insert into blobs.doc_med (patient_id, type, fk_encounter, fk_episode) VALUES (%s, %s, %s, %s)"""
 	cmd2 = """select currval('blobs.doc_med_pk_seq')"""
-	result = gmPG.run_commit('blobs', [
-		(cmd1, [patient_id, document_type, encounter, episode]),
-		(cmd2, [])
-	])
-	if result is None:
-		_log.Log(gmLog.lErr, 'cannot create document for patient [%s]' % patient_id)
+	successful, data = gmPG.run_commit2 (
+		link_obj = 'blobs',
+		queries = [
+			(cmd1, [patient_id, document_type, encounter, episode]),
+			(cmd2, [])
+		]
+	)
+	if not successful:
+		_log.Log(gmLog.lErr, 'cannot create document for patient [%s]: ' % patient_id)
+		_log.Log(gmLog.lErr, str(data))
 		return None
-	doc_id = result[0][0]
+	rows, idx = data
+	doc_id = rows[0][0]
 	# and init new document instance
 	doc = cMedDoc(aPK_obj = doc_id)
 	return doc
@@ -712,7 +723,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.66  2006-06-12 20:48:48  ncq
+# Revision 1.67  2006-06-18 13:19:55  ncq
+# - must update XMIN after update_data(_from_file())
+# - use run_commit2() instead of run_commit()
+#
+# Revision 1.66  2006/06/12 20:48:48  ncq
 # - add missing cleanup() to folder class
 #
 # Revision 1.65  2006/06/07 22:07:14  ncq
