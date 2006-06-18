@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -20,6 +20,11 @@ to group "gm-public";
 grant select, insert, update on
 	dem.identity,
 	dem.identity_pk_seq
+to group "gm-doctors";
+
+grant select on
+	dem.staff,
+	dem.staff_role
 to group "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -65,7 +70,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.18  2006-06-15 21:04:18  ncq
+-- Revision 1.19  2006-06-18 13:26:12  ncq
+-- - we *do* need select on dem.staff (so that foreign keys work ...)
+--
+-- Revision 1.18  2006/06/15 21:04:18  ncq
 -- - actually, only gm-dbo should be able to edit dem.staff
 --
 -- Revision 1.17  2006/05/15 14:47:27  ncq
