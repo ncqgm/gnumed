@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.29 2006-05-28 15:45:52 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmHorstSpace.py,v 1.30 2006-06-18 13:24:27 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -53,10 +53,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			name = 'HorstSpace.LayoutMgrPnl'
 		)
 		# notebook
-		self.ID_NOTEBOOK = wx.NewId()
 		self.nb = wx.Notebook (
 			parent=self,
-			id = self.ID_NOTEBOOK,
+			id = -1,
 			size = wx.Size(320,240),
 			style = wx.NB_BOTTOM
 		)
@@ -89,9 +88,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	def __register_events(self):
 		# - notebook page is about to change
-		wx.EVT_NOTEBOOK_PAGE_CHANGING (self.nb, self.ID_NOTEBOOK, self._on_notebook_page_changing)
+		self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self._on_notebook_page_changing)
 		# - notebook page has been changed
-		wx.EVT_NOTEBOOK_PAGE_CHANGED (self.nb, self.ID_NOTEBOOK, self._on_notebook_page_changed)
+		self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
 		# - popup menu on right click in notebook
 		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
 	#----------------------------------------------
@@ -152,60 +151,77 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	# external callbacks
 	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
-		"""Called before notebook page change is processed.
-		"""
-		_log.Log(gmLog.lData, 'about to switch notebook tabs')
+		"""Called before notebook page change is processed."""
+
+		_log.Log(gmLog.lData, 'just before switching notebook tabs')
 
 		self.__new_page_already_checked = False
-		self.__id_prev_nb_page = self.nb.GetSelection()
-		self.__id_prev_page = event.GetOldSelection()
-		id_new_page = event.GetSelection()
+
+		self.__id_prev_page_nb = self.nb.GetSelection()
+		self.__id_prev_page_evt = event.GetOldSelection()
+		__id_new_page_evt = event.GetSelection()
+
+		_log.Log(gmLog.lData, 'event: [%s]* -> [%s]' % (self.__id_prev_page_evt, __id_new_page_evt))
+
+		if self.__id_prev_page_evt != self.__id_prev_page_nb:
+			_log.Log(gmLog.lData, 'those two really *should* match:')
+			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_prev_page_evt)
+			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_page_nb)
 
 		# can we check the target page ?
-		if id_new_page == self.__id_prev_nb_page:
+		if __id_new_page_evt == self.__id_prev_page_evt:
 			# no, so complain
 			# (the docs say that on Windows GetSelection() returns the
 			#  old page ID, eg. the same value GetOldSelection() returns)
-			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_prev_page)
-			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
-			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
-			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' % (sys.platform, wx.Platform))
+			_log.Log(gmLog.lData, 'Windows is documented to return the old page from both evt.GetOldSelection() and evt.GetSelection()')
+			_log.Log(gmLog.lData, 'this system is: sys: [%s] wx: [%s]' % (sys.platform, wx.Platform))
+			_log.Log(gmLog.lData, 'it seems to be one of those platforms that have no clue which notebook page they are switching to')
+			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_page_nb)
+			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_prev_page_evt)
+			_log.Log(gmLog.lData, 'new page from event  : %s' % __id_new_page_evt)
 			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
-			# but let's do a basic check, at least
+			# but let's do a basic check anyways
 			pat = gmPerson.gmCurrentPatient()
 			if not pat.is_connected():
 				gmGuiHelpers.gm_beep_statustext (_('Cannot change notebook tabs. No active patient.'))
 				event.Veto()
 				return
 			# that test passed, so let's hope things are fine
+			event.Allow()
 			event.Skip()
 			return
 
 		# check target page
-		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
-		
+		self.__new_page_already_checked = True
+		new_page = self.__gb['horstspace.notebook.pages'][__id_new_page_evt]
+
 		if not new_page.can_receive_focus():
 			_log.Log(gmLog.lData, 'veto()ing page change')
 			event.Veto()
 			return
 
 		# everything seems fine so switch
-		self.__new_page_already_checked = True
+		event.Allow()
 		event.Skip()
 		return
 	#----------------------------------------------
 	def _on_notebook_page_changed(self, event):
-		"""Called when notebook page changes.
-		"""
-		_log.Log(gmLog.lData, 'notebook tabs were switched')
+		"""Called when notebook page changes."""
 
-		id_new_page = event.GetSelection()
-		id_old_page = event.GetOldSelection()
-		curr_nb_page = self.nb.GetSelection()
-		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
+		_log.Log(gmLog.lData, 'just after switching notebook tabs')
 
-		self._curr_page = new_page
+		id_prev_page_evt = event.GetOldSelection()
+		id_new_page_evt = event.GetSelection()
+		id_new_page_nb = self.nb.GetSelection()
+
+		_log.Log(gmLog.lData, 'event: [%s] -> [%s]*' % (id_prev_page_evt, id_new_page_evt))
+
+		if self.__id_prev_page_nb == id_prev_page_evt:
+			_log.Log(gmLog.lData, 'those two really *should* match:')
+			_log.Log(gmLog.lData, 'previous page from notebook: %s' % self.__id_prev_page_nb)
+			_log.Log(gmLog.lData, 'current notebook page      : %s' % id_prev_page_evt)
+
+		new_page = self.__gb['horstspace.notebook.pages'][id_new_page_evt]
 
 		# well-behaving wxPython port ?
 		if self.__new_page_already_checked:
@@ -218,9 +234,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 
 		# no, complain
 		_log.Log(gmLog.lData, 'target page not checked for focussability yet')
-		_log.Log(gmLog.lData, 'old page from event  : %s' % id_old_page)
-		_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
-		_log.Log(gmLog.lData, 'current notebook page: %s' % curr_nb_page)
+		_log.Log(gmLog.lData, 'old page from event  : %s' % id_prev_page_evt)
+		_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page_evt)
+		_log.Log(gmLog.lData, 'current notebook page: %s' % id_new_page_nb)
 
 		# check the new page just for good measure
 		if new_page.can_receive_focus():
@@ -228,7 +244,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
-			self.__new_page_already_checked = False
 			event.Skip()
 			return
 
@@ -294,7 +309,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.29  2006-05-28 15:45:52  ncq
+# Revision 1.30  2006-06-18 13:24:27  ncq
+# - use Bind() instead of event binding macros
+# - improved page change logging, all to no avail
+#
+# Revision 1.29  2006/05/28 15:45:52  ncq
 # - cleanup page activation code and reinit already_checked helper var
 #
 # Revision 1.28  2006/05/20 18:37:10  ncq
