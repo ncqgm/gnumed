@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.67 2006-06-18 13:19:55 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmMedDoc.py,v 1.68 2006-06-18 22:43:21 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -375,7 +375,7 @@ order by
 			]
 		)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]: %s' (self.pk_obj, fname, str(data)))
+			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]: %s' % (self.pk_obj, fname, str(data)))
 			return False
 
 		# must update XMIN now ...
@@ -723,7 +723,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.67  2006-06-18 13:19:55  ncq
+# Revision 1.68  2006-06-18 22:43:21  ncq
+# - missing %
+#
+# Revision 1.67  2006/06/18 13:19:55  ncq
 # - must update XMIN after update_data(_from_file())
 # - use run_commit2() instead of run_commit()
 #
