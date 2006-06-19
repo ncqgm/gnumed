@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.21 2006-06-19 07:06:13 ncq Exp $
+# $Id: gmI18N.py,v 1.22 2006-06-19 07:12:05 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -93,8 +93,15 @@ def __split_locale_into_levels():
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
-	_locale_categories = {}
+	_setlocale_categories = {}
 	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
+		try:
+			_locale_categories[category] = getattr(locale, category)
+		except:
+			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
+
+	_getlocale_categories = {}
+	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
 			_locale_categories[category] = getattr(locale, category)
 		except:
@@ -104,12 +111,11 @@ def __log_locale_settings(message=None):
 		_log.Log(gmLog.lData, message)
 
 	_log.Log(gmLog.lData, 'currently, locale is set to:')
-	for category in _locale_categories.keys():
-		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_locale_categories[category])))
-		try:
-			_log.Log (gmLog.lData, '[%s]: %s' % (category, str(locale.getlocale(_locale_categories[category]))))
-		except:
-			_log.LogException('[%s] not supported by locale.get_locale()' % category, sys.exc_info(), verbose=False)
+	for category in _setlocale_categories.keys():
+		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_setlocale_categories[category])))
+
+	for category in _getlocale_categories.keys():
+		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.getlocale(_getlocale_categories[category])))
 
 	_log.Log(gmLog.lData, 'Python string encoding is set to: [%s]' % sys.getdefaultencoding())
 	_log.Log(gmLog.lData, 'preferred encoding in locale: [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
@@ -397,7 +403,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.21  2006-06-19 07:06:13  ncq
+# Revision 1.22  2006-06-19 07:12:05  ncq
+# - getlocale() does not support LC_ALL
+#
+# Revision 1.21  2006/06/19 07:06:13  ncq
 # - arch linux cannot locale.get_locale(locale.LC_ALL)  :-(
 #
 # Revision 1.20  2006/06/17 12:36:40  ncq
