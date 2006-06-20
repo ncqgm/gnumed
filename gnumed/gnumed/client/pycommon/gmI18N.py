@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.22 2006-06-19 07:12:05 ncq Exp $
+# $Id: gmI18N.py,v 1.23 2006-06-20 09:37:33 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -96,14 +96,14 @@ def __log_locale_settings(message=None):
 	_setlocale_categories = {}
 	for category in 'LC_ALL LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
-			_locale_categories[category] = getattr(locale, category)
+			_setlocale_categories[category] = getattr(locale, category)
 		except:
 			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
 
 	_getlocale_categories = {}
 	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
-			_locale_categories[category] = getattr(locale, category)
+			_getlocale_categories[category] = getattr(locale, category)
 		except:
 			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
 
@@ -403,7 +403,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.22  2006-06-19 07:12:05  ncq
+# Revision 1.23  2006-06-20 09:37:33  ncq
+# - variable naming error
+#
+# Revision 1.22  2006/06/19 07:12:05  ncq
 # - getlocale() does not support LC_ALL
 #
 # Revision 1.21  2006/06/19 07:06:13  ncq
