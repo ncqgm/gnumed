@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.90 2006-06-15 15:37:55 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmDemographicsWidgets.py,v 1.91 2006-06-20 09:42:42 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1130,7 +1130,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# main panel (required for a correct propagation of validator calls)
 		PNL_form = wx.Panel(self, -1)
 
-		# FIXME: improve cTextObjectValidator to accept regexp (gender, telephones, etc).
+		# FIXME: improve cTextWidgetValidator to accept regexp (gender, telephones, etc).
 
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
@@ -1142,10 +1142,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
 			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+			aMatchProvider = mp
 		)
-		self.PRW_lastname.SetToolTipString(_("required: last name, family name"))
+		self.PRW_lastname.SetToolTipString(_('Required: lastname (family name)'))
 
 		# first name
 		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
@@ -1161,10 +1160,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
 			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+			aMatchProvider = mp
 		)
-		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
+		self.PRW_firstname.SetToolTipString(_('Required: surname/given name/first name'))
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
@@ -1201,11 +1199,10 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
 			aDelay = 50,
 			selection_only = True
 		)
-		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
+		self.PRW_gender.SetToolTipString(_("Required: gender of patient"))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -1279,13 +1276,11 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_town.set_context(context='zip', val='%')		
+		self.PRW_town.set_context(context='zip', val='%')
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
-		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		STT_state.SetForegroundColour('red')
 		queries = []
 		queries.append("""
 		select distinct on (code, name) code, name from (
@@ -1550,42 +1545,79 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		Validate the contents of the given text control.
 		"""
-		pageCtrl = self.GetWindow().GetParent()
+		_pnl_form = self.GetWindow().GetParent()
+
+		error = False
+
+		# name fields
+		if _pnl_form.PRW_lastname.GetValue().strip() == '':
+			error = True
+			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must enter lastname.'))
+			_pnl_form.PRW_lastname.SetBackgroundColour('pink')
+			_pnl_form.PRW_lastname.Refresh()
+#			_pnl_form.PRW_lastname.SetFocus()
+		else:
+			_pnl_form.PRW_lastname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			_pnl_form.PRW_lastname.Refresh()
+
+		if _pnl_form.PRW_firstname.GetValue().strip() == '':
+			error = True
+			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must enter first name.'))
+			_pnl_form.PRW_firstname.SetBackgroundColour('pink')
+			_pnl_form.PRW_firstname.Refresh()
+#			_pnl_form.PRW_firstname.SetFocus()
+		else:
+			_pnl_form.PRW_firstname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			_pnl_form.PRW_firstname.Refresh()
+
+		# gender
+		if _pnl_form.PRW_gender.GetData() is None:
+			error = True
+			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must select gender.'))
+			_pnl_form.PRW_gender.SetBackgroundColour('pink')
+			_pnl_form.PRW_gender.Refresh()
+#			_pnl_form.PRW_gender.SetFocus()
+		else:
+			_pnl_form.PRW_gender.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			_pnl_form.PRW_gender.Refresh()
+
 		# dob validation
-		if not pageCtrl.TTC_dob.is_valid_timestamp():
-			msg = _('Cannot parse <%s> into proper timestamp.') % pageCtrl.TTC_dob.GetValue()
+		if not _pnl_form.TTC_dob.is_valid_timestamp():
+			error = True
+			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.TTC_dob.GetValue()
 			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, msg)
-			pageCtrl.TTC_dob.SetBackgroundColour('pink')
-			pageCtrl.TTC_dob.Refresh()
-			pageCtrl.TTC_dob.SetFocus()
-			return False
-		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		pageCtrl.TTC_dob.Refresh()
+			_pnl_form.TTC_dob.SetBackgroundColour('pink')
+			_pnl_form.TTC_dob.Refresh()
+#			_pnl_form.TTC_dob.SetFocus()
+		else:
+			_pnl_form.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			_pnl_form.TTC_dob.Refresh()
 						
 		# address		
 		address_fields = (
-			pageCtrl.TTC_address_number,
-			pageCtrl.PRW_zip_code,
-			pageCtrl.PRW_street,
-			pageCtrl.PRW_town,
-			pageCtrl.PRW_state,
-			pageCtrl.PRW_country
+			_pnl_form.TTC_address_number,
+			_pnl_form.PRW_zip_code,
+			_pnl_form.PRW_street,
+			_pnl_form.PRW_town,
+			_pnl_form.PRW_state,
+			_pnl_form.PRW_country
 		)
 		is_any_field_filled = False
 		for field in address_fields:
-			if len(field.GetValue()) > 0:
+			if field.GetValue().strip() != '':
 				is_any_field_filled = True
 				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
 				continue
 			if is_any_field_filled:
+				error = True
 				msg = _('To properly create an address, all the related fields must be filled in.')
 				gmGuiHelpers.gm_show_error(msg, _('Required fields'), gmLog.lErr)
 				field.SetBackgroundColour('pink')
 				field.SetFocus()
 				field.Refresh()
-				return False
-		return True
+
+		return (not error)
 	#--------------------------------------------------------
 	def TransferToWindow(self):
 		"""
@@ -1593,22 +1625,22 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		pageCtrl = self.GetWindow().GetParent()
+		_pnl_form = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
-		pageCtrl.PRW_gender.SetValue(self.form_DTD['gender'])
-		pageCtrl.TTC_dob.SetValue(self.form_DTD['dob'])
-		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastnames'])
-		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstnames'])
-		pageCtrl.PRW_title.SetValue(self.form_DTD['title'])
-		pageCtrl.PRW_nick.SetValue(self.form_DTD['nick'])
-		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
-		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
-		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
-		pageCtrl.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
-		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
-		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
-		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
-		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
+		_pnl_form.PRW_gender.SetValue(self.form_DTD['gender'])
+		_pnl_form.TTC_dob.SetValue(self.form_DTD['dob'])
+		_pnl_form.PRW_lastname.SetValue(self.form_DTD['lastnames'])
+		_pnl_form.PRW_firstname.SetValue(self.form_DTD['firstnames'])
+		_pnl_form.PRW_title.SetValue(self.form_DTD['title'])
+		_pnl_form.PRW_nick.SetValue(self.form_DTD['nick'])
+		_pnl_form.PRW_occupation.SetValue(self.form_DTD['occupation'])
+		_pnl_form.TTC_address_number.SetValue(self.form_DTD['address_number'])
+		_pnl_form.PRW_street.SetValue(self.form_DTD['street'])
+		_pnl_form.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
+		_pnl_form.PRW_town.SetValue(self.form_DTD['town'])
+		_pnl_form.PRW_state.SetValue(self.form_DTD['state'])
+		_pnl_form.PRW_country.SetValue(self.form_DTD['country'])
+		_pnl_form.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
 	def TransferFromWindow(self):
@@ -1621,22 +1653,22 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		if not self.GetWindow().GetParent().Validate():
 			return False
 		try:
-			pageCtrl = self.GetWindow().GetParent()
+			_pnl_form = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
-			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
-			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetData()
-			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
-			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
-			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
-			self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
-			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
-			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
-			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
-			self.form_DTD['zip_code'] = pageCtrl.PRW_zip_code.GetValue()
-			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-			self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
-			self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
-			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
+			self.form_DTD['gender'] = _pnl_form.PRW_gender.GetData()
+			self.form_DTD['dob'] = _pnl_form.TTC_dob.GetData()
+			self.form_DTD['lastnames'] = _pnl_form.PRW_lastname.GetValue()
+			self.form_DTD['firstnames'] = _pnl_form.PRW_firstname.GetValue()
+			self.form_DTD['title'] = _pnl_form.PRW_title.GetValue()
+			self.form_DTD['nick'] = _pnl_form.PRW_nick.GetValue()
+			self.form_DTD['occupation'] = _pnl_form.PRW_occupation.GetValue()
+			self.form_DTD['address_number'] = _pnl_form.TTC_address_number.GetValue()
+			self.form_DTD['street'] = _pnl_form.PRW_street.GetValue()
+			self.form_DTD['zip_code'] = _pnl_form.PRW_zip_code.GetValue()
+			self.form_DTD['town'] = _pnl_form.PRW_town.GetValue()
+			self.form_DTD['state'] = _pnl_form.PRW_state.GetData()
+			self.form_DTD['country'] = _pnl_form.PRW_country.GetData()
+			self.form_DTD['phone'] = _pnl_form.TTC_phone.GetValue()
 		except:
 			return False
 		return True
@@ -1941,9 +1973,13 @@ class cPatIdentityPanel(wx.Panel):
 			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+			validator = gmGuiHelpers.cTextWidgetValidator (
+				message = _('Required: lastname (family name)'),
+				non_empty = True,
+				only_digits = False
+			)
 		)
-		self.PRW_lastname.SetToolTipString(_("required: last name, family name"))
+		self.PRW_lastname.SetToolTipString(_("Required: lastname (family name)"))
 
 		# first name
 		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
@@ -1960,9 +1996,13 @@ class cPatIdentityPanel(wx.Panel):
 			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+			validator = gmGuiHelpers.cTextWidgetValidator (
+				message = _('Required: surname/given name/first name'),
+				non_empty = True,
+				only_digits = False
+			)
 		)
-		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
+		self.PRW_firstname.SetToolTipString(_("Required: surname/given name/first name"))
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
@@ -1984,11 +2024,7 @@ class cPatIdentityPanel(wx.Panel):
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput (
-			parent = PNL_form,
-			id = -1
-#			, validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
-		)
+		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput(parent = PNL_form, id = -1)
 		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
 
 		# gender
@@ -2000,11 +2036,15 @@ class cPatIdentityPanel(wx.Panel):
 			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
+			validator = gmGuiHelpers.cTextWidgetValidator (
+				message = _('Required: gender of patient'),
+				non_empty = True,
+				only_digits = False
+			),
 			aDelay = 50,
 			selection_only = True
 		)
-		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
+		self.PRW_gender.SetToolTipString(_('Required: gender of patient'))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -2946,7 +2986,13 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.90  2006-06-15 15:37:55  ncq
+# Revision 1.91  2006-06-20 09:42:42  ncq
+# - cTextObjectValidator -> cTextWidgetValidator
+# - add custom invalid message to text widget validator
+# - variable renaming, cleanup
+# - fix demographics validation
+#
+# Revision 1.90  2006/06/15 15:37:55  ncq
 # - properly handle DOB in new-patient wizard
 #
 # Revision 1.89  2006/06/12 18:31:31  ncq

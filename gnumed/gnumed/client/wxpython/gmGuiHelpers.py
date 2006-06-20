@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.34 2006-06-17 16:42:48 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmGuiHelpers.py,v 1.35 2006-06-20 09:42:42 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -227,7 +227,7 @@ def makePageTitle(wizPg, title):
 	sizer.Add(wx.StaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
 	return sizer	
 #============================================================
-class cTextObjectValidator(wx.PyValidator):
+class cTextWidgetValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered any value
 	into the input object (wx.TextControl, gmPhraseWheel, gmDateInput,
@@ -235,19 +235,27 @@ class cTextObjectValidator(wx.PyValidator):
 	a StringType.
 	"""
 	#--------------------------------------------------------
-	def __init__(self, required = True, only_digits = False):
+	def __init__(self, message=None, non_empty=True, only_digits=False):
 		"""
 		Standard constructor, defining the behaviour of the validator.
-		@param required - When true, the input text control must be filled
-		@type required - BooleanType
+		@param non_empty - When true, the input text control must be filled
+		@type non_empty - BooleanType
 		
 		@param only_digits - When true, only digits are valid entries
 		@type only_digits - BooleanType
 		"""
 		wx.PyValidator.__init__(self)
-		
-		self.__required = required
+
+		self.__non_empty = non_empty
 		self.__only_digits = only_digits
+		if message is None:
+			if self.__only_digits:
+				self.__msg = _('This field can only contain digits.')
+			else:
+				self.__msg = _('This field cannot be empty.')
+		else:
+			self.__msg = message
+
 		if self.__only_digits:
 			wx.EVT_CHAR(self, self.OnChar)
 	#--------------------------------------------------------
@@ -256,35 +264,32 @@ class cTextObjectValidator(wx.PyValidator):
 		Standard cloner.
 		Note that every validator must implement the Clone() method.
 		"""
-		return cTextObjectValidator(self.__required, self.__only_digits)
+		return cTextWidgetValidator(self.__non_empty, self.__only_digits)
 	#--------------------------------------------------------
 	def Validate(self, parent = None):
-		"""
-		Validate the contents of the given text control.
-		"""
-		textCtrl = self.GetWindow()
-		text = textCtrl.GetValue()
-		
-		if len(text) == 0 and self.__required:
-			msg = _('A text object must contain some text!')
-			gm_show_error(msg, _('Required field'), gmLog.lErr)
-			textCtrl.SetBackgroundColour('pink')
-			textCtrl.SetFocus()
-			textCtrl.Refresh()
+		"""Validate the contents of the given text control."""
+		ctrl = self.GetWindow()
+		val = ctrl.GetValue()
+
+		if self.__non_empty and val.strip() == '':
+			print self.__msg
+#			gm_beep_statustext(self.__msg)
+			ctrl.SetBackgroundColour('pink')
+			ctrl.SetFocus()
+			ctrl.Refresh()
 			return False
 		elif self.__only_digits:
-			for char in text:
+			for char in val:
 				if not char in string.digits:
-					msg = _('A text object must contain only digits!')
-					gm_show_error(msg, _('Numeric field'), gmLog.lErr)
-					textCtrl.SetBackgroundColour('pink')
-					textCtrl.SetFocus()
-					textCtrl.Refresh()					
+					print self.__msg
+#					gm_beep_statustext(self.__msg)
+					ctrl.SetBackgroundColour('pink')
+					ctrl.SetFocus()
+					ctrl.Refresh()					
 					return False
 		else:
-			textCtrl.SetBackgroundColour(
-			wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			textCtrl.Refresh()
+			ctrl.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			ctrl.Refresh()
 			return True
 	#--------------------------------------------------------
 	def TransferToWindow(self):
@@ -323,12 +328,11 @@ class cTextObjectValidator(wx.PyValidator):
 		if not wx.Validator_IsSilent():
 			wx.Bell()
 
-		# Returning without calling even.Skip eats the event before it
-		# gets to the text control
+		# Returning without calling event.Skip eats the event
+		# before it gets to the text control
 		return
 
-
-
+#============================================================
 class cReturnTraversalTextCtrl (wx.TextCtrl):
 	"""
 	Acts exactly like a plain TextCtrl except that RETURN also
@@ -347,7 +351,13 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.34  2006-06-17 16:42:48  ncq
+# Revision 1.35  2006-06-20 09:42:42  ncq
+# - cTextObjectValidator -> cTextWidgetValidator
+# - add custom invalid message to text widget validator
+# - variable renaming, cleanup
+# - fix demographics validation
+#
+# Revision 1.34  2006/06/17 16:42:48  ncq
 # - add get_dbowner_connection()
 #
 # Revision 1.33  2006/05/01 18:47:32  ncq
