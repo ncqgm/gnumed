@@ -1,10 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/Attic/gm-0_2-from-cvs.sh,v $
-# $Revision: 1.2 $
-
-# if there are unicode troubles you can force to ASCII with this:
-#export LANG=en
+# $Revision: 1.3 $
 
 cd ../
 ln -vfsn client Gnumed
