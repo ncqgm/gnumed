@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -82,7 +82,8 @@ _default_client_timezone = "%+.1f" % (-tz / 3600.0)
 
 _serialize_failure = "serialize access due to concurrent update"
 
-_v2_schema_hash = 'not released, testing only'
+#_v2_schema_hash = 'not released, testing only'
+_v2_schema_hash = 'a4ac8b074432a7b5541d28c991e34dbd'
 #======================================================================
 # a bunch of useful queries
 #----------------------------------------------------------------------
@@ -1334,7 +1335,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.71 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.72 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1570,7 +1571,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.71  2006-06-18 22:15:38  shilbert
+# Revision 1.72  2006-06-20 09:38:12  ncq
+# - we are nearing db v2 stabilization so start using known hashes
+#
+# Revision 1.71  2006/06/18 22:15:38  shilbert
 # - removed surplus character
 #
 # Revision 1.70  2006/06/18 21:54:36  ncq
