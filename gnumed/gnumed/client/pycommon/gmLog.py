@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -637,7 +637,7 @@ def __open_default_logfile():
 #
 # log file is [%s]
 #
-# Please email this file to <fixme@gnumed.net> if you encounter problems.
+# Please email this file to <gnumed-devel@gnu.org> if you encounter problems.
 #
 #################################################################################
 """ % logName
@@ -825,7 +825,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.16  2005-11-27 12:45:47  ncq
+# Revision 1.17  2006-06-20 14:28:23  ncq
+# - give people an email address they can actually send the log to ;-)
+#
+# Revision 1.16  2005/11/27 12:45:47  ncq
 # - improved log file display
 #
 # Revision 1.15  2005/10/28 07:38:59  shilbert
