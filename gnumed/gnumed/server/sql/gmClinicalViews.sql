@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.183 2006-05-28 15:22:25 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.184 2006-06-20 15:49:30 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -415,7 +415,7 @@ create index idx_cri_episode on clin.clin_root_item(fk_episode);
 
 create index idx_clnarr_encounter on clin.clin_narrative(fk_encounter);
 create index idx_clnarr_episode on clin.clin_narrative(fk_episode);
-create unique index idx_clnarr_unique on clin.clin_narrative(fk_encounter, fk_episode, soap_cat, md5(narrative));
+create unique index idx_clnarr_unique on clin.clin_narrative(fk_encounter, fk_episode, soap_cat, modified_by, md5(narrative));
 
 create index idx_clanote_encounter on clin.clin_aux_note(fk_encounter);
 create index idx_clanote_episode on clin.clin_aux_note(fk_episode);
@@ -1715,11 +1715,14 @@ grant select on
 to group "gm-doctors";
 
 -- =============================================
-select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.183 $');
+select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.184 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.183  2006-05-28 15:22:25  ncq
+-- Revision 1.184  2006-06-20 15:49:30  ncq
+-- - allow different doc to write the exact same progress note
+--
+-- Revision 1.183  2006/05/28 15:22:25  ncq
 -- - robustify somewhat
 -- - the old v_pat_narrative was correct after all, but
 --   Syan's new one is still useful and faster for SOAP-only
