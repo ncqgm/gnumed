@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.72 2006-06-17 19:56:24 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmSOAPWidgets.py,v 1.73 2006-06-20 14:26:36 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -375,10 +375,9 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
-		print self.__class__.__name__, "on episodes modified"
 		# FIXME: this should rather *schedule* a reget which would
 		# FIXME: then happen immediately in visible widgets
-		self.__refresh_problem_list()
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def __on_clear(self, event):
 		"""Clear raised SOAP input widget.
@@ -451,10 +450,10 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		"""
 		page_idx = self.__soap_notebook.GetSelection()
 		soap_nb_page = self.__soap_notebook.GetPage(page_idx)
-		
 		if not soap_nb_page.save():
 			return False
 		self.__soap_notebook.DeletePage(page_idx)
+		self.__refresh_problem_list()
 		return True
 	#--------------------------------------------------------
 	# reget mixin API
@@ -1116,7 +1115,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.72  2006-06-17 19:56:24  ncq
+# Revision 1.73  2006-06-20 14:26:36  ncq
+# - do not refresh problem list too early or threading will kill us
+#
+# Revision 1.72  2006/06/17 19:56:24  ncq
 # - immediately refresh problem list when episode_changed() signal arrives
 #
 # Revision 1.71  2006/06/17 14:26:30  ncq
