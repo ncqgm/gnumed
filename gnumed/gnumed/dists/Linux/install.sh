@@ -2,8 +2,8 @@
 set -e
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
-# $Id: install.sh,v 1.9 2005-08-29 12:23:58 shilbert Exp $
-# $Revision: 1.9 $
+# $Id: install.sh,v 1.10 2006-06-21 14:33:10 shilbert Exp $
+# $Revision: 1.10 $
 # license: GPL
 # sebastian.hilbert@gmx.net
 
@@ -11,7 +11,7 @@ set -e
 # log install path for uninstall file
 
 # change this to match GNUmed version
-REV=0.1
+REV=0.2
 ## cp ./GNUmed-$REV/... for all copy statements makes no sense
 cd GNUmed-$REV
 
@@ -56,9 +56,9 @@ else
 fi
 
 mkdir -p $gmdir >> $LOG 2>&1
-cp -a $gmsrc/client/usr/share/gnumed/bitmaps $gmdir >> $LOG 2>&1
-mkdir -p $gmdir/pixmaps >> $LOG 2>&1
-cp -a $gmsrc/client/usr/share/gnumed/pixmaps/gnumed.xpm $gmdir/pixmaps/gnumed.xpm >> $LOG 2>&1
+cp -a $gmsrc/client/bitmaps $gmdir/client/bitmaps >> $LOG 2>&1
+mkdir -p $gmdir/client/pixmaps >> $LOG 2>&1
+cp -a $gmsrc/client/gnumed.xpm $gmdir/client/pixmaps/gnumed.xpm >> $LOG 2>&1
 #####################################
 
 dfltpythondir=${dfltpythondir:-"${prefix}/usr/lib/python/site-packages/Gnumed"}
@@ -162,7 +162,10 @@ echo $LOG
 
 #================================================
 # $Log: install.sh,v $
-# Revision 1.9  2005-08-29 12:23:58  shilbert
+# Revision 1.10  2006-06-21 14:33:10  shilbert
+# - version bump to 0.2
+#
+# Revision 1.9  2005/08/29 12:23:58  shilbert
 # - check-in of Andreas' modifications to cater better for Debian
 #
 # Revision 1.9  2005/08/29 08:29:29  atille
