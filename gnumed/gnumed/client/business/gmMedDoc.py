@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.68 2006-06-18 22:43:21 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmMedDoc.py,v 1.69 2006-06-21 15:51:48 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -619,7 +619,7 @@ VALUES (
 				return False
 		return True
 	#--------------------------------------------------------
-	def set_intended_reviewer(self, reviewer=None):
+	def set_primary_reviewer(self, reviewer=None):
 		for part in self.get_parts():
 			part['pk_intended_reviewer'] = reviewer
 			success, data = part.save_payload()
@@ -723,7 +723,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.68  2006-06-18 22:43:21  ncq
+# Revision 1.69  2006-06-21 15:51:48  ncq
+# - set_intended_reviewer() -> set_primary_reviewer()
+#
+# Revision 1.68  2006/06/18 22:43:21  ncq
 # - missing %
 #
 # Revision 1.67  2006/06/18 13:19:55  ncq
