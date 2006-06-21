@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.82 2006-06-17 14:10:32 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmMedDocWidgets.py,v 1.83 2006-06-21 15:54:17 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -179,7 +179,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				if not doc.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
 					msg = _('Error setting "reviewed" status of this document.')
 				if self._ChBOX_responsible.GetValue():
-					if not doc.set_reviewer(reviewer = provider['pk_staff']):
+					if not doc.set_primary_reviewer(reviewer = provider['pk_staff']):
 						msg = _('Error setting responsible clinician for this document.')
 			# - just on this page
 			else:
@@ -1090,7 +1090,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.82  2006-06-17 14:10:32  ncq
+# Revision 1.83  2006-06-21 15:54:17  ncq
+# - properly set reviewer on cMedDoc
+#
+# Revision 1.82  2006/06/17 14:10:32  ncq
 # - make review-after-display-if-needed the default
 #
 # Revision 1.81  2006/06/15 21:41:16  ncq
