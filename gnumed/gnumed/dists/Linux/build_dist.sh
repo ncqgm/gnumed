@@ -1,14 +1,18 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/build_dist.sh,v $
-# $Id: build_dist.sh,v 1.1 2006-06-21 15:07:26 shilbert Exp $
+# $Id: build_dist.sh,v 1.2 2006-06-21 21:59:34 shilbert Exp $
 # license: GPL
 # Karsten.Hilbert@gmx.net
 
 REV=0.2
 SUBREV=0
 echo "=> client ..."
-tar -cvhzf GNUmed-client.$REV.$SUBREV.tgz GNUmed-$REV/client install.sh GNUmed-$REV/GnuPublicLicense.txt GNUmed-$REV/check-prerequisites.py GNUmed-$REV/check-prerequisites.sh
+
+# Distro independent package 
+tar -cvhzf GNUmed-client.$REV.$SUBREV.tgz GNUmed-$REV/client GNUmed-$REV/GnuPublicLicense.txt GNUmed-$REV/check-prerequisites.py GNUmed-$REV/check-prerequisites.sh
+# Debian source package
+tar -cvhzf gnumed-client_$REV.orig.tar.gz GNUmed-$REV/client GNUmed-$REV/GnuPublicLicense.txt
 
 echo "=> server ..."
 tar -cvhzf GNUmed-server.$REV.$SUBREV.tgz GNUmed-$REV/server GNUmed-$REV/GnuPublicLicense.txt GNUmed-$REV/check-prerequisites.py GNUmed-$REV/check-prerequisites.sh
@@ -18,7 +22,10 @@ tar -cvzf GNUmed.$REV.$SUBREV.tgz GNUmed-client.$REV.$SUBREV.tgz GNUmed-server.$
 
 #============================================
 # $Log: build_dist.sh,v $
-# Revision 1.1  2006-06-21 15:07:26  shilbert
+# Revision 1.2  2006-06-21 21:59:34  shilbert
+# - build Debian-compatible tarballs
+#
+# Revision 1.1  2006/06/21 15:07:26  shilbert
 # - renamed files
 #
 # Revision 1.4  2006/02/12 18:07:06  shilbert
