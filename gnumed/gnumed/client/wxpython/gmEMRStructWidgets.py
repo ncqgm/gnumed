@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.25 2006-05-31 09:46:20 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmEMRStructWidgets.py,v 1.26 2006-06-23 21:32:11 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -34,10 +34,95 @@ dialog_CANCELLED = -1
 dialog_OK = -2
 
 #============================================================
+class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let the user select a health issue.
+
+	The user can select a health issue from the existing issues
+	of a patient. Selection is done with a phrasewheel so the user
+	can type the issue name and matches will be shown. Typing
+	"*" will show the entire list of issues. Inactive issues
+	will be marked as such. If the user types an issue name not
+	in the list of existing issues a new issue can be created
+	from it if the programmer activated that feature.
+
+	If keyword <patient_id> is set to None or left out the control
+	will listen to patient change signals and therefore act on
+	gmPerson.gmCurrentPatient() changes.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			service = 'clinical',
+			# FIXME: consider clin.health_issue.clinically_relevant
+			queries = ["""
+select pk, description, 1
+	from clin.health_issue where
+		is_active is true and
+		id_patient=%%(pat)s and
+		description %(fragment_condition)s
+	order by description
+
+union
+
+select pk, description || _(' (inactive)), 2
+	from clin.health_issue where
+		is_active is false and
+		id_patient=%%(pat)s and
+		description %(fragment_condition)s
+	order by description"""
+			]
+		)
+
+		try: kwargs['patient_id']
+		except KeyError: kwargs['patient_id'] = None
+
+		if kwargs['patient_id'] is None:
+			self.self_manage_patient = True
+			self.__register_patient_change_signals()
+			pat = gmPerson.gmCurrentPatient()
+			if pat.is_connected():
+				mp.set_context('pat', pat.getID())
+		else:
+			self.self_manage_patient = False
+			mp.set_context('pat', int(kwargs['patient_id']))
+
+		del kwargs['patient_id']
+
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def set_patient(self, patient_id=None):
+		if self.self_manage_patient:
+			return False
+		self.set_context('pat', patient_id)
+		return True
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __register_patient_change_signals(self):
+		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+	#--------------------------------------------------------
+	def _pre_patient_selection(self):
+		return True
+	#--------------------------------------------------------
+	def _post_patient_selection(self):
+		if not self.self_manage_patient:
+			return True
+		patient = gmPerson.gmCurrentPatient().patient
+		self.set_context('pat', patient.getID())
+		return True
+#============================================================
 class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select an episode.
 
-	User can select an episode from the existing episodes of a
+	The user can select an episode from the existing episodes of a
 	patient. Selection is done with a phrasewheel so the user
 	can type the episode name and matches will be shown. Typing
 	"*" will show the entire list of episodes. Closed episodes
@@ -46,10 +131,9 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	from it if the programmer activated that feature.
 
 	If keyword <patient_id> is set to None or left out the control
-	will listen to patient change signals and therefor act on
-	gmPerson.gmCurrentPatient().
+	will listen to patient change signals and therefore act on
+	gmPerson.gmCurrentPatient() changes.
 	"""
-
 	def __init__(self, *args, **kwargs):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -993,7 +1077,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.25  2006-05-31 09:46:20  ncq
+# Revision 1.26  2006-06-23 21:32:11  ncq
+# - add cIssueSelectionPhrasewheel
+#
+# Revision 1.25  2006/05/31 09:46:20  ncq
 # - cleanup
 #
 # Revision 1.24  2006/05/28 15:40:51  ncq
