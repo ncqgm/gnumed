@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.69 2006-06-21 15:51:48 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmMedDoc.py,v 1.70 2006-06-26 21:37:14 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -253,15 +253,12 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# further tests reveal that at least on PG 8.0 this bug still
 		# manifests itself
 		backend = gmPG.ConnectionPool()
-		self.__conn = backend.GetConnection('blobs', readonly = 0)
-		if self.__conn is None:
+		conn = backend.GetConnection('blobs', readonly = 0, encoding = 'sql_ascii')
+		if conn is None:
 			_log.Log(gmLog.lErr, 'cannot get r/w connection to service [blobs]')
 			return None
 		# this shouldn't actually, really be necessary
-		if self.__conn.version < '8.1':
-			cmd = 'set client_encoding to "sql_ascii"'
-			result = gmPG.run_ro_query(self.__conn, cmd)
-		else:
+		if conn.version > '7.4':
 			print "****************************************************"
 			print "*** if exporting BLOBs suddenly fails and        ***"
 			print "*** you are running PostgreSQL >= 8.1 please     ***"
@@ -272,7 +269,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# or maybe this is due to pyPgSQL ?
 		# anyways, we need to split the transfer,
 		# however, only possible if postgres >= 7.2
-		if self.__conn.version < '7.2':
+		if conn.version < '7.2':
 			max_chunk_size = 0
 			_log.Log(gmLog.lWarn, 'PostgreSQL < 7.2 does not support substring() on bytea')
 		else:
@@ -282,7 +279,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
 			# retrieve binary field
 			cmd = "SELECT data FROM blobs.doc_obj WHERE pk=%s"
-			data = gmPG.run_ro_query(self.__conn, cmd, None, self.pk_obj)
+			data = gmPG.run_ro_query(conn, cmd, None, self.pk_obj)
+			conn.close()
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve BLOB [%s]' % self.pk_obj)
 				return None
@@ -300,9 +298,10 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		for chunk_id in range(needed_chunks):
 			pos = (chunk_id*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s"
-			data = gmPG.run_ro_query(self.__conn, cmd, None, pos, max_chunk_size, self.pk_obj)
+			data = gmPG.run_ro_query(conn, cmd, None, pos, max_chunk_size, self.pk_obj)
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
+				conn.close()
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
@@ -312,13 +311,15 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 			pos = (needed_chunks*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s "
-			data = gmPG.run_ro_query(self.__conn, cmd, None, pos, remainder, self.pk_obj)
+			data = gmPG.run_ro_query(conn, cmd, None, pos, remainder, self.pk_obj)
 			if data is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
+				conn.close()
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
 
+		conn.close()
 		return 1
 	#--------------------------------------------------------
 	def get_reviews(self):
@@ -358,24 +359,31 @@ order by
 		from pyPgSQL.PgSQL import PgBytea
 
 		# read from file and convert (escape)
-		aFile = open(fname, "rb")
-		img_data = str(aFile.read())
+		aFile = file(fname, "rb")
+#		img_data = str(aFile.read())
+		img_data = aFile.read()
 		aFile.close()
 		img_obj = PgBytea(img_data)
 		del(img_data)
 
+		pool = gmPG.ConnectionPool()
+		conn = pool.GetConnection('blobs', readonly = 0, encoding = 'sql_ascii')
+
 		# insert the data
-		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
+#		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
 		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
 		success, data = gmPG.run_commit2 (
-			link_obj = 'blobs',
+#			link_obj = 'blobs',
+			link_obj = conn,
 			queries = [
-				(cmd1, []),
+#				(cmd1, []),
 				(cmd2, [img_obj, self.pk_obj])
-			]
+			],
+			end_tx = True
 		)
+		conn.close()
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]: %s' % (self.pk_obj, fname, str(data)))
+			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' % (self.pk_obj, fname))
 			return False
 
 		# must update XMIN now ...
@@ -388,14 +396,23 @@ order by
 		# convert (escape)
 		img_obj = PgBytea(data)
 
+		pool = gmPG.ConnectionPool()
+		conn = pool.GetConnection('blobs', readonly = 0, encoding = 'sql_ascii')
+
 		# insert the data
-		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
+#		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
 		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
-		result = gmPG.run_commit('blobs', [
-			(cmd1, []),
-			(cmd2, [img_obj, self.pk_obj])
-		])
-		if result is None:
+		success, msg = gmPG.run_commit2 (
+#			link_obj = 'blobs',
+			link_obj = conn,
+			queries = [
+#				(cmd1, []),
+				(cmd2, [img_obj, self.pk_obj])
+			],
+			end_tx = True
+		)
+		conn.close()
+		if not success:
 			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
 			return False
 
@@ -723,7 +740,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.69  2006-06-21 15:51:48  ncq
+# Revision 1.70  2006-06-26 21:37:14  ncq
+# - properly use explicit encoding setting in put/get
+#   data for document objects
+#
+# Revision 1.69  2006/06/21 15:51:48  ncq
 # - set_intended_reviewer() -> set_primary_reviewer()
 #
 # Revision 1.68  2006/06/18 22:43:21  ncq
