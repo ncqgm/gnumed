@@ -1,9 +1,9 @@
-"""GnuMed health related business object.
+"""GNUmed health related business object.
 
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -76,8 +76,11 @@ class cHealthIssue(gmClinItem.cClinItem):
 			return False
 		return True
 	#--------------------------------------------------------
-	def close_expired_episodes(self, ttl=180):
+	def close_expired_episode(self, ttl=180):
 		"""ttl in days"""
+		print '%s.close_expired_episode(ttl) needs fixing' % self.__class__.__name__
+		return True
+		# FIXME: this needs to go through clin_encounter.last_affirmed/clin_root_item.modified_when
 		cmd = """
 update clin.episode set is_open = false where pk in (
 	-- FIXME: this logic seems wrong
@@ -91,10 +94,23 @@ update clin.episode set is_open = false where pk in (
 			modified_when > (now() - (%(ttl)s || ' days')::interval)
 )"""
 		args = {'issue': self.pk_obj, 'ttl': ttl}
-		success, msg = gmPG.run_commit2 ('historica', [(cmd, [args])])
+		success, msg = gmPG.run_commit2 ('clinical', [(cmd, [args])])
 		if success:
 			return True
 		return False
+	#--------------------------------------------------------
+	def close_episode(self):
+		cmd = """
+update clin.episode set is_open = false where
+	fk_health_issue = %(issue)s and
+	is_open is true"""
+		success, data = gmPG.run_commit2('clinical', [(cmd, [{'issue': self.pk_obj}])])
+		return success
+	#--------------------------------------------------------
+	def has_open_episode(self):
+		cmd = "select exists (select 1 from clin.episode where fk_health_issue = %s and is_open is True limit 1)"
+		rows = gmPG.run_ro_query ( 'clinical', cmd, None, self.pk_obj)
+		return rows[0][0]
 #============================================================
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
@@ -512,7 +528,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.79  2006-06-05 22:00:53  ncq
+# Revision 1.80  2006-06-26 12:27:53  ncq
+# - cleanup
+# - add close_episode() and has_open_episode() to cHealthIssue
+#
+# Revision 1.79  2006/06/05 22:00:53  ncq
 # - must be "episode_open", not "is_open"
 #
 # Revision 1.78  2006/05/06 18:53:56  ncq
