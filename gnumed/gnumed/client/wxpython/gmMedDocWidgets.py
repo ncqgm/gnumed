@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.83 2006-06-21 15:54:17 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmMedDocWidgets.py,v 1.84 2006-06-26 13:07:57 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -133,25 +133,17 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		doc = self.__part.get_containing_document()
 
 		# 1) handle associated episode
-		epi_name = self._PhWheel_episode.GetValue().strip()
-		pk_episode = self._PhWheel_episode.GetData()
-		# - create new episode
+		pk_episode = self._PhWheel_episode.GetData(can_create=True, is_open=True)
 		if pk_episode is None:
 			# FIXME: allow attaching to health issue
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name=epi_name, is_open=True)
-			if epi is None:
-				gmGuiHelpers.gm_show_error (
-					_('Cannot create episode\n [%s]'),
-					_('editing document properties')
-				)
-			else:
-				doc['pk_episode'] = epi['pk_episode']
-		# - relink to another episode
-		elif pk_episode != doc['pk_episode']:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot create episode\n [%s]'),
+				_('editing document properties')
+			)
+			return False
+		if pk_episode != doc['pk_episode']:
 			# since the phrasewheel operates on the active
-			# patient only all episodes really should belong
+			# patient all episodes really should belong
 			# to it so we don't check patient change
 			doc['pk_episode'] = pk_episode
 
@@ -1090,7 +1082,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.83  2006-06-21 15:54:17  ncq
+# Revision 1.84  2006-06-26 13:07:57  ncq
+# - episode selection phrasewheel knows how to create episodes
+#   when told to do so in GetData() so use that
+#
+# Revision 1.83  2006/06/21 15:54:17  ncq
 # - properly set reviewer on cMedDoc
 #
 # Revision 1.82  2006/06/17 14:10:32  ncq
