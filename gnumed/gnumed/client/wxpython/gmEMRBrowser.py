@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.54 2006-05-28 20:53:28 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmEMRBrowser.py,v 1.55 2006-06-26 13:03:22 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -172,15 +172,18 @@ class cEMRTree(wx.TreeCtrl):
 		menu_id = wx.NewId()
 		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('move episode to another health issue')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode2issue)
 		# close episode
 		# delete episode
-		# attach episode to another health issue
 		# attach all encounters to another episode
 
 		# - encounters
 		self.__enc_context_popup = wx.Menu()
 		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another episode')))
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('move encounter data to another episode')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
 		# attach encounter to another patient
 		# delete encounter
@@ -223,7 +226,7 @@ class cEMRTree(wx.TreeCtrl):
 			return
 		if self.__curr_node_data.rename(new_name):
 			# avoid collapsing view
-			self.SetItemText( self.__curr_node, new_name)
+			self.SetItemText(self.__curr_node, new_name)
 			return
 		gmGuiHelpers.gm_show_error(
 			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
@@ -232,16 +235,71 @@ class cEMRTree(wx.TreeCtrl):
 		)
 		return
 	#--------------------------------------------------------
+	def __relink_episode2issue(self, event):
+		if self.__curr_node_data['health_issue'] is None:
+			msg = _(
+				'\nThe episode\n'
+				'  [%(epi)s]\n'
+				'currently does not belong to a health issue.\n\n'
+				'Please select the health issue you want to move it to:\n'
+			) % {'epi': self.__curr_node_data['description']}
+		else:
+			msg = _(
+				'\nThe episode\n'
+				'  [%(epi)s]\n'
+				'currently belongs to the health issue\n'
+				'  [%(issue)s]\n\n'
+				'Please select the health issue you want to move it to:\n'
+			) % {'epi': self.__curr_node_data['description'], 'issue': self.__curr_node_data['health_issue']}
+
+		dlg = gmEMRStructWidgets.cIssueSelectionDlg(self, -1, message=msg)
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			dlg.Destroy()
+			return
+
+		pk_issue = dlg._PhWheel_issue.GetData()
+		dlg.Destroy()
+
+		if self.__curr_node_data['pk_health_issue'] == pk_issue:
+			return
+
+		issue = gmEMRStructItems.cHealthIssue(aPK_obj=pk_issue)
+		issue.close_expired_episode()
+		if issue.has_open_episode() and self.__curr_node_data['episode_open']:
+			if not gmGuiHelpers.gm_show_question (
+				_('The episode [%(epi)s] is open. However, there\n'
+				  'already exists an open episode for health issue\n\n'
+				  ' [%(issue)s]\n\n'
+				  'Do you want to close the episode [%(epi)s]\n'
+				  'before moving it to the new health issue ?\n'
+				) % {'epi': self.__curr_node_data['description'], 'issue': issue['description']},
+				_('Moving episode')
+			):
+				return
+			self.__curr_node_data['episode_open'] = False
+
+		self.__curr_node_data['pk_health_issue'] = pk_issue
+		success, data = self.__curr_node_data.save_payload()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot move episode\n [%(epi)s]\n into health issue\n [%(issue)s].') % {
+					'epi': self.__curr_node_data['description'],
+					'issue': issue['description']
+				},
+				_('Moving episode')
+			)
+			return
+
+		self.__populate_tree()
+		return
+	#--------------------------------------------------------
 	def __close_episode(self, event):
 		print "closing episode"
 		print self.__curr_node_data
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		print "deleting episode"
-		print self.__curr_node_data
-	#--------------------------------------------------------
-	def __relink_episode(self, event):
-		print "relinking episode"
 		print self.__curr_node_data
 	#--------------------------------------------------------
 	def __relink_episode_encounters(self, event):
@@ -679,7 +737,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.54  2006-05-28 20:53:28  ncq
+# Revision 1.55  2006-06-26 13:03:22  ncq
+# - improve menu strings
+# - implement moving episodes among issues
+#
+# Revision 1.54  2006/05/28 20:53:28  ncq
 # - cleanup, fix some variables and typos
 #
 # Revision 1.53  2006/05/28 16:23:10  ncq
