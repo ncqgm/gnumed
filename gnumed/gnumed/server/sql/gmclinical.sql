@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.183 $
+-- $Revision: 1.184 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -269,6 +269,7 @@ create table clin._enum_allergy_type (
 );
 
 -- --------------------------------------------
+-- FIXME: add trigger obviating the need for explicit allergy_state handling
 create table clin.allergy (
 	id serial primary key,
 	substance text not null,
@@ -406,11 +407,14 @@ alter table clin.clin_medication add constraint discontinued_after_prescribed
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.183 $');
+select log_script_insertion('$RCSfile: gmclinical.sql,v $', '$Revision: 1.184 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.183  2006-04-29 18:14:42  ncq
+-- Revision 1.184  2006-06-26 21:38:57  ncq
+-- - add FIXME comment
+--
+-- Revision 1.183  2006/04/29 18:14:42  ncq
 -- - improve Syan's unique(narrative) trigger constraint
 -- - move it to the dynamic schema part
 --
