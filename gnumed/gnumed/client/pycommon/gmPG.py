@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -62,13 +62,6 @@ _listener_api = None
 
 # default encoding for connections
 _default_client_encoding = None
-try:
-	_default_client_encoding = locale.nl_langinfo(locale.CODESET)
-	_log.Log(gmLog.lInfo, 'client encoding according to locale system: [%s]' % _default_client_encoding)
-except ValueError, AttributeError:
-	_log.LogException('cannot get client encoding from locale system', sys.exc_info(), verbose=0)
-except:
-	_log.LogException('error getting client encoding from locale system', sys.exc_info(), verbose=0)
 
 # default time zone for connections
 # OR: mxDT.now().gmtoffset()
@@ -189,12 +182,9 @@ class ConnectionPool:
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__is_connected is None:
-			self.SetFetchReturnsList()
-			# only change encoding when also setting up connections
-			if encoding is not None:
-				global _default_client_encoding
-				_default_client_encoding = encoding
-			ConnectionPool.__is_connected = self.__setup_default_ro_conns(login)
+			# CAREFUL: this affects the whole connection
+			dbapi.fetchReturnsList = True
+			ConnectionPool.__is_connected = self.__setup_default_ro_conns(login=login, encoding=encoding)
 	#-----------------------------
 	def __del__(self):
 		pass
@@ -206,9 +196,6 @@ class ConnectionPool:
 	#-----------------------------
 	def GetConnection(self, service="default", readonly=1, encoding=None, extra_verbose=None):
 		"""Get a connection."""
-		# use default encoding if none given
-		if encoding is None:
-			encoding = _default_client_encoding
 
 		logininfo = self.GetLoginInfoFor(service)
 
@@ -226,7 +213,6 @@ class ConnectionPool:
 				except KeyError:
 					ConnectionPool.__conn_use_count['default'] = 1
 				conn = ConnectionPool.__ro_conns['default']
-
 		# or a brand-new read-write connection
 		else:
 			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
@@ -272,9 +258,6 @@ class ConnectionPool:
 		if user is None:
 			_log.Log(gmLog.lErr, 'user must be given')
 			raise ValueError, 'gmPG.py::%s.get_connection_for_user(): user name must be given' % self.__class__.__name__
-		# use default encoding if none given
-		if encoding is None:
-			encoding = _default_client_encoding
 
 		logininfo = self.GetLoginInfoFor(service)
 		logininfo.SetUser(user=user)
@@ -371,12 +354,6 @@ class ConnectionPool:
 		(according to configuration database)"""
 		return ConnectionPool.__ro_conns.keys()
 	#-----------------------------		
-	def SetFetchReturnsList(self, on=1):
-		"""when performance is crucial, let the db adapter
-		return a list of lists instead a list of database objects.
-		CAREFUL: this affects the whole connection!!!"""
-		dbapi.fetchReturnsList = on
-	#-----------------------------		
 	def GetLoginInfoFor(self, service, login = None):
 		"""return login information for a particular service"""
 		if login is None:
@@ -419,7 +396,7 @@ class ConnectionPool:
 	#-----------------------------
 	# private methods
 	#-----------------------------
-	def __setup_default_ro_conns(self, login):
+	def __setup_default_ro_conns(self, login=None, encoding=None):
 		"""Initialize connections to all servers."""
 		if login is None and ConnectionPool.__is_connected is None:
 			try:
@@ -432,7 +409,7 @@ class ConnectionPool:
 		ConnectionPool.__login = login
 
 		# connect to the configuration server
-		cfg_db = self.__pgconnect(login, readonly=1, encoding=_default_client_encoding)
+		cfg_db = self.__pgconnect(login, readonly=1, encoding=encoding)
 		if cfg_db is None:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
@@ -472,7 +449,7 @@ class ConnectionPool:
 			ConnectionPool.__conn_use_count[service] = 0
 			dblogin = self.GetLoginInfoFor(service, login)
 			# - update 'Database Broker' dictionary
-			conn = self.__pgconnect(dblogin, readonly=1, encoding=_default_client_encoding)
+			conn = self.__pgconnect(dblogin, readonly=1, encoding=encoding)
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__ro_conns[service] = conn
@@ -484,33 +461,43 @@ class ConnectionPool:
 		return ConnectionPool.__is_connected
 	#-----------------------------
 	def __pgconnect(self, login, readonly=1, encoding=None):
-		"""connect to a postgres backend as specified by login object; return a connection object"""
+		"""Connect to a postgres backend as specified by login object.
+
+		- returns a connection object
+		- encoding works like this:
+			- encoding specified in the call to __pgconnect() overrides
+			- encoding set by a call to gmPG.set_default_encoding() overrides
+			- encoding taken from Python string encoding
+		"""
 		dsn = ""
 		hostport = ""
 		dsn = login.GetDBAPI_DSN()
 		hostport = "0"
 
-		try:
-			# must set encoding at the module level
-			if encoding in (None, ''):
+		if encoding is None:
+			encoding = _default_client_encoding
+			if encoding is None:
+				encoding = sys.getdefaultencoding()
 				_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
-				conn = dbapi.connect(dsn=dsn, unicode_results=0)
-			else:
-				conn = dbapi.connect(dsn=dsn, client_encoding=(encoding, 'strict'), unicode_results=0)
+				_log.Log(gmLog.lWarn, 'therefore the current Python string encoding is used: [%s]' % encoding)
+
+		try:
+			conn = dbapi.connect(dsn=dsn, client_encoding=(encoding, 'strict'), unicode_results=0)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
 
 		# set the default characteristics of our sessions
 		curs = conn.cursor()
+
 		# - client encoding
-		if encoding in (None, ''):
-			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
+		cmd = "set client_encoding to '%s'" % encoding
+		if not run_query(curs, None, cmd):
+			_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
+			_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
 		else:
-			cmd = "set client_encoding to '%s'" % encoding
-			if not run_query(curs, None, cmd):
-				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
-				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
+			_log.Log(gmLog.lData, 'client encoding set to [%s]' % encoding)
+
 		# - client time zone
 #		cmd = "set session time zone interval '%s'" % _default_client_timezone
 		cmd = "set time zone '%s'" % _default_client_timezone
@@ -519,12 +506,14 @@ class ConnectionPool:
 			_log.Log(gmLog.lWarn, 'not setting this will lead to incorrect dates/times')
 		else:
 			_log.Log (gmLog.lData, 'time zone set to [%s]' % _default_client_timezone)
+
 		# - datestyle
 		# FIXME: add DMY/YMD handling
 		cmd = "set datestyle to 'ISO'"
 		if not run_query(curs, None, cmd):
 			_log.Log(gmLog.lErr, 'cannot set client date style to ISO')
 			_log.Log(gmLog.lWarn, 'you better use other means to make your server delivers valid ISO timestamps with time zone')
+
 		# - transaction isolation level
 		if readonly:
 			isolation_level = 'READ COMMITTED'
@@ -537,6 +526,7 @@ class ConnectionPool:
 			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % isolation_level)
 			return None
 
+		# - access mode
 		if readonly:
 			access_mode = 'READ ONLY'
 		else:
@@ -545,7 +535,9 @@ class ConnectionPool:
 		cmd = 'set session characteristics as transaction %s' % access_mode
 		if not run_query(curs, 0, cmd):
 			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % access_mode)
-			# FIXME: once 7.4 is minimum, close connection and return None
+			curs.close()
+			conn.close()
+			return None
 
 		conn.commit()
 		curs.close()
@@ -1335,7 +1327,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.72 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.73 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1571,7 +1563,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.72  2006-06-20 09:38:12  ncq
+# Revision 1.73  2006-06-26 21:49:06  ncq
+# - cleanup and fix encoding handling
+#
+# Revision 1.72  2006/06/20 09:38:12  ncq
 # - we are nearing db v2 stabilization so start using known hashes
 #
 # Revision 1.71  2006/06/18 22:15:38  shilbert
