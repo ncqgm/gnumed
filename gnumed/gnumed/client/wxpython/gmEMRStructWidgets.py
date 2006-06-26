@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.26 2006-06-23 21:32:11 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmEMRStructWidgets.py,v 1.27 2006-06-26 13:07:00 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -24,7 +24,7 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
-from Gnumed.pycommon.gmPyCompat import *
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -55,21 +55,21 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			service = 'clinical',
 			# FIXME: consider clin.health_issue.clinically_relevant
 			queries = ["""
-select pk, description, 1
+(select pk, description, 1
 	from clin.health_issue where
 		is_active is true and
 		id_patient=%%(pat)s and
 		description %(fragment_condition)s
-	order by description
+	order by description)
 
 union
 
-select pk, description || _(' (inactive)), 2
+(select pk, description || _(' (inactive)'), 2
 	from clin.health_issue where
 		is_active is false and
 		id_patient=%%(pat)s and
 		description %(fragment_condition)s
-	order by description"""
+	order by description)"""
 			]
 		)
 
@@ -77,14 +77,15 @@ select pk, description || _(' (inactive)), 2
 		except KeyError: kwargs['patient_id'] = None
 
 		if kwargs['patient_id'] is None:
-			self.self_manage_patient = True
+			self.use_current_patient = True
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
 			if pat.is_connected():
 				mp.set_context('pat', pat.getID())
 		else:
-			self.self_manage_patient = False
-			mp.set_context('pat', int(kwargs['patient_id']))
+			self.use_current_patient = False
+			self.__patient_id = int(kwargs['patient_id'])
+			mp.set_context('pat', self.__patient_id)
 
 		del kwargs['patient_id']
 
@@ -98,10 +99,31 @@ select pk, description || _(' (inactive)), 2
 	# external API
 	#--------------------------------------------------------
 	def set_patient(self, patient_id=None):
-		if self.self_manage_patient:
+		if self.use_current_patient:
 			return False
-		self.set_context('pat', patient_id)
+		self.__patient_id = int(patient_id)
+		self.set_context('pat', self.__patient_id)
 		return True
+	#--------------------------------------------------------
+	def GetData(self, can_create=False, is_open=False):
+		if self.data is None:
+			if can_create:
+				issue_name = self.GetValue().strip()
+
+				if self.use_current_patient:
+					pat = gmPerson.gmCurrentPatient()
+				else:
+					ident = gmPerson.cIdentity(aPK_obj=self.__patient_id)
+					pat = gmPerson.cPatient(identity=ident)
+				emr = pat.get_emr()
+
+				issue = emr.add_health_issue(issue_name = issue_name)
+				if issue is None:
+					self.data = None
+				else:
+					self.data = issue['pk']
+
+		return gmPhraseWheel.cPhraseWheel.GetData(self)
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -113,10 +135,9 @@ select pk, description || _(' (inactive)), 2
 		return True
 	#--------------------------------------------------------
 	def _post_patient_selection(self):
-		if not self.self_manage_patient:
-			return True
-		patient = gmPerson.gmCurrentPatient().patient
-		self.set_context('pat', patient.getID())
+		if self.use_current_patient:
+			patient = gmPerson.gmCurrentPatient()
+			self.set_context('pat', patient.getID())
 		return True
 #============================================================
 class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -153,14 +174,15 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		except KeyError: kwargs['patient_id'] = None
 
 		if kwargs['patient_id'] is None:
-			self.self_manage_patient = True
+			self.use_current_patient = True
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
 			if pat.is_connected():
 				mp.set_context('pat', pat.getID())
 		else:
-			self.self_manage_patient = False
-			mp.set_context('pat', int(kwargs['patient_id']))
+			self.use_current_patient = False
+			self.__patient_id = int(kwargs['patient_id'])
+			mp.set_context('pat', self.__patient_id)
 
 		del kwargs['patient_id']
 
@@ -174,10 +196,31 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	# external API
 	#--------------------------------------------------------
 	def set_patient(self, patient_id=None):
-		if self.self_manage_patient:
+		if self.use_current_patient:
 			return False
-		self.set_context('pat', patient_id)
+		self.__patient_id = int(patient_id)
+		self.set_context('pat', self.__patient_id)
 		return True
+	#--------------------------------------------------------
+	def GetData(self, can_create=False, is_open=False):
+		if self.data is None:
+			if can_create:
+				epi_name = self.GetValue().strip()
+
+				if self.use_current_patient:
+					pat = gmPerson.gmCurrentPatient()
+				else:
+					ident = gmPerson.cIdentity(aPK_obj=self.__patient_id)
+					pat = gmPerson.cPatient(identity=ident)
+				emr = pat.get_emr()
+
+				epi = emr.add_episode(episode_name=epi_name, is_open=is_open)
+				if epi is None:
+					self.data = None
+				else:
+					self.data = epi['pk_episode']
+
+		return gmPhraseWheel.cPhraseWheel.GetData(self)
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -189,10 +232,34 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		return True
 	#--------------------------------------------------------
 	def _post_patient_selection(self):
-		if not self.self_manage_patient:
-			return True
-		patient = gmPerson.gmCurrentPatient().patient
-		self.set_context('pat', patient.getID())
+		if self.use_current_patient:
+			patient = gmPerson.gmCurrentPatient()
+			self.set_context('pat', patient.getID())
+		return True
+#============================================================
+class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			msg = kwargs['message']
+		except KeyError:
+			msg = None
+		del kwargs['message']
+		wxgIssueSelectionDlg.wxgIssueSelectionDlg.__init__(self, *args, **kwargs)
+		if msg is not None:
+			self._lbl_message.SetLabel(label=msg)
+			self.Layout()
+			self.Refresh()
+	#--------------------------------------------------------
+	def _on_OK_button_pressed(self, event):
+		event.Skip()
+		pk_issue = self._PhWheel_issue.GetData(can_create=True)
+		if pk_issue is None:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot create new health issue:\n [%(issue)s]') % {'issue': self._PhWheel_issue.GetValue().strip()},
+				_('Selecting health issue')
+			)
+			return False
 		return True
 #============================================================
 class cHealthIssueEditArea(gmEditArea.cEditArea2):
@@ -1077,7 +1144,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.26  2006-06-23 21:32:11  ncq
+# Revision 1.27  2006-06-26 13:07:00  ncq
+# - fix issue selection phrasewheel SQL UNION
+# - improved variable naming
+# - track patient id in set_patient on issue/episode selection phrasewheel
+#   so GetData can create new issues/episodes if told to do so
+# - add cIssueSelectionDlg
+#
+# Revision 1.26  2006/06/23 21:32:11  ncq
 # - add cIssueSelectionPhrasewheel
 #
 # Revision 1.25  2006/05/31 09:46:20  ncq
