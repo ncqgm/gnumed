@@ -47,8 +47,8 @@ intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.95 2006-06-15 21:34:46 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gnumed.py,v 1.96 2006-06-26 21:38:09 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -419,7 +419,6 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
-_log.Log(gmLog.lInfo, 'Python string encoding is set to [%s]' % sys.getdefaultencoding())
 
 setup_cfg_file()
 
@@ -494,7 +493,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.95  2006-06-15 21:34:46  ncq
+# Revision 1.96  2006-06-26 21:38:09  ncq
+# - cleanup
+#
+# Revision 1.95  2006/06/15 21:34:46  ncq
 # - log unhandled exceptions, too
 #
 # Revision 1.94  2006/06/13 20:36:57  ncq

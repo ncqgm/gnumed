@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.27 2006-06-26 13:07:00 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmEMRStructWidgets.py,v 1.28 2006-06-26 21:37:43 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -248,8 +248,6 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 		wxgIssueSelectionDlg.wxgIssueSelectionDlg.__init__(self, *args, **kwargs)
 		if msg is not None:
 			self._lbl_message.SetLabel(label=msg)
-			self.Layout()
-			self.Refresh()
 	#--------------------------------------------------------
 	def _on_OK_button_pressed(self, event):
 		event.Skip()
@@ -1144,7 +1142,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.27  2006-06-26 13:07:00  ncq
+# Revision 1.28  2006-06-26 21:37:43  ncq
+# - cleanup
+#
+# Revision 1.27  2006/06/26 13:07:00  ncq
 # - fix issue selection phrasewheel SQL UNION
 # - improved variable naming
 # - track patient id in set_patient on issue/episode selection phrasewheel
