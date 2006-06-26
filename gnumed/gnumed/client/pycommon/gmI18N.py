@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.23 2006-06-20 09:37:33 ncq Exp $
+# $Id: gmI18N.py,v 1.24 2006-06-26 21:35:57 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -84,6 +84,7 @@ def __split_locale_into_levels():
 	  - de_DE@euro
 	  - ec_CA.UTF-8
 	  - en_US:en
+	  - German_Germany.1252
 	"""
 	global system_locale_level
 	system_locale_level['full'] = system_locale
@@ -112,10 +113,10 @@ def __log_locale_settings(message=None):
 
 	_log.Log(gmLog.lData, 'currently, locale is set to:')
 	for category in _setlocale_categories.keys():
-		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.setlocale(_setlocale_categories[category])))
+		_log.Log (gmLog.lData, 'locale.set_locale(%s): %s' % (category, locale.setlocale(_setlocale_categories[category])))
 
 	for category in _getlocale_categories.keys():
-		_log.Log (gmLog.lData, '[%s]: %s' % (category, locale.getlocale(_getlocale_categories[category])))
+		_log.Log (gmLog.lData, 'locale.get_locale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
 
 	_log.Log(gmLog.lData, 'Python string encoding is set to: [%s]' % sys.getdefaultencoding())
 	_log.Log(gmLog.lData, 'preferred encoding in locale: [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
@@ -135,36 +136,19 @@ def __log_locale_settings(message=None):
 	_log.Log(gmLog.lData, 'database of locale conventions:')
 	data = locale.localeconv()
 	for key in data.keys():
-		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
+		_log.Log(gmLog.lData, 'locale.localeconv(%s): %s' % (key, data[key]))
 
-	try:
-		info_codes = {
-			locale.CODESET: 'codeset',
-			locale.D_T_FMT : 'date/time format',
-			locale.D_FMT : 'date format',
-			locale.T_FMT : 'time format',
-			locale.T_FMT_AMPM : 'time format am/pm',
-			locale.RADIXCHAR : 'radix character',
-			locale.THOUSEP : 'thousand separator',
-			locale.YESEXPR : 'regex for "yes"',
-			locale.NOEXPR : 'regex for "no"',
-			locale.CRNCYSTR : 'currency symbol'
-#			, locale.ERA : 'era',
-#			locale.ERA_D_T_FMT : 'date/time format for era',
-#			locale.ERA_D_FMT : 'date format for era',
-#			locale.ALT_DIGITS : 'alternative digit representation'
-		}
-	except:
-		info_codes = {}
-		_log.Log(gmLog.lData, 'Locale setup failed. Maybe we are on MS Windows.')
-		
-	for code in info_codes.keys():
+	_nl_langinfo_categories = {}
+	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
 		try:
-			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
-		except ValueError, AttributeError:
-			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
+			_nl_langinfo_categories[category] = getattr(locale, category)
 		except:
-			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
+			_log.Log(gmLog.lErr, 'this OS does not support nl_langinfo category locale.%s' % category)
+	try:
+		for category in _nl_langinfo_categories.keys():
+			_log.Log(gmLog.lData, 'locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
+	except:
+		_log.LogException('this OS does not support nl_langinfo', sys.exc_info())
 
 #---------------------------------------------------------------------------
 def activate_locale():
@@ -403,7 +387,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.23  2006-06-20 09:37:33  ncq
+# Revision 1.24  2006-06-26 21:35:57  ncq
+# - improved logging
+#
+# Revision 1.23  2006/06/20 09:37:33  ncq
 # - variable naming error
 #
 # Revision 1.22  2006/06/19 07:12:05  ncq
