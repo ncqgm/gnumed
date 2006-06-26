@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.205 2006-06-07 22:01:57 ncq Exp $
-__version__ = "$Revision: 1.205 $"
+# $Id: gmClinicalRecord.py,v 1.206 2006-06-26 12:25:30 ncq Exp $
+__version__ = "$Revision: 1.206 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1014,8 +1014,7 @@ where
 		return filtered_issues
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
-		"""Adds patient health issue.
-		"""
+		"""Adds patient health issue."""
 		# FIXME: use constraints to get*
 		issues = self.get_health_issues()
 		for issue in issues:
@@ -1796,7 +1795,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.205  2006-06-07 22:01:57  ncq
+# Revision 1.206  2006-06-26 12:25:30  ncq
+# - cleanup
+#
+# Revision 1.205  2006/06/07 22:01:57  ncq
 # - cVaccinationRegime -> cVaccinationCourse
 #
 # Revision 1.204  2006/05/28 15:25:18  ncq
