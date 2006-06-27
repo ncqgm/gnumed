@@ -1,6 +1,6 @@
 @echo off
-set PATH=%PATH%c:\python23;c:\Programme\PostgreSQL\8.0\bin
-set PYTHONPATH="%PYTHONPATH%;../../"
+rem set PATH=%PATH%c:\python23;c:\Programme\PostgreSQL\8.0\bin
+rem set PYTHONPATH="%PYTHONPATH%;../../"
 
 set VER=2
 set LOG=redo-v%VER%.log
@@ -22,7 +22,7 @@ echo ===========================================================
 echo Dropping old database if there is any.
 
 dropdb -U gm-dbo -i %GM_CORE_DB%
-rm -rf %LOG%
+del %LOG%
 echo "======================="
 echo "bootstrapping database"
 python bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
