@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -13,6 +13,8 @@
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- note: avoid One True Lookup Tables(tm): http://www.dbazine.com/ofinterest/oi-articles/celko22
 
 -- ===================================================================
 -- reference sources and pivot table linking sources to data tables
@@ -182,11 +184,14 @@ create table form_print_defs (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.25  2006-01-05 16:04:37  ncq
+-- Revision 1.26  2006-06-28 14:13:05  ncq
+-- - add comment on the One True Lookup Table trap
+--
+-- Revision 1.25  2006/01/05 16:04:37  ncq
 -- - move auditing to its own schema "audit"
 --
 -- Revision 1.24  2005/11/13 17:38:40  ncq
