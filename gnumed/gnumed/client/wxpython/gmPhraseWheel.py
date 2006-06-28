@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.71 2006-06-18 13:47:29 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmPhraseWheel.py,v 1.72 2006-06-28 22:16:08 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -134,6 +134,27 @@ class cPhraseWheel (wx.TextCtrl):
 			_log.Log(gmLog.lWarn, 'ignoring callback [%s] - not callable' % callback)
 			return False
 		self._on_lose_focus_callbacks.append(callback)
+	#---------------------------------------------------------
+	def SetData(self, data=None):
+		"""Set the data and thereby set the value, too.
+
+		If you call SetData() when self.selection_only is
+		false you better be prepared doing a scan of the
+		entire potential match space.
+
+		The whole thing will only work if data is found
+		in the match space anyways.
+		"""
+		matched, matches = self.__matcher.getMatches('*')
+		if not matched and self.selection_only:
+			return False
+		if len(matches) == 0:
+			return False
+		for match in matches:
+			if match['data'] == data:
+				self.SetValue(value = match['label'], data = data)
+				return True
+		return False
 	#---------------------------------------------------------
 	def GetData (self):
 		"""
@@ -590,7 +611,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.71  2006-06-18 13:47:29  ncq
+# Revision 1.72  2006-06-28 22:16:08  ncq
+# - add SetData() -- which only works if data can be found in the match space
+#
+# Revision 1.71  2006/06/18 13:47:29  ncq
 # - set self.input_was_selected=True if SetValue() does have data with it
 #
 # Revision 1.70  2006/06/05 21:36:40  ncq
