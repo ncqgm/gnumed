@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.250 2006-06-13 20:35:46 ncq Exp $
-__version__ = "$Revision: 1.250 $"
+# $Id: gmGuiMain.py,v 1.251 2006-06-28 10:18:02 ncq Exp $
+__version__ = "$Revision: 1.251 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,14 +51,12 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.VERSION_STRING)
 
-
 # set up database connection encoding
 encoding = _cfg.get('backend', 'client encoding')
 if encoding is None:
-	print 'WARNING: option <client encoding> not set in config file'
-	_log.Log(gmLog.lWarn, 'you need to set the parameter <client encoding> in the config file')
-	_log.Log(gmLog.lWarn, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
-gmPG.set_default_client_encoding(encoding)
+	_log.Log(gmLog.lInfo, 'you need to set the parameter <client encoding> in the config file')
+	_log.Log(gmLog.lInfo, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
+	gmPG.set_default_client_encoding(encoding)
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
@@ -1109,7 +1107,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.250  2006-06-13 20:35:46  ncq
+# Revision 1.251  2006-06-28 10:18:02  ncq
+# - only set gmPG default client encoding if actually set in the config file
+#
+# Revision 1.250  2006/06/13 20:35:46  ncq
 # - use localized date/time format taken from datetime library
 #
 # Revision 1.249  2006/06/10 05:12:42  ncq
