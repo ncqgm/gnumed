@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -352,13 +352,12 @@ class cParamCtrl(wx.TextCtrl):
 ###############################################################################
 # TODO: -a MenuBar allowing for import, export and options
 # 		-open a connection to backend via gmCfg
-class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
+class gmConfigEditorPanel(wx.Panel):
 	def __init__(self, parent, aUser,aWorkplace, plugin = 1):
 		"""aUser and aWorkplace can be set such that an admin
 		   could potentially edit another user ...
 		"""
 		wx.Panel.__init__(self, parent, -1)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		
 		self.currUser = aUser
 		self.currWorkplace = aWorkplace
@@ -468,9 +467,6 @@ class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.mainSizer.Fit(self)
 		self.mainSizer.SetSizeHints(self)
 		self.Layout()
-# this is not particularly beautiful, but necessary for standalone use
-		if not plugin:
-			self.configTree.update()
 
 	def ApplyChanges(self,event):
 		if self.configEntryParamCtrl.IsModified():
@@ -478,6 +474,9 @@ class gmConfigEditorPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def RevertChanges(self,event):
 		self.configEntryParamCtrl.RevertToSaved()
+
+	def repopulate_ui(self):
+		self.configTree.update()
 		
 #================================================================
 # MAIN
@@ -517,9 +516,6 @@ else:
 		def MenuInfo (self):
 			return ('tools', _('&ConfigRegistry'))
 
-		def receive_focus(self):
-			self._widget.configTree.update()
-
 	def Setup(parent):
 		"""Wrapper to load this module from an environment that wants a panel
 		"""
@@ -529,7 +525,11 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.37  2006-05-20 18:56:03  ncq
+# Revision 1.38  2006-06-28 10:19:28  ncq
+# - remove reget mixin
+# - fix for receive_focus reload
+#
+# Revision 1.37  2006/05/20 18:56:03  ncq
 # - use receive_focus() interface
 #
 # Revision 1.36  2006/05/14 21:44:22  ncq
