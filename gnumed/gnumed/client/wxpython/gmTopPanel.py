@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.70 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmTopPanel.py,v 1.71 2006-06-28 10:18:40 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -25,14 +25,14 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 [	ID_BTN_pat_demographics,
-	ID_CBOX_consult_type,
+#	ID_CBOX_consult_type,
 	ID_BMITOOL,
 	ID_BMIMENU,
 	ID_PREGTOOL,
 	ID_PREGMENU,
 	ID_LOCKBUTTON,
 	ID_LOCKMENU,
-] = map(lambda _init_ctrls: wx.NewId(), range(8))
+] = map(lambda _init_ctrls: wx.NewId(), range(7))
 
 # FIXME: need a better name here !
 bg_col = wx.Colour(214,214,214)
@@ -47,9 +47,9 @@ class cMainTopPanel(wx.Panel):
 
 		self.__gb = gmGuiBroker.GuiBroker()
 
-		self.__load_consultation_types()
+#		self.__load_consultation_types()
 		self.__do_layout()
-		del self.__consultation_types
+#		del self.__consultation_types
 		self.__register_interests()
 
 		# init plugin toolbars dict
@@ -179,17 +179,17 @@ class cMainTopPanel(wx.Panel):
 #		self.szr_bottom_row.Add(self.btn_preg, 0)
 		
 		# consultation type selector
-		self.combo_consultation_type = wx.ComboBox (
-			self,
-			ID_CBOX_consult_type,
-			self.DEF_CONSULT_TYPE,
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			self.__consultation_types,
-			wx.CB_DROPDOWN | wx.CB_READONLY
-		)
-		self.combo_consultation_type.SetToolTip(wx.ToolTip(_('choose consultation type')))
-		self.szr_bottom_row.Add(self.combo_consultation_type, 1)
+#		self.combo_consultation_type = wx.ComboBox (
+#			self,
+#			ID_CBOX_consult_type,
+#			self.DEF_CONSULT_TYPE,
+#			wx.DefaultPosition,
+#			wx.DefaultSize,
+#			self.__consultation_types,
+#			wx.CB_DROPDOWN | wx.CB_READONLY
+#		)
+#		self.combo_consultation_type.SetToolTip(wx.ToolTip(_('choose consultation type')))
+#		self.szr_bottom_row.Add(self.combo_consultation_type, 1)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wx.BoxSizer(wx.VERTICAL)
@@ -223,29 +223,10 @@ class cMainTopPanel(wx.Panel):
 	#-------------------------------------------------------
 	# internal helpers
 	#-------------------------------------------------------
-	def __load_consultation_types(self):
-#		cmd = "SELECT _(description) from encounter_type"
-#		result = gmPG.run_ro_query('historica', cmd, None)
-#		if (result is None) or (len(result) == 0):
-#			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
-#			self.__consultation_types = [_('in surgery'), _('chart review')]
-#			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-#			gmGuiHelpers.gm_show_error (
-#				_('Cannot load consultation types from backend.\n'
-#				  'Consequently, the only available type are:\n'
-#				  '%s') % self.__consultation_types,
-#				_('loading consultation types'),
-#				gmLog.lWarn
-#			)
-#			return None
-#		self.__consultation_types = []
-#		for cons_type in result:
-#			self.__consultation_types.append(cons_type[0])
+#	def __load_consultation_types(self):
+#		self.__consultation_types = gmEMRStructItems.get_encounter_types()
 #		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-
-		self.__consultation_types = gmEMRStructItems.get_encounter_types()
-		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
-		return 1
+#		return 1
 	#-------------------------------------------------------
 	# event handling
 	#-------------------------------------------------------
@@ -432,7 +413,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.70  2006-05-15 13:36:00  ncq
+# Revision 1.71  2006-06-28 10:18:40  ncq
+# - comment out consultation type selector for now
+#
+# Revision 1.70  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
