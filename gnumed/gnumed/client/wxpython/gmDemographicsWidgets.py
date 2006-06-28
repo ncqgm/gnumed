@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.93 2006-06-28 14:09:17 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmDemographicsWidgets.py,v 1.94 2006-06-28 22:15:01 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -46,18 +46,32 @@ DATE_FORMAT = '%Y-%m-%d'
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a gender.
 	"""
+
+	_gender_map = None
+
 	def __init__(self, *args, **kwargs):
 
-		genders, idx = gmPerson.get_gender_list()
-		gender_map = {}
-		for gender in genders:
-			gender_map[gender[idx['tag']]] = {
-				'data': gender[idx['tag']],
-				'label': gender[idx['l10n_label']],
-				'weight': gender[idx['sort_weight']]
-			}
+		if cGenderSelectionPhraseWheel._gender_map is None:
+			cmd = """
+			select
+				tag,
+				l10n_label,
+				sort_weight
+			from
+				dem.v_gender_labels
+			order by sort_weight desc"""
+			rows, idx = gmPG.run_ro_query('personalia', cmd, True)
+			if rows is None:
+				raise gmExceptions.gmConstructorError, 'cannot retrieve gender values from database'
+			cGenderSelectionPhraseWheel._gender_map = {}
+			for gender in rows:
+				cGenderSelectionPhraseWheel._gender_map[gender[idx['tag']]] = {
+					'data': gender[idx['tag']],
+					'label': gender[idx['l10n_label']],
+					'weight': gender[idx['sort_weight']]
+				}
 
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = gender_map.values())
+		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = cGenderSelectionPhraseWheel._gender_map.values())
 		mp.setThresholds(1, 1, 3)
 
 		kwargs['aMatchProvider'] = mp
@@ -68,11 +82,6 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-
-
 #============================================================
 # new patient wizard classes
 #============================================================
@@ -96,23 +105,12 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		"""
 		wx.wizard.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 		self.__title = title
-		# FIXME: remove the need for this:
-		genders, idx = gmPerson.get_gender_list()
-		self.__gender_map = {}
-		for gender in genders:
-			self.__gender_map[gender[idx['tag']]] = {
-				'data': gender[idx['tag']],
-				'label': gender[idx['l10n_label']],
-				'weight': gender[idx['sort_weight']]
-			}
 		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# main panel (required for a correct propagation of validator calls)
 		PNL_form = wx.Panel(self, -1)
-
-		# FIXME: improve cTextWidgetValidator to accept regexp (gender, telephones, etc).
 
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
@@ -420,15 +418,14 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 			return False
 		if len(rows) == 0:
 			return True
-		gender = self.__gender_map[rows[0][0]]['label']			# FIXME: add SetData() to phrasewheel
-		wx.CallAfter(self.PRW_gender.SetValue, gender)
+		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
 		return True
 	#--------------------------------------------------------
 	def on_zip_set(self):
 		"""
 		Set the street, town, state and country according to entered zip code.
 		"""
-		zip_code = self.PRW_zip_code.GetValue()
+		zip_code = self.PRW_zip_code.GetValue().strip()
 		self.PRW_street.set_context(context='zip', val=zip_code)
 		self.PRW_town.set_context(context='zip', val=zip_code)
 		self.PRW_state.set_context(context='zip', val=zip_code)
@@ -1956,7 +1953,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.93  2006-06-28 14:09:17  ncq
+# Revision 1.94  2006-06-28 22:15:01  ncq
+# - make cGenderSelectionPhraseWheel self-sufficient and use it, too
+#
+# Revision 1.93  2006/06/28 14:09:17  ncq
 # - more cleanup
 # - add cGenderSelectionPhraseWheel() and start using it
 #
