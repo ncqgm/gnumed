@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.92 2006-06-20 10:04:40 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmDemographicsWidgets.py,v 1.93 2006-06-28 14:09:17 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,6 +43,36 @@ DATE_FORMAT = '%Y-%m-%d'
 
 #============================================================
 #============================================================
+class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let user select a gender.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		genders, idx = gmPerson.get_gender_list()
+		gender_map = {}
+		for gender in genders:
+			gender_map[gender[idx['tag']]] = {
+				'data': gender[idx['tag']],
+				'label': gender[idx['l10n_label']],
+				'weight': gender[idx['sort_weight']]
+			}
+
+		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = gender_map.values())
+		mp.setThresholds(1, 1, 3)
+
+		kwargs['aMatchProvider'] = mp
+		kwargs['aDelay'] = 50
+		kwargs['selection_only'] = True
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+
+
 #============================================================
 # new patient wizard classes
 #============================================================
@@ -66,6 +96,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		"""
 		wx.wizard.WizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 		self.__title = title
+		# FIXME: remove the need for this:
 		genders, idx = gmPerson.get_gender_list()
 		self.__gender_map = {}
 		for gender in genders:
@@ -139,20 +170,12 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 			parent = PNL_form,
 			id = -1
 		)
-		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (yyyy-mm-dd)"))
+		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = self.__gender_map.values())
-		mp.setThresholds(1, 1, 3)
-		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			aDelay = 50,
-			selection_only = True
-		)
+		self.PRW_gender = cGenderSelectionPhraseWheel(parent = PNL_form, id=-1)
 		self.PRW_gender.SetToolTipString(_("Required: gender of patient"))
 
 		# title
@@ -397,7 +420,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 			return False
 		if len(rows) == 0:
 			return True
-		gender = self.__gender_map[rows[0][0]]['label']
+		gender = self.__gender_map[rows[0][0]]['label']			# FIXME: add SetData() to phrasewheel
 		wx.CallAfter(self.PRW_gender.SetValue, gender)
 		return True
 	#--------------------------------------------------------
@@ -506,7 +529,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must enter lastname.'))
 			_pnl_form.PRW_lastname.SetBackgroundColour('pink')
 			_pnl_form.PRW_lastname.Refresh()
-#			_pnl_form.PRW_lastname.SetFocus()
 		else:
 			_pnl_form.PRW_lastname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.PRW_lastname.Refresh()
@@ -516,7 +538,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must enter first name.'))
 			_pnl_form.PRW_firstname.SetBackgroundColour('pink')
 			_pnl_form.PRW_firstname.Refresh()
-#			_pnl_form.PRW_firstname.SetFocus()
 		else:
 			_pnl_form.PRW_firstname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.PRW_firstname.Refresh()
@@ -527,7 +548,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must select gender.'))
 			_pnl_form.PRW_gender.SetBackgroundColour('pink')
 			_pnl_form.PRW_gender.Refresh()
-#			_pnl_form.PRW_gender.SetFocus()
 		else:
 			_pnl_form.PRW_gender.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.PRW_gender.Refresh()
@@ -539,7 +559,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, msg)
 			_pnl_form.TTC_dob.SetBackgroundColour('pink')
 			_pnl_form.TTC_dob.Refresh()
-#			_pnl_form.TTC_dob.SetFocus()
 		else:
 			_pnl_form.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 			_pnl_form.TTC_dob.Refresh()
@@ -1888,7 +1907,7 @@ def get_name_gender_map():
 	return _name_gender_map
 #============================================================
 def capitalize_first(txt):
-	txt_lst = txt.split(' ')
+	txt_lst = txt.split()
 	if len(txt_lst) > 0:
 		txt_lst[0] = txt_lst[0].capitalize()
 		txt = ' '.join(txt_lst)
@@ -1937,7 +1956,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.92  2006-06-20 10:04:40  ncq
+# Revision 1.93  2006-06-28 14:09:17  ncq
+# - more cleanup
+# - add cGenderSelectionPhraseWheel() and start using it
+#
+# Revision 1.92  2006/06/20 10:04:40  ncq
 # - removed reams of crufty code
 #
 # Revision 1.91  2006/06/20 09:42:42  ncq
