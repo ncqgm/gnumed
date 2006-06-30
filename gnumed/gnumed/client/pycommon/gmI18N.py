@@ -19,18 +19,17 @@ absolutely _have_ to be imported before this module you can explicitely
 import gmI18N into them at the very beginning.
 
 The text domain (i.e. the name of the message catalog file) is derived
-from the name of the main executing script unless explicitely given on
-the command line like this:
- --text-domain=<your text domain>
+from the name of the main executing script unless explicitely passed
+to install_domain(). Likewise with the language you want to see.
 
 This module searches for message catalog files in 3 main locations:
  - in standard POSIX places (/usr/share/locale/ ...)
- - below $GNUMED_DIR/locale/
- - below (one level above binary directory)/locale/
+ - below "${YOURAPPNAME_DIR}/locale/"
+ - below "<directory of binary of your app>/../locale/"
 
-For DOS/Windows I don't know of standard places so only the last
-option will work unless you have CygWin installed. I don't know a
-thing about classic Mac behaviour. New Macs are POSIX, of course.
+For DOS/Windows I don't know of standard places so probably only the
+last option will work. I don't know a thing about classic Mac behaviour.
+New Macs are POSIX, of course.
 
 The language you want to see is derived from  environment
 variables by the locale system.
@@ -38,14 +37,14 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.24 2006-06-26 21:35:57 ncq Exp $
+# $Id: gmI18N.py,v 1.25 2006-06-30 14:15:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import gettext, sys, os.path, string, os, re, locale
-import gmLog, gmCLI
+import sys, os.path, os, re, locale, gettext
+import gmLog
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -64,17 +63,6 @@ __tag__ = 'translate this or i18n will not work properly !'
 #
 #	import sys
 #	sys.setdefaultencoding('iso8859-1') # replace with encoding you want to be the default one
-
-# default is to not force unicode conversion for gettext
-unicode_flag = 0
-if gmCLI.has_arg('--unicode-gettext'):
-	try:
-		unicode_flag = int(gmCLI.arg['--unicode-gettext'])
-		if unicode_flag not in [0, 1]:
-			unicode_flag = 1
-			raise Exception
-	except:
-		_log.Log(gmLog.lErr, 'cannot use [%s] as value for --unicode-gettext, must use 0 or 1' % gmCLI.arg['--unicode-gettext'])
 
 #===========================================================================
 def __split_locale_into_levels():
@@ -111,20 +99,22 @@ def __log_locale_settings(message=None):
 	if message is not None:
 		_log.Log(gmLog.lData, message)
 
-	_log.Log(gmLog.lData, 'currently, locale is set to:')
-	for category in _setlocale_categories.keys():
-		_log.Log (gmLog.lData, 'locale.set_locale(%s): %s' % (category, locale.setlocale(_setlocale_categories[category])))
-
+	_log.Log(gmLog.lData, 'current locale settings:')
+	_log.Log(gmLog.lData, 'locale.get_locale(): %s' % str(locale.getlocale()))
 	for category in _getlocale_categories.keys():
 		_log.Log (gmLog.lData, 'locale.get_locale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
 
-	_log.Log(gmLog.lData, 'Python string encoding is set to: [%s]' % sys.getdefaultencoding())
-	_log.Log(gmLog.lData, 'preferred encoding in locale: [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
+	for category in _setlocale_categories.keys():
+		_log.Log (gmLog.lData, '(locale.set_locale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
 
 	try:
-		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
+		_log.Log(gmLog.lData, 'locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
 	except ValueError:
 		_log.LogException('the OS locale setup seems faulty')
+
+	_log.Log(gmLog.lData, 'locale.getpreferredencoding(): [%s]' % str(locale.getpreferredencoding(do_setlocale=False)))
+
+	_log.Log(gmLog.lData, 'sys.getdefaultencoding(): [%s]' % sys.getdefaultencoding())
 
 	_log.Log(gmLog.lData, 'locale related environment variables (LANG is typically used):')
 	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
@@ -154,149 +144,66 @@ def __log_locale_settings(message=None):
 def activate_locale():
 	"""Get system locale from environment."""
 	global system_locale
-	global system_locale_level
 
 	# logging state of affairs
 	__log_locale_settings('unmodified startup locale settings (should be [C])')
 
 	# activate user-preferred locale
+	loc, enc = None, None
 	try:
 		# check whether already set
-		system_locale, enc = locale.getlocale()
-		_log.Log(gmLog.lData, 'currently set locale: locale = [%s], encoding = [%s]' % (system_locale, enc))
-		if system_locale is None:
-			system_locale = locale.setlocale(locale.LC_ALL, '')
-			_log.Log(gmLog.lData, 'user default locale set to: [%s]' % system_locale)
+		loc, loc_enc = locale.getlocale()
+		if loc is None:
+			loc = locale.setlocale(locale.LC_ALL, '')
+			_log.Log(gmLog.lData, "activating user-default locale with <locale.setlocale(locale.LC_ALL, '')> returns: [%s]" % loc)
 		else:
-			_log.Log(gmLog.lInfo, 'user default locale already activated')
+			_log.Log(gmLog.lInfo, 'user-default locale already activated')
+		loc, loc_enc = locale.getlocale()
 	except AttributeError:
-		_log.LogException('Windows does not support $LC_ALL', sys.exc_info(), verbose=0)
+		_log.LogException('Windows does not support locale.LC_ALL', sys.exc_info(), verbose=0)
 	except:
-		_log.LogException('error activating user-preferred locale', sys.exc_info(), verbose=0)
+		_log.LogException('error activating user-default locale', sys.exc_info(), verbose=0)
+
+	__log_locale_settings('locale settings after activating user-default locale')
 
 	# did we find any locale setting ? assume en_EN if not
-	if system_locale in [None, 'C']:
-		_log.Log(gmLog.lErr, 'the system locale is not set to anything or is [C], assuming [en_EN]')
+	if loc in [None, 'C']:
+		_log.Log(gmLog.lErr, 'the current system locale is still [None] or [C], assuming [en_EN]')
 		system_locale = "en_EN"
 	else:
-		python_enc = sys.getdefaultencoding()
-		loc, locale_enc = locale.getlocale()
-		if locale_enc is None:
-			locale_enc = python_enc
-		if (python_enc == 'ascii') or (python_enc != locale_enc):
-			_log.Log(gmLog.lInfo, 'Python string encoding (%s) is <ascii> or does not match locale defined encoding (%s)' % (python_enc, locale_enc))
-			_log.Log(gmLog.lInfo, 'trying to set Python string encoding to [%s]' % locale_enc)
+		system_locale = loc
+
+		py_enc = sys.getdefaultencoding()
+		pref_loc_enc = locale.getpreferredencoding(do_setlocale=False)
+
+		if loc_enc is None:
+			loc_enc = python_enc
+
+		if (py_enc == 'ascii') or (py_enc != loc_enc):
+			_log.Log(gmLog.lInfo, 'Python string encoding (%s) is <ascii> or does not match encoding suggested by locale (%s)' % (py_enc, loc_enc))
+			_log.Log(gmLog.lInfo, 'trying to set Python string encoding to [%s]' % loc_enc)
 			try:
-				sys.setdefaultencoding(locale_enc)
+				sys.setdefaultencoding(loc_enc)
 			except AttributeError:
 				_log.Log(gmLog.lErr, 'Python string encoding must have been set already')
 			except LookupError:
-				_log.Log(gmLog.lErr, 'invalid encoding [%s], cannot set Python string encoding' % locale_enc)
+				_log.Log(gmLog.lErr, 'invalid encoding [%s], cannot set Python string encoding' % loc_enc)
 
 	# generate system locale levels
 	__split_locale_into_levels()
 
 	# logging state of affairs
-	__log_locale_settings('locale settings after activating user default locale')
+	__log_locale_settings('locale settings after trying to set Python string encoding')
 #---------------------------------------------------------------------------
-def __install_domain_old():
-	"""Install a text domain suitable for the main script.
-	"""
-	text_domain = ""
-	# text domain given on command line ?
-	if gmCLI.has_arg('--text-domain'):
-		text_domain = gmCLI.arg['--text-domain']
-	# else get text domain from name of script 
-	else:
-		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-
-	_log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
-
-	# search for message catalog
-	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
-
-	# now we can install this text domain
-	# 1) try standard places first
-	if os.name == 'posix':
-		_log.Log(gmLog.lData, 'looking in standard POSIX locations (see Python Manual)')
-		try:
-			gettext.install(text_domain, unicode=unicode_flag)
-			_log.Log(gmLog.lData, 'found msg catalog')
-			return 1
-		except IOError:
-			# most likely we didn't have a .mo file
-			_log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), verbose=0)
-	else:
-		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
-
-	# 2) $(<script-name>_DIR)/
-	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
-	_log.Log(gmLog.lData, 'looking at $(%s)' % env_key)
-	if os.environ.has_key(env_key):
-		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], "locale"))
-		_log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
-		if os.path.exists(loc_dir):
-			try:
-				gettext.install(text_domain, loc_dir, unicode=unicode_flag)
-				_log.Log(gmLog.lData, 'found msg catalog')
-				return 1
-			except IOError:
-				# most likely we didn't have a .mo file
-				_log.LogException('Cannot install textdomain from custom location [%s].' % (loc_dir), sys.exc_info())
-		else:
-			_log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
-	else:
-		_log.Log(gmLog.lInfo, "$(%s) not set" % env_key)
-
-	# 3) one level below path to binary
-	#    last resort for inferior operating systems such as DOS/Windows
-	#    strip one directory level
-	#    this is a rather neat trick :-)
-	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
-	_log.Log(gmLog.lData, 'looking near binary install directory [%s]' % loc_dir)
-	#    sanity check (paranoia rulez)
-	if os.path.exists(loc_dir):
-		try:
-			gettext.install(text_domain, loc_dir, unicode=unicode_flag)
-			_log.Log(gmLog.lData, 'found msg catalog')
-			return 1
-		except IOError:
-			# most likely we didn't have a .mo file
-			_log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), sys.exc_info(), 0)
-	else:
-		_log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
-
-	# 4) in path to binary
-	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
-	_log.Log(gmLog.lData, 'looking in binary install directory [%s]' % loc_dir)
-	#    sanity check (paranoia rulez)
-	if os.path.exists(loc_dir):
-		try:
-			gettext.install(text_domain, loc_dir, unicode=unicode_flag)
-			_log.Log(gmLog.lData, 'found msg catalog')
-			return 1
-		except IOError:
-			# most likely we didn't have a .mo file
-			_log.LogException('Cannot install textdomain from within path to binary [%s].' % (loc_dir), sys.exc_info(), 0)
-	else:
-		_log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
-
-	# 5) install a dummy translation class
-	_log.Log(gmLog.lWarn, "Giving up and falling back to NullTranslations() class in despair.")
-	# this shouldn't fail
-	dummy = gettext.NullTranslations()
-	dummy.install()
-	return 1
-#---------------------------------------------------------------------------
-def install_domain():
+def install_domain(text_domain=None, language=None, unicode_flag=0):
 	"""Install a text domain suitable for the main script."""
-	# set up environment
-	text_domain = ''
-	# text domain given on command line ?
-	if gmCLI.has_arg('--text-domain'):
-		text_domain = gmCLI.arg['--text-domain']
-	# else get text domain from name of script
-	else:
+
+	if unicode_flag not in [0, 1]:
+		raise ValueError, '<unicode_flag> cannot be [%s], must be 0 or 1' % unicode_flag
+
+	# text domain directly specified ?
+	if text_domain is None:
+		# get text domain from name of script
 		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 	_log.Log(gmLog.lInfo, 'text domain is [%s]' % text_domain)
 
@@ -308,11 +215,10 @@ def install_domain():
 		else:
 			_log.Log(gmLog.lData, '${%s} = [%s]' % (env_var, tmp))
 
-	if gmCLI.has_arg('--lang-gettext'):
-		lang = gmCLI.arg['--lang-gettext']
-		_log.Log(gmLog.lInfo, 'explicit setting of ${LANG} requested: [%s]' % lang)
-		_log.Log(gmLog.lInfo, 'this overrides the system locale setting')
-		os.environ['LANG'] = lang
+	if language is not None:
+		_log.Log(gmLog.lInfo, 'explicit setting of ${LANG} requested: [%s]' % language)
+		_log.Log(gmLog.lInfo, 'this will override the system locale language setting')
+		os.environ['LANG'] = language
 
 	# search for message catalog
 	candidates = []
@@ -325,7 +231,7 @@ def install_domain():
 	else:
 		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
 	# 2) $(<script-name>_DIR)/
-	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
+	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
 	_log.Log(gmLog.lData, 'looking at ${%s}' % env_key)
 	if os.environ.has_key(env_key):
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'locale'))
@@ -387,7 +293,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.24  2006-06-26 21:35:57  ncq
+# Revision 1.25  2006-06-30 14:15:39  ncq
+# - remove dependancy on gmCLI
+# - set unicode_flag, text_domain and language explicitely in install_domain()
+#
+# Revision 1.24  2006/06/26 21:35:57  ncq
 # - improved logging
 #
 # Revision 1.23  2006/06/20 09:37:33  ncq
