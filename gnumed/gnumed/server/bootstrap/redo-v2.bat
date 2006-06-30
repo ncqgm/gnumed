@@ -1,5 +1,5 @@
 @echo off
-rem set PATH=%PATH%c:\python23;c:\Programme\PostgreSQL\8.0\bin
+rem set PATH=%PATH%;c:\python23;c:\Programme\PostgreSQL\8.0\bin
 rem set PYTHONPATH="%PYTHONPATH%;../../"
 
 set VER=2
