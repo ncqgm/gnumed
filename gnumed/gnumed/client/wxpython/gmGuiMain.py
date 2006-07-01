@@ -13,14 +13,14 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.251 2006-06-28 10:18:02 ncq Exp $
-__version__ = "$Revision: 1.251 $"
+# $Id: gmGuiMain.py,v 1.252 2006-07-01 11:32:13 ncq Exp $
+__version__ = "$Revision: 1.252 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import sys, time, os, cPickle, zlib
+import sys, time, os, cPickle, zlib, locale
 
 try:
 	import wxversion
@@ -51,12 +51,21 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.VERSION_STRING)
 
+
 # set up database connection encoding
-encoding = _cfg.get('backend', 'client encoding')
-if encoding is None:
-	_log.Log(gmLog.lInfo, 'you need to set the parameter <client encoding> in the config file')
-	_log.Log(gmLog.lInfo, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
-	gmPG.set_default_client_encoding(encoding)
+encoding = {}
+enc = _cfg.get('backend', 'wire encoding')
+if enc is None:
+	encoding['wire'] = locale.getlocale()[1]
+else:
+	encoding['wire'] = enc
+enc = _cfg.get('backend', 'string encoding')
+if enc is None:
+	encoding['string'] = locale.getlocale()[1]
+else:
+	encoding['string'] = enc
+gmPG.set_default_client_encoding(encoding)
+
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
@@ -1107,7 +1116,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.251  2006-06-28 10:18:02  ncq
+# Revision 1.252  2006-07-01 11:32:13  ncq
+# - setting up database connection encoding now requires two encoding names
+#
+# Revision 1.251  2006/06/28 10:18:02  ncq
 # - only set gmPG default client encoding if actually set in the config file
 #
 # Revision 1.250  2006/06/13 20:35:46  ncq
