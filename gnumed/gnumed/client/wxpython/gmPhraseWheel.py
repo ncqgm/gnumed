@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.73 2006-07-01 13:14:50 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmPhraseWheel.py,v 1.74 2006-07-01 15:14:26 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -73,12 +73,8 @@ class cPhraseWheel (wx.TextCtrl):
 		self.__register_events()
 
 		# multiple matches dropdown list
-		tmp = kwargs.copy()
-#		width, height = self.GetSize()
-#		x, y = self.GetPosition()
-#		self.__dropdown = wx.Window(parent, -1, pos=(x, y+ height), size=(width, height*6))
 		self.__dropdown = wx.PopupWindow(parent)
-		self.__picklist_pnl = wx.Panel(self.__dropdown, -1)
+		self.__picklist_pnl = wx.Panel(self.__dropdown, -1, style=wx.SIMPLE_BORDER)
 		self._picklist = wx.ListBox(self.__picklist_pnl, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
 		self._picklist.Clear()
 		self.__dropdown.Hide()
@@ -96,7 +92,6 @@ class cPhraseWheel (wx.TextCtrl):
 	def __register_events(self):
 		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
 		wx.EVT_KEY_DOWN (self, self._on_key_pressed)
-		wx.EVT_SIZE (self, self._on_resize)
 		wx.EVT_SET_FOCUS(self, self._on_set_focus)
 		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
 	#--------------------------------------------------------
@@ -227,39 +222,36 @@ class cPhraseWheel (wx.TextCtrl):
 		Can be any object with a method SetFocus ()
 		"""
 		self.add_callback_on_selection(lambda x: x and aWidget.SetFocus())
-	#--------------------------------------------------------
-	def setDependent (self, wheel, context_var):
-		"""
-		Convience function to make one phrasewheel's match context
-		dependent upon another's value
-		"""
-		self.add_callback_on_selection(lambda x: wheel.set_context(context_var, x))
 	#---------------------------------------------------------------------
-	def _updateMatches(self):
+	def _updateMatches(self, val=None):
 		"""Get the matches for the currently typed input fragment."""
 
-		# get current(ly relevant part of) input
-		if self.__handle_multiple_phrases:
-			entire_input = self.GetValue()
-			cursor_pos = self.GetInsertionPoint()
-			left_of_cursor = entire_input[:cursor_pos]
-			right_of_cursor = entire_input[cursor_pos:]
-			left_boundary = self.phrase_separators.search(left_of_cursor)
-			if left_boundary is not None:
-				phrase_start = left_boundary.end()
+		if val is None:
+			# get current(ly relevant part of) input
+			if self.__handle_multiple_phrases:
+				entire_input = self.GetValue()
+				cursor_pos = self.GetInsertionPoint()
+				left_of_cursor = entire_input[:cursor_pos]
+				right_of_cursor = entire_input[cursor_pos:]
+				left_boundary = self.phrase_separators.search(left_of_cursor)
+				if left_boundary is not None:
+					phrase_start = left_boundary.end()
+				else:
+					phrase_start = 0
+				self.left_part = entire_input[:phrase_start]
+				# find next phrase separator after cursor position
+				right_boundary = self.phrase_separators.search(right_of_cursor)
+				if right_boundary is not None:
+					phrase_end = cursor_pos + (right_boundary.start() - 1)
+				else:
+					phrase_end = len(entire_input) - 1
+				self.right_part = entire_input[phrase_end+1:]
+				self.input2match = entire_input[phrase_start:phrase_end+1]
 			else:
-				phrase_start = 0
-			self.left_part = entire_input[:phrase_start]
-			# find next phrase separator after cursor position
-			right_boundary = self.phrase_separators.search(right_of_cursor)
-			if right_boundary is not None:
-				phrase_end = cursor_pos + (right_boundary.start() - 1)
-			else:
-				phrase_end = len(entire_input) - 1
-			self.right_part = entire_input[phrase_end+1:]
-			self.input2match = entire_input[phrase_start:phrase_end+1]
+				self.input2match = self.GetValue()
 		else:
-			self.input2match = self.GetValue()
+			# find matches for given value
+			self.input2match = val
 
 		# get all currently matching items
 		if self.__matcher:
@@ -283,6 +275,9 @@ class cPhraseWheel (wx.TextCtrl):
 		if not self._has_focus:
 			return 1
 
+		if len(self.__currMatches) == 0:
+			return 1
+
 		# if only one match and text == match
 		if len(self.__currMatches) == 1:
 			if self.__currMatches[0]['label'] == self.input2match:
@@ -291,23 +286,25 @@ class cPhraseWheel (wx.TextCtrl):
 				return 1
 
 		# recalculate size
+		rows = len(self.__currMatches)
+		if rows < 2: rows = 2
+		if rows > 10: rows = 20
 		dropdown_size = self.__dropdown.GetSize()
 		pw_size = self.GetSize()
 		dropdown_size.SetWidth(pw_size.width)
-		dropdown_size.SetHeight(pw_size.height * 6)
+		dropdown_size.SetHeight((pw_size.height * rows) + 4)
 		self.__dropdown.SetSize(dropdown_size)
+		self.__picklist_pnl.SetSize(self.__dropdown.GetClientSize())
 		self._picklist.SetSize(self.__dropdown.GetClientSize())
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
-		print "phrasewheel is at:", pw_x_abs, pw_y_abs, "(absolute)"
 #		(parent_x_abs, parent_y_abs) = self.GetParent().ClientToScreenXY(0,0)
 #		print "phrasewheel parent is at:", pw_x_abs, pw_y_abs, "(absolute)"
 #		new_x = pw_x_abs - parent_x_abs
 #		new_y = pw_y_abs - parent_y_abs + pw_size.height
 		new_x = pw_x_abs
 		new_y = pw_y_abs + pw_size.height
-		print "dropdown new pos is:", new_x, new_y
 		self.__dropdown.MoveXY(new_x, new_y)
 
 		# select first value
@@ -316,7 +313,6 @@ class cPhraseWheel (wx.TextCtrl):
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
 		self.__dropdown.Show(True)
-#		self._picklist.Show()
 	#--------------------------------------------------------
 	def _hide_dropdown(self):
 		"""Hide the pick list."""
@@ -367,12 +363,12 @@ class cPhraseWheel (wx.TextCtrl):
 			self.Navigate()
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
-		# if we already have a pick list go to next item
+
 		if self.__dropdown.IsShown():
-#			self._picklist.ProcessEvent (key)
 			selected = self._picklist.GetSelection()
 			if selected < (len(self.__currMatches) - 1):
 				self._picklist.SetSelection(selected+1)
+				self._picklist.EnsureVisible(selected+1)
 
 		# if we don't yet have a pick list
 		# - open new pick list
@@ -383,10 +379,11 @@ class cPhraseWheel (wx.TextCtrl):
 			# don't need timer anymore since user explicitely requested list
 			self.__timer.Stop()
 			# update matches according to current input
-			self._updateMatches()
-			# if we do have matches now show list
-			if len(self.__currMatches) > 0:
-				self._show_dropdown()
+			if self.GetValue().strip() == '':
+				self._updateMatches(val='*')
+			else:
+				self._updateMatches()
+			self._show_dropdown()
 	#--------------------------------------------------------
 	def __on_up_arrow(self, key):
 		if self.__dropdown.IsShown():
@@ -394,6 +391,7 @@ class cPhraseWheel (wx.TextCtrl):
 			# select previous item if available
 			if selected > 0:
 				self._picklist.SetSelection(selected-1)
+				self._picklist.EnsureVisible(selected-1)
 			else:
 				# FIXME: return to input field and close pick list ?
 				pass
@@ -410,6 +408,7 @@ class cPhraseWheel (wx.TextCtrl):
 		if key.GetKeyCode() == wx.WXK_DOWN:
 			self.__on_down_arrow(key)
 			return
+
 		# user moved up
 		if key.GetKeyCode() == wx.WXK_UP:
 			self.__on_up_arrow(key)
@@ -450,19 +449,6 @@ class cPhraseWheel (wx.TextCtrl):
 				notify_listener(None)
 			self.notified_listeners = False
 	#--------------------------------------------------------
-	def _on_resize (self, event):
-		sz = self.GetSize()
-		# resize: as wide as the textctrl, and 1-10 times the height
-		rows = len(self.__currMatches)
-		if rows < 2:
-			rows = 2
-		if rows > 10:
-			rows = 10
-		new_size = (sz.width, sz.height*rows)
-		self._picklist.SetSize(new_size)
-		self.__picklist_pnl.SetSize (self._picklist.GetSize())
-		self.__dropdown.SetSize (self.__picklist_pnl.GetSize())
-	#--------------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		"""Callback for delayed match retrieval timer.
 
@@ -481,7 +467,6 @@ class cPhraseWheel (wx.TextCtrl):
 		# display list - but only if we have more than one match
 		if len(self.__currMatches) > 0:
 			# show it
-			self._on_resize(None)
 			self._show_dropdown()
 		else:
 			# we may have had a pick list window so we
@@ -585,7 +570,6 @@ if __name__ == '__main__':
 #				size = (180, 30),
 				aMatchProvider = mp1
 			)
-			ww1._on_resize (None)
 
 			print "Do you want to test the database connected phrase wheel ?"
 			yes_no = raw_input('y/n: ')
@@ -609,7 +593,6 @@ if __name__ == '__main__':
 					size = (180, 30),
 					aMatchProvider = mp2
 				)
-				ww2._on_resize (None)
 
 			frame.Show (1)
 			return 1
@@ -619,7 +602,14 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.73  2006-07-01 13:14:50  ncq
+# Revision 1.74  2006-07-01 15:14:26  ncq
+# - lots of cleanup
+# - simple border around list dropdown
+# - remove on_resize handling
+# - remove setdependant()
+# - handle down-arrow to drop down list
+#
+# Revision 1.73  2006/07/01 13:14:50  ncq
 # - cleanup as gleaned from TextCtrlAutoComplete
 #
 # Revision 1.72  2006/06/28 22:16:08  ncq
