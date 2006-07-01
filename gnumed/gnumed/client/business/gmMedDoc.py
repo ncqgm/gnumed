@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.70 2006-06-26 21:37:14 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmMedDoc.py,v 1.71 2006-07-01 11:23:35 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -360,24 +360,21 @@ order by
 
 		# read from file and convert (escape)
 		aFile = file(fname, "rb")
-#		img_data = str(aFile.read())
-		img_data = aFile.read()
+		byte_str_img_data = aFile.read()
 		aFile.close()
-		img_obj = PgBytea(img_data)
-		del(img_data)
+		del aFile
+		img_obj = PgBytea(byte_str_img_data)
+		del(byte_str_img_data)
 
 		pool = gmPG.ConnectionPool()
-		conn = pool.GetConnection('blobs', readonly = 0, encoding = 'sql_ascii')
+		conn = pool.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
 
 		# insert the data
-#		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
-		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
+		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
 		success, data = gmPG.run_commit2 (
-#			link_obj = 'blobs',
 			link_obj = conn,
 			queries = [
-#				(cmd1, []),
-				(cmd2, [img_obj, self.pk_obj])
+				(cmd, [img_obj, self.pk_obj])
 			],
 			end_tx = True
 		)
@@ -397,7 +394,7 @@ order by
 		img_obj = PgBytea(data)
 
 		pool = gmPG.ConnectionPool()
-		conn = pool.GetConnection('blobs', readonly = 0, encoding = 'sql_ascii')
+		conn = pool.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
 
 		# insert the data
 #		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
@@ -740,7 +737,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.70  2006-06-26 21:37:14  ncq
+# Revision 1.71  2006-07-01 11:23:35  ncq
+# - cleanup
+#
+# Revision 1.70  2006/06/26 21:37:14  ncq
 # - properly use explicit encoding setting in put/get
 #   data for document objects
 #
