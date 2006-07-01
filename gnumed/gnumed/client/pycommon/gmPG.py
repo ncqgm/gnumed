@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -61,7 +61,7 @@ assert(dbapi.paramstyle == 'pyformat')
 _listener_api = None
 
 # default encoding for connections
-_default_client_encoding = None
+_default_client_encoding = {'wire': None, 'string': None}
 
 # default time zone for connections
 # OR: mxDT.now().gmtoffset()
@@ -468,6 +468,9 @@ class ConnectionPool:
 			- encoding specified in the call to __pgconnect() overrides
 			- encoding set by a call to gmPG.set_default_encoding() overrides
 			- encoding taken from Python string encoding
+		- wire_encoding and string_encoding must essentially be just different
+		  names for one and the same (IOW entirely compatible) encodings, such
+		  as "win1250" and "cp1250"
 		"""
 		dsn = ""
 		hostport = ""
@@ -476,13 +479,32 @@ class ConnectionPool:
 
 		if encoding is None:
 			encoding = _default_client_encoding
-			if encoding is None:
-				encoding = sys.getdefaultencoding()
-				_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
-				_log.Log(gmLog.lWarn, 'therefore the current Python string encoding is used: [%s]' % encoding)
+
+		# encoding a Unicode string with this encoding must
+		# yield a byte string encoded such that it can be decoded
+		# safely by wire_encoding
+		string_encoding = encoding['string']
+		if string_encoding is None:
+			string_encoding = _default_client_encoding['string']
+		if string_encoding is None:
+			string_encoding = sys.getdefaultencoding()
+			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
+			_log.Log(gmLog.lWarn, 'therefore the current Python string encoding is used: [%s]' % string_encoding)
+		_log.Log(gmLog.lInfo, 'using string encoding [%s] to encode Unicode strings for transmission to the database' % string_encoding)
+
+		# Python does not necessarily have to know this encoding by name
+		# but it must know an equivalent encoding which guarantees roundtrip
+		# equality (set that via string_encoding)
+		wire_encoding = encoding['wire']
+		if wire_encoding is None:
+			wire_encoding = _default_client_encoding['wire']
+		if wire_encoding is None:
+			wire_encoding = string_encoding
+		if wire_encoding is None:
+			raise ValueError, '<wire_encoding> cannot be None'
 
 		try:
-			conn = dbapi.connect(dsn=dsn, client_encoding=(encoding, 'strict'), unicode_results=0)
+			conn = dbapi.connect(dsn=dsn, client_encoding=(string_encoding, 'strict'), unicode_results=0)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
@@ -491,12 +513,20 @@ class ConnectionPool:
 		curs = conn.cursor()
 
 		# - client encoding
-		cmd = "set client_encoding to '%s'" % encoding
-		if not run_query(curs, None, cmd):
-			_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
-			_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
-		else:
-			_log.Log(gmLog.lData, 'client encoding set to [%s]' % encoding)
+		cmd = "set client_encoding to '%s'" % wire_encoding
+		try:
+			curs.execute(cmd)
+		except:
+			curs.close()
+			conn.close()
+			_log.Log(gmLog.lErr, 'query [%s]' % cmd)
+			_log.LogException (
+				'cannot set string-on-the-wire client_encoding on connection to [%s], this would likely lead to data corruption' % wire_encoding,
+				sys.exc_info(),
+				verbose = _query_logging_verbosity
+			)
+			raise
+		_log.Log(gmLog.lData, 'string-on-the-wire client_encoding set to [%s]' % wire_encoding)
 
 		# - client time zone
 #		cmd = "set session time zone interval '%s'" % _default_client_timezone
@@ -1327,7 +1357,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.73 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.74 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1347,9 +1377,9 @@ def add_housekeeping_todo(
 #---------------------------------------------------
 #---------------------------------------------------
 def set_default_client_encoding(encoding = None):
-	if encoding is None:
-		return None
-	_log.Log(gmLog.lInfo, 'setting default client encoding to [%s]' % encoding)
+	encoding['string']
+	encoding['wire']
+	_log.Log(gmLog.lInfo, 'setting default client encoding to [%s]' % str(encoding))
 	global _default_client_encoding
 	_default_client_encoding = encoding
 	return 1
@@ -1563,7 +1593,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.73  2006-06-26 21:49:06  ncq
+# Revision 1.74  2006-07-01 11:24:56  ncq
+# - make encoding parameter a dict so we can give two names for
+#   the same encoding: one to use with PG and one to use with Python
+#
+# Revision 1.73  2006/06/26 21:49:06  ncq
 # - cleanup and fix encoding handling
 #
 # Revision 1.72  2006/06/20 09:38:12  ncq
