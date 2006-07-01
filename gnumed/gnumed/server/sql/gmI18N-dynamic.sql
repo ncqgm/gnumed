@@ -3,7 +3,7 @@
 -- ======================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N-dynamic.sql,v $
--- $Id: gmI18N-dynamic.sql,v 1.3 2006-02-06 13:18:27 ncq Exp $
+-- $Id: gmI18N-dynamic.sql,v 1.4 2006-07-01 15:22:03 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -170,12 +170,10 @@ BEGIN
 	if exists(select pk from i18n.translations where lang = _lang) then
 		delete from i18n.curr_lang where user = CURRENT_USER;
 		insert into i18n.curr_lang (lang) values (_lang);
-		return 1;
-	else
-		raise exception ''Cannot set current language to [%]. No translations available.'', _lang;
-		return NULL;
+		return true;
 	end if;
-	return NULL;
+	raise notice ''Cannot set current language to [%]. No translations available.'', _lang;
+	return false;
 END;
 ';
 
@@ -217,11 +215,10 @@ BEGIN
 	if exists(select pk from i18n.translations where lang = _lang) then
 		delete from i18n.curr_lang where user = _user;
 		insert into i18n.curr_lang("user", lang) values (_user, _lang);
-	else
-		raise exception ''Cannot set current language to [%]. No translations available.'', _lang;
-		return False;
+		return true;
 	end if;
-	return True;
+	raise notice ''Cannot set current language to [%]. No translations available.'', _lang;
+	return False;
 END;
 ';
 
@@ -260,11 +257,14 @@ TO group "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.3 $');
+select log_script_insertion('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmI18N-dynamic.sql,v $
--- Revision 1.3  2006-02-06 13:18:27  ncq
+-- Revision 1.4  2006-07-01 15:22:03  ncq
+-- - do not hard-fail set_curr_lang()
+--
+-- Revision 1.3  2006/02/06 13:18:27  ncq
 -- - quote user when column name
 --
 -- Revision 1.2  2006/01/10 08:44:22  ncq
