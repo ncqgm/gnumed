@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.27 2006-07-01 11:23:50 ncq Exp $
+# $Id: gmI18N.py,v 1.28 2006-07-01 13:12:14 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -261,7 +261,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 
 	# now try to actually install it
 	for candidate in candidates:
-		_log.Log(gmLog.lData, 'trying [%s]' % candidate)
+		_log.Log(gmLog.lData, 'trying [%s](/%s/LC_MESSAGES/%s.mo)' % (candidate, system_locale, text_domain))
 		if not os.path.exists(candidate):
 			continue
 		try:
@@ -301,7 +301,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.27  2006-07-01 11:23:50  ncq
+# Revision 1.28  2006-07-01 13:12:14  ncq
+# - better logging
+#
+# Revision 1.27  2006/07/01 11:23:50  ncq
 # - one more hint added
 #
 # Revision 1.26  2006/07/01 09:42:30  ncq
