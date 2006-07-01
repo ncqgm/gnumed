@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.39 2006-06-15 15:35:30 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmDateTimeInput.py,v 1.40 2006-07-01 13:12:32 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -614,7 +614,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if re.match("^\d{1,2}/{1}\d{4}$", val):
 			parts = val.split('/')
 			self.data = gmFuzzyTimestamp.cFuzzyTimestamp (
-				timestamp = self.__now + mxDT.RelativeDateTime(year = int(part[1]), month = int(part[0])),
+				timestamp = mxDT.now() + mxDT.RelativeDateTime(year = int(part[1]), month = int(part[0])),
 				accuracy = gmFuzzyTimestamp.acc_months
 			)
 			return True
@@ -716,32 +716,40 @@ if __name__ == '__main__':
 
 			frame.Show (1)
 			return 1
+
 	#--------------------------------------------------------
-#	app = TestApp()
-#	app.MainLoop()
-
-#	app = wx.PyWidgetTester(size = (200, 300))
-#	app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
-#	app.MainLoop()
-
-	mp = cMatchProvider_FuzzyTimestamp()
-	mp.setWordSeparators('xxx_do_not_separate_words_xxx')
-	mp.setThresholds(aWord = 998, aSubstring = 999)
-	val = None
-	while val != 'exit':
-		print "************************************"
-		val = raw_input('Enter date fragment: ')
-		found, matches = mp.getMatches(aFragment=val)
-		for match in matches:
-			print match['label']
-			print match['data']
-			print "---------------"
+	def test_cli():
+		mp = cMatchProvider_FuzzyTimestamp()
+		mp.setWordSeparators('xxx_do_not_separate_words_xxx')
+		mp.setThresholds(aWord = 998, aSubstring = 999)
+		val = None
+		while val != 'exit':
+			print "************************************"
+			val = raw_input('Enter date fragment: ')
+			found, matches = mp.getMatches(aFragment=val)
+			for match in matches:
+				print match['label']
+				print match['data']
+				print "---------------"
+	#--------------------------------------------------------
+	def test_gui():
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+		app = wx.PyWidgetTester(size = (200, 300))
+		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
+	#--------------------------------------------------------
+#	test_cli()
+	test_gui()
 
 #==================================================
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.39  2006-06-15 15:35:30  ncq
+# Revision 1.40  2006-07-01 13:12:32  ncq
+# - improve test harness
+#
+# Revision 1.39  2006/06/15 15:35:30  ncq
 # - better error handling
 #
 # Revision 1.38  2006/06/05 21:30:08  ncq
