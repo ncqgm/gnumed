@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===========================================================
-# gnumed.py - launcher for the main gnumed GUI client module
+# gnumed.py - launcher for the main GNUmed GUI client module
 #===========================================================
 
 __doc__ = """
@@ -47,8 +47,8 @@ intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.96 2006-06-26 21:38:09 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gnumed.py,v 1.97 2006-07-01 11:33:52 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -157,65 +157,23 @@ rquirements please ask on the mailing list.
 	return 1
 #==========================================================
 def setup_locale():
-#	import locale
+	from Gnumed.pycommon import gmI18N
 
-	# logging state of affairs
-#	_log.Log(gmLog.lData, 'startup locale settings (should be C locale): %s' % locale.setlocale(locale.LC_ALL))
-#	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
-#	try:
-#		_log.Log(gmLog.lData, 'default (user) locale: %s' % str(locale.getdefaultlocale()))
-#	except ValueError:
-#		_log.LogException('the OS locale setup seems faulty')
-#		return False
-#	_log.Log(gmLog.lData, 'initial database of locale conventions:')
-#	data = locale.localeconv()
-#	for key in data.keys():
-#		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
+	gmI18N.activate_locale()
 
-	# setting locale to user default
-#	_log.Log(gmLog.lInfo, 'trying to set application locale to user default')
-#	try:
-#		locale.setlocale(locale.LC_ALL, '')
-#	except locale.Error:
-#		_log.Log(gmLog.lErr, 'cannot set application locale to user default')
-#		return False
+	td = None
+	if gmCLI.has_arg('--text-domain'):
+		td = gmCLI.arg['--text-domain']
 
-	# logging state of affairs again
-#	_log.Log(gmLog.lInfo, 'user default locale settings: %s' % locale.setlocale(locale.LC_ALL))
-#	_log.Log(gmLog.lData, 'getlocale(): %s' % str(locale.getlocale()))
-#	_log.Log(gmLog.lData, 'database of user locale conventions:')
-#	data = locale.localeconv()
-#	for key in data.keys():
-#		_log.Log(gmLog.lData, '%s: %s' % (key, data[key]))
+	l = None
+	if gmCLI.has_arg('--lang-gettext'):
+		td = gmCLI.arg['--lang-gettext']
 
-#	try:
-#		info_codes = {
-#			locale.CODESET: 'codeset',
-#			locale.D_T_FMT : 'date/time format',
-#			locale.D_FMT : 'date format',
-#			locale.T_FMT : 'time format',
-#			locale.T_FMT_AMPM : 'time format am/pm',
-#			locale.RADIXCHAR : 'radix character',
-#			locale.THOUSEP : 'thousand separator',
-#			locale.YESEXPR : 'regex for "yes"',
-#			locale.NOEXPR : 'regex for "no"',
-#			locale.CRNCYSTR : 'currency symbol'
-			#, locale.ERA : 'era',
-			#locale.ERA_D_T_FMT : 'date/time format for era',
-			#locale.ERA_D_FMT : 'date format for era',
-			#locale.ALT_DIGITS : 'alternative digit representation'
-#		}
-#	except:
-#		info_codes = {}
-#		_log.Log(gmLog.lData, 'Locale setup failed. Maybe we are on MS Windows.')
-		
-#	for code in info_codes.keys():
-#		try:
-#			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
-#		except ValueError, AttributeError:
-#			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
-#		except:
-#			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
+	u = 0
+	if gmCLI.has_arg('--unicode-gettext'):
+		u = int(gmCLI.arg['--unicode-gettext'])
+
+	gmI18N.install_domain(text_domain = td, language = l, unicode_flag = u)
 
 	return True
 #==========================================================
@@ -403,14 +361,14 @@ sys.excepthook = handle_uncaught_exception
 
 setup_logging()
 
-from Gnumed.pycommon import gmI18N
-gmI18N.activate_locale()
-gmI18N.install_domain()
+setup_locale()
 
 # help requested ?
 if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
-	print "help requested"
-	print "--------------"
+	print _(
+		'Help requested'
+		'--------------'
+	)
 	print __doc__
 	sys.exit(0)
 
@@ -493,7 +451,11 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.96  2006-06-26 21:38:09  ncq
+# Revision 1.97  2006-07-01 11:33:52  ncq
+# - --text-domain/--lang-gettext/--unicode-gettext CLI options
+#   must now be provided by gmI18N *importers*
+#
+# Revision 1.96  2006/06/26 21:38:09  ncq
 # - cleanup
 #
 # Revision 1.95  2006/06/15 21:34:46  ncq
