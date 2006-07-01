@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.72 2006-06-28 22:16:08 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmPhraseWheel.py,v 1.73 2006-07-01 13:14:50 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -74,14 +74,14 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# multiple matches dropdown list
 		tmp = kwargs.copy()
-		width, height = self.GetSize()
-		x, y = self.GetPosition()
-		self.__picklist_win = wx.Window(parent, -1, pos=(x, y+ height), size=(width, height*6))
-		self.__picklist_pnl = wx.Panel(self.__picklist_win, -1)
+#		width, height = self.GetSize()
+#		x, y = self.GetPosition()
+#		self.__dropdown = wx.Window(parent, -1, pos=(x, y+ height), size=(width, height*6))
+		self.__dropdown = wx.PopupWindow(parent)
+		self.__picklist_pnl = wx.Panel(self.__dropdown, -1)
 		self._picklist = wx.ListBox(self.__picklist_pnl, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
 		self._picklist.Clear()
-		self.__picklist_win.Hide ()
-		self.__picklist_visible = False
+		self.__dropdown.Hide()
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		if self.__gb.has_key('main.slave_mode') and self.__gb['main.slave_mode']:
@@ -272,7 +272,7 @@ class cPhraseWheel (wx.TextCtrl):
 		else:
 			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
 	#--------------------------------------------------------
-	def __show_picklist(self):
+	def _show_dropdown(self):
 		"""Display the pick list."""
 
 		# this helps if the current input was already selected from the
@@ -287,33 +287,41 @@ class cPhraseWheel (wx.TextCtrl):
 		if len(self.__currMatches) == 1:
 			if self.__currMatches[0]['label'] == self.input2match:
 				# don't display drop down list
-				self._hide_picklist()
+				self._hide_dropdown()
 				return 1
 
+		# recalculate size
+		dropdown_size = self.__dropdown.GetSize()
+		pw_size = self.GetSize()
+		dropdown_size.SetWidth(pw_size.width)
+		dropdown_size.SetHeight(pw_size.height * 6)
+		self.__dropdown.SetSize(dropdown_size)
+		self._picklist.SetSize(self.__dropdown.GetClientSize())
+
 		# recalculate position
-		(self_x, self_y) = self.ClientToScreenXY(0,0)
-		(parent_x, parent_y) = self.GetParent().ClientToScreenXY(0,0)
-		sz = self.GetSize()
-		new_x = self_x - parent_x
-		new_y = self_y - parent_y + sz.height
-		self.__picklist_win.MoveXY(new_x, new_y)
+		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
+		print "phrasewheel is at:", pw_x_abs, pw_y_abs, "(absolute)"
+#		(parent_x_abs, parent_y_abs) = self.GetParent().ClientToScreenXY(0,0)
+#		print "phrasewheel parent is at:", pw_x_abs, pw_y_abs, "(absolute)"
+#		new_x = pw_x_abs - parent_x_abs
+#		new_y = pw_y_abs - parent_y_abs + pw_size.height
+		new_x = pw_x_abs
+		new_y = pw_y_abs + pw_size.height
+		print "dropdown new pos is:", new_x, new_y
+		self.__dropdown.MoveXY(new_x, new_y)
 
 		# select first value
 		self._picklist.SetSelection(0)
 
-		# remember that we have a list window
-		self.__picklist_visible = True
-
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
-		self.__picklist_win.Show()
-		self._picklist.Show()
+		self.__dropdown.Show(True)
+#		self._picklist.Show()
 	#--------------------------------------------------------
-	def _hide_picklist(self):
+	def _hide_dropdown(self):
 		"""Hide the pick list."""
-		if self.__picklist_visible:
-			self.__picklist_win.Hide()		# dismiss the dropdown list window
-		self.__picklist_visible = False
+		if self.__dropdown.IsShown():
+			self.__dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def _calc_display_string(self):
 		return self._picklist.GetString(self._picklist.GetSelection())
@@ -322,7 +330,7 @@ class cPhraseWheel (wx.TextCtrl):
 	#--------------------------------------------------------
 	def on_list_item_selected (self):
 		"""Gets called when user selected a list item."""
-		self._hide_picklist()
+		self._hide_dropdown()
 
 		# update our display
 		if self.__handle_multiple_phrases:
@@ -352,7 +360,7 @@ class cPhraseWheel (wx.TextCtrl):
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
 		# if we have a pick list
-		if self.__picklist_visible:
+		if self.__dropdown.IsShown():
 			# tell the input field about it
 			self.on_list_item_selected()
 		else:
@@ -360,7 +368,7 @@ class cPhraseWheel (wx.TextCtrl):
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
 		# if we already have a pick list go to next item
-		if self.__picklist_visible:
+		if self.__dropdown.IsShown():
 #			self._picklist.ProcessEvent (key)
 			selected = self._picklist.GetSelection()
 			if selected < (len(self.__currMatches) - 1):
@@ -378,10 +386,10 @@ class cPhraseWheel (wx.TextCtrl):
 			self._updateMatches()
 			# if we do have matches now show list
 			if len(self.__currMatches) > 0:
-				self.__show_picklist()
+				self._show_dropdown()
 	#--------------------------------------------------------
 	def __on_up_arrow(self, key):
-		if self.__picklist_visible:
+		if self.__dropdown.IsShown():
 			selected = self._picklist.GetSelection()
 			# select previous item if available
 			if selected > 0:
@@ -428,7 +436,7 @@ class cPhraseWheel (wx.TextCtrl):
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
 		if len(self.GetValue()) == 0:
-			self._hide_picklist()
+			self._hide_dropdown()
 			self.__timer.Stop()
 		else:
 			# start timer for delayed match retrieval
@@ -453,7 +461,7 @@ class cPhraseWheel (wx.TextCtrl):
 		new_size = (sz.width, sz.height*rows)
 		self._picklist.SetSize(new_size)
 		self.__picklist_pnl.SetSize (self._picklist.GetSize())
-		self.__picklist_win.SetSize (self.__picklist_pnl.GetSize())
+		self.__dropdown.SetSize (self.__picklist_pnl.GetSize())
 	#--------------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		"""Callback for delayed match retrieval timer.
@@ -474,12 +482,12 @@ class cPhraseWheel (wx.TextCtrl):
 		if len(self.__currMatches) > 0:
 			# show it
 			self._on_resize(None)
-			self.__show_picklist()
+			self._show_dropdown()
 		else:
 			# we may have had a pick list window so we
 			# need to dismiss that since we don't have
 			# more than one item anymore
-			self._hide_picklist()
+			self._hide_dropdown()
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
 
@@ -513,7 +521,7 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# don't need timer and pick list anymore
 		self.__timer.Stop()
-		self._hide_picklist()
+		self._hide_dropdown()
 
 		# can/must we auto-set the value from the match list ?
 		if (self.selection_only) and (not self._input_was_selected) and (self.GetValue().strip() != ''):
@@ -573,8 +581,8 @@ if __name__ == '__main__':
 			ww1 = cPhraseWheel(
 				parent = frame,
 				id = -1,
-				pos = (50, 50),
-				size = (180, 30),
+#				pos = (50, 50),
+#				size = (180, 30),
 				aMatchProvider = mp1
 			)
 			ww1._on_resize (None)
@@ -611,7 +619,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.72  2006-06-28 22:16:08  ncq
+# Revision 1.73  2006-07-01 13:14:50  ncq
+# - cleanup as gleaned from TextCtrlAutoComplete
+#
+# Revision 1.72  2006/06/28 22:16:08  ncq
 # - add SetData() -- which only works if data can be found in the match space
 #
 # Revision 1.71  2006/06/18 13:47:29  ncq
