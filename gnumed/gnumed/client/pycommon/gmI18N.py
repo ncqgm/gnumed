@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.26 2006-07-01 09:42:30 ncq Exp $
+# $Id: gmI18N.py,v 1.27 2006-07-01 11:23:50 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -138,6 +138,7 @@ def __log_locale_settings(message=None):
 				_log.Log(gmLog.lData, '<codecs> module CAN handle encoding [%s]' % enc)
 			except LookupError:
 				_log.Log(gmLog.lWarn, '<codecs> module can NOT handle encoding [%s]' % enc)
+	_log.Log(gmLog.lData, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
 
 	_log.Log(gmLog.lData, 'locale related environment variables (LANG is typically used):')
 	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
@@ -300,7 +301,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.26  2006-07-01 09:42:30  ncq
+# Revision 1.27  2006-07-01 11:23:50  ncq
+# - one more hint added
+#
+# Revision 1.26  2006/07/01 09:42:30  ncq
 # - ever better logging and handling of encoding
 #
 # Revision 1.25  2006/06/30 14:15:39  ncq
