@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.71 2006-07-01 11:23:35 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmMedDoc.py,v 1.72 2006-07-01 13:10:13 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -253,7 +253,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# further tests reveal that at least on PG 8.0 this bug still
 		# manifests itself
 		backend = gmPG.ConnectionPool()
-		conn = backend.GetConnection('blobs', readonly = 0, encoding = 'sql_ascii')
+		conn = backend.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
 		if conn is None:
 			_log.Log(gmLog.lErr, 'cannot get r/w connection to service [blobs]')
 			return None
@@ -737,7 +737,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.71  2006-07-01 11:23:35  ncq
+# Revision 1.72  2006-07-01 13:10:13  ncq
+# - fix __export() re encoding setting
+#
+# Revision 1.71  2006/07/01 11:23:35  ncq
 # - cleanup
 #
 # Revision 1.70  2006/06/26 21:37:14  ncq
