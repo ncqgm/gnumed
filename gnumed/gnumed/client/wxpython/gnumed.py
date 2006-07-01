@@ -4,10 +4,8 @@
 #===========================================================
 
 __doc__ = """
-GNUmed
-======
-This is the launcher for the main GNUmed GUI client. It is
-intended to be used as a standalone program.
+<gnumed.py> is the launcher for the main GNUmed GUI client. It
+is intended to be used as a standalone program.
 
 --quiet
  Be extra quiet and show only _real_ errors in the log.
@@ -20,12 +18,12 @@ intended to be used as a standalone program.
  Run the client and upon exiting run a talkback client where
  you can enter a comment and send the log off to the bug hunters.
  Very useful when used in conjunction with --debug.
---text-domain=<a text domain>
+--text-domain=<text domain>
  Set this to change the name of the language file to be loaded.
  Note, this does not change the directory the file is searched in,
  only the name of the file where messages are loaded from. The
  standard textdomain is, of course, "gnumed.mo".
---log-file=<a log file>
+--log-file=<file>
  Use this to change the name of the log file.
  See gmLog.py to find out where the standard log file would
  end up.
@@ -47,8 +45,8 @@ intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.97 2006-07-01 11:33:52 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gnumed.py,v 1.98 2006-07-01 13:15:04 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -366,7 +364,7 @@ setup_locale()
 # help requested ?
 if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	print _(
-		'Help requested'
+		'Help requested\n'
 		'--------------'
 	)
 	print __doc__
@@ -451,7 +449,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.97  2006-07-01 11:33:52  ncq
+# Revision 1.98  2006-07-01 13:15:04  ncq
+# - cleanup
+#
+# Revision 1.97  2006/07/01 11:33:52  ncq
 # - --text-domain/--lang-gettext/--unicode-gettext CLI options
 #   must now be provided by gmI18N *importers*
 #
