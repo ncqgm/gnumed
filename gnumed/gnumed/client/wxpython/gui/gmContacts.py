@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -180,7 +180,8 @@ class cContactsPanel(wx.wx.Panel):
 		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1)
 		self.txt_org_suburb.add_callback_on_selection(self.__urb_selected)
 		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
-		self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
+		# FIXME: replace with set_callback_on_*
+#		self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
 	
 		#self.txt_org_street = wx.wx.TextCtrl(self, 30,"", wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wx.TE_MULTILINE| wx.wx.NO_3D| wx.wxSIMPLE_BORDER)
 	
@@ -1042,7 +1043,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.43  2006-06-05 21:37:28  ncq
+# Revision 1.44  2006-07-01 15:22:50  ncq
+# - add comment on deprecated setDependant()
+#
+# Revision 1.43  2006/06/05 21:37:28  ncq
 # - id_callback argument not used anymore
 #
 # Revision 1.42  2005/09/28 21:27:30  ncq

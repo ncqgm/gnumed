@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.105 2006-05-15 13:35:59 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmEditArea.py,v 1.106 2006-07-01 15:22:50 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -1472,7 +1472,8 @@ class gmReferralEditArea(gmEditArea):
 			widget = self.fld_address,
 			weight = 1
 			)
-		self.fld_specialty.setDependent (self.fld_name, "occupation")
+		# FIXME: replace with set_callback_on_*
+#		self.fld_specialty.setDependent (self.fld_name, "occupation")
 		self.fld_name.add_callback_on_selection(self.setAddresses)
 		# flags line
 		self.fld_med = wx.CheckBox (parent, -1, _("Meds"), style=wx.NO_BORDER)
@@ -2343,7 +2344,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.105  2006-05-15 13:35:59  ncq
+# Revision 1.106  2006-07-01 15:22:50  ncq
+# - add comment on deprecated setDependant()
+#
+# Revision 1.105  2006/05/15 13:35:59  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
