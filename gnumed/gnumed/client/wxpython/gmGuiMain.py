@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.252 2006-07-01 11:32:13 ncq Exp $
-__version__ = "$Revision: 1.252 $"
+# $Id: gmGuiMain.py,v 1.253 2006-07-01 15:12:02 ncq Exp $
+__version__ = "$Revision: 1.253 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1072,12 +1072,21 @@ Do not rely on this database to work properly in all cases !""")
 		cmd = "select i18n.set_curr_lang(%s) "
 		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
 			if len (lang) > 0:
-				# FIXME: we would need to run that on all databases we connect to ...
-				result = gmPG.run_commit('default', [ (cmd, [lang]) ])
-				if result is None:
+				# users are getting confused, so don't show these "errors",
+				# they really are just notices about us being nice
+				success, data = gmPG.run_commit2 (
+					link_obj = 'default',
+					queries = [ (cmd, [lang]) ]
+				)
+				if not success:
 					_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
 					continue
-				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
+				rows, idx = data
+				if rows[0][0]:
+					_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
+				else:
+					_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
+					continue
 				return True
 
 		# user wanted to set the DB language but that failed
@@ -1085,7 +1094,7 @@ Do not rely on this database to work properly in all cases !""")
 		set_default = gmGuiHelpers.gm_show_question (
 			_(
 				'Failed to set database language to [%s].\n\n'
-				'No translations available.\n\n'
+				'No translation available.\n\n'
 				'Do you want to set the database language to English ?'
 			) % gmI18N.system_locale,
 			_('setting database language')
@@ -1116,7 +1125,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.252  2006-07-01 11:32:13  ncq
+# Revision 1.253  2006-07-01 15:12:02  ncq
+# - set_curr_lang() failure has been downgraded to warning
+#
+# Revision 1.252  2006/07/01 11:32:13  ncq
 # - setting up database connection encoding now requires two encoding names
 #
 # Revision 1.251  2006/06/28 10:18:02  ncq
