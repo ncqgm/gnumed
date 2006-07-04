@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.94 2006-06-28 22:15:01 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmDemographicsWidgets.py,v 1.95 2006-07-04 14:12:48 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -116,7 +116,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
 		queries = []
-		queries.append("select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s")
+		queries.append("select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s limit 25")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
@@ -131,9 +131,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_firstname.SetForegroundColour('red')
 		queries = []
 		cmd = """
-			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s
+			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s limit 20)
 				union
-			select distinct name, name from dem.name_gender_map where name %(fragment_condition)s"""
+			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s limit 20)"""
 		queries.append(cmd)
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
@@ -148,9 +148,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
 		queries = []
 		cmd = """
-			select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s
+			(select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s limit 20)
 				union
-			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s"""
+			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s limit 20)"""
 		queries.append(cmd)
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
@@ -192,7 +192,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
 		queries = []
-		queries.append("select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s")
+		queries.append("select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s limit 50")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
@@ -213,6 +213,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 				select name as s1, name as s2, 2 as rank from dem.street where name %(fragment_condition)s
 			) as q1 order by rank, s1
 		) as q2
+		limit 50
 		""")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)				
@@ -234,12 +235,13 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		queries = []
 		queries.append("""
 		select distinct on (u1,u2) u1, u2 from (
-			select * from (		
+			select * from (
 				select urb as u1, urb as u2, 1 as rank from dem.v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
 					union
 				select name as u1, name as u2, 2 as rank from dem.urb where name %(fragment_condition)s
 			) as t1 order by rank, u1
 		) as q2
+		limit 50
 		""")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 6)
@@ -285,7 +287,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 					where
 						code %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
 			) as q2 order by rank, name
-		) as q1""")
+		) as q1 limit 50""")
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
 		mp.setThresholds(2, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
@@ -315,7 +317,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 					union
 				select code as code, name as name, 4 as rank from dem.country where name %(fragment_condition)s
 			) as q2 order by rank, name
-		) as q1""")
+		) as q1 limit 25""")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
@@ -410,7 +412,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
-		firstname = self.PRW_firstname.GetValue()
+		firstname = self.PRW_firstname.GetValue().strip()
 		cmd = "select gender from dem.name_gender_map where name ilike %s"
 		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
 		if rows is None:
@@ -441,8 +443,10 @@ class cNewPatientWizard(wx.wizard.Wizard):
 	- make it configurable which pages are loaded
 	- make available sets of pages that apply to a country
 	- make loading of some pages depend upon values in earlier pages, eg
-	  when the patient is female and older than 15 include a page about
+	  when the patient is female and older than 13 include a page about
 	  "female" data (number of kids etc)
+
+	FIXME: use: wizard.FindWindowById(wx.ID_FORWARD).Disable()
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, title = _('Register new patient'), subtitle = _('Basic patient details') ):
@@ -997,21 +1001,8 @@ class cPatIdentityPanel(wx.Panel):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = self.__gender_map.values())
-		mp.setThresholds(1, 1, 3)
-		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextWidgetValidator (
-				message = _('Required: gender of patient'),
-				non_empty = True,
-				only_digits = False
-			),
-			aDelay = 50,
-			selection_only = True
-		)
-		self.PRW_gender.SetToolTipString(_('Required: gender of patient'))
+		self.PRW_gender = cGenderSelectionPhraseWheel(parent = PNL_form, id=-1)
+		self.PRW_gender.SetToolTipString(_("Required: gender of patient"))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -1064,7 +1055,7 @@ class cPatIdentityPanel(wx.Panel):
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
-		firstname = self.PRW_firstname.GetValue()
+		firstname = self.PRW_firstname.GetValue().strip()
 		cmd = "select gender from dem.name_gender_map where name ilike %s"
 		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
 		if rows is None:
@@ -1072,8 +1063,7 @@ class cPatIdentityPanel(wx.Panel):
 			return False
 		if len(rows) == 0:
 			return True
-		gender = self.__gender_map[rows[0][0]]['label']
-		wx.CallAfter(self.PRW_gender.SetValue, gender)
+		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
 		return True
 	#--------------------------------------------------------
 	# public API
@@ -1953,7 +1943,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.94  2006-06-28 22:15:01  ncq
+# Revision 1.95  2006-07-04 14:12:48  ncq
+# - add some phrasewheel sanity LIMITs
+# - use gender phrasewheel in pat modify, too
+#
+# Revision 1.94  2006/06/28 22:15:01  ncq
 # - make cGenderSelectionPhraseWheel self-sufficient and use it, too
 #
 # Revision 1.93  2006/06/28 14:09:17  ncq
