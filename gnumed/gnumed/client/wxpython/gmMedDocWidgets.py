@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.85 2006-07-04 21:39:37 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmMedDocWidgets.py,v 1.86 2006-07-04 22:36:27 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -79,10 +79,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init_ui_data(self):
 		# associated episode (add " " to avoid popping up pick list)
 		self._PhWheel_episode.SetValue('%s ' % self.__part['episode'], self.__part['pk_episode'])
-		self._SelBOX_doc_type.Clear()
-		for doc_type in gmMedDoc.get_document_types():
-			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
-		self._SelBOX_doc_type.SetStringSelection(self.__part['l10n_type'])
+		self._PhWheel_doc_type.SetValue(value = self.__part['l10n_type'], data = self.__part['pk_type'])
 		self._TCTRL_doc_comment.SetValue(self.__part['doc_comment'])
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
@@ -182,9 +179,12 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			# to it so we don't check patient change
 			doc['pk_episode'] = pk_episode
 
-		doc_type = self._SelBOX_doc_type.GetClientData(self._SelBOX_doc_type.GetSelection())
-		if doc_type != doc['pk_type']:
-			doc['pk_type'] = doc_type
+		doc_type = self._PhWheel_doc_type.GetData(can_create = True)
+		if doc_type is not None:
+			if doc_type != doc['pk_type']:
+				doc['pk_type'] = doc_type
+		else:
+			gmGuiHelpers.gm_beep_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
 
 		if self._TCTRL_doc_comment.IsModified():
 			doc['comment'] = self._TCTRL_doc_comment.GetValue().strip()
@@ -278,7 +278,7 @@ where
 	def __init_ui_data(self):
 		# -----------------------------
 		self._PhWheel_episode.SetValue('')
-		self._PhWheel.doc_type.SetValue('')
+		self._PhWheel_doc_type.SetValue('')
 		# -----------------------------
 		# FIXME: make this configurable: either now() or last_date()
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
@@ -1110,7 +1110,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.85  2006-07-04 21:39:37  ncq
+# Revision 1.86  2006-07-04 22:36:27  ncq
+# - doc type selector is now phrasewheel in properties editor
+#
+# Revision 1.85  2006/07/04 21:39:37  ncq
 # - add cDocumentTypeSelectionPhraseWheel and use it in scan-index-panel
 #
 # Revision 1.84  2006/06/26 13:07:57  ncq
