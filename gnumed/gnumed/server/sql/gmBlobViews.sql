@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.29 $ $Date: 2006-05-25 22:26:24 $ $Author: ncq $
+-- $Revision: 1.30 $ $Date: 2006-07-04 21:40:17 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -206,7 +206,8 @@ create view blobs.v_doc_type as
 select
 	dt.pk as pk_doc_type,
 	dt.name as type,
-	_(dt.name) as l10n_type
+	_(dt.name) as l10n_type,
+	dt.is_user as is_user
 from
 	blobs.doc_type dt
 ;
@@ -449,11 +450,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.29 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.29  2006-05-25 22:26:24  ncq
+-- Revision 1.30  2006-07-04 21:40:17  ncq
+-- - add is_user to blobs.v_doc_type
+--
+-- Revision 1.29  2006/05/25 22:26:24  ncq
 -- - reformat blobs.v_obj4doc_no_data and add episode name and pk
 --
 -- Revision 1.28  2006/05/09 11:37:52  ncq
