@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -83,17 +83,22 @@ insert into dem.enum_ext_id_types (name, issuer, context) values ('CRN', 'Centre
 insert into dem.enum_ext_id_types (name, issuer, context) values ('Licence No.', 'RTA', 'p');
 insert into dem.enum_ext_id_types (name, issuer, context) values ('ABN', 'ATO', 'o');
 insert into dem.enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o');
+INSERT INTO dem.enum_ext_id_types (name, issuer, context) VALUES ('MPBV Reg No', 'Medical Practice Board of Victoria', 'p');
+INSERT INTO dem.enum_ext_id_types (name, issuer, context) VALUES ('ur_no', 'dbf importer type au-md v0.1', 'p');
 --insert into dem.enum_ext_id_types (name, issuer, context) values ('', '', '');
 
 
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.15 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.14  2006-01-06 10:12:02  ncq
+-- Revision 1.15  2006-07-04 14:18:04  ncq
+-- - add two ext id types
+--
+-- Revision 1.14  2006/01/06 10:12:02  ncq
 -- - add missing grants
 -- - add_table_for_audit() now in "audit" schema
 -- - demographics now in "dem" schema
