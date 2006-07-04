@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.28 2006-07-01 13:12:14 ncq Exp $
+# $Id: gmI18N.py,v 1.29 2006-07-04 14:11:29 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -91,14 +91,14 @@ def __log_locale_settings(message=None):
 		try:
 			_setlocale_categories[category] = getattr(locale, category)
 		except:
-			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
+			_log.Log(gmLog.lWarn, 'this OS does not have locale.%s' % category)
 
 	_getlocale_categories = {}
 	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
 		try:
 			_getlocale_categories[category] = getattr(locale, category)
 		except:
-			_log.Log(gmLog.lErr, 'this OS does not have locale.%s' % category)
+			pass
 
 	if message is not None:
 		_log.Log(gmLog.lData, message)
@@ -157,7 +157,7 @@ def __log_locale_settings(message=None):
 		try:
 			_nl_langinfo_categories[category] = getattr(locale, category)
 		except:
-			_log.Log(gmLog.lErr, 'this OS does not support nl_langinfo category locale.%s' % category)
+			_log.Log(gmLog.lWarn, 'this OS does not support nl_langinfo category locale.%s' % category)
 	try:
 		for category in _nl_langinfo_categories.keys():
 			_log.Log(gmLog.lData, 'locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
@@ -301,7 +301,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.28  2006-07-01 13:12:14  ncq
+# Revision 1.29  2006-07-04 14:11:29  ncq
+# - downgrade some errors to warnings and show them once, only
+#
+# Revision 1.28  2006/07/01 13:12:14  ncq
 # - better logging
 #
 # Revision 1.27  2006/07/01 11:23:50  ncq
