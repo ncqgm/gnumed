@@ -10,17 +10,15 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.74 2006-07-01 15:14:26 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmPhraseWheel.py,v 1.75 2006-07-04 14:15:17 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wxversion
+import wx
+import wx.lib.mixins.listctrl as listmixins
 
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
@@ -32,6 +30,24 @@ if __name__ == "__main__":
 
 _log.Log(gmLog.lInfo, __version__)
 
+#============================================================
+class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
+	def __init__(self, *args, **kwargs):
+		try:
+			kwargs['style'] = kwargs['style'] | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SIMPLE_BORDER
+		except: pass
+		wx.ListCtrl.__init__(self, *args, **kwargs)
+		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+	#--------------------------------------------------------
+	def SetItems(self, items):
+		self.DeleteAllItems()
+		self.__data = items
+		pos = len(items) + 1
+		for item in items:
+			row_num = self.InsertStringItem(pos, label=item['label'])
+	#--------------------------------------------------------
+	def GetSelectedItemData(self):
+		return self.__data[self.GetFirstSelected()]['data']
 #============================================================
 class cPhraseWheel (wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
@@ -61,6 +77,7 @@ class cPhraseWheel (wx.TextCtrl):
 		
 		self.selection_only = selection_only
 		self._has_focus = False
+		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
@@ -69,15 +86,24 @@ class cPhraseWheel (wx.TextCtrl):
 
 		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
 
-		# set event handlers
-		self.__register_events()
-
 		# multiple matches dropdown list
 		self.__dropdown = wx.PopupWindow(parent)
-		self.__picklist_pnl = wx.Panel(self.__dropdown, -1, style=wx.SIMPLE_BORDER)
-		self._picklist = wx.ListBox(self.__picklist_pnl, -1, style=wx.LB_SINGLE | wx.LB_NEEDED_SB)
-		self._picklist.Clear()
+
+		# FIXME: support optional headers
+#		if kwargs['show_list_headers']:
+#			flags = 0
+#		else:
+#			flags = wx.LC_NO_HEADER
+		self._picklist = cPhraseWheelListCtrl (
+			self.__dropdown,
+			style = wx.LC_NO_HEADER
+		)
+		self._picklist.InsertColumn(0, '')
+
 		self.__dropdown.Hide()
+
+		# set event handlers
+		self.__register_events()
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		if self.__gb.has_key('main.slave_mode') and self.__gb['main.slave_mode']:
@@ -88,12 +114,6 @@ class cPhraseWheel (wx.TextCtrl):
 				callback = self._on_timer_fired,
 				delay = aDelay
 			)
-	#--------------------------------------------------------
-	def __register_events(self):
-		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
-		wx.EVT_KEY_DOWN (self, self._on_key_pressed)
-		wx.EVT_SET_FOCUS(self, self._on_set_focus)
-		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -158,6 +178,7 @@ class cPhraseWheel (wx.TextCtrl):
 		return self.data
 	#---------------------------------------------------------
 	def SetValue (self, value, data=None):
+
 		wx.TextCtrl.SetValue(self, value)
 		self._input_was_selected = False
 
@@ -191,38 +212,6 @@ class cPhraseWheel (wx.TextCtrl):
 		else:
 			_log.Log(gmLog.lErr, "aMatchProvider must be set to set context")
 	#---------------------------------------------------------
-#	def snap (self):
-#		"""
-#		This is called when the context is rich enough that
-#		it is likely matching will return one or only
-#		a few values. If there is only one value,
-#		the phrasewheel will 'snap' to that value
-#		"""
-#		if self.__real_matcher:
-			# this should never happen, just in case
-#			self.__matcher = self.__real_matcher
-#			self.__real_matcher = None
-#		matches = self.__matcher.getAllMatches ()
-#		if len (matches) == 1:
-#			self.data = matches[0]['data']
-#			self.SetValue (matches[0]['label'])
-#			self._input_was_selected = True
-#			for notify_listener in self._on_selection_callbacks:
-				# get data associated with selected item
-#				notify_listener(self.data)
-#			self.notified_listeners = 1
-#		if len (matches) > 1:
-			# cache these results
-#			self.__real_matcher = self.__matcher
-#			self.__matcher = gmMatchProvider.cMatchProvider_FixedList(matches)
-	#---------------------------------------------------------
-	def setNextFocus (self, aWidget):
-		"""
-		sets the next widget that recieves the focus
-		Can be any object with a method SetFocus ()
-		"""
-		self.add_callback_on_selection(lambda x: x and aWidget.SetFocus())
-	#---------------------------------------------------------------------
 	def _updateMatches(self, val=None):
 		"""Get the matches for the currently typed input fragment."""
 
@@ -255,17 +244,15 @@ class cPhraseWheel (wx.TextCtrl):
 
 		# get all currently matching items
 		if self.__matcher:
-			(matched, self.__currMatches) = self.__matcher.getMatches(self.input2match)
-			# and refill our picklist with them
-			self._picklist.Clear()
-			if matched:
-				for item in self.__currMatches:
-					self._picklist.Append(str(item['label']), clientData = item['data'])
+			matched, self.__currMatches = self.__matcher.getMatches(self.input2match)
+			self._picklist.SetItems(self.__currMatches)
 		else:
 			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
 	#--------------------------------------------------------
 	def _show_dropdown(self):
 		"""Display the pick list."""
+
+		self._hide_dropdown()
 
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
@@ -281,37 +268,40 @@ class cPhraseWheel (wx.TextCtrl):
 		# if only one match and text == match
 		if len(self.__currMatches) == 1:
 			if self.__currMatches[0]['label'] == self.input2match:
-				# don't display drop down list
-				self._hide_dropdown()
+				self._input_was_selected = 1
+				self.data = self.__currMatches[0]['data']
 				return 1
 
 		# recalculate size
 		rows = len(self.__currMatches)
-		if rows < 2: rows = 2
-		if rows > 10: rows = 20
+		if rows < 2:
+			rows = 2
+		if rows > 20:
+			rows = 20
 		dropdown_size = self.__dropdown.GetSize()
 		pw_size = self.GetSize()
 		dropdown_size.SetWidth(pw_size.width)
-		dropdown_size.SetHeight((pw_size.height * rows) + 4)
-		self.__dropdown.SetSize(dropdown_size)
-		self.__picklist_pnl.SetSize(self.__dropdown.GetClientSize())
-		self._picklist.SetSize(self.__dropdown.GetClientSize())
+		dropdown_size.SetHeight((pw_size.height * rows) + 4)	# adjust for border width
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
-#		(parent_x_abs, parent_y_abs) = self.GetParent().ClientToScreenXY(0,0)
-#		print "phrasewheel parent is at:", pw_x_abs, pw_y_abs, "(absolute)"
-#		new_x = pw_x_abs - parent_x_abs
-#		new_y = pw_y_abs - parent_y_abs + pw_size.height
 		new_x = pw_x_abs
 		new_y = pw_y_abs + pw_size.height
+		# reaches beyond screen ?
+		if (dropdown_size.height + new_y) > self._screenheight:
+			max_height = self._screenheight - new_y - 4
+			if max_height > ((pw_size.height * 2) + 4):
+				dropdown_size.SetHeight(max_height)
+
+		# now set dimensions
+		self.__dropdown.SetSize(dropdown_size)
+		self._picklist.SetSize(self.__dropdown.GetClientSize())
 		self.__dropdown.MoveXY(new_x, new_y)
 
 		# select first value
-		self._picklist.SetSelection(0)
+		self._picklist.Select(0)
 
 		# and show it
-		# FIXME: we should _update_ the list window instead of redisplaying it
 		self.__dropdown.Show(True)
 	#--------------------------------------------------------
 	def _hide_dropdown(self):
@@ -320,11 +310,11 @@ class cPhraseWheel (wx.TextCtrl):
 			self.__dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def _calc_display_string(self):
-		return self._picklist.GetString(self._picklist.GetSelection())
+		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
-	def on_list_item_selected (self):
+	def _on_list_item_selected(self, *args, **kwargs):
 		"""Gets called when user selected a list item."""
 		self._hide_dropdown()
 
@@ -333,41 +323,32 @@ class cPhraseWheel (wx.TextCtrl):
 			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
 		else:
 			wx.TextCtrl.SetValue (self, self._calc_display_string())
-			self.Navigate()
+		self.Navigate()
 		self.MarkDirty()
 
-		# get data associated with selected item
-		self.data = self._picklist.GetClientData(self._picklist.GetSelection())
+		self.data = self._picklist.GetSelectedItemData()
+		self._input_was_selected = True
 
 		# and tell the listeners about the user's selection
 		for call_listener in self._on_selection_callbacks:
 			call_listener(self.data)
-		# remember that we did so
-		self.notified_listeners = 1
-
-		# remember that the current value was selected from the list
-		self._input_was_selected = True
+		self.notified_listeners = True
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
-	def _on_enter (self):
-		"""Called when the user pressed <ENTER>.
-
-		FIXME: this might be exploitable for some nice statistics ...
-		"""
-		# if we have a pick list
+	def _on_enter(self):
+		"""Called when the user pressed <ENTER>."""
 		if self.__dropdown.IsShown():
-			# tell the input field about it
-			self.on_list_item_selected()
+			self._on_list_item_selected()
 		else:
 			self.Navigate()
 	#--------------------------------------------------------
-	def __on_down_arrow(self, key):
+	def __on_cursor_down(self):
 
 		if self.__dropdown.IsShown():
-			selected = self._picklist.GetSelection()
+			selected = self._picklist.GetFirstSelected()
 			if selected < (len(self.__currMatches) - 1):
-				self._picklist.SetSelection(selected+1)
+				self._picklist.Select(selected+1)
 				self._picklist.EnsureVisible(selected+1)
 
 		# if we don't yet have a pick list
@@ -376,65 +357,65 @@ class cPhraseWheel (wx.TextCtrl):
 		#  with the top-weighted contextual data but want to
 		#  select another contextual item)
 		else:
-			# don't need timer anymore since user explicitely requested list
 			self.__timer.Stop()
-			# update matches according to current input
 			if self.GetValue().strip() == '':
 				self._updateMatches(val='*')
 			else:
 				self._updateMatches()
 			self._show_dropdown()
 	#--------------------------------------------------------
-	def __on_up_arrow(self, key):
+	def __on_cursor_up(self):
 		if self.__dropdown.IsShown():
-			selected = self._picklist.GetSelection()
-			# select previous item if available
+			selected = self._picklist.GetFirstSelected()
 			if selected > 0:
-				self._picklist.SetSelection(selected-1)
+				self._picklist.Select(selected-1)
 				self._picklist.EnsureVisible(selected-1)
-			else:
-				# FIXME: return to input field and close pick list ?
-				pass
 		else:
 			# FIXME: input history ?
 			pass
 	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_events(self):
+		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
+		wx.EVT_KEY_DOWN (self, self._on_key_down)
+		wx.EVT_SET_FOCUS(self, self._on_set_focus)
+		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
+		self._picklist.Bind(wx.EVT_LEFT_DCLICK, self._on_list_item_selected)
+	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def _on_key_pressed (self, key):
+	def _on_key_down(self, event):
 		"""Is called when a key is pressed."""
 
-		# user moved down
-		if key.GetKeyCode() == wx.WXK_DOWN:
-			self.__on_down_arrow(key)
+		keycode = event.GetKeyCode()
+
+		if keycode == wx.WXK_DOWN:
+			self.__on_cursor_down()
 			return
 
-		# user moved up
-		if key.GetKeyCode() == wx.WXK_UP:
-			self.__on_up_arrow(key)
+		if keycode == wx.WXK_UP:
+			self.__on_cursor_up()
 			return
-
-		# FIXME: need PAGE UP/DOWN//POS1/END here
 
 		# user pressed <ENTER>
-		if key.GetKeyCode() == wx.WXK_RETURN:
+		if keycode == wx.WXK_RETURN:
 			self._on_enter()
 			return
 
-		key.Skip()
+		# FIXME: need PAGE UP/DOWN//POS1/END here
+		event.Skip()
 		return
 	#--------------------------------------------------------
 	def _on_text_update (self, event):
 		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
-		# dirty "selected" flag
 		self._input_was_selected = False
-		# invalidate associated data object
 		self.data = None
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
-		if len(self.GetValue()) == 0:
+		if self.GetValue().strip() == 0:
 			self._hide_dropdown()
 			self.__timer.Stop()
 		else:
@@ -458,21 +439,14 @@ class cPhraseWheel (wx.TextCtrl):
 		"""
 		# update matches according to current input
 		self._updateMatches()
+
 		# we now have either:
 		# - all possible items (within reasonable limits) if input was '*'
 		# - all matching items
 		# - an empty match list if no matches were found
 		# also, our picklist is refilled and sorted according to weight
 
-		# display list - but only if we have more than one match
-		if len(self.__currMatches) > 0:
-			# show it
-			self._show_dropdown()
-		else:
-			# we may have had a pick list window so we
-			# need to dismiss that since we don't have
-			# more than one item anymore
-			self._hide_dropdown()
+		wx.CallAfter(self._show_dropdown)
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
 
@@ -602,7 +576,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.74  2006-07-01 15:14:26  ncq
+# Revision 1.75  2006-07-04 14:15:17  ncq
+# - lots of cleanup
+# - make dropdown list scroll !  :-)
+# - add customized list control
+# - don't make dropdown go below screen height
+#
+# Revision 1.74  2006/07/01 15:14:26  ncq
 # - lots of cleanup
 # - simple border around list dropdown
 # - remove on_resize handling
