@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.84 2006-06-26 13:07:57 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmMedDocWidgets.py,v 1.85 2006-07-04 21:39:37 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -16,7 +16,7 @@ except ImportError:
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
 from Gnumed.business import gmPerson, gmMedDoc
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
 
 _log = gmLog.gmDefLog
@@ -31,6 +31,41 @@ _log.Log(gmLog.lInfo, __version__)
 wx.ID_PNL_main = wx.NewId()
 wx.ID_TB_BTN_show_page = wx.NewId()
 
+#============================================================
+class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let user select a document type."""
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			service = 'blobs',
+			queries = [
+"""select * from ((
+	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
+		is_user is True and
+		l10n_type %(fragment_condition)s
+) union (
+	select pk_doc_type, l10n_type, 2 from blobs.v_doc_type where
+		is_user is False and
+		l10n_type %(fragment_condition)s
+)) as q1 order by q1.rank, q1.l10n_type
+"""]
+			)
+		mp.setThresholds(2, 4, 6)
+
+		kwargs['aMatchProvider'] = mp
+		kwargs['aDelay'] = 50
+		kwargs['selection_only'] = False
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+	#--------------------------------------------------------
+	def GetData(self, can_create=False):
+		if self.data is None:
+			if can_create:
+				self.data = gmMedDoc.create_document_type(self.GetValue().strip())
+		return self.data
 #============================================================
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
@@ -243,11 +278,7 @@ where
 	def __init_ui_data(self):
 		# -----------------------------
 		self._PhWheel_episode.SetValue('')
-		# -----------------------------
-		# provide choices for document types
-		self._SelBOX_doc_type.Clear()
-		for doc_type in gmMedDoc.get_document_types():
-			self._SelBOX_doc_type.Append(doc_type[1], doc_type[0])
+		self._PhWheel.doc_type.SetValue('')
 		# -----------------------------
 		# FIXME: make this configurable: either now() or last_date()
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
@@ -291,8 +322,8 @@ where
 			)
 			return False
 
-		sel = self._SelBOX_doc_type.GetStringSelection()
-		if sel == '' or sel is None or sel < 0:
+		doc_type_pk = self._PhWheel_doc_type.GetData(can_create = True)
+		if doc_type_pk is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No document type applied. Choose a document type'),
 				aTitle = title
@@ -481,10 +512,7 @@ from your computer.""") % page_fname,
 			pk_episode = episode['pk_episode']
 
 		encounter = emr.get_active_encounter()['pk_encounter']
-
-		idx = self._SelBOX_doc_type.GetSelection()
-		document_type = self._SelBOX_doc_type.GetClientData(idx)
-
+		document_type = self._PhWheel_doc_type.GetData()
 		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)
 		if new_doc is None:
 			wx.EndBusyCursor()
@@ -1082,7 +1110,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.84  2006-06-26 13:07:57  ncq
+# Revision 1.85  2006-07-04 21:39:37  ncq
+# - add cDocumentTypeSelectionPhraseWheel and use it in scan-index-panel
+#
+# Revision 1.84  2006/06/26 13:07:57  ncq
 # - episode selection phrasewheel knows how to create episodes
 #   when told to do so in GetData() so use that
 #
