@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.72 2006-07-01 13:10:13 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmMedDoc.py,v 1.73 2006-07-04 21:37:43 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -699,12 +699,29 @@ def search_for_document(patient_id=None, type_id=None):
 	return docs
 #------------------------------------------------------------
 def get_document_types():
-    cmd = "SELECT pk_doc_type, l10n_type FROM blobs.v_doc_type"
-    rows = gmPG.run_ro_query('blobs', cmd)
-    if rows is None:
-        _log.Log(gmLog.lErr, 'cannot retrieve document types')
-        return []
-    return rows
+	cmd = "SELECT pk_doc_type, l10n_type FROM blobs.v_doc_type"
+	rows = gmPG.run_ro_query('blobs', cmd)
+	if rows is None:
+		_log.Log(gmLog.lErr, 'cannot retrieve document types')
+		return []
+	return rows
+#------------------------------------------------------------
+def create_document_type(document_type=None):
+	cmd1 = "insert into blobs.doc_type (name) values (%s)"
+	cmd2 = """select currval('blobs.doc_type_pk_seq')"""
+	successful, data = gmPG.run_commit2 (
+		link_obj = 'blobs',
+		queries = [
+			(cmd1, [document_type]),
+			(cmd2, [])
+		]
+	)
+	if not successful:
+		_log.Log(gmLog.lErr, 'cannot create document type [%s]:' % document_type)
+		_log.Log(gmLog.lErr, str(data))
+		return None
+	rows, idx = data
+	return rows[0][0]
 #------------------------------------------------------------
 def get_ext_ref():
 	"""This needs *considerably* more smarts."""
@@ -715,7 +732,6 @@ def get_ext_ref():
 	# extract name for dir
 	path, doc_ID = os.path.split(dirname)
 	return doc_ID
-
 #============================================================
 # main
 #------------------------------------------------------------
@@ -737,7 +753,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.72  2006-07-01 13:10:13  ncq
+# Revision 1.73  2006-07-04 21:37:43  ncq
+# - cleanup
+# - add create_document_type()
+#
+# Revision 1.72  2006/07/01 13:10:13  ncq
 # - fix __export() re encoding setting
 #
 # Revision 1.71  2006/07/01 11:23:35  ncq
