@@ -1,0 +1,1408 @@
+Index: WEB-INF/classes/oscar_mcmaster.properties
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/oscar_mcmaster.properties,v
+retrieving revision 1.17
+diff -c -r1.17 oscar_mcmaster.properties
+*** WEB-INF/classes/oscar_mcmaster.properties	28 Sep 2005 03:45:29 -0000	1.17
+--- WEB-INF/classes/oscar_mcmaster.properties	6 Jul 2006 15:47:10 -0000
+***************
+*** 27,33 ****
+  db_type = mysql
+   
+  db_username = root
+! db_password = liyi
+  
+  # Driver for mysql
+  db_driver = com.mysql.jdbc.Driver
+--- 27,34 ----
+  db_type = mysql
+   
+  db_username = root
+! db_password = oscar
+! 
+  
+  # Driver for mysql
+  db_driver = com.mysql.jdbc.Driver
+***************
+*** 40,45 ****
+--- 41,54 ----
+  db_selectuser = oscarsql
+  db_selectpassword = 001122
+  
++ #gnumed demographics server
++ gnumed_driver=org.postgresql.Driver
++ gnumed_uri = jdbc:postgresql://localhost:5434/
++ gnumed_dbname = gnumed_v2
++ gnumed_user = any-doc
++ gnumed_password = any-doc
++ is_gnumed_demographics=true
++ 
+  # DrugRef server
+  drugref_url = http://67.69.12.116:8001
+  
+***************
+*** 100,103 ****
+  CDM_ALERTS=250,428,4280
+  
+  #The following list indicates which codes will be use for Individual Counseling alerts
+! COUNSELING_CODES=18220,18120,17220,17120,16220,16120,13220,12220,12120,00120
+\ No newline at end of file
+--- 109,112 ----
+  CDM_ALERTS=250,428,4280
+  
+  #The following list indicates which codes will be use for Individual Counseling alerts
+! COUNSELING_CODES=18220,18120,17220,17120,16220,16120,13220,12220,12120,00120
+Index: WEB-INF/classes/src/oscar/AppointmentMainBean.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/AppointmentMainBean.java,v
+retrieving revision 1.7
+diff -c -r1.7 AppointmentMainBean.java
+*** WEB-INF/classes/src/oscar/AppointmentMainBean.java	10 Feb 2006 22:00:37 -0000	1.7
+--- WEB-INF/classes/src/oscar/AppointmentMainBean.java	6 Jul 2006 15:47:11 -0000
+***************
+*** 28,36 ****
+  import oscar.util.*;
+  import javax.servlet.http.HttpServletRequest;
+  import java.sql.*;
+  
+  public class AppointmentMainBean {
+! 
+    private DBPreparedHandler dbPH=null;
+    private UtilDict toFile=null;
+    private UtilDict dbSQL=null;
+--- 28,38 ----
+  import oscar.util.*;
+  import javax.servlet.http.HttpServletRequest;
+  import java.sql.*;
++ import java.util.HashMap;
+  
+  public class AppointmentMainBean {
+!   private Long timeout;
+!   private HashMap dbPHs = new HashMap();
+    private DBPreparedHandler dbPH=null;
+    private UtilDict toFile=null;
+    private UtilDict dbSQL=null;
+***************
+*** 42,67 ****
+    public UtilDict getRequestUtilDict() {return requestUtilDict;}
+    public boolean getBDoConfigure() {return bDoConfigure;}
+    public void setBDoConfigure() { bDoConfigure = false;}
+! 
+    public void doConfigure( String[]dbParams,String[][]dbOperation ) throws Exception {
+      bDoConfigure = true;
+      if(dbPH!=null) dbPH=null;
+  
+      dbSQL=new UtilDict();
+      dbSQL.setDef(dbOperation);
+!     dbPH=new DBPreparedHandler(dbParams[0],dbParams[1],dbParams[2],dbParams[3]);
+    }
+! 
+    public void doConfigure( String[]dbParams,String[][]dbOperation,String[][]controlToFile) throws Exception {
+!     bDoConfigure = true;
+!     if(dbPH!=null) dbPH=null;
+! 
+!     toFile=new UtilDict();
+!     toFile.setDef(controlToFile);
+!     dbSQL=new UtilDict();
+!     dbSQL.setDef(dbOperation);
+! //    makeDBPreparedHandler(dbParams, dbOperation);
+!     dbPH=new DBPreparedHandler(dbParams[0],dbParams[1],dbParams[2],dbParams[3]);
+    }
+    public void doCommand(HttpServletRequest request) {
+    	//wrap the request object into a Dict help object
+--- 44,110 ----
+    public UtilDict getRequestUtilDict() {return requestUtilDict;}
+    public boolean getBDoConfigure() {return bDoConfigure;}
+    public void setBDoConfigure() { bDoConfigure = false;}
+!   public UtilDict getSQLDict() { return dbSQL; }
+!   
+!   public String getQueryString(String dbOp) {
+!   		return dbSQL.getDef(dbOp);
+!   }
+! 
+!   
+!   public void initAltDBHandler(  String[] dbParams ) throws SQLException {
+! 		try {		
+! 		 new DBPreparedHandler( dbParams[0], dbParams[1], 
+! 		 		dbParams[2], dbParams[3], dbParams[4]  ) ;
+!   		} catch (Exception e) {
+!   				e.printStackTrace();
+!   				if (e instanceof SQLException)
+!   					throw (SQLException) e;
+!   				throw new SQLException( e.toString());	
+!   		}
+!   }
+!   
+!   public void setAltHandler( String name) {
+!   		
+!   		DBPreparedHandler handler = null;
+!   		try {
+!   			handler =  new DBPreparedHandler(name);
+!   		} catch (Exception e) {
+!   			e.printStackTrace();
+! 			System.err.println("? Has the handler called  '" + name + "' been initialized in initAltDBHandler");
+! 			   			
+!   		}
+!   		
+!   		if (handler != null ) {
+!   			dbPH = handler;
+!   		}
+!   		 	
+!   }  
+!   
+!   public void resetToDefaultHandler() throws SQLException {
+!   		dbPH = new  DBPreparedHandler(oscar.oscarDB.DBHandler.OSCAR_DATA);
+!   }
+!  
+!   
+    public void doConfigure( String[]dbParams,String[][]dbOperation ) throws Exception {
+      bDoConfigure = true;
+      if(dbPH!=null) dbPH=null;
+  
+      dbSQL=new UtilDict();
+      dbSQL.setDef(dbOperation);
+!     dbPH=new DBPreparedHandler(dbParams[0],dbParams[1],dbParams[2],dbParams[3], dbParams[4] );
+! 	 	   
+    }
+!    
+!   public void addDbOperation(String[][] dbOperation) {
+!   	 for (int i = 0; i < dbOperation.length; ++i) {
+!   	 	dbSQL.setDef( dbOperation[i][0], dbOperation[i][1]);
+!   	 }
+!   }
+!   
+    public void doConfigure( String[]dbParams,String[][]dbOperation,String[][]controlToFile) throws Exception {
+!   	 doConfigure( dbParams, dbOperation);	
+! 	 toFile=new UtilDict();
+!     toFile.setDef(controlToFile);     
+    }
+    public void doCommand(HttpServletRequest request) {
+    	//wrap the request object into a Dict help object
+***************
+*** 82,105 ****
+--- 125,153 ----
+  	  String sqlExec = dbSQL.getDef(dboperation,"");
+    	return (dbPH.queryExecuteUpdate(sqlExec, param));
+    }
++ 
+    public int queryExecuteUpdate(String aKeyword, String dboperation) throws Exception{
+  	  String sqlExec = dbSQL.getDef(dboperation,"");
+  	  String[] param =new String[] {aKeyword};
+    	return (dbPH.queryExecuteUpdate(sqlExec, param));
+    }
++ 
+    public int queryExecuteUpdate(String[] param, int[] intparam, String dboperation) throws Exception{
+  	  String sqlExec = dbSQL.getDef(dboperation,"");
+    	return (dbPH.queryExecuteUpdate(sqlExec, param, intparam));
+    }
++ 
+    public int queryExecuteUpdate(int[] intparam, String[] param, String dboperation) throws Exception{
+  	  String sqlExec = dbSQL.getDef(dboperation,"");
+    	return (dbPH.queryExecuteUpdate(sqlExec, intparam, param));
+    }
++ 
+    public int queryExecuteUpdate(String[] param, int intparam, String dboperation) throws Exception{
+  	  String sqlExec = dbSQL.getDef(dboperation,"");
+  	  int [] intKeyword =new int [] {intparam};
+    	return (dbPH.queryExecuteUpdate(sqlExec, param, intKeyword));
+    }
++ 
+    public int queryExecuteUpdate(int[] intparam, String dboperation) throws Exception{
+  	  String sqlExec = dbSQL.getDef(dboperation,"");
+    	return (dbPH.queryExecuteUpdate(sqlExec, intparam));
+Index: WEB-INF/classes/src/oscar/login/LoginAction.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/login/LoginAction.java,v
+retrieving revision 1.21
+diff -c -r1.21 LoginAction.java
+*** WEB-INF/classes/src/oscar/login/LoginAction.java	4 Dec 2005 17:32:49 -0000	1.21
+--- WEB-INF/classes/src/oscar/login/LoginAction.java	6 Jul 2006 15:47:12 -0000
+***************
+*** 77,84 ****
+        strAuth = cl.auth(userName, password, pin, ip);
+      }
+      catch (Exception e) {
+!       String newURL = mapping.findForward("error").getPath();
+!       if (e.getMessage().startsWith("java.lang.ClassNotFoundException")) {
+          newURL = newURL + "?errormsg=Database driver "
+              + e.getMessage().substring(e.getMessage().indexOf(':') + 2) +
+              " not found.";
+--- 77,87 ----
+        strAuth = cl.auth(userName, password, pin, ip);
+      }
+      catch (Exception e) {
+!       String newURL =mapping.findForward("error") == null ?
+!       	"?errormsg=Authorization_error" 
+!       	: mapping.findForward("error").getPath();
+!       
+!       if (e.getMessage() != null && e.getMessage().startsWith("java.lang.ClassNotFoundException")) {
+          newURL = newURL + "?errormsg=Database driver "
+              + e.getMessage().substring(e.getMessage().indexOf(':') + 2) +
+              " not found.";
+Index: WEB-INF/classes/src/oscar/login/LoginCheckLogin.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/login/LoginCheckLogin.java,v
+retrieving revision 1.10
+diff -c -r1.10 LoginCheckLogin.java
+*** WEB-INF/classes/src/oscar/login/LoginCheckLogin.java	21 Jul 2005 05:44:32 -0000	1.10
+--- WEB-INF/classes/src/oscar/login/LoginCheckLogin.java	6 Jul 2006 15:47:12 -0000
+***************
+*** 99,104 ****
+--- 99,107 ----
+  
+      // authenticate is used to check password
+      public String[] auth(String user_name, String password, String pin, String ip) throws Exception, SQLException {
++ 		  System.out.println("REACHED " + this + " auth()");        
++ 		  System.out.println(user_name + " " + password + " "+ pin + " " + ip + " " + pvar);
++ 		          
+          lb = new LoginCheckLoginBean();
+          lb.ini(user_name, password, pin, ip, pvar);
+          return lb.authenticate();
+Index: WEB-INF/classes/src/oscar/login/LoginCheckLoginBean.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/login/LoginCheckLoginBean.java,v
+retrieving revision 1.12
+diff -c -r1.12 LoginCheckLoginBean.java
+*** WEB-INF/classes/src/oscar/login/LoginCheckLoginBean.java	31 Aug 2005 06:35:53 -0000	1.12
+--- WEB-INF/classes/src/oscar/login/LoginCheckLoginBean.java	6 Jul 2006 15:47:17 -0000
+***************
+*** 131,142 ****
+  
+      private LoginSecurityBean getUserID() {
+          LoginSecurityBean secBean = null;
+          try {
+              if (!DBHandler.isInit())
+                  DBHandler.init(oscarVariables.getProperty("db_name"), oscarVariables.getProperty("db_driver"),
+                          oscarVariables.getProperty("db_uri"), oscarVariables.getProperty("db_username"),
+                          oscarVariables.getProperty("db_password"));
+! 
+              accessDB = new DBHelp();
+              String sql = "select * from security where user_name = '" + username + "'";
+              ResultSet rs = accessDB.searchDBRecord(sql);
+--- 131,155 ----
+  
+      private LoginSecurityBean getUserID() {
+          LoginSecurityBean secBean = null;
++         DBHandler h = null;
+          try {
++  				h = new DBHandler(DBHandler.OSCAR_DATA);
++         } catch (Exception e) {
++         }
++         
++         try {
++         		if (h == null) {
++         			h = new DBHandler(DBHandler.OSCAR_DATA , 
++         			oscarVariables.getProperty("db_driver"),
++                oscarVariables.getProperty("db_uri")+ oscarVariables.getProperty("db_name"), oscarVariables.getProperty("db_username"),
++                oscarVariables.getProperty("db_password"));
++             }
++         		/*
+              if (!DBHandler.isInit())
+                  DBHandler.init(oscarVariables.getProperty("db_name"), oscarVariables.getProperty("db_driver"),
+                          oscarVariables.getProperty("db_uri"), oscarVariables.getProperty("db_username"),
+                          oscarVariables.getProperty("db_password"));
+! 				*/
+              accessDB = new DBHelp();
+              String sql = "select * from security where user_name = '" + username + "'";
+              ResultSet rs = accessDB.searchDBRecord(sql);
+Index: WEB-INF/classes/src/oscar/oscarDB/DBConnectionPool.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/oscarDB/DBConnectionPool.java,v
+retrieving revision 1.5
+diff -c -r1.5 DBConnectionPool.java
+*** WEB-INF/classes/src/oscar/oscarDB/DBConnectionPool.java	10 Mar 2005 20:00:02 -0000	1.5
+--- WEB-INF/classes/src/oscar/oscarDB/DBConnectionPool.java	6 Jul 2006 15:47:17 -0000
+***************
+*** 32,44 ****
+   */
+  
+  public class DBConnectionPool implements Runnable {
+!    private String driver, url, username, password;
+     private int maxConnections;
+     private boolean waitIfBusy;
+     private Vector availableConnections, busyConnections;
+     private boolean connectionPending = false;
+!    
+!    public DBConnectionPool(String driver, String url,String username, String password,int initialConnections,int maxConnections,boolean waitIfBusy) throws SQLException {
+        this.driver = driver;
+        this.url = url;
+        this.username = username;
+--- 32,72 ----
+   */
+  
+  public class DBConnectionPool implements Runnable {
+! 
+! 	private static HashMap pools = new HashMap();
+! 	
+!    private String sourceName, driver, url, username, password;
+     private int maxConnections;
+     private boolean waitIfBusy;
+     private Vector availableConnections, busyConnections;
+     private boolean connectionPending = false;
+! 
+! 	public String queryFilter(String query) {
+! 		String q2 = query;		
+! 		System.out.println("the query before is : " + q2);
+! 		if ( driver.indexOf("postgres") >= 0 ) {
+! 			q2 = query.replaceAll(" regexp ", " ~* ");
+! 		}
+! 		
+! 		if (driver.indexOf("postgres") >= 0 && q2.indexOf("from demographic") >= 0) {
+! 			q2 = q2.replaceAll("from demographic", "from oscar.demographic");
+! 		}
+! 		System.out.println("the query after is : " + q2);
+! 		return q2;
+! 	}
+! 	public static DBConnectionPool getInstance(String sourceName) {
+! 			if ( sourceName == null )
+! 				sourceName = oscar.oscarDB.DBHandler.OSCAR_DATA;
+! 			
+! 			DBConnectionPool instance = null;
+! 			synchronized( pools) {
+! 			 instance = (DBConnectionPool) pools.get(sourceName);
+! 			}
+! 			return instance;
+! 	}
+! 	   
+!    public DBConnectionPool(String sourceName, String driver, String url,String username, String password,int initialConnections,int maxConnections,boolean waitIfBusy) throws SQLException {
+! 		this.sourceName = sourceName;      
+        this.driver = driver;
+        this.url = url;
+        this.username = username;
+***************
+*** 53,58 ****
+--- 81,90 ----
+        for(int i=0; i<initialConnections; i++) {
+           availableConnections.addElement(makeNewConnection());
+        }
++       
++       synchronized(pools) {
++       	pools.put( sourceName, this);
++       }
+     }
+     /** Provides a connestion from the connection pool to the caller.
+      */
+***************
+*** 156,161 ****
+--- 188,194 ----
+           // Load database driver if not already loaded
+           Class.forName(driver);
+           // Establish network connection to database
++          System.err.println("making connection with " + this + url + " , " + username + " , " + password);
+           Connection connection =
+           DriverManager.getConnection(url, username, password);
+           return(connection);
+Index: WEB-INF/classes/src/oscar/oscarDB/DBHandler.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/oscarDB/DBHandler.java,v
+retrieving revision 1.6
+diff -c -r1.6 DBHandler.java
+*** WEB-INF/classes/src/oscar/oscarDB/DBHandler.java	10 Mar 2005 19:52:48 -0000	1.6
+--- WEB-INF/classes/src/oscar/oscarDB/DBHandler.java	6 Jul 2006 15:47:17 -0000
+***************
+*** 52,57 ****
+--- 52,61 ----
+             return initd;
+          }
+          
++    public String queryFilter( String query) {
++    	return pool.queryFilter(query);
++    }
++    
+  	public static void init(String db_name, String db_driver, String db_uri,
+  			String db_username, String db_password) {
+  		OSCAR_DATA = db_name;
+***************
+*** 60,86 ****
+  		connUser = db_username;
+  		connPwd = db_password;
+  	}
+! 	public DBHandler(String dbName) throws SQLException {
+  		//this("localhost:3306/", dbName);
+! 		this("", dbName);
+  	}
+  	public DBHandler(String host, String dbName) throws SQLException {
+  		if (dbName.compareTo(IDDF_DATA) == 0) {
+! 			pool = DBIddfPool.getInstance(connDriver, connURL + host + dbName,
+  					connUser, connPwd, connInitialConnections,
+  					connMaxConnections, connWaitIfBusy);
+  			conn = pool.getConnection();
+  		} else {
+! 			pool = DBOscarPool.getInstance(connDriver, connURL + host + dbName,
+  					connUser, connPwd, connInitialConnections,
+  					connMaxConnections, connWaitIfBusy);
+  			conn = pool.getConnection();
+  		}
+  	}
+          
+!         synchronized public Connection GetConnection() throws SQLException{
+             return conn;
+!         }
+  	synchronized public java.sql.ResultSet GetSQL(String SQLStatement) throws SQLException {
+  		return this.GetSQL(SQLStatement, false);
+  	}
+--- 64,101 ----
+  		connUser = db_username;
+  		connPwd = db_password;
+  	}
+! 	public DBHandler(String sourceName) throws SQLException {
+  		//this("localhost:3306/", dbName);
+! 		//this("", dbName);
+! 		pool = DBIddfPool.getInstance(sourceName);
+! 		conn = pool.getConnection();		
+! 	}
+! 	
+! 	public DBHandler( String sourceName, String connDriver, String connURL, String connUser, String connPwd) throws SQLException {
+! 			pool = DBIddfPool.getInstance(sourceName, connDriver, connURL  ,
+! 					connUser, connPwd, connInitialConnections,
+! 					connMaxConnections, connWaitIfBusy);
+! 			conn = pool.getConnection();
+! 	
+  	}
+  	public DBHandler(String host, String dbName) throws SQLException {
+  		if (dbName.compareTo(IDDF_DATA) == 0) {
+! 			pool = DBIddfPool.getInstance(OSCAR_DATA, connDriver, connURL + host + dbName,
+  					connUser, connPwd, connInitialConnections,
+  					connMaxConnections, connWaitIfBusy);
+  			conn = pool.getConnection();
+  		} else {
+! 			pool = DBOscarPool.getInstance(OSCAR_DATA ,connDriver, connURL + host + dbName,
+  					connUser, connPwd, connInitialConnections,
+  					connMaxConnections, connWaitIfBusy);
+  			conn = pool.getConnection();
+  		}
+  	}
+          
+!    synchronized public Connection GetConnection() throws SQLException{
+             return conn;
+!    }
+!    
+  	synchronized public java.sql.ResultSet GetSQL(String SQLStatement) throws SQLException {
+  		return this.GetSQL(SQLStatement, false);
+  	}
+Index: WEB-INF/classes/src/oscar/oscarDB/DBIddfPool.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/oscarDB/DBIddfPool.java,v
+retrieving revision 1.3
+diff -c -r1.3 DBIddfPool.java
+*** WEB-INF/classes/src/oscar/oscarDB/DBIddfPool.java	11 Sep 2003 20:53:40 -0000	1.3
+--- WEB-INF/classes/src/oscar/oscarDB/DBIddfPool.java	6 Jul 2006 15:47:17 -0000
+***************
+*** 30,49 ****
+  public class DBIddfPool extends DBConnectionPool {
+      private static DBIddfPool PoolS=null;
+  
+!     private DBIddfPool(String driver, String url,String username, String password,
+          int initialConnections,int maxConnections,boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         super(driver, url, username, password,initialConnections, maxConnections,waitIfBusy);
+      }
+  
+!     public static synchronized DBIddfPool getInstance(String driver, String url,
+          String username, String password, int initialConnections,
+          int maxConnections, boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         if(PoolS == null){
+!             PoolS = new DBIddfPool(driver, url, username, password,
+              initialConnections, maxConnections, waitIfBusy);
+          }
+!         return(PoolS);
+      }
+  }
+--- 30,60 ----
+  public class DBIddfPool extends DBConnectionPool {
+      private static DBIddfPool PoolS=null;
+  
+!     private DBIddfPool(  String sourceName, String driver, String url,String username, String password,
+          int initialConnections,int maxConnections,boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         super( sourceName, driver, url, username, password,initialConnections, maxConnections,waitIfBusy);
+      }
+  
+!     public static synchronized DBIddfPool getInstance(String sourceName, String driver, String url,
+          String username, String password, int initialConnections,
+          int maxConnections, boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         if(DBConnectionPool.getInstance( sourceName ) == null || !( DBConnectionPool.getInstance(sourceName) instanceof DBIddfPool) ){
+!         	  
+!            return  new DBIddfPool(sourceName, driver, url, username, password,
+              initialConnections, maxConnections, waitIfBusy);
+          }
+!         return (DBIddfPool) DBConnectionPool.getInstance( sourceName );
+!     }
+!     
+!     public static synchronized DBIddfPool getDBIddfInstance(String sourceName) throws
+!     java.sql.SQLException {
+!       try {
+! 	    	return (DBIddfPool) DBConnectionPool.getInstance(sourceName);
+!     	
+! 		} catch (Exception e) {
+! 			throw new java.sql.SQLException(e.toString());
+! 		}    	
+      }
+  }
+Index: WEB-INF/classes/src/oscar/oscarDB/DBOscarPool.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/oscarDB/DBOscarPool.java,v
+retrieving revision 1.3
+diff -c -r1.3 DBOscarPool.java
+*** WEB-INF/classes/src/oscar/oscarDB/DBOscarPool.java	11 Sep 2003 20:53:40 -0000	1.3
+--- WEB-INF/classes/src/oscar/oscarDB/DBOscarPool.java	6 Jul 2006 15:47:17 -0000
+***************
+*** 30,49 ****
+  public class DBOscarPool extends DBConnectionPool {
+      private static DBOscarPool PoolS=null;
+  
+!     private DBOscarPool(String driver, String url,String username, String password,
+          int initialConnections,int maxConnections,boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         super(driver, url, username, password,initialConnections, maxConnections,waitIfBusy);
+      }
+  
+!     public static synchronized DBOscarPool getInstance(String driver, String url,
+          String username, String password, int initialConnections,
+          int maxConnections, boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         if(PoolS == null){
+!             PoolS = new DBOscarPool(driver, url, username, password,
+!             initialConnections, maxConnections, waitIfBusy);
+!         }
+!         return(PoolS);
+      }
+  }
+--- 30,50 ----
+  public class DBOscarPool extends DBConnectionPool {
+      private static DBOscarPool PoolS=null;
+  
+!     private DBOscarPool(String sourceName, String driver, String url,String username, String password,
+          int initialConnections,int maxConnections,boolean waitIfBusy) throws java.sql.SQLException
+      {
+!         super(sourceName, driver, url, username, password,initialConnections, maxConnections,waitIfBusy);
+      }
+  
+!     public static synchronized DBOscarPool getInstance(String sourceName, String driver, String url,
+          String username, String password, int initialConnections,
+          int maxConnections, boolean waitIfBusy) throws java.sql.SQLException
+      {
+!     	  if ( DBConnectionPool.getInstance( sourceName)  == null  || 
+!     	  !(  DBConnectionPool.getInstance( sourceName) instanceof DBOscarPool)  ) {
+!     	  		return new DBOscarPool( sourceName, driver, url, username, password,initialConnections, maxConnections,waitIfBusy);
+!    	 }
+! 
+!     	 return (DBOscarPool) DBConnectionPool.getInstance(sourceName);
+      }
+  }
+Index: WEB-INF/classes/src/oscar/oscarDB/DBPreparedHandler.java
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/WEB-INF/classes/src/oscar/oscarDB/DBPreparedHandler.java,v
+retrieving revision 1.10
+diff -c -r1.10 DBPreparedHandler.java
+*** WEB-INF/classes/src/oscar/oscarDB/DBPreparedHandler.java	10 Mar 2005 20:09:40 -0000	1.10
+--- WEB-INF/classes/src/oscar/oscarDB/DBPreparedHandler.java	6 Jul 2006 15:47:17 -0000
+***************
+*** 28,33 ****
+--- 28,34 ----
+  
+  public class DBPreparedHandler  { 
+    
++   
+    String connDriver=null; //"org.gjt.mm.mysql.Driver";
+    String connURL=null;  //"jdbc:mysql://";
+    String connUser=null; //"mysql";
+***************
+*** 38,47 ****
+    ResultSet rs = null;
+    Statement stmt = null; 
+    PreparedStatement preparedStmt = null;
+    
+!   public DBPreparedHandler(String dbDriver,String dbName, String dbUser,String dbPwd ) throws SQLException {      
+        try {
+!           init(dbDriver,dbName,dbUser,dbPwd);      
+        } catch (Exception e) {
+            e.printStackTrace(System.out); // dump to the log file for debugging purposes
+            if (e.getClass().getName().equals("java.sql.SQLException")) {
+--- 39,56 ----
+    ResultSet rs = null;
+    Statement stmt = null; 
+    PreparedStatement preparedStmt = null;
++ 	
++   boolean isPostgres = false;
++     
+    
+!   public DBPreparedHandler(String sourceName) throws SQLException {      
+! 
+!   			db = new DBHandler(sourceName);
+!   			conn = db.GetConnection();
+!   }
+!   public DBPreparedHandler(String sourceName, String dbDriver,String dbName, String dbUser,String dbPwd ) throws SQLException {      
+        try {
+!           init(sourceName, dbDriver,dbName,dbUser,dbPwd);      
+        } catch (Exception e) {
+            e.printStackTrace(System.out); // dump to the log file for debugging purposes
+            if (e.getClass().getName().equals("java.sql.SQLException")) {
+***************
+*** 52,75 ****
+        }
+    }
+    
+!   public void init(String dbDriver,String dbUrl, String dbUser,String dbPwd ) throws Exception, SQLException {
+      connDriver=dbDriver;
+      connURL=dbUrl;
+      connUser=dbUser;
+      connPwd=dbPwd;
+!     OpenConn(connDriver, connURL, connUser, connPwd);    
+    }
+!   private void OpenConn(String dbDriver, String dbUrl,String dbUser,String dbPwd) throws Exception, SQLException {      
+       
+      //Class.forName(dbDriver);
+      //conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);         
+       
+!     if (!DBHandler.isInit()){
+         //init(String db_name, String db_driver, String db_uri,String db_username, String db_password) {
+!        DBHandler.init("",dbDriver, dbUrl, dbUser, dbPwd);
+!     }
+!     db = new DBHandler(DBHandler.OSCAR_DATA);            
+!     
+      conn = db.GetConnection();
+      
+    }
+--- 61,85 ----
+        }
+    }
+    
+!   public void init(String sourceName, String dbDriver,String dbUrl, String dbUser,String dbPwd ) throws Exception, SQLException {
+      connDriver=dbDriver;
+      connURL=dbUrl;
+      connUser=dbUser;
+      connPwd=dbPwd;
+!     OpenConn(sourceName, connDriver, connURL, connUser, connPwd);    
+    }
+!   
+!   private void OpenConn(String sourceName, String dbDriver, String dbUrl,String dbUser,String dbPwd) throws Exception, SQLException {      
+       
+      //Class.forName(dbDriver);
+      //conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);         
+       
+!    // if (!DBHandler.isInit()){
+         //init(String db_name, String db_driver, String db_uri,String db_username, String db_password) {
+!      //  DBHandler.init("",dbDriver, dbUrl, dbUser, dbPwd);
+!    // }
+!    // db = new DBHandler(DBHandler.OSCAR_DATA);            
+!     db = new DBHandler(sourceName, dbDriver,dbUrl , dbUser, dbPwd);
+      conn = db.GetConnection();
+      
+    }
+***************
+*** 100,105 ****
+--- 110,116 ----
+      return (preparedStmt.executeUpdate());
+    }
+    synchronized public int queryExecuteUpdate(String preparedSQL, String[] param, int [] intparam)throws SQLException{
++    
+      preparedStmt = conn.prepareStatement(preparedSQL);
+      for(int i=0;i<param.length;i++) {
+        preparedStmt.setString((i+1), param[i]);
+***************
+*** 135,140 ****
+--- 146,152 ----
+      return rs;
+    }
+    synchronized public ResultSet queryResults(String preparedSQL, int param) throws SQLException {
++     preparedSQL = db.queryFilter(preparedSQL);
+      preparedStmt = conn.prepareStatement(preparedSQL);
+      preparedStmt.setInt(1, param);
+      rs=preparedStmt.executeQuery();
+***************
+*** 148,159 ****
+--- 160,176 ----
+      return (preparedStmt.executeQuery());
+    }
+    synchronized public ResultSet queryResults(String preparedSQL, String param) throws SQLException {
++ 	preparedSQL = db.queryFilter(preparedSQL);
++ 	 
++         
+      preparedStmt = conn.prepareStatement(preparedSQL);
++     
+      preparedStmt.setString(1, param);
+      rs=preparedStmt.executeQuery();
+      return rs;
+    }
+    synchronized public ResultSet queryResults(String preparedSQL, String[] param) throws SQLException {
++ 	 preparedSQL = db.queryFilter(preparedSQL);    
+      preparedStmt = conn.prepareStatement(preparedSQL);
+      for(int i=0;i<param.length;i++) {
+        preparedStmt.setString((i+1), param[i]);
+Index: admin/dbconnection.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/admin/dbconnection.jsp,v
+retrieving revision 1.4
+diff -c -r1.4 dbconnection.jsp
+*** admin/dbconnection.jsp	21 Feb 2004 01:42:23 -0000	1.4
+--- admin/dbconnection.jsp	6 Jul 2006 15:47:19 -0000
+***************
+*** 27,32 ****
+  <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
+  <%
+    //information for connecting to databases
+!   String [] dbParams=new String[] { oscarVariables.getProperty("db_driver"),oscarVariables.getProperty("db_uri")+oscarVariables.getProperty("db_name")+"?user="+oscarVariables.getProperty("db_username")+"&password="+oscarVariables.getProperty("db_password"),oscarVariables.getProperty("db_username"),oscarVariables.getProperty("db_password")};
+    //    "org.gjt.mm.mysql.Driver",    "jdbc:mysql:///oscar?user=root&password=liyi", "root",    "liyi"  };
+! %> 
+\ No newline at end of file
+--- 27,46 ----
+  <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
+  <%
+    //information for connecting to databases
+!   String [] dbParams=new String[] { oscar.oscarDB.DBHandler.OSCAR_DATA , oscarVariables.getProperty("db_driver"),oscarVariables.getProperty("db_uri")+oscarVariables.getProperty("db_name")+"?user="+oscarVariables.getProperty("db_username")+"&password="+oscarVariables.getProperty("db_password"),oscarVariables.getProperty("db_username"),oscarVariables.getProperty("db_password")};
+    //    "org.gjt.mm.mysql.Driver",    "jdbc:mysql:///oscar?user=root&password=liyi", "root",    "liyi"  };
+!   //
+!   String [] gnumedParams= new String[] { "gnumed", oscarVariables.getProperty("gnumed_driver"), oscarVariables.getProperty("gnumed_uri") + oscarVariables.getProperty("gnumed_dbname")+"?user="+ oscarVariables.getProperty("gnumed_user")+"&password="+  oscarVariables.getProperty("gnumed_password"), oscarVariables.getProperty("gnumed_user"),  oscarVariables.getProperty("gnumed_password")   };
+!   
+! 	// maybe comment out this if the oscar.properties file is confident
+!     //
+! 	if ( gnumedParams[0] == null ) {
+! 	 	gnumedParams[0] = "gnumed";
+! 		gnumedParams[1] = "org.postgresql.Driver";
+! 		gnumedParams[2] = "jdbc://postgresql/localhost/gnumed_v2?user=any-doc&password=any-doc";
+! 		
+! 		gnumedParams[3] = "any-doc";
+! 		gnumedParams[4] = "any-doc";
+!   }
+! 
+! %> 
+Index: appointment/addappointment.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/appointment/addappointment.jsp,v
+retrieving revision 1.15
+diff -c -r1.15 addappointment.jsp
+*** appointment/addappointment.jsp	9 Feb 2005 07:31:40 -0000	1.15
+--- appointment/addappointment.jsp	6 Jul 2006 15:47:19 -0000
+***************
+*** 26,54 ****
+  
+    if (request.getParameter("demographic_no")!=null) bFromWL=true;
+  
+    String duration = request.getParameter("duration")!=null?(request.getParameter("duration").equals(" ")||request.getParameter("duration").equals("")||request.getParameter("duration").equals("null")?(""+everyMin) :request.getParameter("duration")):(""+everyMin) ;
+  
+  %>
+  <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*" errorPage="../appointment/errorpage.jsp" %>
+  <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+  <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+! <jsp:useBean id="addApptBean" class="oscar.AppointmentMainBean" scope="page" /><%@ include file="../admin/dbconnection.jsp" %>
+! <% 
+! 
+!   String [][] dbQueries=new String[][] { 
+! 
+!     {"search_appt", "select count(appointment_no) AS n from appointment where appointment_date = ? and provider_no = ? and status !='C' and ((start_time>= ? and start_time<= ?) or (end_time>= ? and end_time<= ?) or (start_time<= ? and end_time>= ?) )" }, 
+! 
+!     {"search_demographiccust_alert", "select cust3 from demographiccust where demographic_no = ? " }, 
+! 
+!     {"search_demographic_statusroster", "select patient_status,roster_status from demographic where demographic_no = ? " }, 
+  
+!   };
+  
+!   addApptBean.doConfigure(dbParams,dbQueries);
+! 
+! %>
+! <!--  
+  
+  /*
+  
+--- 26,46 ----
+  
+    if (request.getParameter("demographic_no")!=null) bFromWL=true;
+  
++ 
+    String duration = request.getParameter("duration")!=null?(request.getParameter("duration").equals(" ")||request.getParameter("duration").equals("")||request.getParameter("duration").equals("null")?(""+everyMin) :request.getParameter("duration")):(""+everyMin) ;
+  
+  %>
+  <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*" errorPage="../appointment/errorpage.jsp" %>
+  <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+  <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+! <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="page" />
+! <%@ include file="../admin/dbconnection.jsp" %>
+  
+! <%@  include file="./gnumedappointmentqueries.jsp" %>
+! <%  apptMainBean.doConfigure( dbParams, dbQueries); %>
+! <%@  include file="./gnumedappointmenttransfer.jsp" %>
+  
+! <!--
+  
+  /*
+  
+***************
+*** 267,272 ****
+--- 259,267 ----
+  
+  }
+  
++ 
++ 
++ 
+  // stop javascript -->
+  
+  </script>
+***************
+*** 317,323 ****
+  
+    param[7] = param[3];
+  
+! 	ResultSet rsdemo = addApptBean.queryResults(param, "search_appt");
+  
+  	int apptnum = rsdemo.next()?rsdemo.getInt("n"):0 ;
+  
+--- 312,318 ----
+  
+    param[7] = param[3];
+  
+! 	ResultSet rsdemo = apptMainBean.queryResults(param, "search_appt");
+  
+  	int apptnum = rsdemo.next()?rsdemo.getInt("n"):0 ;
+  
+***************
+*** 335,341 ****
+  
+    if (!bFirstDisp && !request.getParameter("demographic_no").equals("")) {
+  
+! 	  rsdemo = addApptBean.queryResults(request.getParameter("demographic_no"), "search_demographic_statusroster");
+  
+        while (rsdemo.next()) { 
+  
+--- 330,336 ----
+  
+    if (!bFirstDisp && !request.getParameter("demographic_no").equals("")) {
+  
+! 	  rsdemo = apptMainBean.queryResults(request.getParameter("demographic_no"), "search_demographic_statusroster");
+  
+        while (rsdemo.next()) { 
+  
+***************
+*** 395,401 ****
+  
+        }
+  
+! 	  rsdemo = addApptBean.queryResults(request.getParameter("demographic_no"), "search_demographiccust_alert");
+  
+        while (rsdemo.next()) { 
+  
+--- 390,396 ----
+  
+        }
+  
+! 	  rsdemo = apptMainBean.queryResults(request.getParameter("demographic_no"), "search_demographiccust_alert");
+  
+        while (rsdemo.next()) { 
+  
+***************
+*** 414,420 ****
+  
+        }
+  
+!       addApptBean.closePstmtConn();
+  
+    }
+  
+--- 409,415 ----
+  
+        }
+  
+!       apptMainBean.closePstmtConn();
+  
+    }
+  
+***************
+*** 493,499 ****
+                  <!--input type="hidden" name="displaymode" value="Search " --> 
+                  <INPUT TYPE="submit" onclick="document.forms['ADDAPPT'].displaymode.value='Search '" VALUE="<bean:message key="appointment.addappointment.btnSearch"/> 
+  "></font></div></td> 
+!             <td width="20%" > <input type="TEXT" name="demographic_no" ONFOCUS="onBlockFieldFocus(this)" readonly value="<%=(bFirstDisp && !bFromWL)?"":request.getParameter("demographic_no").equals("")?"":request.getParameter("demographic_no")%>" width="25" height="20" border="0" hspace="2"> </td> 
+            </tr> 
+            <tr valign="middle" BGCOLOR="#CCCCFF"> 
+              <td width="20%"> <div align="right"><font face="arial"><bean:message key="Appointment.formReason"/>:</font></div></td> 
+--- 488,494 ----
+                  <!--input type="hidden" name="displaymode" value="Search " --> 
+                  <INPUT TYPE="submit" onclick="document.forms['ADDAPPT'].displaymode.value='Search '" VALUE="<bean:message key="appointment.addappointment.btnSearch"/> 
+  "></font></div></td> 
+!             <td width="20%" > <input type="TEXT" name="demographic_no" ONFOCUS="onBlockFieldFocus(this)" readonly value="<%=(bFirstDisp && !bFromWL)?"":oscar_no!=0?Integer.toString(oscar_no):request.getParameter("demographic_no").equals("")?"":request.getParameter("demographic_no")%>" width="25" height="20" border="0" hspace="2"> </td> 
+            </tr> 
+            <tr valign="middle" BGCOLOR="#CCCCFF"> 
+              <td width="20%"> <div align="right"><font face="arial"><bean:message key="Appointment.formReason"/>:</font></div></td> 
+***************
+*** 570,573 ****
+    </TABLE> 
+  </FORM> 
+  </body>
+! </html:html>
+\ No newline at end of file
+--- 565,568 ----
+    </TABLE> 
+  </FORM> 
+  </body>
+! </html:html>
+Index: appointment/appointmentcontrol.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/appointment/appointmentcontrol.jsp,v
+retrieving revision 1.6
+diff -c -r1.6 appointmentcontrol.jsp
+*** appointment/appointmentcontrol.jsp	14 Jul 2005 22:15:40 -0000	1.6
+--- appointment/appointmentcontrol.jsp	6 Jul 2006 15:47:19 -0000
+***************
+*** 68,73 ****
+--- 68,75 ----
+     };
+     apptMainBean.doConfigure(dbParams,dbOperation,toFile);
+  %>
++ <%@ include file="./gnumedappointmentqueries.jsp"%>
++ <% apptMainBean.addDbOperation(dbQueries); %>
+  <%
+    apptMainBean.doCommand(request); //store request to a help class object Dict - function&params
+    if(true) {
+Index: appointment/editappointment.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/appointment/editappointment.jsp,v
+retrieving revision 1.12
+diff -c -r1.12 editappointment.jsp
+*** appointment/editappointment.jsp	17 Sep 2004 14:32:42 -0000	1.12
+--- appointment/editappointment.jsp	6 Jul 2006 15:47:19 -0000
+***************
+*** 9,18 ****
+    boolean bFirstDisp=true; //this is the first time to display the window
+    if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter("bFirstDisp")).equals("true");
+  %>
+! <%@ page import="java.util.*, java.sql.*" errorPage="errorpage.jsp" %>
+  <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+  <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+  <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+  <!--  
+  /*
+   * 
+--- 9,23 ----
+    boolean bFirstDisp=true; //this is the first time to display the window
+    if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter("bFirstDisp")).equals("true");
+  %>
+! <%@ page import="java.util.*, java.sql.*"  errorPage="errorpage.jsp" %>
+  <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+  <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+  <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
++ 
++ 
++ <%@ include file="../admin/dbconnection.jsp" %>
++ <%@ include file="./gnumedappointmenttransfer.jsp" %>
++ 
+  <!--  
+  /*
+   * 
+***************
+*** 297,303 ****
+                <div align="right"><input type="submit" onclick="document.forms['EDITAPPT'].displaymode.value='Search '" value="<bean:message key="appointment.editappointment.btnSearch"/>"></div>
+              </td>
+              <td width="20%"  ALIGN="LEFT"> 
+!               <input type="TEXT" name="demographic_no" onFocus="onBlockFieldFocus(this)" readonly value="<%=bFirstDisp?( rs.getInt("demographic_no")==0?"":(""+rs.getInt("demographic_no")) ):request.getParameter("demographic_no")%>" width="25" height="20" border="0" hspace="2">
+              </td>
+            </tr>
+            <tr valign="middle"> 
+--- 302,308 ----
+                <div align="right"><input type="submit" onclick="document.forms['EDITAPPT'].displaymode.value='Search '" value="<bean:message key="appointment.editappointment.btnSearch"/>"></div>
+              </td>
+              <td width="20%"  ALIGN="LEFT"> 
+!               <input type="TEXT" name="demographic_no" onFocus="onBlockFieldFocus(this)" readonly value="<%=bFirstDisp?( rs.getInt("demographic_no")==0?"":(""+rs.getInt("demographic_no")) ):oscar_no>0?Integer.toString(oscar_no):request.getParameter("demographic_no")%>" width="25" height="20" border="0" hspace="2">
+              </td>
+            </tr>
+            <tr valign="middle"> 
+Index: demographic/demographiccontrol.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/demographic/demographiccontrol.jsp,v
+retrieving revision 1.22
+diff -c -r1.22 demographiccontrol.jsp
+*** demographic/demographiccontrol.jsp	31 Oct 2005 03:56:59 -0000	1.22
+--- demographic/demographiccontrol.jsp	6 Jul 2006 15:47:21 -0000
+***************
+*** 29,34 ****
+--- 29,35 ----
+  
+  <%@ page errorPage="errorpage.jsp" import="oscar.OscarProperties" %>
+  <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
++ 
+  <%@ include file="../admin/dbconnection.jsp" %>
+  
+  <%
+***************
+*** 72,78 ****
+      if(request.getParameter("ptstatus").equals("inactive")) ptstatusexp=" and patient_status in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
+    }
+  
+!   String [][] dbQueries=new String[][] {
+      {"search_titlename", "select *  from demographic where "+fieldname+" "+regularexp+" ? "+ptstatusexp+orderby+" "+limit},
+      {"add_apptrecord", "select demographic_no,first_name,last_name,roster_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no from demographic where "+fieldname+ " "+regularexp+" ? " +ptstatusexp+orderby + " "+limit},
+      {"update_apptrecord", "select demographic_no,first_name,last_name,roster_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no  from demographic where "+fieldname+ " "+regularexp+" ? " +ptstatusexp+orderby + " "+limit},
+--- 73,79 ----
+      if(request.getParameter("ptstatus").equals("inactive")) ptstatusexp=" and patient_status in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
+    }
+  
+!   String [][] dbQueries2=new String[][] {
+      {"search_titlename", "select *  from demographic where "+fieldname+" "+regularexp+" ? "+ptstatusexp+orderby+" "+limit},
+      {"add_apptrecord", "select demographic_no,first_name,last_name,roster_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no from demographic where "+fieldname+ " "+regularexp+" ? " +ptstatusexp+orderby + " "+limit},
+      {"update_apptrecord", "select demographic_no,first_name,last_name,roster_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no  from demographic where "+fieldname+ " "+regularexp+" ? " +ptstatusexp+orderby + " "+limit},
+***************
+*** 104,109 ****
+--- 105,112 ----
+      {"search_demo_waiting_list", "select * from waitingList where demographic_no=? AND listID=?"},
+      {"search_future_appt", "select a.demographic_no, a.appointment_date from appointment a where a.appointment_date >= now() AND a.demographic_no=?"},
+      {"search_hin", "select demographic_no, ver from demographic where hin=?"},
++ 	
++    // {"set_oscar_path", "set search_path to public, oscar" }
+     };
+  
+     //associate each operation with an output JSP file -- displaymode
+***************
+*** 126,132 ****
+       {"Update Record & Back to Appointment" , "updatedemographicbacktoappt.jsp"},
+       {"linkMsg2Demo" , "../oscarMessenger/msgSearchDemo.jsp"},             
+     };
+!    apptMainBean.doConfigure(dbParams,dbQueries,responseTargets);
+  %>
+  <%
+    apptMainBean.doCommand(request); //store request to a help class object Dict - function&params
+--- 129,144 ----
+       {"Update Record & Back to Appointment" , "updatedemographicbacktoappt.jsp"},
+       {"linkMsg2Demo" , "../oscarMessenger/msgSearchDemo.jsp"},             
+     };
+!    apptMainBean.doConfigure(dbParams,dbQueries2,responseTargets);
+! %>
+! <%@ include file="../appointment/gnumedappointmentqueries.jsp"%>
+! <% apptMainBean.addDbOperation(dbQueries);%>
+! 
+! <%
+! 	if (oscarVariables.getProperty("is_gnumed_demographics").equals("true")) {
+! 		apptMainBean.initAltDBHandler( gnumedParams);
+! 	}
+! 	
+  %>
+  <%
+    apptMainBean.doCommand(request); //store request to a help class object Dict - function&params
+Index: demographic/demographicsearch2apptresults.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/demographic/demographicsearch2apptresults.jsp,v
+retrieving revision 1.18
+diff -c -r1.18 demographicsearch2apptresults.jsp
+*** demographic/demographicsearch2apptresults.jsp	7 Nov 2005 16:35:46 -0000	1.18
+--- demographic/demographicsearch2apptresults.jsp	6 Jul 2006 15:47:21 -0000
+***************
+*** 43,48 ****
+--- 43,49 ----
+  <%@ page import="java.util.*, java.sql.*,java.net.*, oscar.*" errorPage="errorpage.jsp" %>
+  <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+  <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
++ <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
+  
+  <html> 
+  <head>
+***************
+*** 205,219 ****
+  <script language="JavaScript">
+  
+  var fullname="";
+! function addName(demographic_no, lastname, firstname, chartno, messageID) {  
+    fullname=lastname+","+firstname;
+!   document.addform.action="<%=request.getParameter("originalpage")%>?demographic_no="+demographic_no+"&name="+fullname+"&chart_no="+chartno+"&bFirstDisp=false"+"&messageID="+messageID;  //+"\"" ;
+    document.addform.submit(); // 
+    //return;
+  }
+  
+  <%if(caisi) {%>
+! function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
+  	fullname=lastname+","+firstname;
+  	opener.document.<%=request.getParameter("formName")%>.elements['<%=request.getParameter("elementName")%>'].value=fullname;
+  	opener.document.<%=request.getParameter("formName")%>.elements['<%=request.getParameter("elementId")%>'].value=demographic_no;
+--- 206,222 ----
+  <script language="JavaScript">
+  
+  var fullname="";
+! function addName(demographic_no, lastname, firstname, chartno, messageID, hin, year_of_birth, month_of_birth, date_of_birth, sex, address, city, province, postal , phone, phone2, oscar_no) {  
+! 	
+    fullname=lastname+","+firstname;
+!   document.addform.action="<%=request.getParameter("originalpage")%>?demographic_no="+demographic_no+"&name="+fullname+"&chart_no="+chartno+"&bFirstDisp=false"+"&messageID="+messageID
+! +"&hin="+hin+"&year_of_birth="+year_of_birth+"&month_of_birth="+month_of_birth+"&date_of_birth="+date_of_birth+"&sex="+sex+"&address="+address+"&city="+city+"&province="+province+"&postal="+postal+"&phone="+phone+"&phone2="+phone2+"&lastname="+lastname+"&firstname="+firstname +"&oscar_no="+oscar_no;  //+"\"" ;
+    document.addform.submit(); // 
+    //return;
+  }
+  
+  <%if(caisi) {%>
+! function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID, hin, year_of_birth, month_of_birth, date_of_birth, sex, address, city, province, postal, phone, phone1, oscar_no ) {
+  	fullname=lastname+","+firstname;
+  	opener.document.<%=request.getParameter("formName")%>.elements['<%=request.getParameter("elementName")%>'].value=fullname;
+  	opener.document.<%=request.getParameter("formName")%>.elements['<%=request.getParameter("elementId")%>'].value=demographic_no;
+***************
+*** 234,250 ****
+  <TH width="10%"><b><bean:message key="demographic.demographicsearch2apptresults.DOB"/></B></TH>
+  <TH width="10%"><b><bean:message key="demographic.demographicsearch2apptresults.doctor"/></B></TH>
+  </tr>
+! 
+  <%@ include file="../demographic/zdemographicsearchresult.jsp" %>
+  <%
+  String bgColor = bodd?"#EEEEFF":"white";
+  %>
+!  
+  <tr bgcolor="<%=bgColor%>" align="center" 
+  onMouseOver="this.style.cursor='hand';this.style.backgroundColor='pink';" onMouseout="this.style.backgroundColor='<%=bgColor%>';" 
+! onClick="document.forms[0].demographic_no.value=<%=rs.getString("demographic_no")%>;<% if(caisi) { out.print("addNameCaisi");} else { out.print("addName");} %>('<%=rs.getString("demographic_no")%>','<%=URLEncoder.encode(rs.getString("last_name"))%>','<%=URLEncoder.encode(rs.getString("first_name"))%>','<%=URLEncoder.encode(rs.getString("chart_no"))%>','<%=request.getParameter("messageId")%>')"
+  >
+!       <td><input type="submit" class="mbttn" name="demographic_no" value="<%=rs.getString("demographic_no")%>"  onClick="<% if(caisi) { out.print("addNameCaisi");} else { out.print("addName");} %>('<%=rs.getString("demographic_no")%>','<%=URLEncoder.encode(rs.getString("last_name"))%>','<%=URLEncoder.encode(rs.getString("first_name"))%>','<%=URLEncoder.encode(rs.getString("chart_no"))%>','<%=request.getParameter("messageId")%>')"></td>
+        <td><%=Misc.toUpperLowerCase(rs.getString("last_name"))%></td>
+        <td><%=Misc.toUpperLowerCase(rs.getString("first_name"))%></td>
+        <td><%=age%></td>
+--- 237,332 ----
+  <TH width="10%"><b><bean:message key="demographic.demographicsearch2apptresults.DOB"/></B></TH>
+  <TH width="10%"><b><bean:message key="demographic.demographicsearch2apptresults.doctor"/></B></TH>
+  </tr>
+! <%-- 
+! // this outer loop is to switch the search for gnumed demographics as well
+! for (int j = 0; j < 3; ++j) {
+! 	switch (j) {
+! 		case 0:
+! 			apptMainBean.resetToDefaultHandler();
+! 			break;
+! 		case 1:
+! 			apptMainBean.setAltHandler("gnumed");
+! 			break;
+! 		case 2:
+! 			apptMainBean.resetToDefaultHandler();
+! 			continue;
+! 		default:
+! 			continue;
+! 	}
+! --%>
+! 	
+! <% 
+! 	if (oscarVariables.getProperty("is_gnumed_demographics").equals("true") ) {
+! 			apptMainBean.setAltHandler("gnumed");
+! 	}
+! %>
+! <%	
+! 	String ad = null, ln = null, fn = null;
+! 	String ci = null, pr = null, po = null, ph = null, p2 = null, osn = null;
+! 	String hin = null, yb = null, mb = null, db = null, sx = null;
+! %>
+  <%@ include file="../demographic/zdemographicsearchresult.jsp" %>
+  <%
+  String bgColor = bodd?"#EEEEFF":"white";
+  %>
+! 
+! <% 
+! 	yb = rs.getString ("year_of_birth");
+! 	mb = rs.getString( "month_of_birth");
+! 	db = rs.getString("date_of_birth");
+! 	sx = rs.getString("sex");
+! 	try {
+! 	ln = rs.getString("last_name");
+! 	fn = rs.getString("first_name");
+! 	hin = rs.getString("hin");
+! 	ad = rs.getString("address");
+! 	ci = rs.getString("city");
+! 	pr = rs.getString("province");
+! 	po = rs.getString("postal");
+! 	ph = rs.getString("phone");
+! 	p2 = rs.getString("phone2");
+! 	osn = oscarVariables.getProperty("is_gnumed_demographics").equals("true")? rs.getString("oscar_no") :"";
+! 	} catch (Exception e) {
+! 		e.printStackTrace();
+! 	}
+! 	ln = ln == null ? "" : ln;
+! 	fn = fn == null ? "" : fn;
+! 	hin = hin == null ? "": hin;
+! 	yb = yb == null ? "" : yb;
+! 	mb = mb == null ? "" : mb;
+! 	db = db == null ? "" : db;
+! 	sx = sx == null ? "" : sx;
+! 	ad = ad == null ? "" : ad;
+! 	ci = ci == null ? "" : ci;
+! 	pr = pr == null ? "" : pr;
+! 	po = po == null ? "" : po;
+! 	ph = ph == null ? "" : ph;
+! 	p2 = p2 == null ? "" : p2;
+! 	osn = osn == null ? "": osn;
+! 
+! %> 
+! 
+  <tr bgcolor="<%=bgColor%>" align="center" 
+  onMouseOver="this.style.cursor='hand';this.style.backgroundColor='pink';" onMouseout="this.style.backgroundColor='<%=bgColor%>';" 
+! onClick="document.forms[0].demographic_no.value=<%=rs.getString("demographic_no")%>;<% if(caisi) { out.print("addNameCaisi");} else { out.print("addName");} %>('<%=rs.getString("demographic_no")%>','<%=URLEncoder.encode(rs.getString("last_name"))%>','<%=URLEncoder.encode(rs.getString("first_name"))%>','<%=URLEncoder.encode(rs.getString("chart_no"))%>','<%=request.getParameter("messageId")%>', '<%=URLEncoder.encode(hin)%>', '<%=URLEncoder.encode(yb)%>', '<%=URLEncoder.encode(mb)%>', '<%=URLEncoder.encode(db)%>',
+! '<%=URLEncoder.encode(sx)%>', '<%=URLEncoder.encode(ad)%>', 
+! 	'<%=URLEncoder.encode(ci)%>', 
+! 	'<%=URLEncoder.encode(pr)%>',
+! 	 '<%=URLEncoder.encode(po)%>',
+! '<%=URLEncoder.encode(ph)%>','<%=URLEncoder.encode(p2)%>','<%=URLEncoder.encode(osn)%>' 
+! )"
+  >
+!       <td><input type="submit" class="mbttn" name="demographic_no" value="<%=rs.getString("demographic_no")%>"  onClick="<% if(caisi) { out.print("addNameCaisi");} else { out.print("addName");} %>('<%=rs.getString("demographic_no")%>','<%=URLEncoder.encode(rs.getString("last_name"))%>','<%=URLEncoder.encode(rs.getString("first_name"))%>','<%=URLEncoder.encode(rs.getString("chart_no"))%>','<%=request.getParameter("messageId")%>',
+! '<%=URLEncoder.encode(hin)%>', '<%=URLEncoder.encode(yb)%>', '<%=URLEncoder.encode(mb)%>', '<%=URLEncoder.encode(db)%>',
+! '<%=URLEncoder.encode(sx)%>', '<%=URLEncoder.encode(ad)%>', 
+! 	'<%=URLEncoder.encode(ci)%>', 
+! 	'<%=URLEncoder.encode(pr)%>',
+! 	 '<%=URLEncoder.encode(po)%>',
+! '<%=URLEncoder.encode(ph)%>','<%=URLEncoder.encode(p2)%>','<%=URLEncoder.encode(osn)%>' 
+! )"
+! >
+! 
+! )" > </td>
+        <td><%=Misc.toUpperLowerCase(rs.getString("last_name"))%></td>
+        <td><%=Misc.toUpperLowerCase(rs.getString("first_name"))%></td>
+        <td><%=age%></td>
+***************
+*** 259,266 ****
+        bufChart = new StringBuffer( (rs.getString("chart_no"))   );
+      }
+    }
+! %> 
+! 	<%
+    //String temp=null;
+  	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
+  		temp=e.nextElement().toString();
+--- 341,350 ----
+        bufChart = new StringBuffer( (rs.getString("chart_no"))   );
+      }
+    }
+! 
+! %>
+! 
+! <%
+    //String temp=null;
+  	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
+  		temp=e.nextElement().toString();
+***************
+*** 269,275 ****
+    }
+    
+    //should close the pipe connected to the database here!!!
+! 	%> 
+  	</form>
+   
+  </table>
+--- 353,359 ----
+    }
+    
+    //should close the pipe connected to the database here!!!
+! %> 
+  	</form>
+   
+  </table>
+***************
+*** 285,292 ****
+  %> 
+  <script language="JavaScript">
+  <!--
+!   document.addform.action="<%=request.getParameter("originalpage")%>?name=<%=URLEncoder.encode(bufName.toString())%>&chart_no=<%=URLEncoder.encode(bufChart.toString())%>&bFirstDisp=false&demographic_no=<%=bufNo.toString()%>&messageID=<%=request.getParameter("messageId")%>"; 
+!   document.addform.submit();  
+  //-->
+  </SCRIPT>
+  <%
+--- 369,378 ----
+  %> 
+  <script language="JavaScript">
+  <!--
+!   document.addform.action="<%=request.getParameter("originalpage")%>?name=<%=URLEncoder.encode(bufName.toString())%>&chart_no=<%=URLEncoder.encode(bufChart.toString())%>&bFirstDisp=false&demographic_no=<%=bufNo.toString()%>&messageID=<%=request.getParameter("messageId")%>&hin=<%=URLEncoder.encode(hin)%>&year_of_birth=<%=URLEncoder.encode(yb)%>&month_of_birth=<%=URLEncoder.encode(mb)%>&date_of_birth=<%=URLEncoder.encode(db)%>&sex=<%=URLEncoder.encode(sx)%>&address=<%=URLEncoder.encode(ad)%>&city=<%=URLEncoder.encode(ci)%>&province=<%=URLEncoder.encode(pr)%>&postal=<%=URLEncoder.encode(po)%>&phone=<%=URLEncoder.encode(ph)%>&phone2=<%=URLEncoder.encode(p2)%>&lastname=<%=URLEncoder.encode(ln)%>&firstname=<%=URLEncoder.encode(fn)%>&oscar_no=<%=URLEncoder.encode(osn)%>;
+!   document.addform.submit();
+!   
+! 
+  //-->
+  </SCRIPT>
+  <%
+***************
+*** 311,316 ****
+--- 397,404 ----
+  <%
+      }
+  %>
++ 
++ 
+  <script language="JavaScript">
+  <!--
+  function last() {
+***************
+*** 337,342 ****
+--- 425,431 ----
+  <%
+  }
+  %>
++ 
+  	<%
+  	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
+  		temp=e.nextElement().toString();
+***************
+*** 346,352 ****
+    }
+  	%> 
+  </form>
+  <%--
+  Please select by clicking on the demographic no button.</center> --%>
+  </body>
+! </html>
+\ No newline at end of file
+--- 435,446 ----
+    }
+  	%> 
+  </form>
++ 
++ <%
++ 
++ 			apptMainBean.resetToDefaultHandler();
++ %>
+  <%--
+  Please select by clicking on the demographic no button.</center> --%>
+  </body>
+! </html>
+Index: provider/appointmentprovideradminday.jsp
+===================================================================
+RCS file: /cvsroot/oscarmcmaster/oscar_mcmaster/web/provider/appointmentprovideradminday.jsp,v
+retrieving revision 1.68
+diff -c -r1.68 appointmentprovideradminday.jsp
+*** provider/appointmentprovideradminday.jsp	4 May 2006 03:35:57 -0000	1.68
+--- provider/appointmentprovideradminday.jsp	6 Jul 2006 15:47:24 -0000
+***************
+*** 60,65 ****
+--- 60,69 ----
+  }
+  %>
+  <%
++ 	// this was because of using gnumed with apptMainBean
++ 	apptMainBean.resetToDefaultHandler();
++ %>
++ <%
+      if(session.getAttribute("user") == null )
+          response.sendRedirect("../logout.jsp");
+  
+***************
+*** 678,684 ****
+            <tr>
+              <td align="RIGHT" bgcolor="<%=bColorHour?"#3EA4E1":"#00A488"%>" width="5%" NOWRAP><b><font face="verdana,arial,helvetica" size="2">
+               <a href=# onClick="confirmPopupPage(400,780,'../appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor %>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%= dateTimeCodeBean.get("confirm"+hourmin.toString()) %>');return false;"
+!   title='<%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+ (minuteCursor<10?"0":"")+minuteCursor)%> - <%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+((minuteCursor+depth-1)<10?"0":"")+(minuteCursor+depth-1))%>' class="adhour">
+               <%=(hourCursor<10?"0":"") +hourCursor+ ":"%><%=(minuteCursor<10?"0":"")+minuteCursor%>&nbsp;</a></font></b></td>
+              <td width='1%' <%=dateTimeCodeBean.get("color"+hourmin.toString())!=null?("bgcolor="+dateTimeCodeBean.get("color"+hourmin.toString()) ):""%> title='<%=dateTimeCodeBean.get("description"+hourmin.toString())%>'><font color='<%=(dateTimeCodeBean.get("color"+hourmin.toString())!=null && !dateTimeCodeBean.get("color"+hourmin.toString()).equals(bgcolordef) )?"black":"white" %>'><%=hourmin.toString() %></font>
+              </td>
+--- 682,688 ----
+            <tr>
+              <td align="RIGHT" bgcolor="<%=bColorHour?"#3EA4E1":"#00A488"%>" width="5%" NOWRAP><b><font face="verdana,arial,helvetica" size="2">
+               <a href=# onClick="confirmPopupPage(400,780,'../appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor %>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%= dateTimeCodeBean.get("confirm"+hourmin.toString()) %>');return false;"
+!   title='<%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+ (minuteCursor<10?"0":"")+minuteCursor)%> - <%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+((minuteCursor+depth-1)<10?"0":"")+(minuteCursor+depth-1))%> *' class="adhour">
+               <%=(hourCursor<10?"0":"") +hourCursor+ ":"%><%=(minuteCursor<10?"0":"")+minuteCursor%>&nbsp;</a></font></b></td>
+              <td width='1%' <%=dateTimeCodeBean.get("color"+hourmin.toString())!=null?("bgcolor="+dateTimeCodeBean.get("color"+hourmin.toString()) ):""%> title='<%=dateTimeCodeBean.get("description"+hourmin.toString())%>'><font color='<%=(dateTimeCodeBean.get("color"+hourmin.toString())!=null && !dateTimeCodeBean.get("color"+hourmin.toString()).equals(bgcolordef) )?"black":"white" %>'><%=hourmin.toString() %></font>
+              </td>
+***************
+*** 818,824 ****
+  <!-- /security:oscarSec -->
+  <% } %>
+  <!-- doctor code block -->
+! 
+  <a href=# onClick ="popupPage(400,680,'../appointment/appointmentcontrol.jsp?appointment_no=<%=rs.getString("appointment_no")%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;"  <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON_TOOLTIP" value="yes" defaultVal="true"> title="<%=name%>
+  reason: <%=UtilMisc.htmlEscape(reason)%>
+  notes: <%=UtilMisc.htmlEscape(notes)%>"</oscar:oscarPropertiesCheck>   ><%=(view==0)?(name.length()>len?name.substring(0,len):name):name%></a>
+--- 822,830 ----
+  <!-- /security:oscarSec -->
+  <% } %>
+  <!-- doctor code block -->
+! <!-- DEBUG -->
+! <b><%=demographic_no%></b>
+! <!-- DEBUG -->
+  <a href=# onClick ="popupPage(400,680,'../appointment/appointmentcontrol.jsp?appointment_no=<%=rs.getString("appointment_no")%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;"  <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON_TOOLTIP" value="yes" defaultVal="true"> title="<%=name%>
+  reason: <%=UtilMisc.htmlEscape(reason)%>
+  notes: <%=UtilMisc.htmlEscape(notes)%>"</oscar:oscarPropertiesCheck>   ><%=(view==0)?(name.length()>len?name.substring(0,len):name):name%></a>
