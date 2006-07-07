@@ -37,6 +37,8 @@ insert into dem.enum_comm_types (id, description) values (5, i18n.i18n('mobile')
 insert into dem.enum_comm_types (id, description) values (6, i18n.i18n('web'));
 insert into dem.enum_comm_types (id, description) values (7, i18n.i18n('jabber'));
 
+-- external ID types
+insert into dem.enum_ext_id_types (name, issuer, context) values ('oscar_demographic_no', 'Syan Tan', 'p');
 
 -- ===================================================================
 -- here come the ISO country codes ...
@@ -270,11 +272,14 @@ insert into dem.country(code, name) values('US', i18n.i18n('United States'));
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.11 $');
+select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.12 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.11  2006-01-10 12:58:17  sjtan
+-- Revision 1.12  2006-07-07 09:08:31  ncq
+-- - add "oscar_demographic_no" to external ID types
+--
+-- Revision 1.11  2006/01/10 12:58:17  sjtan
 --
 -- path for plpgsql on a debian system added; remove need to know base sql dir for gmCountryCodes.sql
 --
