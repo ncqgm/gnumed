@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.73 2006-07-04 21:37:43 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmMedDoc.py,v 1.74 2006-07-07 12:06:08 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -699,7 +699,7 @@ def search_for_document(patient_id=None, type_id=None):
 	return docs
 #------------------------------------------------------------
 def get_document_types():
-	cmd = "SELECT pk_doc_type, l10n_type FROM blobs.v_doc_type"
+	cmd = "SELECT pk_doc_type, l10n_type, type, is_user FROM blobs.v_doc_type"
 	rows = gmPG.run_ro_query('blobs', cmd)
 	if rows is None:
 		_log.Log(gmLog.lErr, 'cannot retrieve document types')
@@ -753,7 +753,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.73  2006-07-04 21:37:43  ncq
+# Revision 1.74  2006-07-07 12:06:08  ncq
+# - return more data from get_document_types()
+#
+# Revision 1.73  2006/07/04 21:37:43  ncq
 # - cleanup
 # - add create_document_type()
 #
