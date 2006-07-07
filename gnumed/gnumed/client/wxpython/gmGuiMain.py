@@ -2,7 +2,7 @@
 """GNUmed GUI client
 
 The application framework and main window of the
-all signing all dancing GNUMed reference client.
+all signing all dancing GNUmed reference client.
 
 This source code is protected by the GPL licensing scheme.
 Details regarding the GPL are available at http://www.gnu.org
@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.253 2006-07-01 15:12:02 ncq Exp $
-__version__ = "$Revision: 1.253 $"
+# $Id: gmGuiMain.py,v 1.254 2006-07-07 12:09:00 ncq Exp $
+__version__ = "$Revision: 1.254 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -26,16 +26,13 @@ try:
 	import wxversion
 	import wx
 except ImportError:
-	try:
-		from wxPython import wx
-	except ImportError:
-		print "GNUmed startup: Cannot import wxPython library."
-		print "GNUmed startup: Make sure wxPython is installed."
-		print 'CRITICAL ERROR: Error importing wxPython. Halted.'
-		raise
+	print "GNUmed startup: Cannot import wxPython library."
+	print "GNUmed startup: Make sure wxPython is installed."
+	print 'CRITICAL ERROR: Error importing wxPython. Halted.'
+	raise
 
 from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
 
@@ -263,12 +260,21 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Administration" --------------------
 		menu_admin = wx.Menu()
 
+		# FIXME: regroup into sub-menus
+
 		menu_admin.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
 		ID_DEL_STAFF = wx.NewId()
 		menu_admin.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
 		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_edit_staff_list)
+
+		# - draw a line
+		menu_admin.AppendSeparator()
+
+		ID_EDIT_DOC_TYPES = wx.NewId()
+		menu_admin.Append(ID_EDIT_DOC_TYPES, _('Edit document types'), _('Edit the list of document types available in the system.'))
+		wx.EVT_MENU(self, ID_EDIT_DOC_TYPES, self.__on_edit_doc_types)
 
 		self.mainmenu.Append(menu_admin, _('&Administration'))
 
@@ -464,6 +470,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		- framework still functional
 		"""
+		# FIXME: ask user whether to *really* close and save all data
 		# call cleanup helper
 		self._clean_exit()
 	#----------------------------------------------
@@ -681,6 +688,10 @@ Search results:
 	#----------------------------------------------
 	def __on_edit_staff_list(self, event):
 		dlg = gmStaffWidgets.cEditStaffListDlg(parent=self, id=-1)
+		dlg.ShowModal()
+	#----------------------------------------------
+	def __on_edit_doc_types(self, event):
+		dlg = gmMedDocWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
 #	def __on_search_patient(self, event):
@@ -1125,7 +1136,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.253  2006-07-01 15:12:02  ncq
+# Revision 1.254  2006-07-07 12:09:00  ncq
+# - cleanup
+# - add document type editing to administrative menu
+#
+# Revision 1.253  2006/07/01 15:12:02  ncq
 # - set_curr_lang() failure has been downgraded to warning
 #
 # Revision 1.252  2006/07/01 11:32:13  ncq
