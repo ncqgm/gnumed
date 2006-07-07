@@ -2,35 +2,91 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.86 2006-07-04 22:36:27 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmMedDocWidgets.py,v 1.87 2006-07-07 12:08:16 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wxversion
+import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 _log = gmLog.gmDefLog
-
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-else:
-	from Gnumed.pycommon import gmGuiBroker
-
 _log.Log(gmLog.lInfo, __version__)
 
-wx.ID_PNL_main = wx.NewId()
-wx.ID_TB_BTN_show_page = wx.NewId()
+#============================================================
+class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
+	"""A dialog showing a cEditDocumentTypesPnl."""
 
+	def __init__(self, *args, **kwargs):
+		wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg.__init__(self, *args, **kwargs)
+
+#============================================================
+class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
+	"""A panel grouping together fields to edit the list of document types."""
+
+	def __init__(self, *args, **kwargs):
+		wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl.__init__(self, *args, **kwargs)
+		self.__init_ui()
+		self.repopulate_ui()
+	#--------------------------------------------------------
+	def __init_ui(self):
+		# add column headers
+		self._LCTRL_doc_type.InsertColumn(0, _('type'))
+		self._LCTRL_doc_type.InsertColumn(1, _('description'))
+		self._LCTRL_doc_type.InsertColumn(2, _('user defined'))
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+
+		self.doc_types = gmMedDoc.get_document_types()
+		pos = len(self.doc_types) + 1
+		self._LCTRL_doc_type.DeleteAllItems()
+
+		for doc_type in self.doc_types:
+			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type[2])
+			self._LCTRL_doc_type.SetStringItem(index = row_num, col = 1, label = doc_type[1])
+			if doc_type[3]:
+				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 2, label = 'X')
+			else:
+				self._LCTRL_doc_type.SetItemTextColour(row_num, col=wx.LIGHT_GREY)
+#			self._LCTRL_doc_type.SetItemData(item = row_num, data = doc_type[0])
+
+		if len(self.doc_types) > 0:
+			self._LCTRL_doc_type.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
+
+		self._BTN_rename.Enable(False)
+		self._BTN_add.Enable(False)
+		self._BTN_delete.Enable(False)
+
+		self._TCTRL_type.SetValue('')
+		self._ChBOX_is_user.SetValue(False)
+		self._TCTRL_description.SetValue('')
+
+		self._LCTRL_doc_type.SetFocus()
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_list_item_selected(self, evt):
+		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
+
+		self._TCTRL_type.SetValue(doc_type[2])
+		self._ChBOX_is_user.SetValue(bool(doc_type[3]))
+		self._TCTRL_description.SetValue(doc_type[1])
+
+		self._BTN_rename.Enable(bool(doc_type[3]))
+		self._BTN_delete.Enable(bool(doc_type[3]))
+		self._BTN_add.Enable(True)
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	#--------------------------------------------------------
 #============================================================
 class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document type."""
@@ -1105,12 +1161,18 @@ class cDocTree(wx.TreeCtrl):
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+
 	print "==> the syntax seems OK"
 	print "==> please write a real unit test"
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.86  2006-07-04 22:36:27  ncq
+# Revision 1.87  2006-07-07 12:08:16  ncq
+# - cleanup
+# - add document type editing panel and dialog
+#
+# Revision 1.86  2006/07/04 22:36:27  ncq
 # - doc type selector is now phrasewheel in properties editor
 #
 # Revision 1.85  2006/07/04 21:39:37  ncq
