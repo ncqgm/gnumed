@@ -1,7 +1,7 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.10 $
+$Revision: 1.11 $
 -----------------------------------------------------------------
 
 This is now hosted here:
@@ -11,26 +11,6 @@ http://sidicpc22.uwaterloo.ca/twiki/bin/view/Gnumed/RoadMap
 ============================================================
 People please remove sections they have moved to the Wiki !!
 ============================================================
-
-------------------------
-MUST HAVE first release:
----------------------------------
-patient input/search/modification
----------------------------------
-maintainer:
-hackers: Ian Haywood
- - no family relationship handling
- - search done (or nearly, in top panel)
- - input needs considerably more smarts
-status: in progress
-
----------------------
-simple ConfigRegistry
----------------------
-maintainer: Hilmar Berger
-hackers:
- - complete default config data
-status: nearly done
 
 ------------------
 referrals handling
@@ -87,52 +67,6 @@ hackers: Hilmar Berger
 ========================
 OPTIONAL (post-release):
 --------------------
-progress notes input
---------------------
-maintainer: Karsten Hilbert
-hackers:
- - simple SOAP structured text input fields
- - clin_narrative rows
- - partially done
-
-------------
-notes viewer
-------------
-maintainer:
-hackers:
- - tree widget on the left side: health issues[1] and then episodes[2] in a hierarchy
- - drop down boxes across top for limiting by month/year etc.
- - display of clinical notes on the right
-1: an ongoing health problem: COPD, niddm, etc. ~= significant past history
-2: a circumscribed clinical problem, may still
-   span several consults: viz. infective exacerbation
-   of COPD ~= current problem list
-
-------------------------
-export of progress notes
-------------------------
-maintainer: Karsten Hilbert
-hackers:
- - per patient
- - ASCII to text files for re-use
- - constrainable by date, encounter, episode, health issue
- - just as proof-of-intent for interoperability
-
-------------------------------------
-third-party application connectivity
-------------------------------------
-maintainer:
-hackers:
- - allow other apps to connect to a GnuMed instance, lock it
-   into a patient and release that lock later on
-status: done
-
-----------------
-document archive
-----------------
-maintainer: Hilbert
-hackers:
-status: nearly done
 
 ------------
 path results
@@ -186,7 +120,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.10  2004-07-18 19:41:42  ncq
+Revision 1.11  2006-07-07 12:06:28  ncq
+- some cleanup
+
+Revision 1.10  2004/07/18 19:41:42  ncq
 - remove some stuff
 
 Revision 1.9  2004/03/15 13:27:16  ncq
