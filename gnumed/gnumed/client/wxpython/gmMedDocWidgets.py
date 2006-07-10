@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.88 2006-07-10 21:48:09 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmMedDocWidgets.py,v 1.89 2006-07-10 21:57:43 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -76,7 +76,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
 
 		self._TCTRL_type.SetValue(doc_type['type'])
-		self._TCTRL_type.SetEditable(doc_type['is_user'])
+		self._TCTRL_type.SetEditable(bool(doc_type['is_user']))
 		self._ChBOX_is_user.SetValue(bool(doc_type['is_user']))
 		self._TCTRL_description.SetValue(doc_type['l10n_type'])
 
@@ -1191,7 +1191,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.88  2006-07-10 21:48:09  ncq
+# Revision 1.89  2006-07-10 21:57:43  ncq
+# - add bool() where needed
+#
+# Revision 1.88  2006/07/10 21:48:09  ncq
 # - handle cDocumentType
 # - implement actions in document type editor
 #
