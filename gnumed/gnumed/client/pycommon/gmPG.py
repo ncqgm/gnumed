@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.74 $"
+__version__ = "$Revision: 1.75 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -468,7 +468,7 @@ class ConnectionPool:
 			- encoding specified in the call to __pgconnect() overrides
 			- encoding set by a call to gmPG.set_default_encoding() overrides
 			- encoding taken from Python string encoding
-		- wire_encoding and string_encoding must essentially be just different
+		- wire_encoding and string_encoding must essentially just be different
 		  names for one and the same (IOW entirely compatible) encodings, such
 		  as "win1250" and "cp1250"
 		"""
@@ -487,9 +487,11 @@ class ConnectionPool:
 		if string_encoding is None:
 			string_encoding = _default_client_encoding['string']
 		if string_encoding is None:
-			string_encoding = sys.getdefaultencoding()
+#			string_encoding = sys.getdefaultencoding()
+			string_encoding = locale.getlocale()[1]
 			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
-			_log.Log(gmLog.lWarn, 'therefore the current Python string encoding is used: [%s]' % string_encoding)
+			_log.Log(gmLog.lWarn, 'therefore the string encoding currently set in the active locale is used: [%s]' % string_encoding)
+			_log.Log(gmLog.lWarn, 'for this to have any chance to work the application MUST have called locale.setlocale() before')
 		_log.Log(gmLog.lInfo, 'using string encoding [%s] to encode Unicode strings for transmission to the database' % string_encoding)
 
 		# Python does not necessarily have to know this encoding by name
@@ -1121,14 +1123,14 @@ def run_commit(link_obj = None, queries = None, return_err_msg = None):
 	if return_err_msg: return (status, '')
 	return status
 #---------------------------------------------------
-def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
+def run_ro_query(link_obj = None, aQuery = None, get_col_idx = False, *args):
 	"""Runs a read-only query.
 
 	- link_obj can be a service name, connection or cursor object
 
 	- return status:
-		- return data			if get_col_idx is None
-		- return (data, idx)	if get_col_idx != None
+		- return data			if get_col_idx is False
+		- return (data, idx)	if get_col_idx is True
 
 	- if query fails: data is None
 	- if query is not a row-returning SQL statement: data is None
@@ -1160,7 +1162,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		conn = pool.GetConnection(link_obj, readonly = 1)
 		if conn is None:
 			_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % link_obj)
-			if get_col_idx is None:
+			if not get_col_idx:
 				return None
 			else:
 				return None, None
@@ -1178,7 +1180,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		__log_PG_settings(curs)
 		close_cursor()
 		close_conn(link_obj)
-		if get_col_idx is None:
+		if not get_col_idx:
 			return None
 		else:
 			return None, None
@@ -1195,7 +1197,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 			_log.LogException('cursor.fetchall() failed on link [%s]' % link_obj, sys.exc_info(), verbose = _query_logging_verbosity)
 			close_cursor()
 			close_conn(link_obj)
-			if get_col_idx is None:
+			if not get_col_idx:
 				return None
 			else:
 				return None, None
@@ -1357,7 +1359,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.74 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.75 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1593,7 +1595,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.74  2006-07-01 11:24:56  ncq
+# Revision 1.75  2006-07-10 21:46:36  ncq
+# - saner choice of encoding if not set
+#
+# Revision 1.74  2006/07/01 11:24:56  ncq
 # - make encoding parameter a dict so we can give two names for
 #   the same encoding: one to use with PG and one to use with Python
 #
