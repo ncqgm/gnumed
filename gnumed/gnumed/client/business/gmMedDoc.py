@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.74 2006-07-07 12:06:08 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmMedDoc.py,v 1.75 2006-07-10 21:15:07 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -643,6 +643,51 @@ VALUES (
 				return False
 		return True
 #============================================================
+class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents a document type."""
+
+	_service = 'blobs'
+
+	_cmd_fetch_payload = """select * from blobs.v_doc_type where pk_doc_type=%s"""
+	_cmds_lock_rows_for_update = [
+		"""select 1 from blobs.doc_type where pk=%(pk_obj)s and xmin=%(xmin_doc_type)s for update"""
+	]
+	_cmds_store_payload = [
+		"""update blobs.doc_type set
+				name = %(type)s
+			where
+				pk=%(pk_obj)s and
+				xmin=%(xmin_doc_type)s""",
+		"""select xmin_doc_type from blobs.v_doc_type where pk_doc_type = %(pk_obj)s"""
+	]
+	_updatable_fields = ['type']
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if not self._payload[self._idx['is_user']]:
+			return
+		return gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+	#--------------------------------------------------------
+	def set_translation(self, translation=None):
+		if not self._payload[self._idx['is_user']]:
+			return False
+
+		status, data = gmPG.run_commit2 (
+			link_obj = 'blobs',
+			queries = [
+				('select i18n.i18n(%s)', [ self._payload[self._idx['type']] ]),
+				('select i18n.upd_tx(%s, %s, (select lang from i18n.curr_lang where user = CURRENT_USER))', [
+					self._payload[self._idx['type']],
+					translation
+				])
+			]
+		)
+		if not status:
+			_log.Log(gmLog.lErr, 'cannot set translation to [%s]' % translation)
+			_log.Log(gmLog.lErr, str(data))
+			return False
+
+		return self.refetch_payload()		# FIXME: error handling ?
+#============================================================
 # convenience functions
 #============================================================
 def create_document(patient_id=None, document_type=None, encounter=None, episode=None):
@@ -699,14 +744,24 @@ def search_for_document(patient_id=None, type_id=None):
 	return docs
 #------------------------------------------------------------
 def get_document_types():
-	cmd = "SELECT pk_doc_type, l10n_type, type, is_user FROM blobs.v_doc_type"
-	rows = gmPG.run_ro_query('blobs', cmd)
+	cmd = "SELECT * FROM blobs.v_doc_type"
+	rows, idx = gmPG.run_ro_query('blobs', cmd, get_col_idx=True)
 	if rows is None:
 		_log.Log(gmLog.lErr, 'cannot retrieve document types')
 		return []
-	return rows
+	doc_types = []
+	for row in rows:
+		row_def = {
+			'pk_field': 'pk_doc_type',
+			'idx': idx,
+			'data': row
+		}
+		doc_types.append(cDocumentType(row = row_def))
+
+	return doc_types
 #------------------------------------------------------------
 def create_document_type(document_type=None):
+	# FIXME: what if doc type already exists ?
 	cmd1 = "insert into blobs.doc_type (name) values (%s)"
 	cmd2 = """select currval('blobs.doc_type_pk_seq')"""
 	successful, data = gmPG.run_commit2 (
@@ -721,7 +776,20 @@ def create_document_type(document_type=None):
 		_log.Log(gmLog.lErr, str(data))
 		return None
 	rows, idx = data
-	return rows[0][0]
+	return cDocumentType(aPK_obj = rows[0][0])			# FIXME: error handling
+#------------------------------------------------------------
+def delete_document_type(document_type=None):
+	success, data = gmPG.run_commit2 (
+		link_obj = 'blobs',
+		queries = [
+			('delete from blobs.doc_type where pk = %s and is_user is True', [document_type['pk_doc_type']])
+		]
+	)
+	if not success:
+		_log.Log(gmLog.lErr, 'cannot delete document type [%s]' % str(document_type))
+		return False
+
+	return True
 #------------------------------------------------------------
 def get_ext_ref():
 	"""This needs *considerably* more smarts."""
@@ -736,24 +804,64 @@ def get_ext_ref():
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':
+
+	#--------------------------------------------------------
+	def test_doc_types():
+
+		print "----------------------"
+		print "listing document types"
+		print "----------------------"
+
+		for dt in get_document_types():
+			print dt
+
+		print "------------------------------"
+		print "testing document type handling"
+		print "------------------------------"
+
+		dt = create_document_type(document_type = 'dummy doc type for unit test 1')
+		print "created:", dt
+
+		dt['type'] = 'dummy doc type for unit test 2'
+		dt.save_payload()
+		print "changed base name:", dt
+
+		dt.set_translation(translation = 'Dummy-Dokumenten-Typ fuer Unit-Test')
+		print "translated:", dt
+
+		print "deleted:", delete_document_type(document_type = dt)
+
+		return
+	#--------------------------------------------------------
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 	_log.SetAllLogLevels(gmLog.lData)
 
-	print get_ext_ref()
+	test_doc_types()
 
-	print get_document_types()
+#	print get_ext_ref()
 
-	doc_folder = cDocumentFolder(aPKey=12)
+#	doc_folder = cDocumentFolder(aPKey=12)
 
-	photo = doc_folder.get_latest_mugshot()
-	print type(photo), photo
+#	photo = doc_folder.get_latest_mugshot()
+#	print type(photo), photo
 
-	docs = doc_folder.get_documents()
-	for doc in docs:
-		print type(doc), doc
+#	docs = doc_folder.get_documents()
+#	for doc in docs:
+#		print type(doc), doc
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.74  2006-07-07 12:06:08  ncq
+# Revision 1.75  2006-07-10 21:15:07  ncq
+# - add cDocumentType
+# - get_document_types() now returns instances
+# - add delete_document_type()
+# - improved testing
+#
+# Revision 1.74  2006/07/07 12:06:08  ncq
 # - return more data from get_document_types()
 #
 # Revision 1.73  2006/07/04 21:37:43  ncq
