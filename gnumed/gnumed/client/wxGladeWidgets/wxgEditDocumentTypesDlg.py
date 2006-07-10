@@ -21,6 +21,7 @@ class wxgEditDocumentTypesDlg(wx.Dialog):
     def __set_properties(self):
         # begin wxGlade: wxgEditDocumentTypesDlg.__set_properties
         self.SetTitle(_("Edit Document Types"))
+        self.SetSize((400, 400))
         # end wxGlade
 
     def __do_layout(self):
@@ -29,8 +30,6 @@ class wxgEditDocumentTypesDlg(wx.Dialog):
         _szr_main.Add(self._PNL_edit_document_types, 1, wx.ALL|wx.EXPAND, 3)
         self.SetAutoLayout(True)
         self.SetSizer(_szr_main)
-        _szr_main.Fit(self)
-        _szr_main.SetSizeHints(self)
         self.Layout()
         self.Centre()
         # end wxGlade
