@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.29 2006-07-04 14:11:29 ncq Exp $
+# $Id: gmI18N.py,v 1.30 2006-07-10 21:44:23 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -116,7 +116,7 @@ def __log_locale_settings(message=None):
 	except ValueError:
 		_log.LogException('the OS locale setup seems faulty')
 
-	_log.Log(gmLog.lData, 'encoding sanity check (also check NL_LANGINFO(CODESET) below):')
+	_log.Log(gmLog.lData, 'encoding sanity check (also check "locale.nl_langinfo(CODESET)" below):')
 	pref_loc_enc = locale.getpreferredencoding(do_setlocale=False)
 	loc_enc = locale.getlocale()[1]
 	py_str_enc = sys.getdefaultencoding()
@@ -140,7 +140,7 @@ def __log_locale_settings(message=None):
 				_log.Log(gmLog.lWarn, '<codecs> module can NOT handle encoding [%s]' % enc)
 	_log.Log(gmLog.lData, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
 
-	_log.Log(gmLog.lData, 'locale related environment variables (LANG is typically used):')
+	_log.Log(gmLog.lData, 'locale related environment variables (${LANG} is typically used):')
 	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
 		try:
 			_log.Log(gmLog.lData, '${%s}=%s' % (var, os.environ[var]))
@@ -301,7 +301,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.29  2006-07-04 14:11:29  ncq
+# Revision 1.30  2006-07-10 21:44:23  ncq
+# - slightly better logging
+#
+# Revision 1.29  2006/07/04 14:11:29  ncq
 # - downgrade some errors to warnings and show them once, only
 #
 # Revision 1.28  2006/07/01 13:12:14  ncq
