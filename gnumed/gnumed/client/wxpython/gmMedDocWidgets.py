@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.87 2006-07-07 12:08:16 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmMedDocWidgets.py,v 1.88 2006-07-10 21:48:09 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -48,13 +48,12 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self._LCTRL_doc_type.DeleteAllItems()
 
 		for doc_type in self.doc_types:
-			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type[2])
-			self._LCTRL_doc_type.SetStringItem(index = row_num, col = 1, label = doc_type[1])
-			if doc_type[3]:
+			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type['type'])
+			self._LCTRL_doc_type.SetStringItem(index = row_num, col = 1, label = doc_type['l10n_type'])
+			if doc_type['is_user']:
 				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 2, label = 'X')
 			else:
 				self._LCTRL_doc_type.SetItemTextColour(row_num, col=wx.LIGHT_GREY)
-#			self._LCTRL_doc_type.SetItemData(item = row_num, data = doc_type[0])
 
 		if len(self.doc_types) > 0:
 			self._LCTRL_doc_type.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
@@ -76,17 +75,41 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	def _on_list_item_selected(self, evt):
 		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
 
-		self._TCTRL_type.SetValue(doc_type[2])
-		self._ChBOX_is_user.SetValue(bool(doc_type[3]))
-		self._TCTRL_description.SetValue(doc_type[1])
+		self._TCTRL_type.SetValue(doc_type['type'])
+		self._TCTRL_type.SetEditable(doc_type['is_user'])
+		self._ChBOX_is_user.SetValue(bool(doc_type['is_user']))
+		self._TCTRL_description.SetValue(doc_type['l10n_type'])
 
-		self._BTN_rename.Enable(bool(doc_type[3]))
-		self._BTN_delete.Enable(bool(doc_type[3]))
+		self._BTN_rename.Enable(bool(doc_type['is_user']))
+		self._BTN_delete.Enable(bool(doc_type['is_user']))
 		self._BTN_add.Enable(True)
+		return
 	#--------------------------------------------------------
+	def _on_rename_button_pressed(self, event):
+		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
+		doc_type['type'] = self._TCTRL_type.GetValue().strip()
+		doc_type.save_payload()			# FIXME: error handling ?
+		doc_type.set_translation(translation = self._TCTRL_description.GetValue().strip())
+
+		self.repopulate_ui()
+		return
 	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, event):
+		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
+		gmMedDoc.delete_document_type(document_type = doc_type)			# FIXME: error handling
+
+		self.repopulate_ui()
+		return
 	#--------------------------------------------------------
-	#--------------------------------------------------------
+	def _on_add_button_pressed(self, event):
+		if self._TCTRL_type.IsEditable() and self._TCTRL_type.IsModified():
+			doc_type = gmMedDoc.create_document_type(document_type = self._TCTRL_type.GetValue().strip())
+			doc_type.set_translation(translation = self._TCTRL_description.GetValue().strip())
+		else:
+			gmMedDoc.create_document_type(document_type = self._TCTRL_description.GetValue().strip())
+
+		self.repopulate_ui()
+		return
 #============================================================
 class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document type."""
@@ -120,7 +143,7 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def GetData(self, can_create=False):
 		if self.data is None:
 			if can_create:
-				self.data = gmMedDoc.create_document_type(self.GetValue().strip())
+				self.data = gmMedDoc.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
 		return self.data
 #============================================================
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
@@ -1168,7 +1191,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.87  2006-07-07 12:08:16  ncq
+# Revision 1.88  2006-07-10 21:48:09  ncq
+# - handle cDocumentType
+# - implement actions in document type editor
+#
+# Revision 1.87  2006/07/07 12:08:16  ncq
 # - cleanup
 # - add document type editing panel and dialog
 #
