@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.30 $ $Date: 2006-07-04 21:40:17 $ $Author: ncq $
+-- $Revision: 1.31 $ $Date: 2006-07-10 21:48:44 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -207,7 +207,8 @@ select
 	dt.pk as pk_doc_type,
 	dt.name as type,
 	_(dt.name) as l10n_type,
-	dt.is_user as is_user
+	dt.is_user as is_user,
+	dt.xmin as xmin_doc_type
 from
 	blobs.doc_type dt
 ;
@@ -450,11 +451,14 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.30 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.30  2006-07-04 21:40:17  ncq
+-- Revision 1.31  2006-07-10 21:48:44  ncq
+-- - improve blobs.v_doc_type
+--
+-- Revision 1.30  2006/07/04 21:40:17  ncq
 -- - add is_user to blobs.v_doc_type
 --
 -- Revision 1.29  2006/05/25 22:26:24  ncq
