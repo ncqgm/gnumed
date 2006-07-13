@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.27 2005-12-27 17:40:19 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmXdtMappings.py,v 1.28 2006-07-13 21:00:32 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -716,12 +716,14 @@ name_xdtID_map = {
 #    'city': '3106',\
 #    'street': '3107',\
 
-# sort of GnuMed compatible
+# sort of GNUmed compatible
 map_gender_xdt2gm = {
 	'1': 'm',
 	'2': 'f',
 	'm': 'm',
-	'f': 'f'
+	'f': 'f',
+	'4': 'm',
+	'5': 'f'
 }
 
 # LDT "gender", 8407
@@ -1351,7 +1353,11 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.27  2005-12-27 17:40:19  ncq
+# Revision 1.28  2006-07-13 21:00:32  ncq
+# - cleanup gender mappings
+# - streamline cXdtPatient and improve test harness
+#
+# Revision 1.27  2005/12/27 17:40:19  ncq
 # - define _()
 #
 # Revision 1.26  2004/06/25 12:37:20  ncq
