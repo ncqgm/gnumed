@@ -1,0 +1,16 @@
+this bug occurs more on tomcat 5.0  than 5.5
+
+- the 5.0 resource configuration is more verbose xml, using nested xml elements instead of attributes.
+
+- the actual context.xml file used for gnumed-test-war will be in CATALINA_HOME/conf/Catalina/localhost.
+Always check this one actually is configured properly ( e.g. no missing end of comments when switching
+between a 5.0 and 5.5 configuration).
+fix this one first, then copy to the webapps/{appname}/META-INF  and remember it isn't fixed in the war file.
+
+- a posting says that the path to the driver e.g. postgresql.jar , needs to be in CATALINA_HOME/common/lib
+and NOWHERE else. ( why ? ) . A possible explanation - the classpath of an application in WEB-INF/lib , isn't
+available to the tomcat server, which uses common/lib, but classes can only be loaded by the classloader
+from one path, so if the private path takes precedence, the tomcat server will not be able to access
+it ( sort of makes sense).
+
+
