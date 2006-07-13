@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.254 2006-07-07 12:09:00 ncq Exp $
-__version__ = "$Revision: 1.254 $"
+# $Id: gmGuiMain.py,v 1.255 2006-07-13 21:01:26 ncq Exp $
+__version__ = "$Revision: 1.255 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -33,7 +33,7 @@ except ImportError:
 
 from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmXdtObjects
 from Gnumed.exporters import gmPatientExporter
 
 try:
@@ -933,7 +933,6 @@ Do not rely on this database to work properly in all cases !""")
 		# and tell the app to use it
 		self.SetTopWindow(frame)
 
-		#frame.Unlock()
 		# NOTE: the following only works under Windows according
 		# to the docs and bombs under wxPython-2.4 on GTK/Linux
 		#frame.Maximize(True)
@@ -950,6 +949,8 @@ Do not rely on this database to work properly in all cases !""")
 				port = 9999
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
 			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
+
+		self.__load_external_patient_on_startup()
 
 		return True
 	#----------------------------------------------
@@ -993,6 +994,25 @@ Do not rely on this database to work properly in all cases !""")
 		_log.Log(gmLog.lWarn, 'unhandled event detected: END_SESSION')
 	#----------------------------------------------
 	# internal helpers
+	#----------------------------------------------
+	def __load_external_patient_on_startup(self):
+
+		bdt_file = _cfg.get('workplace', 'XDT file')
+		if bdt_file is not None:
+			pat = gmXdtObjects.cXDTPatient(filename = bdt_file)
+			gmGuiHelpers.gm_show_info (
+				_(
+				'now activating patient:\n\n'
+				'%s %s (%s)\n'
+				'%s.%s.%s\n\n'
+				'%s'
+				) % (
+					pat['firstname'], pat['lastname'], pat['gender'],
+					pat['dob_day'], pat['dob_month'], pat['dob_year'],
+					str(pat)
+				),
+				'Activating xDT patient'
+			)
 	#----------------------------------------------
 	def __setup_platform(self):
 		if wx.Platform == '__WXMSW__':
@@ -1136,7 +1156,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.254  2006-07-07 12:09:00  ncq
+# Revision 1.255  2006-07-13 21:01:26  ncq
+# - display external patient on startup if XDT file available
+#
+# Revision 1.254  2006/07/07 12:09:00  ncq
 # - cleanup
 # - add document type editing to administrative menu
 #
