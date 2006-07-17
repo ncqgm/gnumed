@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.80 $
+-- $Revision: 1.81 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -18,10 +18,10 @@ delete from dem.identity where
 		and
 	cob = 'CA'
 		and
-	pk in (select pk_identity from dem.v_basic_person where firstnames='James Tiberius' and lastnames='Kirk' and dob='1931-3-22+2:00');
+	pk in (select pk_identity from dem.v_basic_person where firstnames='James Tiberius' and lastnames='Kirk' and date_trunc('day', dob) = '1931-3-21');
 
 insert into dem.identity (gender, dob, cob, title, pupic)
-values ('m', '1931-3-22+2:00', 'CA', 'Capt.', 'SFSN:SC937-0176-CEC');
+values ('m', '1931-3-21 12:00 -5:00', 'CA', 'Capt.', 'SFSN:SC937-0176-CEC');
 
 insert into dem.names (id_identity, active, lastnames, firstnames, comment)
 values (currval('dem.identity_pk_seq'), true, 'Kirk', 'James Tiberius', 'name of character in Star Trek series');
@@ -731,11 +731,14 @@ insert into dem.provider_inbox (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.80 $');
+select log_script_insertion('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.81 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.80  2006-06-18 18:19:14  ncq
+-- Revision 1.81  2006-07-17 18:51:10  ncq
+-- - Kirk was born in Canada so adjust for the proper time zone
+--
+-- Revision 1.80  2006/06/18 18:19:14  ncq
 -- - newer PGs teach us to use proper encoding (!) when inserting (!) binary data ...
 --
 -- Revision 1.79  2006/05/28 15:23:33  ncq
