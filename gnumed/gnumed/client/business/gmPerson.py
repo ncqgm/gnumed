@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.77 2006-07-17 18:49:07 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmPerson.py,v 1.78 2006-07-17 21:06:12 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1514,10 +1514,21 @@ def dob2medical_age(dob):
 	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
-	cmd1 = """insert into dem.identity (gender, dob)
-values (%s, coalesce(%s, CURRENT_TIMESTAMP))"""
-	cmd2 = """insert into dem.names (id_identity, lastnames, firstnames)
-values (currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
+
+	cmd1 = """
+insert into dem.identity (
+	gender, dob
+) values (
+	%s, coalesce(%s, CURRENT_TIMESTAMP)
+)"""
+
+	cmd2 = """
+insert into dem.names (
+	id_identity, lastnames, firstnames
+) values (
+	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
+)"""
+
 	cmd3 = """select currval('dem.identity_pk_seq')"""
 
 	successful, data = gmPG.run_commit2 (
@@ -1532,6 +1543,7 @@ values (currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(
 	if not successful:
 		_log.Log(gmLog.lPanic, 'failed to create identity: %s' % str(data))
 		return None
+
 	rows, idx = data
 	return cIdentity(aPK_obj=rows[0][0])
 #============================================================
@@ -1746,7 +1758,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.77  2006-07-17 18:49:07  ncq
+# Revision 1.78  2006-07-17 21:06:12  ncq
+# - cleanup
+#
+# Revision 1.77  2006/07/17 18:49:07  ncq
 # - fix wrong naming
 #
 # Revision 1.76  2006/07/17 18:08:03  ncq
