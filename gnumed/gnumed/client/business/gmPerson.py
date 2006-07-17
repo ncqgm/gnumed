@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.75 2006-06-15 07:54:04 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmPerson.py,v 1.76 2006-07-17 18:08:03 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ import sys, os.path, time, re, string, types
 import mx.DateTime as mxDT
 
 # GNUmed
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull, gmBusinessDBObject, gmCfg
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
@@ -27,6 +27,44 @@ _log.Log(gmLog.lInfo, __version__)
 __gender_list = None
 __gender_idx = None
 __comm_list = None
+
+#============================================================
+class cDTO_person(object):
+
+	# FIXME: make this function as a mapping type
+
+	#--------------------------------------------------------
+	def __str__(self):
+		return '<%s @ %s: %s %s (%s) %s>' % (self.__class__.__name__, id(self), self.firstnames, self.lastnames, self.gender, self.dob)
+	#--------------------------------------------------------
+	def __setattr__(self, attr, val):
+		"""Do some sanity checks on self.* access."""
+		if attr in ['firstname', 'lastname']:
+			object.__setattr__(self, attr, str(val))
+			return
+
+		if attr == 'gender':
+			glist, idx = get_gender_list()
+			for gender in glist:
+				if str(val) in [gender[0], gender[1], gender[2], gender[3]]:
+					val = gender[idx['tag']]
+					object.__setattr__(self, attr, str(val))
+					return
+			raise ValueError(_('invalid gender: [%s]') % str(val))
+
+		if attr == 'dob':
+			if isinstance(val, mxDT.DateTimeType):
+				object.__setattr__(self, attr, val)
+				return
+			raise TypeError(_('invalid type for DOB (must be mx.DateTime): %s [%s]') % (type(val), str(val)))
+
+		object.__setattr__(self, attr, str(val))
+	#--------------------------------------------------------
+	def __getitem__(self, attr):
+		return getattr(self, attr)
+	#--------------------------------------------------------
+	def keys(self):
+		return 'firstnames lastnames dob gender'.split()
 #============================================================
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	_service = "personalia"
@@ -931,7 +969,7 @@ class cPatientSearcher_SQL:
 				_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
 			# generate queries
 			if search_term is None:
-				_log.Log(gmLog.lErr, 'need search term (search_dict AND search_term are None')
+				_log.Log(gmLog.lErr, 'need search term (search_dict AND search_term are None)')
 				return None
 			query_lists = self.__generate_queries(search_term)
 
@@ -970,6 +1008,7 @@ class cPatientSearcher_SQL:
 				)
 		except:
 			_log.LogException ("cannot create patient identity objects", sys.exc_info (), verbose=0)
+
 		return pat_identities
 	#--------------------------------------------------------
 	# internal helpers
@@ -1133,46 +1172,55 @@ class cPatientSearcher_SQL:
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
-		_log.Log(gmLog.lData, '__generate_queries_generic("%s")' % data)
+		_log.Log(gmLog.lData, str(data))
 
 		if data is None:
 			return []
 
 		vals = {}
 		where_snippets = []
+
 		try:
 			data['firstnames']
 			where_snippets.append('firstnames=%(firstnames)s')
 		except KeyError:
 			pass
+
 		try:
 			data['lastnames']
 			where_snippets.append('lastnames=%(lastnames)s')
 		except KeyError:
 			pass
-		queries = []
-		if where_snippets:
-			queries.append(['select id_identity from dem.names where %s' % ' and '.join(where_snippets)])
-		where_snippets = []
+
 		try:
 			data['dob']
-			where_snippets.append("dob=%(dob)s::timestamp")
+			where_snippets.append("date_trunc('day', dob) = date_trunc('day', %(dob)s::timestamp)")
 		except KeyError:
 			pass
+
 		try:
 			data['gender']
 			where_snippets.append('gender=%(gender)s')
 		except KeyError:
 			pass
 
-		queries.append(['select * from dem.v_basic_person where %s' % ' and '.join(where_snippets)])
 		# sufficient data ?
-		if len(queries) == 0:
+		if not where_snippets:
 			_log.Log(gmLog.lErr, 'invalid search dict structure')
 			_log.Log(gmLog.lData, data)
 			return []
+			return []
+
+		queries = [[
+			"""
+select * from dem.v_basic_person
+where pk_identity in (
+	select id_identity from dem.names where %s
+)""" % ' and '.join(where_snippets)
+		]]
+
 		# shall we mogrify name parts ? probably not
-		
+
 		return queries
 	#--------------------------------------------------------
 	# queries for DE
@@ -1503,7 +1551,7 @@ def set_active_patient(patient = None, forced_reload=False):
 	If patient is -1 the active patient will be UNset.
 	"""
 	if patient is None:
-		raise ValueError, '<patient> is None, must be -1, cPatient or cIdentity instance'
+		raise ValueError('<patient> is None, must be -1, cPatient or cIdentity instance')
 	if isinstance(patient, cIdentity):
 		patient = cPatient(identity=patient)
 	# attempt to switch
@@ -1586,14 +1634,90 @@ def get_staff_list(active_only=False):
 		staff_list.append(cStaff(row=obj_row))
 	return staff_list
 #============================================================
+def get_patient_from_xdt(filename=None):
+	from Gnumed.business import gmXdtObjects
+	return gmXdtObjects.read_patient_from_xdt(filename=filename)
+#============================================================
 # main/testing
 #============================================================
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-	gmPG.set_default_client_encoding('latin1')
 
-	me = cStaff()
-	print me
+	_log.SetAllLogLevels(gmLog.lData)
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+	gmPG.set_default_client_encoding({'string': 'latin1', 'wire': 'latin1'})
+
+	#--------------------------------------------------------
+	def test_dto_person():
+		dto = cDTO_person()
+		dto.firstnames = 'Sepp'
+		dto.lastnames = 'Herberger'
+		dto.gender = 'male'
+		dto.dob = mxDT.now()
+		print dto
+
+		print dto['firstnames']
+		print dto['lastnames']
+		print dto['gender']
+		print dto['dob']
+
+		for key in dto.keys():
+			print key
+	#--------------------------------------------------------
+	def test_staff():
+		me = cStaff()
+		print me
+	#--------------------------------------------------------
+	def test_identity():
+		# create patient
+		print '\n\nCreating identity...'
+		new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
+		print 'Identity created: %s' % new_identity
+	
+		print '\nSetting title and gender...'
+		new_identity['title'] = 'test title';
+		new_identity['gender'] = 'f';
+		new_identity.save_payload()
+		print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
+	
+		print '\nGetting all names...'
+		for a_name in new_identity.get_all_names():
+			print a_name
+		print 'Active name: %s' % (new_identity.get_active_name())
+		print 'Setting nickname...'
+		new_identity.set_nickname(nickname='test nickname')
+		print 'Refetching all names...'
+		for a_name in new_identity.get_all_names():
+			print a_name
+		print 'Active name: %s' % (new_identity.get_active_name())		
+	 
+		print '\nIdentity occupations: %s' % new_identity['occupations']
+		print 'Creating identity occupation...'
+		new_identity.link_occupation('test occupation')
+		print 'Identity occupations: %s' % new_identity['occupations']
+	
+		print '\nIdentity addresses: %s' % new_identity['addresses']
+		print 'Creating identity address...'
+		# make sure the state exists in the backend
+		new_identity.link_address (
+			'test 1234',
+			'test street',
+			'test postcode',
+			'test urb',
+			'Sachsen',
+			'Germany'
+		)
+		print 'Identity addresses: %s' % new_identity['addresses']
+		
+		print '\nIdentity communications: %s' % new_identity['comms']
+		print 'Creating identity communication...'
+		new_identity.link_communication('homephone', '1234566')
+		print 'Identity communications: %s' % new_identity['comms']
+	#--------------------------------------------------------
+
+	test_dto_person()
+	test_staff()
+	#test_identity()
 
 	# module functions
 #	genders, idx = get_gender_list()
@@ -1604,51 +1728,6 @@ if __name__ == '__main__':
 #	comms = get_comm_list()
 #	print "\n\nRetrieving communication media enum (id, description): %s" % comms
 				
-	# create patient
-	print '\n\nCreating identity...'
-	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
-	print 'Identity created: %s' % new_identity
-	
-	print '\nSetting title and gender...'
-	new_identity['title'] = 'test title';
-	new_identity['gender'] = 'f';
-	new_identity.save_payload()
-	print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
-	
-	print '\nGetting all names...'
-	for a_name in new_identity.get_all_names():
-		print a_name
-	print 'Active name: %s' % (new_identity.get_active_name())
-	print 'Setting nickname...'
-	new_identity.set_nickname(nickname='test nickname')
-	print 'Refetching all names...'
-	for a_name in new_identity.get_all_names():
-		print a_name
-	print 'Active name: %s' % (new_identity.get_active_name())		
-	 
-	print '\nIdentity occupations: %s' % new_identity['occupations']
-	print 'Creating identity occupation...'
-	new_identity.link_occupation('test occupation')
-	print 'Identity occupations: %s' % new_identity['occupations']
-	
-	print '\nIdentity addresses: %s' % new_identity['addresses']
-	print 'Creating identity address...'
-	# make sure the state exists in the backend
-	new_identity.link_address (
-		'test 1234',
-		'test street',
-		'test postcode',
-		'test urb',
-		'Sachsen',
-		'Germany'
-	)
-	print 'Identity addresses: %s' % new_identity['addresses']
-		
-	print '\nIdentity communications: %s' % new_identity['comms']
-	print 'Creating identity communication...'
-	new_identity.link_communication('homephone', '1234566')
-	print 'Identity communications: %s' % new_identity['comms']
-			
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
@@ -1667,7 +1746,13 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.75  2006-06-15 07:54:04  ncq
+# Revision 1.76  2006-07-17 18:08:03  ncq
+# - add cDTO_person()
+# - add get_patient_from_xdt()
+# - fix __generate_queries_generic()
+# - cleanup, better testing
+#
+# Revision 1.75  2006/06/15 07:54:04  ncq
 # - allow editing of db_user in cStaff except where cStaff represents CURRENT_USER
 #
 # Revision 1.74  2006/06/14 10:22:46  ncq
