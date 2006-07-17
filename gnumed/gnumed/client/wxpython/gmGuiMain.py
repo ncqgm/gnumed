@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.257 2006-07-17 18:50:11 ncq Exp $
-__version__ = "$Revision: 1.257 $"
+# $Id: gmGuiMain.py,v 1.258 2006-07-17 21:07:59 ncq Exp $
+__version__ = "$Revision: 1.258 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1037,22 +1037,32 @@ Do not rely on this database to work properly in all cases !""")
 				}
 			)
 
-			if len(pats) == 0:
-				gmGuiHelpers.gm_show_info (
-					_(
-					'Cannot activate patient:\n\n'
-					' [%s %s (%s), %s]\n\n'
-					'Patient not found in GNUmed.'
-					) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
-					_('Activating xDT patient')
-				)
-				return
-
 			if len(pats) > 1:
 				# FIXME: ask user
 				return
 
-			if not gmPerson.set_active_patient(patient = pats[0]):
+			if len(pats) == 1:
+				pat = pats[0]
+
+			if len(pats) == 0:
+				ident = gmPerson.create_identity (
+					firstnames = dto.firstnames,
+					lastnames = dto.lastnames,
+					gender = dto.gender,
+					dob = dto.dob
+				)
+				if ident is None:
+					gmGuiHelpers.gm_show_info (
+						_(
+						'Cannot find or create patient:\n\n'
+						' [%s %s (%s), %s]'
+						) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
+						_('Activating xDT patient')
+					)
+					return
+				pat = ident
+
+			if not gmPerson.set_active_patient(patient = pat):
 				gmGuiHelpers.gm_show_error (
 					_(
 					'Cannot activate patient:\n\n'
@@ -1204,7 +1214,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.257  2006-07-17 18:50:11  ncq
+# Revision 1.258  2006-07-17 21:07:59  ncq
+# - create new patient from BDT file if not found
+#
+# Revision 1.257  2006/07/17 18:50:11  ncq
 # - upon startup activate patient read from xDT file if patient exists
 #
 # Revision 1.256  2006/07/17 10:53:50  ncq
