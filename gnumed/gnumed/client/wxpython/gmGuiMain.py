@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.255 2006-07-13 21:01:26 ncq Exp $
-__version__ = "$Revision: 1.255 $"
+# $Id: gmGuiMain.py,v 1.256 2006-07-17 10:53:50 ncq Exp $
+__version__ = "$Revision: 1.256 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -999,20 +999,31 @@ Do not rely on this database to work properly in all cases !""")
 
 		bdt_file = _cfg.get('workplace', 'XDT file')
 		if bdt_file is not None:
-			pat = gmXdtObjects.cXDTPatient(filename = bdt_file)
-			gmGuiHelpers.gm_show_info (
-				_(
-				'now activating patient:\n\n'
-				'%s %s (%s)\n'
-				'%s.%s.%s\n\n'
-				'%s'
-				) % (
-					pat['firstname'], pat['lastname'], pat['gender'],
-					pat['dob_day'], pat['dob_month'], pat['dob_year'],
-					str(pat)
-				),
-				'Activating xDT patient'
-			)
+			try:
+				pat = gmXdtObjects.cXDTPatient(filename = bdt_file)
+				gmGuiHelpers.gm_show_info (
+					_(
+					'now activating patient:\n\n'
+					'%s %s (%s)\n'
+					'%s.%s.%s\n\n'
+					'%s'
+					) % (
+						pat['firstname'], pat['lastname'], pat['gender'],
+						pat['dob_day'], pat['dob_month'], pat['dob_year'],
+						str(pat)
+					),
+					'Activating xDT patient'
+				)
+			except:
+				# FIXME: should catch specific errors and give specific error messages
+				pass
+
+#			searcher = gmPerson.cPatientSearcher_SQL()
+#			pats = searcher.get_patients (
+#				search_dict = pat
+#			)
+
+#			if not gmPerson.set_active_patient(patient = pat)
 	#----------------------------------------------
 	def __setup_platform(self):
 		if wx.Platform == '__WXMSW__':
@@ -1156,7 +1167,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.255  2006-07-13 21:01:26  ncq
+# Revision 1.256  2006-07-17 10:53:50  ncq
+# - don't die on missing bdt file on startup
+#
+# Revision 1.255  2006/07/13 21:01:26  ncq
 # - display external patient on startup if XDT file available
 #
 # Revision 1.254  2006/07/07 12:09:00  ncq
