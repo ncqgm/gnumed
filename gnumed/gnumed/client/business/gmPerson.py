@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.76 2006-07-17 18:08:03 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmPerson.py,v 1.77 2006-07-17 18:49:07 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1634,9 +1634,9 @@ def get_staff_list(active_only=False):
 		staff_list.append(cStaff(row=obj_row))
 	return staff_list
 #============================================================
-def get_patient_from_xdt(filename=None):
+def get_person_from_xdt(filename=None):
 	from Gnumed.business import gmXdtObjects
-	return gmXdtObjects.read_patient_from_xdt(filename=filename)
+	return gmXdtObjects.read_person_from_xdt(filename=filename)
 #============================================================
 # main/testing
 #============================================================
@@ -1746,7 +1746,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.76  2006-07-17 18:08:03  ncq
+# Revision 1.77  2006-07-17 18:49:07  ncq
+# - fix wrong naming
+#
+# Revision 1.76  2006/07/17 18:08:03  ncq
 # - add cDTO_person()
 # - add get_patient_from_xdt()
 # - fix __generate_queries_generic()
