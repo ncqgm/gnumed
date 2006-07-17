@@ -1,16 +1,18 @@
-"""GnuMed German XDT parsing objects.
+"""GNUmed German XDT parsing objects.
 
 This encapsulates some of the XDT data into
 objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.11 2006-07-13 21:00:32 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmXdtObjects.py,v 1.12 2006-07-17 18:02:50 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
 import os.path, sys, fileinput, string, md5, time, linecache, tempfile
+
+import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -18,6 +20,60 @@ _log.Log(gmLog.lData, __version__)
 
 from Gnumed.pycommon import gmExceptions
 from Gnumed.business import gmXdtMappings
+
+#==============================================================
+def read_person_from_xdt(filename=None):
+
+	_map_id2name = {
+		'3101': 'lastnames',
+		'3102': 'firstnames',
+		'3103': 'dob',
+		'3110': 'gender'
+	}
+	_wanted_fields = (
+		'3101', 
+		'3102',
+		'3103',
+		'3110'
+	)
+
+	data = {}
+
+	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
+	for line in fileinput.input(filename):
+
+		# found all data by now ?
+		if len(data) == len(_wanted_fields):
+			break
+
+		line = string.replace(line,'\015','')
+		line = string.replace(line,'\012','')
+
+		# do we care about this line ?
+		field = line[3:7]
+		if field in _wanted_fields:
+			data[_map_id2name[field]] = line[7:]
+
+	# cleanup
+	fileinput.close()
+
+	# found all data ?
+	if len(data) != len(_wanted_fields):
+		raise ValueError('insufficient patient data in XDT file [%s], found only: %s' % (filename, data))
+
+	from Gnumed.business import gmPerson
+	dto = gmPerson.cDTO_person()
+
+	dto.firstnames = data['firstnames']
+	dto.lastnames = data['lastnames']
+	dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender']]
+	dto.dob = mxDT.DateTime (
+		int(data['dob'][4:]),	# year
+		int(data['dob'][2:4]),	# month
+		int(data['dob'][:2])	# day
+	)
+
+	return dto
 #==============================================================
 class cXDTPatient:
 	"""Handle patient demographics in xDT files.
@@ -245,12 +301,21 @@ def add_file_to_patlst(ID, name, patlst, new_file, ahash):
 # main
 #--------------------------------------------------------------
 if __name__ == "__main__":
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 	# test framework if run by itself
 	_log.SetAllLogLevels(gmLog.lData)
 	_log.Log(gmLog.lInfo, __version__)
 
 	patfile = sys.argv[1]
 	print "reading patient data from xDT file [%s]" % patfile
+
+	dto = read_person_from_xdt(patfile)
+	print "DTO:", dto
+	print dto.dob
+	print dto.dob.tz
 
 	pat = cXDTPatient(filename = patfile)
 	print pat
@@ -263,7 +328,11 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.11  2006-07-13 21:00:32  ncq
+# Revision 1.12  2006-07-17 18:02:50  ncq
+# - cleanup, improve testing
+# - add read_person_from_xdt() and use gmPerson.cDTO_person()
+#
+# Revision 1.11  2006/07/13 21:00:32  ncq
 # - cleanup gender mappings
 # - streamline cXdtPatient and improve test harness
 #
