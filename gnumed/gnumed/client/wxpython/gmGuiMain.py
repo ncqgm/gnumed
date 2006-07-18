@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.258 2006-07-17 21:07:59 ncq Exp $
-__version__ = "$Revision: 1.258 $"
+# $Id: gmGuiMain.py,v 1.259 2006-07-18 21:17:21 ncq Exp $
+__version__ = "$Revision: 1.259 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -32,7 +32,7 @@ except ImportError:
 	raise
 
 from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
 
@@ -950,7 +950,7 @@ Do not rely on this database to work properly in all cases !""")
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
 			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
-		self.__load_external_patient_on_startup()
+		gmPatSearchWidgets.load_patient_from_external_sources()
 
 		return True
 	#----------------------------------------------
@@ -994,83 +994,6 @@ Do not rely on this database to work properly in all cases !""")
 		_log.Log(gmLog.lWarn, 'unhandled event detected: END_SESSION')
 	#----------------------------------------------
 	# internal helpers
-	#----------------------------------------------
-	def __load_external_patient_on_startup(self):
-
-		bdt_file = _cfg.get('workplace', 'XDT file')
-		if bdt_file is not None:
-
-			try:
-				dto = gmPerson.get_person_from_xdt(filename = bdt_file)
-			except IOError:
-				gmGuiHelpers.gm_show_error (
-					_(
-					'Cannot read BDT file\n\n'
-					' [%s]\n\n'
-					'to import patient.\n\n'
-					'Please check your configuration.'
-					) % bdt_file,
-					_('Activating xDT patient')
-				)
-				_log.LogException('cannot access xDT file [%s]' % bdt_file, sys_exc_info())
-				# FIXME: must rethink return logic when more types are in use
-				return
-			except ValueError:
-				gmGuiHelpers.gm_show_error (
-					_(
-					'Cannot load patient from BDT file\n\n'
-					' [%s]'
-					) % bdt_file,
-					_('Activating xDT patient')
-				)
-				_log.LogException('cannot read patient from xDT file [%s]' % bdt_file, sys_exc_info())
-				# FIXME: must rethink return logic when more types are in use
-				return
-
-			searcher = gmPerson.cPatientSearcher_SQL()
-			pats = searcher.get_patients (
-				search_dict = {
-					'firstnames': dto.firstnames,
-					'lastnames': dto.lastnames,
-					'gender': dto.gender,
-					'dob': dto.dob
-				}
-			)
-
-			if len(pats) > 1:
-				# FIXME: ask user
-				return
-
-			if len(pats) == 1:
-				pat = pats[0]
-
-			if len(pats) == 0:
-				ident = gmPerson.create_identity (
-					firstnames = dto.firstnames,
-					lastnames = dto.lastnames,
-					gender = dto.gender,
-					dob = dto.dob
-				)
-				if ident is None:
-					gmGuiHelpers.gm_show_info (
-						_(
-						'Cannot find or create patient:\n\n'
-						' [%s %s (%s), %s]'
-						) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
-						_('Activating xDT patient')
-					)
-					return
-				pat = ident
-
-			if not gmPerson.set_active_patient(patient = pat):
-				gmGuiHelpers.gm_show_error (
-					_(
-					'Cannot activate patient:\n\n'
-					'%s %s (%s)\n'
-					'%s'
-					) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
-					_('Activating xDT patient')
-				)
 	#----------------------------------------------
 	def __setup_platform(self):
 		if wx.Platform == '__WXMSW__':
@@ -1214,7 +1137,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.258  2006-07-17 21:07:59  ncq
+# Revision 1.259  2006-07-18 21:17:21  ncq
+# - use gmPatSearchWidgets.load_patient_from_external_sources()
+#
+# Revision 1.258  2006/07/17 21:07:59  ncq
 # - create new patient from BDT file if not found
 #
 # Revision 1.257  2006/07/17 18:50:11  ncq
