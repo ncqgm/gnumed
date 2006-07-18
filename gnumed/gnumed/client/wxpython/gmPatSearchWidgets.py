@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.28 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPatSearchWidgets.py,v 1.29 2006-07-18 21:18:13 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -28,11 +28,121 @@ from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 
 _log = gmLog.gmDefLog
-
 _log.Log(gmLog.lInfo, __version__)
+
+_cfg = gmCfg.gmDefCfgFile
 
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
+
+#============================================================
+def load_persons_from_xdt():
+
+	# FIXME: potentially return several patients
+
+	bdt_file = _cfg.get('workplace', 'XDT file')
+	if bdt_file is None:
+		return []
+
+	try:
+		dto = gmPerson.get_person_from_xdt(filename = bdt_file)
+
+	except IOError:
+		gmGuiHelpers.gm_show_error (
+			_(
+			'Cannot access BDT file\n\n'
+			' [%s]\n\n'
+			'to import patient.\n\n'
+			'Please check your configuration.'
+			) % bdt_file,
+			_('Activating xDT patient')
+		)
+		_log.LogException('cannot access xDT file [%s]' % bdt_file)
+		return []
+
+	except ValueError:
+		gmGuiHelpers.gm_show_error (
+			_(
+			'Cannot load patient from BDT file\n\n'
+			' [%s]'
+			) % bdt_file,
+			_('Activating xDT patient')
+		)
+		_log.LogException('cannot read patient from xDT file [%s]' % bdt_file)
+		return []
+
+	return [dto]
+#============================================================
+def load_patient_from_external_sources():
+
+	dtos = []
+
+	# xDT
+	xdt_pats = load_persons_from_xdt()
+	dtos.extend(xdt_pats)
+
+	# more types...
+
+	if len(dtos) == 0:
+		return True
+	if len(dtos) == 1:
+		dto = dtos[0]
+	if len(dtos) > 1:
+		# FIXME: select by user
+		print "missing code to allow user to select from several external patients"
+		return True
+
+	# search
+	searcher = gmPerson.cPatientSearcher_SQL()
+	idents = searcher.get_identities (
+		search_dict = {
+			'firstnames': dto.firstnames,
+			'lastnames': dto.lastnames,
+			'gender': dto.gender,
+			'dob': dto.dob
+		}
+	)
+
+	if len(idents) == 0:
+		ident = gmPerson.create_identity (
+			firstnames = dto.firstnames,
+			lastnames = dto.lastnames,
+			gender = dto.gender,
+			dob = dto.dob
+		)
+		if ident is None:
+			gmGuiHelpers.gm_show_info (
+				_(
+				'Cannot create new patient:\n\n'
+				' [%s %s (%s), %s]'
+				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
+				_('Activating xDT patient')
+			)
+			return False
+
+	if len(idents) == 1:
+		ident = idents[0]
+
+	if len(idents) > 1:
+		print "missing code to allow user to select from several matching patients"
+		picklist = cPatientPickList()
+		picklist.SetItems(idents)
+		picklist.Centre()
+		result = picklist.ShowModal()
+		ident = picklist.selected_item
+		picklist.Destroy()
+		return True
+
+	if not gmPerson.set_active_patient(patient = ident):
+		gmGuiHelpers.gm_show_error (
+			_(
+			'Cannot activate patient:\n\n'
+			'%s %s (%s)\n'
+			'%s'
+			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
+			_('Activating xDT patient')
+		)
+
 #============================================================
 # country-specific functions
 #------------------------------------------------------------
@@ -64,7 +174,6 @@ def pat_expand_default(curs = None, ID_list = None):
 	pat_data = gmPG.run_ro_query(curs, cmd)
 	if pat_data is None:
 		_log.Log(gmLog.lErr, 'cannot fetch extended patient data')
-
 
 	return pat_data, col_order
 #------------------------------------------------------------
@@ -102,7 +211,11 @@ class cPatientPickList(wx.Dialog):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def SetItems(self, items = [], col_order = []):
+	def SetItems(self, items = None, col_order = None):
+		if items is None:
+			items = []
+		if col_order is None:
+			col_order = []
 		# TODO: make selectable by 0-9
 		self.__items = items
 		# set col_order
@@ -146,7 +259,7 @@ class cPatientPickList(wx.Dialog):
 
 		# adjust column width
 		for order_idx in range(len(col_order)):
-			self.__listctrl.SetColumnWidth(order_idx, 200)	# wx.LIST_AUTOSIZE)
+			self.__listctrl.SetColumnWidth(col=order_idx, width=wx.LIST_AUTOSIZE)
 
 		# FIXME: and make ourselves just big enough
 		self.sizer_main.Fit(self)
@@ -713,7 +826,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.28  2006-05-15 13:36:00  ncq
+# Revision 1.29  2006-07-18 21:18:13  ncq
+# - add proper load_patient_from_external_sources()
+#
+# Revision 1.28  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
