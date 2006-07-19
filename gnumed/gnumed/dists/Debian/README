@@ -4,7 +4,7 @@ In Debian testing there are now real GNUmed client packages.
  apt-get install -t testing gnumed-client
 
 
-Go here
+For experimental packages go here:
 
  <http://people.debian.org/~tille/packages/gnumed/>
 
