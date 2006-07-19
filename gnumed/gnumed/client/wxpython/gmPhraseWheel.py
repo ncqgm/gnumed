@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.75 2006-07-04 14:15:17 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmPhraseWheel.py,v 1.76 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -22,7 +22,6 @@ import wx.lib.mixins.listctrl as listmixins
 
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -576,7 +575,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.75  2006-07-04 14:15:17  ncq
+# Revision 1.76  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.75  2006/07/04 14:15:17  ncq
 # - lots of cleanup
 # - make dropdown list scroll !  :-)
 # - add customized list control

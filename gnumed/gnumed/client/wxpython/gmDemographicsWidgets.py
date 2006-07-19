@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.95 2006-07-04 14:12:48 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmDemographicsWidgets.py,v 1.96 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -29,7 +29,7 @@ except ImportError:
 	from wxPython import wizard
 
 # GnuMed specific
-from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
+from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
 from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
 
@@ -1943,7 +1943,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.95  2006-07-04 14:12:48  ncq
+# Revision 1.96  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.95  2006/07/04 14:12:48  ncq
 # - add some phrasewheel sanity LIMITs
 # - use gender phrasewheel in pat modify, too
 #

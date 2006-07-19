@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.7 2006-05-12 12:18:11 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPlugin_Patient.py,v 1.8 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -19,7 +19,6 @@ except ImportError:
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg
 from Gnumed.wxpython import gmShadow
-from Gnumed.pycommon.gmPyCompat import *
 
 gmPerson = None
 _log = gmLog.gmDefLog
@@ -184,7 +183,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.7  2006-05-12 12:18:11  ncq
+# Revision 1.8  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.7  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

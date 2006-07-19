@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.71 2006-06-28 10:18:40 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmTopPanel.py,v 1.72 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,6 @@ except ImportError:
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPerson, gmEMRStructItems
 from Gnumed.wxpython import gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets, gmPatSearchWidgets
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -413,7 +412,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.71  2006-06-28 10:18:40  ncq
+# Revision 1.72  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.71  2006/06/28 10:18:40  ncq
 # - comment out consultation type selector for now
 #
 # Revision 1.70  2006/05/15 13:36:00  ncq

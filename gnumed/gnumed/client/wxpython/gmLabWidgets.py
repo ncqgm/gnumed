@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -28,7 +28,6 @@ except ImportError:
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmMatchProvider, gmGuiBroker
 from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
@@ -868,7 +867,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.19  2006-05-12 12:18:11  ncq
+# Revision 1.20  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.19  2006/05/12 12:18:11  ncq
 # - whoami -> whereami cleanup
 # - use gmCurrentProvider()
 #

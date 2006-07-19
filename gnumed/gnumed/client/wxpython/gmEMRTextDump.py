@@ -2,15 +2,14 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.17 2006-05-15 13:35:59 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmEMRTextDump.py,v 1.18 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
 from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
 from Gnumed.business import gmPerson
-from Gnumed.pycommon.gmPyCompat import *
 
 try:
 	import wxversion
@@ -127,7 +126,10 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.17  2006-05-15 13:35:59  ncq
+# Revision 1.18  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.17  2006/05/15 13:35:59  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection

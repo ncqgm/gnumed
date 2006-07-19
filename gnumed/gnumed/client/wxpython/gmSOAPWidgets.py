@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.73 2006-06-20 14:26:36 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmSOAPWidgets.py,v 1.74 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ except ImportError:
 
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider
-from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash, gmVaccWidgets, gmEditArea
+from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmVaccWidgets, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
@@ -1115,7 +1115,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.73  2006-06-20 14:26:36  ncq
+# Revision 1.74  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.73  2006/06/20 14:26:36  ncq
 # - do not refresh problem list too early or threading will kill us
 #
 # Revision 1.72  2006/06/17 19:56:24  ncq

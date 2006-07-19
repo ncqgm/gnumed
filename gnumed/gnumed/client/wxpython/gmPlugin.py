@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.62 2006-05-28 15:59:16 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPlugin.py,v 1.63 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,8 +18,6 @@ except ImportError:
 	from wxPython import wx
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmDispatcher, gmSignals
-from Gnumed.wxpython import gmShadow
-from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
@@ -446,7 +444,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.62  2006-05-28 15:59:16  ncq
+# Revision 1.63  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.62  2006/05/28 15:59:16  ncq
 # - cleanup
 # - receive_focus() now calls self._widget.repopulate_ui()
 #

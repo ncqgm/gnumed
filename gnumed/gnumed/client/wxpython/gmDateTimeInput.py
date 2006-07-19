@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.40 2006-07-01 13:12:32 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmDateTimeInput.py,v 1.41 2006-07-19 20:29:50 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -26,7 +26,6 @@ except ImportError:
 
 from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N, gmFuzzyTimestamp
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 
@@ -746,7 +745,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.40  2006-07-01 13:12:32  ncq
+# Revision 1.41  2006-07-19 20:29:50  ncq
+# - import cleanup
+#
+# Revision 1.40  2006/07/01 13:12:32  ncq
 # - improve test harness
 #
 # Revision 1.39  2006/06/15 15:35:30  ncq
