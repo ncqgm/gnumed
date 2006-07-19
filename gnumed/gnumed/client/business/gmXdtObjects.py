@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.12 2006-07-17 18:02:50 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmXdtObjects.py,v 1.13 2006-07-19 20:43:59 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -74,91 +74,6 @@ def read_person_from_xdt(filename=None):
 	)
 
 	return dto
-#==============================================================
-class cXDTPatient:
-	"""Handle patient demographics in xDT files.
-
-	- these files are used for inter-application communication in Germany
-	"""
-	_map_id2name = {
-		'3101': 'lastname',
-		'3102': 'firstname',
-		'3103': 'dob',
-		'3110': 'gender'
-	}
-	_wanted_fields = (
-		'3101', 
-		'3102',
-		'3103',
-		'3110'
-	)
-
-	#-----------------------------------
-	def __init__(self, filename = None):
-
-		self.filename = filename
-		self.__parsed = False
-	#-----------------------------------
-	def __str__(self):
-		if self.__parsed:
-			return '<%s @ %s: %s parsed from file [%s]>' % (self.__class__.__name__, id(self), str(self.__data), self.filename)
-		else:
-			return '<%s @ %s: unparsed file [%s]>' % (self.__class__.__name__, id(self), self.filename)
-	#-----------------------------------
-	def __parse(self):
-		"""Read the _first_ patient from an xDT compatible file."""
-
-		self.__data = {}
-		data = {}
-
-		# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
-		for line in fileinput.input(self.filename):
-
-			# found all data by now ?
-			if len(data) == len(cXDTPatient._wanted_fields):
-				break
-
-			line = string.replace(line,'\015','')
-			line = string.replace(line,'\012','')
-
-			# do we care about this line ?
-			field = line[3:7]
-			if field in cXDTPatient._wanted_fields:
-				field_name = cXDTPatient._map_id2name[field]
-				data[field_name] = line[7:]
-
-		# cleanup
-		fileinput.close()
-
-		# found all data ?
-		if len(data) != len(cXDTPatient._wanted_fields):
-			_log.Log(gmLog.lErr, "did not find sufficient patient data in XDT file [%s]" % self.filename)
-			_log.Log(gmLog.lErr, 'found: %s' % data)
-			return False
-
-		# normalize DOB
-		data['dob_day'] = int(data['dob'][:2])
-		data['dob_month'] = int(data['dob'][2:4])
-		data['dob_year'] = int(data['dob'][4:])
-
-		#  mangle gender
-		data['gender'] = gmXdtMappings.map_gender_xdt2gm[data['gender']]
-
-		self.__data = data
-		self.__parsed = True
-		return True
-	#--------------------------------------------------------
-	# attribute handler
-	#--------------------------------------------------------
-	def __getitem__(self, item):
-
-		if item == 'filename':
-			return self.filename
-
-		if not self.__parsed:
-			self.__parse()
-
-		return self.__data[item]
 #==============================================================
 # FIXME: the following *should* get wrapped in class XdtFile ...
 #--------------------------------------------------------------
@@ -317,18 +232,12 @@ if __name__ == "__main__":
 	print dto.dob
 	print dto.dob.tz
 
-	pat = cXDTPatient(filename = patfile)
-	print pat
-
-	print '%s %s (%s)' % (pat['firstname'], pat['lastname'], pat['gender'])
-	print 'dob:', pat['dob']
-	print '%s.%s.%s' % (pat['dob_day'], pat['dob_month'], pat['dob_year'])
-
-	print pat
-
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.12  2006-07-17 18:02:50  ncq
+# Revision 1.13  2006-07-19 20:43:59  ncq
+# - remove cXDTPatient
+#
+# Revision 1.12  2006/07/17 18:02:50  ncq
 # - cleanup, improve testing
 # - add read_person_from_xdt() and use gmPerson.cDTO_person()
 #
