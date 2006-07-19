@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.29 2006-07-18 21:18:13 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPatSearchWidgets.py,v 1.30 2006-07-19 21:41:13 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -40,53 +40,69 @@ def load_persons_from_xdt():
 
 	# FIXME: potentially return several patients
 
-	bdt_file = _cfg.get('workplace', 'XDT file')
-	if bdt_file is None:
+	xdt_profiles = _cfg.get('workplace', 'XDT profiles')
+	if xdt_profiles is None:
 		return []
 
-	try:
-		dto = gmPerson.get_person_from_xdt(filename = bdt_file)
+	bdt_files = []
+	for profile in xdt_profiles:
+		name = _cfg.get('XDT profile %s' % profile, 'filename')
+		if name is None:
+			continue
+		source = _cfg.get('XDT profile %s' % profile, 'source')
+		if source is None:
+			source = _('unknown')
+		bdt_files.append({'file': name, 'source': source})
 
-	except IOError:
-		gmGuiHelpers.gm_show_error (
-			_(
-			'Cannot access BDT file\n\n'
-			' [%s]\n\n'
-			'to import patient.\n\n'
-			'Please check your configuration.'
-			) % bdt_file,
-			_('Activating xDT patient')
-		)
-		_log.LogException('cannot access xDT file [%s]' % bdt_file)
+	if len(bdt_files) == 0:
 		return []
 
-	except ValueError:
-		gmGuiHelpers.gm_show_error (
-			_(
-			'Cannot load patient from BDT file\n\n'
-			' [%s]'
-			) % bdt_file,
-			_('Activating xDT patient')
-		)
-		_log.LogException('cannot read patient from xDT file [%s]' % bdt_file)
-		return []
+	dtos = []
+	for bdt_file in bdt_files:
+		try:
+			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'])
 
-	return [dto]
+		except IOError:
+			gmGuiHelpers.gm_show_error (
+				_(
+				'Cannot access BDT file\n\n'
+				' [%s]\n\n'
+				'to import patient.\n\n'
+				'Please check your configuration.'
+				) % bdt_file,
+				_('Activating xDT patient')
+			)
+			_log.LogException('cannot access xDT file [%s]' % bdt_file)
+			continue
+
+		except ValueError:
+			gmGuiHelpers.gm_show_error (
+				_(
+				'Cannot load patient from BDT file\n\n'
+				' [%s]'
+				) % bdt_file,
+				_('Activating xDT patient')
+			)
+			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file)
+			continue
+
+		dtos.append({'dto': dto, 'source': bdt_file['source']})
+
+	return dtos
 #============================================================
 def load_patient_from_external_sources():
 
 	dtos = []
 
 	# xDT
-	xdt_pats = load_persons_from_xdt()
-	dtos.extend(xdt_pats)
+	dtos.extend(load_persons_from_xdt())
 
 	# more types...
 
 	if len(dtos) == 0:
 		return True
 	if len(dtos) == 1:
-		dto = dtos[0]
+		dto = dtos[0]['dto']
 	if len(dtos) > 1:
 		# FIXME: select by user
 		print "missing code to allow user to select from several external patients"
@@ -826,7 +842,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.29  2006-07-18 21:18:13  ncq
+# Revision 1.30  2006-07-19 21:41:13  ncq
+# - support list of xdt files
+#
+# Revision 1.29  2006/07/18 21:18:13  ncq
 # - add proper load_patient_from_external_sources()
 #
 # Revision 1.28  2006/05/15 13:36:00  ncq
