@@ -2,10 +2,12 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.2 2006-07-19 20:03:35 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.3 2006-07-19 22:10:14 ncq Exp $
 # license: GPL
 #====================================================
-REV=0.2
+REV="0.2"
+ARCHFILE="GNUmed-client.$REV.tgz"
+DEBARCH="gnumed-client_$REV.orig.tar.gz"
 
 CLIENT_FILES_REMOVE=\
 "./GNUmed-$REV/client/business/README "\
@@ -68,8 +70,9 @@ CLIENT_FILES_REMOVE=\
 
 
 echo "cleaning up"
-rm -R ./GNUmed-$REV/*.*
-rm -vf GNUmed-client.$REV.tgz
+rm -R ./GNUmed-$REV/
+rm -vf $ARCHFILE
+rm -vf $DEBARCH
 cd ../../
 ./remove_pyc.sh
 cd -
@@ -148,7 +151,6 @@ for fname in $CLIENT_FILES_REMOVE ; do
 	rm -vf $fname
 done ;
 
-
 # copy user manual from wiki
 #echo "downloading Manual zip file from the web"
 #rm -vf Main.TWikiGuest_Gnumed.zip
@@ -159,8 +161,8 @@ done ;
 #cd -
 
 # now make tarballs
-tar -cvhzf GNUmed-client.$REV.tgz ./GNUmed-$REV/client/
-cp -vf GNUmed-client.$REV.tgz gnumed-client_$REV.orig.tar.gz			# Debian source package
+tar -cvhzf $ARCHFILE ./GNUmed-$REV/client/
+cp -vf $ARCHFILE $DEBARCH					# Debian source package
 
 
 #----------------------------------
@@ -191,9 +193,16 @@ find ./ -name '*.log' -exec rm -v '{}' ';'
 find ./GNUmed-$REV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
 find ./GNUmed-$REV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
+# cleanup again
+rm -R ./GNUmed-$REV/
+
+
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.2  2006-07-19 20:03:35  ncq
+# Revision 1.3  2006-07-19 22:10:14  ncq
+# - properly clean up
+#
+# Revision 1.2  2006/07/19 20:03:35  ncq
 # - improved client packages
 #
 # Revision 1.1  2006/07/19 11:31:17  ncq
