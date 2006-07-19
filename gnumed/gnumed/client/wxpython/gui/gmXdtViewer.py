@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.20 2005-12-06 16:44:16 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmXdtViewer.py,v 1.21 2006-07-19 20:32:11 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -247,7 +247,7 @@ class gmXdtViewerPanel(wx.Panel):
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmCLI, gmPyCompat
+	from Gnumed.pycommon import gmCLI
 	#---------------------
 	# set up dummy app
 	class TestApp (wx.App):
@@ -336,7 +336,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.20  2005-12-06 16:44:16  ncq
+# Revision 1.21  2006-07-19 20:32:11  ncq
+# - cleanup
+#
+# Revision 1.20  2005/12/06 16:44:16  ncq
 # - make it work standalone again
 #
 # Revision 1.19  2005/09/28 21:27:30  ncq
