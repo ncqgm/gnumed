@@ -1,4 +1,4 @@
-# GnuMed default config file
+# GNUmed default config file
 # -------------------------------------------------------------
 # created by gmCfg because no other config file could be found,
 # please check the docs that came with the software
@@ -7,48 +7,120 @@
 # this file should live in ~/.gnumed/gnumed.conf
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
+
 
 [backend]
 
-# gnumed-public is the publically accessible
-# GnuMed database on anubis.homeunix.com
-databases = $databases$
-gnumed-public
-gnumed
-$databases$
-
-ports = $ports$
-5432
-$ports$
-
-hosts = $hosts$
-anubis.homeunix.com
-localhost
-127.0.0.1
-$hosts$
-
-options = $options$
-$options$
-
-# read the docs or ask the admin what
-# the passwords are for those accounts
+# "any-doc" is the standard account installed with
+# any stock installation, it must be disabled when
+# going into production because the password is known
+# to all (it is "any-doc" as well)
+#
 logins = $logins$
 any-doc
-test-doc
 $logins$
+
+# during login the user can chose from several
+# profiles defining which GNUmed database server
+# to connect to,
+#
+# the profiles themselves are defined further below
+#
+profiles = $profiles$
+GNUmed - v2 database on this machine (Linux)
+GNUmed - v2 database on this machine (Windows)
+GNUmed - v2 database on public server
+$profiles$
+
+# If the system locale matches this value a mismatch
+# with the database locale will be ignored.
+# Remove this option if you want to stop ignoring mismatches.
+#
+#ignored mismatching system locale = de_DE@euro
+
+# If GNUmed cannot detect the proper timezone from system
+# information or you want to use a timezone different from
+# the system GNUmed is running on you can explicitely set
+# the time zone here.
+# Note that the timezone must be a valid PostgreSQL timezone
+# string. If in doubt consult the PostgreSQL docs.
+# If you don't want to change the timezone GNUmed detects
+# in the system you need to comment out this option.
+#
+#client timezone = CETDST
+
+# if GNUmed cannot properly detect the Python string encoding
+# or if the detected string encoding has a slightly different
+# name than what PostgreSQL uses for that encoding you can
+# force the encoding to use with the following two options
+#
+# "wire encoding" is the connection level encoding sent to PostgreSQL (set client_encoding to ...)
+# "string encoding" is the encoding to use when decoding Unicode data before putting them on the wire
+#
+#wire encoding = iso-8859-15
+#string encoding = iso-8859-15
+
+
+[profile GNUmed - v2 database on this machine (Linux)]
+host = 
+port = 5432
+database = gnumed_v2
+
+
+[profile GNUmed - v2 database on this machine (Windows)]
+host = 127.0.0.1
+port = 5432
+database = gnumed_v2
+
+
+[profile GNUmed - v2 database on public server]
+host = salaam.homeunix.com
+port = 5432
+database = gnumed_v2
 
 
 [workplace]
-help desk = add contact data here
+
+# set the help desk contact information for your
+# GNUmed installation here
+help desk = GNUmed developers <gnumed-devel@gnu.org>
 
 # this name is used to describe the workstation at the
-# business logic level, eg. "ultrasound room machine 1"
-name = default workplace
+# business logic level, eg. "ultrasound room machine 1",
+#
+# a lot of configuration options stored in the backend
+# will be tied to this name
+name = <example workplace>
+
+
+# here you can define profiles for XDT files
+# provided by other applications such as
+# German practice management software
+#
+XDT profiles = $XDT profiles$
+generic XDT connector
+$XDT profiles$
+
+
+[XDT profile generic XDT connector]
+
+# a short (!) description of the xDT source,
+# this will be shown to the user when activating
+# a patient from an xDT file
+source = xDT allgemein
+
+# this is the name of the file eventually containing
+# the patient data in xDT format
+filename = patient.xdt
+
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.2  2003-06-14 23:02:48  ncq
+# Revision 1.3  2006-07-19 12:22:21  ncq
+# - improved and consolidated documentation
+#
+# Revision 1.2  2003/06/14 23:02:48  ncq
 # - added comment on deployment location
 #
 # Revision 1.1  2003/06/14 23:01:08  ncq
