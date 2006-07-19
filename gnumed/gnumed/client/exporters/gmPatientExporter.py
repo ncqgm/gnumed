@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.80 2006-06-09 14:39:23 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmPatientExporter.py,v 1.81 2006-07-19 20:25:48 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -22,7 +22,6 @@ import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmVaccination, gmPathLab, gmMedDoc, gmDemographicRecord
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -1265,7 +1264,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.80  2006-06-09 14:39:23  ncq
+# Revision 1.81  2006-07-19 20:25:48  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.80  2006/06/09 14:39:23  ncq
 # - comment out vaccination handling for now
 #
 # Revision 1.79  2006/05/30 13:36:35  ncq

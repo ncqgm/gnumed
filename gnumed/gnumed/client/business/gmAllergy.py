@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.20 2005-11-27 12:44:57 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmAllergy.py,v 1.21 2006-07-19 20:25:00 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -12,7 +12,6 @@ import types, sys
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmI18N
 from Gnumed.business import gmClinItem
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -137,7 +136,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.20  2005-11-27 12:44:57  ncq
+# Revision 1.21  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.20  2005/11/27 12:44:57  ncq
 # - clinical tables are in schema "clin" now
 #
 # Revision 1.19  2005/04/30 13:30:02  sjtan

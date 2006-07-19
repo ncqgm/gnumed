@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -29,7 +29,6 @@ if __name__ == "__main__":
 _log.Log(gmLog.lInfo, __version__)
 
 import gmLoginInfo, gmExceptions, gmI18N
-from gmPyCompat import *
 
 import gmCLI
 if gmCLI.has_arg("--debug"):
@@ -1359,7 +1358,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.75 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.76 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1595,7 +1594,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.75  2006-07-10 21:46:36  ncq
+# Revision 1.76  2006-07-19 20:27:03  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.75  2006/07/10 21:46:36  ncq
 # - saner choice of encoding if not set
 #
 # Revision 1.74  2006/07/01 11:24:56  ncq

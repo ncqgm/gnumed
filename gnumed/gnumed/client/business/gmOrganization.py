@@ -5,11 +5,10 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
-from Gnumed.pycommon.gmPyCompat import *
 
 import inspect
 
@@ -2022,7 +2021,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.34  2006-01-07 17:40:56  ncq
+# Revision 1.35  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.34  2006/01/07 17:40:56  ncq
 # - lots of schema qualification
 #
 # Revision 1.33  2005/06/07 10:15:47  ncq

@@ -96,15 +96,14 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.33 2006-06-18 13:20:29 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmBusinessDBObject.py,v 1.34 2006-07-19 20:27:03 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import sys, copy, types, inspect
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -570,7 +569,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.33  2006-06-18 13:20:29  ncq
+# Revision 1.34  2006-07-19 20:27:03  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.33  2006/06/18 13:20:29  ncq
 # - cleanup, better logging
 #
 # Revision 1.32  2006/06/17 16:41:30  ncq

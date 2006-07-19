@@ -3,14 +3,13 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem, gmClinNarrative
-from Gnumed.pycommon.gmPyCompat import *
 
 import mx.DateTime as mxDT
 
@@ -528,7 +527,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.80  2006-06-26 12:27:53  ncq
+# Revision 1.81  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.80  2006/06/26 12:27:53  ncq
 # - cleanup
 # - add close_episode() and has_open_episode() to cHealthIssue
 #

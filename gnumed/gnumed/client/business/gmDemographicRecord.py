@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.81 2006-06-14 10:22:46 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmDemographicRecord.py,v 1.82 2006-07-19 20:25:00 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -16,7 +16,6 @@ import sys, os.path, time, string
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject
 from Gnumed.business import gmMedDoc
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -447,7 +446,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.81  2006-06-14 10:22:46  ncq
+# Revision 1.82  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.81  2006/06/14 10:22:46  ncq
 # - create_* stored procs are in schema dem.* now
 #
 # Revision 1.80  2006/05/15 13:24:13  ncq

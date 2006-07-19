@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -10,7 +10,6 @@ import types, sys
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -219,7 +218,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.21  2006-05-06 18:51:55  ncq
+# Revision 1.22  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.21  2006/05/06 18:51:55  ncq
 # - remove comment
 #
 # Revision 1.20  2005/11/27 12:44:57  ncq

@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.206 2006-06-26 12:25:30 ncq Exp $
-__version__ = "$Revision: 1.206 $"
+# $Id: gmClinicalRecord.py,v 1.207 2006-07-19 20:25:00 ncq Exp $
+__version__ = "$Revision: 1.207 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -35,7 +35,6 @@ import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N
 from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -1795,7 +1794,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.206  2006-06-26 12:25:30  ncq
+# Revision 1.207  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.206  2006/06/26 12:25:30  ncq
 # - cleanup
 #
 # Revision 1.205  2006/06/07 22:01:57  ncq

@@ -4,15 +4,14 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.51 2005-10-26 21:16:26 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPathLab.py,v 1.52 2006-07-19 20:25:00 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
-from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -344,7 +343,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.51 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.52 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -431,7 +430,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.51 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.52 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -687,7 +686,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.51  2005-10-26 21:16:26  ncq
+# Revision 1.52  2006-07-19 20:25:00  ncq
+# - gmPyCompat.py is history
+#
+# Revision 1.51  2005/10/26 21:16:26  ncq
 # - adjust to changes in reviewed status handling
 #
 # Revision 1.50  2005/04/27 12:37:32  sjtan
