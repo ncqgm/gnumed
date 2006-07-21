@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.30 2006-07-19 21:41:13 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmPatSearchWidgets.py,v 1.31 2006-07-21 14:48:39 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -106,7 +106,7 @@ def load_patient_from_external_sources():
 	if len(dtos) > 1:
 		# FIXME: select by user
 		print "missing code to allow user to select from several external patients"
-		return True
+		return False
 
 	# search
 	searcher = gmPerson.cPatientSearcher_SQL()
@@ -147,7 +147,7 @@ def load_patient_from_external_sources():
 		result = picklist.ShowModal()
 		ident = picklist.selected_item
 		picklist.Destroy()
-		return True
+		return False
 
 	if not gmPerson.set_active_patient(patient = ident):
 		gmGuiHelpers.gm_show_error (
@@ -158,6 +158,9 @@ def load_patient_from_external_sources():
 			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
 			_('Activating xDT patient')
 		)
+		return False
+
+	return True
 
 #============================================================
 # country-specific functions
@@ -842,7 +845,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.30  2006-07-19 21:41:13  ncq
+# Revision 1.31  2006-07-21 14:48:39  ncq
+# - proper returns from load_patient_from_external_sources()
+#
+# Revision 1.30  2006/07/19 21:41:13  ncq
 # - support list of xdt files
 #
 # Revision 1.29  2006/07/18 21:18:13  ncq
