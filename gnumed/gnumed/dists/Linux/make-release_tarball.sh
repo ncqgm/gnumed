@@ -2,12 +2,11 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.3 2006-07-19 22:10:14 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.4 2006-07-21 12:59:16 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
 ARCHFILE="GNUmed-client.$REV.tgz"
-DEBARCH="gnumed-client_$REV.orig.tar.gz"
 
 CLIENT_FILES_REMOVE=\
 "./GNUmed-$REV/client/business/README "\
@@ -72,7 +71,6 @@ CLIENT_FILES_REMOVE=\
 echo "cleaning up"
 rm -R ./GNUmed-$REV/
 rm -vf $ARCHFILE
-rm -vf $DEBARCH
 cd ../../
 ./remove_pyc.sh
 cd -
@@ -162,7 +160,6 @@ done ;
 
 # now make tarballs
 tar -cvhzf $ARCHFILE ./GNUmed-$REV/client/
-cp -vf $ARCHFILE $DEBARCH					# Debian source package
 
 
 #----------------------------------
@@ -199,7 +196,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.3  2006-07-19 22:10:14  ncq
+# Revision 1.4  2006-07-21 12:59:16  ncq
+# - do not produce *.orig.tar.gz
+#
+# Revision 1.3  2006/07/19 22:10:14  ncq
 # - properly clean up
 #
 # Revision 1.2  2006/07/19 20:03:35  ncq
