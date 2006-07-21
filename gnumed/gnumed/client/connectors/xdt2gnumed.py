@@ -2,8 +2,8 @@
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.2 2005-11-01 08:51:05 ncq Exp $
-__version__ = '$Revision: 1.2 $'
+# $Id: xdt2gnumed.py,v 1.3 2006-07-21 21:29:02 ncq Exp $
+__version__ = '$Revision: 1.3 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -97,6 +97,10 @@ class cXdtConnector:
 #==================================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
+
 	connector = cXdtConnector()
 	if not connector.setup():
 		connector.cleanup()
@@ -108,7 +112,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.2  2005-11-01 08:51:05  ncq
+# Revision 1.3  2006-07-21 21:29:02  ncq
+# - properly activate locale
+#
+# Revision 1.2  2005/11/01 08:51:05  ncq
 # - GnuMed -> GNUmed
 #
 # Revision 1.1  2004/09/13 09:49:06  ncq
