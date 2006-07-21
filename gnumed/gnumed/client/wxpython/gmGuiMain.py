@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.259 2006-07-18 21:17:21 ncq Exp $
-__version__ = "$Revision: 1.259 $"
+# $Id: gmGuiMain.py,v 1.260 2006-07-21 21:34:58 ncq Exp $
+__version__ = "$Revision: 1.260 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -23,8 +23,19 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 import sys, time, os, cPickle, zlib, locale
 
 try:
-	import wxversion
+	# do not check inside py2exe and friends
+	if not hasattr(sys, 'frozen'):
+		import wxversion
+		try:
+			wxversion.select(versions='2.6-unicode', optionsRequired=True)
+		except wxversion.VersionError:
+			print "GNUmed startup: Cannot import proper wxPython library version."
+			print "GNUmed startup: Make sure a unicode-enabled wxPython > v2.6 is installed."
+			print 'CRITICAL ERROR: Error importing wxPython. Halted.'
+			raise
+
 	import wx
+
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -1137,7 +1148,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.259  2006-07-18 21:17:21  ncq
+# Revision 1.260  2006-07-21 21:34:58  ncq
+# - check for minimum required version/type of wxPython
+#
+# Revision 1.259  2006/07/18 21:17:21  ncq
 # - use gmPatSearchWidgets.load_patient_from_external_sources()
 #
 # Revision 1.258  2006/07/17 21:07:59  ncq
