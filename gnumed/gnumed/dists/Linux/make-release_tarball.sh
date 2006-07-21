@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.4 2006-07-21 12:59:16 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.5 2006-07-21 15:56:14 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -149,14 +149,16 @@ for fname in $CLIENT_FILES_REMOVE ; do
 	rm -vf $fname
 done ;
 
-# copy user manual from wiki
-#echo "downloading Manual zip file from the web"
-#rm -vf Main.TWikiGuest_Gnumed.zip
-#wget -v http://salaam.homeunix.com/gm-manual/Main.TWikiGuest_Gnumed.zip
-#unzip Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/user-manual
-#cd ./GNUmed-$REV/client/user-manual/
-#ln -s Release-01.html index.html
-#cd -
+# pick up current User Manual
+echo "picking up GNUmed User Manual from the web"
+mkdir -p ./GNUmed-$REV/client/user-manual/
+wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
+wget -v -O ./GNUmed-$REV/client/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/gm-manual//Gnumed.tgz
+cd ./GNUmed-$REV/client/user-manual/
+tar -xvzf GNUmed-User-Manual.tgz
+ln -s Release-01.html index.html
+rm -vf GNUmed-User-Manual.tgz
+cd -
 
 # now make tarballs
 tar -cvhzf $ARCHFILE ./GNUmed-$REV/client/
@@ -196,7 +198,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.4  2006-07-21 12:59:16  ncq
+# Revision 1.5  2006-07-21 15:56:14  ncq
+# - add User Manual
+#
+# Revision 1.4  2006/07/21 12:59:16  ncq
 # - do not produce *.orig.tar.gz
 #
 # Revision 1.3  2006/07/19 22:10:14  ncq
