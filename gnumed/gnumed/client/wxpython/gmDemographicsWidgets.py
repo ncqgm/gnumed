@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.96 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmDemographicsWidgets.py,v 1.97 2006-07-21 21:34:04 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -449,7 +449,7 @@ class cNewPatientWizard(wx.wizard.Wizard):
 	FIXME: use: wizard.FindWindowById(wx.ID_FORWARD).Disable()
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, title = _('Register new patient'), subtitle = _('Basic patient details') ):
+	def __init__(self, parent, title = _('Register new person'), subtitle = _('Basic demographic details') ):
 		"""
 		Creates a new instance of NewPatientWizard
 		@param parent - The parent widget
@@ -1943,7 +1943,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.96  2006-07-19 20:29:50  ncq
+# Revision 1.97  2006-07-21 21:34:04  ncq
+# - proper header/subheader for new *person* wizard (not *patient*)
+#
+# Revision 1.96  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.95  2006/07/04 14:12:48  ncq
