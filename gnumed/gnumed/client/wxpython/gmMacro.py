@@ -1,4 +1,4 @@
-"""GnuMed macro primitives.
+"""GNUmed macro primitives.
 
 This module implements functions a macro can legally use.
 """
@@ -6,30 +6,25 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wxversion
+import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
 
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
 
 #=====================================================================
 class cMacroPrimitives:
 	"""Functions a macro can legally use.
 
-	An instance of this class is passed to the GnuMed scripting
+	An instance of this class is passed to the GNUmed scripting
 	listener. Hence, all actions a macro can legally take must
 	be defined in this class. Thus we achieve some screening for
 	security and also thread safety handling.
@@ -76,7 +71,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.23 $" % self.__class__.__name__
+		return "%s $Revision: 1.24 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -107,7 +102,7 @@ class cMacroPrimitives:
 		return gb['horstspace.notebook.gui'].keys()
 	#-----------------------------------------------------------------
 	def raise_notebook_plugin(self, auth_cookie = None, a_plugin = None):
-		"""Raise a notebook plugin within GnuMed."""
+		"""Raise a notebook plugin within GNUmed."""
 		if not self.__attached:
 			return 0
 		if auth_cookie != self.__auth_cookie:
@@ -116,6 +111,24 @@ class cMacroPrimitives:
 		# FIXME: use semaphore
 		wx.CallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
 		return 1
+	#-----------------------------------------------------------------
+	def load_patient_from_external_source(self, auth_cookie = None):
+		"""Load external patient, perhaps create it.
+
+		Callers must use get_user_answer() to find get status information.
+		It is unsafe to proceed without knowing the completion state as
+		the controlled client may be waiting for user input from a
+		patient selection list.
+		"""
+		if not self.__attached:
+			return (0, _('request rejected, you are not attached'))
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated load_patient_from_external_source()')
+			return (0, _('load_patient_from_external_source(), not authenticated'))
+		if self.__pat.is_locked():
+			_log.Log(gmLog.lErr, 'patient is locked, cannot load from external source')
+			return (0, _('locked into a patient, cannot load from external source'))
+		wx.CallAfter(self._load_patient_from_external_source)
 	#-----------------------------------------------------------------
 	def lock_into_patient(self, auth_cookie = None, search_params = None):
 		if not self.__attached:
@@ -203,10 +216,23 @@ class cMacroPrimitives:
 			top_win.Destroy()
 		else:
 			top_win.Close()
+	#-----------------------------------------------------------------
+	def _load_patient_from_external_source(self):
+		if gmPatSearchWidgets.load_patient_from_external_sources():
+			self.__user_answer = 1
+		else:
+			self.__user_answer = 0
+		self.__user_done = True
+		return 1
 #=====================================================================
 # main
 #=====================================================================
 if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 	from Gnumed.pycommon import gmScriptingListener
 	import xmlrpclib
 	listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
@@ -238,7 +264,12 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.23  2006-05-04 09:49:20  ncq
+# Revision 1.24  2006-07-21 14:47:19  ncq
+# - cleanup
+# - add (_)load_patient_from_external_source()
+# - improve testing
+#
+# Revision 1.23  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
