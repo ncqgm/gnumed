@@ -2,11 +2,9 @@
 
 This module implements functions a macro can legally use.
 """
-#FIXME: semaphore für Gui-Aktionen :-)
-
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -35,10 +33,14 @@ class cMacroPrimitives:
 			raise gmExceptions.ConstructorError, 'must specify personality'
 		self.__personality = personality
 		self.__attached = 0
-		self.__auth_cookie = None
 		self._get_source_personality = None
 		self.__user_done = False
+		self.__user_answer = 'no answer yet'
 		self.__pat = gmPerson.gmCurrentPatient()
+
+		self.__auth_cookie = str(random.random())
+		self.__pat_lock_cookie = str(random.random())
+		self.__lock_after_load_cookie = str(random.random())
 	#-----------------------------------------------------------------
 	# public API
 	#-----------------------------------------------------------------
@@ -71,7 +73,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.24 $" % self.__class__.__name__
+		return "%s $Revision: 1.25 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -121,14 +123,31 @@ class cMacroPrimitives:
 		patient selection list.
 		"""
 		if not self.__attached:
-			return (0, _('request rejected, you are not attached'))
+			return (0, _('request rejected, you are not attach()ed'))
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated load_patient_from_external_source()')
-			return (0, _('load_patient_from_external_source(), not authenticated'))
+			return (0, _('rejected load_patient_from_external_source(), not authenticated'))
 		if self.__pat.is_locked():
 			_log.Log(gmLog.lErr, 'patient is locked, cannot load from external source')
-			return (0, _('locked into a patient, cannot load from external source'))
+			return (0, _('current patient is locked'))
+		self.__user_done = False
 		wx.CallAfter(self._load_patient_from_external_source)
+		self.__lock_after_load_cookie = str(random.random())
+		return (1, self.__lock_after_load_cookie)
+	#-----------------------------------------------------------------
+	def lock_loaded_patient(self, auth_cookie = None, lock_after_load_cookie = None):
+		if not self.__attached:
+			return (0, _('request rejected, you are not attach()ed'))
+		if auth_cookie != self.__auth_cookie:
+			_log.Log(gmLog.lErr, 'non-authenticated lock_load_patient()')
+			return (0, _('rejected lock_load_patient(), not authenticated'))
+		# FIXME: ask user what to do about wrong cookie
+		if lock_after_load_cookie != self.__lock_after_load_cookie:
+			_log.Log(gmLog.lWarn, 'patient lock-after-load request rejected due to wrong cookie [%s]' % lock_after_load_cookie)
+			return (0, 'patient lock-after-load request rejected, wrong cookie provided')
+		self.__pat.lock()
+		self.__pat_lock_cookie = str(random.random())
+		return (1, self.__pat_lock_cookie)
 	#-----------------------------------------------------------------
 	def lock_into_patient(self, auth_cookie = None, search_params = None):
 		if not self.__attached:
@@ -264,7 +283,13 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.24  2006-07-21 14:47:19  ncq
+# Revision 1.25  2006-07-22 10:04:51  ncq
+# - cleanup
+# - pre-init all attributes so connectors won't kill the GNUmed slave
+#   with stupid AttributeExceptions
+# - add lock_loaded_patient()
+#
+# Revision 1.24  2006/07/21 14:47:19  ncq
 # - cleanup
 # - add (_)load_patient_from_external_source()
 # - improve testing
