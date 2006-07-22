@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -14,7 +14,7 @@ import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
 from Gnumed.business import gmPerson
-from Gnumed.wxpython import gmGuiHelpers, gmPlugin
+from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets
 
 _log = gmLog.gmDefLog
 
@@ -73,7 +73,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.25 $" % self.__class__.__name__
+		return "%s $Revision: 1.26 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -283,7 +283,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.25  2006-07-22 10:04:51  ncq
+# Revision 1.26  2006-07-22 12:15:08  ncq
+# - add missing import
+#
+# Revision 1.25  2006/07/22 10:04:51  ncq
 # - cleanup
 # - pre-init all attributes so connectors won't kill the GNUmed slave
 #   with stupid AttributeExceptions
