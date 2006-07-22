@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.6 2006-07-22 12:14:48 ncq Exp $
-__version__ = '$Revision: 1.6 $'
+# $Id: xdt2gnumed.py,v 1.7 2006-07-22 12:33:11 ncq Exp $
+__version__ = '$Revision: 1.7 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -68,7 +68,7 @@ class cBaseConnector:
 		if not success:
 			_log.Log(gmLog.lErr, 'error loading patient from external source in GNUmed')
 			return False
-		user_done, can_attach = self.__gm_server.get_user_answer()
+		user_done, patient_loaded = self.__gm_server.get_user_answer()
 		# FIXME: this might loop forever
 		while not user_done:
 			time.sleep(0.75)
@@ -121,7 +121,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.6  2006-07-22 12:14:48  ncq
+# Revision 1.7  2006-07-22 12:33:11  ncq
+# - fix variable naming
+#
+# Revision 1.6  2006/07/22 12:14:48  ncq
 # - cleanup
 #
 # Revision 1.5  2006/07/22 10:32:35  ncq
