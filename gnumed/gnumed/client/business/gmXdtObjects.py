@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.13 2006-07-19 20:43:59 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmXdtObjects.py,v 1.14 2006-07-22 11:01:00 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -30,11 +30,13 @@ def read_person_from_xdt(filename=None):
 		'3103': 'dob',
 		'3110': 'gender'
 	}
-	_wanted_fields = (
-		'3101', 
+	needed_fields = (
+		'3101',
 		'3102',
-		'3103',
-		'3110'
+		'3103'
+	)
+	interesting_fields = needed_fields + (
+		'3110',
 	)
 
 	data = {}
@@ -42,8 +44,7 @@ def read_person_from_xdt(filename=None):
 	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
 	for line in fileinput.input(filename):
 
-		# found all data by now ?
-		if len(data) == len(_wanted_fields):
+		if len(data) == len(interesting_fields):
 			break
 
 		line = string.replace(line,'\015','')
@@ -51,14 +52,14 @@ def read_person_from_xdt(filename=None):
 
 		# do we care about this line ?
 		field = line[3:7]
-		if field in _wanted_fields:
+		if field in interesting_fields:
 			data[_map_id2name[field]] = line[7:]
 
 	# cleanup
 	fileinput.close()
 
 	# found all data ?
-	if len(data) != len(_wanted_fields):
+	if len(data) < len(needed_fields):
 		raise ValueError('insufficient patient data in XDT file [%s], found only: %s' % (filename, data))
 
 	from Gnumed.business import gmPerson
@@ -66,12 +67,15 @@ def read_person_from_xdt(filename=None):
 
 	dto.firstnames = data['firstnames']
 	dto.lastnames = data['lastnames']
-	dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender']]
 	dto.dob = mxDT.DateTime (
 		int(data['dob'][4:]),	# year
 		int(data['dob'][2:4]),	# month
 		int(data['dob'][:2])	# day
 	)
+	try:
+		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender']]
+	except:
+		dto.gender = None
 
 	return dto
 #==============================================================
@@ -234,7 +238,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.13  2006-07-19 20:43:59  ncq
+# Revision 1.14  2006-07-22 11:01:00  ncq
+# - make gender optional
+#
+# Revision 1.13  2006/07/19 20:43:59  ncq
 # - remove cXDTPatient
 #
 # Revision 1.12  2006/07/17 18:02:50  ncq
