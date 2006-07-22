@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.31 2006-07-21 14:48:39 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPatSearchWidgets.py,v 1.32 2006-07-22 15:18:24 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -48,6 +48,7 @@ def load_persons_from_xdt():
 	for profile in xdt_profiles:
 		name = _cfg.get('XDT profile %s' % profile, 'filename')
 		if name is None:
+			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a file name' % profile)
 			continue
 		source = _cfg.get('XDT profile %s' % profile, 'source')
 		if source is None:
@@ -845,7 +846,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.31  2006-07-21 14:48:39  ncq
+# Revision 1.32  2006-07-22 15:18:24  ncq
+# - better error logging
+#
+# Revision 1.31  2006/07/21 14:48:39  ncq
 # - proper returns from load_patient_from_external_sources()
 #
 # Revision 1.30  2006/07/19 21:41:13  ncq
