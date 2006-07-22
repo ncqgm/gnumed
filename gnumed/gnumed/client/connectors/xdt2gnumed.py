@@ -1,23 +1,32 @@
 #!/usr/bin/env python
+"""
+A connector framework showing how to online drive a slave
+GNUmed client via the XML-RPC interface.
+
+The base class simply raises the plugin that is set in
+the configuration file. If you want your derivative class
+to do smarter things you need to override:
+
+	cBaseConnector.run_script()
+"""
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.4 2006-07-22 10:03:17 ncq Exp $
-__version__ = '$Revision: 1.4 $'
+# $Id: xdt2gnumed.py,v 1.5 2006-07-22 10:32:35 ncq Exp $
+__version__ = '$Revision: 1.5 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
 import sys, time, xmlrpclib, socket, time
 
 from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog
-from Gnumed.business import gmXdtObjects
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 
 _log.Log(gmLog.lInfo, __version__)
 #==================================================================
-class cXdtConnector:
+class cBaseConnector:
 
 	def __init__(self):
 		# sanity check
@@ -101,7 +110,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 
-	connector = cXdtConnector()
+	connector = cBaseConnector()
 	if not connector.setup():
 		connector.cleanup()
 		sys.exit('setup error')
@@ -112,7 +121,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.4  2006-07-22 10:03:17  ncq
+# Revision 1.5  2006-07-22 10:32:35  ncq
+# - start removing references to xDT as we ain't limited by that anymore
+#
+# Revision 1.4  2006/07/22 10:03:17  ncq
 # - properly use load_external_patient via macro scripter
 #
 # Revision 1.3  2006/07/21 21:29:02  ncq
