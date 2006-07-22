@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.5 2006-07-21 15:56:14 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.6 2006-07-22 12:49:26 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -27,6 +27,7 @@ CLIENT_FILES_REMOVE=\
 "./GNUmed-$REV/client/wxGladeWidgets/wxgRequest.py "\
 "./GNUmed-$REV/client/wxpython/gmAU_VaccV01.py "\
 "./GNUmed-$REV/client/wxpython/gmAllergyWidgets.py "\
+"./GNUmed-$REV/client/wxpython/gmBMIWidgets.py "\
 "./GNUmed-$REV/client/wxpython/gmCharacterValidator.py "\
 "./GNUmed-$REV/client/wxpython/gmCryptoText.py "\
 "./GNUmed-$REV/client/wxpython/gmFormPrinter.py "\
@@ -198,7 +199,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.5  2006-07-21 15:56:14  ncq
+# Revision 1.6  2006-07-22 12:49:26  ncq
+# - don't need bmi for now
+#
+# Revision 1.5  2006/07/21 15:56:14  ncq
 # - add User Manual
 #
 # Revision 1.4  2006/07/21 12:59:16  ncq
