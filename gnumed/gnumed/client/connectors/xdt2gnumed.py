@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-A connector framework showing how to online drive a slave
-GNUmed client via the XML-RPC interface.
+A connector framework showing how to online drive a
+slave GNUmed client via the XML-RPC interface.
 
 The base class simply raises the plugin that is set in
 the configuration file. If you want your derivative class
@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.5 2006-07-22 10:32:35 ncq Exp $
-__version__ = '$Revision: 1.5 $'
+# $Id: xdt2gnumed.py,v 1.6 2006-07-22 12:14:48 ncq Exp $
+__version__ = '$Revision: 1.6 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -121,7 +121,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.5  2006-07-22 10:32:35  ncq
+# Revision 1.6  2006-07-22 12:14:48  ncq
+# - cleanup
+#
+# Revision 1.5  2006/07/22 10:32:35  ncq
 # - start removing references to xDT as we ain't limited by that anymore
 #
 # Revision 1.4  2006/07/22 10:03:17  ncq
