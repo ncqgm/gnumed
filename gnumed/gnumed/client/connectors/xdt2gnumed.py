@@ -2,8 +2,8 @@
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.3 2006-07-21 21:29:02 ncq Exp $
-__version__ = '$Revision: 1.3 $'
+# $Id: xdt2gnumed.py,v 1.4 2006-07-22 10:03:17 ncq Exp $
+__version__ = '$Revision: 1.4 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -28,13 +28,6 @@ class cXdtConnector:
 		self.__unlock_auth = 0
 	#--------------------------------------------------------------
 	def setup(self):
-		# get patient from xDT file
-		xdt_file = _cfg.get('xDT', 'source')
-		try:
-			self.__pat = gmXdtObjects.xdtPatient(anXdtFile = xdt_file)
-		except gmExceptions.ConstructorError, err_msg:
-			_log.Log(gmLog.lErr, 'cannot get patient from xDT file [%s]: %s' % (xdt_file, err_msg))
-			return False
 		# connect to GNUmed instance
 		# FIXME: wait and retry after force_detach()
 		port = _cfg.get('GNUmed instance', 'port')
@@ -61,16 +54,23 @@ class cXdtConnector:
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot attach: %s' % self.__conn_auth)
 				return False
-		# lock into patient
-		data = {
-			'firstnames': self.__pat['first name'],
-			'lastnames': self.__pat['last name'],
-			'gender': self.__pat['gender'],
-			'dob': '%s%s%s' % (self.__pat['dob day'], self.__pat['dob month'], self.__pat['dob day'])
-		}
-		success, self.__unlock_auth = self.__gm_server.lock_into_patient(self.__conn_auth, data)
+		# load external patient
+		success, lock_cookie = self.__gm_server.load_patient_from_external_source(self.__conn_auth)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot lock into patient %s' % str(self.__pat))
+			_log.Log(gmLog.lErr, 'error loading patient from external source in GNUmed')
+			return False
+		user_done, can_attach = self.__gm_server.get_user_answer()
+		# FIXME: this might loop forever
+		while not user_done:
+			time.sleep(0.75)
+			user_done, patient_loaded = self.__gm_server.get_user_answer()
+		if not patient_loaded:
+			_log.Log(gmLog.lErr, 'cannot load patient from external source in GNUmed')
+			return False
+		# lock loaded patient
+		success, self.__unlock_auth = self.__gm_server.lock_loaded_patient(self.__conn_auth, lock_cookie)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot lock patient')
 			return False
 		self.__gm_server.raise_gnumed(self.__conn_auth)
 		return True
@@ -112,7 +112,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.3  2006-07-21 21:29:02  ncq
+# Revision 1.4  2006-07-22 10:03:17  ncq
+# - properly use load_external_patient via macro scripter
+#
+# Revision 1.3  2006/07/21 21:29:02  ncq
 # - properly activate locale
 #
 # Revision 1.2  2005/11/01 08:51:05  ncq
