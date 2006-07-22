@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.72 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmTopPanel.py,v 1.73 2006-07-22 12:51:13 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ except ImportError:
 
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPerson, gmEMRStructItems
-from Gnumed.wxpython import gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets, gmPatSearchWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -144,17 +144,17 @@ class cMainTopPanel(wx.Panel):
 		self.szr_bottom_row.Add(self.pnl_bottom_row, 6, wx.GROW, 0)
 
 		# BMI calculator button
-		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'bmi_calculator.png')
-		img = wx.Image(fname, wx.BITMAP_TYPE_ANY)
-		bmp = wx.BitmapFromImage(img)
-		self.btn_bmi = wx.BitmapButton (
-			parent = self,
-			id = ID_BMITOOL,
-			bitmap = bmp,
-			style = wx.BU_EXACTFIT | wx.NO_BORDER
-		)
-		self.btn_bmi.SetToolTip(wx.ToolTip(_("BMI Calculator")))
-		self.szr_bottom_row.Add(self.btn_bmi, 0)
+#		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'bmi_calculator.png')
+#		img = wx.Image(fname, wx.BITMAP_TYPE_ANY)
+#		bmp = wx.BitmapFromImage(img)
+#		self.btn_bmi = wx.BitmapButton (
+#			parent = self,
+#			id = ID_BMITOOL,
+#			bitmap = bmp,
+#			style = wx.BU_EXACTFIT | wx.NO_BORDER
+#		)
+#		self.btn_bmi.SetToolTip(wx.ToolTip(_("BMI Calculator")))
+#		self.szr_bottom_row.Add(self.btn_bmi, 0)
 
 #		tb = wxToolBar(self, -1, style=wx.TB_HORIZONTAL | wxNO_BORDER | wx.TB_FLAT)
 #		tb.AddTool (
@@ -237,9 +237,9 @@ class cMainTopPanel(wx.Panel):
 		main_frame = self.__gb['main.frame']
 
 		# - BMI calculator
-		wx.EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
-		tools_menu.Append(ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
-		wx.EVT_MENU(main_frame, ID_BMIMENU, self._on_show_BMI)
+#		wx.EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
+#		tools_menu.Append(ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
+#		wx.EVT_MENU(main_frame, ID_BMIMENU, self._on_show_BMI)
 
 		# - pregnancy calculator
 #		wx.EVT_BUTTON(self, ID_PREGTOOL, self._on_show_Preg_Calc)
@@ -260,11 +260,11 @@ class cMainTopPanel(wx.Panel):
 		print "and popping up a modal dialog box asking for a"
 		print "password to reactivate"
 	#----------------------------------------------
-	def _on_show_BMI(self, evt):
+#	def _on_show_BMI(self, evt):
 		# FIXME: update patient ID ?
-		bmi = gmBMIWidgets.BMI_Frame(self)
-		bmi.Centre(wx.BOTH)
-		bmi.Show(1)
+#		bmi = gmBMIWidgets.BMI_Frame(self)
+#		bmi.Centre(wx.BOTH)
+#		bmi.Show(1)
 	#----------------------------------------------
 	def _on_show_Preg_Calc(self, evt):
 		# FIXME: update patient ID ?
@@ -412,7 +412,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.72  2006-07-19 20:29:50  ncq
+# Revision 1.73  2006-07-22 12:51:13  ncq
+# - deactivate bmi until it is cleaned up
+#
+# Revision 1.72  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.71  2006/06/28 10:18:40  ncq
