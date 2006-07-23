@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.6 2006-07-22 12:49:26 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.7 2006-07-23 20:39:50 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -155,9 +155,10 @@ echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$REV/client/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
 wget -v -O ./GNUmed-$REV/client/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/gm-manual//Gnumed.tgz
+rm -vf PublishManual*
 cd ./GNUmed-$REV/client/user-manual/
 tar -xvzf GNUmed-User-Manual.tgz
-ln -s Release-01.html index.html
+ln -s Release-02.html index.html
 rm -vf GNUmed-User-Manual.tgz
 cd -
 
@@ -199,7 +200,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.6  2006-07-22 12:49:26  ncq
+# Revision 1.7  2006-07-23 20:39:50  ncq
+# - more cleanup
+#
+# Revision 1.6  2006/07/22 12:49:26  ncq
 # - don't need bmi for now
 #
 # Revision 1.5  2006/07/21 15:56:14  ncq
