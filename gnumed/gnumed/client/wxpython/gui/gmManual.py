@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.34 2006-05-20 18:56:03 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmManual.py,v 1.35 2006-07-24 14:58:07 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -61,15 +61,13 @@ class ManualHtmlPanel(wx.Panel):
 		self.frame = frame
 		# get base directory for manuals from broker
 		# Ideally this should be something like "/usr/doc/gnumed/"
-#		self.docdir = os.path.join (gmGuiBroker.GuiBroker ()['gnumed_dir'], 'doc')
-#		if not os.access (self.docdir, os.F_OK):
 		# try standard location
 		# FIXME: this should be a) configurable, b) not hardcoded here (?)
-		if os.name == 'nt':
-			self.docdir = os.getcwd() + '\doc'
+		if os.name == 'posix':
+			self.docdir = '/usr/share/doc/gnumed-client/user-manual/'
 		else:
-			self.docdir = '/usr/share/doc/gnumed/client/'
-		
+			self.docdir = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'doc', 'user-manual')
+
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
 		infobox = wx.BoxSizer(wx.HORIZONTAL)
@@ -99,11 +97,12 @@ class ManualHtmlPanel(wx.Panel):
 		self.infoline.WriteText(title)
 	#--------------------------------------------------------
 	def OnShowDefault(self, event):
-		name = os.path.join(self.docdir, _manual_path)
+		name = os.path.join(self.docdir, 'index.html')
 		if os.access (name, os.F_OK):
 			self.html.LoadPage(name)
 		else:
-			_log.Log (gmLog.lErr, "cannot load document %s" % name)
+			_log.Log (gmLog.lErr, "cannot load local document %s" % name)
+			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual')
 	#--------------------------------------------------------
 	def OnLoadFile(self, event):
 		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.OPEN)
@@ -249,7 +248,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.34  2006-05-20 18:56:03  ncq
+# Revision 1.35  2006-07-24 14:58:07  ncq
+# - acceptably smart access to user manual
+#
+# Revision 1.34  2006/05/20 18:56:03  ncq
 # - use receive_focus() interface
 #
 # Revision 1.33  2006/05/15 13:40:02  ncq
