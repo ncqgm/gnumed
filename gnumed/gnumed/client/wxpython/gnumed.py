@@ -45,8 +45,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.98 2006-07-01 13:15:04 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gnumed.py,v 1.99 2006-07-24 19:28:01 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -165,7 +165,7 @@ def setup_locale():
 
 	l = None
 	if gmCLI.has_arg('--lang-gettext'):
-		td = gmCLI.arg['--lang-gettext']
+		l = gmCLI.arg['--lang-gettext']
 
 	u = 0
 	if gmCLI.has_arg('--unicode-gettext'):
@@ -449,7 +449,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.98  2006-07-01 13:15:04  ncq
+# Revision 1.99  2006-07-24 19:28:01  ncq
+# - fixed variable verwechsling
+#
+# Revision 1.98  2006/07/01 13:15:04  ncq
 # - cleanup
 #
 # Revision 1.97  2006/07/01 11:33:52  ncq
