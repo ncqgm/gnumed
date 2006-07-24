@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.7 2006-07-23 20:39:50 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.8 2006-07-24 20:04:43 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -94,7 +94,6 @@ cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/client/
 
 # bitmaps
 mkdir -p ./GNUmed-$REV/client/bitmaps/
-cp -R ../../client/bitmaps/bmi_calculator.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/any_body2.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./GNUmed-$REV/client/bitmaps/
@@ -200,7 +199,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.7  2006-07-23 20:39:50  ncq
+# Revision 1.8  2006-07-24 20:04:43  ncq
+# - we do not need the bmi calculator png
+#
+# Revision 1.7  2006/07/23 20:39:50  ncq
 # - more cleanup
 #
 # Revision 1.6  2006/07/22 12:49:26  ncq
