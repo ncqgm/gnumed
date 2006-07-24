@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -52,8 +52,8 @@ if __name__ == '__main__':
 			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
 			cooked_search_terms = {
 				#'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
-				'lastnames': self.__xdt_pat['last name'],
-				'firstnames': self.__xdt_pat['first name'],
+				'lastname': self.__xdt_pat['last name'],
+				'firstname': self.__xdt_pat['first name'],
 				'gender': self.__xdt_pat['gender']
 			}
 			# find matching patient IDs
@@ -230,7 +230,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.18  2005-09-28 21:27:30  ncq
+# Revision 1.19  2006-07-24 14:19:36  ncq
+# - cleanup
+#
+# Revision 1.18  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.17  2005/09/26 18:01:52  ncq

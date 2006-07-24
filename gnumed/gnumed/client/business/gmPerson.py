@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.78 2006-07-17 21:06:12 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmPerson.py,v 1.79 2006-07-24 14:16:04 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -477,19 +477,7 @@ class cPerson:
 			self.__db_cache['identity'].cleanup()
 			del self.__db_cache['identity']
 	#--------------------------------------------------------
-	# internal helper
-	#--------------------------------------------------------
-	def _pkey_exists(self):
-		"""Does this primary key exist ?
-
-		- true/false/None
-		"""
-		cmd = "select exists(select pk from dem.identity where pk = %s)"
-		res = gmPG.run_ro_query('personalia', cmd, None, self._ID)
-		if res is None:
-			_log.Log(gmLog.lErr, 'check for person PK [%s] existence failed' % self._ID)
-			return None
-		return res[0][0]
+	# internal helpers
 	#--------------------------------------------------------
 	def _register_interests(self):
 		return True
@@ -1758,7 +1746,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.78  2006-07-17 21:06:12  ncq
+# Revision 1.79  2006-07-24 14:16:04  ncq
+# - cleanup
+#
+# Revision 1.78  2006/07/17 21:06:12  ncq
 # - cleanup
 #
 # Revision 1.77  2006/07/17 18:49:07  ncq
