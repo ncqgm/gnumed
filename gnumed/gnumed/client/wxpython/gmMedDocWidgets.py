@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.89 2006-07-10 21:57:43 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmMedDocWidgets.py,v 1.90 2006-07-24 20:51:26 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -650,7 +650,13 @@ from your computer.""") % page_fname,
 				msg = _('Error setting "reviewed" status of new document.')
 
 		cfg = gmCfg.cCfgSQL()
-		show_id = cfg.get_by_user(option = 'horstspace.scan_index.show_doc_id')
+		show_id = bool (
+			cfg.get2 (
+				option = 'horstspace.scan_index.show_doc_id',
+				workplace = gmPerson.gmCurrentProvider().get_workplace(),
+				bias = 'user'
+			)
+		)
 		wx.EndBusyCursor()
 		if show_id and (ref is not None):
 			msg = _(
@@ -1191,7 +1197,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.89  2006-07-10 21:57:43  ncq
+# Revision 1.90  2006-07-24 20:51:26  ncq
+# - get_by_user() -> get2()
+#
+# Revision 1.89  2006/07/10 21:57:43  ncq
 # - add bool() where needed
 #
 # Revision 1.88  2006/07/10 21:48:09  ncq
