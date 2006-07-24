@@ -10,22 +10,19 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.32 2006-07-22 15:18:24 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPatSearchWidgets.py,v 1.33 2006-07-24 11:31:11 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
 import sys, os.path, time, string, re
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmCfg
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
+from Gnumed.wxGladeWidgets import wxgSelectPersonFromListPnl, wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -35,6 +32,140 @@ _cfg = gmCfg.gmDefCfgFile
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
 
+#============================================================
+class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg.__init__(self, *args, **kwargs)
+	#--------------------------------------------------------
+	def set_persons(self, persons=None):
+		self._PNL_select_person.set_persons(persons=persons)
+#============================================================
+class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl.__init__(self, *args, **kwargs)
+
+		self.__cols = [
+			_('Title'),
+			_('Lastname'),
+			_('Firstname'),
+			_('Nickname'),
+			_('DOB'),
+			_('Gender')
+		]
+		self.__init_ui()
+	#--------------------------------------------------------
+	def __init_ui(self):
+		for col in range(len(self.__cols)):
+			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
+
+		msg = _('Please select a patient from the list below.')
+		self._lbl_message.SetLabel(msg)
+	#--------------------------------------------------------
+	def set_persons(self, persons=None):
+		self._LCTRL_persons.DeleteAllItems()
+
+		pos = len(persons) + 1
+		if pos == 1:
+			return False
+
+		for person in persons:
+			ident = person.get_identity()
+
+			if ident['title'] is None:
+				row_num = self._LCTRL_persons.InsertStringItem(pos, label = '')
+			else:
+				row_num = self._LCTRL_persons.InsertStringItem(pos, label = ident['title'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = ident['lastnames'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = ident['firstnames'])
+			if ident['preferred'] is None:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = '')
+			else:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = ident['preferred'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = ident['dob'].Format('%x'))
+			if ident['l10n_gender'] is None:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = '?')
+			else:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = ident['l10n_gender'])
+
+		for col in range(len(self.__cols)):
+			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
+
+		self._BTN_select.Enable(False)
+		self._LCTRL_persons.SetFocus()
+
+		self._LCTRL_persons.set_data(data=persons)
+	#--------------------------------------------------------
+	def _on_list_item_selected(self, evt):
+		self._BTN_select.Enable(False)
+		return
+	#--------------------------------------------------------
+	def _on_list_item_activated(self, evt):
+		self._BTN_select.Enable(False)
+		# FIXME: somehow invoke SELECT button
+		print "need code to invoke SELECT button"
+
+#============================================================
+class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg.__init__(self, *args, **kwargs)
+	#--------------------------------------------------------
+	def set_dtos(self, dtos=None):
+		self._PNL_select_person.set_dtos(dtos=dtos)
+#============================================================
+class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl.__init__(self, *args, **kwargs)
+
+		self.__cols = [
+			_('Source'),
+			_('Lastname'),
+			_('Firstname'),
+			_('DOB'),
+			_('Gender')
+		]
+
+		self.__init_ui()
+	#--------------------------------------------------------
+	def __init_ui(self):
+		for col in range(len(self.__cols)):
+			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
+	#--------------------------------------------------------
+	def set_dtos(self, dtos=None):
+		self._LCTRL_persons.DeleteAllItems()
+
+		pos = len(dtos) + 1
+		if pos == 1:
+			return False
+
+		for rec in dtos:
+			row_num = self._LCTRL_persons.InsertStringItem(pos, label = rec['source'])
+			dto = rec['dto']
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.Format('%x'))
+			if dto.gender is not None:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = dto.gender)
+
+		for col in range(len(self.__cols)):
+			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
+
+		self._BTN_select.Enable(False)
+		self._LCTRL_persons.SetFocus()
+
+		self._LCTRL_persons.set_data(data=dtos)
+	#--------------------------------------------------------
+	def _on_list_item_selected(self, evt):
+		self._BTN_select.Enable(False)
+		return
+	#--------------------------------------------------------
+	def _on_list_item_activated(self, evt):
+		self._BTN_select.Enable(False)
+		# FIXME: somehow invoke SELECT button
+		print "need code to invoke SELECT button"
 #============================================================
 def load_persons_from_xdt():
 
@@ -91,7 +222,7 @@ def load_persons_from_xdt():
 
 	return dtos
 #============================================================
-def load_patient_from_external_sources():
+def load_patient_from_external_sources(parent=None):
 
 	dtos = []
 
@@ -105,8 +236,11 @@ def load_patient_from_external_sources():
 	if len(dtos) == 1:
 		dto = dtos[0]['dto']
 	if len(dtos) > 1:
-		# FIXME: select by user
-		print "missing code to allow user to select from several external patients"
+		if parent is None:
+			parent=wx.GetTopLevelWindow()
+		dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
+		dlg.set_dtos(dtos=dtos)
+		dlg.ShowModal()
 		return False
 
 	# search
@@ -207,10 +341,13 @@ class cPatientPickList(wx.Dialog):
 		self,
 		parent,
 		id = -1,
-		title = _('please select a patient'),
+		title = None,
 		pos = (-1, -1),
 		size = (600, 400),
 	):
+
+		if title is None:
+			title = _('please select a patient')
 
 		# this works (as suggested by Robin Dunn) but is quite ugly IMO
 		prnt = wx.GetTopLevelParent(parent)
@@ -729,8 +866,13 @@ and hit <ENTER>
 #------------------------------------------------------------
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 	app = wx.PyWidgetTester(size = (200, 40))
-	app.SetWidget(cPatientSelector, -1)
+#	app.SetWidget(cPatientSelector, -1)
+	app.SetWidget(cSelectPersonFromListDlg, -1)
 	app.MainLoop()
 
 #============================================================
@@ -846,7 +988,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.32  2006-07-22 15:18:24  ncq
+# Revision 1.33  2006-07-24 11:31:11  ncq
+# - cleanup
+# - add dialogs to select person/person-dto from list
+# - use dto-selection dialog when loading external patient
+#
+# Revision 1.32  2006/07/22 15:18:24  ncq
 # - better error logging
 #
 # Revision 1.31  2006/07/21 14:48:39  ncq
