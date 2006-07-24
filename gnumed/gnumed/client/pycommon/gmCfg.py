@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -328,75 +328,6 @@ limit 1""" % where_clause
 		if not success:
 			return None
 		return default
-	#-----------------------------------------------
-	def get_by_user(self, option=None, cookie=None, default=None):
-		"""Get config option from database w/o regard for the workplace.
-
-		Use this for options in which the workplace does not
-		matter. Will search for matches in this order:
-			- current user, any workplace
-			- default user, default workplace
-		The latter is used so an admin can set defaults. If a default
-		option is found it is automatically stored for the user.
-
-		Returns None if not found.
-		"""
-		if option is None:
-			raise ValueError, 'option cannot be <None>'
-
-		args = {
-			'opt': option,
-			'usr': cfg_DEFAULT,
-			'cookie': cookie
-		}
-		# generate query with current user
-		where_parts = [
-			'(vco.owner = %(usr)s) or (vco.owner = CURRENT_USER)',
-			'vco.option = %(opt)s'
-		]
-		if cookie is not None:
-			where_parts.append('vco.cookie = %(cookie)s')
-		cmd = """
-select
-	vco.pk_cfg_item,
-	vco.type,
-	vco.owner
-from cfg.v_cfg_options vco
-where
-	%s
-order by vco.owner
-limit 1""" % (' and '.join(where_parts))
-
-		# run it
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting option definition')
-			return None
-		if len(rows) == 0:
-			_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
-			# - cannot create default
-			if default is None:
-				return None
-			# - create default
-			else:
-				_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
-				success = self.set (
-					option = option,
-					value = default
-				)
-				# - error
-				if not success:
-					return None
-				return default
-		# if default option used try to store for user
-		if rows[0][2] == cfg_DEFAULT:
-			self.set (
-				option = option,
-				cookie = cookie,
-				value = rows[0][0]
-			)
-
-		return rows[0][0]
 	#-----------------------------------------------
 	def get_by_workplace(self, option=None, workplace=None, cookie=None, default=None):
 		"""Get config option from database w/o regard for the user.
@@ -1580,7 +1511,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.39  2006-05-16 15:50:07  ncq
+# Revision 1.40  2006-07-24 14:16:56  ncq
+# - get_by_user() never worked so axe it
+#
+# Revision 1.39  2006/05/16 15:50:07  ncq
 # - several small fixes in get2() regarding
 #   less travelled codepathes
 #
