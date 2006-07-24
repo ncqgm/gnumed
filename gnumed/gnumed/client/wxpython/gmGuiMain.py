@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.260 2006-07-21 21:34:58 ncq Exp $
-__version__ = "$Revision: 1.260 $"
+# $Id: gmGuiMain.py,v 1.261 2006-07-24 11:30:02 ncq Exp $
+__version__ = "$Revision: 1.261 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -961,7 +961,7 @@ Do not rely on this database to work properly in all cases !""")
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
 			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
-		gmPatSearchWidgets.load_patient_from_external_sources()
+		gmPatSearchWidgets.load_patient_from_external_sources(parent=frame)
 
 		return True
 	#----------------------------------------------
@@ -1148,7 +1148,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.260  2006-07-21 21:34:58  ncq
+# Revision 1.261  2006-07-24 11:30:02  ncq
+# - must set parent when loading external patients
+#
+# Revision 1.260  2006/07/21 21:34:58  ncq
 # - check for minimum required version/type of wxPython
 #
 # Revision 1.259  2006/07/18 21:17:21  ncq
