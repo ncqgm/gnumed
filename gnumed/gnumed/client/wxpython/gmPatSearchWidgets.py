@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.33 2006-07-24 11:31:11 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPatSearchWidgets.py,v 1.34 2006-07-24 14:18:31 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -40,6 +40,9 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 	#--------------------------------------------------------
 	def set_persons(self, persons=None):
 		self._PNL_select_person.set_persons(persons=persons)
+	#--------------------------------------------------------
+	def get_selected_person(self):
+		return self._PNL_select_person.get_selected_person()
 #============================================================
 class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl):
 
@@ -60,8 +63,10 @@ class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromLis
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
 
-		msg = _('Please select a patient from the list below.')
-		self._lbl_message.SetLabel(msg)
+#		msg = _('Please select a patient from the list below.')
+#		self._lbl_message.SetLabel(msg)
+	#--------------------------------------------------------
+	# public API
 	#--------------------------------------------------------
 	def set_persons(self, persons=None):
 		self._LCTRL_persons.DeleteAllItems()
@@ -97,15 +102,19 @@ class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromLis
 
 		self._LCTRL_persons.set_data(data=persons)
 	#--------------------------------------------------------
+	def get_selected_person(self):
+		return self._LCTRL_persons.get_item_data(self._LCTRL_persons.GetFirstSelected())
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
 	def _on_list_item_selected(self, evt):
-		self._BTN_select.Enable(False)
+		self._BTN_select.Enable(True)
 		return
 	#--------------------------------------------------------
 	def _on_list_item_activated(self, evt):
-		self._BTN_select.Enable(False)
+		self._BTN_select.Enable(True)
 		# FIXME: somehow invoke SELECT button
 		print "need code to invoke SELECT button"
-
 #============================================================
 class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg):
 
@@ -113,7 +122,10 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 		wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg.__init__(self, *args, **kwargs)
 	#--------------------------------------------------------
 	def set_dtos(self, dtos=None):
-		self._PNL_select_person.set_dtos(dtos=dtos)
+		return self._PNL_select_person.set_dtos(dtos=dtos)
+	#--------------------------------------------------------
+	def get_selected_dto(self):
+		return self._PNL_select_person.get_selected_dto()
 #============================================================
 class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl):
 
@@ -133,6 +145,8 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 	def __init_ui(self):
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
+	#--------------------------------------------------------
+	# public API
 	#--------------------------------------------------------
 	def set_dtos(self, dtos=None):
 		self._LCTRL_persons.DeleteAllItems()
@@ -158,8 +172,13 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 
 		self._LCTRL_persons.set_data(data=dtos)
 	#--------------------------------------------------------
+	def get_selected_dto(self):
+		return self._LCTRL_persons.get_item_data(self._LCTRL_persons.GetFirstSelected())
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
 	def _on_list_item_selected(self, evt):
-		self._BTN_select.Enable(False)
+		self._BTN_select.Enable(True)
 		return
 	#--------------------------------------------------------
 	def _on_list_item_activated(self, evt):
@@ -229,7 +248,7 @@ def load_patient_from_external_sources(parent=None):
 	# xDT
 	dtos.extend(load_persons_from_xdt())
 
-	# more types...
+	# more types: KVK files, other interfaces, ...
 
 	if len(dtos) == 0:
 		return True
@@ -237,15 +256,19 @@ def load_patient_from_external_sources(parent=None):
 		dto = dtos[0]['dto']
 	if len(dtos) > 1:
 		if parent is None:
-			parent=wx.GetTopLevelWindow()
+			parent = wx.GetApp().GetTopWindow()
 		dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
 		dlg.set_dtos(dtos=dtos)
-		dlg.ShowModal()
-		return False
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			return True
+		dto = dlg.get_selected_dto()['dto']
+
+	# FIXME: config: delete DTO source after selection
 
 	# search
 	searcher = gmPerson.cPatientSearcher_SQL()
-	idents = searcher.get_identities (
+	persons = searcher.get_persons (
 		search_dict = {
 			'firstnames': dto.firstnames,
 			'lastnames': dto.lastnames,
@@ -254,7 +277,7 @@ def load_patient_from_external_sources(parent=None):
 		}
 	)
 
-	if len(idents) == 0:
+	if len(persons) == 0:
 		ident = gmPerson.create_identity (
 			firstnames = dto.firstnames,
 			lastnames = dto.lastnames,
@@ -270,21 +293,22 @@ def load_patient_from_external_sources(parent=None):
 				_('Activating xDT patient')
 			)
 			return False
+		person = gmPerson.cPerson(identity=ident)
 
-	if len(idents) == 1:
-		ident = idents[0]
+	if len(persons) == 1:
+		person = persons[0]
 
-	if len(idents) > 1:
-		print "missing code to allow user to select from several matching patients"
-		picklist = cPatientPickList()
-		picklist.SetItems(idents)
-		picklist.Centre()
-		result = picklist.ShowModal()
-		ident = picklist.selected_item
-		picklist.Destroy()
-		return False
+	if len(persons) > 1:
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
+		dlg = cSelectPersonFromListDlg(parent=parent, id=-1)
+		dlg.set_persons(persons=persons)
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			return True
+		person = dlg.get_selected_person()
 
-	if not gmPerson.set_active_patient(patient = ident):
+	if not gmPerson.set_active_patient(patient = person.get_identity()):
 		gmGuiHelpers.gm_show_error (
 			_(
 			'Cannot activate patient:\n\n'
@@ -393,26 +417,10 @@ class cPatientPickList(wx.Dialog):
 		for row_idx in range(len(self.__items)):
 			row = self.__items[row_idx]
 			# first column
-			try:
-				self.__listctrl.InsertStringItem(row_idx, str(row[col_order[0]['field name']]))
-			except KeyError:
-				_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
-				if self.__items != []:
-					_log.Log(gmLog.lData, "item keys: %s" % row.keys())
-				else:
-					_log.Log(gmLog.lData, "item keys: None")
-				_log.Log(gmLog.lData, "labels   : %s" % col_order)
+			self.__listctrl.InsertStringItem(row_idx, str(row[col_order[0]['field name']]))
 			# subsequent columns
 			for order_idx in range(1, len(col_order)):
-				try:
-					self.__listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['field name']]))
-				except KeyError:
-					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
-					if self.__items != []:
-						_log.Log(gmLog.lData, "item keys: %s" % row.keys())
-					else:
-						_log.Log(gmLog.lData, "item keys: None")
-					_log.Log(gmLog.lData, "labels   : %s" % col_order)
+				self.__listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['field name']]))
 
 		# adjust column width
 		for order_idx in range(len(col_order)):
@@ -425,13 +433,7 @@ class cPatientPickList(wx.Dialog):
 	# internal API
 	#--------------------------------------------------------
 	def __register_events(self):
-		# set event handlers
-		#wx.EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
 		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
-
-		#wx.EVT_BUTTON(self, ID_NEW, self.OnNew)
-#		wx.EVT_BUTTON(self, wx.ID_OK, self._on_item_activated)
-		# FIXME: remove button, add evt char ESC
 		wx.EVT_BUTTON(self, wx.ID_CANCEL, self._on_cancel)
 	#--------------------------------------------------------
 	def __do_layout(self):
@@ -493,66 +495,6 @@ class cPatientPickList(wx.Dialog):
 		self.sizer_main.Fit(self)
 		self.sizer_main.SetSizeHints(self)
 		self.__listctrl.SetFocus()					# won't work on Windoze without this
-	#--------------------------------------------------------
-	def __do_layout_old(self):
-		self.sizer_main = wx.BoxSizer(wx.VERTICAL)
-
-		# make list
-		self.__listctrl = wx.ListCtrl (
-			parent = self,
-			id = ID_PatPickList,
-			style = wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.VSCROLL | wx.HSCROLL | wx.SUNKEN_BORDER
-		)
-		# and place it
-#		self.sizer_main.AddWindow(self.__listctrl, 1, wx.GROW | wx.ALIGN_CENTER_VERTICAL, 5)
-		self.sizer_main.Add(self.__listctrl, 1, wx.GROW | wx.ALIGN_CENTER_VERTICAL, 5)
-
-		# make buttons
-		self.szrButtons = wx.BoxSizer(wx.HORIZONTAL)
-#		btnOK = wx.Button (
-#			self,
-#			wx.ID_OK,
-#			_("&OK"),
-#			wx.DefaultPosition,
-#			wx.DefaultSize,
-#			0
-#		)
-#		self.szrButtons.AddWindow(btnOK, 1, wxALIGN_CENTRE, 5)
-#		self.szrButtons.Add(btnOK, 1, wxALIGN_CENTRE, 5)
-
-#		btnNew = wx.Button (
-#			self,
-#			ID_NEW,
-#			_("&New"),
-#			wx.DefaultPosition,
-#			wx.DefaultSize,
-#			0
-#		)
-#		self.szrButtons.AddWindow(btnNew, 1, wxALIGN_CENTRE, 5)
-#		self.szrButtons.Add(btnNew, 1, wxALIGN_CENTRE, 5)
-
-		btnCancel = wx.Button (
-			self,
-			wx.ID_CANCEL,
-			_("&Cancel"),
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			0
-		)
-#		self.szrButtons.AddWindow(btnCancel, 1, wx.ALIGN_CENTRE, 5)
-		self.szrButtons.Add(btnCancel, 1, wx.ALIGN_CENTRE, 5)
-
-		# and place them
-		self.sizer_main.AddSizer(self.szrButtons, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 5)
-
-		self.SetAutoLayout(True)
-		self.SetSizer(self.sizer_main)
-		self.sizer_main.Fit(self)
-		self.sizer_main.SetSizeHints(self)
-
-		# won't work on Windoze otherwise:
-		self.__listctrl.SetFocus()
-
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -630,14 +572,24 @@ and hit <ENTER>
 
 		# get configuration
 		cfg = gmCfg.cCfgSQL()
-		self.__always_dismiss_after_search = bool(cfg.get_by_user (
-			option = 'patient_search.always_dismiss_previous_patient',
-			default = False
-		))
-		self.__always_reload_after_search = bool(cfg.get_by_user (
-			option = 'patient_search.always_reload_new_patient',
-			default = False
-		))
+
+		self.__always_dismiss_after_search = bool ( 
+			cfg.get2 (
+				option = 'patient_search.always_dismiss_previous_patient',
+				workplace = gmPerson.gmCurrentProvider().get_workplace(),
+				bias = 'user',
+				default = 0
+			)
+		)
+
+		self.__always_reload_after_search = bool (
+			cfg.get2 (
+				option = 'patient_search.always_reload_new_patient',
+				workplace = gmPerson.gmCurrentProvider().get_workplace(),
+				bias = 'user',
+				default = 0
+			)
+		)
 
 		self.__register_events()
 	#--------------------------------------------------------
@@ -801,16 +753,16 @@ and hit <ENTER>
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
+
+		curr_search_term = self.GetValue()
+		if curr_search_term.strip() == '':
+			return None
+
 		wx.BeginBusyCursor()
 
 		if self.__always_dismiss_after_search:
+			print "dismissing patient"
 			self.SetActivePatient(-1)
-
-		curr_search_term = self.GetValue()
-		# do nothing on empty fragments
-		if curr_search_term.strip() == '':
-			wx.EndBusyCursor()
-			return None
 
 		# remember fragment
 		if self.IsModified():
@@ -818,10 +770,10 @@ and hit <ENTER>
 
 		# get list of matching ids
 		start = time.time()
-		idents = self.__pat_searcher.get_identities(curr_search_term)
+		persons = self.__pat_searcher.get_persons(curr_search_term)
 		duration = time.time() - start
 
-		if idents is None:
+		if persons is None:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Error searching for matching patients.\n\nSearch term: "%s"' % curr_search_term),
@@ -829,12 +781,15 @@ and hit <ENTER>
 			)
 			return None
 
-		_log.Log (gmLog.lInfo, "%s identity objects(s) fetched in %3.3f seconds" % (len(idents), duration))
+		_log.Log (gmLog.lInfo, "%s person objects(s) fetched in %3.3f seconds" % (len(persons), duration))
 
-		if len(idents) == 0:
+		if len(persons) == 0:
 			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_warning (
-				_('Cannot find any matching patients.\n\nSearch term: "%s"\n\nYou will be taken to the "New Patient" wizard now.' % curr_search_term),
+			gmGuiHelpers.gm_show_info (
+				_('Cannot find any matching patients.\n\n'
+				  'Search term: "%s"\n\n'
+				  'You will be taken to the "New Patient" wizard now.'
+				) % curr_search_term,
 				_('selecting patient')
 			)
 			wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self.GetParent())
@@ -842,24 +797,24 @@ and hit <ENTER>
 			return None
 
 		# only one matching identity
-		if len(idents) == 1:
-			# make our selection known to others
-			self.SetActivePatient(idents[0])
+		if len(persons) == 1:
+			self.SetActivePatient(persons[0].get_identity())
 			wx.EndBusyCursor()
 			return None
 
-		# more than one matching identity:
-		# let user select from pick list
-		picklist = cPatientPickList(parent = self)
-		picklist.SetItems(idents)
-		picklist.Centre()
+		# more than one matching identity: let user select from pick list
+		dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
+		dlg.set_persons(persons=persons)
 		wx.EndBusyCursor()
-		result = picklist.ShowModal()
-		item = picklist.selected_item
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			return None
 		wx.BeginBusyCursor()
-		picklist.Destroy()
-		self.SetActivePatient(pat=item)
+		person = dlg.get_selected_person()
+		self.SetActivePatient(person.get_identity())
+
 		wx.EndBusyCursor()
+
 		return None
 #============================================================
 # main
@@ -988,7 +943,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.33  2006-07-24 11:31:11  ncq
+# Revision 1.34  2006-07-24 14:18:31  ncq
+# - finish pat/dto selection dialogs
+# - use them in loading external patients and selecting among matches in search control
+#
+# Revision 1.33  2006/07/24 11:31:11  ncq
 # - cleanup
 # - add dialogs to select person/person-dto from list
 # - use dto-selection dialog when loading external patient
