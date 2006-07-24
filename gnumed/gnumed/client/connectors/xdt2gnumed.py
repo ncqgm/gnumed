@@ -12,14 +12,14 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.7 2006-07-22 12:33:11 ncq Exp $
-__version__ = '$Revision: 1.7 $'
+# $Id: xdt2gnumed.py,v 1.8 2006-07-24 20:29:23 ncq Exp $
+__version__ = '$Revision: 1.8 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
 import sys, time, xmlrpclib, socket, time
 
-from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog
+from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog, gmCLI
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -108,7 +108,16 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
 	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	td = None
+	if gmCLI.has_arg('--text-domain'):
+		td = gmCLI.arg['--text-domain']
+	l = None
+	if gmCLI.has_arg('--lang-gettext'):
+		l = gmCLI.arg['--lang-gettext']
+	u = 0
+	if gmCLI.has_arg('--unicode-gettext'):
+		u = int(gmCLI.arg['--unicode-gettext'])
+	gmI18N.install_domain(text_domain = td, language = l, unicode_flag = u)
 
 	connector = cBaseConnector()
 	if not connector.setup():
@@ -121,7 +130,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.7  2006-07-22 12:33:11  ncq
+# Revision 1.8  2006-07-24 20:29:23  ncq
+# - add gettext options
+#
+# Revision 1.7  2006/07/22 12:33:11  ncq
 # - fix variable naming
 #
 # Revision 1.6  2006/07/22 12:14:48  ncq
