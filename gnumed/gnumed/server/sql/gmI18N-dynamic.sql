@@ -3,7 +3,7 @@
 -- ======================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N-dynamic.sql,v $
--- $Id: gmI18N-dynamic.sql,v 1.4 2006-07-01 15:22:03 ncq Exp $
+-- $Id: gmI18N-dynamic.sql,v 1.5 2006-07-24 14:18:52 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -68,6 +68,8 @@ comment on function i18n.i18n(text) is
 	'insert original strings into i18n.keys for later translation';
 
 -- =============================================
+-- FIXME: if _orig does not exist - call i18n() on it ?
+-- FIXME: support upd_tx(text, text) and take language from curr_lang
 create or replace function i18n.upd_tx(text, text, text)
 	returns boolean
 	language 'plpgsql'
@@ -257,11 +259,14 @@ TO group "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.4 $');
+select log_script_insertion('$RCSfile: gmI18N-dynamic.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmI18N-dynamic.sql,v $
--- Revision 1.4  2006-07-01 15:22:03  ncq
+-- Revision 1.5  2006-07-24 14:18:52  ncq
+-- - add comment
+--
+-- Revision 1.4  2006/07/01 15:22:03  ncq
 -- - do not hard-fail set_curr_lang()
 --
 -- Revision 1.3  2006/02/06 13:18:27  ncq
