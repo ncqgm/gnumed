@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.8 2006-07-24 20:04:43 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.9 2006-07-25 07:35:57 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -151,11 +151,11 @@ done ;
 
 # pick up current User Manual
 echo "picking up GNUmed User Manual from the web"
-mkdir -p ./GNUmed-$REV/client/user-manual/
+mkdir -p ./GNUmed-$REV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
-wget -v -O ./GNUmed-$REV/client/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/gm-manual//Gnumed.tgz
 rm -vf PublishManual*
-cd ./GNUmed-$REV/client/user-manual/
+wget -v -O ./GNUmed-$REV/client/doc/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/gm-manual//Gnumed.tgz
+cd ./GNUmed-$REV/client/doc/user-manual/
 tar -xvzf GNUmed-User-Manual.tgz
 ln -s Release-02.html index.html
 rm -vf GNUmed-User-Manual.tgz
@@ -199,7 +199,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.8  2006-07-24 20:04:43  ncq
+# Revision 1.9  2006-07-25 07:35:57  ncq
+# - move user-manual into doc/
+#
+# Revision 1.8  2006/07/24 20:04:43  ncq
 # - we do not need the bmi calculator png
 #
 # Revision 1.7  2006/07/23 20:39:50  ncq
