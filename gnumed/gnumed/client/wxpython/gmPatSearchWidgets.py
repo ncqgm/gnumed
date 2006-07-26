@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.36 2006-07-26 13:15:03 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPatSearchWidgets.py,v 1.37 2006-07-26 13:22:37 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -214,7 +214,7 @@ def load_persons_from_xdt():
 			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'])
 
 		except IOError:
-			gmGuiHelpers.gm_show_error (
+			gmGuiHelpers.gm_show_info (
 				_(
 				'Cannot access BDT file\n\n'
 				' [%s]\n\n'
@@ -227,7 +227,7 @@ def load_persons_from_xdt():
 			continue
 
 		except ValueError:
-			gmGuiHelpers.gm_show_error (
+			gmGuiHelpers.gm_show_info (
 				_(
 				'Cannot load patient from BDT file\n\n'
 				' [%s]'
@@ -309,7 +309,7 @@ def load_patient_from_external_sources(parent=None):
 		person = dlg.get_selected_person()
 
 	if not gmPerson.set_active_patient(patient = person.get_identity()):
-		gmGuiHelpers.gm_show_error (
+		gmGuiHelpers.gm_show_info (
 			_(
 			'Cannot activate patient:\n\n'
 			'%s %s (%s)\n'
@@ -783,7 +783,7 @@ and hit <ENTER>
 
 		if persons is None:
 			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
+			gmGuiHelpers.gm_show_info (
 				_('Error searching for matching patients.\n\nSearch term: "%s"' % curr_search_term),
 				_('selecting patient')
 			)
@@ -951,7 +951,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.36  2006-07-26 13:15:03  ncq
+# Revision 1.37  2006-07-26 13:22:37  ncq
+# - degrade non-fatal error messages to info messages
+#
+# Revision 1.36  2006/07/26 13:15:03  ncq
 # - cleanup
 #
 # Revision 1.35  2006/07/24 19:38:39  ncq
