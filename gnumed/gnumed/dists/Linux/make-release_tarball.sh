@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.9 2006-07-25 07:35:57 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.10 2006-07-26 10:36:55 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -86,7 +86,6 @@ mkdir -p ./GNUmed-$REV/client/
 cp -R ../../client/__init__.py ./GNUmed-$REV/client/
 cp -R ../../client/gm-0_2.conf ./GNUmed-$REV/client/
 cp -R ../../client/gm-0_2-from-cvs.sh ./GNUmed-$REV/client/
-cp -R ./gnumed.xpm ./GNUmed-$REV/client/
 cp -R ./gnumed ./GNUmed-$REV/client/
 cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$REV/client/
@@ -94,6 +93,7 @@ cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/client/
 
 # bitmaps
 mkdir -p ./GNUmed-$REV/client/bitmaps/
+cp -R ./gnumed.xpm ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/any_body2.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./GNUmed-$REV/client/bitmaps/
@@ -199,7 +199,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.9  2006-07-25 07:35:57  ncq
+# Revision 1.10  2006-07-26 10:36:55  ncq
+# - move gnumed.xpm to more proper location
+#
+# Revision 1.9  2006/07/25 07:35:57  ncq
 # - move user-manual into doc/
 #
 # Revision 1.8  2006/07/24 20:04:43  ncq
