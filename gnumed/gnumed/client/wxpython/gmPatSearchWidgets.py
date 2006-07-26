@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.35 2006-07-24 19:38:39 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPatSearchWidgets.py,v 1.36 2006-07-26 13:15:03 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -565,7 +565,7 @@ and hit <ENTER>
 		# FIXME: error handling
 
 		self.__prev_search_term = None
-		self.__prev_persons = []
+		self.__prev_idents = []
 		self.__pat_picklist_col_defs = []
 
 		self._lclick_count = 0
@@ -593,6 +593,44 @@ and hit <ENTER>
 
 		self.__register_events()
 	#--------------------------------------------------------
+	def SetActivePatient(self, pat):
+		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
+			_log.Log (gmLog.lErr, 'cannot change active patient')
+			return None
+
+		self.__remember_ident(self.curr_pat.get_identity())
+
+		return True
+	#--------------------------------------------------------
+	# utility methods
+	#--------------------------------------------------------
+	def _display_name(self):
+		if self.curr_pat.is_connected():
+			ident = self.curr_pat.get_identity()
+			self.SetValue(ident['description'])
+		else:
+			self.SetValue('')
+	#--------------------------------------------------------
+	def __remember_ident(self, ident=None):
+
+		if not isinstance(ident, gmPerson.cIdentity):
+			return False
+
+		# only unique identities
+		for known_ident in self.__prev_idents:
+			if known_ident['pk_identity'] == ident['pk_identity']:
+				return True
+
+		self.__prev_idents.append(ident)
+
+		# and only 10 of them
+		if len(self.__prev_idents) > 10:
+			self.__prev_idents.pop(0)
+
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
 	def __register_events(self):
 		# - process some special chars
 		wx.EVT_CHAR(self, self._on_char)
@@ -611,35 +649,6 @@ and hit <ENTER>
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self._display_name)
-	#--------------------------------------------------------
-	def SetActivePatient(self, pat):
-		if not gmPerson.set_active_patient(patient=pat, forced_reload = self.__always_reload_after_search):
-			_log.Log (gmLog.lErr, 'cannot change active patient')
-			return None
-		# keep list of identities
-		new_ident = self.curr_pat.get_identity()
-		# only unique patients
-		found = False
-		for person in self.__prev_persons:
-			if person['pk_identity'] == new_ident['pk_identity']:
-				found = True
-		if not found:
-			self.__prev_persons.append(gmPerson.cPerson(new_ident))
-			# but only 10 of them
-			if len(self.__prev_persons) > 10:
-				self.__prev_persons.pop(0)
-		return True
-	#--------------------------------------------------------
-	# utility methods
-	#--------------------------------------------------------
-	def _display_name(self):
-		if self.curr_pat.is_connected():
-			ident = self.curr_pat.get_identity()
-			self.SetValue(ident['description'])
-		else:
-			self.SetValue('')
-	#--------------------------------------------------------
-	# event handlers
 	#--------------------------------------------------------
 	def _on_left_mousebutton_up(self, evt):
 		"""upon left click release
@@ -700,8 +709,11 @@ and hit <ENTER>
 		if evt.AltDown():
 			# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
-				if len(self.__prev_persons) == 0:
+				if len(self.__prev_idents) == 0:
 					return True
+				persons = []
+				for ident in self.__prev_idents:
+					persons.append(gmPerson.cPerson(identity=ident))
 				# show list
 				dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
 				dlg.set_persons(persons=persons)
@@ -709,7 +721,8 @@ and hit <ENTER>
 				if result == wx.ID_OK:
 					wx.BeginBusyCursor()
 					person = dlg.get_selected_person()
-					self.SetActivePatient(person.get_identity())
+					self.SetActivePatient(person)
+					wx.EndBusyCursor()
 				return True
 
 			# ALT-N - enter new patient
@@ -793,7 +806,7 @@ and hit <ENTER>
 
 		# only one matching identity
 		if len(persons) == 1:
-			self.SetActivePatient(persons[0].get_identity())
+			self.SetActivePatient(persons[0])
 			wx.EndBusyCursor()
 			return None
 
@@ -804,10 +817,10 @@ and hit <ENTER>
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
 			return None
+
 		wx.BeginBusyCursor()
 		person = dlg.get_selected_person()
-		self.SetActivePatient(person.get_identity())
-
+		self.SetActivePatient(person)
 		wx.EndBusyCursor()
 
 		return None
@@ -938,7 +951,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.35  2006-07-24 19:38:39  ncq
+# Revision 1.36  2006-07-26 13:15:03  ncq
+# - cleanup
+#
+# Revision 1.35  2006/07/24 19:38:39  ncq
 # - fix "prev patients" list (alt-p) in patient selector
 # - start obsoleting old (ugly) patient pick list
 #
