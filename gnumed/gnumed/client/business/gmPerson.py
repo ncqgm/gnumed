@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.79 2006-07-24 14:16:04 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPerson.py,v 1.80 2006-07-26 12:22:56 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1550,15 +1550,24 @@ def set_active_patient(patient = None, forced_reload=False):
 
 	If patient is -1 the active patient will be UNset.
 	"""
-	if patient is None:
-		raise ValueError('<patient> is None, must be -1, cPatient or cIdentity instance')
-	if isinstance(patient, cIdentity):
-		patient = cPatient(identity=patient)
+	if isinstance(patient, cPatient):
+		pat = patient
+	elif isinstance(patient, cIdentity):
+		pat = cPatient(identity = patient)
+	elif isinstance(patient, cPerson):
+		pat = cPatient(identity = patient.get_identity())
+	elif isinstance(patient, cStaff):
+		pat = cPatient(identity = cIdentity(patient['pk_identity']))
+	elif patient == -1:
+		pat = patient
+	else:
+		raise ValueError('<patient> must be either -1, cPatient, cPerson, cStaff or cIdentity instance, is: %s' % str(patient))
+
 	# attempt to switch
 	try:
-		pat = gmCurrentPatient(patient=patient, forced_reload=forced_reload)
+		pat = gmCurrentPatient(patient=pat, forced_reload=forced_reload)
 	except:
-		_log.LogException('error changing active patient to [%s]' % patient, sys.exc_info())
+		_log.LogException('error changing active patient to [%s]' % str(patient), sys.exc_info())
 		return False
 	return True
 #------------------------------------------------------------
@@ -1648,6 +1657,28 @@ if __name__ == '__main__':
 	gmPG.set_default_client_encoding({'string': 'latin1', 'wire': 'latin1'})
 
 	#--------------------------------------------------------
+	def test_set_active_pat():
+
+		ident = cIdentity(1)
+		print "setting active patient with", ident
+		set_active_patient(patient=ident)
+
+
+		patient = cPatient(ident)
+		print "setting active patient with", patient
+		set_active_patient(patient=patient)
+
+		person = cPerson(ident)
+		print "setting active patient with", person
+		set_active_patient(patient=person)
+
+		staff = cStaff()
+		print "setting active patient with", staff
+		set_active_patient(patient=staff)
+
+		print "setting active patient with -1"
+		set_active_patient(patient=-1)
+	#--------------------------------------------------------
 	def test_dto_person():
 		dto = cDTO_person()
 		dto.firstnames = 'Sepp'
@@ -1715,9 +1746,11 @@ if __name__ == '__main__':
 		print 'Identity communications: %s' % new_identity['comms']
 	#--------------------------------------------------------
 
-	test_dto_person()
-	test_staff()
-	#test_identity()
+#	test_dto_person()
+#	test_staff()
+#	test_identity()
+	test_set_active_pat()
+
 
 	# module functions
 #	genders, idx = get_gender_list()
@@ -1746,7 +1779,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.79  2006-07-24 14:16:04  ncq
+# Revision 1.80  2006-07-26 12:22:56  ncq
+# - improve set_active_patient
+#
+# Revision 1.79  2006/07/24 14:16:04  ncq
 # - cleanup
 #
 # Revision 1.78  2006/07/17 21:06:12  ncq
