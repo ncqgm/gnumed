@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -47,24 +47,10 @@ try:
 	db_error = libpq.DatabaseError
 	dsn_format = "%s:%s:%s:%s:%s"
 except ImportError:
-	_log.LogException("Cannot load pyPgSQL.PgSQL database adapter module.", sys.exc_info(), verbose=0)
-	try:
-		import psycopg
-		dbapi = psycopg
-		db_error = psycopg.DatabaseError
-		dsn_format = "host=%s port=%s dbname=%s user=%s password=%s"
-	except ImportError:
-		_log.LogException("Cannot load psycopg database adapter module.", sys.exc_info(), verbose=0)
-		try:
-			import pgdb
-			dbapi = pgdb
-			db_error = pgdb.DatabaseError
-			dsn_format = "%s:%s:%s:%s:%s"
-		except ImportError:
-			print "Cannot find Python module for connecting to the database server. Program halted."
-			print "Please check the log file and report to the mailing list."
-			_log.LogException("Cannot load pgdb database adapter module.", sys.exc_info(), verbose=0)
-			raise
+	print "Cannot find Python module for connecting to the database server. Program halted."
+	print "Please check the log file and report to the mailing list."
+	_log.LogException("Cannot load pyPgSQL database adapter module.", sys.exc_info(), verbose=0)
+	raise
 
 # GNUmed imports
 try:
@@ -74,7 +60,6 @@ except ImportError:
 	raise
 from Gnumed.pycommon import gmCfg, gmPsql
 from Gnumed.pycommon.gmExceptions import ConstructorError
-from Gnumed.pycommon.gmPyCompat import *
 
 # local imports
 import gmAuditSchemaGenerator
@@ -1501,7 +1486,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.30  2006-06-14 14:35:01  ncq
+# Revision 1.31  2006-07-27 17:10:06  ncq
+# - remove trying to load *other* DB-API adapters
+# - remove obsolete import
+#
+# Revision 1.30  2006/06/14 14:35:01  ncq
 # - use 8.1 and post-7.4 language installation features
 #
 # Revision 1.29  2006/06/09 14:43:35  ncq
