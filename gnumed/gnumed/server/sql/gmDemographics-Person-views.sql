@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.53 2006-06-09 14:44:21 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.54 2006-07-27 17:12:42 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -266,6 +266,7 @@ from
 	dem.identity i,
 	dem.names n
 where
+	i.deleted is False and
 	i.deceased is NULL and
 	n.active = true and
 	n.id_identity = i.pk
@@ -302,10 +303,13 @@ create RULE r_update_basic_person2 AS
 			gender=NEW.gender
 		WHERE pk=NEW.pk_identity;
 
--- deletes names as well by use of a trigger (double rule would be simpler, 
--- but didn't work)
-create RULE r_delete_basic_person AS ON DELETE to dem.v_basic_person DO INSTEAD
-       DELETE from dem.identity WHERE pk=OLD.pk_identity;
+create RULE r_delete_basic_person AS
+	ON DELETE to dem.v_basic_person DO INSTEAD
+		update dem.identity set deleted = True where pk = OLD.pk_identity;
+
+create rule r_del_identity as
+	on delete to dem.identity do instead
+		update dem.identity set deleted = True where pk = OLD.pk_identity;
 
 -- =============================================
 -- staff views
@@ -430,11 +434,16 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.53 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.54 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.53  2006-06-09 14:44:21  ncq
+-- Revision 1.54  2006-07-27 17:12:42  ncq
+-- - add .deleted to dem.identity so we can mark patients as deleted
+-- - exclude .deleted patients from v_basic_person
+-- - add RULEs to set deleted=True on delete to identity
+--
+-- Revision 1.53  2006/06/09 14:44:21  ncq
 -- - cleanup
 -- - add dem.v_staff.can_login
 --

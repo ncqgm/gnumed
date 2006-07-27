@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.67 $
+-- $Revision: 1.68 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -145,6 +145,9 @@ comment on table dem.gender_label is
 -- ==========================================================
 create table dem.identity (
 	pk serial primary key,
+	deleted boolean
+		not null
+		default False,
 	pupic char(24),
 	gender text
 		references dem.gender_label(tag)
@@ -168,6 +171,8 @@ select audit.add_table_for_audit('dem', 'identity');
 
 comment on table dem.identity IS
 	'represents the unique identity of a person';
+comment on column dem.identity.deleted is
+	'whether this identity is considered deleted';
 comment on column dem.identity.pupic IS
 	'Portable Unique Person Identification Code as per gnumed white papers';
 comment on column dem.identity.gender is
@@ -601,11 +606,16 @@ COMMENT on column dem.lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.67 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.68 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.67  2006-06-14 14:35:21  ncq
+-- Revision 1.68  2006-07-27 17:12:42  ncq
+-- - add .deleted to dem.identity so we can mark patients as deleted
+-- - exclude .deleted patients from v_basic_person
+-- - add RULEs to set deleted=True on delete to identity
+--
+-- Revision 1.67  2006/06/14 14:35:21  ncq
 -- - add comment
 --
 -- Revision 1.66  2006/06/06 20:58:29  ncq
