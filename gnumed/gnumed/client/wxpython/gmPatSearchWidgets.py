@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.37 2006-07-26 13:22:37 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPatSearchWidgets.py,v 1.38 2006-07-27 17:07:18 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -526,6 +526,9 @@ class cPatientSelector(wx.TextCtrl):
 			size,
 			style = wx.TE_PROCESS_ENTER
 		)
+
+
+
 		selector_tooltip = _( \
 """Patient search field.                                   \n
 to search, type any of:
@@ -706,25 +709,25 @@ and hit <ENTER>
 	def _on_char(self, evt):
 		keycode = evt.GetKeyCode()
 
-		if evt.AltDown():
-			# ALT-L, ALT-P - list of previously active patients
-			if keycode in [ord('l'), ord('p')]:
-				if len(self.__prev_idents) == 0:
-					return True
-				persons = []
-				for ident in self.__prev_idents:
-					persons.append(gmPerson.cPerson(identity=ident))
-				# show list
-				dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
-				dlg.set_persons(persons=persons)
-				result = dlg.ShowModal()
-				if result == wx.ID_OK:
-					wx.BeginBusyCursor()
-					person = dlg.get_selected_person()
-					self.SetActivePatient(person)
-					wx.EndBusyCursor()
+		# list of previously active patients
+		if keycode == wx.WXK_DOWN:
+			evt.Skip()
+			if len(self.__prev_idents) == 0:
 				return True
+			persons = []
+			for ident in self.__prev_idents:
+				persons.append(gmPerson.cPerson(identity=ident))
+			dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
+			dlg.set_persons(persons=persons)
+			result = dlg.ShowModal()
+			if result == wx.ID_OK:
+				wx.BeginBusyCursor()
+				person = dlg.get_selected_person()
+				self.SetActivePatient(person)
+				wx.EndBusyCursor()
+			return True
 
+		if evt.AltDown():
 			# ALT-N - enter new patient
 			if keycode == ord('n'):
 				print "ALT-N not implemented yet"
@@ -951,7 +954,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.37  2006-07-26 13:22:37  ncq
+# Revision 1.38  2006-07-27 17:07:18  ncq
+# - cleanup
+# - make Cursor-Down the way to invoke previous patients
+#
+# Revision 1.37  2006/07/26 13:22:37  ncq
 # - degrade non-fatal error messages to info messages
 #
 # Revision 1.36  2006/07/26 13:15:03  ncq
