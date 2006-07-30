@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.11 2006-07-30 17:10:47 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.12 2006-07-30 18:01:19 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -97,10 +97,10 @@ cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/client/
 # bitmaps
 mkdir -p ./GNUmed-$REV/client/bitmaps/
 cp -R ./gnumed.xpm ./GNUmed-$REV/client/bitmaps/
-cp -R ../../client/bitmaps/any_body2.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/serpent.png ./GNUmed-$REV/client/bitmaps/
+chmod -cR -x ./GNUmed-$REV/client/bitmaps/*.*
 
 
 # business
@@ -145,7 +145,7 @@ cp -R ../../client/pycommon/*.py ./GNUmed-$REV/client/pycommon/
 # wxGladeWidgets
 mkdir -p ./GNUmed-$REV/client/wxGladeWidgets/
 cp -R ../../client/wxGladeWidgets/*.py ./GNUmed-$REV/client/wxGladeWidgets/
-chmod -cR -x ./GNUmed-$REV/client/wxGladeWidgets/*
+chmod -cR -x ./GNUmed-$REV/client/wxGladeWidgets/*.*
 
 
 # wxpython
@@ -214,7 +214,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.11  2006-07-30 17:10:47  ncq
+# Revision 1.12  2006-07-30 18:01:19  ncq
+# - fix rights
+#
+# Revision 1.11  2006/07/30 17:10:47  ncq
 # - improve by Debian suggestions
 #
 # Revision 1.10  2006/07/26 10:36:55  ncq
