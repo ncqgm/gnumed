@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.36 2006-05-15 13:42:02 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmDemographics.py,v 1.37 2006-07-30 17:51:00 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "R.Terry, SJ Tan"
 
 
@@ -33,7 +33,7 @@ from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals
 import gmPlugin
 import gmSQLListControl
 from string import *
-import gmGP_PatientPicture
+#import gmGP_PatientPicture
 
 ID_PATIENT = wxNewId()
 ID_PATIENTSLIST = wxNewId()
@@ -348,7 +348,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.sizer_line11_right.Add(0,0,1)
 		self.sizer_contacts.Add(self.sizer_line11_right,0,wxEXPAND)
 		self.sizer_photo = wxBoxSizer(wxVERTICAL)
-		self.patientpicture = gmGP_PatientPicture.cPatientPicture(self, -1)
+#		self.patientpicture = gmGP_PatientPicture.cPatientPicture(self, -1)
 		self.sizer_photo.Add(self.patientpicture,3,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_photo.Add(self.btn_photo_aquire,1,wxALIGN_CENTER_HORIZONTAL,0)
 		self.sizer_photo.Add(self.btn_photo_export,1,wxALIGN_CENTER_HORIZONTAL,0)
@@ -435,7 +435,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.36  2006-05-15 13:42:02  ncq
+# Revision 1.37  2006-07-30 17:51:00  ncq
+# - cleanup
+#
+# Revision 1.36  2006/05/15 13:42:02  ncq
 # - use new signals for activating_patient/patient_selected
 #
 # Revision 1.35  2005/09/26 18:01:53  ncq

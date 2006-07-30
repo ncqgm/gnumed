@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.38 2006-07-27 17:07:18 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPatSearchWidgets.py,v 1.39 2006-07-30 17:51:00 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -727,12 +727,19 @@ and hit <ENTER>
 				wx.EndBusyCursor()
 			return True
 
+		# previous search fragment
+		if keycode == wx.WXK_UP:
+			evt.Skip()
+			# FIXME: cycling through previous fragments
+			if self.__prev_search_term is not None:
+				self.SetValue(self.__prev_search_term)
+			return True
+
+		# FIXME: invoke external patient sources
+		# FIXME: invoke add new patient
+		# FIXME: add popup menu apart from system one
+
 		if evt.AltDown():
-			# ALT-N - enter new patient
-			if keycode == ord('n'):
-				print "ALT-N not implemented yet"
-				print "should immediately jump to entering a new patient"
-				return True
 
 			# ALT-K - access chipcards
 			if keycode in [ord('k'), ord('c')]:
@@ -754,12 +761,6 @@ and hit <ENTER>
 					print "user selected kvkd file %s" % picklist[result][10]
 					print picklist[result]
 				return True
-
-		# FIXME: cycling through previous fragments
-		elif keycode == wx.WXK_UP:
-			if self.__prev_search_term is not None:
-				self.SetValue(self.__prev_search_term)
-			return True
 		
 		evt.Skip()
 	#--------------------------------------------------------
@@ -954,7 +955,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.38  2006-07-27 17:07:18  ncq
+# Revision 1.39  2006-07-30 17:51:00  ncq
+# - cleanup
+#
+# Revision 1.38  2006/07/27 17:07:18  ncq
 # - cleanup
 # - make Cursor-Down the way to invoke previous patients
 #
