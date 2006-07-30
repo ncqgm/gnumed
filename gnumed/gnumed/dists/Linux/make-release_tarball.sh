@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.10 2006-07-26 10:36:55 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.11 2006-07-30 17:10:47 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -76,10 +76,12 @@ cd ../../
 ./remove_pyc.sh
 cd -
 
+
 # create client package
 echo "____________"
 echo "=> client <="
 echo "============"
+
 
 # client
 mkdir -p ./GNUmed-$REV/client/
@@ -91,6 +93,7 @@ cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$REV/client/
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/client/
 
+
 # bitmaps
 mkdir -p ./GNUmed-$REV/client/bitmaps/
 cp -R ./gnumed.xpm ./GNUmed-$REV/client/bitmaps/
@@ -99,19 +102,23 @@ cp -R ../../client/bitmaps/gnumedlogo.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./GNUmed-$REV/client/bitmaps/
 cp -R ../../client/bitmaps/serpent.png ./GNUmed-$REV/client/bitmaps/
 
+
 # business
 mkdir -p ./GNUmed-$REV/client/business/
 cp -R ../../client/business/*.py ./GNUmed-$REV/client/business/
+
 
 # doc
 mkdir -p ./GNUmed-$REV/client/doc/
 cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$REV/client/doc/
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$REV/client/doc/gnumed.1
 
+
 # exporters
 mkdir -p ./GNUmed-$REV/client/exporters/
 cp -R ../../client/exporters/__init__.py ./GNUmed-$REV/client/exporters
 cp -R ../../client/exporters/gmPatientExporter.py ./GNUmed-$REV/client/exporters
+
 
 # locale
 mkdir -p ./GNUmed-$REV/client/locale/
@@ -129,25 +136,32 @@ cp -R ../../client/locale/de-gnumed.mo ./GNUmed-$REV/client/locale
 cp -R ../../client/locale/es-gnumed.mo ./GNUmed-$REV/client/locale
 cp -R ../../client/locale/fr-gnumed.mo ./GNUmed-$REV/client/locale
 
+
 # pycommon
 mkdir -p ./GNUmed-$REV/client/pycommon/
 cp -R ../../client/pycommon/*.py ./GNUmed-$REV/client/pycommon/
 
+
 # wxGladeWidgets
 mkdir -p ./GNUmed-$REV/client/wxGladeWidgets/
 cp -R ../../client/wxGladeWidgets/*.py ./GNUmed-$REV/client/wxGladeWidgets/
+chmod -cR -x ./GNUmed-$REV/client/wxGladeWidgets/*
+
 
 # wxpython
 mkdir -p ./GNUmed-$REV/client/wxpython/
 cp -R ../../client/wxpython/*.py ./GNUmed-$REV/client/wxpython/
 mkdir -p ./GNUmed-$REV/client/wxpython/gui/
 cp -R ../../client/wxpython/*.py ./GNUmed-$REV/client/wxpython/gui/
+chmod -cR -x ./GNUmed-$REV/client/wxpython/*.*
+chmod -cR -x ./GNUmed-$REV/client/wxpython/gui/*.*
 
 
 # cleanup
 for fname in $CLIENT_FILES_REMOVE ; do
 	rm -vf $fname
 done ;
+
 
 # pick up current User Manual
 echo "picking up GNUmed User Manual from the web"
@@ -160,6 +174,7 @@ tar -xvzf GNUmed-User-Manual.tgz
 ln -s Release-02.html index.html
 rm -vf GNUmed-User-Manual.tgz
 cd -
+
 
 # now make tarballs
 tar -cvhzf $ARCHFILE ./GNUmed-$REV/client/
@@ -199,7 +214,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.10  2006-07-26 10:36:55  ncq
+# Revision 1.11  2006-07-30 17:10:47  ncq
+# - improve by Debian suggestions
+#
+# Revision 1.10  2006/07/26 10:36:55  ncq
 # - move gnumed.xpm to more proper location
 #
 # Revision 1.9  2006/07/25 07:35:57  ncq
