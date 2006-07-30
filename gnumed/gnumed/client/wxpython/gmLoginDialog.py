@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.68 2006-05-15 07:05:07 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmLoginDialog.py,v 1.69 2006-07-30 17:50:03 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -79,7 +79,7 @@ class LoginPanel(wx.Panel):
 
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
-		bitmap = os.path.join (self.gb['gnumed_dir'], 'bitmaps', 'gnumedlogo.png')
+		bitmap = os.path.join (self.gb['resource dir'], 'bitmaps', 'gnumedlogo.png')
 		try:
 			wx.Image_AddHandler(wx.PNGHandler())
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
@@ -471,7 +471,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.68  2006-05-15 07:05:07  ncq
+# Revision 1.69  2006-07-30 17:50:03  ncq
+# - properly load bitmaps
+#
+# Revision 1.68  2006/05/15 07:05:07  ncq
 # - must import gmPerson now
 #
 # Revision 1.67  2006/05/14 21:44:22  ncq
