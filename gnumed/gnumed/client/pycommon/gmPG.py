@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1358,7 +1358,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.76 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.77 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1438,18 +1438,19 @@ def __request_login_params_gui_wx():
 
 	Returns gmLoginInfo.LoginInfo object
 	"""
-	import wxPython.wx
+	import wx
 	# the next statement will raise an exception if wxPython is not loaded yet
-	sys.modules['wxPython']
+	sys.modules['wx']
 	# OK, wxPython was already loaded. But has the main Application instance
 	# been initialized yet ? if not, the exception will kick us out
-	if wxPython.wx.wxGetApp() is None:
-		raise gmExceptions.NoGuiError(_("The wx GUI framework hasn't been initialized yet!"))
+	if wx.GetApp() is None:
+		raise gmExceptions.NoGuiError(_("The wxPython GUI framework hasn't been initialized yet!"))
 
 	# Let's launch the login dialog
 	# if wx was not initialized /no main App loop, an exception should be raised anyway
 	import gmLoginDialog
-	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+#	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+	dlg = gmLoginDialog.LoginDialog(None, -1)
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginInfo()
 	dlg.Destroy()
@@ -1594,7 +1595,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.76  2006-07-19 20:27:03  ncq
+# Revision 1.77  2006-07-30 17:40:30  ncq
+# - cleanup
+#
+# Revision 1.76  2006/07/19 20:27:03  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.75  2006/07/10 21:46:36  ncq
