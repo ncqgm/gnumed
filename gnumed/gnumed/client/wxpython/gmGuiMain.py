@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.261 2006-07-24 11:30:02 ncq Exp $
-__version__ = "$Revision: 1.261 $"
+# $Id: gmGuiMain.py,v 1.262 2006-07-30 18:47:19 ncq Exp $
+__version__ = "$Revision: 1.262 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -292,8 +292,16 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
 
+		ID_LOAD_EXT_PAT = wx.NewId()
+		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external patient'), _('Load patient from an external source.'))
+		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
+
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
+
+		ID_DEL_PAT = wx.NewId()
+		menu_patient.Append(ID_DEL_PAT, _('Delete patient'), _('Deactivate patient in database.'))
+		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
 		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current patient as staff member'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
@@ -675,6 +683,9 @@ Search results:
 			return False
 		return True
 	#----------------------------------------------
+	def __on_load_external_patient(self, event):
+		gmPatSearchWidgets.load_patient_from_external_sources(parent=self)
+	#----------------------------------------------
 	def __on_create_patient(self, event):
 		"""Launch create patient wizard.
 		"""
@@ -688,6 +699,13 @@ Search results:
 			return False
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
+	#----------------------------------------------
+	def __on_delete_patient(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot delete patient. No patient active.'))
+			return False
+		return True
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
@@ -1148,7 +1166,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.261  2006-07-24 11:30:02  ncq
+# Revision 1.262  2006-07-30 18:47:19  ncq
+# - add load ext pat to patient menu
+# - prepare patient "deletion" from menu
+#
+# Revision 1.261  2006/07/24 11:30:02  ncq
 # - must set parent when loading external patients
 #
 # Revision 1.260  2006/07/21 21:34:58  ncq
