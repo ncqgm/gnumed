@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.39 2006-07-30 17:51:00 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmPatSearchWidgets.py,v 1.40 2006-07-30 18:48:18 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -735,31 +735,36 @@ and hit <ENTER>
 				self.SetValue(self.__prev_search_term)
 			return True
 
-		# FIXME: invoke external patient sources
+		# invoke external patient sources
+		if keycode == wx.WXK_F2:
+			evt.Skip()
+			load_patient_from_external_sources(parent=wx.GetTopLevelParent(self))
+			return True
+
 		# FIXME: invoke add new patient
 		# FIXME: add popup menu apart from system one
 
 		if evt.AltDown():
 
 			# ALT-K - access chipcards
-			if keycode in [ord('k'), ord('c')]:
+#			if keycode in [ord('k'), ord('c')]:
 				# FIXME: make configurable !!
-				kvks = gmKVK.get_available_kvks('~/gnumed/kvk/incoming/')
-				if kvks is None:
-					print "No KVKs available !"
+#				kvks = gmKVK.get_available_kvks('~/gnumed/kvk/incoming/')
+#				if kvks is None:
+#					print "No KVKs available !"
 					# show some message here ...
-					return True
-				picklist, col_order = gmKVK.kvks_extract_picklist(kvks)
+#					return True
+#				picklist, col_order = gmKVK.kvks_extract_picklist(kvks)
 				# show list
-				dlg = cPatientPickList(parent = self, title = _("please select a KVK"))
-				dlg.SetItems(picklist, col_order)
-				result = dlg.ShowModal()
-				item = dlg.selected_item
-				dlg.Destroy()
+#				dlg = cPatientPickList(parent = self, title = _("please select a KVK"))
+#				dlg.SetItems(picklist, col_order)
+#				result = dlg.ShowModal()
+#				item = dlg.selected_item
+#				dlg.Destroy()
 				# and process selection
-				if result > 0:
-					print "user selected kvkd file %s" % picklist[result][10]
-					print picklist[result]
+#				if result > 0:
+#					print "user selected kvkd file %s" % picklist[result][10]
+#					print picklist[result]
 				return True
 		
 		evt.Skip()
@@ -955,7 +960,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.39  2006-07-30 17:51:00  ncq
+# Revision 1.40  2006-07-30 18:48:18  ncq
+# - invoke load_external_patient on <F2> in searcher
+# - robustify by commenting out shaky KVK code
+#
+# Revision 1.39  2006/07/30 17:51:00  ncq
 # - cleanup
 #
 # Revision 1.38  2006/07/27 17:07:18  ncq
