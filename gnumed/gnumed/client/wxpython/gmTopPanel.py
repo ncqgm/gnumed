@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.73 2006-07-22 12:51:13 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmTopPanel.py,v 1.74 2006-07-30 21:15:53 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -266,11 +266,11 @@ class cMainTopPanel(wx.Panel):
 #		bmi.Centre(wx.BOTH)
 #		bmi.Show(1)
 	#----------------------------------------------
-	def _on_show_Preg_Calc(self, evt):
+#	def _on_show_Preg_Calc(self, evt):
 		# FIXME: update patient ID ?
-		pc = gmPregWidgets.cPregCalcFrame(self)
-		pc.Centre(wx.BOTH)
-		pc.Show(1)
+#		pc = gmPregWidgets.cPregCalcFrame(self)
+#		pc.Centre(wx.BOTH)
+#		pc.Show(1)
 	#----------------------------------------------
 #	def _on_episode_selected(self, evt):
 #		epr = self.curr_pat.get_emr()
@@ -412,7 +412,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.73  2006-07-22 12:51:13  ncq
+# Revision 1.74  2006-07-30 21:15:53  ncq
+# - do not import preg widgets
+#
+# Revision 1.73  2006/07/22 12:51:13  ncq
 # - deactivate bmi until it is cleaned up
 #
 # Revision 1.72  2006/07/19 20:29:50  ncq
