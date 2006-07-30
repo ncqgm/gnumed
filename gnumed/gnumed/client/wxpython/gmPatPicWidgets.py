@@ -1,12 +1,12 @@
 """GnuMed patient picture widget.
 """
 
-#--------------------------------
-#embryonic gmGP_PatientPicture.py
+#--------------------------------------------
+#embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.17 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPatPicWidgets.py,v 1.18 2006-07-30 18:47:38 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -184,7 +184,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.17  2006-05-15 13:36:00  ncq
+# Revision 1.18  2006-07-30 18:47:38  ncq
+# - better comment
+#
+# Revision 1.17  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
