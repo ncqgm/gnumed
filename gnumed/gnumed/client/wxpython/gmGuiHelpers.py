@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.35 2006-06-20 09:42:42 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmGuiHelpers.py,v 1.36 2006-08-01 22:03:49 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,11 +21,7 @@ import sys, string, os
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG
 _log = gmLog.gmDefLog
@@ -181,13 +177,16 @@ def get_dbowner_connection(procedure=None):
 	# 1) get password for gm-dbo
 	pwd_gm_dbo = wx.GetPasswordFromUser (
 		message = _("""
-%s
+ [%s]
+
 This is a restricted procedure. We need the
 password for the GNUmed database owner.
 
 Please enter the password for <gm-dbo>:""") % procedure,
 		caption = procedure
 	)
+	if pwd_gm_dbo == '':
+		return False
 
 	# 2) connect as gm-dbo
 	pool = gmPG.ConnectionPool()
@@ -199,6 +198,7 @@ Please enter the password for <gm-dbo>:""") % procedure,
 			aLogLevel = gmLog.lErr
 		)
 		return None
+
 	return conn
 #------------------------------------------------------------------------
 def gm_icon (name):
@@ -351,7 +351,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.35  2006-06-20 09:42:42  ncq
+# Revision 1.36  2006-08-01 22:03:49  ncq
+# - cleanup
+#
+# Revision 1.35  2006/06/20 09:42:42  ncq
 # - cTextObjectValidator -> cTextWidgetValidator
 # - add custom invalid message to text widget validator
 # - variable renaming, cleanup
