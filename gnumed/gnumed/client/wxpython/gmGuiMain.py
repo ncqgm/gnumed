@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.262 2006-07-30 18:47:19 ncq Exp $
-__version__ = "$Revision: 1.262 $"
+# $Id: gmGuiMain.py,v 1.263 2006-08-01 22:04:32 ncq Exp $
+__version__ = "$Revision: 1.263 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -705,6 +705,7 @@ Search results:
 		if not pat.is_connected():
 			gmGuiHelpers.gm_beep_statustext(_('Cannot delete patient. No patient active.'))
 			return False
+		gmDemographicsWidgets.disable_identity(identity=pat.get_identity())
 		return True
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
@@ -1166,7 +1167,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.262  2006-07-30 18:47:19  ncq
+# Revision 1.263  2006-08-01 22:04:32  ncq
+# - call disable_identity()
+#
+# Revision 1.262  2006/07/30 18:47:19  ncq
 # - add load ext pat to patient menu
 # - prepare patient "deletion" from menu
 #
