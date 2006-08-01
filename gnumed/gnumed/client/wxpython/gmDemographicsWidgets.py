@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.97 2006-07-21 21:34:04 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmDemographicsWidgets.py,v 1.98 2006-08-01 22:03:18 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -19,14 +19,8 @@ import time, string, sys, os
 # 3rd party
 import mx.DateTime as mxDT
 
-try:
-	import wxversion
-	import wx
-	import wx.wizard
-except ImportError:
-	from wxPython import wx
-	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wx.ListCtrlAutoWidthMixin
-	from wxPython import wizard
+import wx
+import wx.wizard
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
@@ -40,8 +34,54 @@ _name_gender_map = None
 
 DATE_FORMAT = '%Y-%m-%d'
 
-
 #============================================================
+def disable_identity(identity=None):
+	# ask user for assurance
+	go_ahead = gmGuiHelpers.gm_show_question (
+		_('Are you sure you really, positively want\n'
+		  'to disable the following patient ?\n'
+		  '\n'
+		  ' %s %s %s\n'
+		  ' born %s\n'
+		) % (
+			identity['firstnames'],
+			identity['lastnames'],
+			identity['gender'],
+			identity['dob']
+		),
+		_('Disabling patient')
+	)
+	if not go_ahead:
+		return True
+
+	# get admin connection
+	conn = gmGuiHelpers.get_dbowner_connection (
+		procedure = _('Disabling patient')
+	)
+	# - user cancelled
+	if conn is False:
+		return True
+	# - error
+	if conn is None:
+		return False
+
+	# now disable patient
+	cmd = "update dem.identity set deleted=True where pk=%s"
+	success, data = gmPG.run_commit2 (
+		link_obj = 'demographics',
+		queries = [(cmd, [identity['pk_identity']])]
+	)
+	if not success:
+		err, msg = data
+		gmGuiHelpers.gm_show_error (
+			_('Cannot disable patient !\n'
+			  '\n'
+			  ' [%s]'
+			) % msg,
+			_('Disabling patient')
+		)
+		return False
+	return True
 #============================================================
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a gender.
@@ -1943,7 +1983,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.97  2006-07-21 21:34:04  ncq
+# Revision 1.98  2006-08-01 22:03:18  ncq
+# - cleanup
+# - add disable_identity()
+#
+# Revision 1.97  2006/07/21 21:34:04  ncq
 # - proper header/subheader for new *person* wizard (not *patient*)
 #
 # Revision 1.96  2006/07/19 20:29:50  ncq
