@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 import sys
 
@@ -55,6 +55,14 @@ except ImportError:
 			print "INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
 			sys.exit(-1)
 
+print "=> checking for the GNUmed's own Python modules"
+try:
+	from Gnumed.pycommon import gmNull
+	print "=> found"
+except ImportError:
+	print "ERROR: GNUmed's own Python modules not found"
+	print "ERROR: these handle most of the work in GNUmed"
+
 print "\n****************************************************"
 print "* Most likely you can run GNUmed without problems. *"
 print "****************************************************"
@@ -62,7 +70,11 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.7  2005-10-15 11:29:14  ncq
+# Revision 1.8  2006-08-01 18:47:43  ncq
+# - improved wording/readability
+# - add test for GNUmed's own Python modules
+#
+# Revision 1.7  2005/10/15 11:29:14  ncq
 # - some wxPythons don't support wx.PlatformInfo so don't error on it
 #
 # Revision 1.6  2005/09/24 09:11:46  ncq

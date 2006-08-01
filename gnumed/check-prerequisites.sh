@@ -1,22 +1,25 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
-echo "-----------------------------------------------------------"
+echo "-------------------------------------------------------------"
 echo "Please make sure to also read the INSTALL and README files."
 echo ""
 echo "Run this script from the directory it is in or it might fail."
+echo "-------------------------------------------------------------"
 echo ""
-
 echo "You need to be able to connect to a PostgreSQL"
 echo "server. It is, however, non-trivial to reliably"
 echo "test for that."
-echo "In the following list you should see at least"
-echo "one process saying 'postmaster'."
+echo "If you want to work with a *local* database (on this"
+echo "machine) you should see at least one process saying"
+echo "'postmaster' in the following list."
+echo "If you don't you can still use our public database"
+echo "at salaam.homeunix.com for testing."
 echo ""
 echo "-------------------------------------------------------------------------"
-ps ax | grep postmaster | grep -v "grep"
+ps axww | grep postmaster | grep -v "grep"
 echo "-------------------------------------------------------------------------"
 echo ""
 
@@ -29,11 +32,19 @@ else
 	echo "=> found"
 fi
 
+cd gnumed
+ln -vfs client Gnumed
+cd -
+
 ${PYBIN} check-prerequisites.py
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.5  2005-09-24 09:11:46  ncq
+# Revision 1.6  2006-08-01 18:47:43  ncq
+# - improved wording/readability
+# - add test for GNUmed's own Python modules
+#
+# Revision 1.5  2005/09/24 09:11:46  ncq
 # - enhance wxPython checks
 #
 # Revision 1.4  2005/01/16 20:02:53  ncq
