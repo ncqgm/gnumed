@@ -45,8 +45,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.99 2006-07-24 19:28:01 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gnumed.py,v 1.100 2006-08-01 18:49:06 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -111,9 +111,13 @@ CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
 Please make sure you have:
 
-- the required third-party Python modules installed
-- the GNUmed Python modules installed in site-packages/
-- your PYTHONPATH environment variable set up correctly
+1) the required third-party Python modules installed
+2) the GNUmed Python modules linked or installed into site-packages/
+   (if you do not run from a CVS tree the installer should have taken care of that)
+3) your PYTHONPATH environment variable set up correctly
+
+If you are running from a copy of the CVS tree make sure you
+did run gnumed/check-prerequisites.sh with good results.
 
 If you still encounter errors after checking the above
 rquirements please ask on the mailing list.
@@ -449,7 +453,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.99  2006-07-24 19:28:01  ncq
+# Revision 1.100  2006-08-01 18:49:06  ncq
+# - improve wording on failure to load our own modules
+#
+# Revision 1.99  2006/07/24 19:28:01  ncq
 # - fixed variable verwechsling
 #
 # Revision 1.98  2006/07/01 13:15:04  ncq
