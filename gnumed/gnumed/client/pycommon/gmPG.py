@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -75,7 +75,8 @@ _default_client_timezone = "%+.1f" % (-tz / 3600.0)
 _serialize_failure = "serialize access due to concurrent update"
 
 #_v2_schema_hash = 'not released, testing only'
-_v2_schema_hash = 'a4ac8b074432a7b5541d28c991e34dbd'
+#_v2_schema_hash = 'a4ac8b074432a7b5541d28c991e34dbd'
+_v2_schema_hash = 'b09d50d7ed3f91ddf4c4ddb8ea507720'
 #======================================================================
 # a bunch of useful queries
 #----------------------------------------------------------------------
@@ -1358,7 +1359,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.77 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.78 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1595,7 +1596,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.77  2006-07-30 17:40:30  ncq
+# Revision 1.78  2006-08-01 22:02:42  ncq
+# - update v2 hash
+#
+# Revision 1.77  2006/07/30 17:40:30  ncq
 # - cleanup
 #
 # Revision 1.76  2006/07/19 20:27:03  ncq
