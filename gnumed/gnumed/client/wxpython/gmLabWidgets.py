@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -16,14 +16,10 @@ import os.path, sys, os, re, random
 import time
 
 # 3rd party
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	from wxPython.lib.mixins.listctrl
-	import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
-	from wxPython import grid
+import wx
+import wx.lib.mixins.listctrl as listmixins
+#import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
+#from wxPython import grid
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmMatchProvider, gmGuiBroker
 from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
@@ -867,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.20  2006-07-19 20:29:50  ncq
+# Revision 1.21  2006-08-04 05:46:15  ncq
+# - fix wx import style
+#
+# Revision 1.20  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.19  2006/05/12 12:18:11  ncq
