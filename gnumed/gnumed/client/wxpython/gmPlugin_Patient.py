@@ -5,17 +5,13 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.8 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPlugin_Patient.py,v 1.9 2006-08-04 05:44:12 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg
 from Gnumed.wxpython import gmShadow
@@ -25,7 +21,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #------------------------------------------------------------------
-class wx.BasePlugin:
+class BasePlugin:
 	"""Base class for all plugins providing wxPython widgets.
 
 	Plugins must have a class descending of this class in
@@ -123,12 +119,12 @@ class wx.BasePlugin:
 	def name(self):
 		return 'plugin %s' % self.__class__.__name__
 #------------------------------------------------------------------
-class wxPatientPlugin (wx.BasePlugin):
+class wxPatientPlugin (BasePlugin):
 	"""
 	A 'small page', sits inside the patient view, with the side visible
 	"""
 	def register (self):
-		wx.BasePlugin.register (self)
+		BasePlugin.register (self)
 		self.mwm = self.gb['clinical.manager']
 
 		# FIXME: do proper config check for shadowing
@@ -166,7 +162,7 @@ class wxPatientPlugin (wx.BasePlugin):
 		self.mwm.Display (self.__class__.__name__)
 	#-----------------------------------------------------
 	def unregister (self):
-		wx.BasePlugin.unregister (self)
+		BasePlugin.unregister (self)
 		self.mwm.Unregister (self.__class__.__name__)
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
@@ -183,7 +179,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.8  2006-07-19 20:29:50  ncq
+# Revision 1.9  2006-08-04 05:44:12  ncq
+# - fix class name wx.BasePlugin
+#
+# Revision 1.8  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.7  2006/05/12 12:18:11  ncq
