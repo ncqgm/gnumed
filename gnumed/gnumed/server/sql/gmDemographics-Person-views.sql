@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.54 2006-07-27 17:12:42 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.55 2006-08-04 05:40:27 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -309,7 +309,7 @@ create RULE r_delete_basic_person AS
 
 create rule r_del_identity as
 	on delete to dem.identity do instead
-		update dem.identity set deleted = True where pk = OLD.pk_identity;
+		update dem.identity set deleted = True where pk = OLD.pk;
 
 -- =============================================
 -- staff views
@@ -434,11 +434,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.54 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.55 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.54  2006-07-27 17:12:42  ncq
+-- Revision 1.55  2006-08-04 05:40:27  ncq
+-- - dem.identity has pk, not pk_identity so fix rule
+--
+-- Revision 1.54  2006/07/27 17:12:42  ncq
 -- - add .deleted to dem.identity so we can mark patients as deleted
 -- - exclude .deleted patients from v_basic_person
 -- - add RULEs to set deleted=True on delete to identity
