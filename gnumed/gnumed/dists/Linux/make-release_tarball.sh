@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.12 2006-07-30 18:01:19 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.13 2006-08-04 06:14:00 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -48,25 +48,25 @@ CLIENT_FILES_REMOVE=\
 "./GNUmed-$REV/client/wxpython/gmShadow.py "\
 "./GNUmed-$REV/client/wxpython/gmSQLListControl.py "\
 "./GNUmed-$REV/client/wxpython/gmSQLSimpleSearch.py "\
-"./GNUmed-$REV/client/wxpython/gmAllergiesPlugin.py "\
-"./GNUmed-$REV/client/wxpython/gmAU_VaccV01Plugin.py "\
-"./GNUmed-$REV/client/wxpython/gmClinicalWindowManager.py "\
-"./GNUmed-$REV/client/wxpython/gmContacts.py "\
-"./GNUmed-$REV/client/wxpython/gmDemographicsEditor.py "\
-"./GNUmed-$REV/client/wxpython/gmDrugDisplay.py "\
-"./GNUmed-$REV/client/wxpython/gmEMRTextDumpPlugin.py "\
-"./GNUmed-$REV/client/wxpython/gmGuidelines.py "\
-"./GNUmed-$REV/client/wxpython/gmLabJournal.py "\
-"./GNUmed-$REV/client/wxpython/gmMultiSashedProgressNoteInputPlugin.py "\
-"./GNUmed-$REV/client/wxpython/gmOffice.py "\
-"./GNUmed-$REV/client/wxpython/gmPython.py "\
-"./GNUmed-$REV/client/wxpython/gmRequest.py "\
-"./GNUmed-$REV/client/wxpython/gmShowLab.py "\
-"./GNUmed-$REV/client/wxpython/gmSnellen.py "\
-"./GNUmed-$REV/client/wxpython/gmSQL.py "\
-"./GNUmed-$REV/client/wxpython/gmStikoBrowser.py "\
-"./GNUmed-$REV/client/wxpython/gmVaccinationsPlugin.py "\
-"./GNUmed-$REV/client/wxpython/gmXdtViewer.py "
+"./GNUmed-$REV/client/wxpython/gui/gmAllergiesPlugin.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmAU_VaccV01Plugin.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmClinicalWindowManager.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmContacts.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmDemographicsEditor.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmDrugDisplay.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmEMRTextDumpPlugin.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmGuidelines.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmLabJournal.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmMultiSashedProgressNoteInputPlugin.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmOffice.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmPython.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmRequest.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmShowLab.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmSnellen.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmSQL.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmStikoBrowser.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmVaccinationsPlugin.py "\
+"./GNUmed-$REV/client/wxpython/gui/gmXdtViewer.py "
 
 
 echo "cleaning up"
@@ -152,7 +152,7 @@ chmod -cR -x ./GNUmed-$REV/client/wxGladeWidgets/*.*
 mkdir -p ./GNUmed-$REV/client/wxpython/
 cp -R ../../client/wxpython/*.py ./GNUmed-$REV/client/wxpython/
 mkdir -p ./GNUmed-$REV/client/wxpython/gui/
-cp -R ../../client/wxpython/*.py ./GNUmed-$REV/client/wxpython/gui/
+cp -R ../../client/wxpython/gui/*.py ./GNUmed-$REV/client/wxpython/gui/
 chmod -cR -x ./GNUmed-$REV/client/wxpython/*.*
 chmod -cR -x ./GNUmed-$REV/client/wxpython/gui/*.*
 
@@ -214,7 +214,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.12  2006-07-30 18:01:19  ncq
+# Revision 1.13  2006-08-04 06:14:00  ncq
+# - fix missing /gui/ part in deletion filenames as well as copy
+#
+# Revision 1.12  2006/07/30 18:01:19  ncq
 # - fix rights
 #
 # Revision 1.11  2006/07/30 17:10:47  ncq
