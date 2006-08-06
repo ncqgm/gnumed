@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.263 2006-08-01 22:04:32 ncq Exp $
-__version__ = "$Revision: 1.263 $"
+# $Id: gmGuiMain.py,v 1.264 2006-08-06 20:04:02 ncq Exp $
+__version__ = "$Revision: 1.264 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -22,20 +22,26 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, os, cPickle, zlib, locale
 
-try:
-	# do not check inside py2exe and friends
-	if not hasattr(sys, 'frozen'):
+# do not check inside py2exe and friends
+if not hasattr(sys, 'frozen'):
+	try:
 		import wxversion
-		try:
-			wxversion.select(versions='2.6-unicode', optionsRequired=True)
-		except wxversion.VersionError:
-			print "GNUmed startup: Cannot import proper wxPython library version."
-			print "GNUmed startup: Make sure a unicode-enabled wxPython > v2.6 is installed."
-			print 'CRITICAL ERROR: Error importing wxPython. Halted.'
-			raise
+		wxversion.select(versions='2.6-unicode', optionsRequired=True)
+	except ImportError:
+		print "GNUmed startup: Cannot import wxPython version selection support."
+		print "GNUmed startup: Installing 'wxversion' version selection is highly"
+		print "GNUmed startup: recommended. For details, see here:"
+		print "GNUmed startup:  http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
+		print "GNUmed startup: Starting anyways and hoping for the best:"
+		print "GNUmed startup: wxPython must be > v2.6 and unicode-enabled"
+	except wxversion.VersionError:
+		print "GNUmed startup: Cannot import proper wxPython library version."
+		print "GNUmed startup: Make sure a unicode-enabled wxPython > v2.6 is installed."
+		print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
+		raise
 
+try:
 	import wx
-
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -1167,7 +1173,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.263  2006-08-01 22:04:32  ncq
+# Revision 1.264  2006-08-06 20:04:02  ncq
+# - improve wxPython version checking and related messages
+#
+# Revision 1.263  2006/08/01 22:04:32  ncq
 # - call disable_identity()
 #
 # Revision 1.262  2006/07/30 18:47:19  ncq
