@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.13 2006-08-04 06:14:00 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.14 2006-08-07 07:16:23 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -72,7 +72,7 @@ CLIENT_FILES_REMOVE=\
 echo "cleaning up"
 rm -R ./GNUmed-$REV/
 rm -vf $ARCHFILE
-cd ../../
+cd ../../../
 ./remove_pyc.sh
 cd -
 
@@ -181,25 +181,25 @@ tar -cvhzf $ARCHFILE ./GNUmed-$REV/client/
 
 
 #----------------------------------
-echo "____________"
-echo "=> server <="
-echo "============"
+#echo "____________"
+#echo "=> server <="
+#echo "============"
 
 #mkdir -p ./GNUmed-$REV/server
 #mkdir -p ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
 #mkdir -p ./GNUmed-$REV/server/usr/share/gnumed/install/server/bootstrap
 
 #cp -R ../../client/pycommon ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
-cp -R ../../server/ ./GNUmed-$REV/server/
+#cp -R ../../server/ ./GNUmed-$REV/server/
 #cp -R ../../server/bootstrap/ ./GNUmed-$REV/server/usr/share/gnumed/install/server/
 
-#----------------------------------
-cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/
-cp -R ../../../check-prerequisites.py ./GNUmed-$REV/
-cp -R ../../../check-prerequisites.sh ./GNUmed-$REV/
-cp -R ../../../CHANGELOG ./GNUmed-$REV/
+#cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/
+#cp -R ../../../check-prerequisites.py ./GNUmed-$REV/
+#cp -R ../../../check-prerequisites.sh ./GNUmed-$REV/
+#cp -R ../../../CHANGELOG ./GNUmed-$REV/
 #cp -R ./install.sh ./GNUmed-$REV/
 #ln -s ../CHANGELOG ../check-prerequisites.py ../check-prerequisites.sh ../install.sh ../GnuPublicLicense.txt ./GNUmed-$REV/
+
 
 #----------------------------------
 echo "cleaning out debris"
@@ -214,7 +214,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.13  2006-08-04 06:14:00  ncq
+# Revision 1.14  2006-08-07 07:16:23  ncq
+# - properly call remove_pyc.sh
+#
+# Revision 1.13  2006/08/04 06:14:00  ncq
 # - fix missing /gui/ part in deletion filenames as well as copy
 #
 # Revision 1.12  2006/07/30 18:01:19  ncq
