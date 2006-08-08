@@ -45,8 +45,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.100 2006-08-01 18:49:06 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gnumed.py,v 1.101 2006-08-08 10:13:01 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -120,7 +120,7 @@ If you are running from a copy of the CVS tree make sure you
 did run gnumed/check-prerequisites.sh with good results.
 
 If you still encounter errors after checking the above
-rquirements please ask on the mailing list.
+requirements please ask on the mailing list.
 """
 	try:
 		from Gnumed.pycommon import gmLog as _gmLog
@@ -453,7 +453,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.100  2006-08-01 18:49:06  ncq
+# Revision 1.101  2006-08-08 10:13:01  ncq
+# - fix typo
+#
+# Revision 1.100  2006/08/01 18:49:06  ncq
 # - improve wording on failure to load our own modules
 #
 # Revision 1.99  2006/07/24 19:28:01  ncq
