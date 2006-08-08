@@ -45,8 +45,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.101 2006-08-08 10:13:01 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gnumed.py,v 1.102 2006-08-08 10:28:30 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -95,6 +95,7 @@ _old_sig_term = None
 
 #==========================================================
 def handle_uncaught_exception(t, v, tb):
+
 	print ",========================================================"
 	print "| Unhandled exception caught !"
 	print "| Type :", t
@@ -111,17 +112,21 @@ CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
 Please make sure you have:
 
-1) the required third-party Python modules installed
-2) the GNUmed Python modules linked or installed into site-packages/
-   (if you do not run from a CVS tree the installer should have taken care of that)
-3) your PYTHONPATH environment variable set up correctly
+ 1) the required third-party Python modules installed
+ 2) the GNUmed Python modules linked or installed into site-packages/
+    (if you do not run from a CVS tree the installer should have taken care of that)
+ 3) your PYTHONPATH environment variable set up correctly
+
+sys.path is currently set to:
+
+ %s
 
 If you are running from a copy of the CVS tree make sure you
 did run gnumed/check-prerequisites.sh with good results.
 
 If you still encounter errors after checking the above
 requirements please ask on the mailing list.
-"""
+""" % '\n '.join(sys.path)
 	try:
 		from Gnumed.pycommon import gmLog as _gmLog
 		from Gnumed.pycommon import gmCLI as _gmCLI
@@ -453,7 +458,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.101  2006-08-08 10:13:01  ncq
+# Revision 1.102  2006-08-08 10:28:30  ncq
+# - show sys.path when failing to import GNUmed modules
+#
+# Revision 1.101  2006/08/08 10:13:01  ncq
 # - fix typo
 #
 # Revision 1.100  2006/08/01 18:49:06  ncq
