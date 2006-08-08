@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 import sys
 
@@ -13,6 +13,8 @@ except ImportError:
 	print "ERROR: mxDateTime not installed"
 	print "ERROR: this is needed to handle dates and times"
 	print "ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
+	print "INFO : sys.path is set as follows:"
+	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
 
 print "=> checking for Python module pyPgSQL ..."
@@ -23,6 +25,8 @@ except ImportError:
 	print "ERROR: pyPgSQL not installed"
 	print "ERROR: this is needed to access PostgreSQL"
 	print "ERROR: pyPgSQL is available from http://pypgsql.sourceforge.net"
+	print "INFO : sys.path is set as follows:"
+	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
 
 print "=> checking for Python module wxPython ..."
@@ -38,6 +42,8 @@ try:
 		print "=> found"
 	except ImportError:
 		print "ERROR: wxPython is not properly installed"
+		print "INFO : sys.path is set as follows:"
+		print "INFO :", "\nINFO : ".join(sys.path)
 		sys.exit(-1)
 except ImportError:
 	import os
@@ -53,15 +59,20 @@ except ImportError:
 			print "ERROR: this is needed to show the GNUmed GUI"
 			print "ERROR: wxPython is available from http://www.wxpython.org"
 			print "INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
+			print "INFO : sys.path is set as follows:"
+			print "INFO :", "\nINFO : ".join(sys.path)
 			sys.exit(-1)
 
 print "=> checking for the GNUmed's own Python modules"
 try:
-	from Gnumed.pycommon import gmNull
+	from Gnumed.pycommon import gmNull2
 	print "=> found"
 except ImportError:
 	print "ERROR: GNUmed's own Python modules not found"
 	print "ERROR: these handle most of the work in GNUmed"
+	print "INFO : sys.path is set as follows:"
+	print "INFO :", "\nINFO : ".join(sys.path)
+	sys.exit(-1)
 
 print "\n****************************************************"
 print "* Most likely you can run GNUmed without problems. *"
@@ -70,7 +81,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.8  2006-08-01 18:47:43  ncq
+# Revision 1.9  2006-08-08 10:41:35  ncq
+# - improve debug output
+#
+# Revision 1.8  2006/08/01 18:47:43  ncq
 # - improved wording/readability
 # - add test for GNUmed's own Python modules
 #
