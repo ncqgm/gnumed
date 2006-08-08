@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.14 2006-08-07 07:16:23 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.15 2006-08-08 14:04:38 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -106,6 +106,11 @@ chmod -cR -x ./GNUmed-$REV/client/bitmaps/*.*
 # business
 mkdir -p ./GNUmed-$REV/client/business/
 cp -R ../../client/business/*.py ./GNUmed-$REV/client/business/
+
+
+# connectors
+mkdir -p ./GNUmed-$REV/client/connectors/
+cp -R ../../client/connectors/xdt2gnumed.* ./GNUmed-$REV/client/connectors/
 
 
 # doc
@@ -214,7 +219,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.14  2006-08-07 07:16:23  ncq
+# Revision 1.15  2006-08-08 14:04:38  ncq
+# - include xdt connector
+#
+# Revision 1.14  2006/08/07 07:16:23  ncq
 # - properly call remove_pyc.sh
 #
 # Revision 1.13  2006/08/04 06:14:00  ncq
