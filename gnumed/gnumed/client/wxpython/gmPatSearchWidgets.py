@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.40 2006-07-30 18:48:18 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmPatSearchWidgets.py,v 1.41 2006-08-09 15:00:47 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -527,22 +527,22 @@ class cPatientSelector(wx.TextCtrl):
 			style = wx.TE_PROCESS_ENTER
 		)
 
-
-
-		selector_tooltip = _( \
-"""Patient search field.                                   \n
-to search, type any of:
- - fragment of last or first name
- - date of birth (can start with '$' or '*')
- - patient ID (can start with '#')
-and hit <ENTER>
-<ALT-L> or <ALT-P>
- - list of *L*ast/*P*revious patients
-<ALT-K> or <ALT-C>
- - list of *K*VKs/*C*hipcards
-<CURSOR-UP>
- - recall most recently used search term
-""")
+		selector_tooltip = _(
+		'Patient search field.                             \n'
+		'\n'
+		'To search, type any of:\n'
+		' - fragment of last or first name\n'
+		" - date of birth (can start with '$' or '*')\n"
+		" - patient ID (can start with '#')\n"
+		'and hit <ENTER>.\n'
+		'\n'
+		'<CURSOR-UP>\n'
+		' - recall most recently used search term\n'
+		'<CURSOR-DOWN>\n'
+		' - list 10 most recently activated patients\n'
+		'<F2>\n'
+		' - scan external sources for patients to import and activate\n'
+		)
 		self.SetToolTip(wx.ToolTip(selector_tooltip))
 
 		self._display_name()
@@ -960,7 +960,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.40  2006-07-30 18:48:18  ncq
+# Revision 1.41  2006-08-09 15:00:47  ncq
+# - better search widget tooltip
+#
+# Revision 1.40  2006/07/30 18:48:18  ncq
 # - invoke load_external_patient on <F2> in searcher
 # - robustify by commenting out shaky KVK code
 #
