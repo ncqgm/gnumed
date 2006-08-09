@@ -1,11 +1,11 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 import sys
 
-print "=> checking for Python module mxDateTime ..."
+print "=> checking for Python module 'mxDateTime' ..."
 try:
 	import mx.DateTime
 	print "=> found"
@@ -17,7 +17,7 @@ except ImportError:
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
 
-print "=> checking for Python module pyPgSQL ..."
+print "=> checking for Python module 'pyPgSQL' ..."
 try:
 	import pyPgSQL.PgSQL
 	print "=> found"
@@ -29,43 +29,77 @@ except ImportError:
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
 
-print "=> checking for Python module wxPython ..."
-try:
-	import wxversion
-	print "   - version selection support detected:", wxversion.getInstalled()
+print "=> checking for Python module 'wxVersion' ..."
+if hasattr(sys, 'frozen'):
+	print "INFO : py2exe or similar in use, cannot check wxPython version"
+	print "INFO : skipping test and hoping for the best"
+	print "INFO : wxPython must be > v2.6 and unicode-enabled"
+	print "=> cannot check"
+else:
 	try:
-		import wx
-		print "   - active version:", wx.VERSION_STRING
-		try:
-			print "   - platform info:", wx.PlatformInfo
-		except: pass
+		import wxversion
+		print "   - installed versions:", wxversion.getInstalled()
 		print "=> found"
+		print "   - selecting unicode enabled version >= 2.6"
+		wxversion.select(versions='2.6-unicode', optionsRequired=True)
+		print "=> selected"
 	except ImportError:
-		print "ERROR: wxPython is not properly installed"
+		print "ERROR: wxversion not installed"
+		print "ERROR: this is used to select the proper wxPython version"
+		print "INFO : for details, see here:"
+		print "INFO : http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
+		print "INFO : skipping test and hoping for the best"
+		print "INFO : wxPython must be > v2.6 and unicode-enabled"
+		print "=> NOT found"
+	except wxversion.VersionError:
+		print "ERROR: wxPython-2.6-unicode not installed"
+		print "ERROR: this is needed to show the GNUmed GUI"
+		print "INFO : wxPython is available from http://www.wxpython.org"
 		print "INFO : sys.path is set as follows:"
 		print "INFO :", "\nINFO : ".join(sys.path)
 		sys.exit(-1)
+
+print "=> checking for Python module 'wxPython' ..."
+try:
+	import wx
+	print "   - active version:", wx.VERSION_STRING
+	try:
+		print "   - platform info:", wx.PlatformInfo
+	except: pass
+	print "=> found"
 except ImportError:
 	import os
 	if os.getenv('DISPLAY') is None:
-		print "WARNING: cannot check for module wxPython"
-		print "WARNING: you must run this in a GUI terminal window"
-	else:
-		try:
-			import wxPython.wx
-			print "=> found"
-		except ImportError:
-			print "ERROR: wxPython not installed"
-			print "ERROR: this is needed to show the GNUmed GUI"
-			print "ERROR: wxPython is available from http://www.wxpython.org"
-			print "INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
-			print "INFO : sys.path is set as follows:"
-			print "INFO :", "\nINFO : ".join(sys.path)
-			sys.exit(-1)
+		print "INFO : you may have to explicitely set $DISPLAY"
+	print "ERROR: wxPython not installed"
+	print "ERROR: this is needed to show the GNUmed GUI"
+	print "INFO : wxPython is available from http://www.wxpython.org"
+	print "INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
+	print "INFO : sys.path is set as follows:"
+	print "INFO :", "\nINFO : ".join(sys.path)
+	sys.exit(-1)
 
-print "=> checking for the GNUmed's own Python modules"
+print "=> checking for Python module 'sane' ..."
 try:
-	from Gnumed.pycommon import gmNull2
+	import sane
+	print "=> found"
+except ImportError:
+	print "ERROR: sane not installed"
+	print "INFO : this is needed to access scanners on Linux"
+	print "INFO : GNUmed will work but you will be unable to scan"
+
+print "=> checking for Python module 'twain' ..."
+try:
+	import twain
+	print "=> found"
+except ImportError:
+	print "ERROR: twain not installed"
+	print "INFO : this is needed to access scanners on Windows"
+	print "INFO : GNUmed will work but you will be unable to scan"
+
+print "=> checking for GNUmed's own Python modules ..."
+try:
+	from Gnumed.pycommon import gmNull
 	print "=> found"
 except ImportError:
 	print "ERROR: GNUmed's own Python modules not found"
@@ -81,7 +115,12 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.9  2006-08-08 10:41:35  ncq
+# Revision 1.10  2006-08-09 14:05:28  ncq
+# - more unified output
+# - better wxversion/wxPython detection
+# - add checks for SANE/TWAIN
+#
+# Revision 1.9  2006/08/08 10:41:35  ncq
 # - improve debug output
 #
 # Revision 1.8  2006/08/01 18:47:43  ncq
