@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 echo "-------------------------------------------------------------"
 echo "Please make sure to also read the INSTALL and README files."
@@ -32,15 +32,47 @@ else
 	echo "=> found"
 fi
 
+# make sure we can locally find the Python modules
 cd gnumed
-ln -vfs client Gnumed
+ln -s client Gnumed
 cd -
+
+echo ""
+read -p "Press <RETURN> key to continue."
+echo    "-------------------------------"
 
 ${PYBIN} check-prerequisites.py
 
+echo ""
+read -p "Press <RETURN> key to continue."
+echo    "-------------------------------"
+
+echo "=> checking for 'file' command ..."
+BIN=`which file`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'file' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "=> found"
+fi
+
+echo "=> checking for 'extract' command ..."
+BIN=`which extract`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'extract' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "=> found"
+fi
+
+
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.6  2006-08-01 18:47:43  ncq
+# Revision 1.7  2006-08-09 14:06:27  ncq
+# - make more sure output doesn't scroll off the screen
+# - add checks for file/extract commands
+#
+# Revision 1.6  2006/08/01 18:47:43  ncq
 # - improved wording/readability
 # - add test for GNUmed's own Python modules
 #
