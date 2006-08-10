@@ -1,15 +1,8 @@
-"""gmDemographics
-
-Widgets dealing with patient demographics.
-
- @copyright: authors
- @dependencies: wxPython (>= version 2.3.1)
-	28.07.2004 rterry gui-rewrite to include upper patient window
-"""
+"""Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.98 2006-08-01 22:03:18 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmDemographicsWidgets.py,v 1.99 2006-08-10 07:19:05 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,8 +15,8 @@ import mx.DateTime as mxDT
 import wx
 import wx.wizard
 
-# GnuMed specific
-from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
+# GNUmed specific
+from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
 from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
 
@@ -1983,7 +1976,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.98  2006-08-01 22:03:18  ncq
+# Revision 1.99  2006-08-10 07:19:05  ncq
+# - remove import of gmPatientHolder
+#
+# Revision 1.98  2006/08/01 22:03:18  ncq
 # - cleanup
 # - add disable_identity()
 #
