@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.264 2006-08-06 20:04:02 ncq Exp $
-__version__ = "$Revision: 1.264 $"
+# $Id: gmGuiMain.py,v 1.265 2006-08-11 13:10:08 ncq Exp $
+__version__ = "$Revision: 1.265 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -36,7 +36,7 @@ if not hasattr(sys, 'frozen'):
 		print "GNUmed startup: wxPython must be > v2.6 and unicode-enabled"
 	except wxversion.VersionError:
 		print "GNUmed startup: Cannot import proper wxPython library version."
-		print "GNUmed startup: Make sure a unicode-enabled wxPython > v2.6 is installed."
+		print "GNUmed startup: wxPython 2.6.x with unicode support is required."
 		print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
 		raise
 
@@ -47,6 +47,14 @@ except ImportError:
 	print "GNUmed startup: Make sure wxPython is installed."
 	print 'CRITICAL ERROR: Error importing wxPython. Halted.'
 	raise
+
+version = '%s.%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION)
+if (version != '2.6') or ('unicode' not in wx.PlatformInfo):
+	print "GNUmed startup: Unsupported wxPython version (%s: %s)." % (wx.VERSION_STRING, wx.PlatformInfo)
+	print "GNUmed startup: wxPython 2.6.x with unicode support is required."
+	print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
+	raise ValueError('wxPython 2.6.x with unicode support not found')
+
 
 from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
@@ -63,7 +71,7 @@ _provider = None
 email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.VERSION_STRING)
+_log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 
 
 # set up database connection encoding
@@ -1173,7 +1181,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.264  2006-08-06 20:04:02  ncq
+# Revision 1.265  2006-08-11 13:10:08  ncq
+# - even if we cannot find wxversion still test for 2.6.x/unicode after
+#   the fact and make very unhappy noises before drifting off into coma
+#
+# Revision 1.264  2006/08/06 20:04:02  ncq
 # - improve wxPython version checking and related messages
 #
 # Revision 1.263  2006/08/01 22:04:32  ncq
