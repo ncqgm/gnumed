@@ -1,6 +1,6 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/README,v $
-# $Id: README,v 1.5 2006-07-24 14:16:22 ncq Exp $
-# $Revision: 1.5 $
+# $Id: README,v 1.6 2006-08-11 14:21:37 ncq Exp $
+# $Revision: 1.6 $
 
 This directory stores connectors specific to this client.
 
@@ -27,6 +27,17 @@ Karsten
 MDW current patient ID:
 
  \HKEY_LOCAL_MACHINE\SOFTWARE\Medical Director for Windows\General\CurrentPatient
+
+  - UR_NO field in patient dBase file
+  - uppercase 4 letter prefix of lastname
+  - uppercase 4 letter prefix of firstname
+  - uppercase (?) 1 letter prefix of middlename
+  - surrounded by | as delimiters
+  - if multiple MDW windows open then it's the patient of the currently *active* one
+
+ \HKEY_LOCAL_MACHINE\SOFTWARE\Medical Director for Windows\General\CurrentDoctor
+
+  - provider number of the currently logged in doctor
 
 -----------------------------------------------------------
 TurboMed GDT-Schnittstelle:
@@ -62,4 +73,26 @@ So jetzt wissen Sie und ich auch "wat n Dampfmaschin is".
 
 mit freundlichen gruessen
 Hugo
+-----------------------------------------------------------
+MCS-Isynet (Germany):
+
+MCS-ISYNET und Adakta tauschen die Daten über Dateien aus. Die Pfade sind in beiden
+Programmen frei konfigurierbar. Bitte verwenden Sie möglichst die Pfade aus dieser
+Beschreibung.
+
+Wird in MCS-ISYNET der Patient gewechselt, erzeugt MCS-ISYNET automatisch die Datei
+C:\WINACS\TEMP\PATINF01.TMP mit den Patientenstammdaten.
+
+AdAkta importiert bei Aufruf diese Datei. der Import wird durch die Aktivierung des
+AdAkta-Fensters ausgelöst, egal wie der Benutzer AdAkta aufruft (ALT+TAB, Mausklick
+etc.).
+
+Für den Eintrag in die Karteikarte erzeugt AdAkta nach dem Archivieren eines
+Dokumentes die GDT-Datei (ADAKTA.GDT). Der Aufbau der GDT-Datei wird durch die
+Formatdatei MCSISY.EXP bestimmt und kann individuell verändert werden.
+
+MCS-KOMAN importiert diese GDT-Datei asynchon (es läuft ein Polling auf die Datei!)
+und benachrichtigt dann MCS-ISYNET. Diese Datei wird von MCS-KOMAN gelesen, in die
+Karteikarte eingetragen und anschließend gelöscht.
+
 -----------------------------------------------------------
