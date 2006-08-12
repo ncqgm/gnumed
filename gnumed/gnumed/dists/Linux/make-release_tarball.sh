@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.15 2006-08-08 14:04:38 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.16 2006-08-12 19:47:06 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
@@ -176,7 +176,8 @@ rm -vf PublishManual*
 wget -v -O ./GNUmed-$REV/client/doc/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/gm-manual//Gnumed.tgz
 cd ./GNUmed-$REV/client/doc/user-manual/
 tar -xvzf GNUmed-User-Manual.tgz
-ln -s Release-02.html index.html
+rm -vf Release-02.html
+ln -s GnumedManual.html index.html
 rm -vf GNUmed-User-Manual.tgz
 cd -
 
@@ -219,7 +220,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.15  2006-08-08 14:04:38  ncq
+# Revision 1.16  2006-08-12 19:47:06  ncq
+# - link index.html directly to GnumedManual.html
+#
+# Revision 1.15  2006/08/08 14:04:38  ncq
 # - include xdt connector
 #
 # Revision 1.14  2006/08/07 07:16:23  ncq
