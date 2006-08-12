@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -34,13 +34,13 @@ values (
 	'which plugins to load in the GUI'
 );
 
--- a 'workplace' called "Librarian (0.2)"
+-- a 'workplace' called "post-Librarian (0.3)"
 insert into cfg.cfg_item
 	(fk_template, owner, workplace)
 values (
 	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
-	'Librarian Release (0.2)'
+	'post-Librarian Release (0.3)'
 );
 
 insert into cfg.cfg_str_array
@@ -301,11 +301,14 @@ values (currval('cfg.cfg_item_pk_seq'), 1);
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.28 $');
+select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.28  2006-05-15 13:42:52  ncq
+-- Revision 1.29  2006-08-12 12:44:53  ncq
+-- - 0.3 is now in order
+--
+-- Revision 1.28  2006/05/15 13:42:52  ncq
 -- - move Manual plugin further back in line
 --
 -- Revision 1.27  2006/02/27 15:38:35  ncq
