@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.90 2006-07-24 20:51:26 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmMedDocWidgets.py,v 1.90.2.1 2006-08-14 18:39:26 ncq Exp $
+__version__ = "$Revision: 1.90.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -435,8 +435,6 @@ where
 	# event handling API
 	#--------------------------------------------------------
 	def _scan_btn_pressed(self, evt):
-		device_names = []
-		device_objects = {}
 		devices = self.scan_module.get_devices()
 
 		if devices is False:
@@ -447,13 +445,16 @@ where
 			return None
 
 		# TWAIN doesn't have get_devices() :-(
-		if devices is not None:
+		if devices is None:
+			chosen_device = None
+		else:
 			if len(devices) == 0:
 				gmGuiHelpers.gm_beep_statustext (
 					_('Cannot find an active scanner.'),
 					gmLog.lWarn
 				)
 				return None
+			device_names = []
 			for device in devices:
 				device_names.append('%s (%s)' % (device[2], device[0]))
 			# wxpython does not support client data in wxSingleChoiceDialog
@@ -462,10 +463,13 @@ where
 				aTitle = _('device selection'),
 				choices = device_names
 			)
+			if device_idx is False:
+				return None
+			chosen_device = devices[device_idx][0]
 
 		# FIXME: load directory from backend config
 		fname = self.scan_module.acquire_page_into_file (
-			device = devices[device_idx][0],
+			device = chosen_device,
 			filename = 'test',
 			delay = 5,
 			calling_window = self
@@ -1197,7 +1201,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.90  2006-07-24 20:51:26  ncq
+# Revision 1.90.2.1  2006-08-14 18:39:26  ncq
+# - fix TWAIN failure on pressing scan button
+#
+# Revision 1.90  2006/07/24 20:51:26  ncq
 # - get_by_user() -> get2()
 #
 # Revision 1.89  2006/07/10 21:57:43  ncq
