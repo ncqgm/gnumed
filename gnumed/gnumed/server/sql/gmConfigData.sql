@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -41,6 +41,22 @@ values (
 	currval('cfg.cfg_template_pk_seq'),
 	'xxxDEFAULTxxx',
 	'post-Librarian Release (0.3)'
+);
+
+insert into cfg.cfg_str_array
+	(fk_item, value)
+values (
+	currval('cfg.cfg_item_pk_seq'),
+	'{"gmProviderInboxPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmManual","gmConfigRegistry"}'
+);
+
+-- a 'workplace' called "Librarian Release (0.2)"
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
+values (
+	currval('cfg.cfg_template_pk_seq'),
+	'xxxDEFAULTxxx',
+	'Librarian Release (0.2)'
 );
 
 insert into cfg.cfg_str_array
@@ -301,11 +317,14 @@ values (currval('cfg.cfg_item_pk_seq'), 1);
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.29 $');
+select log_script_insertion('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.29  2006-08-12 12:44:53  ncq
+-- Revision 1.30  2006-08-15 17:09:20  ncq
+-- - re-add Librarian Release workplace
+--
+-- Revision 1.29  2006/08/12 12:44:53  ncq
 -- - 0.3 is now in order
 --
 -- Revision 1.28  2006/05/15 13:42:52  ncq
