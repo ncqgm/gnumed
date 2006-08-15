@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.17 2006-08-14 20:27:01 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.18 2006-08-15 08:06:39 ncq Exp $
 # license: GPL
 #====================================================
-REV="0.2.x"
+REV="post-0.2"
 ARCHFILE="GNUmed-client.$REV.tgz"
 
 CLIENT_FILES_REMOVE=\
@@ -220,7 +220,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.17  2006-08-14 20:27:01  ncq
+# Revision 1.18  2006-08-15 08:06:39  ncq
+# - better name for tgz
+#
+# Revision 1.17  2006/08/14 20:27:01  ncq
 # - don't call it 0.2 anymore as it isn't
 #
 # Revision 1.16  2006/08/12 19:47:06  ncq
