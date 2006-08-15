@@ -2,13 +2,14 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.15 2006-08-08 14:04:38 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.15.2.1 2006-08-15 21:15:34 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2"
-ARCHFILE="GNUmed-client.$REV.tgz"
+CLIENTARCH="GNUmed-client.$REV.tgz"
+SRVARCH="GNUmed-server.$REV.tgz"
 
-CLIENT_FILES_REMOVE=\
+FILES_REMOVE=\
 "./GNUmed-$REV/client/business/README "\
 "./GNUmed-$REV/client/business/gmForms.py "\
 "./GNUmed-$REV/client/business/gmOrganization.py "\
@@ -66,12 +67,33 @@ CLIENT_FILES_REMOVE=\
 "./GNUmed-$REV/client/wxpython/gui/gmSQL.py "\
 "./GNUmed-$REV/client/wxpython/gui/gmStikoBrowser.py "\
 "./GNUmed-$REV/client/wxpython/gui/gmVaccinationsPlugin.py "\
-"./GNUmed-$REV/client/wxpython/gui/gmXdtViewer.py "
+"./GNUmed-$REV/client/wxpython/gui/gmXdtViewer.py "\
+"./GNUmed-$REV/server/bootstrap/amis-config.set "\
+"./GNUmed-$REV/server/bootstrap/bootstrap-amis.conf "\
+"./GNUmed-$REV/server/bootstrap/bootstrap-archive.conf "\
+"./GNUmed-$REV/server/bootstrap/install_AMIS_data.sh "\
+"./GNUmed-$REV/server/bootstrap/redo-max.sh "\
+"./GNUmed-$REV/server/bootstrap/update_db-v1_v2.conf "\
+"./GNUmed-$REV/server/bootstrap/update_db-v1_v2.sh "\
+"./GNUmed-$REV/server/sql/gmappoint.sql "\
+"./GNUmed-$REV/server/sql/gmmodule.sql "\
+"./GNUmed-$REV/server/sql/gmrecalls.sql "\
+"./GNUmed-$REV/server/sql/update_db-v1_v2.sql "\
+"./GNUmed-$REV/server/sql/gmCrossDB_FKs.sql "\
+"./GNUmed-$REV/server/sql/gmCrossDB_FK-views.sql "\
+"./GNUmed-$REV/server/sql/gmFormDefs.sql "\
+"./GNUmed-$REV/server/sql/gmPhraseWheelTest.sql "\
+"./GNUmed-$REV/server/sql/ "\
+"./GNUmed-$REV/server/sql/ "\
+"./GNUmed-$REV/server/sql/ "\
+"./GNUmed-$REV/server/sql/ "\
+"./GNUmed-$REV/server/sql/ "\
 
 
 echo "cleaning up"
 rm -R ./GNUmed-$REV/
-rm -vf $ARCHFILE
+rm -vf $CLIENTARCH
+rm -vf $SRVARCH
 cd ../../../
 ./remove_pyc.sh
 cd -
@@ -162,12 +184,6 @@ chmod -cR -x ./GNUmed-$REV/client/wxpython/*.*
 chmod -cR -x ./GNUmed-$REV/client/wxpython/gui/*.*
 
 
-# cleanup
-for fname in $CLIENT_FILES_REMOVE ; do
-	rm -vf $fname
-done ;
-
-
 # pick up current User Manual
 echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$REV/client/doc/user-manual/
@@ -181,45 +197,72 @@ rm -vf GNUmed-User-Manual.tgz
 cd -
 
 
-# now make tarballs
-tar -cvhzf $ARCHFILE ./GNUmed-$REV/client/
+#----------------------------------
+# create server package
+echo "____________"
+echo "=> server <="
+echo "============"
+
+
+# client
+mkdir -p ./GNUmed-$REV/server
+cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/server/
+
+
+# pycommon
+mkdir -p ./GNUmed-$REV/server/pycommon
+cp -R ../../client/pycommon/*.py ./GNUmed-$REV/server/pycommon/
+
+
+# bootstrap
+mkdir -p ./GNUmed-$REV/server/bootstrap
+cp -R ../../server/bootstrap/* ./GNUmed-$REV/server/bootstrap/
+
+
+# sql
+mkdir -p ./GNUmed-$REV/server/sql
+cp -R ../../server/sql/*.sql ./GNUmed-$REV/server/sql/
+mkdir -p ./GNUmed-$REV/server/sql/country.specific
+mkdir -p ./GNUmed-$REV/server/sql/country.specific/au
+cp -R ../../server/sql/country.specific/au/*.sql ./GNUmed-$REV/server/sql/country.specific/au
+mkdir -p ./GNUmed-$REV/server/sql/country.specific/ca
+cp -R ../../server/sql/country.specific/ca/*.sql ./GNUmed-$REV/server/sql/country.specific/ca
+mkdir -p ./GNUmed-$REV/server/sql/country.specific/de
+cp -R ../../server/sql/country.specific/de/*.sql ./GNUmed-$REV/server/sql/country.specific/de
+mkdir -p ./GNUmed-$REV/server/sql/country.specific/es
+cp -R ../../server/sql/country.specific/es/*.sql ./GNUmed-$REV/server/sql/country.specific/es
+mkdir -p ./GNUmed-$REV/server/sql/test-data
+cp -R ../../server/sql/test-data/*.sql ./GNUmed-$REV/server/sql/test-data
 
 
 #----------------------------------
-#echo "____________"
-#echo "=> server <="
-#echo "============"
-
-#mkdir -p ./GNUmed-$REV/server
-#mkdir -p ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
-#mkdir -p ./GNUmed-$REV/server/usr/share/gnumed/install/server/bootstrap
-
-#cp -R ../../client/pycommon ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
-#cp -R ../../server/ ./GNUmed-$REV/server/
-#cp -R ../../server/bootstrap/ ./GNUmed-$REV/server/usr/share/gnumed/install/server/
-
-#cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/
-#cp -R ../../../check-prerequisites.py ./GNUmed-$REV/
-#cp -R ../../../check-prerequisites.sh ./GNUmed-$REV/
-#cp -R ../../../CHANGELOG ./GNUmed-$REV/
-#cp -R ./install.sh ./GNUmed-$REV/
-#ln -s ../CHANGELOG ../check-prerequisites.py ../check-prerequisites.sh ../install.sh ../GnuPublicLicense.txt ./GNUmed-$REV/
+# weed out unnecessary stuff
+for fname in $FILES_REMOVE ; do
+	rm -vf $fname
+done ;
 
 
-#----------------------------------
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
 find ./ -name '*.log' -exec rm -v '{}' ';'
 find ./GNUmed-$REV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
 find ./GNUmed-$REV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
-# cleanup again
-rm -R ./GNUmed-$REV/
 
+# now make tarballs
+tar -cvhzf $CLIENTARCH ./GNUmed-$REV/client/
+tar -cvhzf $SRVARCH ./GNUmed-$REV/server/
+
+
+# cleanup
+rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.15  2006-08-08 14:04:38  ncq
+# Revision 1.15.2.1  2006-08-15 21:15:34  ncq
+# - finally build server packages, too
+#
+# Revision 1.15  2006/08/08 14:04:38  ncq
 # - include xdt connector
 #
 # Revision 1.14  2006/08/07 07:16:23  ncq
