@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.90.2.2 2006-08-28 20:49:20 ncq Exp $
-__version__ = "$Revision: 1.90.2.2 $"
+# $Id: gmMedDocWidgets.py,v 1.90.2.3 2006-08-28 21:29:28 ncq Exp $
+__version__ = "$Revision: 1.90.2.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -473,7 +473,7 @@ where
 			delay = 5,
 			calling_window = self
 		)
-		if fname is None:
+		if fname is False:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Page could not be acquired from source.'),
 				aTitle = _('acquiring page')
@@ -1200,7 +1200,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.90.2.2  2006-08-28 20:49:20  ncq
+# Revision 1.90.2.3  2006-08-28 21:29:28  ncq
+# - properly detect failure of acquire_page_from_file()
+#
+# Revision 1.90.2.2  2006/08/28 20:49:20  ncq
 # - let scan backend choose it's own filename
 #
 # Revision 1.90.2.1  2006/08/14 18:39:26  ncq
