@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.16 2006-05-14 20:42:20 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmScanBackend.py,v 1.16.2.1 2006-08-28 11:36:40 ncq Exp $
+__version__ = "$Revision: 1.16.2.1 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -79,11 +79,11 @@ class cTwainScanner:
 	def _twain_event_callback(self, twain_event):
 		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
 		self.__twain_event_handler[twain_event]()
-		self._scanner = None
 		return
 	#---------------------------------------------------
 	def _twain_close_datasource(self):
 		_log.Log(gmLog.lInfo, "being asked to close data source")
+		self.__scanner = None
 		return True
 	#---------------------------------------------------
 	def _twain_save_state():
@@ -142,6 +142,9 @@ class cTwainScanner:
 			_log.Log(gmLog.lErr, 'invalid file name and/or path: [%s]' % filename)
 			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
 			return False
+
+		if self.__scanner is None:
+			self.__init_scanner()
 
 		self.__filename = filename
 
@@ -352,7 +355,10 @@ if __name__ == '__main__':
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.16  2006-05-14 20:42:20  ncq
+# Revision 1.16.2.1  2006-08-28 11:36:40  ncq
+# - fix improper/pre-mature closing of TWAIN scanner device
+#
+# Revision 1.16  2006/05/14 20:42:20  ncq
 # - properly handle get_devices()
 #
 # Revision 1.15  2006/05/13 23:42:13  shilbert
