@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.30 2006-07-10 21:44:23 ncq Exp $
+# $Id: gmI18N.py,v 1.30.2.1 2006-08-28 10:20:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.30.2.1 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 system_locale = ''
 system_locale_level = {}
 
-__tag__ = 'translate this or i18n will not work properly !'
+__tag__ = u'translate this or i18n will not work properly !'
 
 # Q: I can't use non-ascii characters in labels and menus.
 # A: This can happen if your Python's sytem encoding is ascii and
@@ -203,11 +203,8 @@ def activate_locale():
 
 	return True
 #---------------------------------------------------------------------------
-def install_domain(text_domain=None, language=None, unicode_flag=0):
+def install_domain(text_domain=None, language=None):
 	"""Install a text domain suitable for the main script."""
-
-	if unicode_flag not in [0, 1]:
-		raise ValueError, '<unicode_flag> cannot be [%s], must be 0 or 1' % unicode_flag
 
 	# text domain directly specified ?
 	if text_domain is None:
@@ -230,6 +227,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 
 	# search for message catalog
 	candidates = []
+
 	# 1) try standard places first
 	if os.name == 'posix':
 		_log.Log(gmLog.lData, 'system is POSIX, looking in standard locations (see Python Manual)')
@@ -238,6 +236,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 		candidates.append(gettext.bindtextdomain(text_domain))
 	else:
 		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
+
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
 	_log.Log(gmLog.lData, 'looking at ${%s}' % env_key)
@@ -247,6 +246,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 		candidates.append(loc_dir)
 	else:
 		_log.Log(gmLog.lInfo, "${%s} not set" % env_key)
+
 	# 3) one level above path to binary
 	#    last resort for inferior operating systems such as DOS/Windows
 	#    strip one directory level
@@ -254,6 +254,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
 	_log.Log(gmLog.lData, 'looking above binary install directory [%s]' % loc_dir)
 	candidates.append(loc_dir)
+
 	# 4) in path to binary
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
 	_log.Log(gmLog.lData, 'looking in binary install directory [%s]' % loc_dir)
@@ -265,7 +266,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 		if not os.path.exists(candidate):
 			continue
 		try:
-			gettext.install(text_domain, candidate, unicode=unicode_flag)
+			gettext.install(text_domain, candidate, unicode=1)
 		except:
 			_log.LogException('installing textdomain [%s] failed from [%s]' % (text_domain, candidate), sys.exc_info(), verbose=0)
 			continue
@@ -294,14 +295,18 @@ if __name__ == "__main__":
 	print "license:", __license__, "; version:", __version__
 	activate_locale()
 	print "system locale: ", system_locale, "; levels:", system_locale_level
-	install_domain()
+	install_domain(text_domain='gnumed', language='de_DE')
 	# == do not remove this line =============================
 	tmp = _('translate this or i18n will not work properly !')
 	# ========================================================
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.30  2006-07-10 21:44:23  ncq
+# Revision 1.30.2.1  2006-08-28 10:20:39  ncq
+# - make tag unicode string
+# - no more unicode_flag in install_domain, rather *require* unicode gettext
+#
+# Revision 1.30  2006/07/10 21:44:23  ncq
 # - slightly better logging
 #
 # Revision 1.29  2006/07/04 14:11:29  ncq
