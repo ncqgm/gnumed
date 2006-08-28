@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.16.2.4 2006-08-28 21:02:23 ncq Exp $
-__version__ = "$Revision: 1.16.2.4 $"
+# $Id: gmScanBackend.py,v 1.16.2.5 2006-08-28 22:04:11 ncq Exp $
+__version__ = "$Revision: 1.16.2.5 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -79,9 +79,9 @@ class cTwainScanner:
 	def close(self):
 #		self.__scanner.CancelAllPendingXfers()
 #		self.__scanner.destroy()
-		self.__scanner = None
+#		self.__scanner = None
 #		self.__src_manager.destroy()
-		self.__src_manager = None
+#		self.__src_manager = None
 		return
 	#---------------------------------------------------
 	# TWAIN callback handling
@@ -371,7 +371,10 @@ if __name__ == '__main__':
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.16.2.4  2006-08-28 21:02:23  ncq
+# Revision 1.16.2.5  2006-08-28 22:04:11  ncq
+# - eventually fix TWAIN scanning
+#
+# Revision 1.16.2.4  2006/08/28 21:02:23  ncq
 # - absolutize scan file path names on return
 # - improve test suite
 #
