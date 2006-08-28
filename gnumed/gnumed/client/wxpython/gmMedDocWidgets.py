@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.90.2.1 2006-08-14 18:39:26 ncq Exp $
-__version__ = "$Revision: 1.90.2.1 $"
+# $Id: gmMedDocWidgets.py,v 1.90.2.2 2006-08-28 20:49:20 ncq Exp $
+__version__ = "$Revision: 1.90.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -470,7 +470,6 @@ where
 		# FIXME: load directory from backend config
 		fname = self.scan_module.acquire_page_into_file (
 			device = chosen_device,
-			filename = 'test',
 			delay = 5,
 			calling_window = self
 		)
@@ -1201,7 +1200,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.90.2.1  2006-08-14 18:39:26  ncq
+# Revision 1.90.2.2  2006-08-28 20:49:20  ncq
+# - let scan backend choose it's own filename
+#
+# Revision 1.90.2.1  2006/08/14 18:39:26  ncq
 # - fix TWAIN failure on pressing scan button
 #
 # Revision 1.90  2006/07/24 20:51:26  ncq
