@@ -25,6 +25,8 @@ _log.Log(gmLog.lInfo, 'importing: [%s]' % fname)
 
 for encoding in encodings:
 
+	print "encoding:", encoding
+
 	_log.Log(gmLog.lInfo, "----------------------------------------------")
 	_log.Log(gmLog.lInfo, "testing encoding: [%s]" % encoding)
 
@@ -55,19 +57,22 @@ for encoding in encodings:
 
 	curs = conn.cursor()
 
-	# import data
-	cmd = "create table test (data bytea)"
-	curs.execute(cmd)
-	cmd = "insert into test (data) values (%s)"
-	curs.execute(cmd, img_obj)
-	cmd = "select octet_length(data) from test"
-	curs.execute(cmd)
-	_log.Log(gmLog.lInfo, "INSERTed octet_length(test.data): [%s]" % curs.fetchall()[0][0])
-	cmd = "update test set data=%s"
-	curs.execute(cmd, img_obj)
-	cmd = "select octet_length(data) from test"
-	curs.execute(cmd)
-	_log.Log(gmLog.lInfo, "UPDATEd octet_length(test.data): [%s]" % curs.fetchall()[0][0])
+	try:
+		# import data
+		cmd = "create table test (data bytea)"
+		curs.execute(cmd)
+		cmd = "insert into test (data) values (%s)"
+		curs.execute(cmd, img_obj)
+		cmd = "select octet_length(data) from test"
+		curs.execute(cmd)
+		_log.Log(gmLog.lInfo, "INSERTed octet_length(test.data): [%s]" % curs.fetchall()[0][0])
+		cmd = "update test set data=%s"
+		curs.execute(cmd, img_obj)
+		cmd = "select octet_length(data) from test"
+		curs.execute(cmd)
+		_log.Log(gmLog.lInfo, "UPDATEd octet_length(test.data): [%s]" % curs.fetchall()[0][0])
+	except:
+		_log.LogException('cannot test encoding [%s]' % encoding)
 
 	# finish
 	conn.rollback()
@@ -76,7 +81,10 @@ for encoding in encodings:
 
 #=======================================================================
 # $Log: test-bytea-import.py,v $
-# Revision 1.1  2006-07-01 08:43:58  ncq
+# Revision 1.2  2006-08-29 22:18:28  ncq
+# - improve
+#
+# Revision 1.1  2006/07/01 08:43:58  ncq
 # - first version
 #
 #
