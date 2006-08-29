@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.16 2006-05-14 20:42:20 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmScanBackend.py,v 1.17 2006-08-29 18:33:02 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -21,8 +21,6 @@ _sane_module = None
 #=======================================================
 class cTwainScanner:
 
-	_src_manager = None
-
 	def __init__(self, calling_window=None):
 		msg = 'cannot instantiate TWAIN driver class'
 		if not _twain_import_module():
@@ -32,11 +30,8 @@ class cTwainScanner:
 
 		self.__calling_window = calling_window
 
-		if not self.__init_src_manager():
-			raise gmExceptions.ConstructorError, msg
-
-		if not self.__init_scanner():
-			raise gmExceptions.ConstructorError, msg
+		self.__src_manager = None
+		self.__scanner = None
 	#---------------------------------------------------
 	def __setup_event_handler(self):
 		# FIXME: this means we cannot use more than one TWAIN source at once
@@ -49,29 +44,38 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def __init_src_manager(self):
 		# open scanner manager
-		if cTwainScanner._src_manager is None:
+		if self.__src_manager is None:
 			# TWAIN talks to us via MS-Windows message queues so we
 			# need to pass it a handle to ourselves
-			cTwainScanner._src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
-			if not cTwainScanner._src_manager:
+			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+			if not self.__src_manager:
 				_log.Log(gmLog.lErr, "cannot get a handle for the TWAIN source manager")
 				return False
 			# TWAIN will notify us when the image is scanned
-			cTwainScanner._src_manager.SetCallback(self._twain_event_callback)
-			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(cTwainScanner._src_manager.GetIdentity()))
+			self.__src_manager.SetCallback(self._twain_event_callback)
+			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
+			self.__scanner = None
 		return True
 	#---------------------------------------------------
 	def __init_scanner(self):
-		# FIXME: set source by string
-		self.__scanner = cTwainScanner._src_manager.OpenSource()
-		if not self.__scanner:
-			_log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
+		if not self.__init_src_manager():
 			return False
-		_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
-		_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
+		if self.__scanner is None:
+			# FIXME: set source by string
+			self.__scanner = self.__src_manager.OpenSource()
+			if not self.__scanner:
+				_log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
+				return False
+			_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
+			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
 		return True
 	#---------------------------------------------------
 	def close(self):
+#		self.__scanner.CancelAllPendingXfers()
+#		self.__scanner.destroy()
+#		self.__scanner = None
+#		self.__src_manager.destroy()
+#		self.__src_manager = None
 		return
 	#---------------------------------------------------
 	# TWAIN callback handling
@@ -79,11 +83,14 @@ class cTwainScanner:
 	def _twain_event_callback(self, twain_event):
 		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
 		self.__twain_event_handler[twain_event]()
-		self._scanner = None
 		return
 	#---------------------------------------------------
 	def _twain_close_datasource(self):
 		_log.Log(gmLog.lInfo, "being asked to close data source")
+#		self.__scanner.CancelAllPendingXfers()
+#		self.__scanner.HideUI()
+#		self.__scanner.destroy()
+		self.__scanner = None
 		return True
 	#---------------------------------------------------
 	def _twain_save_state():
@@ -129,24 +136,23 @@ class cTwainScanner:
 		return True
 	#---------------------------------------------------
 	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
-		if not tmpdir:
-			tmpdir = tempfile.gettempdir()
-
-		if not filename:
-			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		if filename is None:
+			if tmpdir is None:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+			else:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
 		else:
-			if os.path.splitext(filename) != '.bmp':
+			tmp, ext = os.path.splitext(filename)
+			if ext != '.bmp':
 				filename = filename + '.bmp'
 
-		if not os.path.isfile(filename):
-			_log.Log(gmLog.lErr, 'invalid file name and/or path: [%s]' % filename)
-			(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		self.__filename = os.path.abspath(os.path.expanduser(filename))
+
+		if not self.__init_scanner():
 			return False
 
-		self.__filename = filename
-
 		self.__scanner.RequestAcquire()
-		return filename
+		return self.__filename
 	#---------------------------------------------------
 #	def dummy(self):
 #
@@ -240,8 +246,11 @@ class cSaneScanner:
 			else:
 				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
 		else:
-			if os.path.splitext(filename) != '.bmp':
+			tmp, ext = os.path.splitext(filename)
+			if ext != '.bmp':
 				filename = filename + '.bmp'
+
+		filename = os.path.abspath(os.path.expanduser(filename))
 
 		if delay is not None:
 			time.sleep(delay)
@@ -322,10 +331,14 @@ def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, 
 		try:
 			scanner = cSaneScanner(device=device)
 		except gmExceptions.ConstructorError:
-			_log.Log (gmLog.lErr, _('Cannot load any scanner driver (SANE or TWAIN).'))
+			_log.Log(gmLog.lErr, 'Cannot load any scanner driver (SANE or TWAIN).')
 			return None
+
+	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
 	fname = scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
 	scanner.close()
+	_log.Log(gmLog.lData, 'acquired page into file: [%s]' % fname)
+
 	return fname
 #==================================================
 # main
@@ -339,20 +352,23 @@ if __name__ == '__main__':
 	print get_devices()
 
 	print "getting bitmap #1"
-	if not acquire_page_into_file(device='test:0', filename='test1', delay=5):
+	if not acquire_page_into_file(device='test:0', filename='x1-test0-1', delay=5):
 		print "error, cannot acquire page"
 
 	print "getting bitmap #2"
-	if not acquire_page_into_file(device='test:0', filename='test2', delay=5):
+	if not acquire_page_into_file(device='test:1', filename='x2-test1-1.bmp', delay=10):
 		print "error, cannot acquire page"
 
 	print "getting bitmap #3"
-	if not acquire_page_into_file(device='test:0', filename='test3', delay=5):
+	if not acquire_page_into_file(device='test:0', filename='x3-test0-2.bmp-ccc', delay=15):
 		print "error, cannot acquire page"
 	
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.16  2006-05-14 20:42:20  ncq
+# Revision 1.17  2006-08-29 18:33:02  ncq
+# - forward port TWAIN fixes from 0.2 branch
+#
+# Revision 1.16  2006/05/14 20:42:20  ncq
 # - properly handle get_devices()
 #
 # Revision 1.15  2006/05/13 23:42:13  shilbert
