@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.17 2006-08-29 18:33:02 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmScanBackend.py,v 1.18 2006-08-29 18:41:58 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -352,20 +352,35 @@ if __name__ == '__main__':
 	print get_devices()
 
 	print "getting bitmap #1"
-	if not acquire_page_into_file(device='test:0', filename='x1-test0-1', delay=5):
+	dev = 'test:0'
+	fname = acquire_page_into_file(device=dev, filename='x1-test0-1', delay=5)
+	if fname is False:
 		print "error, cannot acquire page"
+	else:
+		print " image file:", fname
 
 	print "getting bitmap #2"
-	if not acquire_page_into_file(device='test:1', filename='x2-test1-1.bmp', delay=10):
+	dev = 'test:1'
+	fname = acquire_page_into_file(device=dev, filename='x2-test1-1.bmp', delay=10)
+	if fname is False:
 		print "error, cannot acquire page"
+	else:
+		print " image file:", fname
 
 	print "getting bitmap #3"
-	if not acquire_page_into_file(device='test:0', filename='x3-test0-2.bmp-ccc', delay=15):
+	dev = 'test:0'
+	fname = acquire_page_into_file(device=dev, filename='x3-test0-2.bmp-ccc', delay=15)
+	if fname is False:
 		print "error, cannot acquire page"
-	
+	else:
+		print " image file:", fname
+
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.17  2006-08-29 18:33:02  ncq
+# Revision 1.18  2006-08-29 18:41:58  ncq
+# - improve test suite
+#
+# Revision 1.17  2006/08/29 18:33:02  ncq
 # - forward port TWAIN fixes from 0.2 branch
 #
 # Revision 1.16  2006/05/14 20:42:20  ncq
