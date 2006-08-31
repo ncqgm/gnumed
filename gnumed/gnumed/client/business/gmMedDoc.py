@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.75 2006-07-10 21:15:07 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmMedDoc.py,v 1.75.2.1 2006-08-31 17:00:13 ncq Exp $
+__version__ = "$Revision: 1.75.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -356,38 +356,41 @@ order by
 			_log.Log(gmLog.lErr, '[%s] is not a readable file' % fname)
 			return False
 
-		from pyPgSQL.PgSQL import PgBytea
+		from psycopg2 import Binary
 
 		# read from file and convert (escape)
 		aFile = file(fname, "rb")
 		byte_str_img_data = aFile.read()
 		aFile.close()
 		del aFile
-		img_obj = PgBytea(byte_str_img_data)
+		img_obj = Binary(byte_str_img_data)
 		del(byte_str_img_data)
 
 		pool = gmPG.ConnectionPool()
-		conn = pool.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
+		li = pool.GetLoginInfoFor('default')
+		dsn = 'dbname=%s user=%s password=%s' % (li.GetDatabase(), li.GetUser(), li.GetPassword())
+		if li.GetHost() not in [None, '']:
+			dsn = 'host=%s port=%s %s' % (li.GetHost(), li.GetPort(), dsn)
+		import psycopg2
+		conn = psycopg2.connect(dsn=dsn)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
-		success, data = gmPG.run_commit2 (
-			link_obj = conn,
-			queries = [
-				(cmd, [img_obj, self.pk_obj])
-			],
-			end_tx = True
-		)
+		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s and xmin=%s"
+		curs = conn.cursor()
+		curs.execute(cmd, (img_obj, self.pk_obj, self._payload[self._idx['xmin_doc_obj']]))
+		conn.commit()
+		curs.close()
 		conn.close()
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' % (self.pk_obj, fname))
-			return False
 
 		# must update XMIN now ...
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
 	def update_data(self, data):
+
+		# FIXME: needs fixing
+		return False
+
 		from pyPgSQL.PgSQL import PgBytea
 
 		# convert (escape)
@@ -739,7 +742,7 @@ def search_for_document(patient_id=None, type_id=None):
 		return []
 	docs = []
 	for doc_id in doc_ids:
-		docs.append(cMedDoc(doc_id, presume_exists=1)) # suppress pointless checking of primary key
+		docs.append(cMedDoc(doc_id)) # suppress pointless checking of primary key
 
 	return docs
 #------------------------------------------------------------
@@ -833,6 +836,23 @@ if __name__ == '__main__':
 
 		return
 	#--------------------------------------------------------
+	def test_adding_doc_part():
+
+		print "-----------------------"
+		print "testing document import"
+		print "-----------------------"
+
+		docs = search_for_document(patient_id=12)
+		doc = docs[0]
+		print "adding to doc:", doc
+
+		fname = sys.argv[1]
+		print "adding from file:", fname
+		part = doc.add_part(file=fname)
+		print "new part:", part
+
+		return
+	#--------------------------------------------------------
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
@@ -841,6 +861,7 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
 	test_doc_types()
+	test_adding_doc_part()
 
 #	print get_ext_ref()
 
@@ -855,7 +876,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.75  2006-07-10 21:15:07  ncq
+# Revision 1.75.2.1  2006-08-31 17:00:13  ncq
+# - use psycopg2 for blobs import since pyPgSQL is unable to deliver
+# - improve test suite
+#
+# Revision 1.75  2006/07/10 21:15:07  ncq
 # - add cDocumentType
 # - get_document_types() now returns instances
 # - add delete_document_type()
