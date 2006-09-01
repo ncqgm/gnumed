@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.30 2006-07-10 21:44:23 ncq Exp $
+# $Id: gmI18N.py,v 1.31 2006-09-01 14:41:22 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 system_locale = ''
 system_locale_level = {}
 
-__tag__ = 'translate this or i18n will not work properly !'
+__tag__ = u'translate this or i18n will not work properly !'
 
 # Q: I can't use non-ascii characters in labels and menus.
 # A: This can happen if your Python's sytem encoding is ascii and
@@ -203,11 +203,8 @@ def activate_locale():
 
 	return True
 #---------------------------------------------------------------------------
-def install_domain(text_domain=None, language=None, unicode_flag=0):
+def install_domain(text_domain=None, language=None):
 	"""Install a text domain suitable for the main script."""
-
-	if unicode_flag not in [0, 1]:
-		raise ValueError, '<unicode_flag> cannot be [%s], must be 0 or 1' % unicode_flag
 
 	# text domain directly specified ?
 	if text_domain is None:
@@ -265,7 +262,7 @@ def install_domain(text_domain=None, language=None, unicode_flag=0):
 		if not os.path.exists(candidate):
 			continue
 		try:
-			gettext.install(text_domain, candidate, unicode=unicode_flag)
+			gettext.install(text_domain, candidate, unicode=1)
 		except:
 			_log.LogException('installing textdomain [%s] failed from [%s]' % (text_domain, candidate), sys.exc_info(), verbose=0)
 			continue
@@ -301,7 +298,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.30  2006-07-10 21:44:23  ncq
+# Revision 1.31  2006-09-01 14:41:22  ncq
+# - always use UNICODE gettext
+#
+# Revision 1.30  2006/07/10 21:44:23  ncq
 # - slightly better logging
 #
 # Revision 1.29  2006/07/04 14:11:29  ncq
