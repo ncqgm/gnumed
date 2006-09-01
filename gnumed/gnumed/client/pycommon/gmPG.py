@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.78.2.1 $"
+__version__ = "$Revision: 1.78.2.2 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -505,12 +505,13 @@ class ConnectionPool:
 		if wire_encoding is None:
 			raise ValueError, '<wire_encoding> cannot be None'
 
-		if string_encoding.lower() == 'utf8':
-			unicode_results = 1
-		else:
-			unicode_results = 0
+#		if string_encoding.lower() == 'utf8':
+#			unicode_results = 1
+#		else:
+#			unicode_results = 0
 		try:
-			conn = dbapi.connect(dsn=dsn, client_encoding=(string_encoding, 'strict'), unicode_results=unicode_results)
+#			conn = dbapi.connect(dsn=dsn, client_encoding=(string_encoding, 'strict'), unicode_results=unicode_results)
+			conn = dbapi.connect(dsn=dsn, client_encoding=(string_encoding, 'strict'), unicode_results=1)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
@@ -1363,7 +1364,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.78.2.1 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.78.2.2 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1600,7 +1601,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.78.2.1  2006-08-28 14:30:18  ncq
+# Revision 1.78.2.2  2006-09-01 09:24:35  ncq
+# - always return unicode results, this will point us to encoding errors early
+#
+# Revision 1.78.2.1  2006/08/28 14:30:18  ncq
 # - do use unicode_results in connect() when encoding is utf8
 #
 # Revision 1.78  2006/08/01 22:02:42  ncq
