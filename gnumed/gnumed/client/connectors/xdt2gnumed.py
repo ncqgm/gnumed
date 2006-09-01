@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.8 2006-07-24 20:29:23 ncq Exp $
-__version__ = '$Revision: 1.8 $'
+# $Id: xdt2gnumed.py,v 1.9 2006-09-01 15:42:32 ncq Exp $
+__version__ = '$Revision: 1.9 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -114,10 +114,7 @@ if __name__ == '__main__':
 	l = None
 	if gmCLI.has_arg('--lang-gettext'):
 		l = gmCLI.arg['--lang-gettext']
-	u = 0
-	if gmCLI.has_arg('--unicode-gettext'):
-		u = int(gmCLI.arg['--unicode-gettext'])
-	gmI18N.install_domain(text_domain = td, language = l, unicode_flag = u)
+	gmI18N.install_domain(text_domain = td, language = l)
 
 	connector = cBaseConnector()
 	if not connector.setup():
@@ -130,7 +127,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.8  2006-07-24 20:29:23  ncq
+# Revision 1.9  2006-09-01 15:42:32  ncq
+# - no more --unicode-gettext
+#
+# Revision 1.8  2006/07/24 20:29:23  ncq
 # - add gettext options
 #
 # Revision 1.7  2006/07/22 12:33:11  ncq
