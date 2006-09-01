@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.90 2006-07-24 20:51:26 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmMedDocWidgets.py,v 1.91 2006-09-01 15:03:26 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -435,8 +435,6 @@ where
 	# event handling API
 	#--------------------------------------------------------
 	def _scan_btn_pressed(self, evt):
-		device_names = []
-		device_objects = {}
 		devices = self.scan_module.get_devices()
 
 		if devices is False:
@@ -447,13 +445,16 @@ where
 			return None
 
 		# TWAIN doesn't have get_devices() :-(
-		if devices is not None:
+		if devices is None:
+			chosen_device = None
+		else:
 			if len(devices) == 0:
 				gmGuiHelpers.gm_beep_statustext (
 					_('Cannot find an active scanner.'),
 					gmLog.lWarn
 				)
 				return None
+			device_names = []
 			for device in devices:
 				device_names.append('%s (%s)' % (device[2], device[0]))
 			# wxpython does not support client data in wxSingleChoiceDialog
@@ -462,15 +463,23 @@ where
 				aTitle = _('device selection'),
 				choices = device_names
 			)
+			if device_idx is False:
+				return None
+			chosen_device = devices[device_idx][0]
 
-		# FIXME: load directory from backend config
+		tmpdir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp')))
+		if not os.path.isdir(tmpdir):
+			try:
+				os.makedirs(tmpdir)
+			except:
+				tmpdir = None
 		fname = self.scan_module.acquire_page_into_file (
-			device = devices[device_idx][0],
-			filename = 'test',
+			device = chosen_device,
 			delay = 5,
+			tmpdir = tmpdir,
 			calling_window = self
 		)
-		if fname is None:
+		if fname is False:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Page could not be acquired from source.'),
 				aTitle = _('acquiring page')
@@ -1109,6 +1118,11 @@ class cDocTree(wx.TreeCtrl):
 
 		# get export directory for temporary files
 		def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
+		if not os.path.isdir(def_tmp_dir):
+			try:
+				os.makedirs(def_tmp_dir)
+			except:
+				def_tmp_dir = None
 		cfg = gmCfg.cCfgSQL()
 		tmp_dir = cfg.get_by_workplace (
 			option = "horstspace.tmp_dir",
@@ -1116,7 +1130,7 @@ class cDocTree(wx.TreeCtrl):
 			default = def_tmp_dir
 		)
 		exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
-		if not os.path.exists(exp_base):
+		if not os.path.isdir(exp_base):
 			_log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is None == tempfile.tempdir == use system defaults
 			exp_base = None
 		else:
@@ -1197,7 +1211,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.90  2006-07-24 20:51:26  ncq
+# Revision 1.91  2006-09-01 15:03:26  ncq
+# - improve scanner device choice handling
+# - better tmp dir handling on document import/export
+#
+# Revision 1.90  2006/07/24 20:51:26  ncq
 # - get_by_user() -> get2()
 #
 # Revision 1.89  2006/07/10 21:57:43  ncq
