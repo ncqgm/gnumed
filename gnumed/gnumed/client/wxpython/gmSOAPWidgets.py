@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.74 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmSOAPWidgets.py,v 1.74.2.1 2006-09-01 09:25:13 ncq Exp $
+__version__ = "$Revision: 1.74.2.1 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -645,7 +645,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				issue = emr.problem2issue(problem)
 				# FIXME: make ttl configurable
 				ttl = 90	# 90 days, 3 months
-				all_closed = issue.close_expired_episodes(ttl=ttl)
+				all_closed = issue.close_expired_episode(ttl=ttl)
 
 				if all_closed:
 					gmGuiHelpers.gm_beep_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
@@ -684,7 +684,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 						
 				if episode is None:
 					# error, close all and hope things work out ...
-					issue.close_expired_episodes(ttl=-1)
+					issue.close_expired_episode(ttl=-1)
 					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
 
 			if episode is None:
@@ -1115,7 +1115,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.74  2006-07-19 20:29:50  ncq
+# Revision 1.74.2.1  2006-09-01 09:25:13  ncq
+# - it is issue.close_expired_episode() not plural
+#
+# Revision 1.74  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.73  2006/06/20 14:26:36  ncq
