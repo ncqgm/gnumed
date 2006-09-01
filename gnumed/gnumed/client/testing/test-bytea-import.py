@@ -1,58 +1,64 @@
-import sys, os.path
-import pyPgSQL.PgSQL as dbapi
-
-from Gnumed.pycommon import gmI18N, gmLog
-# this is, what makes the difference:
+import locale
+# this is what makes the difference:
 # likely because it somehow changes which encoding
 # Python thinks comes back from file.read()
-gmI18N.activate_locale()
+locale.setlocale(locale.LC_ALL, '')
+
+import sys, os.path
+
+import pyPgSQL.PgSQL as dbapi
 
 __license__ = "GPL"
 dsn = "::gnumed_v2:any-doc:any-doc"
+#dsn = "salaam.homeunix.com::gnumed_v2:any-doc:any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
-_log = gmLog.gmDefLog
 
-_log.Log(gmLog.lInfo, 'running on:')
-_log.Log(gmLog.lInfo, sys.version)
-_log.Log(gmLog.lInfo, sys.platform)
+log = open('test-bytea-import.log', 'wb')
+
+log.write('running on:\n')
+log.write(sys.version + '\n')
+log.write(sys.platform + '\n')
 conn = dbapi.connect(dsn=dsn)
-_log.Log(gmLog.lInfo, conn.version)
+log.write(str(conn.version) + '\n')
 conn.close()
 del conn
 
-_log.Log(gmLog.lInfo, 'importing: [%s]' % fname)
+log.write('importing: [%s]' % fname + '\n')
 
 for encoding in encodings:
 
 	print "encoding:", encoding
 
-	_log.Log(gmLog.lInfo, "----------------------------------------------")
-	_log.Log(gmLog.lInfo, "testing encoding: [%s]" % encoding)
+	log.write("----------------------------------------------" + '\n')
+	log.write("testing encoding: [%s]" % encoding + '\n')
 
-	_log.Log(gmLog.lInfo, "Python string encoding [%s]" % sys.getdefaultencoding())
+	log.write("Python string encoding [%s]" % sys.getdefaultencoding() + '\n')
 
 	# reading file
-	_log.Log(gmLog.lInfo, "os.path.getsize(%s): [%s]" % (fname, os.path.getsize(fname)))
+	log.write("os.path.getsize(%s): [%s]" % (fname, os.path.getsize(fname)) + '\n')
 	f = file(fname, "rb")
 	img_data = f.read()
 	f.close()
-	_log.Log(gmLog.lInfo, "type(img_data): [%s]" % type(img_data))
-	_log.Log(gmLog.lInfo, "len(img_data) : [%s]" % len(img_data))
+	log.write("type(img_data): [%s]" % type(img_data) + '\n')
+	log.write("len(img_data) : [%s]" % len(img_data) + '\n')
 	img_obj = dbapi.PgBytea(img_data)
 	del(img_data)
-	_log.Log(gmLog.lInfo, "len(img_obj) : [%s]" % len(str(img_obj)))
-	_log.Log(gmLog.lInfo, "type(img_obj): [%s]" % type(img_obj))
+	log.write("len(img_obj) : [%s]" % len(str(img_obj)) + '\n')
+	log.write("type(img_obj): [%s]" % type(img_obj) + '\n')
 
 	# setting connection level client encoding
 	try:
-		conn = dbapi.connect(dsn=dsn, client_encoding = (encoding, 'strict'), unicode_results=0)
+		if encoding == 'sql_ascii':
+			conn = dbapi.connect(dsn=dsn, unicode_results=0)
+		else:
+			conn = dbapi.connect(dsn=dsn, client_encoding = (encoding, 'strict'), unicode_results=0)
 		curs = conn.cursor()
 		cmd = "set client_encoding to '%s'" % encoding
 		curs.execute(cmd)
 		curs.close()
 	except:
-		_log.Log(gmLog.lInfo, "cannot set encoding [%s] in dbapi.connect()" % encoding)
+		log.write("cannot set encoding [%s] in dbapi.connect()" % encoding + '\n')
 		conn = dbapi.connect(dsn=dsn)
 
 	curs = conn.cursor()
@@ -65,23 +71,35 @@ for encoding in encodings:
 		curs.execute(cmd, img_obj)
 		cmd = "select octet_length(data) from test"
 		curs.execute(cmd)
-		_log.Log(gmLog.lInfo, "INSERTed octet_length(test.data): [%s]" % curs.fetchall()[0][0])
+		log.write("INSERTed octet_length(test.data): [%s]" % curs.fetchall()[0][0] + '\n')
 		cmd = "update test set data=%s"
 		curs.execute(cmd, img_obj)
 		cmd = "select octet_length(data) from test"
 		curs.execute(cmd)
-		_log.Log(gmLog.lInfo, "UPDATEd octet_length(test.data): [%s]" % curs.fetchall()[0][0])
+		log.write("UPDATEd octet_length(test.data): [%s]" % curs.fetchall()[0][0] + '\n')
+		cmd = "select data from test"
+		curs.execute(cmd)
+		rows = curs.fetchone()
+		log.write("len(SELECT)  : [%s]" % len(str(rows[0])) + '\n')
 	except:
-		_log.LogException('cannot test encoding [%s]' % encoding)
+		log.write('cannot test encoding [%s]' % encoding + '\n')
+		t, v, tb = sys.exc_info()
+		log.write(str(t) + '\n')
+		log.write(str(v) + '\n')
 
 	# finish
 	conn.rollback()
 	curs.close()
 	conn.close()
 
+log.close()
+
 #=======================================================================
 # $Log: test-bytea-import.py,v $
-# Revision 1.2  2006-08-29 22:18:28  ncq
+# Revision 1.3  2006-09-01 15:23:13  ncq
+# - decrease dependancy on external libraries
+#
+# Revision 1.2  2006/08/29 22:18:28  ncq
 # - improve
 #
 # Revision 1.1  2006/07/01 08:43:58  ncq
