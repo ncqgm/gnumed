@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.75.2.1 2006-08-31 17:00:13 ncq Exp $
-__version__ = "$Revision: 1.75.2.1 $"
+# $Id: gmMedDoc.py,v 1.75.2.2 2006-09-01 09:23:02 ncq Exp $
+__version__ = "$Revision: 1.75.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -352,6 +352,7 @@ order by
 	#--------------------------------------------------------
 	def update_data_from_file(self, fname=None):
 		# sanity check
+		fname = fname.encode(sys.getfilesystemencoding())
 		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
 			_log.Log(gmLog.lErr, '[%s] is not a readable file' % fname)
 			return False
@@ -876,7 +877,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.75.2.1  2006-08-31 17:00:13  ncq
+# Revision 1.75.2.2  2006-09-01 09:23:02  ncq
+# - unicode filenames must be encoded sys.getfilesystemencoding()
+#
+# Revision 1.75.2.1  2006/08/31 17:00:13  ncq
 # - use psycopg2 for blobs import since pyPgSQL is unable to deliver
 # - improve test suite
 #
