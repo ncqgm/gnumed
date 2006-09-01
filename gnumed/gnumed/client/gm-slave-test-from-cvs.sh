@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-slave-test-from-cvs.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 # maybe force some locale setting here
 #export LANG=fr
@@ -18,7 +18,6 @@ rm -vf $LOG
 cp -vf ${CONF} tmp-${CONF}
 
 python wxpython/gnumed.py --log-file=${LOG} --conf-file=tmp-${CONF} --debug
-# --unicode-gettext=0
 # clean up
 rm -vf tmp-${CONF}
 rm -vf tmp-${CONF}.gmCfg.bak
