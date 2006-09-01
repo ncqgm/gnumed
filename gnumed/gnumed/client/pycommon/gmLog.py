@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -195,12 +195,11 @@ class cLogger:
 		"""
 		# are we in for work ?
 		if self.__targets is not None:
-			dummy = ""
 			# handle types somewhat intelligently
-			if type(aMsg) != type(dummy):
-				tmp = str(aMsg)
-			else:
+			if type(aMsg) in (type(''), type(u'')):
 				tmp = aMsg
+			else:
+				tmp = str(aMsg)
 			# cook it ?
 			if aRawnessFlag == lCooked:
 				msg = reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(tmp))), '')
@@ -825,7 +824,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.17  2006-06-20 14:28:23  ncq
+# Revision 1.18  2006-09-01 14:42:16  ncq
+# - handle unicode output to log file slightly smarter
+#
+# Revision 1.17  2006/06/20 14:28:23  ncq
 # - give people an email address they can actually send the log to ;-)
 #
 # Revision 1.16  2005/11/27 12:45:47  ncq
