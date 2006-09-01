@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.69 2006-07-30 17:50:03 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmLoginDialog.py,v 1.70 2006-09-01 14:45:03 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -377,7 +377,8 @@ class LoginPanel(wx.Panel):
 		return self.loginparams.profiles[self.GetProfile()]['port']
 
 	def GetProfile(self):
-		return self.loginparams.profilelist[0]
+		# FIXME: do not assume conf file is latin1 !
+		return self.loginparams.profilelist[0].encode('latin1')
 		
 	#----------------------------
 	# event handlers
@@ -471,7 +472,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.69  2006-07-30 17:50:03  ncq
+# Revision 1.70  2006-09-01 14:45:03  ncq
+# - assume conf file is latin1 ... FIX later !
+#
+# Revision 1.69  2006/07/30 17:50:03  ncq
 # - properly load bitmaps
 #
 # Revision 1.68  2006/05/15 07:05:07  ncq
