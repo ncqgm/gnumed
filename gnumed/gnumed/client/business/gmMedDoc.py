@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.75 2006-07-10 21:15:07 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmMedDoc.py,v 1.76 2006-09-01 14:39:19 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -615,6 +615,7 @@ VALUES (
 
 			del new_part
 
+		# FIXME: return parts
 		return (True, '', '')
 	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
@@ -855,7 +856,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.75  2006-07-10 21:15:07  ncq
+# Revision 1.76  2006-09-01 14:39:19  ncq
+# - add FIXME
+#
+# Revision 1.75  2006/07/10 21:15:07  ncq
 # - add cDocumentType
 # - get_document_types() now returns instances
 # - add delete_document_type()
