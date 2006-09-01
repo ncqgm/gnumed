@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 import sys
 
@@ -25,6 +25,18 @@ except ImportError:
 	print "ERROR: pyPgSQL not installed"
 	print "ERROR: this is needed to access PostgreSQL"
 	print "ERROR: pyPgSQL is available from http://pypgsql.sourceforge.net"
+	print "INFO : sys.path is set as follows:"
+	print "INFO :", "\nINFO : ".join(sys.path)
+	sys.exit(-1)
+
+print "=> checking for Python module 'psycopg2' ..."
+try:
+	import psycopg2
+	print "=> found"
+except ImportError:
+	print "ERROR: psycopg2 not installed"
+	print "ERROR: this is needed to access PostgreSQL"
+	print "ERROR: psycopg2 is available from http://www.initd.org/"
 	print "INFO : sys.path is set as follows:"
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
@@ -115,7 +127,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.10  2006-08-09 14:05:28  ncq
+# Revision 1.11  2006-09-01 15:31:13  ncq
+# - add check for psycopg2
+#
+# Revision 1.10  2006/08/09 14:05:28  ncq
 # - more unified output
 # - better wxversion/wxPython detection
 # - add checks for SANE/TWAIN
