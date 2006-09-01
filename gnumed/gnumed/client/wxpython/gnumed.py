@@ -30,9 +30,6 @@ is intended to be used as a standalone program.
 --conf-file=<file>
  Use configuration file <file> instead of searching for it in
  standard locations.
---unicode-gettext=<0 | 1>
- Use unicode (1) or non-unicode (0) gettext. This is needed for older
- (< 2.5) and non-unicode compiled wx.Widgets/wxPython libraries.
 --lang-gettext=<language>
  Explicitely set the language to use in gettext translation. The very
  same effect can be achieved by setting the environment variable $LANG
@@ -45,8 +42,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.102 2006-08-08 10:28:30 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gnumed.py,v 1.103 2006-09-01 14:47:22 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -176,11 +173,7 @@ def setup_locale():
 	if gmCLI.has_arg('--lang-gettext'):
 		l = gmCLI.arg['--lang-gettext']
 
-	u = 0
-	if gmCLI.has_arg('--unicode-gettext'):
-		u = int(gmCLI.arg['--unicode-gettext'])
-
-	gmI18N.install_domain(text_domain = td, language = l, unicode_flag = u)
+	gmI18N.install_domain(text_domain = td, language = l)
 
 	return True
 #==========================================================
@@ -458,7 +451,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.102  2006-08-08 10:28:30  ncq
+# Revision 1.103  2006-09-01 14:47:22  ncq
+# - no more --unicode-gettext handling
+#
+# Revision 1.102  2006/08/08 10:28:30  ncq
 # - show sys.path when failing to import GNUmed modules
 #
 # Revision 1.101  2006/08/08 10:13:01  ncq
