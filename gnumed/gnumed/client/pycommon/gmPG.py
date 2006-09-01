@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -506,6 +506,7 @@ class ConnectionPool:
 			raise ValueError, '<wire_encoding> cannot be None'
 
 		try:
+			# FIXME: eventually use UTF or UTF8 for READONLY connections _only_
 			conn = dbapi.connect(dsn=dsn, client_encoding=(string_encoding, 'strict'), unicode_results=1)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
@@ -1359,7 +1360,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.79 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.80 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1596,7 +1597,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.79  2006-08-28 14:32:40  ncq
+# Revision 1.80  2006-09-01 14:42:54  ncq
+# - *always* return unicode from database
+#
+# Revision 1.79  2006/08/28 14:32:40  ncq
 # - read data from database in unicode encoding, hence use unicode_results in connect()
 #
 # Revision 1.78  2006/08/01 22:02:42  ncq
