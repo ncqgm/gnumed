@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.41 2006-08-09 15:00:47 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPatSearchWidgets.py,v 1.42 2006-09-01 14:46:30 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -188,13 +188,24 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 #============================================================
 def load_persons_from_xdt():
 
-	# FIXME: potentially return several patients
+	bdt_files = []
 
+	# some can be auto-detected
+	# MCS/Isynet: $DRIVE:\Winacs\TEMP\BDTxx.tmp where xx is the workplace
+	candidates = []
+	drives = 'cdefghijklmnopqrstuvwxyz'
+	for drive in drives:
+		candidate = drive + ':\Winacs\TEMP\BDT*.tmp'
+		candidates.extend(glob.glob(candidate))
+	for candidate in candidates:
+		path, filename = os.path.split(candidate)
+		bdt_files.append({'file': candidate, 'source': 'MCS/Isynet %s' % filename[-6:-4]})
+
+	# some need to be configured
 	xdt_profiles = _cfg.get('workplace', 'XDT profiles')
 	if xdt_profiles is None:
 		return []
 
-	bdt_files = []
 	for profile in xdt_profiles:
 		name = _cfg.get('XDT profile %s' % profile, 'filename')
 		if name is None:
@@ -211,6 +222,7 @@ def load_persons_from_xdt():
 	dtos = []
 	for bdt_file in bdt_files:
 		try:
+			# FIXME: potentially return several patients per file
 			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'])
 
 		except IOError:
@@ -960,7 +972,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.41  2006-08-09 15:00:47  ncq
+# Revision 1.42  2006-09-01 14:46:30  ncq
+# - add (untested) MCS/Isynet external patient source
+#
+# Revision 1.41  2006/08/09 15:00:47  ncq
 # - better search widget tooltip
 #
 # Revision 1.40  2006/07/30 18:48:18  ncq
