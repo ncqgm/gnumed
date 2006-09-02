@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.76 2006-09-01 14:39:19 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmMedDoc.py,v 1.77 2006-09-02 21:22:10 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -388,6 +388,10 @@ order by
 		return True
 	#--------------------------------------------------------
 	def update_data(self, data):
+
+		print "cMedDocPart.update_data() needs fixing"
+		return False
+
 		from pyPgSQL.PgSQL import PgBytea
 
 		# convert (escape)
@@ -594,13 +598,16 @@ VALUES (
 		return new_part
 	#--------------------------------------------------------
 	def add_parts_from_files(self, files=None, reviewer=None):
-		for filename in files:
 
+		new_parts = []
+
+		for filename in files:
 			new_part = self.add_part(file=filename)
 			if new_part is None:
 				msg = 'cannot instantiate document part object'
 				_log.Log(gmLog.lErr, msg)
 				return (False, msg, filename)
+			new_parts.append(new_part)
 
 			if reviewer is None:
 				continue
@@ -613,10 +620,7 @@ VALUES (
 				_log.Log(gmLog.lErr, str(data))
 				return (False, msg, filename)
 
-			del new_part
-
-		# FIXME: return parts
-		return (True, '', '')
+		return (True, '', new_parts)
 	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
 		cmd = "select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
@@ -740,7 +744,7 @@ def search_for_document(patient_id=None, type_id=None):
 		return []
 	docs = []
 	for doc_id in doc_ids:
-		docs.append(cMedDoc(doc_id, presume_exists=1)) # suppress pointless checking of primary key
+		docs.append(cMedDoc(doc_id))
 
 	return docs
 #------------------------------------------------------------
@@ -834,6 +838,23 @@ if __name__ == '__main__':
 
 		return
 	#--------------------------------------------------------
+	def test_adding_doc_part():
+
+		print "-----------------------"
+		print "testing document import"
+		print "-----------------------"
+
+		docs = search_for_document(patient_id=12)
+		doc = docs[0]
+		print "adding to doc:", doc
+
+		fname = sys.argv[1]
+		print "adding from file:", fname
+		part = doc.add_part(file=fname)
+		print "new part:", part
+
+		return
+	#--------------------------------------------------------
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
@@ -842,6 +863,7 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
 	test_doc_types()
+	test_adding_doc_part()
 
 #	print get_ext_ref()
 
@@ -856,7 +878,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.76  2006-09-01 14:39:19  ncq
+# Revision 1.77  2006-09-02 21:22:10  ncq
+# - return new parts from add_parts_from_files()
+# - cMedDoc.update_data() needs fixing
+# - forward port test suite improvement and cMedDoc instantiation fix from rel-0-2-patches branch
+#
+# Revision 1.76  2006/09/01 14:39:19  ncq
 # - add FIXME
 #
 # Revision 1.75  2006/07/10 21:15:07  ncq
