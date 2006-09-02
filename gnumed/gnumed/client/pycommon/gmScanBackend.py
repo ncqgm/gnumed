@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.18 2006-08-29 18:41:58 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmScanBackend.py,v 1.19 2006-09-02 21:11:59 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
 Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
@@ -346,38 +346,34 @@ def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, 
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
-	from Gnumed.pycommon import gmI18N
+#	from Gnumed.pycommon import gmI18N
 
 	print "devices:"
 	print get_devices()
 
-	print "getting bitmap #1"
-	dev = 'test:0'
-	fname = acquire_page_into_file(device=dev, filename='x1-test0-1', delay=5)
-	if fname is False:
-		print "error, cannot acquire page"
-	else:
-		print " image file:", fname
+	setups = [
+		{'dev': 'test:0', 'file': 'x1-test0-1'},
+		{'dev': 'test:1', 'file': 'x2-test1-1.bmp'},
+		{'dev': 'test:0', 'file': 'x3-test0-2.bmp-ccc'}
+	]
 
-	print "getting bitmap #2"
-	dev = 'test:1'
-	fname = acquire_page_into_file(device=dev, filename='x2-test1-1.bmp', delay=10)
-	if fname is False:
-		print "error, cannot acquire page"
-	else:
-		print " image file:", fname
+	idx = 1
+	for setup in setups:
+		print "scanning page #%s from device [%s]" % (idx, setup['dev'])
+		idx += 1
+		fname = acquire_page_into_file(device = setup['dev'], filename = setup['file'], delay = (idx*5))
+		if fname is False:
+			print "error, cannot acquire page"
+		else:
+			print " image file:", fname
 
-	print "getting bitmap #3"
-	dev = 'test:0'
-	fname = acquire_page_into_file(device=dev, filename='x3-test0-2.bmp-ccc', delay=15)
-	if fname is False:
-		print "error, cannot acquire page"
-	else:
-		print " image file:", fname
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.18  2006-08-29 18:41:58  ncq
+# Revision 1.19  2006-09-02 21:11:59  ncq
+# - improved test suite
+#
+# Revision 1.18  2006/08/29 18:41:58  ncq
 # - improve test suite
 #
 # Revision 1.17  2006/08/29 18:33:02  ncq
