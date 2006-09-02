@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.36 2006-08-01 22:03:49 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmGuiHelpers.py,v 1.36.2.1 2006-09-02 17:59:35 ncq Exp $
+__version__ = "$Revision: 1.36.2.1 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -186,7 +186,7 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		caption = procedure
 	)
 	if pwd_gm_dbo == '':
-		return False
+		return None
 
 	# 2) connect as gm-dbo
 	pool = gmPG.ConnectionPool()
@@ -351,7 +351,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.36  2006-08-01 22:03:49  ncq
+# Revision 1.36.2.1  2006-09-02 17:59:35  ncq
+# - make return on get_dbowner_connection() more consistent
+#
+# Revision 1.36  2006/08/01 22:03:49  ncq
 # - cleanup
 #
 # Revision 1.35  2006/06/20 09:42:42  ncq
