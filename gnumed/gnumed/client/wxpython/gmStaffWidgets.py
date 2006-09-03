@@ -7,18 +7,14 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.7 2006-06-17 16:45:19 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmStaffWidgets.py,v 1.8 2006-09-03 11:32:10 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
-from Gnumed.pycommon import gmLog, gmPG
+from Gnumed.pycommon import gmLog, gmPG, gmTools
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
@@ -53,8 +49,9 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 1, label = staff['db_user'])
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['role'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (staff['title'], staff['lastnames'], staff['firstnames']))
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = staff['comment'])
+			title = gmTools.coalesce(staff['title'], '')
+			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
+			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(staff['comment'], ''))
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
 			# color
 			if staff['is_active'] and staff['can_login']:
@@ -99,7 +96,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('%s.%s %s' % (staff['title'], staff['firstnames'], staff['lastnames']))
 		self._TCTRL_alias.SetValue(staff['short_alias'])
 		self._TCTRL_account.SetValue(staff['db_user'])
-		self._TCTRL_comment.SetValue(staff['comment'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(staff['comment'], ''))
 	#--------------------------------------------------------
 	def _on_listitem_deselected(self, evt):
 		self._btn_save.Enable(False)
@@ -235,26 +232,12 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self._TXT_password.SetValue('')
 			self._TXT_password_again.SetValue('')
 			return False
-		# connect as "gm-dbo"
-		pwd_gm_dbo = wx.GetPasswordFromUser (
-			message = _(
-"""
-To add a new staff member to the database we
-need the password of the GNUmed database owner.
 
-Please enter the password for <gm-dbo>:"""),
-			caption = _('Adding GNUmed staff member'),
-			parent = self
-		)
-		pool = gmPG.ConnectionPool()
-		conn = pool.get_connection_for_user(user='gm-dbo', password=pwd_gm_dbo, extra_verbose=True)
+		# connect as "gm-dbo"
+		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Enlisting Patient as Staff.'))
 		if conn is None:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot connect as the GNUmed database user <gm-dbo>.\n\nTherefore cannot add new staff member.'),
-				aTitle = _('Adding GNUmed staff member'),
-				aLogLevel = gmLog.lErr
-			)
 			return False
+
 		# create new user
 		pat = gmPerson.gmCurrentPatient()
 		queries = [
@@ -278,7 +261,12 @@ Please enter the password for <gm-dbo>:"""),
 		self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.7  2006-06-17 16:45:19  ncq
+# Revision 1.8  2006-09-03 11:32:10  ncq
+# - clean up wx import
+# - use gmTools.coalesce()
+# - use gmGuiHelpers.get_dbowner_connection instead of local crap copy
+#
+# Revision 1.7  2006/06/17 16:45:19  ncq
 # - only insert column labels once
 # - use get_dbowner_connection() in gmGuiHelpers
 # - implement activate()/save() on staff details
