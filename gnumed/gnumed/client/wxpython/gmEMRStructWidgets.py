@@ -8,9 +8,9 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.28 2006-06-26 21:37:43 ncq Exp $
-__version__ = "$Revision: 1.28 $"
-__author__ = "cfmoro1976@yahoo.es"
+# $Id: gmEMRStructWidgets.py,v 1.29 2006-09-03 11:30:28 ncq Exp $
+__version__ = "$Revision: 1.29 $"
+__author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
 # 3rd party
@@ -32,6 +32,104 @@ _log.Log(gmLog.lInfo, __version__)
 # module level constants
 dialog_CANCELLED = -1
 dialog_OK = -2
+
+#================================================================
+def move_episode_to_issue(episode=None, target_issue=None):
+
+	# we need a target issue
+	if target_issue is None:
+		if episode['pk_health_issue'] is None:
+			msg = _(
+				'\nThe episode\n'
+				'  [%(epi)s]\n'
+				'currently does not belong to a health issue.\n\n'
+				'Please select the health issue you want to move it to:\n'
+			) % {'epi': episode['description']}
+		else:
+			msg = _(
+				'\nThe episode\n'
+				'  [%(epi)s]\n'
+				'currently belongs to the health issue\n'
+				'  [%(issue)s]\n\n'
+				'Please select the health issue you want to move it to:\n'
+			) % {'epi': episode['description'], 'issue': episode['health_issue']}
+
+		dlg = cIssueSelectionDlg(self, -1, message=msg)
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			dlg.Destroy()
+			return True
+
+		pk_issue = dlg._PhWheel_issue.GetData()
+		dlg.Destroy()
+		if episode['pk_health_issue'] == pk_issue:
+			return True
+
+		target_issue = gmEMRStructItems.cHealthIssue(aPK_obj=pk_issue)
+
+	# resolve two-open-episodes conflict
+	if episode['episode_open']:
+		# FIXME: should we do this on the source issue, too ?
+		target_issue.close_expired_episode(ttl=90)
+		epi_exist = target_issue.get_open_episode()
+		if epi_exist is not None:
+			move_range = episode.get_access_range()
+			exist_range = epi_exist.get_access_range()
+			decision = gmGuiHelpers.gm_show_question (
+"""There cannot be two open episodes for a
+health issue at the same time.
+
+The episode you want to move
+
+ (1) "%(epi_move)s" (%(epi_move_first)s - %(epi_move_last)s)
+
+is currently open. The health issue
+
+ "%(issue)s"
+
+you want to move it to also has an open episode:
+
+ (2) "%(epi_exist)s" (%(epi_exist_first)s - %(epi_exist_last)s)
+
+[%(y)s] - close the episode on the move (1)
+[%(n)s] - close the existing episode (2)
+[%(c)s] - abort moving the episode
+"""				% {
+					'epi_move': episode['description'],
+					'epi_move_first': move_range['earliest'],
+					'epi_move_last': move_range['latest'],
+					'issue': target_issue['description'],
+					'epi_exist': epi_exist['description'],
+					'epi_exist_first': exist_range['earliest'],
+					'epi_exist_last': exist_range['latest'],
+					'y': _('yes'),
+					'n': _('no'),
+					'c': _('cancel')
+				},
+				_('Moving episode'),
+				cancel_button = True
+			)
+			if decision is None:
+				return True
+			if decision is True:
+				episode['episode_open'] = False
+			elif decision is False:
+				epi_exist['episode_open'] = False
+				epi_exist.save_payload()
+
+		episode['pk_health_issue'] = target_issue['pk']
+		success, data = episode.save_payload()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot move episode\n [%(epi)s]\n into health issue\n [%(issue)s].') % {
+					'epi': episode['description'],
+					'issue': target_issue['description']
+				},
+				_('Moving episode')
+			)
+			return True
+
+	# FIXME: signal issue/episode change
 
 #============================================================
 class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1142,7 +1240,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.28  2006-06-26 21:37:43  ncq
+# Revision 1.29  2006-09-03 11:30:28  ncq
+# - add move_episode_to_issue()
+#
+# Revision 1.28  2006/06/26 21:37:43  ncq
 # - cleanup
 #
 # Revision 1.27  2006/06/26 13:07:00  ncq
