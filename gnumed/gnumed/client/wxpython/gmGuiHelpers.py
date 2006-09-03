@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.36 2006-08-01 22:03:49 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmGuiHelpers.py,v 1.37 2006-09-03 11:29:30 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -129,20 +129,27 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle = 'generic user question dialog'):
-	dlg = wx.MessageDialog(
+def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle = 'generic user question dialog', cancel_button=False):
+	if cancel_button:
+		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
+	else:
+		wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
+
+	dlg = wx.MessageDialog (
 		None,
 		aMessage,
 		aTitle,
-		wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
+		style
 	)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
 
 	if btn_pressed == wx.ID_YES:
 		return True
-	else:
+	elif btn_pressed == wx.ID_NO:
 		return False
+	else:
+		return None
 #-------------------------------------------------------------------------
 # FIXME: actually make this use a signal !
 def gm_beep_statustext(aMessage=None, aLogLevel=None):
@@ -186,7 +193,7 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		caption = procedure
 	)
 	if pwd_gm_dbo == '':
-		return False
+		return None
 
 	# 2) connect as gm-dbo
 	pool = gmPG.ConnectionPool()
@@ -351,7 +358,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.36  2006-08-01 22:03:49  ncq
+# Revision 1.37  2006-09-03 11:29:30  ncq
+# - add cancel_button argument to show_question
+#
+# Revision 1.36  2006/08/01 22:03:49  ncq
 # - cleanup
 #
 # Revision 1.35  2006/06/20 09:42:42  ncq
