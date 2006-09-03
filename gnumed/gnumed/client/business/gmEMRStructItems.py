@@ -3,12 +3,12 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.81 $"
+__version__ = "$Revision: 1.82 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
 
-from Gnumed.pycommon import gmLog, gmPG, gmExceptions
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmNull
 from Gnumed.business import gmClinItem, gmClinNarrative
 
 import mx.DateTime as mxDT
@@ -77,6 +77,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def close_expired_episode(self, ttl=180):
 		"""ttl in days"""
+		# FIXME: ttl needs to be configurable
 		print '%s.close_expired_episode(ttl) needs fixing' % self.__class__.__name__
 		return True
 		# FIXME: this needs to go through clin_encounter.last_affirmed/clin_root_item.modified_when
@@ -110,6 +111,13 @@ update clin.episode set is_open = false where
 		cmd = "select exists (select 1 from clin.episode where fk_health_issue = %s and is_open is True limit 1)"
 		rows = gmPG.run_ro_query ( 'clinical', cmd, None, self.pk_obj)
 		return rows[0][0]
+	#--------------------------------------------------------
+	def get_open_episode(self):
+		cmd = "select pk from clin.episode where fk_health_issue = %s and is_open is True limit 1"
+		rows = gmPG.run_ro_query('clinical', cmd, None, self.pk_obj)
+		if (rows is None) or (len(rows) == 0):
+			return None
+		return cEpisode(aPK_obj=rows[0][0])
 #============================================================
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
@@ -145,16 +153,41 @@ class cEpisode(gmClinItem.cClinItem):
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
-#	def save_payload(self, conn=None):
-#		if self._payload[self._idx['episode_open']]:
-#			self._cmds_store_payload[0] = """
-#				update clin.episode set
-#					is_open = false
-#				where
-#					is_open = true and pk=%(pk_episode)s"""
-#		else:
-#			self._cmds_store_payload[0] = """select %(pk_episode)s"""
-#		gmClinItem.cClinItem.save_payload(self, conn=conn)
+	def get_access_range(self):
+		cmd = """
+select
+	min(earliest),
+	max(latest)
+from (
+	(select
+		(case when clin_when < modified_when
+			then clin_when
+			else modified_when
+		end) as earliest,
+		(case when clin_when > modified_when
+			then clin_when
+			else modified_when
+		end) as latest
+	from
+		clin.clin_root_item
+	where
+		fk_episode = %s
+
+	) union all (
+
+	select
+		modified_when as earliest,
+		modified_when as latest
+	from
+		clin.episode
+	where
+		pk = %s
+	)
+) as ranges"""
+		rows = gmPG.run_ro_query('clinical', cmd, None, self.pk_obj)
+		if rows is None or len(rows) == 0:
+			return {'earliest': gmNull.cNull(warn=False), 'latest': gmNull.cNull(warn=False)}
+		return {'earliest': rows[0][0], 'latest': rows[0][1]}
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
@@ -454,7 +487,7 @@ if __name__ == '__main__':
 	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
-	gmPG.set_default_client_encoding('latin1')
+	gmPG.set_default_client_encoding({'wire': 'latin1', 'string': 'latin1'})
 	#--------------------------------------------------------
 	# define tests
 	#--------------------------------------------------------
@@ -527,7 +560,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.81  2006-07-19 20:25:00  ncq
+# Revision 1.82  2006-09-03 11:27:24  ncq
+# - use gmNull.cNull
+# - add cHealthIssue.get_open_episode()
+# - add cEpisode.get_access_range()
+#
+# Revision 1.81  2006/07/19 20:25:00  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.80  2006/06/26 12:27:53  ncq
