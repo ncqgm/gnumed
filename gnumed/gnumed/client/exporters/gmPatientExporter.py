@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.81 2006-07-19 20:25:48 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmPatientExporter.py,v 1.82 2006-09-03 14:46:26 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -963,10 +963,10 @@ class cEMRJournalExporter:
 
 		self.__part_len = 72
 		self.__tx_soap = {
-			's': _('S'),
-			'o': _('O'),
-			'a': _('A'),
-			'p': _('P')
+			u's': _('S'),
+			u'o': _('O'),
+			u'a': _('A'),
+			u'p': _('P')
 		}
 	#--------------------------------------------------------
 	# external API
@@ -998,12 +998,12 @@ class cEMRJournalExporter:
 			return False
 		ident = self.__pat.get_identity()
 		# write header
-		txt = _('Chronological EMR Journal\n')
+		txt = _('Chronological EMR Journal\n').encode('iso8859-15')
 		target.write(txt)
 		target.write('=' * (len(txt)-1))
 		target.write('\n')
-		target.write(_('Patient: %s (%s), No: %s\n') % (ident['description'], ident['gender'], self.__pat['ID']))
-		target.write(_('Born   : %s, age: %s\n\n') % (ident['dob'].Format('%Y-%m-%d'), ident.get_medical_age()))
+		target.write(_('Patient: %s (%s), No: %s\n').encode('iso8859-15') % (ident['description'], ident['gender'], self.__pat['ID']))
+		target.write(_('Born   : %s, age: %s\n\n').encode('iso8859-15') % (ident['dob'].Format('%Y-%m-%d'), ident.get_medical_age()))
 		target.write('.-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
 		target.write('| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
 		target.write('|-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
@@ -1055,16 +1055,15 @@ where pk_patient=%s order by date, pk_episode, scr"""
 			# more parts ?
 			if no_parts == 1:
 				continue
+			template = u'| %10.10s | %9.9s | %s | %s\n'
 			for part in range(1, no_parts):
-				target.write('| %10.10s | %9.9s | %s | %s\n' % (
-					'',
-					'',
-					self.__tx_soap[row[idx['soap_cat']]],
-					txt[(part * self.__part_len):((part+1) * self.__part_len)]
-				))
+				soap_cat = self.__tx_soap[row[idx['soap_cat']]]
+				msg = txt[(part * self.__part_len):((part+1) * self.__part_len)]
+				line = template % (u'', u'', soap_cat, msg)
+				target.write(line.encode('iso8859-15'))
 		# write footer
-		target.write('`-%10.10s---%9.9s-------%72.72s\n\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
-		target.write(_('Exported: %s\n') % time.asctime())
+		target.write('`-%10.10s---%9.9s-------%72.72s\n\n'.encode('iso8859-15') % ('-' * 10, '-' * 9, '-' * self.__part_len))
+		target.write(_('Exported: %s\n').encode('iso8859-15') % time.asctime())
 		return True
 #============================================================
 class cMedistarSOAPExporter:
@@ -1202,13 +1201,13 @@ def run():
         Main module application execution loop.
     """
     # Check that output file name is defined and create an instance of exporter
-    if gmCLI.has_arg('--fileout'):
-        outFile = open(gmCLI.arg['--fileout'], 'wb')
-    else:
-        usage()
-    export_tool = cEmrExport(parse_constraints(), outFile)
+#    if gmCLI.has_arg('--fileout'):
+#        outFile = open(gmCLI.arg['--fileout'], 'wb')
+#    else:
+#        usage()
+#    export_tool = cEmrExport(parse_constraints(), outFile)
 
-    export_tool.get_episode_summary()
+#    export_tool.get_episode_summary()
 
     # More variable initializations
     patient = None
@@ -1223,16 +1222,18 @@ def run():
             break
         # FIXME: needed ?
         gmPerson.set_active_patient(patient=patient)
-        export_tool.set_patient(patient)
+        exporter = cEMRJournalExporter()
+        exporter.export_to_file()
+#        export_tool.set_patient(patient)
         # Dump patient EMR sections
-        export_tool.dump_constraints()
-        export_tool.dump_demographic_record(True)
-        export_tool.dump_clinical_record()
-        export_tool.dump_med_docs()
+#        export_tool.dump_constraints()
+#        export_tool.dump_demographic_record(True)
+#        export_tool.dump_clinical_record()
+#        export_tool.dump_med_docs()
 
     # Clean ups
-    outFile.close()
-    export_tool.cleanup()
+#    outFile.close()
+#    export_tool.cleanup()
     if patient is not None:
         try:
             patient.cleanup()
@@ -1240,6 +1241,9 @@ def run():
             print "error cleaning up patient"
 #------------------------------------------------------------
 if __name__ == "__main__":
+    gmI18N.activate_locale()
+    gmI18N.install_domain()
+
     gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 
     print "\n\nGNUmed ASCII EMR Export"
@@ -1248,7 +1252,7 @@ if __name__ == "__main__":
     if gmCLI.has_arg('--help'):
         usage()
 
-    gmPG.set_default_client_encoding('latin1')
+    gmPG.set_default_client_encoding({'wire': 'utf8', 'string': 'utf8'})
     # make sure we have a connection
     pool = gmPG.ConnectionPool()
     # run main loop
@@ -1264,7 +1268,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.81  2006-07-19 20:25:48  ncq
+# Revision 1.82  2006-09-03 14:46:26  ncq
+# - robustify regarding encoding issues
+# - improve test suite
+#
+# Revision 1.81  2006/07/19 20:25:48  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.80  2006/06/09 14:39:23  ncq
