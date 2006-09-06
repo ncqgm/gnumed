@@ -267,7 +267,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.7  2005-10-10 18:10:33  ncq
+# Revision 1.8  2006-09-06 10:26:52  shilbert
+# - removed some weird EOL via dos2unix
+#
+# Revision 1.7  2005/10/10 18:10:33  ncq
 # - ever so slightly beautify debugging
 #
 # Revision 1.6  2005/10/08 12:33:08  sjtan
