@@ -10,12 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.42 2006-09-01 14:46:30 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPatSearchWidgets.py,v 1.43 2006-09-06 07:22:34 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, string, re
+import sys, os.path, time, string, re, glob
 
 import wx
 
@@ -972,7 +972,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.42  2006-09-01 14:46:30  ncq
+# Revision 1.43  2006-09-06 07:22:34  ncq
+# - add missing import for glob module
+#
+# Revision 1.42  2006/09/01 14:46:30  ncq
 # - add (untested) MCS/Isynet external patient source
 #
 # Revision 1.41  2006/08/09 15:00:47  ncq
