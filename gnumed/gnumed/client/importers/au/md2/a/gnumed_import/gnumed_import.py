@@ -16,6 +16,11 @@ Copyright (C) 2006  author
 import sys
 import string
 import rtf2plain 
+import base64
+import zipfile
+import StringIO
+
+REASON_DOC_ENCOUNTER="document auto import AU_type_a_v_01"
 
 def usage():
 	print "*** USAGE:  ***"
@@ -87,6 +92,7 @@ global_dr_id_to_pg_user= {}
 #conto is the connection to a gnumed_v2 database, which will take the converted data.
 confrom = None
 conto = None
+global orig_user
 orig_user = 'gm-dbo'
 
 quotes = "\" \' \`".split(' ')
@@ -103,11 +109,317 @@ def esc(s):
 	return ''.join(l)
 
 #---------------------------------------------------
+
+
+class pg_importer:
+	"""an importer that reads from a postgresql imported dbf database"""
+	def __init__(self, pat_block=100):
+		"""object indirection to allow for direct dbf importer"""
+		self.cu = confrom.cursor()
+		self.patcount = update_patcount(self.cu)	
+		self.first_pat = 0
+		self.pat_block = pat_block
+		self.demo_stmt = 'select ur_no, title, firstname, knownas, surname, sex, dob, decdate, deceased, address, city, postcode, phone, bus_phone, mob_phone,   mc_no, mc_index, mc_expiry, pens_no, dva_no, update from patients offset %d limit %d'
+
+		self.background = {}
+		self._setup_progress_index()
+		self._setup_document_index()
+
+	def _setup_progress_index(self):
+		cu = self.cu
+		stmt = "select count(*) from pg_indexes where indexname = 'idx_urno_progress'"
+		cu.execute(stmt)
+		[n] = cu.fetchone()
+		if n == 0:
+			stmt = "create index  idx_urno_progress  on progress using btree (ur_no)"
+			print stmt
+			cu.execute(stmt)
+
+	def _setup_document_index(self):
+		cu = self.cu
+		stmt = "select indexname from pg_indexes where indexname = 'idx_urno_document'"
+		cu.execute(stmt)
+		if not cu.fetchone():
+			confrom.commit()
+			stmt = "create index idx_urno_document on document using btree (ur_no)"
+			print stmt
+			cu.execute(stmt)
+			i =0 
+			while True:
+				i += 1
+				tablename = 'doc%05d' % i
+				stmt = "select tablename from pg_tables where lower(tablename) = '%s'" % tablename
+				cu.execute(stmt)
+				if not cu.fetchone():
+					break
+
+				stmt = "create index idx_recno_%s on %s using btree( rec_no) " % ( tablename, tablename)
+				cu.execute(stmt)
+
+			confrom.commit()
+		
+
+	def get_drs(self):
+
+		stmt = """
+		select dr_no, dr, 
+				sex,dob, 
+				phone, fax, email, 
+				reg_no, prov_no, pres_no, 
+				drcode as worktime_cat, category 
+		from dr
+		"""
+
+		self.cu.execute(stmt)
+
+		r  = self.cu.fetchall()
+		print "**DEBUG**"
+		print r
+		return r	
+
+		
+	def get_next_demographics(self):
+		if self.first_pat > self.patcount:
+			return None
+		stmt = self.demo_stmt % ( self.first_pat, self.pat_block)
+		self.cu.execute(stmt)
+		rows = self.cu.fetchall()
+		self.first_pat += self.pat_block
+		return rows
+
+	def get_progress_notes(self, ur_no):
+
+		stmt = """
+		select dr_no ::int, 
+				notes, exam, history, 
+				reason, reasoncode, 
+				visitdate, starttime, endtime, update 
+				from 
+					progress 
+				where 
+					ur_no = '%s' 
+				order by 
+					visitdate, starttime
+					
+				""" % esc(ur_no) 
+		self.cu.execute(stmt)
+		return self.cu.fetchall()
+
+	def get_patient_history(self, ur_no):
+		cu = self.cu
+		stmt = """
+		select dr_no ::int , delcode, month, year, condition, comment, update, side, active, hide , histcode ,
+		case when ( month is null or length(btrim(month)) = 0) and length(btrim(year)) = 4 
+			then ('01-01-'||replace(year, 'O', '0') ) ::date 
+		 when length(month) > 8 then 
+			to_date ( month, 'dd/MM/YYYY')
+		else 
+			 now() 
+		end as date_noted
+		from history where ur_no = '%s' order by year, month, update, dr_no, condition
+		"""	
+		real_stmt  = stmt % esc( ur_no)
+		cu.execute(real_stmt)
+		rows = cu.fetchall()
+		return rows
+
+	def get_allergies(self, ur_no):
+		""" returns  [  dr_no, item ( drug), type ( reaction) , delcode ( deleted ?) , update ( date in YYYYMMDD of entry) ] """
+		cu = self.cu
+		stmt = """
+			select dr_no::int, item , type, delcode, update from reaction where ur_no = '%s' 
+			"""  % esc( ur_no)
+
+		cu.execute ( stmt )
+		return cu.fetchall()
+
+	def get_all_background(self, ur_no):
+		if self.background.has_key(ur_no):
+			return self.background[ur_no]
+		del self.background
+		self.background = {}
+
+		cu = self.cu
+		stmt = """
+			select allergy , warnings, married, fh, social, occupation, smoking, smokes, ceased, started, smokingex, alcoholex, alcohol from allergy where ur_no = '%s'
+			""" % esc( ur_no)
+		cu.execute(stmt)
+		r = cu.fetchone()
+		if r and len(r) == 13:
+			self.background[ur_no] = r
+			#[allergy, warnings, married, fh, social, occupation, smoking, smokes, ceased, started, smokingex, alcoholex, alcohol ] = r
+			return r
+		else:
+			return None
+		
+
+	def is_nka( self, ur_no):
+		bcgk = self.get_all_background(ur_no)
+		if not bcgk:
+			return False
+		allergyblock = bcgk[0] 
+		allergyblock = allergyblock[1:-1].split(',')
+		if allergyblock[1] == '"Nil known"':
+			return True
+		else:
+			return False
+	
+
+	def get_family_hx(self, ur_no):
+		bcgk = self.get_all_background(ur_no)
+		if not bcgk:
+			return None
+		return bcgk[3]
+	
+	def get_social_hx(self, ur_no):
+		bcgk = self.get_all_background(ur_no)
+		if not bcgk:
+			return None
+		return bcgk[4]
+
+	def get_occupation(self, ur_no):
+		bcgk = self.get_all_background(ur_no)
+		if not bcgk:
+			return None
+		return bcgk[5]
+		
+	def get_smoking(self, ur_no):
+		bcgk = self.get_all_background(ur_no)
+		if not bcgk:
+			return None
+		return bcgk[6:11]
+	
+	def get_alcohol(self, ur_no):
+		bcgk = self.get_all_background(ur_no)
+		if not bcgk:
+			return None
+		return bcgk[11:]
+		
+
+	def get_specialty(self):
+		stmt ="select distinct specialty from spec"
+		cu = self.cu
+		cu.execute(stmt)
+		return cu.fetchall()
+
+	def get_specialists(self):
+		stmt = """
+	select company , title, firstname, surname, address1, address2, address3, postcode, phone, phone_ah, phone_mob, email, pager, fax, pubkey, nogap, update, sp_no from spec
+		"""
+		cu = self.cu
+		cu.execute(stmt)
+		return cu.fetchall()
+
+
+	def get_letters(self, ur_no):
+		cu = self.cu
+		stmt = """
+		select ur_no, spec, dr, letdate, delcode, subject, update , settings, item from letters
+		where ur_no = ur_no
+		""" % esc(ur_no)
+		cu.execute(stmt)
+		ll = []
+		 
+		for r in cu.fetchall():
+			ll.append( r[0:-1] + [base64.decodestringr[-1]] )
+		return ll	
+
+	def get_documents(self, ur_no):
+		stmt = """
+		select ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype  from document where ur_no = '%s' order by doc_no, page_no
+		""" % esc(ur_no)
+		cu = self.cu
+
+		cu.execute(stmt)
+		desc = cu.fetchall()
+		
+		l = []
+		for ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype  in desc:
+			l.append( [ ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype ])
+
+		for x in l:
+			doc_obj_table = 'DOC%05d' % int(file_no)
+			stmt = """
+				select  item  from %s where rec_no = %d
+				""" % ( doc_obj_table, int(rec_no) )
+			print stmt
+			cu.execute(stmt)
+
+			r = cu.fetchone()
+			if r and len(r):
+				x.append(r[0])
+			else:
+				x.append(None)
+				print "*"*50, "no doc object found"
+		
+		return l
+
+
+	
+
+
 #---------------------------------------------------
 def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_date):
+	if dob is None:
+		dob = ''
+	# check for already existing identities
+	stmt = "select  pk_identity from dem.v_basic_person where dob - coalesce('%s', dob) < '2 days'::interval and firstnames = '%s' and lastnames = '%s' " % ( dob, esc(firstnames), esc(surname) )
 
-	if dob == None:
-		dob = "1-1-1960"
+	cu.execute(stmt)
+	rr = cu.fetchall()
+
+	print "FOUND for ", stmt
+	print rr
+
+	# clean up duplicates 
+	if len(rr) > 1:
+		print "*" * 100 , "DUPLICATES FOUND, CLEANING"
+		xfk = []
+		for r in rr:
+			# this redundant mapping may change 
+			stmt = "select xfk_identity from clin.xlnk_identity where xfk_identity = %d" % r[0]
+			cu.execute(stmt)
+			x = cu.fetchone()
+			if x:
+				xfk.append(x[0])
+
+		conto.commit()
+		for fk in  xfk[1:] :
+			stmt = "update clin.episode  set fk_health_issue = %d where  clin.episode.fk_health_issue in ( select h1.pk from clin.health_issue h1, clin.health_issue h2  where h1.id_patient = %d  and h1.description = h2.description and h2.id_patient = %d ) " 	% (xfk[0], fk, xfk[0] )
+			cu.execute(stmt)
+
+			stmt = "delete from clin.health_issue where id_patient = %d and exists ( select pk from clin.health_issue h2 where h2.id_patient = %d and description = h2.description )"
+			stmt = stmt % ( fk , xfk[0] )
+			cu.execute(stmt)
+
+			stmts = [   
+						"update clin.health_issue set id_patient = %d where id_patient = %d",
+						"update clin.episode set fk_patient = %d where fk_patient = %d",
+						"update clin.encounter set fk_patient = %d where fk_patient = %d",
+						"update blobs.doc_med set patient_id = %d where patient_id = %d"   ]
+
+			for stmt in stmts:
+				stmt = stmt % ( int(xfk[0]), int(fk) )
+				print stmt
+				cu.execute(stmt)
+
+			for (table, field)  in [ 	('clin.health_issue','id_patient') , 
+									('clin.episode','fk_patient')     , 
+									('clin.encounter', 'fk_patient')  ,
+									( 'blobs.doc_med',  'patient_id')  ]:
+						stmt = "delete from %s where %s = %d" % ( table, field, int(fk))
+						cu.execute(stmt)
+		
+		for r in rr[1:]:
+			# since identity has cascade restricted on delete, just remove the name for the moment
+			stmt = "delete from dem.names where id_identity = %d " % r[0]
+			cu.execute(stmt)
+
+		conto.commit()
+
+	if len(rr):
+		return rr[0][0]
+	
 	if sex:	
 		stmt_insert_id = "insert into dem.identity( gender, dob) values( '%s', '%s')" % ( esc(sex.lower()[0]), esc(dob))   
 	else:
@@ -257,11 +569,7 @@ def process_dr( dr_id, dr, sex,dob, phone, fax, email , reg_no, prov_no, pres_no
 #-----------------------------------
 
 def transfer_drs():
-	cu = confrom.cursor()
-	cu.execute('select dr_no, dr, sex,dob, phone, fax, email, reg_no, prov_no, pres_no, drcode as worktime_cat, category from dr')
-	r  = cu.fetchall()
-	
-	for row in r:
+	for row in importer.get_drs():
 		process_dr(*row)
 
 
@@ -347,6 +655,10 @@ def find_or_insert_address(cu, id, no, st, urb, pcode) :
 	print stmt_insert_address
 	cu.execute(stmt_insert_address)
 	[id_address ] = cu.fetchone()
+	stmt = "select id from dem.lnk_person_org_address where id_identity = %d and id_address = %d " % ( id, id_address)
+	cu.execute(stmt)
+	if cu.fetchone():
+		return False
 
 	stmt_insert_lnk_id_address = "insert into dem.lnk_person_org_address( id_identity, id_address, address_source) values ( %d, %d, 'import program')" % (id, id_address)
 	print stmt_insert_lnk_id_address
@@ -363,10 +675,11 @@ def process_patient(  ur_no, title, firstname, knownas, surname, sex, dob, decda
 	print ur_no, title, firstname, knownas, surname, sex, dob, decdate, deceased, address, city, postcode, phone, bus_phone, mob_phone,   mc_no, mc_index, mc_expiry, pens_no, dva_no, update
 	
 	cu = conto.cursor()
-
+	
 	if not dob:
 		dob = DEFAULT_BIRTHDATE
-
+	
+		
 	if mc_no:
 		mc_index = str(mc_index)
 		mc_expiry = str(mc_expiry)
@@ -380,17 +693,14 @@ def process_patient(  ur_no, title, firstname, knownas, surname, sex, dob, decda
 		( "Centrelink", "CRN", pens_no ), 
 		( "Department of Veteran's Affairs", "DVA", dva_no ) ]
 
-	for issuer, exttype, number in l:
-		if number and len(number):
-			if not check_ext_id(cu,  find_or_insert_exttype(cu, exttype, issuer ),  number, firstname, surname, dob):
-				return None
 				
 	id = insert_identity (cu, firstname, surname, knownas, dob, sex, title, decdate )		
 		
 
 	for issuer, exttype, number in l:
 		if number and len(number):
-			insert_ext_id(cu, id,  find_or_insert_exttype(cu, exttype, issuer ),  number)
+			if  check_ext_id(cu,  find_or_insert_exttype(cu, exttype, issuer ),  number, firstname, surname, dob):
+				insert_ext_id(cu, id,  find_or_insert_exttype(cu, exttype, issuer ),  number)
 		
 	#address normalize. rules 
 	# if first token is U include in number
@@ -425,7 +735,7 @@ def process_patient(  ur_no, title, firstname, knownas, surname, sex, dob, decda
 			street_part.append(w)
 
 		if not	find_or_insert_address( cu, id, ' '.join(number_part), ' '.join(street_part), city, postcode):
-			print "FAILED TO INSERT THIS ADDRESS ", id, number_part, street_part, city, postcode
+			print "THIS ADDRESS NOT INSERTED , ? DUPLICATE ", id, number_part, street_part, city, postcode
 
 	
 	phones = [ 	('homephone', phone	),
@@ -442,46 +752,36 @@ def process_patient(  ur_no, title, firstname, knownas, surname, sex, dob, decda
 		
 	return id
 
-#-------------------------------------------------
-def process_patient_progress(ur_no, id_patient):
+def get_dr_user(dr_id):
+	"""gets the postgres user created in process_dr associated with the dr_id
+		so that progress notes and history appear with the author
+	"""
+	
 	to_user = global_dr_id_to_pg_user
+	#<DEBUG>
+	print
+	print to_user
+	print
+	if dr_id is None:
+		dr_id = 1
+	pg_user = to_user.get(int(dr_id), None)
+
+	if not pg_user:
+		pg_user = 'default'
+	else:
+		pg_user ="'"+esc(pg_user) + "'"
+
+	print "*"*100, "pg_user is ", pg_user	
+	
+	return pg_user
+#-------------------------------------------------
+
+def process_patient_progress(ur_no, id_patient):
 	# progress note maps to an encounter and episode
 
 	# TODO need to add modified_by to all inserts to use non-login users as well
 	
-	cu = confrom.cursor()
-	
-	stmt = "select count(*) from pg_indexes where indexname = 'idx_urno_progress'"
-	cu.execute(stmt)
-	[n] = cu.fetchone()
-	if n == 0:
-		stmt = "create index  idx_urno_progress  on progress using btree (ur_no)"
-		print stmt
-		cu.execute(stmt)
-
-	prog_stmt = "select dr_no ::int, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime, update from progress where ur_no = '%s' order by visitdate, starttime" % esc(ur_no) 
-
-	print prog_stmt
-	cu.execute(prog_stmt)
-	rr = cu.fetchall()
-
-	by_reason = {}
-	
-	noreason = "reason for encounter unspecified"
-	
-	# insert as unlinked episode, and encounter with narrative
-	for r in rr:
-		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime,update  = r
-		print "row is ", r
-		if reason and len(reason.strip()):
-			reason = reason.strip().lower()
-			l = by_reason.get(reason, [])
-			l.append(r)
-			by_reason[reason] = l	
-		else:
-			l = by_reason.get( noreason, [])
-			l.append(r)
-			by_reason[noreason] = l
+	rr = importer.get_progress_notes(ur_no)
 
 	
 	cu2 = conto.cursor()
@@ -491,15 +791,19 @@ def process_patient_progress(ur_no, id_patient):
 	last_datepart = None
 	for r in rr:
 		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update = r
-		print "PROCESSING progress =\n notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update"
-		print notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update
+
+		#<DEBUG> statements for detailed dump
+		#print "PROCESSING progress =\n notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update"
+		#print notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update
 	
-		pg_user = to_user.get(dr_id, None)
-		if pg_user is None:
-			pg_user = 'default'
-		else:
-			pg_user = "'"+esc(pg_user)+"'"
-		
+		print "process progress notes ", reason, visitdate, starttime
+
+
+		"""
+parse the visitdate and starttime into normalized
+times.
+		"""
+
 		datepart = ''
 		if visitdate and str(visitdate).strip() <> '':
 			print "visit date is ", visitdate
@@ -533,18 +837,22 @@ def process_patient_progress(ur_no, id_patient):
 		if not reason or reason.strip() == '':
 			reason = 'xxxDEFAULTxxx'
 
-		# check encounter exists
-		stmt = "select count(*) from clin.encounter where fk_patient = %d and reason_for_encounter = '%s' and started = '%s' and last_affirmed = '%s' " % ( id_patient, esc(reason), esc(started), esc(lastaffirmed) )
+		"""
+check encounter exists. 
+Encounter exists if same patient, same reason for encounter, same started , last_affirmed times.
+If encounter exists then skip encounter creation ( also episode and narrative creation
+		"""
+
+		stmt = "select pk from clin.encounter where fk_patient = %d and reason_for_encounter = '%s' and coalesce( started, '%s'::date) - '%s'::date < '1 hour'::interval  and coalesce( last_affirmed , '%s'::date) - '%s'::date < '1 hour'::interval " % ( id_patient, esc(reason), esc(started), esc(started), esc(lastaffirmed), esc(lastaffirmed) )
 		print stmt
 		cu2.execute(stmt)
-		[n] = cu2.fetchone()
-		if n > 0:
+		r = cu2.fetchone()
+		if r :
 			# skip as encounter already entered
 			continue
-
-		auth_stmt = "set session authorization %s" % pg_user
+		
+		auth_stmt = "set session authorization %s" % get_dr_user(dr_id)
 		print auth_stmt
-
 		cu2.execute(auth_stmt)
 
 		# create an encounter
@@ -574,7 +882,15 @@ def process_patient_progress(ur_no, id_patient):
 		# this is for linking episode later if required
 		
 		notes2 = rtf2plain.rtf2plain(notes)
-			
+		
+		"""
+parse the notes into the s o a p  categories. The notes have the 
+text headings History, Examination, Assessment, Action/ Management.
+Result is stored in a map with keys s o a p, and this is then read in "s o a p" order
+and inserted as clin_narratives
+		"""
+
+
 		state = 's'
 		cat = { 's': [], 'o': [], 'a': [], 'p': [] }
 		cats = []
@@ -636,12 +952,18 @@ def process_patient_progress(ur_no, id_patient):
 			for k in ['s', 'o', 'a', 'p' ] :
 				narratives.append( (k, '\n'.join(cat[k]) ))
 		
-		#create the narrative
+
+		"""
+Check the narratives do not already exist by selecting for a narrative with
+the same encounter and same md5 sum of narrative text. If exists, skip insertion
+of narrative.
+		"""
+
 		for (soap_cat, narrative) in narratives:
 			if narrative.strip() == '':
 				continue
-			query = "select count(*) from clin.clin_narrative where fk_encounter = %d and fk_episode = %d and soap_cat = '%s' and md5(narrative) = md5('%s')"
-			r_qry = query % ( pk_encounter, pk_episode, soap_cat, esc(narrative) )
+			query = "select count(*) from clin.clin_narrative where fk_encounter = %d  and soap_cat = '%s' and md5(narrative) = md5('%s')"
+			r_qry = query % ( pk_encounter,  soap_cat, esc(narrative) )
 			cu2.execute(r_qry)
 			[cnt] = cu2.fetchone()
 			if cnt > 0:
@@ -653,11 +975,33 @@ def process_patient_progress(ur_no, id_patient):
 				continue
 			stmt = "insert into clin.clin_narrative( fk_encounter, fk_episode, clin_when, soap_cat, narrative) values ( %d,%d,'%s','%s', '%s') " % ( pk_encounter, pk_episode, esc(started),soap_cat,  esc( narrative) )
 
-
+			#<DEBUG>
 			print stmt
 			cu2.execute(stmt)
+
+
 			
-		
+	"""
+group the progress notes by the reason specified.
+if there are more than 1 progress notes for a reason, 
+insert a health issue from the reason text.
+	"""
+	by_reason = {}
+	noreason = "reason for encounter unspecified"
+	# insert as unlinked episode, and encounter with narrative
+	for r in rr:
+		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime,update  = r
+		#print "row is ", r
+		if reason and len(reason.strip()):
+			reason = reason.strip().lower()
+			l = by_reason.get(reason, [])
+			l.append(r)
+			by_reason[reason] = l	
+		else:
+			l = by_reason.get( noreason, [])
+			l.append(r)
+			by_reason[noreason] = l
+
 	for reason, pnotes in by_reason.items():
 		# arbitrary, 3 visits for same reason consitutes a health issue
 		if len(pnotes) > 1:
@@ -712,8 +1056,6 @@ def ensure_xlnk_identity(id_patient):
 	
 def process_patient_history( ur_no, pat_id) :
 
-	to_user = global_dr_id_to_pg_user
-	cu = confrom.cursor()
 	cu2 = conto.cursor()
 
 	stmt = "select dob ::date from dem.identity where pk = %d" % pat_id
@@ -722,22 +1064,7 @@ def process_patient_history( ur_no, pat_id) :
 	[dob] = cu2.fetchone()
 
 
-	stmt = """
-	select dr_no ::int , delcode, month, year, condition, comment, update, side, active, hide , histcode ,
-	case when ( month is null or length(btrim(month)) = 0) and length(btrim(year)) = 4 
-		then ('01-01-'||replace(year, 'O', '0') ) ::date 
-	 when length(month) > 8 then 
-	   	to_date ( month, 'dd/MM/YYYY')
-	else 
-		 now() 
-	end as date_noted
-	from history where ur_no = '%s' order by year, month, update, dr_no, condition
-	""" 
-
-	real_stmt  = stmt % esc( ur_no)
-	cu.execute(real_stmt)
-
-	rows = cu.fetchall()
+	rows = importer.get_patient_history(ur_no)
 
 
 	for (dr_id, delcode, month, year, condition, comment, update, side, active, hide, histcode, date_noted) in rows:
@@ -746,25 +1073,17 @@ def process_patient_history( ur_no, pat_id) :
 		else:
 			date_noted = "'" + esc(date_noted) +"'"
 
-		pg_user = to_user.get(dr_id, None)
-		if not pg_user:
-			pg_user = 'default'
-
-		else:
-			pg_user ="'"+esc(pg_user) + "'"
-
-		print "*"*100, "pg_user is ", pg_user	
 		
 		if not condition or condition.strip() == '':
 			continue
 
 		query ="""
-		select count(*) from clin.health_issue where id_patient = %d and description = '%s' 
+		select pk from clin.health_issue where id_patient = %d and description = '%s' 
 			""" % ( pat_id, esc(condition) )
 			
 		cu2.execute(query)
-		[cnt] = cu2.fetchone()
-		if cnt == 0:
+		res = cu2.fetchone()
+		if  not res:
 		
 			stmt = """
 			insert into clin.health_issue ( 
@@ -779,7 +1098,9 @@ def process_patient_history( ur_no, pat_id) :
 				'%s', '%s' , %d
 			) 
 				"""
+			fk_health_issue = "currval('clin.health_issue_pk_seq')"
 		else:
+			fk_health_issue = str(res[0])
 			stmt = """
 				update clin.health_issue set description='%s',  modified_when = to_timestamp('%s', 'YYYYMMddhhmiss' ) , 
 				age_noted = age ( %s, '%s') ,
@@ -790,6 +1111,7 @@ def process_patient_history( ur_no, pat_id) :
 				is_active = '%s', is_confidential = '%s' where id_patient = %d and description = 
 				""" + "'" + esc(condition) +"'"
 		
+		pg_user = get_dr_user(dr_id)
 		auth_stmt = "set session authorization %s" % pg_user  # pg_user already quoted , or is CURRENT_USER
 		cu2.execute(auth_stmt)
 		
@@ -804,8 +1126,8 @@ def process_patient_history( ur_no, pat_id) :
 			stmt2 = """
 				insert into clin.episode (  modified_when, fk_health_issue, description, is_open) values
 				( 
-				 to_timestamp('%s', 'YYYYMMddhhmiss'), currval('clin.health_issue_pk_seq'), '%s', false
-				) """ %  (  esc(update), esc('Comment on health issue:') )
+				 to_timestamp('%s', 'YYYYMMddhhmiss'), %s, '%s', false
+				) """ %  (  esc(update), fk_health_issue, esc('Comment on health issue:') )
 
 		
 			cu2.execute(stmt2)
@@ -825,7 +1147,195 @@ insert into clin.encounter (  fk_patient, reason_for_encounter, started, last_af
 		cu2.execute("set session authorization '%s'" % esc( orig_user) )
 	
 
-	
+
+def process_patient_documents(ur_no, pat_id):
+	print
+	print '*' * 100
+	print "DEBUG : processing patient documents", ur_no, pat_id
+	print '*' * 100
+	print
+	docs = importer.get_documents(ur_no)
+	last_doc_no = -1
+
+	cu2 = conto.cursor()
+
+	cu2.execute("select pk from dem.staff where db_user = current_user")
+	r = cu2.fetchone()
+	if not r:
+		cu2.execute('select pk from dem.staff where db_user = \'any-doc\'')
+		r = cu2.fetchone()
+
+	pk_staff = r[0]
+
+	doc_pks = {}
+
+ 	for ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype, text  in docs:
+
+		# check if docobj doesn't already exist
+
+		ext_ref = '/'.join([ur_no, str(doc_no)]) 
+
+		stmt = """
+		select pk from blobs.doc_med
+		where 
+			patient_id = %d
+				and
+			ext_ref = '%s'
+		"""  %  ( pat_id, esc(ext_ref))
+
+		cu2.execute(stmt)
+		r = cu2.fetchone()
+		if  r:
+			doc_pks[doc_no] = r[0]
+
+
+		
+		if not doc_pks.has_key(doc_no):
+				# get new_doc_id
+				# insert into blobs.doc_med  , patient_id, fk_encounter, fk_episode, type, comment, date, ext_ref
+				# get last_doc_no
+				
+				stmt = """
+					insert into clin.encounter( fk_patient, reason_for_encounter, fk_type) 
+					values (%d, '%s', 9)
+
+				""" % ( pat_id, REASON_DOC_ENCOUNTER)
+				
+				cu2.execute(stmt)
+
+				"""get the new clin encounter index"""
+
+				stmt2 = """select max(pk) from clin.encounter"""
+
+				cu2.execute(stmt2)
+				[pk_encounter] = cu2.fetchone()
+		
+
+				"""create a new episode """
+
+				stmt = """
+					insert into clin.episode ( fk_patient, description)
+					values ( %d, '%s')
+				
+				""" % ( pat_id, REASON_DOC_ENCOUNTER)
+
+				cu2.execute(stmt)
+
+				"""get the new clin episode index """
+
+				stmt3 = """select max(pk) from clin.episode where fk_patient = %d """ % pat_id
+
+				cu2.execute(stmt3)
+
+				[pk_episode] = cu2.fetchone()
+
+
+				"""get the date to be docdate, update, or now() , whichever is valid first in that order."""
+
+				date = None
+				if docdate:
+					docdate = str(docdate).strip()
+				if  docdate and docdate <> '' and len(docdate.split(' ')) == 2:
+					date = docdate.split(' ')[0]
+				if update:
+					update = str(update).strip()
+				if not date and update and update <> '' and len(update) >= 8:
+					date = update[:8]
+
+				if not date:
+					date = 'now()'
+				else: 
+					date = "".join(["'",date,"'"])
+
+				"""with the above data - pat_id, pk_encounter, pk_episode, description, date, and the
+				external reference which is ur_no/document no. ,  create a new blobs.doc_med of type
+				'referral report other'.
+				"""
+
+				stmt = "select xfk_identity from blobs.xlnk_identity where xfk_identity = %d" % pat_id
+				cu2.execute(stmt)
+
+				if not cu2.fetchone():
+					stmt = """
+						insert into blobs.xlnk_identity ( xfk_identity, pupic) values ( %d, coalesce( (select pupic from dem.identity where pk = %d), '%d'::text) ) 
+							"""
+					stmt = stmt % ( pat_id, pat_id, pat_id)
+
+					cu2.execute(stmt)
+
+				stmt = """
+				insert into blobs.doc_med ( patient_id, fk_encounter, fk_episode, 
+						comment, date, ext_ref,
+						type 
+						)
+				values
+				( %d, %d, %d, 
+					'%s', %s, '%s' ,
+				(select pk from blobs.doc_type where name = 'referral report other')
+				)
+				""" %  ( pat_id, pk_encounter, pk_episode, 		esc(_desc), date, esc(ext_ref) ) 
+
+				cu2.execute(stmt)
+
+				cu2.execute('select max(pk) from blobs.doc_med where patient_id = %d' % pat_id)
+				res = cu2.fetchone()
+				if not res:
+					print "NO DOCUMENTS FOR THIS PATIENT, ",pat_id, " ,  FAILURE ?"
+					continue
+				else:
+					pk_doc = res[0]
+					last_doc_no = doc_no
+
+					doc_pks[doc_no] = pk_doc
+		
+
+			
+		"""assume text is base64 encoded. check after decoding if not zipped, then unzip."""
+				
+		decoded = base64.decodestring( text) 
+
+		try:
+			s = StringIO.StringIO(decoded)
+			z = zipfile.ZipFile(s, 'r' )
+			decoded = z.read( z.namelist()[0])
+		
+		except:
+			"""not a zipfile"""
+			pass
+
+		if _desc is None :
+			_desc = ""
+
+		# insert into blobs.doc_obj  , seq_idx, doc_id, data , fk_intended_reviewer ( dem.staff.pk )
+
+		stmt = """
+			insert into blobs.doc_obj 
+			(
+				seq_idx, doc_id, fk_intended_reviewer, 
+				comment,
+				data
+
+			) values
+
+			(  %d,  %d , %d , 
+				'%s',
+				decode ( '%s', 'base64')
+			)
+			"""
+		
+		
+
+
+			
+		stmt = stmt % ( page_no, doc_pks[doc_no], pk_staff, esc(_desc), esc(base64.encodestring(decoded)) )
+
+		cu2.execute(stmt)
+		
+		print "DEBUG successfully inserted doc_ob _desc, pk_doc,doc_no, page_no , ext_ref", _desc, doc_pks[doc_no], doc_no, page_no, ext_ref
+		print
+
+	conto.commit()
+
 #-----------------------------------
 blocksize = 100
 patcount = 0
@@ -837,32 +1347,21 @@ def update_patcount(cu):
 	return patcount
 
 def transfer_patients():
-	cu = confrom.cursor()
-	patcount = update_patcount(cu)	
-	
-	totalpats = 0
-
-	
-	
-	stmt = 'select ur_no, title, firstname, knownas, surname, sex, dob, decdate, deceased, address, city, postcode, phone, bus_phone, mob_phone,   mc_no, mc_index, mc_expiry, pens_no, dva_no, update from patients offset %d limit %d'
-	
-	while totalpats < patcount:
-		get_pat_stmt = stmt % (totalpats, blocksize) 
-
-		print get_pat_stmt
-		cu.execute(get_pat_stmt)
-		rr = cu.fetchall()
-		
-		for r in rr:
-			print "processing patient #", totalpats
-			id_patient = process_patient( *r)
-			if id_patient:
-				ensure_xlnk_identity(id_patient)
-				ur_no = r[0]
-				process_patient_progress( ur_no, id_patient )
-				process_patient_history( ur_no , id_patient )
-			totalpats += 1
-			conto.commit()
+		rr = importer.get_next_demographics()
+		totalpats = 1		
+		while rr <> None:
+			for r in rr:
+				print "processing patient #", totalpats
+				id_patient = process_patient( *r)
+				if id_patient:
+					ensure_xlnk_identity(id_patient)
+					ur_no = r[0]
+					process_patient_progress( ur_no, id_patient )
+					process_patient_history( ur_no , id_patient )
+					process_patient_documents(ur_no, id_patient)
+				totalpats += 1
+				conto.commit()
+			rr = importer.get_next_demographics()
 		
 
 def do_patient_relations():
@@ -941,10 +1440,18 @@ if __name__== "__main__":
 		if "-block" in sys.argv:
 			i = sys.argv.index('-block')
 			blocksize = int ( sys.argv[i+1] )
-			
+	
+		global importer	
+		importer = pg_importer()
 		
 		transfer_drs()
 		
+		#while 1:	
+		#	dr_id = raw_input('press enter to continue, or enter a dr_id')
+		#	print get_dr_user(dr_id)
+		#	if dr_id == '':
+		#		break
+
 		setup_transfer_patients_conditions()
 		
 		transfer_patients()
