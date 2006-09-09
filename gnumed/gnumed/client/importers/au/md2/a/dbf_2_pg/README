@@ -36,3 +36,13 @@ usage :
 	 -decrypt  table,table.field  - decrypts all memo fields in a table, or if table.field specified, that memo field in the table.
  Uses a file pass.txt which holds the password. This is a source application specific parameter.
 
+
+other notes:
+17-8-06:  when transferring, as well as DOC0000x files , LETTERS should also be a table following the -memobase64 parameter
+i.e.
+	-memobase DOC00001,DOC00002,LETTERS
+
+reason:
+	LETTERS needs to be base64 encoded to preserve the rtf needed backslashes.
+
+
