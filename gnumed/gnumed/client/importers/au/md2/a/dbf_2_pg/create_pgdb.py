@@ -27,6 +27,7 @@ import pwd_decrypt
 import StringIO
 import traceback
 import zipfile
+import string
 
 from bmp_extract import Extract as MemoGet
 # if the sql statements fail because of a dbf naming clash with the target
@@ -34,7 +35,9 @@ from bmp_extract import Extract as MemoGet
 # a _ will be prepended when that name is encountered.
 NAME_CLASH=[ "USER", "DESC", "DEFAULT" ]
 
+compressed_base64= True
 
+base64_default_substring = ['doc00']
 
 def get_pg_number_ddl( sz, deci):
 	""" gets the postgres datatype for dbf N types """
@@ -63,9 +66,11 @@ quotes = '\',\",\`'.split(',')
 def escape_q( s):
 	s2 = []
 	for x in s:
+				
 		if x == '\0':
 			continue
-		if x in quotes:
+		
+		if x in quotes or x not in string.printable:
 			s2.append('\\')
 		s2.append(x)	
 	return ''.join(s2)
@@ -82,7 +87,10 @@ def psycopg_dsn(dsn):
 	return " ".join(l)
 	
 	
-			
+def nocase_in( word, list):
+	w = word.strip().lower()
+	l = [x.strip().lower() for x in list]
+	return w in l
 	
 class Parser:
 	def __init__(self, filename, output_stream = None):
@@ -110,6 +118,9 @@ class Parser:
 		self._parse_fields()
 
 		self._password = file('pass.txt', 'r').read().strip()
+
+	def get_numrecs(self):
+		return self._numrecs
 
 	def version(self):
 		return self._version
@@ -247,21 +258,22 @@ class Parser:
 		return self._read_rec()	
 		
 
-	def next(self):
+	def next(self, memo_data = False):
 		if self._recno >= self._numrecs:
 			return None, None
 			
 		m = {}
 		self._f.read(1)
 		
-		d, m = self._read_rec()
+		d, m = self._read_rec(memo_data)
+
 		self._recno += 1
 
 		return d,m
 
 		
 		
-	def _read_rec(self):
+	def _read_rec(self, get_memo = False):
 		data = []
 		m = {}
 		for field in self._fields:
@@ -271,6 +283,9 @@ class Parser:
 				d = str( struct.unpack('<i', d) )
 			elif ftype == 'O':
 				d = str( struct.unpack('d', d) )
+			elif ftype == 'M' and get_memo :
+				d = self.get_memo_data(d )
+				d = d.encode()
 			data.append( (name,size,ftype, d))
 			m[name] = {'size':size,'type': ftype,'data': d  }
 
@@ -292,7 +307,9 @@ class Parser:
 			if t == 'M':
 				d = self.get_memo_data(d, is_base64=base64_memo)
 
-				if '.'.join([self.get_tablename(),f]) in decrypt_memo or self.get_tablename() in decrypt_memo:
+				if nocase_in( '.'.join([self.get_tablename(),f]) ,decrypt_memo) \
+				   or nocase_in(self.get_tablename() , decrypt_memo) :
+
 					d = pwd_decrypt.decrypt(d, self._password)
 			
 			if  d.strip()  == '' or ord(d[0]) == 0 :
@@ -336,27 +353,39 @@ class Parser:
 			memo = self._memogetter.get_base( long(offset_in_blocks))	
 			#import pdb
 			#pdb.set_trace()
-			if is_base64:
-				memo2 = base64.encodestring(memo)	
+			if is_base64 and  compressed_base64:
+					#also check if a zip file, and if not, convert memo2 to base64 zipfile
+					fname = self._memogetter.get_zip_filename(memo)
+					if not fname:
+						# then zip it up
+						s = StringIO.StringIO()
+						z = zipfile.ZipFile(s,'w')
+						z.writestr(str(offset_in_blocks).strip(), memo)
+						z.close()
+						memo = s.getvalue()
+						memo2 = base64.encodestring(memo)
+					else:
+						# already in zip formate
+						memo2 = base64.encodestring(memo)	
+					memo = memo2
 
-				#also check if a zip file, and if not, convert memo2 to base64 zipfile
-				fname = self._memogetter.get_zip_filename(memo)
-				if not fname:
-					# then zip it up
-					s = StringIO.StringIO()
-					z = zipfile.ZipFile(s,'w')
-					z.writestr(str(offset_in_blocks).strip(), memo)
-					z.close()
-					memo = s.getvalue()
-					memo2 = base64.encodestring(memo)
+			elif is_base64 and not compressed_base64:
+					fname = self._memogetter.get_zip_filename(memo)
+					if fname:
+						# unzip memo  
+						s = StringIO.StringIO(memo)
+						z = zipfile.ZipFile(s, 'r')
+						memo = z.read(fname)
 				
-				memo = memo2
+					memo = base64.encodestring(memo)
 					
+						
 		except:
 			print "offset_in_blocks =", offset_in_blocks , " should be long "
 			print sys.exc_info()[0]
 			traceback.print_tb(sys.exc_info()[2])
 
+		
 		return memo		
 		
 	
@@ -409,10 +438,22 @@ if __name__ == "__main__":
 		print '\t -decrypt  table,table.field  - decrypts all memo fields in a table, or if table.field specified, that memo field in the table.\n Uses a file pass.txt which holds the password. '
 		
 		print
-		sys.exit(-1)
-	
-	if len(sys.argv) > 2 and sys.argv[2] == '-f':
-		p = Parser(sys.argv[1])
+
+		print "-base64tablename  substring1,substring2 -  requires a comma separated list of tablename substrings , where any tablename containing that substring has all its memo fields converted to base64"
+		print
+	arguments =[]
+	arguments.extend(sys.argv)
+
+	f = file('config.txt', 'r')
+	for l in f:
+		if l.strip() > 0 and l.find('=') > 0 and l.strip()[0] <> '#':
+			words = l.split('=')
+			words[0] = '-'+words[0]
+			arguments.extend(words)
+		
+
+	if len(arguments) > 2 and arguments[2] == '-f':
+		p = Parser(arguments[1])
 		index = 1
 		while 1:
 			data, m = p.next()
@@ -425,13 +466,13 @@ if __name__ == "__main__":
 			print
 			index += 1
 
-	if len(sys.argv) > 3 and sys.argv[2] == '-i':
-		field = sys.argv[3]
+	if len(arguments) > 3 and arguments[2] == '-i':
+		field = arguments[3]
 		print
 		print 
 		print p.get_index( field)	
 			
-	filedir = sys.argv[1]
+	filedir = arguments[1]
 	
 	files = os.listdir( filedir)
 	pp = {}
@@ -448,15 +489,15 @@ if __name__ == "__main__":
 
 
 	chosen_dbapi = None
-	if '-dbapi' in sys.argv:
-		i = sys.argv.index('-dbapi')
-		chosen_dbapi = sys.argv[i+1]
+	if '-dbapi' in arguments:
+		i = arguments.index('-dbapi')
+		chosen_dbapi = arguments[i+1]
 
 	dbapi = None
-	if '-dsn' in sys.argv:
+	if '-dsn' in arguments:
 		dsn = None
-		if len(sys.argv) > 2 :
-			dsn = sys.argv[3]
+		if len(arguments) > 2 :
+			dsn = arguments[3]
 			
 		if not dsn:
 			print "ENTER the connection dsn for dbapi e.g. host:port:database:user:pass "
@@ -487,7 +528,7 @@ if __name__ == "__main__":
 	c = dbapi.connect(dsn)
 	cu = c.cursor()
 
-	if dbapi and '-create' in sys.argv:
+	def create_tables():
 		for p in pp.values():
 			print "executing ", p.get_ddl_sql()
 			try:
@@ -498,39 +539,52 @@ if __name__ == "__main__":
 				traceback.print_tb(sys.exc_info()[2])
 			
 
+
+	if dbapi and '-create' in arguments:
+		create_tables()
+
 	print 
 	print "Doing INSERTS"
 	print
 
 	memo_base64_list = [] 
-	if '-memobase64' in sys.argv:
-		i= sys.argv.index('-memobase64')
+	if '-memobase64' in arguments:
+		i= arguments.index('-memobase64')
 		try:
-			memo_base64_list = sys.argv[i+1].split(',')
+			memo_base64_list = [ x.strip().lower() for x in arguments[i+1].split(',')]
 		except:
 			print "-memobase64 requires a comma separated list of tables whose memo fields are stored base64"
 			sys.exit(-1)
-	only_tables = None
-	if '-only' in sys.argv:
-		i = sys.argv.index('-only')
+	
+	if '-base64tablename' in arguments:
+		i = arguments.index('-base64tablename')
 		try:
-			only_tables = sys.argv[i+1].split(',')
+			base64_default_substring.extend( [ x.strip().lower() for x in arguments[i+1].split(',')])
+		except:
+			print "-base64tablename requires a comma separated list of tablename substrings , where any tablename containing that substring has all its memo fields converted to base64"
+			sys.exit(-1)
+
+	only_tables = None
+	if '-only' in arguments:
+		i = arguments.index('-only')
+		try:
+			only_tables = arguments[i+1].split(',')
 		except:
 			print "-only requires a comma separated list of tables to insert only, other tables ignored."
 			sys.exit(-1)
 	decrypt_memo_tables = []
-	if '-decrypt' in sys.argv:
-		i = sys.argv.index('-decrypt')
+	if '-decrypt' in arguments:
+		i = arguments.index('-decrypt')
 		try:
-			decrypt_memo_tables = sys.argv[i+1].split(',')
+			decrypt_memo_tables = arguments[i+1].split(',')
 		except:
 			print '-decrypt  followed by comma-separated list of tables'
 	
 	resume_from = None
-	if '-from' in sys.argv:
-		i = sys.argv.index('-from')
+	if '-from' in arguments:
+		i = arguments.index('-from')
 		try:
-			resume_from = sys.argv[i+1]
+			resume_from = arguments[i+1]
 			print "Deleting entries in table ", resume_from
 			cu.execute('delete from '+resume_from)
 			c.commit()
@@ -541,32 +595,43 @@ if __name__ == "__main__":
 			print '-from <tablename> where tablename is where resume continues'
 			resume_from = None
 			
-	if dbapi and  '-data' in sys.argv:
+	if dbapi and  '-data' in arguments:
+		# just in case some missing
+		create_tables()
 		for p in pp.values():
 			
 			print p.get_tablename()
 
-			if only_tables and p.get_tablename_raw() not in only_tables:
+			if only_tables and not nocase_in( p.get_tablename_raw() , only_tables):
 				print "SKIPPING ", p.get_tablename_raw()
 				continue
 
-			if resume_from and p.get_tablename_raw() <> resume_from:
+			if resume_from and not nocase_in( p.get_tablename_raw() ,[ resume_from]):
 				print "skipping ", p.get_tablename_raw()
 				continue
 			else:
 				resume_from = None
 
 			print "INSERTING TABLE", p.get_tablename_raw()
+			is_base64_memo = nocase_in( p.get_tablename_raw(),  memo_base64_list)
+			if not is_base64_memo:
+				normalized_tablename =  p.get_tablename_raw().strip().lower() 
+				for x in base64_default_substring:
+					x = x.strip().lower()
+					if  normalized_tablename.find(x) >= 0:
+						is_base64_memo = True
+						break	
+						
+			print " tablename", p.get_tablename_raw() , " is base64_memo =", is_base64_memo
+			
 			while 1:
 				#import pdb
 				#pdb.set_trace()
-				is_base64_memo = p.get_tablename_raw() in memo_base64_list	
+
+							
 				stmt = p.next_sql_insert( base64_memo= is_base64_memo, decrypt_memo = decrypt_memo_tables)
 				if not stmt:
 					break
-				s = StringIO.StringIO()
-				s.write(stmt)
-				stmt = s.getvalue()
 				#print "executing ", stmt
 				#sys.stdout.write(str(p._recno)+' ')
 				sys.stdout.write('.')
@@ -576,10 +641,8 @@ if __name__ == "__main__":
 				except Exception, msg:
 					
 					print "SQL error? "
-
-					print stmt
+					print stmt[:100]
 						
-
 					print msg
 					traceback.print_tb(sys.exc_info()[2])
 

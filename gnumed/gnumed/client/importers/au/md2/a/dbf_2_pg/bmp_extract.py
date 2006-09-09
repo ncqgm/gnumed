@@ -29,8 +29,8 @@ class Extract:
 
 	def set_suffix(self, sf):
 		self._suffix = sf
-	
-        def get_base(self, block, process = None, verbose = False ):
+    
+	def get_base(self, block, process = None, verbose = False ):
 		blocks = long(block)
 
 		st0 = blocks * self._blocksize
@@ -51,7 +51,7 @@ class Extract:
 				print x.filename, "time",x.date_time, "sz", x.compress_size, x.file_size
 				fn = x.filename
 		except:
-			sys.stderr.write( " FAILED TO OPEN WITH ZipFile")
+			sys.stderr.write( "not zip format\n")
 
 		return fn
 

@@ -1,0 +1,4 @@
+base64tablename=doc00
+decrypt=progress.notes
+
+
