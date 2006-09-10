@@ -337,7 +337,11 @@ class pg_importer:
 		for ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype  in desc:
 			l.append( [ ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype ])
 
-		for x in l:
+		
+		return l
+
+	def get_doc_content(self ,file_no, rec_no):
+			cu = self.cu
 			doc_obj_table = 'DOC%05d' % int(file_no)
 			stmt = """
 				select  item  from %s where rec_no = %d
@@ -346,16 +350,9 @@ class pg_importer:
 			cu.execute(stmt)
 
 			r = cu.fetchone()
-			if r and len(r):
-				x.append(r[0])
-			else:
-				x.append(None)
-				print "*"*50, "no doc object found"
-		
-		return l
-
-
-	
+			if not r:
+				return None
+			return r[0]
 
 
 #---------------------------------------------------
@@ -385,13 +382,17 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 
 		conto.commit()
 		for fk in  xfk[1:] :
-			stmt = "update clin.episode  set fk_health_issue = %d where  clin.episode.fk_health_issue in ( select h1.pk from clin.health_issue h1, clin.health_issue h2  where h1.id_patient = %d  and h1.description = h2.description and h2.id_patient = %d ) " 	% (xfk[0], fk, xfk[0] )
+			stmt = """select h1.pk, h2.pk from clin.health_issue h1, clin.health_issue h2 where
+			h1.id_patient = %d and h2.id_patient = %d and h1.description = h2.description"""
+			stmt = stmt % ( fk, xfk[0] )
 			cu.execute(stmt)
+			for oldhi, newhi in cu.fetchall():
+				stmt = "update clin.episode  set fk_health_issue = %d where  fk_health_issue =%d " 	% (newhi, oldhi )
+				cu.execute(stmt)
+				stmt = "delete from clin.health_issue where pk = %d " % oldhi
+				cu.execute(stmt)
 
-			stmt = "delete from clin.health_issue where id_patient = %d and exists ( select pk from clin.health_issue h2 where h2.id_patient = %d and description = h2.description )"
-			stmt = stmt % ( fk , xfk[0] )
-			cu.execute(stmt)
-
+			
 			stmts = [   
 						"update clin.health_issue set id_patient = %d where id_patient = %d",
 						"update clin.episode set fk_patient = %d where fk_patient = %d",
@@ -483,6 +484,12 @@ def check_ext_id(cu,  pk_exttype, text, firstnames, lastnames, dob):
 
 
 def insert_ext_id(cu, id, pk_exttype, text):
+	stmt = "select id from dem.lnk_identity2ext_id where id_identity = %d and fk_origin = %d and external_id = '%s' " % (  id, pk_exttype, esc(text) )
+	cu.execute(stmt)
+	if cu.fetchone():
+		print "*" * 50, " external id ", esc(text), " already found for id_identity ", id
+		return True
+
 	stmt = "insert into dem.lnk_identity2ext_id ( id_identity, fk_origin, external_id) values (%d, %d, '%s') " % ( id, pk_exttype, esc(text) )  
 	print stmt
 	cu.execute(stmt)
@@ -1169,7 +1176,7 @@ def process_patient_documents(ur_no, pat_id):
 
 	doc_pks = {}
 
- 	for ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype, text  in docs:
+ 	for ur_no, doc_no, page_no, file_no, rec_no, update, docdate , _desc , type, filetype  in docs:
 
 		# check if docobj doesn't already exist
 
@@ -1290,49 +1297,62 @@ def process_patient_documents(ur_no, pat_id):
 		
 
 			
-		"""assume text is base64 encoded. check after decoding if not zipped, then unzip."""
-				
-		decoded = base64.decodestring( text) 
 
-		try:
-			s = StringIO.StringIO(decoded)
-			z = zipfile.ZipFile(s, 'r' )
-			decoded = z.read( z.namelist()[0])
-		
-		except:
-			"""not a zipfile"""
-			pass
-
-		if _desc is None :
-			_desc = ""
-
-		# insert into blobs.doc_obj  , seq_idx, doc_id, data , fk_intended_reviewer ( dem.staff.pk )
-
-		stmt = """
-			insert into blobs.doc_obj 
-			(
-				seq_idx, doc_id, fk_intended_reviewer, 
-				comment,
-				data
-
-			) values
-
-			(  %d,  %d , %d , 
-				'%s',
-				decode ( '%s', 'base64')
-			)
-			"""
-		
-		
-
-
-			
-		stmt = stmt % ( page_no, doc_pks[doc_no], pk_staff, esc(_desc), esc(base64.encodestring(decoded)) )
+		stmt = "select pk from blobs.doc_obj where doc_id = %d and seq_idx = %d" % ( doc_pks[doc_no], page_no )
 
 		cu2.execute(stmt)
+
+		pks = cu2.fetchall()
+
+		if len(pks) == 1:
+			print "*" * 50, " WARNING: doc object ", page_no, ext_ref, " already found. NOT INSERTED "
+			continue
+
+		elif len(pks) > 1:
+			
+			print "*" * 50, " WARNING: doc object ", page_no, ext_ref, " has  ",len(pks), " copies. ADDITIONAL COPIES DELETED. "
+			
+			stmt  = "delete from blobs.doc_obj where pk in  (%s) " % ",".join([str(x[0]) for x in pks[1:] ] )
+			print stmt
+			cu2.execute(stmt)
+
+			continue
+
+		elif len(pks) == 0:		
+			text = importer.get_doc_content( file_no, rec_no)
+			
+			if not text:
+				print "*" * 50, " NO document contents found for ", ext_id, page_no
+				continue
+
+			"""assume text is base64 encoded. check after decoding if not zipped, then unzip."""
+					
+			decoded = base64.decodestring( text) 
+
+			try:
+				s = StringIO.StringIO(decoded)
+				z = zipfile.ZipFile(s, 'r' )
+				decoded = z.read( z.namelist()[0])
+			
+			except:
+				"""not a zipfile"""
+				pass
+
+			if _desc is None :
+				_desc = ""
+
+			# insert into blobs.doc_obj  , seq_idx, doc_id, data , fk_intended_reviewer ( dem.staff.pk )
+
+			stmt = """ insert into blobs.doc_obj 
+			( seq_idx, doc_id, fk_intended_reviewer, comment, data ) 
+			values (  %d,  %d , %d , '%s', decode ( '%s', 'base64'))
+				"""
+			
+			stmt = stmt % ( page_no, doc_pks[doc_no], pk_staff, esc(_desc), esc(base64.encodestring(decoded)) )
+
+			cu2.execute(stmt)
 		
-		print "DEBUG successfully inserted doc_ob _desc, pk_doc,doc_no, page_no , ext_ref", _desc, doc_pks[doc_no], doc_no, page_no, ext_ref
-		print
+			print "DEBUG successfully inserted doc_ob _desc, pk_doc,doc_no, page_no , ext_ref", _desc, doc_pks[doc_no], doc_no, page_no, ext_ref
 
 	conto.commit()
 
