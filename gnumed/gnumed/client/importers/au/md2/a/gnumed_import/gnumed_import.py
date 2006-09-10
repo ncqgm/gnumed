@@ -321,7 +321,10 @@ class pg_importer:
 		ll = []
 		 
 		for r in cu.fetchall():
-			ll.append( r[0:-1] + [base64.decodestringr[-1]] )
+			l = []
+			l.extend(r[:-1])
+			l.append( base64.decodestring(r[-1]) )
+			ll.append(l)
 		return ll	
 
 	def get_documents(self, ur_no):
@@ -782,17 +785,74 @@ def get_dr_user(dr_id):
 	
 	return pg_user
 #-------------------------------------------------
+def clean_progress_notes(cu, id_patient):
+	""" clean up duplicate encounters or duplicate episodes of a health issue
+	"""
+
+	"""to clean up  duplicate encounters , sequentially search the encounters
+	for matching encounters. 
+	"""
+	stmt = "select distinct started, last_affirmed , pk from clin.encounter where fk_patient = %d order by started, last_affirmed" % id_patient
+	stmt = """
+	select cn.pk, clin_when, md5( narrative) 
+	from clin.clin_narrative cn, 
+		clin.encounter ce 
+	where 
+		ce.fk_patient = %d and cn.fk_encounter = ce.pk order by clin_when, md5(narrative), cn.pk
+	""" % id_patient
+	print stmt
+	cu.execute(stmt)
+	rr = cu.fetchall()
+	remap = {}
+	marker = ('','', 0)
+	
+	for pk, start, last  in rr:
+		if marker[0] <> str(start) or marker[1] <> str(last):
+			marker = ( str(start), str(last), pk)
+
+		else:
+			l = remap.get(marker[2],[])
+			l.append(pk)
+			remap[marker[2]] = l
+
+	for newpk, oldpks in remap.items():
+		oldpks.append(0)
+		stmt = "delete from clin.clin_narrative where pk in (%s)" % ",".join( [str(x) for x in oldpks])
+		print stmt
+		cu.execute(stmt)
+	
+	stmt = "delete from clin.encounter where fk_patient = %d and not exists( select pk_item from clin.clin_root_item i where i.fk_encounter = clin.encounter.pk) and not exists( select pk from blobs.doc_med b where b.fk_encounter = clin.encounter.pk) " % id_patient
+	print stmt
+	cu.execute(stmt)
+
+	stmt = """delete from clin.episode where fk_health_issue in ( select pk from clin.health_issue where fk_patient = %d) and pk not in ( select fk_episode from clin.clin_narrative cn, clin.encounter ec where ec.fk_patient = %d and cn.fk_encounter = ec.pk ) and not exists( select pk from blobs.doc_med b where b.fk_episode = clin.episode.pk)
+	""" % (id_patient , id_patient)
+	print stmt
+	cu.execute(stmt)
+
+	stmt = "delete from clin.episode where fk_patient = %d  and pk not in ( select fk_episode from clin.clin_narrative cn, clin.encounter ec where ec.fk_patient = %d and cn.fk_encounter = ec.pk ) and not exists( select pk from blobs.doc_med b where b.fk_episode = clin.episode.pk) """ % (id_patient, id_patient)
+			
+
+	print stmt
+	cu.execute(stmt)
+		
+
+
 
 def process_patient_progress(ur_no, id_patient):
 	# progress note maps to an encounter and episode
 
 	# TODO need to add modified_by to all inserts to use non-login users as well
 	
+	cu2 = conto.cursor()
+
+
+
 	rr = importer.get_progress_notes(ur_no)
 
 	
-	cu2 = conto.cursor()
 
+	
 	map_time_to_episode = {}
 	
 	last_datepart = None
@@ -1332,7 +1392,8 @@ def process_patient_documents(ur_no, pat_id):
 			try:
 				s = StringIO.StringIO(decoded)
 				z = zipfile.ZipFile(s, 'r' )
-				decoded = z.read( z.namelist()[0])
+				x = z.read( z.namelist()[0])
+				decoded = x
 			
 			except:
 				"""not a zipfile"""
@@ -1378,6 +1439,7 @@ def transfer_patients():
 					ur_no = r[0]
 					process_patient_progress( ur_no, id_patient )
 					process_patient_history( ur_no , id_patient )
+					clean_progress_notes( conto.cursor(), id_patient)
 					process_patient_documents(ur_no, id_patient)
 				totalpats += 1
 				conto.commit()
