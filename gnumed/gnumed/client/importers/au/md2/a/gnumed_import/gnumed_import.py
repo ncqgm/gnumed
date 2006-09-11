@@ -119,7 +119,7 @@ class pg_importer:
 		self.patcount = update_patcount(self.cu)	
 		self.first_pat = 0
 		self.pat_block = pat_block
-		self.demo_stmt = 'select ur_no, title, firstname, knownas, surname, sex, dob, decdate, deceased, address, city, postcode, phone, bus_phone, mob_phone,   mc_no, mc_index, mc_expiry, pens_no, dva_no, update from patients offset %d limit %d'
+		self.demo_stmt = 'select ur_no, title, firstname, knownas, surname, sex, dob, decdate, deceased, address, city, postcode, phone, bus_phone, mob_phone,   mc_no, mc_index, mc_expiry, pens_no, dva_no, update from patients order by ur_no offset %d limit %d'
 
 		self.background = {}
 		self._setup_progress_index()
@@ -383,7 +383,6 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 			if x:
 				xfk.append(x[0])
 
-		conto.commit()
 		for fk in  xfk[1:] :
 			stmt = """select h1.pk, h2.pk from clin.health_issue h1, clin.health_issue h2 where
 			h1.id_patient = %d and h2.id_patient = %d and h1.description = h2.description"""
@@ -769,9 +768,9 @@ def get_dr_user(dr_id):
 	
 	to_user = global_dr_id_to_pg_user
 	#<DEBUG>
-	print
-	print to_user
-	print
+	#print
+	#print to_user
+	#print
 	if dr_id is None:
 		dr_id = 1
 	pg_user = to_user.get(int(dr_id), None)
@@ -781,7 +780,7 @@ def get_dr_user(dr_id):
 	else:
 		pg_user ="'"+esc(pg_user) + "'"
 
-	print "*"*100, "pg_user is ", pg_user	
+	print "*"*20, "pg_user is ", pg_user	
 	
 	return pg_user
 #-------------------------------------------------
@@ -792,52 +791,74 @@ def clean_progress_notes(cu, id_patient):
 	"""to clean up  duplicate encounters , sequentially search the encounters
 	for matching encounters. 
 	"""
-	stmt = "select distinct started, last_affirmed , pk from clin.encounter where fk_patient = %d order by started, last_affirmed" % id_patient
-	stmt = """
-	select cn.pk, clin_when, md5( narrative) 
-	from clin.clin_narrative cn, 
-		clin.encounter ce 
-	where 
-		ce.fk_patient = %d and cn.fk_encounter = ce.pk order by clin_when, md5(narrative), cn.pk
-	""" % id_patient
-	print stmt
+	stmt = "select distinct to_char(started,'YYYYMMDD')  from clin.encounter where fk_patient = %d" % id_patient
 	cu.execute(stmt)
 	rr = cu.fetchall()
-	remap = {}
-	marker = ('','', 0)
-	
-	for pk, start, last  in rr:
-		if marker[0] <> str(start) or marker[1] <> str(last):
-			marker = ( str(start), str(last), pk)
+	deletable_epi = []
+	tables = ['blobs.doc_med', 'clin.clin_aux_note', 'clin.test_result', 'clin.lab_request', 'clin.clin_medication', 'clin.vaccination', 'clin.allergy', 'clin.clin_hx_family' ]
+	for [started] in rr:
+			stmt = "select pk from clin.encounter where fk_patient = %d and to_char(started,'YYYYMMDD') = '%s' order by pk" % ( id_patient, started)
+			cu.execute(stmt)
+			rr2 = cu.fetchall()
+			if len(rr2) > 1:
+				# possible duplicate encounters  found, they have the same start date
+				duplicated_pk=[] 
+				seen_narrative = {}
 
-		else:
-			l = remap.get(marker[2],[])
-			l.append(pk)
-			remap[marker[2]] = l
+				"""go through the encounters, and find the sum of the md5 for the narratives for each encounter,
+				and store this signature with the pk. If the signature is already in there,
+				then the pk is aduplicate pk.
+				"""
+				for [pk] in rr2:
+					stmt = "select distinct md5(narrative) from clin.clin_narrative where fk_encounter = %d order by md5(narrative)" % pk
+					cu.execute(stmt)
+					rr3 = cu.fetchall()
+					sig = "".join([str(x[0]) for x in rr3])
+					if not sig in seen_narrative:
+						seen_narrative[sig] = pk
+					else:
+						duplicated_pk.append((pk, sig))
 
-	for newpk, oldpks in remap.items():
-		oldpks.append(0)
-		stmt = "delete from clin.clin_narrative where pk in (%s)" % ",".join( [str(x) for x in oldpks])
-		print stmt
-		cu.execute(stmt)
-	
-	stmt = "delete from clin.encounter where fk_patient = %d and not exists( select pk_item from clin.clin_root_item i where i.fk_encounter = clin.encounter.pk) and not exists( select pk from blobs.doc_med b where b.fk_encounter = clin.encounter.pk) " % id_patient
-	print stmt
-	cu.execute(stmt)
+				for pk , sig in duplicated_pk:
+					base_pk = seen_narrative[sig]
+					for t in tables:
+						stmt = "update %s set fk_encounter = %d where fk_encounter = %d" % (t,base_pk, pk)
+						print stmt
+						cu.execute(stmt)
 
-	stmt = """delete from clin.episode where fk_health_issue in ( select pk from clin.health_issue where fk_patient = %d) and pk not in ( select fk_episode from clin.clin_narrative cn, clin.encounter ec where ec.fk_patient = %d and cn.fk_encounter = ec.pk ) and not exists( select pk from blobs.doc_med b where b.fk_episode = clin.episode.pk)
-	""" % (id_patient , id_patient)
-	print stmt
-	cu.execute(stmt)
+					stmt = "select fk_episode from clin.clin_narrative n where n.fk_encounter = %d" % pk
+					cu.execute(stmt)
+					
+					deletable_epi.extend( [ x[0] for x in cu.fetchall() ] )
 
-	stmt = "delete from clin.episode where fk_patient = %d  and pk not in ( select fk_episode from clin.clin_narrative cn, clin.encounter ec where ec.fk_patient = %d and cn.fk_encounter = ec.pk ) and not exists( select pk from blobs.doc_med b where b.fk_episode = clin.episode.pk) """ % (id_patient, id_patient)
+					stmt = "delete from clin.clin_narrative where fk_encounter = %d " % pk
+					print stmt
+					cu.execute(stmt)
+
+					stmt = "delete from clin.encounter where pk = %d " % pk
+					print stmt
+					cu.execute(stmt)
+				
+	unique_deletable_epi = {}
+	for x in deletable_epi:
+		unique_deletable_epi[x] = 1
+
+	for pk_epi in unique_deletable_epi.keys():
+		deletable = True
+		for t in tables:
+			stmt = "select count(*) from %s where fk_episode = %d" % (t, pk_epi)
+			cu.execute(stmt)
+			[cnt_ref] = cu.fetchone()
+			if cnt_ref  > 0:
+				deletable = False
+				break
+
+		if deletable:
+			stmt = "delete from clin.episode where pk = %d" % pk_epi
+			cu.execute(stmt)
 			
-
-	print stmt
+	stmt = "delete from clin.health_issue where not exists( select ce.pk from clin.episode ce where ce.fk_health_issue = clin.health_issue.pk  )  and id_patient = %d" % id_patient 
 	cu.execute(stmt)
-		
-
-
 
 def process_patient_progress(ur_no, id_patient):
 	# progress note maps to an encounter and episode
@@ -848,7 +869,7 @@ def process_patient_progress(ur_no, id_patient):
 
 
 
-	rr = importer.get_progress_notes(ur_no)
+	pnotes = importer.get_progress_notes(ur_no)
 
 	
 
@@ -856,14 +877,15 @@ def process_patient_progress(ur_no, id_patient):
 	map_time_to_episode = {}
 	
 	last_datepart = None
-	for r in rr:
+
+	for r in pnotes:
 		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update = r
 
 		#<DEBUG> statements for detailed dump
 		#print "PROCESSING progress =\n notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update"
 		#print notes, exam, history, reason, reasoncode, visitdate, starttime, endtime , update
 	
-		print "process progress notes ", reason, visitdate, starttime
+		print "process progress notes ", reason, visitdate, starttime, " : UR_NO *** ", ur_no, " ***"
 
 
 		"""
@@ -913,8 +935,20 @@ If encounter exists then skip encounter creation ( also episode and narrative cr
 		stmt = "select pk from clin.encounter where fk_patient = %d and reason_for_encounter = '%s' and coalesce( started, '%s'::date) - '%s'::date < '1 hour'::interval  and coalesce( last_affirmed , '%s'::date) - '%s'::date < '1 hour'::interval " % ( id_patient, esc(reason), esc(started), esc(started), esc(lastaffirmed), esc(lastaffirmed) )
 		print stmt
 		cu2.execute(stmt)
-		r = cu2.fetchone()
-		if r :
+		rr = cu2.fetchall()
+		exists = False
+		for r in rr:
+			pk_enc = r[0]
+			stmt = "select pk from clin.clin_narrative cn where cn.fk_encounter = %d union select pk from blobs.doc_med b where b.fk_encounter = %d" % (pk_enc, pk_enc)
+			cu2.execute(stmt)
+			r2 = cu2.fetchall()
+			if len(r2) == 0:
+				stmt = "delete from clin.encounter where pk = %d " % pk_enc
+				cu2.execute(stmt)
+			else:
+				exists = False
+			
+		if exists:
 			# skip as encounter already entered
 			continue
 		
@@ -1056,7 +1090,7 @@ insert a health issue from the reason text.
 	by_reason = {}
 	noreason = "reason for encounter unspecified"
 	# insert as unlinked episode, and encounter with narrative
-	for r in rr:
+	for r in pnotes:
 		dr_id, notes, exam, history, reason, reasoncode, visitdate, starttime, endtime,update  = r
 		#print "row is ", r
 		if reason and len(reason.strip()):
@@ -1382,7 +1416,7 @@ def process_patient_documents(ur_no, pat_id):
 			text = importer.get_doc_content( file_no, rec_no)
 			
 			if not text:
-				print "*" * 50, " NO document contents found for ", ext_id, page_no
+				print "*" * 50, " NO document contents found for ", ext_ref, page_no
 				continue
 
 			"""assume text is base64 encoded. check after decoding if not zipped, then unzip."""
@@ -1427,20 +1461,34 @@ def update_patcount(cu):
 	[patcount] = cu.fetchone()
 	return patcount
 
-def transfer_patients():
+def transfer_patients(startref = None):
+
+		log_processed = file("processed.txt","w")
+
+		started = startref == None
 		rr = importer.get_next_demographics()
 		totalpats = 1		
 		while rr <> None:
 			for r in rr:
 				print "processing patient #", totalpats
-				id_patient = process_patient( *r)
-				if id_patient:
-					ensure_xlnk_identity(id_patient)
-					ur_no = r[0]
-					process_patient_progress( ur_no, id_patient )
-					process_patient_history( ur_no , id_patient )
-					clean_progress_notes( conto.cursor(), id_patient)
-					process_patient_documents(ur_no, id_patient)
+				ur_no = r[0]
+				if not started and ur_no.lower() <> startref.lower():
+					print "skipping ", ur_no
+				elif  not started:
+					started = True
+
+				if started:
+					id_patient = process_patient( *r)
+					if id_patient:
+						ensure_xlnk_identity(id_patient)
+						
+						clean_progress_notes( conto.cursor(), id_patient)
+						process_patient_progress( ur_no, id_patient )
+						process_patient_history( ur_no , id_patient )
+						process_patient_documents(ur_no, id_patient)
+						log_processed.write(ur_no+"\n")
+						
+					
 				totalpats += 1
 				conto.commit()
 			rr = importer.get_next_demographics()
@@ -1484,23 +1532,23 @@ def do_patient_relations():
 
 if __name__== "__main__":
 
-	
+	arguments = sys.argv	
 	try:
 		dsnfrom = None
-		if "-from" in sys.argv:
-			i = sys.argv.index('-from')
-			dsnfrom = sys.argv[i+1]
+		if "-from" in arguments:
+			i = arguments.index('-from')
+			dsnfrom = arguments[i+1]
 
 		dsnto = None
-		if "-to" in sys.argv:
-			i = sys.argv.index('-to')
-			dsnto = sys.argv[i+1]
+		if "-to" in arguments:
+			i = arguments.index('-to')
+			dsnto = arguments[i+1]
 			
 		dbapi_n = 'pyPgSQL'
 
-		if "-dbapi" in sys.argv:
-			i = sys.argv.index('-dbapi')
-			dbapi_n = sys.argv[i+1]
+		if "-dbapi" in arguments:
+			i = arguments.index('-dbapi')
+			dbapi_n = arguments[i+1]
 
 		if dbapi_n == 'pyPgSQL' and dsnto:
 			global orig_user
@@ -1519,9 +1567,14 @@ if __name__== "__main__":
 		
 
 
-		if "-block" in sys.argv:
-			i = sys.argv.index('-block')
-			blocksize = int ( sys.argv[i+1] )
+		if "-block" in arguments:
+			i = arguments.index('-block')
+			blocksize = int ( arguments[i+1] )
+
+		if "-start" in arguments:
+			startref = arguments[arguments.index('-start')+1]
+		else:
+			startref = None
 	
 		global importer	
 		importer = pg_importer()
@@ -1536,7 +1589,7 @@ if __name__== "__main__":
 
 		setup_transfer_patients_conditions()
 		
-		transfer_patients()
+		transfer_patients(startref)
 		do_patient_relations()
 	except:
 		print "AN ERROR HAS OCCURED"
