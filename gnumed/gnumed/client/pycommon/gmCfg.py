@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -123,6 +123,9 @@ class cCfgSQL:
 
 		- unset arguments are assumed to mean database defaults except for <cookie>
 		"""
+
+		print '%s.get() deprecated' % self.__class__.__name__
+
 		# sanity checks
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
@@ -203,6 +206,8 @@ limit 1""" % where_clause
 			for "workplace" regardless of user. The corresponding concept is:
 			"Did anyone set this option for *this workplace* ? If so, reuse that value."
 		"""
+
+		# this is the one to use (Di 12 Sep 2006 17:20:22 CEST)
 
 		if None in [option, workplace, bias]:
 			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) nor <bias> (%s) may be [None]' % (option, workplace, bias)
@@ -341,6 +346,8 @@ limit 1""" % where_clause
 
 		Returns None if not found.
 		"""
+		print "%s.get_by_workplace() deprecated" % self.__class__.__name__
+
 		if option is None or workplace is None:
 			raise ValueError, 'option and/or workplace cannot be <None>'
 
@@ -1511,7 +1518,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.40  2006-07-24 14:16:56  ncq
+# Revision 1.41  2006-09-12 17:20:36  ncq
+# - mark up the deprecated sql get()ters
+#
+# Revision 1.40  2006/07/24 14:16:56  ncq
 # - get_by_user() never worked so axe it
 #
 # Revision 1.39  2006/05/16 15:50:07  ncq
