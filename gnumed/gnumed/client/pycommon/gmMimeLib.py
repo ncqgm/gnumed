@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.5 2006-06-17 13:15:10 shilbert Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmMimeLib.py,v 1.6 2006-09-12 17:23:30 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -136,19 +136,17 @@ def guess_ext_for_file(aFile=None):
 		return None
 	return f_ext
 #-----------------------------------------------------------------------------------
-def call_viewer_on_file(aFile = None):
-	"""Try to find an appropriate viewer with all tricks and call it."""
+def call_viewer_on_file(aFile = None, block=None):
+	"""Try to find an appropriate viewer with all tricks and call it.
 
-	if aFile is None:
-		msg = "No need to call viewer without file name."
-		_log.Log(gmLog.lErr, msg)
-		return None, msg
+	block: try to detach from viewer or not, None means to use mailcap default
+	"""
 
 	# does this file exist, actually ?
-	if not os.path.exists(aFile):
-		msg = _('File [%s] does not exist !') % aFile
+	if not (os.path.isfile(aFile) and os.access(aFile, os.R_OK)):
+		msg = _('[%s] is not a readable file.') % aFile
 		_log.Log(gmLog.lErr, msg)
-		return None, msg
+		raise IOError(msg)
 
 	# sigh ! let's be off to work
 	mime_type = guess_mimetype(aFile)
@@ -156,47 +154,78 @@ def call_viewer_on_file(aFile = None):
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
 	_log.Log(gmLog.lData, "viewer cmd: <%s>" % viewer_cmd)
 
-	if viewer_cmd != None:
-		os.system(viewer_cmd)
-		return 1, ""
+	if viewer_cmd is not None:
+		# what the following hack does is this: the user indicated
+		# whether she wants non-blocking external display of files
+		# - the real way to go about this is to have a non-blocking command
+		#   in the line in the mailcap file for the relevant mime types
+		# - as non-blocking may not be desirable when *not* displaying
+		#   files from within GNUmed the really right way would be to
+		#   add a "test" clause to the non-blocking mailcap entry which
+		#   yields true if and only if GNUmed is running
+		# - however, this is cumbersome at best and not supported in
+		#   some mailcap implementations
+		# - so we allow the user to attempt some control over the process
+		#   from within GNUmed by setting a configuration option
+		# - leaving it None means to use the mailcap default
+		# - True means: tack " &" onto the shell command if necessary
+		# - False means: remove " &" from the shell command if its there
+		# - all this, of course, only works in shells which support
+		#   detaching jobs with " &" (so, most POSIX shells)
+		if block is False:
+			if viewer_cmd[-2:] != ' &':
+				viewer_cmd += ' &'
+		elif block is True:
+			if viewer_cmd[-2:] == ' &':
+				viewer_cmd = viewer_cmd[:-2]
+		exit_code = os.system(viewer_cmd)
+		_log.Log(gmLog.lData, 'os.system(%s) returned [%s]' % (viewer_cmd, exit_code))
+		return True, ''
 
-	_log.Log(gmLog.lErr, "Cannot determine viewer via standard mailcap mechanism.")
+	_log.Log(gmLog.lErr, "no viewer found via standard mailcap system")
 	if os.name == "posix":
 		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
-		msg = _("Unable to start viewer on file\n[%s]\nYou need to update your mailcap file.") % aFile
-		return None, msg
-	else:
-		_log.Log(gmLog.lInfo, "Let's see what the OS can do about that.")
-		# does the file already have an extension ?
-		(path_name, f_ext) = os.path.splitext(aFile)
-		# no
-		if f_ext == "":
-			# try to guess one
-			f_ext = guess_ext_by_mimetype(mime_type)
-			if f_ext is None:
-				_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
-				file_to_display = aFile
-				f_ext = ""
-			else:
-				file_to_display = aFile + f_ext
-				shutil.copyfile(aFile, file_to_display)
-		# yes
-		else:
-			file_to_display = aFile
+		msg = _("Unable to display the file:\n\n"
+				" [%s]\n\n"
+				"Your system does not seem to have any\n"
+				"viewer registered for the file type\n"
+				" [%s]"
+		) % (aFile, mime_type)
+		return False, msg
 
-		_log.Log(gmLog.lData, "file %s <type %s> (ext %s) -> file %s" % (aFile, mime_type, f_ext, file_to_display))
-		try:
-			os.startfile(file_to_display)
-		except:
-			msg = _("Unable to start viewer on file [%s].") % file_to_display		
-			_log.LogException(msg, sys.exc_info(), verbose=0)
-			return None, msg
+	_log.Log(gmLog.lInfo, "Let's see what the OS can do about that.")
+	# does the file already have an extension ?
+	(path_name, f_ext) = os.path.splitext(aFile)
+	# no
+	if f_ext == "":
+		# try to guess one
+		f_ext = guess_ext_by_mimetype(mime_type)
+		if f_ext is None:
+			_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
+			file_to_display = aFile
+			f_ext = ''
+		else:
+			file_to_display = aFile + f_ext
+			shutil.copyfile(aFile, file_to_display)
+	# yes
+	else:
+		file_to_display = aFile
+
+	file_to_display = os.path.normpath(file_to_display)
+
+	_log.Log(gmLog.lData, "file %s <type %s> (ext %s) -> file %s" % (aFile, mime_type, f_ext, file_to_display))
+	try:
+		os.startfile(file_to_display)
+	except:
+		msg = _("Unable to start viewer on file [%s].") % file_to_display		
+		_log.LogException(msg, sys.exc_info(), verbose=0)
+		return False, msg
 
 	# don't kill the file from under the (possibly async) viewer
 #	if file_to_display != aFile:
 #		os.remove(file_to_display)
 
-	return 1, ""
+	return True, ''
 #=======================================================================================
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
@@ -205,7 +234,12 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.5  2006-06-17 13:15:10  shilbert
+# Revision 1.6  2006-09-12 17:23:30  ncq
+# - add block argument to call_viewer_on_file()
+# - improve file access checks and raise exception on failure
+# - improve some error messages
+#
+# Revision 1.5  2006/06/17 13:15:10  shilbert
 # - shutil import was added to make it work on Windows
 #
 # Revision 1.4  2006/05/16 15:50:51  ncq
