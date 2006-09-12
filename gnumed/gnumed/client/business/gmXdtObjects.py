@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.14 2006-07-22 11:01:00 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmXdtObjects.py,v 1.15 2006-09-12 17:19:53 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -67,13 +67,14 @@ def read_person_from_xdt(filename=None):
 
 	dto.firstnames = data['firstnames']
 	dto.lastnames = data['lastnames']
+	# FIXME: different data orders are possible
 	dto.dob = mxDT.DateTime (
 		int(data['dob'][4:]),	# year
 		int(data['dob'][2:4]),	# month
 		int(data['dob'][:2])	# day
 	)
 	try:
-		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender']]
+		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
 	except:
 		dto.gender = None
 
@@ -238,7 +239,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.14  2006-07-22 11:01:00  ncq
+# Revision 1.15  2006-09-12 17:19:53  ncq
+# - xDT files have the gender in upper or lower case, so normalize to lower
+#
+# Revision 1.14  2006/07/22 11:01:00  ncq
 # - make gender optional
 #
 # Revision 1.13  2006/07/19 20:43:59  ncq
