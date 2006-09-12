@@ -363,7 +363,7 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 	if dob is None:
 		dob = ''
 	# check for already existing identities
-	stmt = "select  pk_identity from dem.v_basic_person where dob - coalesce('%s', dob) < '2 days'::interval and firstnames = '%s' and lastnames = '%s' " % ( dob, esc(firstnames), esc(surname) )
+	stmt = "select  pk_identity from dem.v_basic_person where  coalesce('%s',dob ) between dob - '1 day'::interval  and   dob + '1 days'::interval and firstnames = '%s' and lastnames = '%s' " % ( dob, esc(firstnames), esc(surname) )
 
 	cu.execute(stmt)
 	rr = cu.fetchall()
@@ -394,7 +394,12 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 				stmt = "delete from clin.health_issue where pk = %d " % oldhi
 				cu.execute(stmt)
 
-			
+			stmt = "select xfk_identity from blobs.xlnk_identity where xfk_identity = %d" % xfk[0]
+			cu.execute(stmt)
+			if not cu.fetchone():
+				stmt = "insert into blobs.xlnk_identity(xfk_identity, pupic) values ( %d, '%d')" % ( xfk[0], xfk[0] )
+				cu.execute(stmt)
+	
 			stmts = [   
 						"update clin.health_issue set id_patient = %d where id_patient = %d",
 						"update clin.episode set fk_patient = %d where fk_patient = %d",
@@ -860,6 +865,24 @@ def clean_progress_notes(cu, id_patient):
 	stmt = "delete from clin.health_issue where not exists( select ce.pk from clin.episode ce where ce.fk_health_issue = clin.health_issue.pk  )  and id_patient = %d" % id_patient 
 	cu.execute(stmt)
 
+	stmt = "select ce.pk, description, (select count(*) from clin.clin_narrative where fk_episode =ce.pk) from clin.episode ce where ce.fk_health_issue in (select pk from clin.health_issue where id_patient = %d)" % id_patient
+	cu.execute(stmt)
+	deletable_pk= [ ce_pk for ce_pk, description, cnt_narr in cu.fetchall() if cnt_narr == 0]
+
+	for pk in deletable_pk:
+		sum_others =0
+		for t in tables:
+			stmt = "select count(*) from %s where fk_episode = %d" % (t,pk)
+			
+			cu.execute(stmt)
+			sum_others += cu.fetchone()[0]
+		if sum_others == 0:	
+				stmt = "delete from clin.episode where pk = %d" % pk
+				print stmt
+				cu.execute(stmt)
+	
+			
+
 def process_patient_progress(ur_no, id_patient):
 	# progress note maps to an encounter and episode
 
@@ -932,7 +955,8 @@ Encounter exists if same patient, same reason for encounter, same started , last
 If encounter exists then skip encounter creation ( also episode and narrative creation
 		"""
 
-		stmt = "select pk from clin.encounter where fk_patient = %d and reason_for_encounter = '%s' and coalesce( started, '%s'::date) - '%s'::date < '1 hour'::interval  and coalesce( last_affirmed , '%s'::date) - '%s'::date < '1 hour'::interval " % ( id_patient, esc(reason), esc(started), esc(started), esc(lastaffirmed), esc(lastaffirmed) )
+		stmt = "select pk from clin.encounter where fk_patient = %d and reason_for_encounter = '%s' and  coalesce( '%s'::date, started ::date)  between started - '1 hour'::interval and started + '1 hour'::interval    and coalesce(  '%s' ::date, last_affirmed ::date) between last_affirmed - '1 hour'::interval and last_affirmed + '1 hour'::interval " % ( id_patient, esc(reason), esc(started),  esc(lastaffirmed) )
+
 		print stmt
 		cu2.execute(stmt)
 		rr = cu2.fetchall()
@@ -1482,9 +1506,9 @@ def transfer_patients(startref = None):
 					if id_patient:
 						ensure_xlnk_identity(id_patient)
 						
-						clean_progress_notes( conto.cursor(), id_patient)
 						process_patient_progress( ur_no, id_patient )
 						process_patient_history( ur_no , id_patient )
+						clean_progress_notes( conto.cursor(), id_patient)
 						process_patient_documents(ur_no, id_patient)
 						log_processed.write(ur_no+"\n")
 						
