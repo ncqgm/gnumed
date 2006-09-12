@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.91 2006-09-01 15:03:26 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmMedDocWidgets.py,v 1.92 2006-09-12 17:27:35 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -1156,7 +1156,13 @@ class cDocTree(wx.TreeCtrl):
 			return None
 
 		# display it
-		(result, msg) = gmMimeLib.call_viewer_on_file(fname)
+		block_during_view = bool( cfg.get2 (
+			option = 'horstspace.document_viewer.block_during_view',
+			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			bias = 'user',
+			default = None
+		))
+		(result, msg) = gmMimeLib.call_viewer_on_file(fname, block=block_during_view)
 		if not result:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot display document part:\n%s') % msg,
@@ -1211,7 +1217,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.91  2006-09-01 15:03:26  ncq
+# Revision 1.92  2006-09-12 17:27:35  ncq
+# - support horstspace.document_viewer.block_during_view
+#
+# Revision 1.91  2006/09/01 15:03:26  ncq
 # - improve scanner device choice handling
 # - better tmp dir handling on document import/export
 #
