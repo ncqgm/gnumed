@@ -5,24 +5,23 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.15 2006-09-12 17:19:53 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmXdtObjects.py,v 1.16 2006-09-13 07:54:32 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
-import os.path, sys, fileinput, string, md5, time, linecache, tempfile
+import os.path, sys, md5, linecache, codecs
 
 import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
-from Gnumed.pycommon import gmExceptions
 from Gnumed.business import gmXdtMappings
 
 #==============================================================
-def read_person_from_xdt(filename=None):
+def read_person_from_xdt(filename=None, encoding=None):
 
 	_map_id2name = {
 		'3101': 'lastnames',
@@ -41,22 +40,23 @@ def read_person_from_xdt(filename=None):
 
 	data = {}
 
+	xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding)
+
 	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
-	for line in fileinput.input(filename):
+	for line in xdt_file:
 
 		if len(data) == len(interesting_fields):
 			break
 
-		line = string.replace(line,'\015','')
-		line = string.replace(line,'\012','')
+		line = line.replace('\015','')
+		line = line.replace('\012','')
 
 		# do we care about this line ?
 		field = line[3:7]
 		if field in interesting_fields:
 			data[_map_id2name[field]] = line[7:]
 
-	# cleanup
-	fileinput.close()
+	xdt_file.close()
 
 	# found all data ?
 	if len(data) < len(needed_fields):
@@ -90,8 +90,8 @@ def xdt_get_pats(aFile):
 	# read patient dat
 	for line in fileinput.input(aFile):
 		# remove trailing CR and/or LF
-		line = string.replace(line,'\015','')
-		line = string.replace(line,'\012','')
+		line = line.replace('\015','')
+		line = line.replace('\012','')
 		# do we care about this line ?
 		field = line[3:7]
 		# yes, if type = patient id
@@ -129,8 +129,8 @@ def split_xdt_file(aFile,patlst,cfg):
 
 	# find record starts
 	for line in fileinput.input(aFile):
-		strippedline = string.replace(line,'\015','')
-		strippedline = string.replace(strippedline,'\012','')
+		strippedline = line.replace('\015','')
+		strippedline = strippedline.replace('\012','')
 		# do we care about this line ? (records start with 8000)
 		if strippedline[3:7] == '8000':
 			record_start_lines.append(fileinput.filelineno())
@@ -140,8 +140,8 @@ def split_xdt_file(aFile,patlst,cfg):
 		# WHY +2 ?!? 
 		line = linecache.getline(aFile,aline+2) 
 		# remove trailing CR and/or LF
-		strippedline = string.replace(line,'\015','')
-		strippedline = string.replace(strippedline,'\012','')
+		strippedline = line.replace('\015','')
+		strippedline = strippedline.replace('\012','')
 		# do we care about this line ?
 		field = strippedline[3:7]
 		# extract patient id
@@ -149,8 +149,8 @@ def split_xdt_file(aFile,patlst,cfg):
 			ID = strippedline[7:]
 			line = linecache.getline(aFile,aline+3)
 			# remove trailing CR and/or LF
-			strippedline = string.replace(line,'\015','')
-			strippedline = string.replace(strippedline,'\012','')
+			strippedline = line.replace('\015','')
+			strippedline = strippedline.replace('\012','')
 			# do we care about this line ?
 			field = strippedline[3:7]
 			if field == '3101':
@@ -179,6 +179,7 @@ def split_xdt_file(aFile,patlst,cfg):
 	return 1
 #==============================================================
 def get_rand_fname(aDir):
+	import time, tempfile
 	# set up temp file environment for creating unique random directory
 	tempfile.tempdir = aDir
 	tempfile.template = ""
@@ -205,7 +206,7 @@ def check_for_previous_records(ID, name, patlst):
 	# file already listed ?
 	file_defs = patlst.get(aGroup = anIdentity, anOption = "files")
 	for line in file_defs:
-		file, ahash = string.split(line,':')
+		file, ahash = line.split(':')
 		hashes.append(ahash)
 
 	return hashes
@@ -239,7 +240,11 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.15  2006-09-12 17:19:53  ncq
+# Revision 1.16  2006-09-13 07:54:32  ncq
+# - clean up imports
+# - handle source encoding in read_person_from_xdt()
+#
+# Revision 1.15  2006/09/12 17:19:53  ncq
 # - xDT files have the gender in upper or lower case, so normalize to lower
 #
 # Revision 1.14  2006/07/22 11:01:00  ncq
