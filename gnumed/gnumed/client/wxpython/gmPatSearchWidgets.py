@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.41 2006-08-09 15:00:47 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPatSearchWidgets.py,v 1.41.2.1 2006-09-13 07:57:55 ncq Exp $
+__version__ = "$Revision: 1.41.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -200,18 +200,26 @@ def load_persons_from_xdt():
 		if name is None:
 			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a file name' % profile)
 			continue
+		encoding = _cfg.get('XDT profile %s' % profile, 'encoding')
+		if encoding is None:
+			gmGuiHelpers.gm_show_error (
+				_(	'Cannot access BDT file\n\n'
+					' [%s]\n\n'
+					'to import patient.\n\n'
+					'The profile [%s] does not specify an encoding.'
+				) % (name, profile),
+				_('Activating xDT patient')
+			)
+			continue
 		source = _cfg.get('XDT profile %s' % profile, 'source')
 		if source is None:
 			source = _('unknown')
-		bdt_files.append({'file': name, 'source': source})
-
-	if len(bdt_files) == 0:
-		return []
+		bdt_files.append({'file': name, 'source': source, 'encoding': encoding})
 
 	dtos = []
 	for bdt_file in bdt_files:
 		try:
-			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'])
+			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'], encoding = bdt_file['encoding'])
 
 		except IOError:
 			gmGuiHelpers.gm_show_info (
@@ -960,7 +968,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.41  2006-08-09 15:00:47  ncq
+# Revision 1.41.2.1  2006-09-13 07:57:55  ncq
+# - handle source file encoding in xDT sources
+#
+# Revision 1.41  2006/08/09 15:00:47  ncq
 # - better search widget tooltip
 #
 # Revision 1.40  2006/07/30 18:48:18  ncq
