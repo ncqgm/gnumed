@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.43 2006-09-06 07:22:34 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPatSearchWidgets.py,v 1.44 2006-09-13 07:55:11 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -199,6 +199,7 @@ def load_persons_from_xdt():
 		candidates.extend(glob.glob(candidate))
 	for candidate in candidates:
 		path, filename = os.path.split(candidate)
+		# FIXME: add encoding !
 		bdt_files.append({'file': candidate, 'source': 'MCS/Isynet %s' % filename[-6:-4]})
 
 	# some need to be configured
@@ -211,19 +212,27 @@ def load_persons_from_xdt():
 		if name is None:
 			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a file name' % profile)
 			continue
+		encoding = _cfg.get('XDT profile %s' % profile, 'encoding')
+		if encoding is None:
+			gmGuiHelpers.gm_show_error (
+				_(	'Cannot access BDT file\n\n'
+					' [%s]\n\n'
+					'to import patient.\n\n'
+					'The profile [%s] does not specify an encoding.'
+				) % (name, profile),
+				_('Activating xDT patient')
+			)
+			continue
 		source = _cfg.get('XDT profile %s' % profile, 'source')
 		if source is None:
 			source = _('unknown')
 		bdt_files.append({'file': name, 'source': source})
 
-	if len(bdt_files) == 0:
-		return []
-
 	dtos = []
 	for bdt_file in bdt_files:
 		try:
 			# FIXME: potentially return several patients per file
-			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'])
+			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'], encoding = bdt_file['encoding'])
 
 		except IOError:
 			gmGuiHelpers.gm_show_info (
@@ -972,7 +981,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.43  2006-09-06 07:22:34  ncq
+# Revision 1.44  2006-09-13 07:55:11  ncq
+# - handle encoding in xDT patient sources
+#
+# Revision 1.43  2006/09/06 07:22:34  ncq
 # - add missing import for glob module
 #
 # Revision 1.42  2006/09/01 14:46:30  ncq
