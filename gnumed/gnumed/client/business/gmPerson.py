@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.80 2006-07-26 12:22:56 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmPerson.py,v 1.80.2.1 2006-09-13 07:56:20 ncq Exp $
+__version__ = "$Revision: 1.80.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1643,9 +1643,9 @@ def get_staff_list(active_only=False):
 		staff_list.append(cStaff(row=obj_row))
 	return staff_list
 #============================================================
-def get_person_from_xdt(filename=None):
+def get_person_from_xdt(filename=None, encoding=None):
 	from Gnumed.business import gmXdtObjects
-	return gmXdtObjects.read_person_from_xdt(filename=filename)
+	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding)
 #============================================================
 # main/testing
 #============================================================
@@ -1779,7 +1779,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.80  2006-07-26 12:22:56  ncq
+# Revision 1.80.2.1  2006-09-13 07:56:20  ncq
+# - handle encoding in get_person_from_xdt()
+#
+# Revision 1.80  2006/07/26 12:22:56  ncq
 # - improve set_active_patient
 #
 # Revision 1.79  2006/07/24 14:16:04  ncq
