@@ -105,6 +105,7 @@ def esc(s):
 			continue
 		if x in quotes:
 			l.append('\\')
+		if x == '%' : l.append('%')
 		l.append(x)
 	return ''.join(l)
 
