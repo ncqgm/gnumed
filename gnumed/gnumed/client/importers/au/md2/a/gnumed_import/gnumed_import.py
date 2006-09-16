@@ -113,6 +113,8 @@ confrom = None
 conto = None
 global orig_user
 orig_user = 'gm-dbo'
+doc_pk_encounter= None
+doc_pk_episode = None
 
 quotes = "\" \' \`".split(' ')
 def esc(s):
@@ -1462,8 +1464,9 @@ def process_patient_documents(ur_no, pat_id):
 				# get new_doc_id
 				# insert into blobs.doc_med  , patient_id, fk_encounter, fk_episode, type, comment, date, ext_ref
 				# get last_doc_no
-				pk_encounter = create_doc_encounter(cu2,pat_id)
-				pk_episode = create_doc_episode(cu2, pat_id)
+				if doc_pk_encounter is None:
+					doc_pk_encounter = create_doc_encounter(cu2,pat_id)
+					doc_pk_episode = create_doc_episode(cu2, pat_id)
 
 				"""get the date to be docdate, update, or now() , whichever is valid first in that order."""
 
@@ -1574,6 +1577,7 @@ def process_patient_documents(ur_no, pat_id):
 			print "DEBUG successfully inserted doc_ob _desc, pk_doc,doc_no, page_no , ext_ref", _desc, doc_pks[doc_no], doc_no, page_no, ext_ref
 
 	conto.commit()
+	
 
 def process_patient_pathol(ur_no, pat_id):
 	
@@ -1653,8 +1657,9 @@ def process_patient_pathol(ur_no, pat_id):
 		doc_med_pk = r and r[0]
 
 		if not doc_med_pk and (not curr_enc or reportdate <> last_reportdate or labname <> last_labname) :
-			pk_encounter = create_doc_encounter(cu2, pat_id)
-			pk_episode = create_doc_episode(cu2, pat_id)
+			if not doc_pk_encounter:
+				pk_encounter = create_doc_encounter(cu2, pat_id)
+				pk_episode = create_doc_episode(cu2, pat_id)
 			last_labname = labname
 			last_reportdate = reportdate
 
@@ -1741,10 +1746,15 @@ def transfer_patients(startref = None):
 							process_patient_progress( ur_no, id_patient )
 							process_patient_history( ur_no , id_patient )
 							clean_progress_notes( conto.cursor(), id_patient)
+
+						#only one document import encounter per patient per run of importer , used by img docs, and path docs.	
+						doc_pk_encounter = None
+
 						if not nodocs:
 							process_patient_documents(ur_no, id_patient)
 						if not nopath:
 							process_patient_pathol( ur_no, id_patient)
+
 						log_processed.write(ur_no+"\n")
 						
 					
