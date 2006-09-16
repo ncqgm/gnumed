@@ -534,10 +534,10 @@ def find_ext_id(cu,  exttype, issuer,  text, firstnames, lastnames, dob):
 		where 
 			n.firstnames = '%s' and n.lastnames = '%s' 
 		and 
-		to_char(i.dob,'YYYYMMDD') 
-		= to_char(%s::date, 'YYYYMMDD') 
+		(to_char(i.dob,'YYYYMMDD') 
+		= to_char(%s::date, 'YYYYMMDD')  or i.dob between %s::date - '1 day'::interval and %s::date + '1 day'::interval )
 		and l.external_id = '%s' and l.fk_origin = %d and l.id_identity = i.pk and n.id_identity = i.pk
-""" % ( esc( firstnames), esc( lastnames), dob, esc( text), pk_exttype )
+""" % ( esc( firstnames), esc( lastnames), dob, dob,dob, esc( text), pk_exttype )
 	print stmt
 	cu.execute(stmt)
 	r = cu.fetchone()
@@ -1687,8 +1687,8 @@ set fk_intended_reviewer = %%d, comment = '%%s', data = '%%s'
 			"""
 		
 		reporttext = "\n".join(reporttext.split('par '))
-
-		stmt = stmt  % (  pk_staff, esc(comment), esc("\n\n".join([reporthead, reporttext])))
+		
+		stmt = stmt  % (  pk_staff, esc(comment), esc("\n\n".join([reporthead or '', reporttext])))
 
 		cu2.execute(stmt)
 		
