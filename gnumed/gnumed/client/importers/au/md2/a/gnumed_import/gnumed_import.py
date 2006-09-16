@@ -1602,6 +1602,7 @@ def process_patient_pathol(ur_no, pat_id):
 	for ur_no, labname, labref, resultid, reqdate, reportdate, reporttime, testname, reporthead, reporttext, checkdate, checkedby, comment in results:
 		
 		# normalize labname
+		labname = labname or ''
 		ww = labname.split(' ')
 		cnt_blanks = 0
 		ww2 = []
@@ -1632,7 +1633,7 @@ def process_patient_pathol(ur_no, pat_id):
 			date = x
 			if date:
 				break
-		
+		reporttime=reporttime or 0	
 		date = str(date).split(' ')[0] + ' ' + '%02d:%02d' % ( reporttime/60 , reporttime % 60 )
 		
 
@@ -1685,7 +1686,7 @@ set fk_intended_reviewer = %%d, comment = '%%s', data = '%%s'
 	( seq_idx, doc_id, fk_intended_reviewer, comment, data ) 
 	values ( 1,   currval('blobs.doc_med_pk_seq') , %d , '%s', '%s')
 			"""
-		
+		reporttext = reporttext or ""
 		reporttext = "\n".join(reporttext.split('par '))
 		
 		stmt = stmt  % (  pk_staff, esc(comment), esc("\n\n".join([reporthead or '', reporttext])))
