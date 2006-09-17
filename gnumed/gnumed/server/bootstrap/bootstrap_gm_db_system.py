@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1041,120 +1041,6 @@ class gmService:
 
 		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % existing_version)
 		return True
-	#--------------------------------------------------------------
-	def register(self):
-		# FIXME - register service
-		# a) in its own database - TODO
-		# FIXME : We don't check for invalid service entries here 
-		# (e.g. multiple service aliases linking to the same internal gnumed service)
-		_log.Log(gmLog.lInfo, "Registering service [%s] (GNUmed internal name: [%s])." % (self.alias, self.name))
-
-		# note: this is not entirely safe
-		core_alias = _cfg.get(self.section, "registration database")
-		core_name = _cfg.get("database %s" % core_alias, "name")
-		try:
-			coreDB =_bootstrapped_dbs[core_alias]
-		except KeyError:
-			_log.Log(gmLog.lErr, 'Cannot register service. Database [%s] (%s) not bootstrapped.' % (core_alias, core_name))
-			return None
-
-		curs = coreDB.conn.cursor()
-		# check for presence of service name in core database (service config)
-		cmd = "select id from cfg.distributed_db where name='%s' limit 1" % self.name
-		try:
-			curs.execute(cmd)
-		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-			curs.close()
-			return None
-		# fetch distributed database ID
-		result = curs.fetchone()
-
-		if result is None:
-			# if the servicename is not found there are 2 possibilities:
-			# a) don't allow creation of new service names
-			# b) create a new service name without further inquiry
-			# The latter could lead to creation of new services on spelling
-			# errors, so we don't register those services automatically
-			_log.Log(gmLog.lInfo, "Service [%s] not defined in GNUmed." % self.name)
-			_log.Log(gmLog.lInfo, "Check configuration file or ask GNUmed admins")
-			_log.Log(gmLog.lInfo, "for inclusion of new service name.")
-			curs.close()
-			return None
-		ddbID = result[0]
-
-		# the service name has been found, ID is in ddbID
-		# now check if the according database is already known to gnumed
-		# no need to store the core database definition
-		if self.db is coreDB:
-			_log.Log(gmLog.lInfo, "Service [%s] resides in core database." % self.name)
-			_log.Log(gmLog.lInfo, "It will be automatically recognized by GNUmed.")
-			curs.close()
-			return True
-		# if not, insert database definition in table db
-		else:
-			cmd = "select id from cfg.db where name='%s' limit 1" % self.db.name
-			try:
-				curs.execute(cmd)
-			except:
-				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-				curs.close()
-				return None
-
-			result = curs.fetchone()			
-			if result is None:
-				# if the database wasn't found, store the database definition in table db
-				# FIXME: should this not be handled in cDatabase.bootstrap() ?
-				_log.Log(gmLog.lInfo, "Storing database definition for [%s]." % self.db.name)
-				_log.Log(gmLog.lInfo, "name=%s, host=%s, port=%s" % (self.db.name,self.db.server.port,self.db.server.name))
-	
-				cmd = "INSERT INTO cfg.db (name,port,host) VALUES ('%s',%s,'%s')" % (self.db.name,self.db.server.port,self.db.server.name)
-				try:
-					curs.execute(cmd)
-				except:
-					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-					curs.close()
-					return None
-
-				coreDB.conn.commit()
-
-				# get the database id for the created entry
-				cmd = "select id from cfg.db where name='%s' limit 1" % self.db.name
-				try:
-					curs.execute(cmd)
-				except:
-					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-					curs.close()
-					return None
-				# this should not return None anymore
-				dbID = curs.fetchone()[0]
-			else:
-				dbID = result[0]
-
-			# now we must link services to databases
-			# we can omit this procedure for all services residing on the core database
-			_log.Log(gmLog.lInfo, "Linking service [%s] to database [%s]." % (self.name,self.db.name))
-
-			# FIXME: check if username='' is correct
-			# in fact, no: this is configuration and thus user dependant,
-			# bootstrapping, however, is done by gm-dbo,
-			# so, actually, this should not be done here but rather moved
-			# over to the generic configuration tables and be done for the
-			# xxxDEFAULTxxx user, upon client startup if not "user" config exists
-			# the xxxDEFAULTxxx config will be read, confirmed by the current user
-			# and stored for her ...
-			cmd = "INSERT INTO cfg.config (username, db, ddb) VALUES ('%s',%s,'%s')" % ('',dbID,ddbID)
-			try:
-				curs.execute(cmd)
-			except:
-				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-				curs.close()
-				return None
-			curs.close()
-			coreDB.conn.commit()
-
-		_log.Log(gmLog.lInfo, "Service [%s] has been successfully registered." % self.alias )
-		return True
 #==================================================================
 def bootstrap_services():
 	# get service list
@@ -1166,8 +1052,6 @@ def bootstrap_services():
 		print '==> bootstrapping "%s" ...' % service_alias
 		service = gmService(service_alias)
 		if not service.bootstrap():
-			return None
-		if not service.register():
 			return None
 	return True
 #--------------------------------------------------------------
@@ -1486,7 +1370,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.31  2006-07-27 17:10:06  ncq
+# Revision 1.32  2006-09-17 07:02:00  ncq
+# - we don't register services anymore
+#
+# Revision 1.31  2006/07/27 17:10:06  ncq
 # - remove trying to load *other* DB-API adapters
 # - remove obsolete import
 #

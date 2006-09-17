@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.29 $
+version = $Revision: 1.30 $
 
 #----------------------------------
 [installation]
@@ -75,9 +75,6 @@ $schema$
 
 # the PostgreSQL version necessary to run this service
 postgres version = 7.3
-
-# database alias in which to register this service
-registration database = gnumed
 
 #----------------------------------
 [database gnumed]
@@ -281,7 +278,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.29  2006-06-13 21:12:04  ncq
+# Revision 1.30  2006-09-17 07:02:00  ncq
+# - we don't register services anymore
+#
+# Revision 1.29  2006/06/13 21:12:04  ncq
 # - name option to language section
 # - add 8.1 library pathes for UNIX and Windows
 #
