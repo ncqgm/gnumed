@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-v_narrative4search.sql,v 1.1 2006-09-16 21:46:57 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-v_narrative4search.sql,v 1.2 2006-09-18 17:32:26 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 begin;
@@ -72,6 +72,9 @@ select
 	'clin.encounter' as src_table
 from
 	clin.encounter cenc
+where
+	trim(coalesce(cenc.reason_for_encounter, '')) != '' or
+	trim(coalesce(cenc.assessment_of_encounter, '')) != ''
 
 
 union all	-- episodes
@@ -183,13 +186,16 @@ comment on view clin.v_narrative4search is
 grant select on clin.v_narrative4search to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.2 $');
 
 commit;
 
 -- ==============================================================
 -- $Log: clin-v_narrative4search.sql,v $
--- Revision 1.1  2006-09-16 21:46:57  ncq
+-- Revision 1.2  2006-09-18 17:32:26  ncq
+-- - exclude empty encounters
+--
+-- Revision 1.1  2006/09/16 21:46:57  ncq
 -- - include FKs for narrative search
 -- - include BLOB tables
 -- - UNION ALL
