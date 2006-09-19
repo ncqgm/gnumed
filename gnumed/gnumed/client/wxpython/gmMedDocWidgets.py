@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.92 2006-09-12 17:27:35 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmMedDocWidgets.py,v 1.93 2006-09-19 12:00:42 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -13,7 +13,7 @@ import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
 from Gnumed.business import gmPerson, gmMedDoc
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 _log = gmLog.gmDefLog
@@ -324,9 +324,10 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		#self._ChBOX_sign_all_pages.Enable(enable = state)
 #============================================================
 # FIXME: this must listen to patient change signals ...
-class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl):
+class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
 	def __init__(self, *args, **kwds):
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
+		gmPlugin.cPatientChange_PluginMixin.__init__(self)
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			service = 'personalia',
@@ -351,6 +352,15 @@ where
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		pass
+	#--------------------------------------------------------
+	# patient change plugin API
+	#--------------------------------------------------------
+	def _pre_patient_selection(self, **kwds):
+		# FIXME: persist pending data from here
+		pass
+	#--------------------------------------------------------
+	def _post_patient_selection(self, **kwds):
+		self.__init_ui_data()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1217,7 +1227,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.92  2006-09-12 17:27:35  ncq
+# Revision 1.93  2006-09-19 12:00:42  ncq
+# - clear scan/idx panel on patient change
+#
+# Revision 1.92  2006/09/12 17:27:35  ncq
 # - support horstspace.document_viewer.block_during_view
 #
 # Revision 1.91  2006/09/01 15:03:26  ncq
