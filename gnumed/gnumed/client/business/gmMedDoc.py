@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.75.2.2 2006-09-01 09:23:02 ncq Exp $
-__version__ = "$Revision: 1.75.2.2 $"
+# $Id: gmMedDoc.py,v 1.75.2.3 2006-09-20 21:50:39 ncq Exp $
+__version__ = "$Revision: 1.75.2.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -376,9 +376,9 @@ order by
 		conn = psycopg2.connect(dsn=dsn)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s and xmin=%s"
+		cmd = "UPDATE blobs.doc_obj SET data=%(data)s WHERE pk=%(pk)s and xmin=%(xmin)s"
 		curs = conn.cursor()
-		curs.execute(cmd, (img_obj, self.pk_obj, self._payload[self._idx['xmin_doc_obj']]))
+		curs.execute(cmd, {'data': img_obj, 'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_doc_obj']]})
 		conn.commit()
 		curs.close()
 		conn.close()
@@ -855,13 +855,16 @@ if __name__ == '__main__':
 		return
 	#--------------------------------------------------------
 
+	_log.SetAllLogLevels(gmLog.lData)
+
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	_log.SetAllLogLevels(gmLog.lData)
+	# on Windows we need this:
+	#gmPG.set_default_client_encoding({'wire': 'win1252', 'string': 'cp1252'})
 
-	test_doc_types()
+#	test_doc_types()
 	test_adding_doc_part()
 
 #	print get_ext_ref()
@@ -877,7 +880,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.75.2.2  2006-09-01 09:23:02  ncq
+# Revision 1.75.2.3  2006-09-20 21:50:39  ncq
+# - on Windows we need explicit string encoding settings for gmPG
+#
+# Revision 1.75.2.2  2006/09/01 09:23:02  ncq
 # - unicode filenames must be encoded sys.getfilesystemencoding()
 #
 # Revision 1.75.2.1  2006/08/31 17:00:13  ncq
