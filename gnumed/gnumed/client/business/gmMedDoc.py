@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.75.2.3 2006-09-20 21:50:39 ncq Exp $
-__version__ = "$Revision: 1.75.2.3 $"
+# $Id: gmMedDoc.py,v 1.75.2.4 2006-09-20 21:57:00 ncq Exp $
+__version__ = "$Revision: 1.75.2.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -568,7 +568,7 @@ insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
 VALUES (
 	%(doc_id)s,
 	(select pk_staff from dem.v_staff where db_user=CURRENT_USER),
-	'',
+	''::bytea,
 	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
 )"""
 		cmd2 = "select currval('blobs.doc_obj_pk_seq')"
@@ -880,7 +880,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.75.2.3  2006-09-20 21:50:39  ncq
+# Revision 1.75.2.4  2006-09-20 21:57:00  ncq
+# - dummy doc_obj.data should be bytea, too
+#
+# Revision 1.75.2.3  2006/09/20 21:50:39  ncq
 # - on Windows we need explicit string encoding settings for gmPG
 #
 # Revision 1.75.2.2  2006/09/01 09:23:02  ncq
