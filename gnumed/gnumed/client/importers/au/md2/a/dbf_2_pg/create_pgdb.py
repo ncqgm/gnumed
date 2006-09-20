@@ -72,6 +72,8 @@ def escape_q( s):
 		
 		if x in quotes or x not in string.printable:
 			s2.append('\\')
+		if x == '%':
+			s2.append('%')
 		s2.append(x)	
 	return ''.join(s2)
 				
@@ -627,8 +629,6 @@ if __name__ == "__main__":
 			while 1:
 				#import pdb
 				#pdb.set_trace()
-
-							
 				stmt = p.next_sql_insert( base64_memo= is_base64_memo, decrypt_memo = decrypt_memo_tables)
 				if not stmt:
 					break
