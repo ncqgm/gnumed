@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: cfg-set_option.sql,v 1.2 2006-09-21 19:51:43 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: cfg-set_option.sql,v 1.3 2006-09-21 19:54:47 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -145,50 +145,17 @@ comment on function cfg.set_option(text, anyelement, text, text, text) is
 	'set option, owner = NULL means CURRENT_USER';
 
 -- --------------------------------------------------------------
-create or replace function cfg.set_option2(text, text[], text, text, text)
-	returns boolean
-	language 'plpgsql'
-	as '
-declare
-	_option alias for $1;
-	_value alias for $2;
-	_workplace alias for $3;
-	_cookie alias for $4;
-	_owner alias for $5;
-	real_owner text;
-	pk_template integer;
-	pk_item integer;
-	cmd text;
-begin
-	-- create template/item if need be
-	select into pk_item cfg.create_cfg_item(_option, ''str_array''::text, _workplace, _cookie, _owner);
-
-	-- set item
-	cmd := ''select 1 from cfg.cfg_str_array where fk_item='' || pk_item || '';'';
-	execute cmd;
-	if found then
-		cmd := ''update cfg.cfg_str_array set value='' || _value || '' where fk_item='' || pk_item || '';'';
-		execute cmd;
-	else
-		cmd := ''insert into cfg.cfg_str_array(fk_item, value) values ('' || pk_item || '', '' || _value || '');''
-		execute cmd;
-	end if;
-
-	return True;
-end;';
-
-comment on function cfg.set_option2(text, text[], text, text, text) is
-	'set option, owner = NULL means CURRENT_USER';
-
--- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-set_option.sql,v $', '$Revision: 1.2 $');
+select public.log_script_insertion('$RCSfile: cfg-set_option.sql,v $', '$Revision: 1.3 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: cfg-set_option.sql,v $
--- Revision 1.2  2006-09-21 19:51:43  ncq
+-- Revision 1.3  2006-09-21 19:54:47  ncq
+-- - we don't need set_option2()
+--
+-- Revision 1.2  2006/09/21 19:51:43  ncq
 -- - eventually make set_option() work
 --
 -- Revision 1.1  2006/09/19 18:27:47  ncq
