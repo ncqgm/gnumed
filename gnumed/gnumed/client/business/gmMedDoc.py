@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.77 2006-09-02 21:22:10 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmMedDoc.py,v 1.78 2006-09-21 19:23:12 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -568,7 +568,7 @@ insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
 VALUES (
 	%(doc_id)s,
 	(select pk_staff from dem.v_staff where db_user=CURRENT_USER),
-	'',
+	''::bytea,
 	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
 )"""
 		cmd2 = "select currval('blobs.doc_obj_pk_seq')"
@@ -878,7 +878,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.77  2006-09-02 21:22:10  ncq
+# Revision 1.78  2006-09-21 19:23:12  ncq
+# - cast '' to bytea when adding a dummy document part
+#
+# Revision 1.77  2006/09/02 21:22:10  ncq
 # - return new parts from add_parts_from_files()
 # - cMedDoc.update_data() needs fixing
 # - forward port test suite improvement and cMedDoc instantiation fix from rel-0-2-patches branch
