@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.31.2.1 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -376,7 +376,7 @@ class db_server:
 		# does this user already exist ?
 		name = self.cfg.get('user %s' % dbowner_alias, 'name')
 		if self.__user_exists(cursor, name):
-			cmd = 'alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"' % (name, self.auth_group, name)
+			cmd = 'alter group "gm-logins" add user "%s"; alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"' % (self.superuser.name, name, self.auth_group, name)
 			try:
 				cursor.execute(cmd)
 			except:
@@ -1486,7 +1486,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.31  2006-07-27 17:10:06  ncq
+# Revision 1.31.2.1  2006-09-21 06:40:37  ncq
+# - add db superuser (postgres) to group gm-logins, too
+#
+# Revision 1.31  2006/07/27 17:10:06  ncq
 # - remove trying to load *other* DB-API adapters
 # - remove obsolete import
 #
