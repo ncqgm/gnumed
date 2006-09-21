@@ -1,4 +1,4 @@
-"""GnuMed configuration handling.
+"""GNUmed configuration handling.
 
 Two sources of configuration information are supported:
 
@@ -53,19 +53,17 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys, shutil, types
+import os.path, fileinput, string, sys, shutil, types, cPickle
 
 # gnumed modules
-import gmLog, gmNull
+import gmLog, gmNull, gmPG2
 
 _log = gmLog.gmDefLog
-gmPG_ = None
 gmCLI_ = None
-cPickle_ = None
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
@@ -79,119 +77,15 @@ _log.Log(gmLog.lInfo, __version__)
 
 gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
 #================================
-class cCfgBase:
-	def __init__(self):
-		pass
-
-	def get(workplace = None, user = None, cookie = None, option = None):
-		pass
-
-	def set(workplace = None, user = None, cookie = None, option = None, value = None):
-		pass
-#================================
 class cCfgSQL:
-	def __init__(self, aConn = None, aDBAPI = None):
-		global gmPG_
-		if gmPG_ is None:
-			from Gnumed.pycommon import gmPG
-			gmPG_ = gmPG
-
-		if aConn is None:
-			self.__conn = gmPG_.ConnectionPool().GetConnection(service = 'default')
-			self.__dbapi = gmPG_.dbapi
-		else:
-			self.__dbapi = aDBAPI
-			self.__conn = aConn
-
-		global cPickle_
-		if cPickle_ is None:
-			import cPickle
-			cPickle_ = cPickle
+	def __init__(self):
+		self.ro_conn = gmPG2.get_connection()
 	#----------------------------
 	# external API
 	#----------------------------
 	def get(self, workplace = None, user = None, cookie = None, option = None):
-		"""Get config value from database.
-
-		- works for
-			- strings
-			- ints/floats
-			- (string) lists
-		- string lists currently only work with pyPgSQL >= 2.3
-		  due to the need for a PgArray data type
-		- also string lists will work with PostgreSQL only
-
-		- unset arguments are assumed to mean database defaults except for <cookie>
-		"""
-
-		print '%s.get() deprecated' % self.__class__.__name__
-
-		# sanity checks
-		if option is None:
-			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
-			return None
-
-		cache_key = self.__make_key(workplace, user, cookie, option)
-
-		# construct query
-		where_parts = [
-			'vco.option=%(opt)s',
-			'vco.workplace=%(wplace)s'
-			]
-		where_args = {
-			'opt': option,
-			'wplace': workplace
-		}
-		if workplace is None:
-			where_args['wplace'] = cfg_DEFAULT
-		if user is None:
-			where_parts.append('vco.owner=CURRENT_USER')
-		else:
-			where_parts.append('vco.owner=%(owner)s')
-			where_args['owner'] = user
-		if cookie is not None:
-			where_parts.append('vco.cookie=%(cookie)s')
-			where_args['cookie'] = cookie
-		where_clause = ' and '.join(where_parts)
-		cmd = """
-select vco.pk_cfg_item, vco.type
-from cfg.v_cfg_options vco
-where %s
-limit 1""" % where_clause
-
-		curs = self.__conn.cursor()
-		rows = gmPG_.run_ro_query(curs, cmd, None, where_args)
-		if rows is None:
-			curs.close()
-			_log.Log(gmLog.lErr, 'unable to get option definition for [%s]' % cache_key)
-			return None
-		if len(rows) == 0:
-			curs.close()
-			_log.Log(gmLog.lInfo, 'option definition for [%s] not in config database' % cache_key)
-			return None
-		item_id = rows[0][0]
-		value_type = rows[0][1]
-
-		# retrieve value from appropriate table
-		cmd = "select value from cfg.cfg_%s where fk_item=%%s limit 1" % value_type
-		rows = gmPG_.run_ro_query(curs, cmd, None, item_id)
-		curs.close()
-		if rows is None:
-			_log.Log(gmLog.lErr, 'unable to get option value for [%s]' % cache_key)
-			return None
-		if len(rows) == 0:
-			_log.Log(gmLog.lInfo, 'option value for [%s] not in config database' % cache_key)
-			return None
-		val = rows[0][0]
-		if value_type == 'data':
-			val = str(val)
-			try:
-				val = cPickle_.loads(val)
-			except cPickle_.UnpickleError:
-				_log.Log(gmLog.lErr, 'cannot unpickle [%s] (type [%s])' % (val, type(val)))
-			except:
-				_log.LogException("don't know how to cast [%s] (type [%s])" % (val, type(val)), sys.exc_info(), verbose=0)
-		return val
+		print '%s.get() deprecated, use get2() instead' % self.__class__.__name__
+		return None
 	#-----------------------------------------------
 	def get2(self, option=None, workplace=None, cookie=None, bias=None, default=None):
 		"""Retrieve configuration option from backend.
@@ -217,20 +111,12 @@ limit 1""" % where_clause
 
 		# does this option exist ?
 		cmd = "select type from cfg.cfg_template where name=%s"
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, option)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting option definition for [%s]' % option)
-			return None
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': [option]}])
 		if len(rows) == 0:
 			if default is None:
 				return None
 			_log.Log(gmLog.lInfo, 'creating option [%s] with default [%s]' % (option, default))
-			success = self.set (
-				workplace = workplace,
-				cookie = cookie,
-				option = option,
-				value = default
-			)
+			success = self.set(workplace = workplace, cookie = cookie, option = option, value = default)
 			if not success:
 				return None
 			return default
@@ -245,18 +131,16 @@ limit 1""" % where_clause
 
 		# 1) search value with explicit workplace and current user
 		where_parts = [
-			'vco_X.owner = CURRENT_USER',
-			'vco_X.workplace = %(wp)s',
-			'vco_X.option = %(opt)s'
+			'vco.owner = CURRENT_USER',
+			'vco.workplace = %(wp)s',
+			'vco.option = %(opt)s'
 		]
 		if cookie is not None:
-			where_parts.append('vco_X.cookie = %(cookie)s')
-		cmd = "select vco_X.value from cfg.v_cfg_opts_%s vco_X where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
-		# error
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
-			return None
+			where_parts.append('vco.cookie = %(cookie)s')
+		else:
+			where_parts.append('vco.cookie is Null')
+		cmd = "select vco.value from cfg.v_cfg_opts_%s vco where %s limit 1" % (cfg_type, ' and '.join(where_parts))
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
 			return rows[0][0]
@@ -266,23 +150,21 @@ limit 1""" % where_clause
 		if bias == 'user':
 			# did *I* set this option on *any* workplace ?
 			where_parts = [
-				'vco_X.owner = CURRENT_USER',
-				'vco_X.option = %(opt)s'
+				'vco.option = %(opt)s',
+				'vco.owner = CURRENT_USER',
 			]
 		else:
 			# did *anyone* set this option on *this* workplace ?
 			where_parts = [
-				'vco_X.workplace = %(wp)s',
-				'vco_X.option = %(opt)s'
+				'vco.option = %(opt)s',
+				'vco.workplace = %(wp)s'
 			]
 		if cookie is not None:
-			where_parts.append('vco_X.cookie = %(cookie)s')
-		cmd = "select vco_X.value from cfg.v_cfg_opts_%s vco_X where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
-		# error
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
-			return None
+			where_parts.append('vco.cookie = %(cookie)s')
+		else:
+			where_parts.append('vco.cookie is Null')
+		cmd = "select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
 			# set explicitely for user/workplace
@@ -297,16 +179,12 @@ limit 1""" % where_clause
 
 		# 3) search value within default site policy
 		where_parts = [
-			'vco_X.owner = %(def)s',
-			'vco_X.workplace = %(def)s',
-			'vco_X.option = %(opt)s'
+			'vco.owner = %(def)s',
+			'vco.workplace = %(def)s',
+			'vco.option = %(opt)s'
 		]
-		cmd = "select vco_X.value from cfg.v_cfg_opts_%s vco_X where\n\t%s\nlimit 1" % (cfg_type, '\tand\n'.join(where_parts))
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
-		# error
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting value for option [%s]' % option)
-			return None
+		cmd = "select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
 			# set explicitely for user/workplace
@@ -335,109 +213,10 @@ limit 1""" % where_clause
 		return default
 	#-----------------------------------------------
 	def get_by_workplace(self, option=None, workplace=None, cookie=None, default=None):
-		"""Get config option from database w/o regard for the user.
-
-		Use this for options in which the user does not
-		matter. It will search for matches in this order:
-			- current workplace, any user
-			- default workplace, default user
-		The latter is used so an admin can set defaults. If a default
-		option is found it is automatically stored specific to the workplace.
-
-		Returns None if not found.
-		"""
-		print "%s.get_by_workplace() deprecated" % self.__class__.__name__
-
-		if option is None or workplace is None:
-			raise ValueError, 'option and/or workplace cannot be <None>'
-
-		args = {
-			'opt': option,
-			'wplace': workplace,
-			'defwplace': cfg_DEFAULT,
-			'cookie': cookie
-		}
-		where_parts_given_workplace = [
-			'vco.workplace = %(wplace)s',
-			'vco.option = %(opt)s'
-		]
-		where_parts_default_workplace = [
-			'vco.workplace = %(defwplace)s',
-			'vco.option = %(opt)s'
-		]
-		if cookie is not None:
-			where_parts_given_workplace.append('vco.cookie = %(cookie)s')
-			where_parts_default_workplace.append('vco.cookie = %(cookie)s')
-
-		cmd1 = """
-select
-	vco.pk_cfg_item,
-	vco.type
-from cfg.v_cfg_options vco
-where
-	%s""" % (' and '.join(where_parts_given_workplace))
-
-		cmd2 = """
-select
-	vco.pk_cfg_item,
-	vco.type
-from cfg.v_cfg_options vco
-where
-	%s""" % (' and '.join(where_parts_default_workplace))
-
-		# run it
-		rows = gmPG_.run_ro_query(self.__conn, cmd1, None, args)
-		# - error
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting option definition')
-			return default
-		# - not found for given workplace
-		if len(rows) == 0:
-			# run it for default workplace
-			rows = gmPG_.run_ro_query(self.__conn, cmd2, None, args)
-			# - error
-			if rows is None:
-				_log.Log(gmLog.lErr, 'error getting option definition')
-				return default
-			if len(rows) == 0:
-				_log.Log(gmLog.lWarn, 'option definition [%s] not in config database' % option)
-				# - cannot create default
-				if default is None:
-					return None
-				# - create default
-				_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
-#				# try to store specific to *this* workplace
-#				self.set (
-#					option = option,
-#					workplace = workplace,
-#					value = default
-#				)
-				return default
-		# found for given or default workplace, now get value
-		cmd = """select value from cfg.v_cfg_opts_%s where pk_cfg_item=%%(pk)s""" % rows[0][1]
-		args = {'pk': rows[0][0]}
-		rows = gmPG_.run_ro_query(self.__conn, cmd, None, args)
-		# - error
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting option value')
-			return default
-		# - not found
-		if len(rows) == 0:
-			_log.Log(gmLog.lWarn, 'no value for option [%s] in config database' % option)
-			# - cannot create default
-			if default is None:
-				return None
-			# - create default
-#			_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
-#			self.set (
-#				option = option,
-#				workplace = workplace,
-#				value = default
-#			)
-			return default
-		return rows[0][0]
+		print "%s.get_by_workplace() deprecated, use get2() instead" % self.__class__.__name__
+		return default
 	#-----------------------------------------------
-	def getID(self, workplace = None, user = None, cookie = None, option = None):
+	def getID(self, workplace = None, cookie = None, option = None):
 		"""Get config value from database.
 
 		- unset arguments are assumed to mean database defaults except for <cookie>
@@ -447,7 +226,7 @@ where
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
 			return None
 
-		cache_key = self.__make_key(workplace, user, cookie, option)
+		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
 
 		# construct query
 		where_parts = [
@@ -460,11 +239,9 @@ where
 		}
 		if workplace is None:
 			where_args['wplace'] = cfg_DEFAULT
-		if user is None:
-			where_parts.append('vco.owner=CURRENT_USER')
-		else:
-			where_parts.append('vco.owner=%(owner)s')
-			where_args['owner'] = user
+
+		where_parts.append('vco.owner=CURRENT_USER')
+
 		if cookie is not None:
 			where_parts.append('vco.cookie=%(cookie)s')
 			where_args['cookie'] = cookie
@@ -475,19 +252,13 @@ from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
-		curs = self.__conn.cursor()
-		rows = gmPG_.run_ro_query (curs, cmd, None, where_args)
-		if rows is None:
-			curs.close()
-			_log.Log(gmLog.lErr, 'unable to get option definition for [%s]' % cache_key)
-			return None
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}])
 		if len(rows) == 0:
-			curs.close()
-			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % cache_key)
+			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % alias)
 			return None
 		return rows[0][0]
 	#----------------------------
-	def set(self, workplace = None, user = None, cookie = None, option = None, value = None, aRWConn = None):
+	def set(self, workplace = None, cookie = None, option = None, value = None):
 		"""Set (insert or update) option value in database.
 
 		Any parameter that is None will be set to the database default.
@@ -498,128 +269,49 @@ limit 1""" % where_clause
 		"""
 		# sanity checks
 		if None in [option, value]:
-			_log.Log(gmLog.lErr, "option and/or value are None")
-			return False
+			raise ValueError('invalid arguments (option=<%s>, value=<%s>)' % (option, value))
 
-		if aRWConn is None:
-			aRWConn = gmPG_.ConnectionPool().GetConnection(service = 'default', readonly=0)
+		rw_conn = gmPG2.get_connection(readonly=False)
 
-		cache_key = self.__make_key(workplace, user, cookie, option)
+		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
+
 		opt_value = value
 		if type(value) is types.StringType:
-			opt_type = 'string'
+			val_type = '::text'
 		elif type(value) in [types.FloatType, types.IntType, types.LongType]:
-			opt_type = 'numeric'
-		elif type(value) is types.ListType:
-			opt_type = 'str_array'
-			try:
-				opt_value = self.__dbapi.PgArray(value)
-			except AttributeError:
-				_log.LogException('this dbapi does not support PgArray', sys.exc_info())
-				print "This Python DB-API module does not support the PgArray data type."
-				print "It is recommended to install at least version 2.3 of pyPgSQL from"
-				print "<http://pypgsql.sourceforge.net>."
-				return False
-		elif isinstance(value, self.__dbapi.PgArray):
-			opt_type = 'str_array'
-		# FIXME: UnicodeType ?
+			val_type = '::numeric'
+		elif type(value) in [types.ListType]:
+			val_type = '::text[]'
 		else:
-			opt_type = 'data'
 			try:
-				# the DB-API 2.0 says Binary() is a function at the module
-				# level, however, pyPgSQL prides itself to define this at
-				# the connection level, arghh !! also, it does not work
-				# so this needs to be pgByteA with pyPgSQL while it should
-				# be Binary
-				opt_value = self.__dbapi.PgBytea(cPickle_.dumps(value))
-			except cPickle_.PicklingError:
-				_log.Log(gmLog.lErr, "cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), cache_key, str(value)))
+				opt_value = gmPG2.dbapi.Binary(cPickle.dumps(value))
+				val_type = '::bytea'
+			except cPickle.PicklingError:
+				_log.Log(gmLog.lErr, "cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
 				return False
 			except:
-				msg = "don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), cache_key, str(value))
+				msg = "don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value))
 				_log.LogException(msg, sys.exc_info(), verbose=0)
 				return False
 
-		# FIXME: we must check if template with same name and 
-		# different type exists -> error (won't find double entry on get())
-		# get id of option template
-		curs = aRWConn.cursor()
-		cmd = "select pk from cfg.cfg_template where name=%s and type=%s limit 1"
-		rows = gmPG_.run_ro_query(curs, cmd, None, option, opt_type)
-		if rows is None:
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot find cfg item template for [%s->%s]' % (opt_type, option))
-			return False
-		# if not in database insert new option template
-		if len(rows) == 0:
-			# insert new template
-			queries = []
-			cmd = "insert into cfg.cfg_template (name, type) values (%s, %s)"
-			queries.append((cmd, [option, opt_type]))
-			cmd = "select currval('cfg.cfg_template_pk_seq')"
-			queries.append((cmd, []))
-			rows = gmPG_.run_commit(curs, queries)
-			if rows is None:
-				curs.close()
-				_log.Log(gmLog.lErr, 'cannot insert cfg item template for [%s->%s]' % (opt_type, option))
-				return False
-			aRWConn.commit()
-		template_id = rows[0][0]
+		cmd = 'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % val_type
+		args = {
+			'opt': option,
+			'val': opt_value,
+			'wp': workplace,
+			'cookie': cookie
+		}
+		rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
+		success = rows[0][0]
+		if success:
+			rw_conn.commit()
+			rw_conn.close()
+			return True
 
-		# set up field/value pairs
-		ins_fields = ['fk_template']
-		ins_val_templates = ['%(templ_id)s']
-		ins_where_args = {}
-		if user is not None:
-			ins_fields.append('owner')
-			ins_val_templates.append('%(owner)s')
-			ins_where_args['owner'] = str(user)
+		rw_conn.rollback()
+		rw_conn.close()
 
-		if workplace is not None:
-			ins_fields.append('workplace')
-			ins_val_templates.append('%(wplace)s')
-			ins_where_args['wplace'] = str(workplace)
-
-		if cookie is not None:
-			ins_fields.append('cookie')
-			ins_val_templates.append('%(cookie)s')
-			ins_where_args[''] = str(cookie)
-
-		# FIXME: this does not always find the existing entry (in particular if user=None)
-		# reason: different handling of None in set() and get()
-		# do we need to insert a new option or update an existing one ?
-		# FIXME: this should be autofixed now since we don't do user/_user anymore, please verify
-		if self.get(workplace, user, cookie, option) is None:
-			_log.Log(gmLog.lData, 'inserting new option [%s]' % cache_key)
-			ins_fields_str = ', '.join(ins_fields)
-			ins_val_templates_str = ', '.join(ins_val_templates)
-			ins_where_args['templ_id'] = template_id
-			queries = []
-			cmd = "insert into cfg.cfg_item (%s) values (%s)" % (ins_fields_str, ins_val_templates_str)
-			queries.append((cmd, [ins_where_args]))
-			cmd = "insert into cfg.cfg_%s (fk_item, value)" % opt_type + " values (currval('cfg.cfg_item_pk_seq'), %s)"
-			queries.append((cmd, [opt_value]))
-			success = gmPG_.run_commit(curs, queries)
-			if success is None:
-				curs.close()
-				_log.Log(gmLog.lErr, 'cannot insert option [%s]' % cache_key)
-				return False
-		else:
-			_log.Log(gmLog.lData, 'updating existing option [%s]' % cache_key)
-			item_id = self.getID(workplace, user, cookie, option)
-			if item_id is None:
-				curs.close()
-				return False
-			# update option instance
-			args = {'val': opt_value, 'item_id': item_id}
-			cmd = "update cfg.cfg_%s" % opt_type + " set value=%(val)s where fk_item=%(item_id)s"
-			if gmPG_.run_query(curs, None, cmd, args) is None:
-				curs.close()
-				return False
-
-		aRWConn.commit()
-		curs.close()
-		return True
+		return False
 	#-------------------------------------------
 	def getAllParams(self, user = None, workplace = cfg_DEFAULT):
 		"""Get names of all stored parameters for a given workplace/(user)/cookie-key.
@@ -646,90 +338,48 @@ select name, cookie, owner, type, description
 from cfg.cfg_template, cfg.cfg_item
 where %s""" % where_clause
 
-		curs = self.__conn.cursor()
-
 		# retrieve option definition
-		if gmPG_.run_query(curs, None, cmd, where_args) is None:
-			curs.close()
-			return None
-
-		# result should contain a list of strings
-		result = curs.fetchall()
-		curs.close()
-
-		if result is None:
-			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, workplace))
-			return None
-
-		return result
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}])
+		return rows
 	#----------------------------
-	def delete(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, aRWConn = None):
+	def delete(self, workplace = None, cookie = None, option = None):
 		"""
 		Deletes an option or a whole group.
 		Note you have to call store() in order to save
 		the changes.
 		"""
-		# sanity checks
 		if option is None:
-			_log.Log(gmLog.lErr, "Need to know which option to delete.")
-			return None
-		if aRWConn is None:
-			_log.Log(gmLog.lErr, "Need rw connection to database to delete the value.")
-			return None
+			raise ValueError('<option> cannot be None')
 
-		cache_key = self.__make_key(workplace, user, cookie, option)
-		
-		curs = aRWConn.cursor()
+		rw_conn = gmPG2.get_connection(readonly=False)
 
-		# get item id
-		item_id = self.getID(workplace, user, cookie, option)
-		if item_id is None:
-			curs.close()
-			return None
+		if cookie is None:
+			cmd = """
+delete from cfg.cfg_item where
+	fk_template=(select pk from cfg.cfg_template where name = %(opt)s) and
+	owner = CURRENT_USER and
+	workplace = %(wp)s and
+	cookie is Null
+"""
+		else:
+			cmd = """
+delete from cfg.cfg_item where
+	fk_template=(select pk from cfg.cfg_template where name = %(opt)s) and
+	owner = CURRENT_USER and
+	workplace = %(wp)s and
+	cookie = %(cookie)s
+"""
+		args = {'opt': option, 'wp': workplace, 'cookie': cookie}
 
-		# get template id, template type
-		cmd = """
-select fk_template, type from cfg.cfg_item, cfg.cfg_template
-where cfg.cfg_item.pk = %s and cfg.cfg_item.fk_template = cfg.cfg_template.pk
-limit 1"""
-		if gmPG_.run_query(curs, None, cmd, item_id) is None:
-			curs.close()
-			return None
-		result = curs.fetchone()		
-		template_id, template_type = result
+		gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}])
 
-		# check if this is the only reference to this template
-		# if yes, delete template, too
-		# here we assume that only 
-		cmd = "select pk from cfg.cfg_item where fk_template = %s"
-		if gmPG_.run_query(curs, None, cmd, template_id) is None:
-			curs.close()
-			return None
-		result = curs.fetchall()		
-		template_ref_count = len(result)
-
-		# delete option 
-		cmd = """
-		delete from cfg.cfg_%s where fk_item=%s;
-		delete from cfg.cfg_item where pk='%s';""" % (template_type, item_id, item_id)
-		if gmPG_.run_query(curs, None, cmd) is None:
-			curs.close()
-			return None
-
-		# delete template if last reference
-		if template_ref_count == 1:
-			cmd = "delete from cfg.cfg_template where pk=%s"
-			if gmPG_.run_query(curs, None, cmd, template_id) is None:
-				curs.close()
-				return None
-		
 		# actually commit our stuff
-		aRWConn.commit()
-		curs.close()
+		rw_conn.commit()
+		rw_conn.close()
 
-		return 1
+		return True
 	#----------------------------
-	def __make_key(self, workplace, user, cookie, option):
+	def __make_alias(self, workplace, user, cookie, option):
 		return '%s-%s-%s-%s' % (workplace, user, cookie, option)
 #================================
 class cCfgFile:
@@ -1308,18 +958,8 @@ def getDBParam(workplace = None, cookie = None, option = None):
 	if option is None:
 		return (None, None)
 
-	global gmPG_
-	if gmPG_ is None:
-		from Gnumed.pycommon import gmPG
-		gmPG_ = gmPG
-
 	# connect to database (imports gmPG if need be)
-	db = gmPG_.ConnectionPool()
-	conn = db.GetConnection(service = "default", extra_verbose=0)
-	dbcfg = cCfgSQL (
-		aConn = conn,
-		aDBAPI = gmPG_.dbapi
-	)
+	dbcfg = cCfgSQL()
 
 	# (set_name, user, workplace)
 	sets2search = []
@@ -1345,7 +985,6 @@ def getDBParam(workplace = None, cookie = None, option = None):
 		_log.Log(gmLog.lData, '[%s] not found for [%s@%s]' % (option, set[1], set[2]))
 
 	# cleanup
-	db.ReleaseConnection(service = "default")
 	if matchingSet is None:
 		_log.Log (gmLog.lWarn, 'no config data for [%s]' % option)
 	return (result, matchingSet)
@@ -1360,31 +999,15 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 
 	- returns True/False
 	"""
-	# import gmPG if need be
-	global gmPG_
-	if gmPG_ is None:
-		from Gnumed.pycommon import gmPG
-		gmPG_ = gmPG
-
 	# connect to database
-	db = gmPG_.ConnectionPool()
-	conn = db.GetConnection(service = "default")
-	dbcfg = cCfgSQL(aConn = conn, aDBAPI = gmPG_.dbapi)
-	rwconn = db.GetConnection(service = "default", readonly = 0)
-	if rwconn is None:
-		_log.Log(gmLog.lWarn, 'unable to get a rw connection')
-		db.ReleaseConnection(service = "default")
-		return False
+	dbcfg = cCfgSQL()
 	# set value
 	success = dbcfg.set(
 		workplace = workplace,
 		user = user,
 		option = option,
-		value = value,
-		aRWConn = rwconn
+		value = value
 	)
-	rwconn.close()
-	db.ReleaseConnection(service = "default")
 
 	if not success:
 		return False
@@ -1393,6 +1016,45 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 # main
 #=============================================================
 if __name__ == "__main__":
+
+	#---------------------------------------------------------
+	def test_db_cfg():
+		print "testing database config"
+		print "======================="
+
+		myDBCfg = cCfgSQL()
+
+		print "delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace')
+		print "font is initially:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
+		print "set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace')
+		print "font after set():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
+		print "delete() works:", myDBCfg.delete(option='font name', workplace = 'test workplace')
+		print "font after delete():", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
+		print "font after get() with default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'WingDings')
+		print "font right after get() with another default:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user', default = 'default: Courier')
+		print "set() works:", myDBCfg.set(option='font name', value="Times New Roman", workplace = 'test workplace')
+		print "font after set() on existing option:", myDBCfg.get2(option = 'font name', workplace = 'test workplace', bias = 'user')
+
+		print "setting array option"
+		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		aList = ['val 1', 'val 2']
+		print "set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace')
+		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		aList = ['val 11', 'val 12']
+		print "set():", myDBCfg.set(option='test array', value = aList, workplace = 'test workplace')
+		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+		print "delete() works:", myDBCfg.delete(option='test array', workplace='test workplace')
+		print "array now:", myDBCfg.get2(option = 'test array', workplace = 'test workplace', bias = 'user')
+
+		print "setting complex option"
+		data = {1: 'line 1', 2: 'line2', 3: {1: 'line3.1', 2: 'line3.2'}, 4: 1234}
+		print "set():", myDBCfg.set(option = "complex option test", value = data, workplace = 'test workplace')
+		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
+		print "delete() works:", myDBCfg.delete(option = "complex option test", workplace = 'test workplace')
+		print "complex option now:", myDBCfg.get2(workplace = 'test workplace', option = "complex option test", bias = 'user')
+
+	#---------------------------------------------------------
+
 	_log.SetAllLogLevels(gmLog.lData)
 	# if there's an argument assume it to be a config
 	# file and test that
@@ -1442,69 +1104,7 @@ if __name__ == "__main__":
 
 		sys.exit(0)
 
-	# else test database config
-	print "testing database config"
-	print "======================="
-#	from pyPgSQL import PgSQL
-#	dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed_v2', 'any-doc', 'any-doc', '', '')
-#	conn = PgSQL.connect(dsn)
-	myDBCfg = cCfgSQL()
-
-	font = myDBCfg.get(option = 'font name')
-	print "font is currently:", font
-
-	new_font = "huh ?"
-	if font == "Times New Roman":
-		new_font = "Courier"
-	if font == "Courier":
-		new_font = "Times New Roman"
-#	myDBCfg.set(option='font name', value=new_font, aRWConn=conn)
-	myDBCfg.set(option='font name', value=new_font)
-
-	font = myDBCfg.get(option = 'font name')
-	print "font is now:", font
-
-	import random
-	random.seed()
-	new_opt = str(random.random())
-	print "setting new option", new_opt
-#	myDBCfg.set(option=new_opt, value = "I do not know.", aRWConn=conn)
-	myDBCfg.set(option=new_opt, value = "I do not know.")
-	print "new option is now:", myDBCfg.get(option = new_opt)
-
-	print "setting array option"
-	aList = []
-	aList.append("val 1")
-	aList.append("val 2")
-	new_opt = str(random.random())
-#	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
-	myDBCfg.set(option=new_opt, value = aList)
-	aList = []
-	aList.append("val 2")
-	aList.append("val 1")
-#	myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
-	myDBCfg.set(option=new_opt, value = aList)
-
-#	myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
-	myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx")
-	print "blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "blatest")
-		
-#	myDBCfg.delete(user = cfg_DEFAULT, option = "blatest", aRWConn = conn)
-	myDBCfg.delete(user = cfg_DEFAULT, option = "blatest")
-	print "after deletion blatest set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "blatest")
-
-	print "setting complex option"
-	data = {1: 'line 1', 2: 'line2', 3: {1: 'line3.1', 2: 'line3.2'}}
-#	myDBCfg.set(user = cfg_DEFAULT, option = "complex option test", value = data, aRWConn = conn)
-	myDBCfg.set(user = cfg_DEFAULT, option = "complex option test", value = data)
-	print "complex option set to:", myDBCfg.get(workplace = cfg_DEFAULT, user=cfg_DEFAULT, option = "complex option test")
-#	myDBCfg.delete(user=cfg_DEFAULT, option = "complex option test", aRWConn = conn)
-	myDBCfg.delete(user=cfg_DEFAULT, option = "complex option test")
-
-#	conn.close()
-
-#	val, set = getDBParam(workplace = "test", cookie = "gui", option = "plugin load order")
-#	print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
+	test_db_cfg()
 
 else:
 	# - we are being imported
@@ -1518,7 +1118,18 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.41  2006-09-12 17:20:36  ncq
+# Revision 1.42  2006-09-21 19:41:21  ncq
+# - convert to use gmPG2
+# - axe cCfgBase
+# - massive cCfgSQL cleanup
+#   - axe get()
+#   - axe get_by_workplace()
+#   - pump up get2(), set() and delete()
+#   - getID() still pending review
+#   - get2(bytea) still pending fixes
+# - fix up database config test suite
+#
+# Revision 1.41  2006/09/12 17:20:36  ncq
 # - mark up the deprecated sql get()ters
 #
 # Revision 1.40  2006/07/24 14:16:56  ncq
