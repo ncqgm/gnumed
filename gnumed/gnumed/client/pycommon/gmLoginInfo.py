@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.6 2006-05-24 12:50:21 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmLoginInfo.py,v 1.7 2006-09-21 19:46:38 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -26,17 +26,17 @@ class LoginInfo:
 	"""a class to encapsulate Postgres login information to default database"""
 
 	# private variables
-	__user = 'guest'
-	__passwd = ''
-	__host = ''
-	__port = 5432
-	__dbname = 'gnumed_v2'
+	user = 'gm-dbo'
+	password = ''
+	host = ''
+	port = 5432
+	database = 'gnumed_v3'
 	__profile = 'default'
 	#------------------------------------------
-	def __init__(self, user, passwd, host, port=5432, database='gnumed_v2', profile='default'):
+	def __init__(self, user, passwd, host, port=5432, database='gnumed_v3', profile='default'):
 		self.SetInfo(user, passwd, host, port, database, profile)
 	#------------------------------------------
-	def SetInfo(self, user, passwd, host='', port=5432, dbname='gnumed_v2', profile='default'):
+	def SetInfo(self, user, passwd, host='', port=5432, dbname='gnumed_v3', profile='default'):
 		self.SetUser(user)
 		self.SetPassword(passwd)
 		self.SetHost(host)
@@ -83,6 +83,25 @@ class LoginInfo:
 		host_port = "%s:%s" % (host, port)
 		return dsn, host_port
 	#------------------------------------------
+	def get_psycopg2_dsn(self):
+		dsn_parts = []
+
+		if self.database.strip() != '':
+			dsn_parts.append('dbname=%s' % self.database)
+
+		if self.host.strip() != '':
+			dsn_parts.append('host=%s' % self.host)
+
+		dsn_parts.append('port=%s' % self.port)
+
+		if self.user.strip() != '':
+			dsn_parts.append('user=%s' % self.user)
+
+		if self.password.strip() != '':
+			dsn_parts.append('password=%s' % self.password)
+
+		return ' '.join(dsn_parts)
+	#------------------------------------------
 	def GetDBAPI_DSN(self):
 		host = self.GetHost()
 		port = str(self.GetPort())
@@ -101,31 +120,31 @@ class LoginInfo:
 		return dsn
 	#------------------------------------------
 	def SetUser(self, user):
-		self.__user = user
+		self.user = user
 	#------------------------------------------
 	def GetUser(self):
-		return self.__user
+		return self.user
 	#------------------------------------------
 	def SetPassword(self, passwd):
-		self.__passwd = passwd
+		self.password = passwd
 	#------------------------------------------
 	def GetPassword(self):
-		return self.__passwd
+		return self.password
 	#------------------------------------------
 	def GetPasswordHash(self):
-		return sha.new(self.__passwd).digest()
+		return sha.new(self.password).digest()
 	#------------------------------------------
 	def SetDatabase(self, dbname):
-		self.__dbname = dbname
+		self.database = dbname
 	#------------------------------------------
 	def GetDatabase(self):
-		return self.__dbname
+		return self.database
 	#------------------------------------------
 	def SetHost(self, host):
-		self.__host = host
+		self.host = host
 	#------------------------------------------
 	def GetHost(self):
-		return self.__host
+		return self.host
 	#------------------------------------------
 	def SetPort(self, port):
 		try:
@@ -133,10 +152,10 @@ class LoginInfo:
 		except ValueError:
 			gmLog.gmDefLog.Log (gmLog.lWarn, "tried to set port to '%s', set to -1" % port)
 			port = -1
-		self.__port = port
+		self.port = port
 	#------------------------------------------
 	def GetPort(self):
-		return self.__port
+		return self.port
 	#------------------------------------------
 	def SetProfile(self, profile):
 		self.__profile = profile
@@ -147,11 +166,11 @@ class LoginInfo:
 	def Clear(self):
 		"clears all connection information regarding user, password etc."
 
-		self.__user = "guest"
-		self.__passwd = ""
-		self.__host = ''
-		self.__port = 5432
-		self.__dbname = "gnumed_v2"
+		self.user = "guest"
+		self.password = ""
+		self.host = ''
+		self.port = 5432
+		self.database = "gnumed_v3"
 		self.__profile = 'default'
 
 #====================================================================
@@ -160,7 +179,12 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.6  2006-05-24 12:50:21  ncq
+# Revision 1.7  2006-09-21 19:46:38  ncq
+# - attributes should really be .something, not .__something
+# - change default to "gnumed_v3"
+# - add get_psycopg2_dsn() but will go again
+#
+# Revision 1.6  2006/05/24 12:50:21  ncq
 # - now only empty string '' means use local UNIX domain socket connections
 #
 # Revision 1.5  2006/02/26 18:33:00  ncq
