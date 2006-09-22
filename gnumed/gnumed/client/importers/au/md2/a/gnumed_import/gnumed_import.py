@@ -463,6 +463,15 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 			stmt = "delete from dem.names where id_identity = %d " % r[0]
 			cu.execute(stmt)
 
+		stmt = [
+			"""delete from dem.lnk_identity2ext_id where not exists( select 1 from dem.names where dem.names.id_identity = dem.lnk_identity2ext_id.id_identity)""",
+			"""delete from dem.lnk_person_org_addres where not exists ( select 1 from dem.names where dem.names.id_identity = dem.lnk_person_org_address.id_identity)""",
+			"""delete from dem.lnk_identity2comm where not exists( select 1 from dem.names where dem.names.id_identity = dem.lnk_identity2comm.id_identity)""" ]
+			
+		for s in stmt:
+			cu.execute(stmt)
+
+
 		conto.commit()
 
 	if len(rr):
