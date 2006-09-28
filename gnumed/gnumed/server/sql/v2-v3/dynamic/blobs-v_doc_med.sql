@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_doc_med.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-v_doc_med.sql,v 1.2 2006-09-28 14:40:37 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 begin;
@@ -25,7 +25,7 @@ drop view blobs.v_doc_med cascade;
 
 create view blobs.v_doc_med as
 select
-	dm.patient_id as pk_patient,
+	dm.fk_identity as pk_patient,
 	dm.pk as pk_doc,
 	dm.date as date,
 	vdt.type as type,
@@ -48,17 +48,26 @@ where
 	vdt.pk_doc_type = dm.type and
 	cle.pk = dm.fk_episode
 ;
+
+
+create index idx_docs_by_patient on blobs.doc_med(fk_identity);
+comment on index blobs.idx_docs_by_patient is
+	'index access to document by patient ID';
+
 -- --------------------------------------------------------------
 GRANT SELECT ON blobs.v_doc_med TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_doc_med.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: blobs-v_doc_med.sql,v $', '$Revision: 1.2 $');
 
 commit;
 
 -- ==============================================================
 -- $Log: blobs-v_doc_med.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2006-09-28 14:40:37  ncq
+-- - add index on fk_patient
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.1  2006/09/16 21:45:14  ncq
