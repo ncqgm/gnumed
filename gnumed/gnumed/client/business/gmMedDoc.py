@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.78 2006-09-21 19:23:12 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmMedDoc.py,v 1.79 2006-09-28 14:36:10 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -732,19 +732,19 @@ def search_for_document(patient_id=None, type_id=None):
 
 	if type_id is None:
 		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
-		doc_ids = gmPG.run_ro_query('blobs', cmd, None, patient_id)
+		doc_id_rows = gmPG.run_ro_query('blobs', cmd, None, patient_id)
 	else:
 		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s and type=%s"
-		doc_ids = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
+		doc_id_rows = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
 		
-	if doc_ids is None:
+	if doc_id_rows is None:
 		return []
-	if len(doc_ids) == 0:
+	if len(doc_id_rows) == 0:
 		_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % patient_id)
 		return []
 	docs = []
-	for doc_id in doc_ids:
-		docs.append(cMedDoc(doc_id))
+	for row in doc_id_rows:
+		docs.append(cMedDoc(row[0]))
 
 	return docs
 #------------------------------------------------------------
@@ -878,7 +878,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.78  2006-09-21 19:23:12  ncq
+# Revision 1.79  2006-09-28 14:36:10  ncq
+# - fix search_for_doc(), it used the row, not the value for document instantiation
+#
+# Revision 1.78  2006/09/21 19:23:12  ncq
 # - cast '' to bytea when adding a dummy document part
 #
 # Revision 1.77  2006/09/02 21:22:10  ncq
