@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.75.2.4 2006-09-20 21:57:00 ncq Exp $
-__version__ = "$Revision: 1.75.2.4 $"
+# $Id: gmMedDoc.py,v 1.75.2.5 2006-09-28 17:31:41 ncq Exp $
+__version__ = "$Revision: 1.75.2.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -376,9 +376,9 @@ order by
 		conn = psycopg2.connect(dsn=dsn)
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%(data)s WHERE pk=%(pk)s and xmin=%(xmin)s"
+		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s and xmin=%s"
 		curs = conn.cursor()
-		curs.execute(cmd, {'data': img_obj, 'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_doc_obj']]})
+		curs.execute(cmd, [img_obj, long(self.pk_obj), long(self._payload[self._idx['xmin_doc_obj']])])
 		conn.commit()
 		curs.close()
 		conn.close()
@@ -731,19 +731,19 @@ def search_for_document(patient_id=None, type_id=None):
 
 	if type_id is None:
 		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
-		doc_ids = gmPG.run_ro_query('blobs', cmd, None, patient_id)
+		doc_id_rows = gmPG.run_ro_query('blobs', cmd, None, patient_id)
 	else:
 		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s and type=%s"
-		doc_ids = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
+		doc_id_rows = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
 		
-	if doc_ids is None:
+	if doc_id_rows is None:
 		return []
-	if len(doc_ids) == 0:
+	if len(doc_id_rows) == 0:
 		_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % patient_id)
 		return []
 	docs = []
-	for doc_id in doc_ids:
-		docs.append(cMedDoc(doc_id)) # suppress pointless checking of primary key
+	for row in doc_id_rows:
+		docs.append(cMedDoc(row[0])) # suppress pointless checking of primary key
 
 	return docs
 #------------------------------------------------------------
@@ -880,7 +880,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.75.2.4  2006-09-20 21:57:00  ncq
+# Revision 1.75.2.5  2006-09-28 17:31:41  ncq
+# - explicitely cast PgIn8 (pyPgSQL type) to long so psycopg can adapt it
+#
+# Revision 1.75.2.4  2006/09/20 21:57:00  ncq
 # - dummy doc_obj.data should be bytea, too
 #
 # Revision 1.75.2.3  2006/09/20 21:50:39  ncq
