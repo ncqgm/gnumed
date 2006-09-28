@@ -1,0 +1,37 @@
+# $Id: README,v 1.1 2006-09-28 14:43:05 ncq Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v2-v3/README,v $
+# $Revision: 1.1 $
+
+This directory contains database change scripts for a v2-v3
+database conversion.
+
+All changes in the subdirectory dynamic/ apply to dynamic
+DDL elements and can therefore be re-run at any time without
+modifying the actual data.
+
+Dynamic DDL elements include:
+
+- views
+- functions
+- indices
+- comments
+- rules
+
+Scripts in the subdirectory static/ apply changes which can
+only be run once while converting from v2 to v3.
+
+They include
+
+- schema changes
+- table alterations
+- column changes
+
+
+
+Things that may or may not be re-run safely include:
+
+- constraints (if they require data changes)
+- triggers (if they act like constraints)
+
+
+Karsten
