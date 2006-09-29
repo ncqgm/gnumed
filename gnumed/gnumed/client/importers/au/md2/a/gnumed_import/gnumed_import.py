@@ -1494,7 +1494,7 @@ def process_patient_documents(ur_no, pat_id):
 				else: 
 					date = "".join(["'",date,"'"])
 
-				"""with the above data - pat_id, pk_encounter, pk_episode, description, date, and the
+				"""with the above data - pat_id, doc_pk_encounter, doc_pk_episode, description, date, and the
 				external reference which is ur_no/document no. ,  create a new blobs.doc_med of type
 				'referral report other'.
 				"""
@@ -1510,7 +1510,7 @@ def process_patient_documents(ur_no, pat_id):
 					'%s', %s, '%s' ,
 				(select pk from blobs.doc_type where name = 'referral report other')
 				)
-				""" %  ( pat_id, pk_encounter, pk_episode, 		esc(_desc), date, esc(ext_ref) ) 
+				""" %  ( pat_id, doc_pk_encounter, doc_pk_episode, 		esc(_desc), date, esc(ext_ref) ) 
 
 				cu2.execute(stmt)
 
@@ -1610,7 +1610,7 @@ def process_patient_pathol(ur_no, pat_id):
 	curr_enc = None
 	last_reportdate = None
 	last_labname = None
-
+	
 
 	for ur_no, labname, labref, resultid, reqdate, reportdate, reporttime, testname, reporthead, reporttext, checkdate, checkedby, comment in results:
 		
@@ -1667,8 +1667,8 @@ def process_patient_pathol(ur_no, pat_id):
 
 		if not doc_med_pk and (not curr_enc or reportdate <> last_reportdate or labname <> last_labname) :
 			if not doc_pk_encounter:
-				pk_encounter = create_doc_encounter(cu2, pat_id)
-				pk_episode = create_doc_episode(cu2, pat_id)
+				doc_pk_encounter = create_doc_encounter(cu2, pat_id)
+				doc_pk_episode = create_doc_episode(cu2, pat_id)
 			last_labname = labname
 			last_reportdate = reportdate
 
@@ -1684,7 +1684,7 @@ def process_patient_pathol(ur_no, pat_id):
 				(select pk from blobs.doc_type where name = '%s')
 				)
 				"""
-			stmt = stmt % ( pat_id, pk_encounter, pk_episode, esc(testname) + " :: "+ esc(labname), date, esc(ext_ref), doctype)
+			stmt = stmt % ( pat_id, doc_pk_encounter, doc_pk_episode, esc(testname) + " :: "+ esc(labname), date, esc(ext_ref), doctype)
 
 			cu2.execute(stmt)
 
