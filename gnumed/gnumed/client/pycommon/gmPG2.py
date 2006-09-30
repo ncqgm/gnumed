@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -343,13 +343,8 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	return (data, col_idx)
 # =======================================================================
-def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
-	"""Get a new connection.
-
-	This assumes the locale system has been initialzied
-	unless an encoding is specified.
-	"""
-	# FIXME: support pooled, verbose
+def get_raw_connection(dsn=None, verbose=False):
+	# FIXME: support verbose
 
 	if dsn is None:
 		dsn = get_default_dsn()
@@ -366,6 +361,18 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			raise cAuthenticationError, (dsn, v), tb
 		raise
 
+	return conn
+# =======================================================================
+def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
+	"""Get a new connection.
+
+	This assumes the locale system has been initialzied
+	unless an encoding is specified.
+	"""
+	# FIXME: support pooled, verbose
+
+	conn = get_raw_connection(dsn=dsn, verbose=verbose)
+
 	if encoding is None:
 		encoding = _default_client_encoding
 	if encoding is None:
@@ -376,7 +383,6 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		_log.Log(gmLog.lWarn, 'for this to work the application MUST have called locale.setlocale() before')
 
 	# set connection properties
-	curs = conn.cursor()
 
 	# 1) client encoding
 	_log.Log(gmLog.lData, 'setting client string encoding to [%s]' % encoding)
@@ -388,24 +394,26 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			raise cEncodingError, (encoding, v), tb
 		raise
 
-	# 2) client time zone
-	_log.Log(gmLog.lData, 'setting time zone to [%s]' % _default_client_timezone)
-	cmd = "set time zone '%s'" % _default_client_timezone
-	curs.execute(cmd)
-
-	# 3) datestyle
-	# FIXME: add DMY/YMD handling
-	_log.Log(gmLog.lData, 'setting datestyle to [ISO]')
-	cmd = "set datestyle to 'ISO'"
-	curs.execute(cmd)
-
-	# 4) transaction isolation level
+	# 2) transaction isolation level
 	if readonly:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 		_log.Log(gmLog.lData, 'setting isolation level to [read committed]')
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
 		_log.Log(gmLog.lData, 'setting isolation level to [serializable]')
+
+	curs = conn.cursor()
+
+	# 3) client time zone
+	_log.Log(gmLog.lData, 'setting time zone to [%s]' % _default_client_timezone)
+	cmd = "set time zone '%s'" % _default_client_timezone
+	curs.execute(cmd)
+
+	# 4) datestyle
+	# FIXME: add DMY/YMD handling
+	_log.Log(gmLog.lData, 'setting datestyle to [ISO]')
+	cmd = "set datestyle to 'ISO'"
+	curs.execute(cmd)
 
 	# 5) access mode
 	if readonly:
@@ -585,10 +593,15 @@ if __name__ == "__main__":
 	test_exceptions()
 	test_ro_queries()
 	test_request_dsn()
+	print "tests ran successfully"
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.1  2006-09-21 19:18:35  ncq
+# Revision 1.2  2006-09-30 11:52:40  ncq
+# - factor out get_raw_connection()
+# - reorder conecction customization in get_connection()
+#
+# Revision 1.1  2006/09/21 19:18:35  ncq
 # - first psycopg2 version
 #
 #
