@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.79 2006-09-28 14:36:10 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmMedDoc.py,v 1.80 2006-09-30 11:38:08 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -57,25 +57,6 @@ class cDocumentFolder:
 		if len(result) == 0:
 			_log.Log(gmLog.lErr, "no patient [%s] in demographic database" % self.id_patient)
 			return None
-		# patient linked in our local documents database ?
-		cmd = "select exists(select pk from blobs.xlnk_identity where xfk_identity = %s)"
-		result = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
-		if result is None:
-			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in documents database' % self.id_patient)
-			return None
-		if not result[0][0]:
-			_log.Log(gmLog.lInfo, "no patient [%s] in documents database" % self.id_patient)
-			cmd1 = "insert into blobs.xlnk_identity (xfk_identity, pupic) values (%s, %s)"
-			cmd2 = "select currval('blobs.xlnk_identity_pk_seq')"
-			status = gmPG.run_commit('blobs', [
-				(cmd1, [self.id_patient, self.id_patient]),
-				(cmd2, [])
-			])
-			if status is None:
-				_log.Log(gmLog.lErr, 'cannot insert patient [%s] into documents database' % self.id_patient)
-				return None
-			if status != 1:
-				_log.Log(gmLog.lData, 'inserted patient [%s] into documents database with local id [%s]' % (self.id_patient, status[0][0]))
 		return True
 	#--------------------------------------------------------
 	# API
@@ -878,7 +859,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.79  2006-09-28 14:36:10  ncq
+# Revision 1.80  2006-09-30 11:38:08  ncq
+# - remove support for blobs.xlnk_identity
+#
+# Revision 1.79  2006/09/28 14:36:10  ncq
 # - fix search_for_doc(), it used the row, not the value for document instantiation
 #
 # Revision 1.78  2006/09/21 19:23:12  ncq
