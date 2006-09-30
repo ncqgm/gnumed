@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -344,6 +344,13 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	return (data, col_idx)
 # =======================================================================
 def get_raw_connection(dsn=None, verbose=False):
+	"""Get a raw, unadorned connection.
+
+	- this will not set any parameters such as encoding, timezone, rw/ro, datestyle
+	- the only requirement is a valid DSN
+	- hence it can be used for "service" connections
+	  for verifying encodings etc
+	"""
 	# FIXME: support verbose
 
 	if dsn is None:
@@ -597,7 +604,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.2  2006-09-30 11:52:40  ncq
+# Revision 1.3  2006-09-30 11:57:48  ncq
+# - document get_raw_connection()
+#
+# Revision 1.2  2006/09/30 11:52:40  ncq
 # - factor out get_raw_connection()
 # - reorder conecction customization in get_connection()
 #
