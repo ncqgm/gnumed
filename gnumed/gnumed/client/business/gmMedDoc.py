@@ -1,17 +1,20 @@
-"""This module encapsulates a document stored in a GnuMed database.
+"""This module encapsulates a document stored in a GNUmed database.
 
 @copyright: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.80 2006-09-30 11:38:08 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmMedDoc.py,v 1.81 2006-10-08 15:07:11 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
 from cStringIO import StringIO
 
-from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmBusinessDBObject
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+
+from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject, gmPG2
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -26,7 +29,7 @@ class cDocumentFolder:
 
 		- patient referenced by aPKey does not exist
 		"""
-		self.id_patient = aPKey			# == identity.pk == primary key
+		self.pk_patient = aPKey			# == identity.pk == primary key
 		if not self._pkey_exists():
 			raise gmExceptions.ConstructorError, "No patient with PK [%s] in database." % aPKey
 
@@ -36,7 +39,7 @@ class cDocumentFolder:
 #		if not self._register_interests():
 #			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
-		_log.Log(gmLog.lData, 'instantiated document folder for patient [%s]' % self.id_patient)
+		_log.Log(gmLog.lData, 'instantiated document folder for patient [%s]' % self.pk_patient)
 	#--------------------------------------------------------
 	def cleanup(self):
 		pass
@@ -49,84 +52,68 @@ class cDocumentFolder:
 		- true/false/None
 		"""
 		# patient in demographic database ?
-		cmd = "select exists(select pk from dem.identity where pk = %s)"
-		result = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
-		if result is None:
-			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.id_patient)
-			return None
-		if len(result) == 0:
-			_log.Log(gmLog.lErr, "no patient [%s] in demographic database" % self.id_patient)
+		rows, idx = gmPG2.run_ro_queries(queries = [
+			{'cmd': u"select exists(select pk from dem.identity where pk = %s)", 'args': [self.pk_patient]}
+		])
+		if not rows[0][0]:
+			_log.Log(gmLog.lErr, "patient [%s] not in demographic database" % self.pk_patient)
 			return None
 		return True
 	#--------------------------------------------------------
 	# API
 	#--------------------------------------------------------
 	def get_latest_mugshot(self):
-		cmd = "select pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.id_patient)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error load latest mugshot for patient [%s]' % self.id_patient)
-			return None
+		cmd = u"select pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		if len(rows) == 0:
-			_log.Log(gmLog.lInfo, 'no mugshots available for patient [%s]' % self.id_patient)
+			_log.Log(gmLog.lInfo, 'no mugshots available for patient [%s]' % self.pk_patient)
 			return None
-		try:
-			mugshot = cMedDocPart(aPK_obj=rows[0][0])
-		except gmExceptions.ConstructorError, err:
-			_log.LogException(err, sys.exc_info(), verbose=0)
-			return None
+		mugshot = cMedDocPart(aPK_obj=rows[0][0])
 		return mugshot
 	#--------------------------------------------------------
-	def get_mugshot_list(self, latest_only=1):
+	def get_mugshot_list(self, latest_only=True):
 		if latest_only:
-			cmd = "select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
+			cmd = u"select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
 		else:
-			cmd = """
-				select dm.pk, dobj.pk
+			cmd = u"""
+				select
+					dm.pk as pk_doc,
+					dobj.pk as pk_obj
 				from
 					blobs.doc_med dm
 					blobs.doc_obj dobj
 				where
-					dm.type = (select pk from blobs.doc_type where name='patient photograph') and
-					dm.patient_id=%s and
-					and dobj.doc_id = dm.pk
-				limit 1
+					dm.fk_type = (select pk from blobs.doc_type where name='patient photograph') and
+					dm.fk_identity=%s and
+					and dobj.fk_doc = dm.pk
 			"""
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.id_patient)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load mugshot list for patient [%s]' % self.id_patient)
-			return None
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		return rows
 	#--------------------------------------------------------
 	def get_doc_list(self, doc_type=None):
 		"""return flat list of document IDs"""
 		args = {
-			'ID': self.id_patient,
+			'ID': self.pk_patient,
 			'TYP': doc_type
 		}
 		# FIXME: might have to order by on modified_when, date is a string
 		if doc_type is None:
-			cmd = """select pk from blobs.doc_med where patient_id=%(ID)s"""
+			cmd = u"""select pk from blobs.doc_med where fk_identity=%(ID)s"""
 		elif type(doc_type) == types.StringType:
-			cmd = """
-select dm.pk
-from blobs.doc_med dm
-where
-	dm.patient_id = %(ID)s and
-	dm.type = (select pk from blobs.doc_type where name=%(TYP)s)"""
+			cmd = u"""
+				select dm.pk
+				from blobs.doc_med dm
+				where
+					dm.fk_identity = %(ID)s and
+					dm.fk_type = (select pk from blobs.doc_type where name=%(TYP)s)"""
 		else:
-			cmd = """
-select dm.pk
-from blobs.doc_med dm
-where
-	dm.patient_id = %(ID)s and
-	dm.type = %(TYP)s"""
-		rows = gmPG.run_ro_query('blobs', cmd, None, args)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load document list for patient [%s]' % self.id_patient)
-			return None
-		if len(rows) == 0:
-			return []
+			cmd = u"""
+				select dm.pk
+				from blobs.doc_med dm
+				where
+					dm.fk_identity = %(ID)s and
+					dm.fk_type = %(TYP)s"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		doc_ids = []
 		for row in rows:
 			doc_ids.append(row[0])
@@ -135,36 +122,30 @@ where
 	def get_documents(self, doc_type=None):
 		"""Return list of documents."""
 		doc_ids = self.get_doc_list(doc_type=doc_type)
-		if doc_ids is None:
-			return None
 		docs = []
 		for doc_id in doc_ids:
 			try:
 				docs.append(cMedDoc(aPK_obj=doc_id))
 			except gmExceptions.ConstructorError:
-				_log.LogException('document error on [%s] for patient [%s]' % (doc_id, self.id_patient), sys.exc_info())
+				_log.LogException('document error on [%s] for patient [%s]' % (doc_id, self.pk_patient))
 				continue
 		return docs
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
-		return create_document(patient_id=self.id_patient, document_type=document_type, encounter=encounter, episode=episode)
+		return create_document(patient_id=self.pk_patient, document_type=document_type, encounter=encounter, episode=episode)
 #============================================================
 class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one part of a medical document."""
 
-	_service = 'blobs'
-
-	_cmd_fetch_payload = """
-		select * from blobs.v_obj4doc_no_data where pk_obj=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from blobs.doc_obj where pk=%(pk_obj)s and xmin=%(xmin_doc_obj)s for update"""
-	]
+	_cmd_fetch_payload = u"""select * from blobs.v_obj4doc_no_data where pk_obj=%s"""
 	_cmds_store_payload = [
 		"""update blobs.doc_obj set
 				seq_idx=%(seq_idx)s,
 				comment=%(obj_comment)s,
 				fk_intended_reviewer=%(pk_intended_reviewer)s
-			where pk=%(pk_obj)s""",
+			where
+				pk=%(pk_obj)s and
+				xmin=%(xmin_doc_obj)s""",
 		"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_obj)s"""
 	]
 	_updatable_fields = [
@@ -233,78 +214,68 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# reported to be fixed > v7.4.
 		# further tests reveal that at least on PG 8.0 this bug still
 		# manifests itself
-		backend = gmPG.ConnectionPool()
-		conn = backend.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
-		if conn is None:
-			_log.Log(gmLog.lErr, 'cannot get r/w connection to service [blobs]')
-			return None
+		conn = gmPG2.get_raw_connection()
 		# this shouldn't actually, really be necessary
-		if conn.version > '7.4':
-			print "****************************************************"
-			print "*** if exporting BLOBs suddenly fails and        ***"
-			print "*** you are running PostgreSQL >= 8.1 please     ***"
-			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
-			print "****************************************************"
+#		if conn.version > '7.4':
+#			print "****************************************************"
+#			print "*** if exporting BLOBs suddenly fails and        ***"
+#			print "*** you are running PostgreSQL >= 8.1 please     ***"
+#			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
+#			print "****************************************************"
 
 		# Windoze sucks: it can't transfer objects of arbitrary size,
 		# or maybe this is due to pyPgSQL ?
 		# anyways, we need to split the transfer,
 		# however, only possible if postgres >= 7.2
-		if conn.version < '7.2':
-			max_chunk_size = 0
-			_log.Log(gmLog.lWarn, 'PostgreSQL < 7.2 does not support substring() on bytea')
-		else:
-			max_chunk_size = aChunkSize
+		max_chunk_size = aChunkSize
 
 		# a chunk size of 0 means: all at once
 		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
 			# retrieve binary field
-			cmd = "SELECT data FROM blobs.doc_obj WHERE pk=%s"
-			data = gmPG.run_ro_query(conn, cmd, None, self.pk_obj)
+			cmd = u"SELECT data FROM blobs.doc_obj WHERE pk=%s"
+			rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
 			conn.close()
-			if data is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve BLOB [%s]' % self.pk_obj)
-				return None
-			if len(data) == 0:
+			if len(rows) == 0:
 				_log.Log(gmLog.lErr, 'BLOB [%s] does not exist' % self.pk_obj)
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(data[0][0]))
+			aFile.write(str(rows[0][0]))
 			return True
 
 		# retrieve chunks
-		# FIXME: does this not have the danger of cutting up multi-byte escape sequences ?
+		# does this not carry the danger of cutting up multi-byte escape sequences ?
+		# no, since bytea is binary
 		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
 		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
 		for chunk_id in range(needed_chunks):
 			pos = (chunk_id*max_chunk_size) + 1
-			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s"
-			data = gmPG.run_ro_query(conn, cmd, None, pos, max_chunk_size, self.pk_obj)
-			if data is None:
+			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, max_chunk_size)
+			try:
+				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
+			except:
 				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
-				conn.close()
-				return None
+				raise
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(data[0][0]))
+			aFile.write(str(rows[0][0]))
 
 		# retrieve remainder
 		if remainder > 0:
 			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 			pos = (needed_chunks*max_chunk_size) + 1
-			cmd = "SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%s "
-			data = gmPG.run_ro_query(conn, cmd, None, pos, remainder, self.pk_obj)
-			if data is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
-				conn.close()
-				return None
+			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, remainder)
+			try:
+				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
+			except:
+				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj))
+				raise
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
 
 		conn.close()
-		return 1
+		return True
 	#--------------------------------------------------------
 	def get_reviews(self):
-		cmd = """
+		cmd = u"""
 select
 	reviewer,
 	reviewed_when,
@@ -319,11 +290,8 @@ order by
 	is_your_review desc,
 	is_review_by_responsible_reviewer desc,
 	reviewed_when desc
-;"""
-		data = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
-		if data is None:
-			_log.Log(gmLog.lErr, 'cannot retrieve reviews for doc object [%s]' %  self.pk_obj)
-			return None
+"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return data
 	#--------------------------------------------------------
 	def get_containing_document(self):
@@ -337,66 +305,20 @@ order by
 			_log.Log(gmLog.lErr, '[%s] is not a readable file' % fname)
 			return False
 
-		from pyPgSQL.PgSQL import PgBytea
-
 		# read from file and convert (escape)
 		aFile = file(fname, "rb")
 		byte_str_img_data = aFile.read()
 		aFile.close()
 		del aFile
-		img_obj = PgBytea(byte_str_img_data)
+		img_obj = buffer(byte_str_img_data)
 		del(byte_str_img_data)
 
-		pool = gmPG.ConnectionPool()
-		conn = pool.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
+		conn = gmPG2.get_raw_connection()
 
 		# insert the data
-		cmd = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
-		success, data = gmPG.run_commit2 (
-			link_obj = conn,
-			queries = [
-				(cmd, [img_obj, self.pk_obj])
-			],
-			end_tx = True
-		)
+		cmd = u"UPDATE blobs.doc_obj SET data=%s::bytea WHERE pk=%s"
+		gmPG2.run_rw_queries(link_obj=conn, queries = [{'cmd': cmd, 'args': [img_obj, self.pk_obj]}], end_tx=True)
 		conn.close()
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' % (self.pk_obj, fname))
-			return False
-
-		# must update XMIN now ...
-		self.refetch_payload()
-		return True
-	#--------------------------------------------------------
-	def update_data(self, data):
-
-		print "cMedDocPart.update_data() needs fixing"
-		return False
-
-		from pyPgSQL.PgSQL import PgBytea
-
-		# convert (escape)
-		img_obj = PgBytea(data)
-
-		pool = gmPG.ConnectionPool()
-		conn = pool.GetConnection('blobs', readonly = 0, encoding = {'wire': 'sql_ascii', 'string': None})
-
-		# insert the data
-#		cmd1 = 'set client_encoding to "sql_ascii"'			# actually shouldn't be necessary > 7.3
-		cmd2 = "UPDATE blobs.doc_obj SET data=%s WHERE pk=%s"
-		success, msg = gmPG.run_commit2 (
-#			link_obj = 'blobs',
-			link_obj = conn,
-			queries = [
-#				(cmd1, []),
-				(cmd2, [img_obj, self.pk_obj])
-			],
-			end_tx = True
-		)
-		conn.close()
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
-			return False
 
 		# must update XMIN now ...
 		self.refetch_payload()
@@ -404,36 +326,33 @@ order by
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
 		# row already there ?
-		cmd = """
+		cmd = u"""
 select pk
 from blobs.reviewed_doc_objs
 where
 	fk_reviewed_row = %s and
 	fk_reviewer = (select pk from dem.staff where db_user=current_user)"""
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get reviewed status on doc part [%s]' % self.pk_obj);
-			return False
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 
 		# INSERT needed
 		if len(rows) == 0:
 			cols = [
-				"fk_reviewer",
-				"fk_reviewed_row",
-				"is_technically_abnormal",
-				"clinically_relevant"
+				u"fk_reviewer",
+				u"fk_reviewed_row",
+				u"is_technically_abnormal",
+				u"clinically_relevant"
 			]
 			vals = [
-				'%(fk_row)s',
-				'%(abnormal)s',
-				'%(relevant)s'
+				u'%(fk_row)s',
+				u'%(abnormal)s',
+				u'%(relevant)s'
 			]
 			args = {
 				'fk_row': self.pk_obj,
 				'abnormal': technically_abnormal,
 				'relevant': clinically_relevant
 			}
-			cmd = """
+			cmd = u"""
 insert into blobs.reviewed_doc_objs (
 	%s
 ) values (
@@ -449,41 +368,30 @@ insert into blobs.reviewed_doc_objs (
 				'relevant': clinically_relevant,
 				'pk_row': pk_row
 			}
-			cmd = """
+			cmd = u"""
 update blobs.reviewed_doc_objs set
 	is_technically_abnormal = %(abnormal)s,
 	clinically_relevant = %(relevant)s
 where
 	pk=%(pk_row)s"""
-		success, data = gmPG.run_commit2 (
-			link_obj = 'blobs',
-			queries = [(cmd, [args])]
-		)
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot set reviewed status on doc part [%s]: %s' % (self.pk_obj, str(data)))
-			return False
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return True
 #============================================================
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
 
-	_service = 'blobs'
-
 	_cmd_fetch_payload = """select *, xmin_doc_med from blobs.v_doc_med where pk_doc=%s"""
-
-	_cmds_lock_rows_for_update = [
-		"""select 1 from blobs.doc_med where pk=%(pk_doc)s and xmin=%(xmin_doc_med)s for update"""
-	]
-
 	_cmds_store_payload = [
 		"""update blobs.doc_med set
-				type=%(pk_type)s,
+				fk_type=%(pk_type)s,
 				comment=%(comment)s,
 				date=%(date)s,
 				ext_ref=%(ext_ref)s,
 				fk_episode=%(pk_episode)s
-			where pk=%(pk_doc)s""",
+			where
+				pk=%(pk_doc)s and
+				xmin=%(xmin_doc_med)s""",
 		"""select xmin_doc_med from blobs.v_doc_med where pk_doc=%(pk_doc)s"""
 		]
 
@@ -501,13 +409,10 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		- will return a list of strings
 		"""
 		if max_lng is None:
-			cmd = "SELECT text FROM blobs.doc_desc WHERE doc_id=%s"
+			cmd = u"SELECT text FROM blobs.doc_desc WHERE fk_doc=%s"
 		else:
-			cmd = "SELECT substring(text from 1 for %s) FROM blobs.doc_desc WHERE doc_id=%%s" % max_lng
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load document [%s] descriptions' % self.pk_obj)
-			return [_('cannot load descriptions')]
+			cmd = u"SELECT substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		if len(rows) == 0:
 			return [_('no descriptions available')]
 		data = []
@@ -516,65 +421,50 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return data
 	#--------------------------------------------------------
 	def add_description(self, description):
-		cmd = "insert into blobs.doc_desc (doc_id, text) values (%s, %s)"
-		success, data = gmPG.run_commit2 (
-			link_obj = 'blobs',
-			queries = [(cmd, [self.pk_obj, str(description)])]
-		)
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot add description to document [%s]: %s' % (self.pk_obj, str(data)))
-			return False
+		cmd = u"insert into blobs.doc_desc (fk_doc, text) values (%s, %s)"
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, str(description)]}])
 		return True
 	#--------------------------------------------------------
 	def get_parts(self):
-		cmd = "select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get parts belonging to document [%s]' % self.pk_obj)
-			return None
+		cmd = u"select pk_obj from blobs.v_obj4doc_no_data where pk_doc=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		parts = []
 		for row in rows:
 			try:
 				parts.append(cMedDocPart(aPK_obj=row[0]))
 			except ConstructorError, msg:
-				_log.LogException(msg, sys.exc_info())
+				_log.LogException(msg)
 				continue
 		return parts
 	#--------------------------------------------------------
 	def add_part(self, file=None):
 		"""Add a part to the document."""
 		# create dummy part
-		cmd1 = """
-insert into blobs.doc_obj (doc_id, fk_intended_reviewer, data, seq_idx)
-VALUES (
-	%(doc_id)s,
-	(select pk_staff from dem.v_staff where db_user=CURRENT_USER),
-	''::bytea,
-	(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where doc_id=%(doc_id)s)
-)"""
-		cmd2 = "select currval('blobs.doc_obj_pk_seq')"
-		success, data = gmPG.run_commit2 (
-			link_obj = 'blobs',
+		cmd1 = u"""
+			insert into blobs.doc_obj (
+				fk_doc, fk_intended_reviewer, data, seq_idx
+			) VALUES (
+				%(doc_id)s,
+				(select pk_staff from dem.v_staff where db_user=CURRENT_USER),
+				''::bytea,
+				(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where fk_doc=%(doc_id)s)
+			)"""
+		rows, idx = gmPG2.run_rw_queries (
 			queries = [
-				(cmd1, [{'doc_id': self.pk_obj}]),
-				(cmd2, [])
+				{'cmd': cmd1, 'args': {'doc_id': self.pk_obj}},
+				{'cmd': u"select currval('blobs.doc_obj_pk_seq')"}
 			]
 		)
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot create part for document [%s]: %s' % (self.pk_obj, str(data)))
-			return None
 		# init document part instance
-		rows, idx = data
-		part_pk = rows[0][0]
-		new_part = cMedDocPart(aPK_obj = part_pk)
+		pk_part = rows[0][0]
+		new_part = cMedDocPart(aPK_obj = pk_part)
 		if not new_part.update_data_from_file(fname=file):
 			_log.Log(gmLog.lErr, 'cannot import binary data from [%s] into document part' % file)
-			cmd = "delete from blobs.doc_obj where pk = %s"
-			result = gmPG.run_commit('blobs', [
-				(cmd, [part_pk])
-			])
-			if result is None:
-				_log.Log(gmLog.lErr, 'cannot delete dummy part [%s] of medical document [%s]' % (part_pk, self.pk_obj))
+			gmPG2.run_rw_queries (
+				queries = [
+					{'cmd': u"delete from blobs.doc_obj where pk = %s", 'args': [pk_part]}
+				]
+			)
 			return None
 		return new_part
 	#--------------------------------------------------------
@@ -604,12 +494,8 @@ VALUES (
 		return (True, '', new_parts)
 	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
-		cmd = "select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot check document [%s] for unreviewed parts' % self.pk_obj)
-			return None
-		# FIXME: this does not detect the document having disappeared which would also return False
+		cmd = u"select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return rows[0][0]
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
@@ -631,13 +517,7 @@ VALUES (
 #============================================================
 class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a document type."""
-
-	_service = 'blobs'
-
 	_cmd_fetch_payload = """select * from blobs.v_doc_type where pk_doc_type=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from blobs.doc_type where pk=%(pk_obj)s and xmin=%(xmin_doc_type)s for update"""
-	]
 	_cmds_store_payload = [
 		"""update blobs.doc_type set
 				name = %(type)s
@@ -657,17 +537,16 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		if not self._payload[self._idx['is_user']]:
 			return False
 
-		status, data = gmPG.run_commit2 (
-			link_obj = 'blobs',
+		rows, idx = gmPG2.run_rw_queries (
 			queries = [
-				('select i18n.i18n(%s)', [ self._payload[self._idx['type']] ]),
-				('select i18n.upd_tx(%s, %s, (select lang from i18n.curr_lang where user = CURRENT_USER))', [
-					self._payload[self._idx['type']],
-					translation
-				])
-			]
+				{'cmd': u'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
+				{'cmd': u'select i18n.upd_tx(%s, %s, (select lang from i18n.curr_lang where user = CURRENT_USER))',
+				 'args': [self._payload[self._idx['type']], translation]
+				}
+			],
+			return_data = True
 		)
-		if not status:
+		if not rows[0][0]:
 			_log.Log(gmLog.lErr, 'cannot set translation to [%s]' % translation)
 			_log.Log(gmLog.lErr, str(data))
 			return False
@@ -677,27 +556,17 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 # convenience functions
 #============================================================
 def create_document(patient_id=None, document_type=None, encounter=None, episode=None):
+	"""Returns new document instance or raises an exception.
 	"""
-	None - failed
-	not None - new document class instance
-	"""
-	# insert document
-	cmd1 = """insert into blobs.doc_med (patient_id, type, fk_encounter, fk_episode) VALUES (%s, %s, %s, %s)"""
-	cmd2 = """select currval('blobs.doc_med_pk_seq')"""
-	successful, data = gmPG.run_commit2 (
-		link_obj = 'blobs',
+	cmd1 = u"""insert into blobs.doc_med (fk_identity, fk_type, fk_encounter, fk_episode) VALUES (%s, %s, %s, %s)"""
+	cmd2 = u"""select currval('blobs.doc_med_pk_seq')"""
+	rows, idx = gmPG2.run_rw_queries (
 		queries = [
-			(cmd1, [patient_id, document_type, encounter, episode]),
-			(cmd2, [])
+			{'cmd': cmd1, 'args': [patient_id, document_type, encounter, episode]},
+			{'cmd': cmd2}
 		]
 	)
-	if not successful:
-		_log.Log(gmLog.lErr, 'cannot create document for patient [%s]: ' % patient_id)
-		_log.Log(gmLog.lErr, str(data))
-		return None
-	rows, idx = data
 	doc_id = rows[0][0]
-	# and init new document instance
 	doc = cMedDoc(aPK_obj = doc_id)
 	return doc
 #------------------------------------------------------------
@@ -711,30 +580,24 @@ def search_for_document(patient_id=None, type_id=None):
 		_log.Log(gmLog.lErr, 'need patient id to create document')
 		return None
 
+	args = {'pat_id': patient_id, 'type_id': type_id}
 	if type_id is None:
-		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
-		doc_id_rows = gmPG.run_ro_query('blobs', cmd, None, patient_id)
+		cmd = u"SELECT pk from blobs.doc_med WHERE fk_identity=%(pat_id)s"
 	else:
-		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s and type=%s"
-		doc_id_rows = gmPG.run_ro_query ('blobs', cmd, None, patient_id, type_id)
-		
-	if doc_id_rows is None:
-		return []
-	if len(doc_id_rows) == 0:
-		_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % patient_id)
-		return []
-	docs = []
-	for row in doc_id_rows:
-		docs.append(cMedDoc(row[0]))
+		cmd = u"SELECT pk from blobs.doc_med WHERE fk_identity=%(pat_id)s and fk_type=%(type_id)s"
 
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	docs = []
+	for row in rows:
+		docs.append(cMedDoc(row[0]))
 	return docs
 #------------------------------------------------------------
 def get_document_types():
-	cmd = "SELECT * FROM blobs.v_doc_type"
-	rows, idx = gmPG.run_ro_query('blobs', cmd, get_col_idx=True)
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot retrieve document types')
-		return []
+	rows, idx = gmPG2.run_ro_queries (
+		queries = [{'cmd': u"SELECT * FROM blobs.v_doc_type"}],
+		get_col_idx = True
+	)
 	doc_types = []
 	for row in rows:
 		row_def = {
@@ -743,38 +606,32 @@ def get_document_types():
 			'data': row
 		}
 		doc_types.append(cDocumentType(row = row_def))
-
 	return doc_types
 #------------------------------------------------------------
 def create_document_type(document_type=None):
-	# FIXME: what if doc type already exists ?
-	cmd1 = "insert into blobs.doc_type (name) values (%s)"
-	cmd2 = """select currval('blobs.doc_type_pk_seq')"""
-	successful, data = gmPG.run_commit2 (
-		link_obj = 'blobs',
-		queries = [
-			(cmd1, [document_type]),
-			(cmd2, [])
-		]
+	# FIXME: handle case where doc type already exists
+	cmd = u'select pk from blobs.doc_type where name=%s'
+	rows, idx = gmPG2.run_ro_queries (
+		queries = [{'cmd': cmd, 'args': [document_type]}]
 	)
-	if not successful:
-		_log.Log(gmLog.lErr, 'cannot create document type [%s]:' % document_type)
-		_log.Log(gmLog.lErr, str(data))
-		return None
-	rows, idx = data
-	return cDocumentType(aPK_obj = rows[0][0])			# FIXME: error handling
+	if len(rows) == 0:
+		cmd1 = u"insert into blobs.doc_type (name) values (%s)"
+		cmd2 = u"select currval('blobs.doc_type_pk_seq')"
+		rows, idx = gmPG2.run_rw_queries (
+			queries = [
+				{'cmd': cmd1, 'args': [document_type]},
+				{'cmd': cmd2}
+			]
+		)
+	return cDocumentType(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 def delete_document_type(document_type=None):
-	success, data = gmPG.run_commit2 (
-		link_obj = 'blobs',
-		queries = [
-			('delete from blobs.doc_type where pk = %s and is_user is True', [document_type['pk_doc_type']])
-		]
+	gmPG2.run_rw_queries (
+		queries = [{
+			'cmd': u'delete from blobs.doc_type where pk=%s and is_user is True',
+			'args': [document_type['pk_doc_type']]
+		}]
 	)
-	if not success:
-		_log.Log(gmLog.lErr, 'cannot delete document type [%s]' % str(document_type))
-		return False
-
 	return True
 #------------------------------------------------------------
 def get_ext_ref():
@@ -836,7 +693,6 @@ if __name__ == '__main__':
 
 		return
 	#--------------------------------------------------------
-
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -859,7 +715,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.80  2006-09-30 11:38:08  ncq
+# Revision 1.81  2006-10-08 15:07:11  ncq
+# - convert to gmPG2
+# - drop blobs.xlnk_identity support
+# - use cBusinessDBObject
+# - adjust queries to schema
+#
+# Revision 1.80  2006/09/30 11:38:08  ncq
 # - remove support for blobs.xlnk_identity
 #
 # Revision 1.79  2006/09/28 14:36:10  ncq
