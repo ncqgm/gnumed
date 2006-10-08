@@ -6,19 +6,14 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.25 2006-01-03 12:12:03 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmLogin.py,v 1.26 2006-10-08 11:04:45 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "H.Herb"
 
-import os.path, sys
-
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmPG, gmLog, gmExceptions, gmI18N
+from Gnumed.pycommon import gmPG2
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
 
 try:
@@ -63,10 +58,13 @@ def Login(max_attempts=3):
 					_('connecting to backend'),
 					gmLog.lErr
 				)
-			_log.LogException("login attempt %s of %s failed" % (attempt, max_attempts), sys.exc_info(), verbose=0)
+			_log.LogException("login attempt %s of %s failed" % (attempt, max_attempts), verbose=0)
 
 	dlg.Close()
 	dlg.Destroy()
+	# piggyback gmPG2
+	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user=login.user, password=login.password)
+	gmPG2.set_default_dsn(dsn=dsn)
 	return backend
 #==============================================================
 # main
@@ -75,7 +73,11 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.25  2006-01-03 12:12:03  ncq
+# Revision 1.26  2006-10-08 11:04:45  ncq
+# - simplify wx import
+# - piggyback gmPG2 until gmPG is pruned
+#
+# Revision 1.25  2006/01/03 12:12:03  ncq
 # - make epydoc happy re _()
 #
 # Revision 1.24  2005/09/27 20:44:59  ncq
