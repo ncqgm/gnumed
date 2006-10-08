@@ -53,11 +53,11 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys, shutil, types, cPickle
+import os.path, fileinput, string, sys, shutil, types, cPickle, decimal
 
 # gnumed modules
 import gmLog, gmNull, gmPG2
@@ -103,14 +103,14 @@ class cCfgSQL:
 
 		# this is the one to use (Di 12 Sep 2006 17:20:22 CEST)
 
-		if None in [option, workplace, bias]:
-			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) nor <bias> (%s) may be [None]' % (option, workplace, bias)
+		if None in [option, workplace]:
+			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace)
 		if str(bias).lower() not in ['user', 'workplace']:
 			raise ValueError, '<bias> must be in [user], [workplace]'
 		bias = str(bias).lower()
 
 		# does this option exist ?
-		cmd = "select type from cfg.cfg_template where name=%s"
+		cmd = u"select type from cfg.cfg_template where name=%s"
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': [option]}])
 		if len(rows) == 0:
 			if default is None:
@@ -139,7 +139,7 @@ class cCfgSQL:
 			where_parts.append('vco.cookie = %(cookie)s')
 		else:
 			where_parts.append('vco.cookie is Null')
-		cmd = "select vco.value from cfg.v_cfg_opts_%s vco where %s limit 1" % (cfg_type, ' and '.join(where_parts))
+		cmd = u"select vco.value from cfg.v_cfg_opts_%s vco where %s limit 1" % (cfg_type, ' and '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
@@ -163,7 +163,7 @@ class cCfgSQL:
 			where_parts.append('vco.cookie = %(cookie)s')
 		else:
 			where_parts.append('vco.cookie is Null')
-		cmd = "select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
+		cmd = u"select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
@@ -183,7 +183,7 @@ class cCfgSQL:
 			'vco.workplace = %(def)s',
 			'vco.option = %(opt)s'
 		]
-		cmd = "select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
+		cmd = u"select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
@@ -192,9 +192,9 @@ class cCfgSQL:
 				workplace = workplace,
 				cookie = cookie,
 				option = option,
-				value = rows[0][0]
+				value = rows[0]['value']
 			)
-			return rows[0][0]
+			return rows[0]['value']
 		_log.Log(gmLog.lWarn, 'no default site policy value for option [%s] in config database' % option)
 
 		# 4) not found, set default ?
@@ -246,13 +246,13 @@ class cCfgSQL:
 			where_parts.append('vco.cookie=%(cookie)s')
 			where_args['cookie'] = cookie
 		where_clause = ' and '.join(where_parts)
-		cmd = """
+		cmd = u"""
 select vco.pk_cfg_item
 from cfg.v_cfg_options vco
 where %s
 limit 1""" % where_clause
 
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}])
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		if len(rows) == 0:
 			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % alias)
 			return None
@@ -278,7 +278,7 @@ limit 1""" % where_clause
 		opt_value = value
 		if type(value) is types.StringType:
 			val_type = '::text'
-		elif type(value) in [types.FloatType, types.IntType, types.LongType]:
+		elif (type(value) in [types.FloatType, types.IntType, types.LongType]) or isinstance(value, decimal.Decimal):
 			val_type = '::numeric'
 		elif type(value) in [types.ListType]:
 			val_type = '::text[]'
@@ -294,7 +294,7 @@ limit 1""" % where_clause
 				_log.LogException(msg, sys.exc_info(), verbose=0)
 				return False
 
-		cmd = 'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % val_type
+		cmd = u'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % val_type
 		args = {
 			'opt': option,
 			'val': opt_value,
@@ -333,13 +333,13 @@ limit 1""" % where_clause
 
 		where_clause = ' and '.join(where_snippets)
 
-		cmd = """
+		cmd = u"""
 select name, cookie, owner, type, description
 from cfg.cfg_template, cfg.cfg_item
 where %s""" % where_clause
 
 		# retrieve option definition
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}])
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		return rows
 	#----------------------------
 	def delete(self, workplace = None, cookie = None, option = None):
@@ -354,7 +354,7 @@ where %s""" % where_clause
 		rw_conn = gmPG2.get_connection(readonly=False)
 
 		if cookie is None:
-			cmd = """
+			cmd = u"""
 delete from cfg.cfg_item where
 	fk_template=(select pk from cfg.cfg_template where name = %(opt)s) and
 	owner = CURRENT_USER and
@@ -362,7 +362,7 @@ delete from cfg.cfg_item where
 	cookie is Null
 """
 		else:
-			cmd = """
+			cmd = u"""
 delete from cfg.cfg_item where
 	fk_template=(select pk from cfg.cfg_template where name = %(opt)s) and
 	owner = CURRENT_USER and
@@ -1118,7 +1118,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.42  2006-09-21 19:41:21  ncq
+# Revision 1.43  2006-10-08 11:02:02  ncq
+# - support decimal type, too
+# - make queries unicode
+#
+# Revision 1.42  2006/09/21 19:41:21  ncq
 # - convert to use gmPG2
 # - axe cCfgBase
 # - massive cCfgSQL cleanup
