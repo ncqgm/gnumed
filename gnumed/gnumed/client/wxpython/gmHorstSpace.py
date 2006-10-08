@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.31 2006-06-18 21:55:22 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmHorstSpace.py,v 1.32 2006-10-08 11:04:09 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -96,13 +96,10 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
-		plugin_list = gmPlugin.GetPluginLoadList('horstspace.notebook.plugin_load_order', 'gui')
-		if plugin_list is None:
-			_log.Log(gmLog.lWarn, "no plugins to load")
-			return True
+		plugin_list = gmPlugin.GetPluginLoadList(option='horstspace.notebook.plugin_load_order', plugin_dir='gui', defaults=['gmProviderInboxPlugin'])
 
-		wx.BeginBusyCursor()
 		nr_plugins = len(plugin_list)
+		wx.BeginBusyCursor()
 
 		#  set up a progress bar
 		progress_bar = gmPlugin.cLoadProgressBar(nr_plugins)
@@ -112,7 +109,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		first_plugin = None
 		plugin = None
 		result = -1
-		for idx in range(len(plugin_list)):
+		for idx in range(nr_plugins):
 			curr_plugin = plugin_list[idx]
 			progress_bar.Update(result, curr_plugin)
 			try:
@@ -308,7 +305,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.31  2006-06-18 21:55:22  ncq
+# Revision 1.32  2006-10-08 11:04:09  ncq
+# - add sensible default for plugin load list
+# - robustify __load_plugins() somewhat
+#
+# Revision 1.31  2006/06/18 21:55:22  ncq
 # - better variable naming in page change handlers, again
 #
 # Revision 1.30  2006/06/18 13:24:27  ncq
