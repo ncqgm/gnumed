@@ -139,7 +139,7 @@ class SQLListControl(wx.ListCtrl):
 		self.RedirectOutput()
 		_log.Log (gmLog.lData,  "running query on service %s" % self.__service, gmLog.lCooked)
 		try:	
-			conn = gmPG.ConnectionPool().GetConnection(self.__service)
+#			conn = gmPG.ConnectionPool().GetConnection(self.__service)
 			cursor = conn.cursor ()
 		except:
 			_log.LogException("Cannot connect to backend.", sys.exc_info(), verbose=0)
