@@ -15,11 +15,13 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.7 2006-09-21 19:46:38 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmLoginInfo.py,v 1.8 2006-10-08 15:10:51 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
+
+# FIXME: convert to use cBorg
 
 #====================================================================
 class LoginInfo:
@@ -179,7 +181,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.7  2006-09-21 19:46:38  ncq
+# Revision 1.8  2006-10-08 15:10:51  ncq
+# - add comment on cBorg
+#
+# Revision 1.7  2006/09/21 19:46:38  ncq
 # - attributes should really be .something, not .__something
 # - change default to "gnumed_v3"
 # - add get_psycopg2_dsn() but will go again
