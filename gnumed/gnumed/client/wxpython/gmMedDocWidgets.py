@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.93 2006-09-19 12:00:42 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmMedDocWidgets.py,v 1.94 2006-10-08 11:05:32 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -1134,9 +1134,10 @@ class cDocTree(wx.TreeCtrl):
 			except:
 				def_tmp_dir = None
 		cfg = gmCfg.cCfgSQL()
-		tmp_dir = cfg.get_by_workplace (
+		tmp_dir = cfg.get2 (
 			option = "horstspace.tmp_dir",
 			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			bias = 'workplace',
 			default = def_tmp_dir
 		)
 		exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
@@ -1147,13 +1148,12 @@ class cDocTree(wx.TreeCtrl):
 			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
 		# determine database export chunk size
-		chunksize = int(cfg.get_by_workplace (
+		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			bias = 'workplace',
 			default = 1 * 1024 * 1024		# 1 MB
 		))
-		if chunksize is None:
-			chunksize = 1 * 1024 * 1024		# 1 MB
 
 		# retrieve doc part
 		fname = part.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
@@ -1227,7 +1227,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.93  2006-09-19 12:00:42  ncq
+# Revision 1.94  2006-10-08 11:05:32  ncq
+# - properly use db cfg
+#
+# Revision 1.93  2006/09/19 12:00:42  ncq
 # - clear scan/idx panel on patient change
 #
 # Revision 1.92  2006/09/12 17:27:35  ncq
