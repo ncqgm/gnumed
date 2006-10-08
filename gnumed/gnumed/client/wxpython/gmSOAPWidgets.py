@@ -1,11 +1,9 @@
 """GnuMed SOAP related widgets.
-
-The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.75 2006-09-01 14:47:02 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmSOAPWidgets.py,v 1.76 2006-10-08 11:08:42 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -959,8 +957,8 @@ if __name__ == "__main__":
 	import sys
 	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmPG
-	gmPG.set_default_client_encoding('latin1')
+	from Gnumed.pycommon import gmPG2
+	gmPG2.set_default_client_encoding('UNICODE')
 	#--------------------------------------------------------
 	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
 		"""
@@ -1115,7 +1113,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.75  2006-09-01 14:47:02  ncq
+# Revision 1.76  2006-10-08 11:08:42  ncq
+# - move to gmPG2 and only when testing
+#
+# Revision 1.75  2006/09/01 14:47:02  ncq
 # - fix typo
 #
 # Revision 1.74  2006/07/19 20:29:50  ncq
