@@ -11,8 +11,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: cfg-cfg_item.sql,v 1.1 2006-09-26 14:47:53 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: cfg-cfg_item.sql,v 1.2 2006-10-08 09:15:57 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -49,14 +49,27 @@ alter table cfg.cfg_item
 		on delete cascade;
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-cfg_item.sql,v $', '$Revision: 1.1 $');
+-- a 'workplace' called "post-Librarian"
+insert into cfg.cfg_item
+	(fk_template, owner, workplace)
+values (
+	(select pk from cfg.cfg_template where name='horstspace.notebook.plugin_load_order' and type='str_array'),
+	'xxxDEFAULTxxx',
+	'post-Librarian Release'
+);
+
+-- --------------------------------------------------------------
+select public.log_script_insertion('$RCSfile: cfg-cfg_item.sql,v $', '$Revision: 1.2 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: cfg-cfg_item.sql,v $
--- Revision 1.1  2006-09-26 14:47:53  ncq
+-- Revision 1.2  2006-10-08 09:15:57  ncq
+-- - add workplace
+--
+-- Revision 1.1  2006/09/26 14:47:53  ncq
 -- - those live here now
 --
 -- Revision 1.2  2006/09/21 19:50:08  ncq
