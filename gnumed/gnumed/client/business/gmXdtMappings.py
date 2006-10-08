@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.28 2006-07-13 21:00:32 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmXdtMappings.py,v 1.29 2006-10-08 10:48:28 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -659,6 +659,7 @@ xdt_id_map = {
 	#number of media for this data package     
 	'9203':'Anzahl Datenträger im Paket',
 	'9204':'Abrechnungsquartal',
+	'9206': 'Zeichensatz (encoding)'
 	#ADT-version
 	'9210':'Version ADT-Satzbeschreibung',
 	'9212':'Version der Satzbeschreibung',
@@ -739,11 +740,20 @@ map_8407_2str = {
 
 # xDT character code mapping : 9106
 xdt_character_code_map = {
-	'1':'7-bit-Code ASCII',
-	'2':'8-bit-Code ASCII',
+	'1':'7-bit ASCII',
+	'2':'8-bit extended ASCII',
 	##'2':'IBM-Code',
-	'3':'ISO 8859-1 Code'
+	'3':'ISO 8859-1/cp1252'
 }
+
+_map_field2charset = {
+	'9206': {
+		'1': 'ascii',
+		'2': 'cp437',
+		'3': 'iso8859-1'	# for some reason the GDT thinks iso8859-1 == cp1252
+	}
+}
+
 # Archivierungsart : 9600
 xdt_Archivierungsart_map = {
 	'1':'Speicherung Gesamtbestand',
@@ -1353,7 +1363,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.28  2006-07-13 21:00:32  ncq
+# Revision 1.29  2006-10-08 10:48:28  ncq
+# - teach xdt reader to derive encoding from gdt 6301 record
+#
+# Revision 1.28  2006/07/13 21:00:32  ncq
 # - cleanup gender mappings
 # - streamline cXdtPatient and improve test harness
 #
