@@ -5,15 +5,15 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.9 2006-08-04 05:44:12 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPlugin_Patient.py,v 1.10 2006-10-08 11:07:20 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
 import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg
 from Gnumed.wxpython import gmShadow
 
 gmPerson = None
@@ -33,14 +33,11 @@ class BasePlugin:
 	"""
 	# NOTE: I anticipate that all plugins will in fact be derived
 	# from this class. Without the brokers a plugin is useless (IH)
-	def __init__(self, set='', guibroker=None, callbackbroker=None, dbbroker=None, params=None):
+	def __init__(self, set='', guibroker=None, callbackbroker=None, params=None):
 		self.gb = guibroker
 		self.cb = callbackbroker
-		self.db = dbbroker
 		if self.gb is None:
 			self.gb = gmGuiBroker.GuiBroker()
-		if self.db is None:
-			self.db = gmPG.ConnectionPool()
 		self.set = set
 	#-----------------------------------------------------
 	def GetIcon (self):
@@ -179,7 +176,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.9  2006-08-04 05:44:12  ncq
+# Revision 1.10  2006-10-08 11:07:20  ncq
+# - wean off gmPG
+#
+# Revision 1.9  2006/08/04 05:44:12  ncq
 # - fix class name wx.BasePlugin
 #
 # Revision 1.8  2006/07/19 20:29:50  ncq
