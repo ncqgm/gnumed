@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_obj4doc_no_data.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-v_obj4doc_no_data.sql,v 1.2 2006-10-08 09:13:56 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 begin;
@@ -79,7 +79,7 @@ from
 	blobs.v_doc_med vdm,
 	blobs.doc_obj dobj
 where
-	vdm.pk_doc = dobj.doc_id
+	vdm.pk_doc = dobj.fk_doc
 ;
 
 comment on view blobs.v_obj4doc_no_data is
@@ -89,14 +89,17 @@ comment on view blobs.v_obj4doc_no_data is
 GRANT SELECT ON blobs.v_obj4doc_no_data TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_obj4doc_no_data.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: blobs-v_obj4doc_no_data.sql,v $', '$Revision: 1.2 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: blobs-v_obj4doc_no_data.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2006-10-08 09:13:56  ncq
+-- - doc_id now fk_doc
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.1  2006/09/16 21:45:14  ncq

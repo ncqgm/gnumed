@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_doc_desc.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-v_doc_desc.sql,v 1.2 2006-10-08 09:13:36 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 begin;
@@ -26,7 +26,7 @@ drop view blobs.v_doc_desc cascade;
 create view blobs.v_doc_desc as
 select
 	vdm.pk_patient as pk_patient,
-	dd.doc_id as pk_doc,
+	dd.fk_doc as pk_doc,
 	dd.text as description,
 	vdm.pk_encounter as pk_encounter,
 	vdm.pk_episode as pk_episode,
@@ -36,7 +36,7 @@ from
 	blobs.doc_desc dd,
 	blobs.v_doc_med vdm
 where
-	dd.doc_id = vdm.pk_doc
+	dd.fk_doc = vdm.pk_doc
 ;
 
 
@@ -47,14 +47,17 @@ comment on view blobs.v_doc_desc is
 grant select on blobs.v_doc_desc to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_doc_desc.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: blobs-v_doc_desc.sql,v $', '$Revision: 1.2 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: blobs-v_doc_desc.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2006-10-08 09:13:36  ncq
+-- - doc_id now fk_doc
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.1  2006/09/16 21:43:37  ncq
