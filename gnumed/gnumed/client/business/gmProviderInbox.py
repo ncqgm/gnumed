@@ -5,12 +5,12 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.7 2006-05-20 18:30:09 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.8 2006-10-08 15:10:01 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-from Gnumed.pycommon import gmPG
+from Gnumed.pycommon import gmPG2
 
 #============================================================
 class cProviderInbox:
@@ -22,7 +22,7 @@ class cProviderInbox:
 			self.__provider_id = provider_id
 	#--------------------------------------------------------
 	def get_messages(self):
-		cmd = """
+		cmd = u"""
 select
 	importance,
 	l10n_category,
@@ -36,16 +36,25 @@ select
 from dem.v_provider_inbox vpi
 where pk_staff = %s
 order by importance desc"""
-		rows = gmPG.run_ro_query('demographics', cmd, None, self.__provider_id)
-		if rows is None:
-			return [[1, _('error'), _('error'), _('unable to get provider inbox messages from database')]]
+		try:
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__provider_id]}])
+		except:
+			_log.LogException('cannot retrieve provider inbox messages')
+			return [[
+				1,
+				_('error'),
+				_('error'),
+				_('unable to get provider inbox messages from database'),
+				'error',
+				'error',
+				None,
+				_('An error occurred while retrieving provider inbox messages from the database.'),
+				None
+			]]
 		return rows
 	#--------------------------------------------------------
 	def delete_message(self, pk=None):
-		cmd = "delete from dem.provider_inbox where pk=%s"
-		status, data = gmPG.run_commit2(link_obj = 'demographics', queries = [(cmd, [pk])])
-		if not status:
-			return False
+		gmPG2.run_rw_queries(queries = [{'cmd': u"delete from dem.provider_inbox where pk=%s", 'args': [pk]}])
 		return True
 #============================================================
 if __name__ == '__main__':
@@ -55,7 +64,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.7  2006-05-20 18:30:09  ncq
+# Revision 1.8  2006-10-08 15:10:01  ncq
+# - convert to gmPG2
+# - return all the fields needed for inbox on error
+#
+# Revision 1.7  2006/05/20 18:30:09  ncq
 # - cleanup
 #
 # Revision 1.6  2006/05/16 08:20:28  ncq
