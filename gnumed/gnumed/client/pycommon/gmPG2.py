@@ -12,12 +12,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import time, locale, sys, re, os
+import time, locale, sys, re, os, codecs, types
 
 # GNUmed
 import gmLog, gmLoginInfo, gmExceptions
@@ -42,7 +42,7 @@ import psycopg2.extensions
 
 # =======================================================================
 
-_default_client_encoding = 'utf8'
+_default_client_encoding = 'UNICODE'
 _log.Log(gmLog.lInfo, 'assuming default client encoding of [%s]' % _default_client_encoding)
 
 # default time zone for connections
@@ -66,9 +66,34 @@ _default_dsn = None
 _v2_schema_hash = 'not released, testing only'
 #_v2_schema_hash = 'b09d50d7ed3f91ddf4c4ddb8ea507720'
 # =======================================================================
+def database_schema_compatible():
+	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure())'}])
+	if rows[0][0] != _v2_schema_hash:
+		_log.Log(gmLog.lErr, 'incompatible database structure')
+		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % _v2_schema_hash)
+		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0][0])
+		return False
+	return True
+# =======================================================================
+def get_current_user():
+	result = run_ro_queries(link_obj=None, queries = [{'cmd': u'select CURRENT_USER'}])
+	return result[0][0]
+# =======================================================================
 def set_default_client_encoding(encoding = None):
-	# FIXME: maybe check encoding against codecs.lookup() ?
-	# FIXME: or somehow check it against the database - but we may not yet have access
+	# check whether psycopg2 can handle this encoding
+	if encoding not in psycopg2.extensions.encodings:
+		raise ValueError('psycopg2 does not know how to handle (wire) client encoding [%s]' % encoding)
+	# check whether Python can handle this encoding
+	py_enc = psycopg2.extensions.encodings[encoding]
+	try:
+		codecs.lookup(py_enc)
+	except LookupError:
+		_log.Log(gmLog.lWarn, '<codecs> module can NOT handle encoding [psycopg2::<%s> -> Python::<%s>]' % (encoding, py_enc))
+		raise
+	# FIXME: check encoding against the database
+	# FIXME: - but we may not yet have access
+	# FIXME: - psycopg2 will pull its encodings from the database eventually
+	# it seems save to set it
 	global _default_client_encoding
 	_log.Log(gmLog.lInfo, 'setting default client encoding from [%s] to [%s]' % (_default_client_encoding, str(encoding)))
 	_default_client_encoding = encoding
@@ -202,9 +227,15 @@ def get_col_indices(cursor = None):
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
 
-	queries must be a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>}, {...}, ...]
+	<queries> must be a list of dicts:
+		[
+			{'cmd': <string>, 'args': <dict> or <tuple>},
+			{...},
+			...
+		]
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
+		_log.Log(gmLog.lData, 'link object: %s' % link_obj)
 		curs = link_obj
 		curs_close = __noop
 		conn_close = __noop
@@ -213,21 +244,35 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		curs_close = curs.close
 		conn_close = __noop
 	elif link_obj is None:
-		conn = get_connection()
+		conn = get_connection(readonly=True, verbose=verbose)
 		conn_close = conn.close
 		curs = conn.cursor()
 		curs_close = curs.close
 	else:
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
+	if verbose:
+		_log.Log(gmLog.lData, 'cursor: %s' % curs)
+
 	for query in queries:
+		if type(query['cmd']) is not types.UnicodeType:
+			print "run_ro_queries(): non-unicode query"
+			print query['cmd']
 		try:
 			args = query['args']
 		except KeyError:
 			args = (None,)
+#		if verbose:		# mogrify does not support unicode queries, yet
+#			_log.Log(gmLog.lData, 'running: %s' % curs.mogrify(query['cmd'], args))
 		try:
 			curs.execute(query['cmd'], args)
+			if verbose:
+				_log.Log(gmLog.lData, 'ran query: [%s]' % curs.query)
+				_log.Log(gmLog.lData, 'PG status message: %s' % curs.statusmessage)
+				_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
 		except:
+			_log.Log(gmLog.lErr, 'query failed: [%s]' % curs.query)
+			_log.Log(gmLog.lErr, 'PG status message: %s' % curs.statusmessage)
 			curs_close()
 			conn_close()
 			raise
@@ -238,6 +283,9 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		data = curs.fetchall()
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
+		if verbose:
+			_log.Log(gmLog.lData, 'last query returned [%s (%s)] rows' % (curs.rowcount, len(data)))
+			_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
 
 	curs_close()
 	conn_close()
@@ -311,6 +359,9 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		raise ValueError('link_obj must be cursor, connection or None and not [%s]' % link_obj)
 
 	for query in queries:
+		if type(query['cmd']) is not types.UnicodeType:
+			print "run_ro_queries(): non-unicode query"
+			print query['cmd']
 		try:
 			args = query['args']
 		except KeyError:
@@ -444,7 +495,7 @@ def __log_PG_settings(curs=None):
 	# don't use any of the run_*()s since that might
 	# create a loop if we fail here
 	try:
-		curs.execute('show all')
+		curs.execute(u'show all')
 	except:
 		_log.LogException("cannot log PG settings (>>>show all<<< failed)", sys.exc_info(), verbose = 0)
 		return False
@@ -478,6 +529,13 @@ class cEncodingError(dbapi.OperationalError):
 # =======================================================================
 #  main
 # -----------------------------------------------------------------------
+
+# make sure psycopg2 knows how to handle unicode ...
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+# likewise with iterator types ...
+#psycopg2.extensions.register_type(psycopg2.extras.SQL_IN)
+
+
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
@@ -571,22 +629,32 @@ if __name__ == "__main__":
 		dsn = 'dbname=gnumed_v3 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'select version()'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'select 1'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True)
 		print data
 		print idx
 
 		curs = conn.cursor()
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'select version()'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'select 1'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
+
+		try:
+			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'selec 1'}], return_data=True, get_col_idx=True, verbose=True)
+			print data
+			print idx
+		except psycopg2.ProgrammingError:
+			print 'SUCCESS: run_ro_queries("selec 1") failed as expected'
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
 
 		curs.close()
 	#--------------------------------------------------------------------
@@ -595,16 +663,89 @@ if __name__ == "__main__":
 		print conn
 		conn.close()
 	#--------------------------------------------------------------------
+	def test_set_encoding():
+		print "testing set_default_client_encoding()"
+
+		enc = 'foo'
+		try:
+			set_default_client_encoding(enc)
+			print "SUCCESS: encoding [%s] worked" % enc
+		except ValueError:
+			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
+
+		enc = ''
+		try:
+			set_default_client_encoding(enc)
+			print "SUCCESS: encoding [%s] worked" % enc
+		except ValueError:
+			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
+
+		enc = 'latin1'
+		try:
+			set_default_client_encoding(enc)
+			print "SUCCESS: encoding [%s] worked" % enc
+		except ValueError:
+			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
+
+		enc = 'utf8'
+		try:
+			set_default_client_encoding(enc)
+			print "SUCCESS: encoding [%s] worked" % enc
+		except ValueError:
+			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
+
+		enc = 'unicode'
+		try:
+			set_default_client_encoding(enc)
+			print "SUCCESS: encoding [%s] worked" % enc
+		except ValueError:
+			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
+
+		enc = 'UNICODE'
+		try:
+			set_default_client_encoding(enc)
+			print "SUCCESS: encoding [%s] worked" % enc
+		except ValueError:
+			print "SUCCESS: set_default_client_encoding(%s) failed as expected" % enc
+			t, v = sys.exc_info()[:2]
+			print ' ', t
+			print ' ', v
+	#--------------------------------------------------------------------
 	# run tests
 	test_get_connection()
 	test_exceptions()
 	test_ro_queries()
 	test_request_dsn()
+	test_set_encoding()
 	print "tests ran successfully"
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.3  2006-09-30 11:57:48  ncq
+# Revision 1.4  2006-10-08 09:23:40  ncq
+# - default encoding UNICODE, not utf8
+# - add database_schema_compatible()
+# - smartify set_default_client_encoding()
+# - support <verbose> in run_ro_queries()
+# - non-fatally warn on non-unicode queries
+# - register unicode type so psycopg2 knows how to deal with u''
+# - improve test suite
+#
+# Revision 1.3  2006/09/30 11:57:48  ncq
 # - document get_raw_connection()
 #
 # Revision 1.2  2006/09/30 11:52:40  ncq
