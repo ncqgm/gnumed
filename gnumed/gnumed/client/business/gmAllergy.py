@@ -3,30 +3,27 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.21 2006-07-19 20:25:00 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmAllergy.py,v 1.22 2006-10-08 14:27:52 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
 import types, sys
 
-from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmI18N
-from Gnumed.business import gmClinItem
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+
+from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmI18N, gmBusinessDBObject
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #============================================================
-class cAllergy(gmClinItem.cClinItem):
+class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one allergy event.
 	"""
-	_cmd_fetch_payload = """
-		select *, xmin_allergy from clin.v_pat_allergies
-		where pk_allergy=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.allergy where id=%(id)s and xmin=%(xmin_allergy)s for update"""
-	]
+	_cmd_fetch_payload = u"select *, xmin_allergy from clin.v_pat_allergies where pk_allergy=%s"
 	_cmds_store_payload = [
-		"""update clin.allergy set
+		u"""update clin.allergy set
 				clin_when=%(date)s,
 				substance=%(substance)s,
 				substance_code=%(substance_code)s,
@@ -37,8 +34,10 @@ class cAllergy(gmClinItem.cClinItem):
 				generic_specific=%(generic_specific)s::boolean,
 				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
-			where id=%(pk_allergy)s""",
-		"""select xmin_allergy from clin.v_pat_allergies where pk_allergy=%(pk_allergy)s"""
+			where
+				id=%(pk_allergy)s and
+				xmin=%(xmin_allergy)s""",
+		u"""select xmin_allergy from clin.v_pat_allergies where pk_allergy=%(pk_allergy)s"""
 	]
 	_updatable_fields = [
 		'date',
@@ -66,12 +65,12 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# sanity checks:
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the same patient ?
-	cmd = """
+	cmd = u"""
 		select pk_patient from clin.v_pat_episodes where pk_episode=%s
 			union
 		select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
-	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
-	if (rows is None) or (len(rows) == 0):
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [episode_id, encounter_id]}])
+	if len(rows) == 0:
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (None, _('internal error, check log'))
 	if len(rows) > 1:
@@ -81,31 +80,25 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# insert new allergy
 	queries = []
 	if type(allg_type) == types.IntType:
-		cmd = """
+		cmd = u"""
 			insert into clin.allergy (id_type, fk_encounter, fk_episode, substance)
 			values (%s, %s, %s, %s)"""
 	else:
-		cmd = """
+		cmd = u"""
 			insert into clin.allergy (id_type, fk_encounter, fk_episode,  substance)
 			values ((select id from clin._enum_allergy_type where value=%s), %s, %s, %s)"""
 		allg_type = str(allg_type)
-	queries.append((cmd, [allg_type, encounter_id, episode_id, substance]))
+	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, substance]})
 	# set patient has_allergy status
-	cmd = """delete from clin.allergy_state where fk_patient=%s"""
-	queries.append((cmd, [pat_id]))
-	cmd = """insert into clin.allergy_state (fk_patient, has_allergy) values (%s, 1)"""
-	queries.append((cmd, [pat_id]))
+	cmd = u"delete from clin.allergy_state where fk_patient=%s"
+	queries.append({'cmd': cmd, 'args': [pat_id]})
+	cmd = u"insert into clin.allergy_state (fk_patient, has_allergy) values (%s, 1)"
+	queries.append({'cmd': cmd, 'args': [pat_id]})
 	# get PK of inserted row
-	cmd = "select currval('clin.allergy_id_seq')"
-	queries.append((cmd, []))
-	result, msg = gmPG.run_commit('historica', queries, True)
-	if result is None:
-		return (None, msg)
-	try:
-		allergy = cAllergy(aPK_obj = result[0][0])
-	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate allergy [%s]' % result[0][0], sys.exc_info(), verbose=0)
-		return (None, _('internal error, check log'))
+	cmd = u"select currval('clin.allergy_id_seq')"
+	queries.append({'cmd': cmd})
+	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
+	allergy = cAllergy(aPK_obj = rows[0][0])
 	return (True, allergy)
 #============================================================
 # main - unit testing
@@ -113,7 +106,6 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
-	gmPG.set_default_client_encoding('latin1')
 	allg = cAllergy(aPK_obj=1)
 	print allg
 	fields = allg.get_fields()
@@ -136,7 +128,11 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.21  2006-07-19 20:25:00  ncq
+# Revision 1.22  2006-10-08 14:27:52  ncq
+# - convert to cBusinessDBObject
+# - convert to gmPG2
+#
+# Revision 1.21  2006/07/19 20:25:00  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.20  2005/11/27 12:44:57  ncq
