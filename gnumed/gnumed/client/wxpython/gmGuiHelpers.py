@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.37 2006-09-03 11:29:30 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmGuiHelpers.py,v 1.38 2006-10-08 11:03:09 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
@@ -196,11 +196,14 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		return None
 
 	# 2) connect as gm-dbo
-	pool = gmPG.ConnectionPool()
-	conn = pool.get_connection_for_user(user='gm-dbo', password=pwd_gm_dbo, extra_verbose=False)
-	if conn is None:
+	login = gmLoginInfo.LoginInfo()
+	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user='gm-dbo', password=pwd_gm_dbo)
+	try:
+		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True)
+	except:
+		_log.LogException('cannot connect')
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot connect as the GNUmed database user <gm-dbo>.'),
+			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
 			aTitle = procedure,
 			aLogLevel = gmLog.lErr
 		)
@@ -344,21 +347,20 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	"""
 	Acts exactly like a plain TextCtrl except that RETURN also
 	calls wxWindow.Navigate ()
-
-	FIXME: detect 2.4 and then make self.Navigate a no-op
 	"""
-
-
 	def __init__ (self, *args):
 		wx.TextCtrl.__init__ (self, *args)
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
 
 	def __on_enter (self, event):
-		self.Navigate ()
+		self.Navigate()
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.37  2006-09-03 11:29:30  ncq
+# Revision 1.38  2006-10-08 11:03:09  ncq
+# - convert to gmPG2
+#
+# Revision 1.37  2006/09/03 11:29:30  ncq
 # - add cancel_button argument to show_question
 #
 # Revision 1.36  2006/08/01 22:03:49  ncq
