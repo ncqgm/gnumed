@@ -4,20 +4,16 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.63 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmPlugin.py,v 1.64 2006-10-08 11:07:01 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os, sys, re
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmSignals
 from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
@@ -280,7 +276,7 @@ def raise_notebook_plugin(plugin_name = None):
 	try:
 		plugin = gb['horstspace.notebook.gui'][plugin_name]
 	except KeyError:
-		_log.LogException("cannot raise [%s], plugin not available" % plugin_name, sys.exc_info(), verbose=0)
+		_log.LogException("cannot raise [%s], plugin not available" % plugin_name, verbose=0)
 		return None
 	if plugin.can_receive_focus():
 		plugin.Raise()
@@ -296,7 +292,7 @@ def __gm_import(module_name):
 	try:
 		mod = __import__(module_name)
 	except ImportError:
-		_log.LogException ('Cannot __import__() module [%s].' % module_name, sys.exc_info(), verbose=0)
+		_log.LogException ('Cannot __import__() module [%s].' % module_name, verbose=0)
 		return None
 	components = module_name.split('.')
 	for component in components[1:]:
@@ -340,7 +336,7 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	try:
 		plugin = plugin_class()
 	except:
-		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
+		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), verbose=0)
 		return None
 
 	return plugin
@@ -357,22 +353,15 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	"""
 	curr_workplace = gmPerson.gmCurrentProvider().get_workplace()
 
-	p_list, match = gmCfg.getDBParam (
+	dbcfg = gmCfg.cCfgSQL()
+	p_list = dbcfg.get2 (
+		option = option,
 		workplace = curr_workplace,
-		option = option
+		bias = 'workplace',
+		default = defaults
 	)
 
 	if p_list is not None:
-		# found plugin load list for this user/this workplace
-		if match == 'CURRENT_USER_CURRENT_WORKPLACE':
-			return p_list
-		# all other user/workplace pairings:
-		# store plugin list for the current user/current workplace
-		gmCfg.setDBParam(
-			workplace = curr_workplace,
-			option = option,
-			value = p_list
-		)
 		return p_list
 
 	if defaults is None:
@@ -392,7 +381,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 		if len(candidates) == 0:
 			_log.Log(gmLog.lErr, 'no candidate directories to scan for plugins found among the following')
 			_log.Log(gmLog.lErr, str(sys.path))
-			return []
+			return defaults
 		# among them find (the) one holding plugins
 		search_path = None
 		for candidate in candidates:
@@ -403,7 +392,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 		if search_path is None:
 			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
 			_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
-			return []
+			return defaults
 		# now scan it
 		files = os.listdir(search_path)
 		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (plugin_dir, gb['gnumed_dir']))
@@ -415,15 +404,15 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 				p_list.append(file[:-3])
 		if (len(p_list) == 0):
 			_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
-			return None
+			return defaults
 	else:
 		p_list = defaults
 
 	# store for current user/current workplace
-	gmCfg.setDBParam(
-		workplace = curr_workplace,
+	dbcfg.set (
 		option = option,
-		value = p_list
+		value = p_list,
+		workplace = curr_workplace
 	)
 
 	_log.Log(gmLog.lData, "plugin load list stored: %s" % str(p_list))
@@ -444,7 +433,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.63  2006-07-19 20:29:50  ncq
+# Revision 1.64  2006-10-08 11:07:01  ncq
+# - simplify wx import
+# - properly use db cfg in GetPluginLoadList()
+#
+# Revision 1.63  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.62  2006/05/28 15:59:16  ncq
