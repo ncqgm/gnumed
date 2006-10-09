@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.265 2006-08-11 13:10:08 ncq Exp $
-__version__ = "$Revision: 1.265 $"
+# $Id: gmGuiMain.py,v 1.266 2006-10-09 12:25:21 ncq Exp $
+__version__ = "$Revision: 1.266 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -56,7 +56,7 @@ if (version != '2.6') or ('unicode' not in wx.PlatformInfo):
 	raise ValueError('wxPython 2.6.x with unicode support not found')
 
 
-from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
+from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
@@ -75,23 +75,17 @@ _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.P
 
 
 # set up database connection encoding
-encoding = {}
-enc = _cfg.get('backend', 'wire encoding')
-if enc is None:
-	encoding['wire'] = locale.getlocale()[1]
-else:
-	encoding['wire'] = enc
-enc = _cfg.get('backend', 'string encoding')
-if enc is None:
-	encoding['string'] = locale.getlocale()[1]
-else:
-	encoding['string'] = enc
-gmPG.set_default_client_encoding(encoding)
-
+encoding = _cfg.get('backend', 'encoding')
+if encoding is not None:
+	gmPG2.set_default_client_encoding(encoding)
+if encoding is None:
+	encoding = locale.getlocale()[1]
+gmPG.set_default_client_encoding({'wire': encoding, 'string': encoding})
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
 if timezone is not None:
+	gmPG2.set_default_client_timezone(timezone)
 	gmPG.set_default_client_timezone(timezone)
 
 ID_ABOUT = wx.NewId ()
@@ -170,31 +164,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.__setup_platform()
 		#  let others have access, too
 		self.__gb['main.SetWindowTitle'] = self.updateTitle
-		if layout is None:
-			# get plugin layout style
-			cfg = gmCfg.cCfgSQL()
-			self.layout_style = cfg.get_by_workplace (
-				option = 'main.window.layout_style',
-				workplace = gmPerson.gmCurrentProvider().get_workplace(),
-				default = 'status_quo'
-			)
-			#----------------------
-			# create layout manager
-			#----------------------
-			if self.layout_style == 'status_quo':
-				_log.Log(gmLog.lInfo, 'loading Horst space layout manager')
-				self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
-			elif self.layout_style == 'terry':
-				_log.Log(gmLog.lInfo, "loading Richard Terry's layout manager")
-				self.LayoutMgr = gmRichardSpace.cLayoutMgr(self, -1)
-			else:
-				_log.Log(gmLog.lInfo, 'loading Horst space layout manager as default (option is missing)')
-				self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
-		else:
-			# layout class is explicitly provided, use that
-			_log.Log (gmLog.lInfo, "loading %s as toplevel" % layout)
-			l = layout.split (".")
-			self.LayoutMgr = getattr (__import__ (".".join (l[:-1])), l[-1]) (self, -1)
+		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
+#		self.LayoutMgr = gmRichardSpace.cLayoutMgr(self, -1)
 		# set window icon
 		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
 		icon = wx.EmptyIcon()
@@ -221,29 +192,26 @@ class gmTopLevelFrame(wx.Frame):
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
 
- 		desired_width, desired_height = (640,480)
 		cfg = gmCfg.cCfgSQL()
 
 		# width
-		prev_width = cfg.get_by_workplace (
+		width = int(cfg.get2 (
 			option = 'main.window.width',
 			workplace = gmPerson.gmCurrentProvider().get_workplace(),
-			default = desired_width
-		)
-		if prev_width is not None:
-			desired_width = int(prev_width)
+			bias = 'workplace',
+			default = 800
+		))
 
 		# height
-		prev_height = cfg.get_by_workplace (
+		height = int(cfg.get2 (
 			option = 'main.window.height',
 			workplace = gmPerson.gmCurrentProvider().get_workplace(),
-			default = desired_height
-		)
-		if prev_height is not None:
-			desired_height = int(prev_height)
+			bias = 'workplace',
+			default = 600
+		))
 
-		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (desired_width, desired_height))
- 		self.SetClientSize(wx.Size(desired_width, desired_height))
+		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (width, height))
+ 		self.SetClientSize(wx.Size(width, height))
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
@@ -758,23 +726,17 @@ Search results:
 		# remember GUI size
 		curr_width, curr_height = self.GetClientSizeTuple()
 		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
-		gmCfg.setDBParam(
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+		dbcfg = gmCfg.cCfgSQL()
+		dbcfg.set (
 			option = 'main.window.width',
-			value = curr_width
+			value = curr_width,
+			workplace = gmPerson.gmCurrentProvider().get_workplace()
 		)
-		gmCfg.setDBParam(
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+		dbcfg.set (
 			option = 'main.window.height',
-			value = curr_height
+			value = curr_height,
+			workplace = gmPerson.gmCurrentProvider().get_workplace()
 		)
-		# user changed the sidebar size -- remember that
-		if self.bar_width > -1 and self.bar_width != 210:
-			gmCfg.setDBParam(
-				workplace = gmPerson.gmCurrentProvider().get_workplace(),
-				option = 'main.window.sidebar_width',
-				value = self.bar_width
-			)
 		# handle our own stuff
 		gmPG.ConnectionPool().StopListeners()
 		try:
@@ -926,7 +888,7 @@ class gmApp(wx.App):
 			return False
 
 		# verify database
-		if not gmPG.database_schema_compatible():
+		if not gmPG2.database_schema_compatible():
 			msg = _(
 """You cannot use this database with a GNUmed client of version 0.2 ("Librarian" release) because the table structure is incompatible.
 
@@ -949,7 +911,7 @@ Do not rely on this database to work properly in all cases !""")
 			global _provider
 			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
 		except gmExceptions.ConstructorError, ValueError:
-			account = gmPG.get_current_user()
+			account = gmPG2.get_current_user()
 			_log.LogException('DB account [%s] cannot be used as a GNUmed staff login' % account, sys.exc_info(), verbose=0)
 			msg = _(
 				'The database account [%s] cannot be used as a\n'
@@ -967,9 +929,8 @@ Do not rely on this database to work properly in all cases !""")
 		self.__set_db_lang()
 
 		# display database banner
-		msg = gmPG.run_ro_query('default', 'select message from cfg.db_logon_banner')
-		if msg is not None:
-			gmGuiHelpers.gm_show_info(msg[0][0], _('Verifying database'))
+		rows, idx = gmPG2.run_ro_queries(link_obj = None, queries = [{'cmd': u'select message from cfg.db_logon_banner'}])
+		gmGuiHelpers.gm_show_info(rows[0]['message'], _('Verifying database'))
 
 		# create the main window
 		cli_layout = gmCLI.arg.get('--layout', None)
@@ -1053,15 +1014,8 @@ Do not rely on this database to work properly in all cases !""")
 
 		db_lang = None
 		# get current database locale
-		cmd = "select lang from i18n.curr_lang where user = CURRENT_USER limit 1;"
-		result = gmPG.run_ro_query('default', cmd, 0)
-		if result is None:
-			# if the actual query fails assume the admin
-			# knows her stuff and fail graciously
-			_log.Log(gmLog.lWarn, 'cannot get database language')
-			_log.Log(gmLog.lInfo, 'assuming language settings are not wanted/needed')
-			return False
-		if len(result) == 0:
+		rows, idx = gmPG2.run_ro_queries(link_obj=None, queries = [{'cmd': u"select lang from i18n.curr_lang where user=CURRENT_USER"}])
+		if len(rows) == 0:
 			msg = _(
 				"There is no language selected in the database for user [%s].\n"
 				"Your system language is currently set to [%s].\n\n"
@@ -1073,7 +1027,7 @@ Do not rely on this database to work properly in all cases !""")
 			)  % (_provider['db_user'], gmI18N.system_locale, gmI18N.system_locale)
 			_log.Log(gmLog.lData, "database locale currently not set")
 		else:
-			db_lang = result[0][0]
+			db_lang = rows[0]['lang']
 			msg = _(
 				"The currently selected database language ('%s') does\n"
 				"not match the current system language ('%s').\n\n"
@@ -1104,16 +1058,10 @@ Do not rely on this database to work properly in all cases !""")
 			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
 			return True
 		# no, so ask user
-		dlg = wx.MessageDialog (
-			parent = None,
-			message = msg,
-			caption = _('checking database language settings'),
-			style = wx.YES_NO | wx.CENTRE | wx.ICON_QUESTION
-		)
-		result = dlg.ShowModal()
-		dlg.Destroy()
-
-		if result == wx.ID_NO:
+		if not gmGuiHelpers.gm_show_question (
+			aMessage = msg,
+			aTitle = _('checking database language settings'),
+		):
 			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Ignoring mismatch next time.')
 			comment = [
 				"If the system locale matches this value a mismatch",
@@ -1125,19 +1073,15 @@ Do not rely on this database to work properly in all cases !""")
 			return True
 
 		# try setting database language (only possible if translation exists)
-		cmd = "select i18n.set_curr_lang(%s) "
 		for lang in [gmI18N.system_locale_level['full'], gmI18N.system_locale_level['country'], gmI18N.system_locale_level['language']]:
-			if len (lang) > 0:
+			if len(lang) > 0:
 				# users are getting confused, so don't show these "errors",
 				# they really are just notices about us being nice
-				success, data = gmPG.run_commit2 (
-					link_obj = 'default',
-					queries = [ (cmd, [lang]) ]
+				rows, idx = gmPG2.run_rw_queries (
+					link_obj = None,
+					queries = [{'cmd': u'select i18n.set_curr_lang(%s)', 'args': [lang]}],
+					return_data = True
 				)
-				if not success:
-					_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
-					continue
-				rows, idx = data
 				if rows[0][0]:
 					_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
 				else:
@@ -1156,8 +1100,7 @@ Do not rely on this database to work properly in all cases !""")
 			_('setting database language')
 		)
 		if set_default:
-			cmd = "select i18n.force_curr_lang('en_GB')"
-			gmPG.run_commit('default', [ (cmd, []) ])
+			gmPG2.run_rw_queries(link_obj=None, queries=[{'cmd': u'select i18n.force_curr_lang(%s)', 'args': [u'en_GB']}])
 
 		return False
 #==============================================================================
@@ -1181,7 +1124,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.265  2006-08-11 13:10:08  ncq
+# Revision 1.266  2006-10-09 12:25:21  ncq
+# - almost entirely convert over to gmPG2
+# - rip out layout manager selection code
+# - better use of db level cfg
+# - default size now 800x600
+#
+# Revision 1.265  2006/08/11 13:10:08  ncq
 # - even if we cannot find wxversion still test for 2.6.x/unicode after
 #   the fact and make very unhappy noises before drifting off into coma
 #
