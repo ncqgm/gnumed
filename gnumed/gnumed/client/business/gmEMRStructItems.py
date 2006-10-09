@@ -3,33 +3,33 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-import types, sys, string
+import types, sys, string, datetime
 
-from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmNull
-from Gnumed.business import gmClinItem, gmClinNarrative
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 
-import mx.DateTime as mxDT
+from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmNull, gmBusinessDBObject
+from Gnumed.business import gmClinNarrative
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #============================================================
-class cHealthIssue(gmClinItem.cClinItem):
+class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue.
 	"""
-	_cmd_fetch_payload = """select *, xmin from clin.health_issue where pk=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.health_issue where pk=%(pk)s and xmin=%(xmin)s for update"""
-	]
+	_cmd_fetch_payload = u"select *, xmin from clin.health_issue where pk=%s"
 	_cmds_store_payload = [
-		"""update clin.health_issue set
+		u"""update clin.health_issue set
 				description=%(description)s,
 				age_noted=%(age_noted)s
-			where pk=%(pk)s""",
-		"""select xmin from clin.health_issue where pk=%(pk)s"""
+			where
+				pk=%(pk)s and
+				xmin=%(xmin)s""",
+		u"select xmin from clin.health_issue where pk=%(pk)s"
 	]
 	_updatable_fields = [
 		'description',
@@ -39,15 +39,15 @@ class cHealthIssue(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select pk from clin.health_issue where id_patient=%s and description=%s"
-			rows = gmPG.run_ro_query('historica', cmd, None, patient_id, name)
-			if rows is None:
-				raise gmExceptions.ConstructorError, 'error getting health issue for [%s:%s]' % (patient_id, name)
+			cmd = u"select *, xmin from clin.health_issue where id_patient=%s and description=%s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient_id, name]}], get_col_idx=True)
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchClinItemError, 'no health issue for [%s:%s]' % (patient_id, name)
 			pk = rows[0][0]
-		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+			row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk'}
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
+		else:
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['id_patient']]
@@ -62,7 +62,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 		"""
 		# sanity check
 		if not type(description) in [str, unicode] or description.strip() == '':
-			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
+			_log.Log(gmLog.lErr, '<description> must be a non-empty string')
 			return False
 		# update the issue description
 		old_description = self._payload[self._idx['description']]
@@ -77,62 +77,51 @@ class cHealthIssue(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def close_expired_episode(self, ttl=180):
 		"""ttl in days"""
-		# FIXME: ttl needs to be configurable
-		print '%s.close_expired_episode(ttl) needs fixing' % self.__class__.__name__
-		return True
-		# FIXME: this needs to go through clin_encounter.last_affirmed/clin_root_item.modified_when
-		cmd = """
-update clin.episode set is_open = false where pk in (
-	-- FIXME: this logic seems wrong
-	select distinct pk_episode from clin.v_pat_items where
-			pk_health_issue = %(issue)s and
-			modified_when < (now() - (%(ttl)s || ' days')::interval)
-	except
-		select pk from clin.episode where
-			is_open and
-			fk_health_issue = %(issue)s and
-			modified_when > (now() - (%(ttl)s || ' days')::interval)
-)"""
-		args = {'issue': self.pk_obj, 'ttl': ttl}
-		success, msg = gmPG.run_commit2 ('clinical', [(cmd, [args])])
+		open_episode = self.get_open_episode()
+		earliest, latest = open_episode.get_access_range()
+		ttl = datetime.timedelta(ttl)
+		now = datetime.datetime.now(tz=latest.tzinfo)
+		if (latest + ttl) > now:
+			return True
+		open_episode['episode_open'] = False
+		success, data = open_episode.save_payload()
 		if success:
 			return True
 		return False
 	#--------------------------------------------------------
 	def close_episode(self):
-		cmd = """
-update clin.episode set is_open = false where
-	fk_health_issue = %(issue)s and
-	is_open is true"""
-		success, data = gmPG.run_commit2('clinical', [(cmd, [{'issue': self.pk_obj}])])
-		return success
+		open_episode = self.get_open_episode()
+		open_episode['episode_open'] = False
+		success, data = open_episode.save_payload()
+		if success:
+			return True
+		return False
 	#--------------------------------------------------------
 	def has_open_episode(self):
-		cmd = "select exists (select 1 from clin.episode where fk_health_issue = %s and is_open is True limit 1)"
-		rows = gmPG.run_ro_query ( 'clinical', cmd, None, self.pk_obj)
+		cmd = u"select exists (select 1 from clin.episode where fk_health_issue = %s and is_open is True)"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		return rows[0][0]
 	#--------------------------------------------------------
 	def get_open_episode(self):
-		cmd = "select pk from clin.episode where fk_health_issue = %s and is_open is True limit 1"
-		rows = gmPG.run_ro_query('clinical', cmd, None, self.pk_obj)
-		if (rows is None) or (len(rows) == 0):
+		cmd = u"select pk from clin.episode where fk_health_issue = %s and is_open is True"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		if len(rows) == 0:
 			return None
 		return cEpisode(aPK_obj=rows[0][0])
 #============================================================
-class cEpisode(gmClinItem.cClinItem):
+class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = """select *, xmin_episode from clin.v_pat_episodes where pk_episode=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.episode where pk=%(pk_episode)s and xmin=%(xmin_episode)s for update"""
-	]
+	_cmd_fetch_payload = u"select *, xmin_episode from clin.v_pat_episodes where pk_episode=%s"
 	_cmds_store_payload = [
-		"""update clin.episode set
+		u"""update clin.episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
 				description=%(description)s
-			where pk=%(pk_episode)s""",
-		"""select xmin_episode from clin.v_pat_episodes where pk_episode=%(pk_episode)s"""
+			where
+				pk=%(pk_episode)s and
+				xmin=%(xmin_episode)s""",
+		u"""select xmin_episode from clin.v_pat_episodes where pk_episode=%(pk_episode)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
@@ -143,18 +132,21 @@ class cEpisode(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select pk_episode from clin.v_pat_episodes where pk_patient=%s and description=%s limit 1"
-			rows = gmPG.run_ro_query('historica', cmd, None, id_patient, name)
-			if rows is None:
-				raise gmExceptions.ConstructorError, 'error getting episode for [%s:%s]' % (id_patient, name)
+			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [id_patient, name]}], get_col_idx=True)
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchClinItemError, 'no episode for [%s:%s]' % (id_patient, name)
-			pk = rows[0][0]
-		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+			row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=rows[0])
+		else:
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_access_range(self):
-		cmd = """
+		"""Get earliest and latest access to this episode.
+
+		Returns a tuple(earliest, latest).
+		"""
+		cmd = u"""
 select
 	min(earliest),
 	max(latest)
@@ -171,7 +163,7 @@ from (
 	from
 		clin.clin_root_item
 	where
-		fk_episode = %s
+		fk_episode = %(pk)s
 
 	) union all (
 
@@ -181,13 +173,13 @@ from (
 	from
 		clin.episode
 	where
-		pk = %s
+		pk = %(pk)s
 	)
 ) as ranges"""
-		rows = gmPG.run_ro_query('clinical', cmd, None, self.pk_obj)
-		if rows is None or len(rows) == 0:
-			return {'earliest': gmNull.cNull(warn=False), 'latest': gmNull.cNull(warn=False)}
-		return {'earliest': rows[0][0], 'latest': rows[0][1]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		if len(rows) == 0:
+			return (gmNull.cNull(warn=False), gmNull.cNull(warn=False))
+		return (rows[0][0], rows[0][1])
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
@@ -204,8 +196,8 @@ from (
 			- a string instance
 		"""
 		# sanity check
-		if not type(description) in [str, unicode]  or description.strip() == '':
-			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
+		if description.strip() == '':
+			_log.Log(gmLog.lErr, '<description> must be a non-empty string instance')
 			return False
 		# update the episode description
 		old_description = self._payload[self._idx['description']]
@@ -213,29 +205,27 @@ from (
 		self._is_modified = True
 		successful, data = self.save_payload()
 		if not successful:
-			_log.Log(gmLog.lErr, 'cannot rename episode [%s] with [%s]' % (self, description))
+			_log.Log(gmLog.lErr, 'cannot rename episode [%s] to [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
 #============================================================
-class cEncounter(gmClinItem.cClinItem):
+class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter.
 	"""
-	_cmd_fetch_payload = """
-		select *, xmin_encounter from clin.v_pat_encounters where pk_encounter=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin.encounter where pk=%(pk_encounter)s and xmin=%(xmin_encounter)s for update"""
-	]
+	_cmd_fetch_payload = u"select *, xmin_encounter from clin.v_pat_encounters where pk_encounter=%s"
 	_cmds_store_payload = [
-		"""update clin.encounter set
+		u"""update clin.encounter set
 				started=%(started)s,
 				last_affirmed=%(last_affirmed)s,
 				fk_location=%(pk_location)s,
 				fk_type=%(pk_type)s,
 				reason_for_encounter=%(reason_for_encounter)s,
 				assessment_of_encounter=%(assessment_of_encounter)s
-			where pk=%(pk_encounter)s""",
-		"""select xmin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
+			where
+				pk=%(pk_encounter)s and
+				xmin=%(xmin_encounter)s""",
+		u"""select xmin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
 	_updatable_fields = [
 		'started',
@@ -255,48 +245,41 @@ class cEncounter(gmClinItem.cClinItem):
 
 		staff_id - Provider's primary key
 		"""
-		self._payload[self._idx['last_affirmed']] = mxDT.now()
-		if not self.save_payload():
+		self._payload[self._idx['last_affirmed']] = datetime.datetime.today()
+		success, data = self.save_payload()
+		if not success:
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
-			_log.Log(gmLog.lErr, str(msg))
+			_log.Log(gmLog.lErr, str(data))
 			return False
 		return True
 	#--------------------------------------------------------
-	def transfer_clinical_data(self, from_episode, to_episode):
+	def transfer_clinical_data(self, source_episode=None, target_episode=None):
 		"""
 		Moves every element currently linked to the current encounter
-		and the from_episode onto to_episode.
+		and the source_episode onto target_episode.
 
-		@param from_episode The episode the elements are currently linked to.
-		@type to_episode A cEpisode intance.
-		@param to_episode The episode the elements will be relinked to.
-		@type to_episode A cEpisode intance.
+		@param source_episode The episode the elements are currently linked to.
+		@type target_episode A cEpisode intance.
+		@param target_episode The episode the elements will be relinked to.
+		@type target_episode A cEpisode intance.
 		"""
 		# sanity check
-		if from_episode['pk_episode'] == to_episode['pk_episode']:
+		if source_episode['pk_episode'] == target_episode['pk_episode']:
 			return (True, True)
 		queries = []
-		# FIXME: this will work but it will not invalidate the cache,
-		# FIXME: hence the next save_payload will fail (because xmin is now different)
-		cmd = """
-			UPDATE clin.clin_root_item SET fk_episode = %s 
- 			WHERE fk_encounter = %s AND fk_episode = %s
+		cmd = u"""
+			UPDATE clin.clin_root_item
+			SET fk_episode = %s
+ 			WHERE
+				fk_encounter = %s AND
+				fk_episode = %s
 			"""
-		queries.append((cmd, [to_episode['pk_episode'], self.pk_obj, from_episode['pk_episode']]))
 		# run queries
-		success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot relink elements of encounter [%s] from episode [%s] to episode [%s]: %s' % (
-				self.pk_obj,
-				from_episode['pk_episode'],
-				to_episode['pk_episode'],
-				str(data)
-			))
-			err, msg = data
-			return (False, msg)
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [target_episode['pk_episode'], self.pk_obj, source_episode['pk_episode']]}])
+		self.refetch_payload()
 		return (True, True)
 #============================================================		
-class cProblem(gmClinItem.cClinItem):
+class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
 
 	problems are the aggregation of
@@ -304,9 +287,8 @@ class cProblem(gmClinItem.cClinItem):
 		issues w/ episodes and
 		episodes w/o issues
 	"""
-	_cmd_fetch_payload = ''					# will get programmatically defined in __init__
-	_cmds_lock_rows_for_update = []
-	_cmds_store_payload = ["""select 1"""]
+	_cmd_fetch_payload = u''					# will get programmatically defined in __init__
+	_cmds_store_payload = [u"select 1"]
 	_updatable_fields = []
 
 	#--------------------------------------------------------
@@ -323,7 +305,7 @@ class cProblem(gmClinItem.cClinItem):
 		# As problems are rows from a view of different emr struct items,
 		# the PK can't be a single field and, as some of the values of the
 		# composed PK may be None, they must be queried using 'is null',
-		# so we must programmatically construct the sql query
+		# so we must programmatically construct the SQL query
 		where_parts = []
 		pk = {}
 		for col_name in aPK_obj.keys():
@@ -333,9 +315,9 @@ class cProblem(gmClinItem.cClinItem):
 			else:
 				where_parts.append('%s=%%(%s)s' % (col_name, col_name))
 				pk[col_name] = val
-		cProblem._cmd_fetch_payload = """select * from clin.v_problem_list where """ + ' and '.join(where_parts)
+		cProblem._cmd_fetch_payload = u"select * from clin.v_problem_list where " + ' and '.join(where_parts)
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_as_episode(self):
 		"""
@@ -345,12 +327,7 @@ class cProblem(gmClinItem.cClinItem):
 		if self._payload[self._idx['type']] != 'episode':
 			_log.Log(gmLog.lErr, 'cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
-		try:
-			episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
-		except gmExceptions.ConstructorError:
-			_log.LogException('cannot get episode', sys.exc_info())
-			return None		
-		return episode
+		return cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -365,22 +342,16 @@ def create_health_issue(patient_id=None, description=None):
 		h_issue = cHealthIssue(patient_id=patient_id, name=description)
 		return (True, h_issue)
 	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.LogException(str(msg))
 	# insert new health issue
 	queries = []
-	cmd = "insert into clin.health_issue (id_patient, description) values (%s, %s)"
-	queries.append((cmd, [patient_id, description]))
+	cmd = u"insert into clin.health_issue (id_patient, description) values (%s, %s)"
+	queries.append({'cmd': cmd, 'args': [patient_id, description]})
 	# get PK of inserted row
-	cmd = "select currval('clin.health_issue_pk_seq')"
-	queries.append((cmd, []))
-	result, msg = gmPG.run_commit('historica', queries, True)
-	if result is None:
-		return (False, msg)
-	try:
-		h_issue = cHealthIssue(aPK_obj = result[0][0])
-	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate health issue [%s]' % (result[0][0]), sys.exc_info, verbose=0)
-		return (False, _('internal error, check log'))
+	cmd = u"select currval('clin.health_issue_pk_seq')"
+	queries.append({'cmd': cmd})
+	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
+	h_issue = cHealthIssue(aPK_obj = rows[0][0])
 	return (True, h_issue)
 #-----------------------------------------------------------
 def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False):
@@ -402,28 +373,18 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	queries = []
 	# insert episode
 	if patient_id is None:
-		cmd = """insert into clin.episode (fk_health_issue, description, is_open) values (%s, %s, %s::boolean)"""
-		queries.append((cmd, [pk_health_issue, episode_name, is_open]))
+		cmd = u"insert into clin.episode (fk_health_issue, description, is_open) values (%s, %s, %s::boolean)"
+		queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open]})
 	else:
-		cmd = """insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"""
-		queries.append((cmd, [pk_health_issue, patient_id, episode_name, is_open]))
+		cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
+		queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
 	# retrieve PK
-	cmd = "select currval('clin.episode_pk_seq')"
-	queries.append((cmd, []))
+	cmd = u"select currval('clin.episode_pk_seq')"
+	queries.append({'cmd': cmd})
 	# run queries
-	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
-	if not success:
-		_log.Log(gmLog.lErr, 'cannot create episode: %s' % str(data))
-		err, msg = data
-		return (False, msg)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
 	# now there ?
-	rows, idx = data
-	pk = rows[0][0]
-	try:
-		episode = cEpisode(aPK_obj = pk)
-	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate episode [%s]' % pk, sys.exc_info(), verbose=0)
-		return (False, _('internal error, check log'))
+	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return (True, episode)
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
@@ -442,7 +403,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	queries = []
 	try:
 		enc_type = int(enc_type)
-		cmd = """
+		cmd = u"""
 			insert into clin.encounter (
 				fk_patient, fk_location, fk_type
 			) values (
@@ -450,51 +411,40 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 			)"""
 	except ValueError:
 		enc_type = str(enc_type)
-		cmd = """
+		cmd = u"""
 			insert into clin.encounter (
 				fk_patient, fk_location, fk_type
 			) values (
 				%s, -1,	coalesce((select pk from clin.encounter_type where description=%s), 0)
 			)"""
-	queries.append((cmd, [fk_patient, enc_type]))
-	cmd = "select currval('clin.encounter_pk_seq')"
-	queries.append((cmd, []))
-	result, msg = gmPG.run_commit('historica', queries, True)
-	if result is None:
-		return (False, msg)
-	try:
-		encounter = cEncounter(aPK_obj = result[0][0])
-	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate encounter [%s]' % (result[0][0]), sys.exc_info, verbose=0)
-		return (False, _('internal error, check log'))
+	queries.append({'cmd': cmd, 'args': [fk_patient, enc_type]})
+	queries.append({'cmd': u"select currval('clin.encounter_pk_seq')"})
+	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
+	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 	return (True, encounter)
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = "SELECT _(description) from clin.encounter_type"
-	result = gmPG.run_ro_query('historica', cmd, None)
-	if (result is None) or (len(result) == 0):
+	cmd = u"SELECT _(description) from clin.encounter_type"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	if len(rows) == 0:
 		_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
 		return [_('in surgery'), _('chart review')]
 	consultation_types = []
-	for cons_type in result:
+	for cons_type in rows:
 		consultation_types.append(cons_type[0])
 	return consultation_types
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
-	import sys
-	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmPG
-	gmPG.set_default_client_encoding({'wire': 'latin1', 'string': 'latin1'})
 	#--------------------------------------------------------
 	# define tests
 	#--------------------------------------------------------
 	def test_problem():
 		print "\nProblem test"
 		print "------------"
-		prob = cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
+		prob = cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': None})
 		print prob
 		fields = prob.get_fields()
 		for field in fields:
@@ -502,18 +452,24 @@ if __name__ == '__main__':
 		print '\nupdatable:', prob.get_updatable_fields()
 		epi = prob.get_as_episode()
 		print '\nas episode:'
-		for field in epi.get_fields():
-			print '   .%s : %s' % (field, epi[field])
+		if epi is not None:
+			for field in epi.get_fields():
+				print '   .%s : %s' % (field, epi[field])
 	#--------------------------------------------------------
 	def test_health_issue():
 		print "\nhealth issue test"
 		print "-----------------"
-		h_issue = cHealthIssue(aPK_obj=1)
+		h_issue = cHealthIssue(aPK_obj=2)
 		print h_issue
 		fields = h_issue.get_fields()
 		for field in fields:
 			print field, ':', h_issue[field]
+		print "has open episode:", h_issue.has_open_episode()
+		print "open episode:", h_issue.get_open_episode()
 		print "updatable:", h_issue.get_updatable_fields()
+		h_issue.close_expired_episode(ttl=7300)
+		h_issue = cHealthIssue(patient_id=12, name=u'post appendectomy/peritonitis')
+		print h_issue
 	#--------------------------------------------------------	
 	def test_episode():
 		print "\nepisode test"
@@ -540,6 +496,9 @@ if __name__ == '__main__':
 			print "success"
 			for field in fields:
 				print field, ':', episode[field]
+
+		print "episode range:", episode.get_access_range()
+
 		raw_input('ENTER to continue')
 
 	#--------------------------------------------------------
@@ -556,11 +515,19 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	# run them
 	test_episode()
-	#test_problem()
+	test_problem()
+	test_encounter()
+	test_health_issue()
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.82  2006-09-03 11:27:24  ncq
+# Revision 1.83  2006-10-09 12:18:18  ncq
+# - convert to gmPG2
+# - convert to cBusinessDBObject
+# - unicode queries
+# - robustified test suite
+#
+# Revision 1.82  2006/09/03 11:27:24  ncq
 # - use gmNull.cNull
 # - add cHealthIssue.get_open_episode()
 # - add cEpisode.get_access_range()
