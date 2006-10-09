@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.35 2006-10-08 14:26:16 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmBusinessDBObject.py,v 1.36 2006-10-09 11:42:16 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -354,8 +354,12 @@ class cBusinessDBObject:
 		if self._is_modified:
 			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 			return False
+		if type(self.pk_obj) == types.DictType:
+			arg = self.pk_obj
+		else:
+			arg = [self.pk_obj]
 		rows, self._idx = gmPG2.run_ro_queries (
-			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': [self.pk_obj]}],
+			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': arg}],
 			get_col_idx = True
 		)
 		if len(rows) == 0:
@@ -579,7 +583,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.35  2006-10-08 14:26:16  ncq
+# Revision 1.36  2006-10-09 11:42:16  ncq
+# - in refetch_payload() properly handle scalar vs complex self.pk_obj
+#
+# Revision 1.35  2006/10/08 14:26:16  ncq
 # - convert to use gmPG2
 # 	- subtable support may still be suffering fallout
 # - better docstrings
