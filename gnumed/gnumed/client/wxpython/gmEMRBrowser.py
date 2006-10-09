@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.55 2006-06-26 13:03:22 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmEMRBrowser.py,v 1.56 2006-10-09 12:22:27 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ except ImportError:
 	from wxPython import wx
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmEditArea
@@ -228,7 +228,7 @@ class cEMRTree(wx.TreeCtrl):
 			# avoid collapsing view
 			self.SetItemText(self.__curr_node, new_name)
 			return
-		gmGuiHelpers.gm_show_error(
+		gmGuiHelpers.gm_show_error (
 			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
 			_('Error renaming episode ...'),
 			gmLog.lErr
@@ -339,8 +339,8 @@ class cEMRTree(wx.TreeCtrl):
 			else:
 				print "No target episode node found"
 			self.__curr_node_data.transfer_clinical_data (
-				from_episode = owning_episode,
-				to_episode = target_episode_node
+				source_episode = owning_episode,
+				target_episode = target_episode_node
 			)
 		
 		# FIXME: GNUmed internal signal
@@ -698,10 +698,6 @@ if __name__ == '__main__':
 		sys.exit("Cannot run without config file.")
 
 	try:
-		# make sure we have a db connection
-		gmPG.set_default_client_encoding('latin1')
-		pool = gmPG.ConnectionPool()
-		
 		# obtain patient
 		patient = gmPerson.ask_for_patient()
 		if patient is None:
@@ -727,17 +723,16 @@ if __name__ == '__main__':
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
 		raise
-	try:
-		pool.StopListeners()
-	except:
-		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-		raise
 
 	_log.Log (gmLog.lInfo, "closing emr browser...")
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.55  2006-06-26 13:03:22  ncq
+# Revision 1.56  2006-10-09 12:22:27  ncq
+# - some cleanup
+# - adjust to changed signature of encounter.transfer_clinical_data()
+#
+# Revision 1.55  2006/06/26 13:03:22  ncq
 # - improve menu strings
 # - implement moving episodes among issues
 #
