@@ -95,37 +95,6 @@ class BusinessObjectAttributeNotSettableError(KeyError):
 	def __str__(self):
 		return str(self.errmsg)
 
-# clinical item exceptions
-class NoSuchClinItemError(NoSuchBusinessObjectError):
-	"""Raised when a clinical item can not be found."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "no such clinical item found"
-		else:
-			self.errmsg = errmsg
-	def __str__(self):
-		return str(self.errmsg)
-
-class NoSuchClinItemAttributeError(NoSuchBusinessObjectAttributeError):
-	"""Raised when a clinical item attribute can not be found."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "no such clinical item attribute found"
-		else:
-			self.errmsg = errmsg
-
-	def __str__(self):
-		return str(self.errmsg)
-
-class ClinItemAttributeNotSettableError(BusinessObjectAttributeNotSettableError):
-	"""Raised when a clinical item attribute is not settable."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "clinical item attribute not settable"
-		else:
-			self.errmsg = errmsg
-	def __str__(self):
-		return str(self.errmsg)
 #------------------------------------------------------------
 class InvalidInputError(Exception):
 	"""Raised by business layers when an attempt is made to input
@@ -141,7 +110,10 @@ class InvalidInputError(Exception):
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.6  2004-10-11 19:07:36  ncq
+# Revision 1.7  2006-10-10 07:27:34  ncq
+# - no more ClinItem exceptions
+#
+# Revision 1.6  2004/10/11 19:07:36  ncq
 # - add exceptions for business db class
 #
 # Revision 1.5  2004/06/02 12:51:45  ncq
