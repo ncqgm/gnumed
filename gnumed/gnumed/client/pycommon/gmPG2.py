@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -27,15 +27,31 @@ _log.Log(gmLog.lInfo, __version__)
 # 3rd party
 try:
 	import psycopg2 as dbapi
-	_log.Log(gmLog.lData, 'psycopg2 version: %s' % dbapi._psycopg.__version__)
-	_log.Log(gmLog.lInfo, 'PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-	assert(float(dbapi.apilevel) >= 2.0)
-	assert(dbapi.threadsafety > 0)
-	assert(dbapi.paramstyle == 'pyformat')
 except ImportError:
 	_log.LogException("Python database adapter psycopg2 not found.", sys.exc_info(), verbose=1)
 	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
 	raise
+
+_log.Log(gmLog.lData, 'psycopg2 version: %s' % dbapi.__version__)
+_log.Log(gmLog.lInfo, 'PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+if not (float(dbapi.apilevel) >= 2.0):
+	raise ImportError('gmPG2: supported DB-API level too low')
+if not (dbapi.threadsafety > 0):
+	raise ImportError('gmPG2: lacking minimum thread safety in psycopg2')
+if not (dbapi.paramstyle == 'pyformat'):
+	raise ImportError('gmPG2: lacking pyformat (%%(<name>)s style) placeholder support in psycopg2')
+try:
+	dbapi.__version__.index('dt')
+except ValueError:
+	raise ImportError('gmPG2: lacking datetime support in psycopg2')
+try:
+	dbapi.__version__.index('ext')
+except ValueError:
+	raise ImportError('gmPG2: lacking extensions support in psycopg2')
+try:
+	dbapi.__version__.index('pq3')
+except ValueError:
+	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
 
 import psycopg2.extras
 import psycopg2.extensions
@@ -736,7 +752,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.4  2006-10-08 09:23:40  ncq
+# Revision 1.5  2006-10-10 07:38:22  ncq
+# - tighten checks on psycopg2 capabilities
+#
+# Revision 1.4  2006/10/08 09:23:40  ncq
 # - default encoding UNICODE, not utf8
 # - add database_schema_compatible()
 # - smartify set_default_client_encoding()
