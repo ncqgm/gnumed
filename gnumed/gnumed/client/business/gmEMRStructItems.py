@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -42,7 +42,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"select *, xmin from clin.health_issue where id_patient=%s and description=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient_id, name]}], get_col_idx=True)
 			if len(rows) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no health issue for [%s:%s]' % (patient_id, name)
+				raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [%s:%s]' % (patient_id, name)
 			pk = rows[0][0]
 			row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
@@ -135,7 +135,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [id_patient, name]}], get_col_idx=True)
 			if len(rows) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no episode for [%s:%s]' % (id_patient, name)
+				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s]' % (id_patient, name)
 			row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=rows[0])
 		else:
@@ -521,7 +521,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.83  2006-10-09 12:18:18  ncq
+# Revision 1.84  2006-10-10 07:26:37  ncq
+# - no more clinitem exceptions
+#
+# Revision 1.83  2006/10/09 12:18:18  ncq
 # - convert to gmPG2
 # - convert to cBusinessDBObject
 # - unicode queries
