@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.81 2006-09-13 07:53:26 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmPerson.py,v 1.82 2006-10-21 20:44:06 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,10 @@ import sys, os.path, time, re, string, types
 import mx.DateTime as mxDT
 
 # GNUmed
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+
+from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
@@ -27,6 +30,8 @@ _log.Log(gmLog.lInfo, __version__)
 __gender_list = None
 __gender_idx = None
 __comm_list = None
+
+__gender2salutation_map = None
 
 #============================================================
 class cDTO_person(object):
@@ -53,6 +58,7 @@ class cDTO_person(object):
 			raise ValueError(_('invalid gender: [%s]') % str(val))
 
 		if attr == 'dob':
+			# FIXME: move to datetime
 			if isinstance(val, mxDT.DateTimeType):
 				object.__setattr__(self, attr, val)
 				return
@@ -67,11 +73,9 @@ class cDTO_person(object):
 		return 'firstnames lastnames dob gender'.split()
 #============================================================
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
-	_service = "personalia"
-	_cmd_fetch_payload = "select * from dem.v_basic_person where pk_identity=%s"
-	_cmds_lock_rows_for_update = ["select 1 from dem.identity where pk=%(pk_identity)s and xmin = %(xmin_identity)s"]
+	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
 	_cmds_store_payload = [
-		"""update dem.identity set
+		u"""update dem.identity set
 			title=%(title)s,
 			dob=%(dob)s,
 			cob=%(cob)s,
@@ -79,13 +83,15 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			fk_marital_status = %(pk_marital_status)s,
 			karyotype = %(karyotype)s,
 			pupic = %(pupic)s
-		where pk=%(pk_identity)s""",
-		"""select xmin_identity from dem.v_basic_person where pk_identity=%(pk_identity)s"""
+		where
+			pk=%(pk_identity)s and
+			xmin = %(xmin_identity)s""",
+		u"""select xmin_identity from dem.v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
 	_subtable_dml_templates = {
 		'addresses': {
-			'select': """
+			'select': u"""
 				select
 					vba.id as pk,
 					vba.number,
@@ -107,16 +113,13 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					lpoa.id_address = vba.id
 					and lpoa.id_type = at.id
 					and lpoa.id_identity = %s""",
-			'insert':
-				"""
-					INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
-					VALUES (%(pk_master)s, dem.create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));
-				""",
-			'delete':
-				"""delete from dem.lnk_person_org_address where id_identity = %s and id_address = %s"""
+			'insert': u"""
+				INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
+				VALUES (%(pk_master)s, dem.create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));""",
+			'delete': u"delete from dem.lnk_person_org_address where id_identity = %s and id_address = %s"
 		},
 		'ext_ids': {
-			'select':"""
+			'select': u"""
 				select
 					external_id as pk,
 					fk_origin as id_type,
@@ -126,14 +129,13 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					eeid.context as context
 				from dem.lnk_identity2ext_id, dem.enum_ext_id_types eeid
 				where id_identity = %s and fk_origin = eeid.pk""",
-			'delete':
-				"""delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s""",
-			'insert':
-				"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
+			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s",
+			'insert': u"""
+				insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
 				values(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""
 		},
 		'comms': {
-			'select': """
+			'select': u"""
 				select
 					l2c.id_type,
 					l2c.url,
@@ -146,25 +148,21 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 				where
 					l2c.id_identity = %s
 					and ect.id = id_type""",
-			'insert':
-				"""SELECT dem.link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)""",
-			'delete':
-				"""delete from dem.lnk_identity2ext_id where id_identity = %s and url = %s"""},
+			'insert': u"SELECT dem.link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)",
+			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and url = %s"
+		},
 		'occupations': {
-			'select':
-				"""select o.name as occupation, o.id as pk from dem.occupation o, dem.lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s""",
-			'delete':
-				"""delete from dem.lnk_job2person lj2p where id_identity = %s and id_occupation = %s""",
-			'insert':
-				"""
-					INSERT INTO dem.lnk_job2person (id_identity, id_occupation)
-					VALUES (%(pk_master)s, dem.create_occupation(%(occupation)s))
-				"""
+			'select': u"select o.name as occupation, o.id as pk from dem.occupation o, dem.lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s",
+			'delete': u"delete from dem.lnk_job2person lj2p where id_identity = %s and id_occupation = %s",
+			'insert': u"""
+				INSERT INTO dem.lnk_job2person (id_identity, id_occupation)
+				VALUES (%(pk_master)s, dem.create_occupation(%(occupation)s))"""
 		}
 	}
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'dob':
+			# FIXME: move to datetime
 			if type(value) != type(mxDT.now()):
 				raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob]' % (self.__class__.__name__, type(value), value)
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
@@ -196,50 +194,50 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		form of a dictionary of keys: first, last, title, preferred.
 		"""
 		try:
-			self._ext_cache['names']
+			return self._ext_cache['names']['all']
 		except KeyError:
-			# create cache of names
-			self._ext_cache['names'] = {}
-			# fetch names from backend
-			pk_identity = self._payload[self._idx['pk_identity']]
-			cmd = """
-					select n.firstnames, n.lastnames, i.title, n.preferred, n.active
-					from dem.names n, dem.identity i
-					where n.id_identity=%s and i.pk=%s"""
-			rows, idx = gmPG.run_ro_query('personalia', cmd, 1, pk_identity, pk_identity)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load names for patient [%s]' % pk_identity)
-				del self._ext_cache['names']
-				return None
-			# fill in cache with values
-			self._ext_cache['names']['all'] = []
-			self._ext_cache['names']['active'] = None
-			name = None
-			if len(rows) == 0:
-				# no names registered for patient
-				self._ext_cache['names']['all'].append (
-					{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}
-				)
-			else:
-				for row in rows:
-					name = {'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]}
-					# fill 'all' names cache
-					self._ext_cache['names']['all'].append(name)
-					if row[4]:
-						# fill 'active' name cache
-						self._ext_cache['names']['active'] = name
+			pass
+		# create cache of names
+		self._ext_cache['names'] = {}
+		# fetch names from backend
+		pk_identity = self._payload[self._idx['pk_identity']]
+		cmd = u"""
+			select
+				n.firstnames,
+				n.lastnames,
+				i.title,
+				n.preferred,
+				n.active
+			from
+				dem.names n, dem.identity i
+			where
+				n.id_identity=%s and
+				i.pk=%s"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [pk_identity, pk_identity]}])
+		# fill in cache with values
+		self._ext_cache['names'] = {}
+		self._ext_cache['names']['all'] = []
+		self._ext_cache['names']['active'] = None
+		if len(rows) == 0:
+			# no names registered for patient
+			return [{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}]
+		for row in rows:
+			name = {'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]}
+			# fill 'all' names cache
+			self._ext_cache['names']['all'].append(name)
+			if row[4]:
+				# fill 'active' name cache
+				self._ext_cache['names']['active'] = name
 		return self._ext_cache['names']['all']
 	#--------------------------------------------------------
-	def get_description (self):
-		"""
-		Again, allow code reuse where we don't care whether we are talking to a person
-		or organisation"""
+	def get_description(self):
+		"""Return descriptive string for patient."""
 		title = self._payload[self._idx['title']]
 		if title is None:
-			title = ''
+			title = map_gender2salutation(self._payload[self._idx['gender']])
 		else:
-			title = title[:4] + '. '
-		return "%s%s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
+			title = title[:4] + '.'
+		return "%s %s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
 	#-------------------------------------------------------- 	
 	def add_name(self, firstnames, lastnames, active=True, nickname=None):
 		"""
@@ -253,18 +251,14 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		queries = []
 		active = (active and 't') or 'f'
 		queries.append (
-			("select dem.add_name(%s, %s, %s, %s)", [self.getId(), firstnames, lastnames, active])
+			{'cmd': u"select dem.add_name(%s, %s, %s, %s)", 'args': [self.getId(), firstnames, lastnames, active]}
 		)
 		if nickname is not None:
-			queries.append (("select dem.set_nickname(%s, %s)", [self.getId(), nickname]))
-		successful, data = gmPG.run_commit2('personalia', queries)
-		if not successful:
-			_log.Log(gmLog.lErr, 'failed to add name: %s' % str(data))
-			return False
+			queries.append({'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.getId(), nickname]})
+		rows, idx = gmPG2.run_rw_queries(queries=queries)
 		try:			
-			del self._ext_cache['names']			
-		except:
-			pass
+			del self._ext_cache['names']
+		except: pass
 		return True
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
@@ -274,17 +268,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param nickname The preferred/nick/warrior name to set.
 		"""
 		# dump to backend
-		cmd = "select dem.set_nickname(%s, %s)"
-		queries = [(cmd, [self.getId(), nickname])]
-		successful, data = gmPG.run_commit2('personalia', queries)
-		if not successful:
-			_log.Log(gmLog.lErr, 'failed to set nickname: %s' % str(data))
-			return False
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.getId(), nickname]}])
 		# delete names cache so will be refetched next time it is queried
 		try:
 			del self._ext_cache['names']
-		except:
-			pass			
+		except: pass
 		return True
 	#--------------------------------------------------------
 	def link_occupation(self, occupation):
@@ -292,18 +280,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		Link an occupation with a patient, creating the occupation if it does not exists.
 		@param occupation The name of the occupation to link the patient to.
 		"""
-		# dump to backend
-		self.add_to_subtable (
-			'occupations', {'occupation': occupation}
-		)
-		successful, data = self.save_payload()
-		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % str(data))
-			return False
-		try:			
+		cmd = u"INSERT INTO dem.lnk_job2person (id_identity, id_occupation) VALUES (%(pk)s, dem.create_occupation(%(job)s))"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
+		try:
 			del self._ext_cache['occupations']
-		except:
-			pass			
+		except: pass
 		return True
 	#--------------------------------------------------------
 	def link_communication(self, comm_medium, url, is_confidential = False):
@@ -316,35 +297,17 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@type is_confidential A types.BooleanType instance.
 		"""
 		# locate communication in enum list and sanity check
-		comm_list = get_comm_list()		
+		comm_list = get_comm_list()
 		if comm_medium not in comm_list:
 			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
-			return False			
-		
-		# dump to backend
-		# FIXME: when adding to subtable, need that 'comms' exists
-		#        does not happen with addresses, occupations. Why?
-		try :
-			self._ext_cache['comms']
-		except:
-			self._ext_cache['comms'] = []
-		self.add_to_subtable(
-			'comms',
-				{
-					'comm_medium': comm_medium,
-					'url': url,
-					'is_confidential' : is_confidential
-				}
-		)
-		successful, data = self.save_payload()
-		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % str(data))
 			return False
-		try:			
+		# FIXME: make link_person_comm() create comm type if necessary
+		cmd = u"SELECT dem.link_person_comm(%(pk)s, %(medium)s, %(url)s, %(secret)s)",
+		rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': {'pk': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
+		try:
 			del self._ext_cache['comms']
-		except:
-			pass			
-		return True		
+		except: pass
+		return True
 	#--------------------------------------------------------
 	def link_address(self, number, street, postcode, urb, state, country):
 		"""
@@ -361,79 +324,81 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param country The name of the country.
 		@param country A types.StringType instance.
 		"""
-		# dump to backend
-		self.add_to_subtable (
-			'addresses',
-				{
-					'number': number,
-					'street': street,
-					'postcode' : postcode,
-					'urb' : urb,
-					'state' : state,
-					'country' : country
-				}
-			)
-		successful, data = self.save_payload()
-		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
-			return False
-		try:			
+		cmd = u"""
+			INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
+			VALUES (%(pk)s, dem.create_address(%(number)s, %(street)s, %(postcode)s, %(urb)s, %(state)s, %(country)s))""",
+		args = {
+			'pk': self.pk_obj,
+			'number': number,
+			'street': street,
+			'postcode': postcode,
+			'urb': urb,
+			'state': state,
+			'country': country
+		}
+		rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': args}])
+		try:
 			del self._ext_cache['addresses']
-		except:
-			pass			
-		return True		
+		except: pass
+		return True
 	#----------------------------------------------------------------------
 	def get_relatives(self):
-		cmd = """
-select
-        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, pk_marital_status,
-	marital_status, xmin_identity, preferred
-from
-	dem.v_basic_person vbp, dem.relation_types t, dem.lnk_person2relative l
-where
-	(l.id_identity = %s and
-	vbp.pk_identity = l.id_relative and
-	t.id = l.id_relation_type) or
-	(l.id_relative = %s and
-	vbp.pk_identity = l.id_identity and
-	t.inverse = l.id_relation_type)
-"""
-		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId(), self.getId()])
-		if data is None:
+		cmd = u"""
+			select
+				t.description,
+				vbp.pk_identity as id,
+				title,
+				firstnames,
+				lastnames,
+				dob,
+				cob,
+				gender,
+				karyotype,
+				pupic,
+				pk_marital_status,
+				marital_status,+
+				xmin_identity,
+				preferred
+			from
+				dem.v_basic_person vbp, dem.relation_types t, dem.lnk_person2relative l
+			where
+				(
+					l.id_identity = %(pk)s and
+					vbp.pk_identity = l.id_relative and
+					t.id = l.id_relation_type
+				) or (
+					l.id_relative = %(pk)s and
+					vbp.pk_identity = l.id_identity and
+					t.inverse = l.id_relation_type
+				)"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		if len(rows) == 0:
 			return []
-		if len(data) == 0:
-			return []
-		return [(r[0], cIdentity (row = {'data':r[1:], 'idx':idx, 'pk_field': 'pk'})) for r in data ]
+		return [(row[0], cIdentity(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk'})) for row in rows]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
-		from Gnumed.business.gmPerson import create_dummy_identity
 		# create new relative
 		id_new_relative = create_dummy_identity()
 		relative = gmPerson(id_new_relative)
 		# pre-fill with data from ourselves
 		relative_ident = relative.get_identity()
-		relative_ident.copyAddresses(self)
-		relative_ident.addName( '**?**', self.get_names()['last'], activate = 1)
+#		relative_ident.copy_addresses(self)
+		relative_ident.add_name( '**?**', self.get_names()['last'])
 		# and link the two
 		if self._ext_cache.has_key('relatives'):
 			del self._ext_cache['relatives']
-		cmd2 = """
+		cmd = u"""
 			insert into dem.lnk_person2relative (
 				id_identity, id_relative, id_relation_type
 			) values (
 				%s, %s, (select id from dem.relation_types where description = %s)
 			)"""
-		if rel_type:
-			return gmPG.run_commit2 (
-				'personalia',
-				[(cmd1, [self.getId(), relation['id'], relation['id'], self.getId()]),
-				 (cmd2, [relation['id'], self.getId(), rel_type])]
-			)
-		else:
-			return gmPG.run_commit2 ('personalia', [(cmd1, [self.getId(), relation['id'], relation['id'], self.getId()])])
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.getId(), id_new_relative, rel_type  ]}])
+		return True
 	#----------------------------------------------------------------------
 	def delete_relative(self, relation):
-		self.set_relative (None, relation)
+		# unlink only, don't delete relative itself
+		self.set_relative(None, relation)
 	#----------------------------------------------------------------------
 	def get_medical_age(self):
 		dob = self['dob']
@@ -553,28 +518,26 @@ class cStaffMember(cPerson):
 		return gmProviderInbox.cProviderInbox(provider_id = self._ID)
 #============================================================
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_service = "personalia"
-	_cmd_fetch_payload = "select * from dem.v_staff where pk_staff=%s"
-	_cmds_lock_rows_for_update = ["select 1 from dem.staff where pk=%(pk_staff)s and xmin = %(xmin_staff)s"]
+	_cmd_fetch_payload = u"select * from dem.v_staff where pk_staff=%s"
 	_cmds_store_payload = [
-		"""update dem.staff set
+		u"""update dem.staff set
 			fk_role = %(pk_role)s,
 			short_alias = %(short_alias)s,
 			comment = %(comment)s,
 			is_active = %(is_active)s,
 			db_user = %(db_user)s
-		where pk=%(pk_staff)s""",
-		"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
+		where
+			pk=%(pk_staff)s and
+			xmin = %(xmin_staff)s""",
+		u"""select xmin_staff from dem.v_staff where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
-			cmd = "select * from dem.v_staff where db_user = CURRENT_USER"
-			rows, idx = gmPG.run_ro_query('personalia', cmd, True)
-			if rows is None:
-				raise gmExceptions.ConstructorError, 'error retrieving staff record for CURRENT_USER'
+			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			if len(rows) == 0:
 				raise gmExceptions.ConstructorError, 'no staff record for CURRENT_USER'
 			row = {
@@ -588,13 +551,8 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 
 		# are we SELF ?
 		cmd = "select CURRENT_USER"
-		rows = gmPG.run_ro_query('personalia', cmd)
-		if (rows is None) or (len(rows) == 0):
-			raise gmExceptions.ConstructorError, 'cannot retrieve CURRENT_USER'
-		if rows[0][0] == self._payload[self._idx['db_user']]:
-			self.__is_current_user = True
-		else:
-			self.__is_current_user = False
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		self.__is_current_user = (rows[0][0] == self._payload[self._idx['db_user']])
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'db_user':
@@ -721,15 +679,11 @@ class cPatient(cPerson):
 	def _getMedDocsList(self):
 		"""Build a complete list of metadata for all documents of this person.
 		"""
-		cmd = "SELECT pk from blobs.doc_med WHERE patient_id=%s"
-		tmp = gmPG.run_ro_query('blobs', cmd, None, self._ID)
-		_log.Log(gmLog.lData, "document IDs: %s" % tmp)
-		if tmp is None:
-			return []
+		cmd = u"SELECT pk from blobs.doc_med WHERE patient_id=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._ID]}])
 		docs = []
-		for doc_id in tmp:
-			if doc_id is not None:
-				docs.extend(doc_id)
+		for row in rows:
+			docs.append(row[0])
 		if len(docs) == 0:
 			_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % self._ID)
 			return None
@@ -893,23 +847,23 @@ class cPatientSearcher_SQL:
 	def __init__(self):
 		# list more generators here once they are written
 		self.__query_generators = {
-			'default': self.__generate_queries_de,
-			'de': self.__generate_queries_de
+			'default': self._generate_queries_de,
+			'de': self._generate_queries_de
 		}
 		# set locale dependant query handlers
 		# - generator
 		try:
-			self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['full']]
+			self._generate_queries = self.__query_generators[gmI18N.system_locale_level['full']]
 		except KeyError:
 			try:
-				self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['country']]
+				self._generate_queries = self.__query_generators[gmI18N.system_locale_level['country']]
 			except KeyError:
 				try:
-					self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['language']]
+					self._generate_queries = self.__query_generators[gmI18N.system_locale_level['language']]
 				except KeyError:
-					self.__generate_queries = self.__query_generators['default']
+					self._generate_queries = self.__query_generators['default']
 		# make a cursor
-		self.conn = gmPG.ConnectionPool().GetConnection('personalia')
+		self.conn = gmPG2.get_connection()
 		self.curs = self.conn.cursor()
 	#--------------------------------------------------------
 	def __del__(self):
@@ -922,34 +876,34 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def get_persons(self, search_term = None, a_locale = None, search_dict = None):
-		identities = self.get_identities(search_term, a_locale, search_dict)
+	def get_persons(self, search_term = None, a_locale = None, dto = None):
+		identities = self.get_identities(search_term, a_locale, dto)
 		if identities is None:
 			return None
-		else:
-			return [cPerson(identity = ident) for ident in identities]
+		return [cPerson(identity = ident) for ident in identities]
 	#--------------------------------------------------------
-	def get_patients(self, search_term = None, a_locale = None, search_dict = None):
-		identities = self.get_identities(search_term, a_locale, search_dict)
+	def get_patients(self, search_term = None, a_locale = None, dto = None):
+		identities = self.get_identities(search_term, a_locale, dto)
 		if identities is None:
 			return None
-		else:
-			return [cPatient(identity = ident) for ident in identities]
+		return [cPatient(identity = ident) for ident in identities]
 	#--------------------------------------------------------
-	def get_identities(self, search_term = None, a_locale = None, search_dict = None):
+	def get_identities(self, search_term = None, a_locale = None, dto = None):
 		"""Get patient identity objects for given parameters.
 
 		- either search term or search dict
-		- search dict contains structured data that doesn't need to be parsed
-		- search_dict takes precedence over search_term
+		- dto contains structured data that doesn't need to be parsed (cDTO_person)
+		- dto takes precedence over search_term
 		"""
-		parse_search_term = (search_dict is None)
+		parse_search_term = (dto is None)
+
 		if not parse_search_term:
-			query_lists = self.__generate_queries_generic(search_dict)
-			if query_lists is None:
+			queries = self._generate_queries_from_dto(dto)
+			if queries is None:
 				parse_search_term = True
-			if len(query_lists) == 0:
+			if len(queries) == 0:
 				parse_search_term = True
+
 		if parse_search_term:
 			# temporary change of locale for selecting query generator
 			if a_locale is not None:
@@ -957,51 +911,36 @@ class cPatientSearcher_SQL:
 				_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
 			# generate queries
 			if search_term is None:
-				_log.Log(gmLog.lErr, 'need search term (search_dict AND search_term are None)')
+				_log.Log(gmLog.lErr, 'need search term (dto AND search_term are None)')
 				return None
-			query_lists = self.__generate_queries(search_term)
+			queries = self._generate_queries(search_term)
 
 		# anything to do ?
-		if (query_lists is None) or (len(query_lists) == 0):
+		if (queries is None) or (len(queries) == 0):
 			_log.Log(gmLog.lErr, 'query tree empty')
-			_log.Log(gmLog.lErr, '[%s] [%s] [%s]' % (search_term, a_locale, str(search_dict)))
+			_log.Log(gmLog.lErr, '[%s] [%s] [%s]' % (search_term, a_locale, str(dto)))
 			return None
 
 		# collect IDs here
-		pat_ids = []
+		identities = []
 		# cycle through query list
-		for query_list in query_lists:
-			_log.Log(gmLog.lData, "running %s" % query_list)
-			# try all queries at this query level
-			for cmd in query_list:
-				# FIXME: actually, we should pass in the parsed search_term
-				if search_dict is None:
-					rows, idx = gmPG.run_ro_query(self.curs, cmd, True)
-				else:
-					rows, idx = gmPG.run_ro_query(self.curs, cmd, True, search_dict)
-				if rows is None:
-					_log.Log(gmLog.lErr, 'error fetching patient IDs')
-					continue
-				if len(rows) != 0:
-					pat_ids.append((rows, idx))
-			# if we got patients don't try more query levels
-			if len(pat_ids) > 0:
-				break
-		pat_identities = []
-		try:
-			for rows, idx in pat_ids:
-				pat_identities.extend (
-					[ cIdentity(row={'pk_field': 'pk_identity', 'data': row, 'idx': idx})
-						for row in rows ]
-				)
-		except:
-			_log.LogException ("cannot create patient identity objects", sys.exc_info (), verbose=0)
+		for query in queries:
+			_log.Log(gmLog.lData, "running %s" % query)
+			try:
+				rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx=True)
+			except:
+				_log.LogException('error running query')
+			if len(rows) == 0:
+				continue
+			identities.extend (
+				[ cIdentity(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
+			)
 
-		return pat_identities
+		return identities
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __make_sane_caps(self, aName = None):
+	def _make_sane_caps(self, aName = None):
 		"""Make user input suitable for case-sensitive matching.
 
 		- this mostly applies to names
@@ -1017,13 +956,10 @@ class cPatientSearcher_SQL:
 			return None
 		return aName[:1].upper() + aName[1:]
 	#--------------------------------------------------------
-	def __normalize(self, aString = None, aggressive = 0):
+	def _normalize_soundalikes(self, aString = None, aggressive = False):
 		"""Transform some characters into a regex."""
-		if aString is None:
-			return None
 		if aString.strip() == '':
 			return aString
-		aString = unicode(aString)
 
 		# umlauts
 		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|A|E)')
@@ -1031,38 +967,38 @@ class cPatientSearcher_SQL:
 		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue|U)')
 		normalized = normalized.replace(u'ä', u'(ä|ae|e|a)')
 		normalized = normalized.replace(u'ö', u'(ö|oe|o)')
-		normalized = normalized.replace(u'ü', u'(ü|ue|u|y|i)')
+		normalized = normalized.replace(u'ü', u'(ü|ue|u|y)')
 		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
 
 		# common soundalikes
 		# - René, Desiré, Inés ...
-		normalized = normalized.replace(u'é', u'*#DUMMY#*')
-		normalized = normalized.replace(u'è', u'*#DUMMY#*')
-		normalized = normalized.replace(u'*#DUMMY#*', u'(é|e|è|ä|ae)')
+		normalized = normalized.replace(u'é', u'***DUMMY***')
+		normalized = normalized.replace(u'è', u'***DUMMY***')
+		normalized = normalized.replace(u'***DUMMY***', u'(é|e|è|ä|ae)')
 
 		# FIXME: missing i/a/o - but uncommon in German
-		normalized = normalized.replace('v', '*#DUMMY#*')
-		normalized = normalized.replace('f', '*#DUMMY#*')
-		normalized = normalized.replace('ph','*#DUMMY#*')	# now, this is *really* specific for German
-		normalized = normalized.replace('*#DUMMY#*', '(v|f|ph)')
+		normalized = normalized.replace('v', '***DUMMY***')
+		normalized = normalized.replace('f', '***DUMMY***')
+		normalized = normalized.replace('ph','***DUMMY***')	# now, this is *really* specific for German
+		normalized = normalized.replace('***DUMMY***', '(v|f|ph)')
 
 		# silent characters
-		normalized = normalized.replace('Th','*#DUMMY#*')
-		normalized = normalized.replace('T', '*#DUMMY#*')
-		normalized = normalized.replace('*#DUMMY#*', '(Th|T)')
-		normalized = normalized.replace('th', '*#DUMMY#*')
-		normalized = normalized.replace('t', '*#DUMMY#*')
-		normalized = normalized.replace('*#DUMMY#*', '(th|t)')
+		normalized = normalized.replace('Th','***DUMMY***')
+		normalized = normalized.replace('T', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(Th|T)')
+		normalized = normalized.replace('th', '***DUMMY***')
+		normalized = normalized.replace('t', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(th|t)')
 
 		# apostrophes, hyphens et al
-		normalized = normalized.replace('"', '*#DUMMY#*')
-		normalized = normalized.replace("'", '*#DUMMY#*')
-		normalized = normalized.replace('`', '*#DUMMY#*')
-		normalized = normalized.replace('*#DUMMY#*', """("|'|`|*#DUMMY#*|\s)*""")
+		normalized = normalized.replace('"', '***DUMMY***')
+		normalized = normalized.replace("'", '***DUMMY***')
+		normalized = normalized.replace('`', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', """("|'|`|***DUMMY***|\s)*""")
 		normalized = normalized.replace('-', """(-|\s)*""")
-		normalized = normalized.replace('|*#DUMMY#*|', '|-|')
+		normalized = normalized.replace('|***DUMMY***|', '|-|')
 
-		if aggressive == 1:
+		if aggressive:
 			pass
 			# some more here
 		return normalized
@@ -1073,17 +1009,43 @@ class cPatientSearcher_SQL:
 	# ORDER BY !
 	# FIXME: what about "< 40" ?
 	#--------------------------------------------------------
-	def __make_simple_query(self, raw):
+	def _make_simple_query(self, raw):
 		"""Compose queries if search term seems unambigous."""
-		_log.Log(gmLog.lData, '__make_simple_query("%s")' % raw)
+		_log.Log(gmLog.lData, '_make_simple_query("%s")' % raw)
 
 		queries = []
 
 		# "<digits>" - GNUmed patient PK or DOB
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.strip()
-			queries.append(["SELECT * FROM dem.v_basic_person WHERE pk_identity = '%s'" % tmp])
-			queries.append(["SELECT * FROM dem.v_basic_person WHERE dob='%s'::timestamp" % raw])
+			queries.append ({
+				'cmd': u"select *, %s::text as match_type FROM dem.v_basic_person WHERE pk_identity = %s",
+				'args': [_('internal patient ID'), tmp]
+			})
+			queries.append ({
+				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp",
+				'args': [_('date of birth'), tmp]
+			})
+			queries.append ({
+				'cmd': u"""
+					select vba.*, %s::text as match_type from dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
+					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s""",
+				'args': [_('external patient ID'), tmp]
+			})
+			return queries
+
+		# "<d igi ts>" - DOB or patient PK
+		if re.match("^(\d|\s|\t)+$", raw):
+			queries.append ({
+				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp",
+				'args': [_('date of birth'), raw]
+			})
+			tmp = raw.replace(' ', '')
+			tmp = tmp.replace('\t', '')
+			queries.append ({
+				'cmd': u"SELECT *, %s::text as match_type from dem.v_basic_person WHERE pk_identity LIKE %s%%",
+				'args': [_('internal patient ID'), tmp]
+			})
 			return queries
 
 		# "#<di git  s>" - GNUmed patient PK
@@ -1093,119 +1055,134 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the PK actually exists
-			queries.append(["SELECT * from dem.v_basic_person WHERE pk_identity = '%s'" % tmp])
+			queries.append ({
+				'cmd': u"SELECT *, %s::text as match_type from dem.v_basic_person WHERE pk_identity = %s",
+				'args': [_('internal patient ID'), tmp]
+			})
 			# but might also be an external ID
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
-			tmp = tmp.replace(' ', '*#DUMMY#*')
-			tmp = tmp.replace('\t', '*#DUMMY#*')
-			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '^%s'" % tmp])
-			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
+			tmp = tmp.replace(' ',  '***DUMMY***')
+			tmp = tmp.replace('\t', '***DUMMY***')
+			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
+			queries.append ({
+				'cmd': u"""
+					select vba.*, %s::text as match_type from dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
+					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s""",
+				'args': [_('external patient ID'), tmp]
+			})
 			return queries
 
-		# "#<di/git s/orc-hars>" - external ID (or PUPIC)
+		# "#<di/git s or c-hars>" - external ID (or PUPIC)
 		if re.match("^(\s|\t)*#.+$", raw):
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
-			tmp = tmp.replace(' ', '*#DUMMY#*')
-			tmp = tmp.replace('\t', '*#DUMMY#*')
-			tmp = tmp.replace('-', '*#DUMMY#*')
-			tmp = tmp.replace('/', '*#DUMMY#*')
-			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
-			queries.append(["select vba.* from dem.lnk_identity2ext_id li2ei, dem.v_basic_person vba where vba.pk_identity = li2ei.id_identity and li2ei.external_id ~* '%s'" % tmp])
+			tmp = tmp.replace(' ',  '***DUMMY***')
+			tmp = tmp.replace('\t', '***DUMMY***')
+			tmp = tmp.replace('-',  '***DUMMY***')
+			tmp = tmp.replace('/',  '***DUMMY***')
+			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
+			queries.append ({
+				'cmd': u"""
+					select vba.*, %s::text as match_type from dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
+					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s""",
+				'args': [_('external patient ID'), tmp]
+			})
 			return queries
 
-		# "<d igi ts>" - DOB or patient PK
-		if re.match("^(\d|\s|\t)+$", raw):
-			queries.append(["SELECT * from dem.v_basic_person WHERE dob='%s'::timestamp" % raw])
-			tmp = raw.replace(' ', '')
-			tmp = tmp.replace('\t', '')
-			queries.append(["SELECT * from dem.v_basic_person WHERE pk_identity LIKE '%s%%'" % tmp])
-			return queries
-
-		# "<Z(.|/|-/ )I  FF ERN>" - DOB
+		# digits interspersed with "./-" or blank space - DOB
 		if re.match("^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw):
-			tmp = raw.replace(' ', '')
-			tmp = tmp.replace('\t', '')
+			tmp = raw.strip()
+			while '\t\t' in tmp: tmp = tmp.replace('\t\t', ' ')
+			while '  ' in tmp: tmp = tmp.replace('  ', ' ')
 			# apparently not needed due to PostgreSQL smarts...
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
-			queries.append(["SELECT * from dem.v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			queries.append ({
+				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp",
+				'args': [_('date of birth'), tmp]
+			})
 			return queries
 
 		# " , <alpha>" - first name
 		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
 			tmp = raw.split(',')[1].strip()
-			tmp = self.__normalize(tmp)
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ '^%s' and vbp.pk_identity = dem.names.id_identity" % tmp])
+			tmp = self._normalize_soundalikes(tmp)
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity",
+				'args': [_('first name'), '^' + self._make_sane_caps(tmp)]
+			})
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity",
+				'args': [_('first name'), '^' + tmp]
+			})
 			return queries
 
 		# "*|$<...>" - DOB
 		if re.match("^(\s|\t)*(\*|\$).+$", raw):
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
-			queries.append(["SELECT * from dem.v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			queries.append ({
+				'cmd': u"SELECT * from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+				'args': [_('date of birth'), tmp]
+			})
 			return queries
 
 		return None
 	#--------------------------------------------------------
 	# generic, locale independant queries
 	#--------------------------------------------------------
-	def __generate_queries_generic(self, data = None):
+	def _generate_queries_from_dto(self, dto = None):
 		"""Generate generic queries.
 
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
-		_log.Log(gmLog.lData, str(data))
+		if not isinstance(dto, cDTO_person):
+			return None
 
-		if data is None:
-			return []
-
-		vals = {}
+		vals = [_('name, gender, date of birth')]
 		where_snippets = []
 
 		try:
-			data['firstnames']
-			where_snippets.append('firstnames=%(firstnames)s')
+			vals.append(dto.firstnames)
+			where_snippets.append(u'firstnames=%s')
 		except KeyError:
 			pass
 
 		try:
-			data['lastnames']
-			where_snippets.append('lastnames=%(lastnames)s')
+			vals.append(dto.lastnames)
+			where_snippets.append(u'lastnames=%s')
 		except KeyError:
 			pass
 
 		try:
-			data['dob']
-			where_snippets.append("date_trunc('day', dob) = date_trunc('day', %(dob)s::timestamp)")
+			vals.append(dto.dob)
+			where_snippets.append(u"date_trunc('day', dob) = date_trunc('day', %s::timestamp)")
 		except KeyError:
 			pass
 
 		try:
-			data['gender']
-			where_snippets.append('gender=%(gender)s')
+			vals.append(dto.gender)
+			where_snippets.append('gender=%s')
 		except KeyError:
 			pass
 
 		# sufficient data ?
-		if not where_snippets:
+		if len(where_snippets) == 0:
 			_log.Log(gmLog.lErr, 'invalid search dict structure')
 			_log.Log(gmLog.lData, data)
-			return []
-			return []
+			return None
 
-		queries = [[
-			"""
-select * from dem.v_basic_person
-where pk_identity in (
-	select id_identity from dem.names where %s
-)""" % ' and '.join(where_snippets)
-		]]
+		cmd = u"""
+			select *, %%s::text as match_type from dem.v_basic_person
+			where pk_identity in (
+				select id_identity from dem.names where %s
+			)""" % ' and '.join(where_snippets)
+
+		queries = [
+			{'cmd': cmd, 'args': vals}
+		]
 
 		# shall we mogrify name parts ? probably not
 
@@ -1213,38 +1190,52 @@ where pk_identity in (
 	#--------------------------------------------------------
 	# queries for DE
 	#--------------------------------------------------------
-	def __generate_queries_de(self, a_search_term = None):
-		_log.Log(gmLog.lData, '__generate_queries_de("%s")' % a_search_term)
+	def _generate_queries_de(self, search_term = None):
+		_log.Log(gmLog.lData, '_generate_queries_de("%s")' % search_term)
 
-		if a_search_term is None:
+		if search_term is None:
 			return []
 
 		# check to see if we get away with a simple query ...
-		queries = self.__make_simple_query(a_search_term)
+		queries = self._make_simple_query(search_term)
 		if queries is not None:
 			return queries
-
-		_log.Log(gmLog.lData, '__generate_queries_de() again')
 
 		# no we don't
 		queries = []
 
 		# replace Umlauts
-		normalized = self.__normalize(a_search_term)
+		normalized = self._normalize_soundalikes(search_term)
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
-		if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", a_search_term):
+		if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term):
 			# there's no intermediate whitespace due to the regex
 			tmp = normalized.strip()
 			# assumption: this is a last name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* '^%s'" % tmp])
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames ~ %s",
+				'args': [_('last name'), '^' + self._make_sane_caps(tmp)]
+			})
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* %s",
+				'args': [_('last name'), '^' + tmp]
+			})
 			# assumption: this is a first name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s'" % tmp])
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s",
+				'args': [_('first name'), '^' + self._make_sane_caps(tmp)]
+			})
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s",
+				'args': [_('first name'), '^' + tmp]
+			})
 			# name parts anywhere in name
-			queries.append(["SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s'" % tmp])
+			# FIXME: support preferred, etc, too ?
+			queries.append ({
+				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* %s",
+				'args': [_('first or last name'), tmp]
+			})
 			return queries
 
 		# try to split on (major) part separators
@@ -1272,26 +1263,31 @@ where pk_identity in (
 				# no date = "first last" or "last first"
 				if date_count == 0:
 					# assumption: first last
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
-					])
-					queries.append([
-						 "SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
-					])
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+						'args': [_('name: first-last'), '^' + self._make_sane_caps(name_parts[0]), '^' + self._make_sane_caps(name_parts[1])]
+					})
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s AND n.lastnames ~* %s",
+						'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
+					})
 					# assumption: last first
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
-					])
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
-					])
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+						'args': [_('name: last-first'), '^' + self._make_sane_caps(name_parts[1]), '^' + self._make_sane_caps(name_parts[0])]
+					})
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s AND n.lastnames ~* %s",
+						'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
+					})
 					# name parts anywhere in name - third order query ...
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND firstnames || n.lastnames ~* '%s'" % (name_parts[0], name_parts[1])
-					])
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* %s AND firstnames || n.lastnames ~* %s",
+						'args': [_('name'), name_parts[0], name_parts[1]]
+					})
 					return queries
 				# FIXME: either "name date" or "date date"
-				_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % a_search_term)
+				_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % search_term)
 				return queries
 
 			# exactly 3 words ?
@@ -1299,30 +1295,35 @@ where pk_identity in (
 				# special case: 3 words, exactly 1 of them a date, no ",;"
 				if date_count == 1:
 					# assumption: first, last, dob - first order
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
-					])
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
-					])
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+						'args': [_('names: first-last, date of birth'), '^' + self._make_sane_caps(name_parts[0]), '^' + self._make_sane_caps(name_parts[1]), date_part]
+					})
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* %s AND n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part]
+					})
 					# assumption: last, first, dob - second order query
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ '^%s' AND n.lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
-					])
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* '^%s' AND n.lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
-					])
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+						'args': [_('names: last-first, date of birth'), '^' + self._make_sane_caps(name_parts[1]), '^' + self._make_sane_caps(name_parts[0]), date_part]
+					})
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s AND n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part]
+					})
 					# name parts anywhere in name - third order query ...
-					queries.append([
-						"SELECT DISTINCT ON (id_identity) vbp.* from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* '%s' AND n.firstnames || n.lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
-					])
+					queries.append ({
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* %s AND n.firstnames || n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part]
+					})
 					return queries
 				# FIXME: "name name name" or "name date date"
-				queries.append([self.__generate_dumb_brute_query(a_search_term)])
+				queries.append([self._generate_dumb_brute_query(search_term)])
 				return queries
 
 			# FIXME: no ',;' but neither "name name" nor "name name date"
-			queries.append([self.__generate_dumb_brute_query(a_search_term)])
+			queries.append([self._generate_dumb_brute_query(search_term)])
 			return queries
 
 		# more than one major part (separated by ';,')
@@ -1342,140 +1343,138 @@ where pk_identity in (
 					name_count = name_count + len(tmp)
 					name_parts.append(tmp)
 
-			wheres = []
+			where_parts = []
 			# first, handle name parts
 			# special case: "<date(s)>, <name> <name>, <date(s)>"
 			if (len(name_parts) == 1) and (name_count == 2):
 				# usually "first last"
-				wheres.append([
-					"firstnames ~ '^%s'" % self.__make_sane_caps(name_parts[0][0]),
-					"lastnames ~ '^%s'"  % self.__make_sane_caps(name_parts[0][1])
-				])
-				wheres.append([
-					"firstnames ~* '^%s'" % name_parts[0][0],
-					"lastnames ~* '^%s'" % name_parts[0][1]
-				])
+				where_parts.append ({
+					'conditions': u"firstnames ~ %s and lastnames ~ %s",
+					'args': [_('names: first last'), '^' + self._make_sane_caps(name_parts[0][0]), '^' + self._make_sane_caps(name_parts[0][1])]
+				})
+				where_parts.append ({
+					'conditions': u"firstnames ~* %s and lastnames ~* %s",
+					'args': [_('names: first last'), '^' + name_parts[0][0], '^' + name_parts[0][1]]
+				})
 				# but sometimes "last first""
-				wheres.append([
-					"firstnames ~ '^%s'" % self.__make_sane_caps(name_parts[0][1]),
-					"lastnames ~ '^%s'"  % self.__make_sane_caps(name_parts[0][0])
-				])
-				wheres.append([
-					"firstnames ~* '^%s'" % name_parts[0][1],
-					"lastnames ~* '^%s'" % name_parts[0][0]
-				])
+				where_parts.append ({
+					'conditions': u"firstnames ~ %s and lastnames ~ %s",
+					'args': [_('names: last, first'), '^' + self._make_sane_caps(name_parts[0][1]), '^' + self._make_sane_caps(name_parts[0][0])]
+				})
+				where_parts.append ({
+					'conditions': u"firstnames ~* %s and lastnames ~* %s",
+					'args': [_('names: last, first'), '^' + name_parts[0][1], '^' + name_parts[0][0]]
+				})
 				# or even substrings anywhere in name
-				wheres.append([
-					"firstnames || lastnames ~* '%s'" % name_parts[0][0],
-					"firstnames || lastnames ~* '%s'" % name_parts[0][1]
-				])
+				where_parts.append ({
+					'conditions': u"firstnames || lastnames ~* %s OR firstnames || lastnames ~* %s",
+					'args': [_('name'), name_parts[0][0], name_parts[0][1]]
+				})
 
 			# special case: "<date(s)>, <name(s)>, <name(s)>, <date(s)>"
 			elif len(name_parts) == 2:
 				# usually "last, first"
-				wheres.append([
-					"firstnames ~ '^%s'" % string.join(map(self.__make_sane_caps, name_parts[1]), ' '),
-					"lastnames ~ '^%s'"  % string.join(map(self.__make_sane_caps, name_parts[0]), ' ')
-				])
-				wheres.append([
-					"firstnames ~* '^%s'" % string.join(name_parts[1], ' '),
-					"lastnames ~* '^%s'" % string.join(name_parts[0], ' ')
-				])
+				where_parts.append ({
+					'conditions': u"firstnames ~ %s AND lastnames ~ %s",
+					'args': [_('name: last, first'), '^' + ' '.join(map(self._make_sane_caps, name_parts[1])), '^' + ' '.join(map(self._make_sane_caps, name_parts[0]))]
+				})
+				where_parts.append ({
+					'conditions': u"firstnames ~* %s AND lastnames ~* %s",
+					'args': [_('name: last, first'), '^' + ' '.join(name_parts[1]), '^' + ' '.join(name_parts[0])]
+				})
 				# but sometimes "first, last"
-				wheres.append([
-					"firstnames ~ '^%s'" % string.join(map(self.__make_sane_caps, name_parts[0]), ' '),
-					"lastnames ~ '^%s'"  % string.join(map(self.__make_sane_caps, name_parts[1]), ' ')
-				])
-				wheres.append([
-					"firstnames ~* '^%s'" % string.join(name_parts[0], ' '),
-					"lastnames ~* '^%s'" % string.join(name_parts[1], ' ')
-				])
+				where_parts.append ({
+					'conditions': u"firstnames ~ %s AND lastnames ~ %s",
+					'args': [_('name: last, first'), '^' + ' '.join(map(self._make_sane_caps, name_parts[0])), '^' + ' '.join(map(self._make_sane_caps, name_parts[1]))]
+				})
+				where_parts.append ({
+					'conditions': u"firstnames ~* %s AND lastnames ~* %s",
+					'args': [_('name: last, first'), '^' + ' '.join(name_parts[0]), '^' + ' '.join(name_parts[1])]
+				})
 				# or even substrings anywhere in name
-				wheres.append([
-					"firstnames || lastnames ~* '%s'" % string.join(name_parts[0], ' '),
-					"firstnames || lastnames ~* '%s'" % string.join(name_parts[1], ' ')
-				])
+				where_parts.append ({
+					'conditions': u"firstnames || lastnames ~* %s AND firstnames || lastnames ~* %s",
+					'args': [_('name'), ' '.join(name_parts[0]), ' '.join(name_parts[1])]
+				})
 
 			# big trouble - arbitrary number of names
 			else:
 				# FIXME: deep magic, not sure of rationale ...
 				if len(name_parts) == 1:
 					for part in name_parts[0]:
-						wheres.append([
-							"firstnames || lastnames ~* '%s'" % part
-						])
-						wheres.append([
-							"firstnames || lastnames ~* '%s'" % part
-						])
+						where_parts.append ({
+							'conditions': u"firstnames || lastnames ~* %s",
+							'args': [_('name'), part]
+						})
 				else:
 					tmp = []
 					for part in name_parts:
-						tmp.append(string.join(part, ' '))
+						tmp.append(' '.join(part))
 					for part in tmp:
-						wheres.append([
-							"firstnames || lastnames ~* '%s'" % part
-						])
-						wheres.append([
-							"firstnames || lastnames ~* '%s'" % part
-						])
+						where_parts.append ({
+							'conditions': u"firstnames || lastnames ~* %s",
+							'args': [_('name'), part]
+						})
 
 			# secondly handle date parts
 			# FIXME: this needs a considerable smart-up !
 			if len(date_parts) == 1:
-				if len(wheres) > 0:
-					wheres[0].append("dob='%s'::timestamp" % date_parts[0])
-				else:
-					wheres.append([
-						"dob='%s'::timestamp" % date_parts[0]
-					])
-				if len(wheres) > 1:
-					wheres[1].append("dob='%s'::timestamp" % date_parts[0])
-				else:
-					wheres.append([
-						"dob='%s'::timestamp" % date_parts[0]
-					])
+				if len(where_parts) == 0:
+					where_parts.append ({
+						'conditions': u"date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+						'args': [_('date of birth'), date_parts[0]]
+					})
+				if len(where_parts) > 0:
+					where_parts[0]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)"
+					where_parts[0]['args'].append(date_parts[0])
+					where_parts[0]['args'][0] += u', ' + _('date of birth')
+				if len(where_parts) > 1:
+					where_parts[1]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)"
+					where_parts[1]['args'].append(date_parts[0])
+					where_parts[1]['args'][0] += u', ' + _('date of birth')
 			elif len(date_parts) > 1:
-				if len(wheres) > 0:
-					wheres[0].append("dob='%s'::timestamp" % date_parts[0])
-					wheres[0].append("date_trunc('day', dem.identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
-				else:
-					wheres.append([
-						"dob='%s'::timestamp" % date_parts[0],
-						"date_trunc('day', dem.identity.deceased) LIKE (select timestamp '%s'" % date_parts[1]
-					])
-				if len(wheres) > 1:
-					wheres[1].append("dob='%s'::timestamp" % date_parts[0])
-					wheres[1].append("date_trunc('day', dem.identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
-				else:
-					wheres.append([
-						"dob='%s'::timestamp" % date_parts[0],
-						"identity.deceased='%s'::timestamp" % date_parts[1]
-					])
+				if len(where_parts) == 0:
+					where_parts.append ({
+						'conditions': u"date_trunc('day', dob) = date_trunc('day', %s::timestamp) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp)",
+						'args': [_('date of birth/death'), date_parts[0], date_parts[1]]
+					})
+				if len(where_parts) > 0:
+					where_parts[0]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp)",
+					where_parts[0]['args'].append(date_parts[0], date_parts[1])
+					where_parts[0]['args'][0] += u', ' + _('date of birth/death')
+				if len(where_parts) > 1:
+					where_parts[1]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp)",
+					where_parts[1]['args'].append(date_parts[0], date_parts[1])
+					where_parts[1]['args'][0] += u', ' + _('date of birth/death')
 
 			# and finally generate the queries ...
-			for where_clause in wheres:
-				if len(where_clause) > 0:
-					queries.append([
-						"SELECT * from dem.v_basic_person WHERE %s" % ' AND '.join(where_clause)
-					])
-				else:
-					queries.append([])
+			for where_part in where_parts:
+				queries.append ({
+					'cmd': u"select *, %%s::text as match_type from dem.v_basic_person where %s" % where_part['conditions'],
+					'args': where_part['args']
+				})
 			return queries
 
 		return []
 	#--------------------------------------------------------
-	def __generate_dumb_brute_query(self, search_term=''):
-		fields = search_term.split()
-		where_clause = "' and vbp.title || vbp.firstnames || vbp.lastnames ~* '".join(fields)
-		query = """
-select distinct on (pk_identity) vbp.*
+	def _generate_dumb_brute_query(self, search_term=''):
+		where_clause = ''
+		args = [_('name')]
+		# FIXME: split on more than just ' '
+		for arg in search_term.strip().split():
+			where_clause += u' and vbp.title || vbp.firstnames || vbp.lastnames ~* %s'
+			args.append(arg)
+
+		query = u"""
+select distinct on (pk_identity) vbp.*, %%s::text as match_type
 from
 	dem.v_basic_person vbp,
 	dem.names n
 where
 	vbp.pk_identity = n.id_identity
-	and vbp.title || vbp.firstnames || vbp.lastnames ~* '%s'""" % where_clause
-		return query
+	%s""" % where_clause
+
+		return ({'cmd': query, 'args': args})
 #============================================================
 # convenience functions
 #============================================================
@@ -1503,47 +1502,42 @@ def dob2medical_age(dob):
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
-	cmd1 = """
+	cmd1 = u"""
 insert into dem.identity (
 	gender, dob
 ) values (
 	%s, coalesce(%s, CURRENT_TIMESTAMP)
 )"""
 
-	cmd2 = """
+	cmd2 = u"""
 insert into dem.names (
 	id_identity, lastnames, firstnames
 ) values (
 	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
 )"""
 
-	cmd3 = """select currval('dem.identity_pk_seq')"""
-
-	successful, data = gmPG.run_commit2 (
-		link_obj = 'personalia',
+	rows, idx = gmPG2.run_rw_queries (
 		queries = [
-			(cmd1, [gender, dob]),
-			(cmd2, [lastnames, firstnames]),
-			(cmd3, [])
+			{'cmd': cmd1, 'args': [gender, dob]},
+			{'cmd': cmd2, 'args': [lastnames, firstnames]},
+			{'cmd': u"select currval('dem.identity_pk_seq')"}
 		],
-		max_tries = 2
+		return_data = True
 	)
-	if not successful:
-		_log.Log(gmLog.lPanic, 'failed to create identity: %s' % str(data))
-		return None
-
-	rows, idx = data
 	return cIdentity(aPK_obj=rows[0][0])
 #============================================================
 def create_dummy_identity():	
-	cmd1 = "insert into dem.identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
-	cmd2 = "select currval('dem.identity_id_seq')"
+	cmd1 = u"insert into dem.identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
+	cmd2 = u"select currval('dem.identity_id_seq')"
 
-	data = gmPG.run_commit('personalia', [(cmd1, []), (cmd2, [])])
-	if data is None:
-		_log.Log(gmLog.lPanic, 'failed to create dummy identity')
-		return None
-	return gmDemographicRecord.cIdentity (aPK_obj = int(data[0][0]))
+	rows, idx = gmPG2.run_rw_queries (
+		queries = [
+			{'cmd': cmd1},
+			{'cmd': cmd2}
+		],
+		return_data = True
+	)
+	return gmDemographicRecord.cIdentity(aPK_obj = rows[0][0])
 #============================================================
 def set_active_patient(patient = None, forced_reload=False):
 	"""Set active patient.
@@ -1598,27 +1592,48 @@ def ask_for_patient():
 		prompted_input("No patient matches the query term. Press any key to continue.")
 		return None
 	elif len(pats) > 1:
+		for pat in pats:
+			print pat
 		prompted_input("Several patients match the query term. Press any key to continue.")
 		return None
 	return pats[0]
 #============================================================
+# gender related
+#------------------------------------------------------------
 def get_gender_list():
 	global __gender_idx
 	global __gender_list
 	if __gender_list is None:
-		cmd = "select tag, l10n_tag, label, l10n_label, sort_weight from dem.v_gender_labels order by sort_weight desc"
-		__gender_list, __gender_idx = gmPG.run_ro_query('personalia', cmd, True)
-		if __gender_list is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve gender values from database')
+		cmd = u"select tag, l10n_tag, label, l10n_label, sort_weight from dem.v_gender_labels order by sort_weight desc"
+		__gender_list, __gender_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return (__gender_list, __gender_idx)
+#------------------------------------------------------------
+def map_gender2salutation(gender=None):
+	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""
+
+	global __gender2salutation_map
+
+	if __gender2salutation_map is None:
+		genders, idx = get_gender_list()
+		__gender2salutation_map = {
+			'm': _('Mr'),
+			'f': _('Mrs'),
+			'tf': '',
+			'tm': '',
+			'h': ''
+		}
+		for g in genders:
+			__gender2salutation_map[g[idx['l10n_tag']]] = __gender2salutation_map[g[idx['tag']]]
+			__gender2salutation_map[g[idx['label']]] = __gender2salutation_map[g[idx['tag']]]
+			__gender2salutation_map[g[idx['l10n_label']]] = __gender2salutation_map[g[idx['tag']]]
+
+	return __gender2salutation_map[gender]
 #============================================================
 def get_comm_list():	
 	global __comm_list
 	if __comm_list is None:
-		cmd = "select description from dem.enum_comm_types order by description"
-		rows = gmPG.run_ro_query('personalia', cmd, False)
-		if rows is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve communication media values from database')
+		cmd = u"select description from dem.enum_comm_types order by description"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 		__comm_list = []
 		for row in rows:
 			__comm_list.append(row[0])
@@ -1626,13 +1641,10 @@ def get_comm_list():
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
-		cmd = "select * from dem.v_staff where is_active order by can_login desc, short_alias asc"
+		cmd = u"select * from dem.v_staff where is_active order by can_login desc, short_alias asc"
 	else:
-		cmd = "select * from dem.v_staff order by can_login desc, is_active desc, short_alias asc"
-	rows, idx = gmPG.run_ro_query('personalia', cmd, True)
-	if rows is None:
-		_log.Log(gmLog.lPanic, 'cannot retrieve staff list from database')
-		return None
+		cmd = u"select * from dem.v_staff order by can_login desc, is_active desc, short_alias asc"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 	staff_list = []
 	for row in rows:
 		obj_row = {
@@ -1654,7 +1666,6 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
-	gmPG.set_default_client_encoding({'string': 'latin1', 'wire': 'latin1'})
 
 	#--------------------------------------------------------
 	def test_set_active_pat():
@@ -1745,12 +1756,82 @@ if __name__ == '__main__':
 		new_identity.link_communication('homephone', '1234566')
 		print 'Identity communications: %s' % new_identity['comms']
 	#--------------------------------------------------------
+	def test_patient_search_queries():
+		searcher = cPatientSearcher_SQL()
 
+		print "testing _make_sane_caps()"
+		print "-------------------------"
+		data = ['Lanz', 'McBurney', 'blumberg', 'roVsing']
+		for name in data:
+			print '%s: %s' % (name, searcher._make_sane_caps(name))
+
+		print "testing _normalize_soundalikes()"
+		print "--------------------------------"
+		# FIXME: support Ähler -> Äler and Dähler -> Däler
+		data = [u'Krüger', u'Krueger', u'Kruger', u'Überle', u'Böger', u'Boger', u'Öder', u'Ähler', u'Däler', u'Großer']
+		for name in data:
+			print '%s: %s' % (name, searcher._normalize_soundalikes(name))
+
+		print "testing _make_simple_query()"
+		print "----------------------------"
+		data = ['51234', '1 134 153', '#13 41 34', '#3-AFY322.4', '22-04-1906', '1235/32/3525', ' , johnny']
+		for fragment in data:
+			print "fragment:", fragment
+			qs = searcher._make_simple_query(fragment)
+			for q in qs:
+				print " match on:", q['args'][0]
+				print " query   :", q['cmd']
+
+		print "testing _generate_queries_from_dto()"
+		print "------------------------------------"
+		dto = cDTO_person()
+		dto.gender = 'm'
+		dto.lastnames = 'Kirk'
+		dto.firstnames = 'James'
+		dto.dob = mxDT.now()
+		q = searcher._generate_queries_from_dto(dto)[0]
+		print "dto:", dto
+		print " match on:", q['args']['mt']
+		print " query:", q['cmd']
+
+		print "testing _generate_queries_de()"
+		print "------------------------------"
+		qs = searcher._generate_queries_de('Kirk, James')
+		for q in qs:
+			print " match on:", q['args'][0]
+			print " query   :", q['cmd']
+			print " args    :", q['args']
+
+		print "testing _generate_dumb_brute_query()"
+		print "------------------------------------"
+		q = searcher._generate_dumb_brute_query('Kirk, James Tiberius')
+		print " match on:", q['args'][0]
+		print " query:", q['cmd']
+		print " args:", q['args']
+	#--------------------------------------------------------
+	def test_ask_for_patient():
+		while 1:
+			myPatient = ask_for_patient()
+			if myPatient is None:
+				break
+			print "ID       ", myPatient['id']
+			identity = myPatient.get_identity()
+			print "identity  ", identity
+			print "names     ", identity.get_all_names()
+#		docs = myPatient.get_document_folder()
+#		print "docs     ", docs
+#		emr = myPatient.get_emr()
+#		print "EMR      ", emr		
+	#--------------------------------------------------------
+
+#	test_patient_search_queries()
+	test_ask_for_patient()
 #	test_dto_person()
 #	test_staff()
 #	test_identity()
-	test_set_active_pat()
+#	test_set_active_pat()
 
+#	map_gender2salutation('m')
 
 	# module functions
 #	genders, idx = get_gender_list()
@@ -1761,25 +1842,17 @@ if __name__ == '__main__':
 #	comms = get_comm_list()
 #	print "\n\nRetrieving communication media enum (id, description): %s" % comms
 				
-	searcher = cPatientSearcher_SQL()
-	p_data = None
-	while 1:
-		myPatient = ask_for_patient()
-		if myPatient is None:
-			break
-		print "ID       ", myPatient['id']
-		identity = myPatient.get_identity()
-		print "identity  ", identity
-		print "names     ", identity.get_all_names()
-		docs = myPatient.get_document_folder()
-		print "docs     ", docs
-		emr = myPatient.get_emr()
-		print "EMR      ", emr
-		print "--------------------------------------"
-	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.81  2006-09-13 07:53:26  ncq
+# Revision 1.82  2006-10-21 20:44:06  ncq
+# - no longer import gmPG
+# - convert to gmPG2
+# - add __gender2salutation_map, map_gender2salutation()
+# - adjust to changes in gmBusinessDBObject
+# - fix patient searcher query generation
+# - improved test suite
+#
+# Revision 1.81  2006/09/13 07:53:26  ncq
 # - in get_person_from_xdt() handle encoding
 #
 # Revision 1.80  2006/07/26 12:22:56  ncq
