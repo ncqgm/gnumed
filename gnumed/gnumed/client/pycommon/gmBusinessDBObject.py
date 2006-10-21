@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.36 2006-10-09 11:42:16 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmBusinessDBObject.py,v 1.37 2006-10-21 20:39:48 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -153,14 +153,8 @@ class cBusinessDBObject:
 		self._is_modified = False
 		# check descendants
 		self.__class__._cmd_fetch_payload
-#		self.__class__._cmds_lock_rows_for_update
-#			# must do "select for update" and use xmin in where clause,
-#			# each query must return exactly 1 row
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
-#		self.__class__._service
-#			# the service in which our source relation is found,
-#			# this is used for establishing connections
 		# FIXME: if you want this check to be done please update all the child classes, too
 #		self.__class__._subtable_dml_templates
 			# a dictionary of subtables by name,
@@ -183,16 +177,13 @@ class cBusinessDBObject:
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
-		self._subtable_cmd_queue = []		# must be suitable to be passed as <queries> argument to gmPG.run_commit2()
-#		if cBusinessDBObject._conn_pool is None:
-#			# once for ALL descendants :-)
-#			cBusinessDBObject._conn_pool = gmPG.ConnectionPool()
+		self._subtable_cmd_queue = []		# must be suitable to be passed as <queries> argument to gmPG2.run_rw_queries()
+
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
 		else:
 			self._init_from_row_data(row=row)
 		self._is_modified = False
-#		self._flagged = False
 	#--------------------------------------------------------
 	def __init_from_pk(self, aPK_obj=None):
 		"""Creates a new clinical item instance by its PK.
@@ -390,69 +381,18 @@ class cBusinessDBObject:
 		close_conn = self.__noop
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
-			#conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
 			close_conn = conn.close
-#		if conn is None:
-#			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
-#			return (False, (1, _('Cannot connect to database.')))
 
-		# try to lock rows
-#		for query in self.__class__._cmds_lock_rows_for_update:
-#			successful, result = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])], extra_verbose = False)
-			# error
-#			if not successful:
-#				conn.rollback()
-#				close_conn()
-#				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, error locking row' % (self.__class__.__name__, self.pk_obj))
-#				return (False, result)
 			# query succeeded but failed to find the row to lock
 			# because another transaction committed an UPDATE or
 			# DELETE *before* we attempted to lock it ...
 			# FIXME: this can fail if savepoints are used since subtransactions change the xmin/xmax ...
-#			data, idx = result
-#			if len(data) == 0:
-#				conn.rollback()
-#				close_conn()
-#				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, concurrency conflict (lock query succeeded but did not find row to lock)' % (self.__class__.__name__, self.pk_obj))
-#				_log.Log(gmLog.lErr, query)
-#				_log.Log(gmLog.lErr, params)
-				# store current content so user can still play with it ...
-#				self.modified_payload = params
-				# update from backend
-#				self._is_modified = False
-#				if self.refetch_payload():
-#					return (False, (2, 'c'))
-#				else:
-#					return (False, (2, 'd'))
-			# uh oh
-#			if len(data) > 1:
-#				conn.rollback()
-#				close_conn()
-#				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, deep sh*t' % (self.__class__.__name__, self.pk_obj))
-#				_log.Log(gmLog.lPanic, '[%s:%s]: integrity violation, more than one matching row' % (self.__class__.__name__, self.pk_obj))
-#				_log.Log(gmLog.lPanic, 'HINT: shut down application and backup database immediately')
-#				_log.Log(gmLog.lErr, query)
-#				_log.Log(gmLog.lErr, params)
-#				return (False, (1, _('Database integrity violation detected. Immediate shutdown strongly advisable.')))
-		# successfully locked, now actually run update
+
 		queries = []
 		for query in self.__class__._cmds_store_payload:
-#			queries.append((query, [params]))
 			queries.append({'cmd': query, 'args': args})
-#		successful, result = gmPG.run_commit2(link_obj = conn, queries = queries, get_col_idx = True)
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries=queries, return_data=True, get_col_idx=True)
-#		if not successful:
-#			conn.rollback()
-#			close_conn()
-#			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
-#			_log.Log(gmLog.lErr, params)
-#			return (False, result)
-#		rows, idx = result
-#		if rows is None:
-#			conn.rollback()
-#			close_conn()
-#			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, last query did not return XMIN values' % (self.__class__.__name__, self.pk_obj))
-#			return (False, result)
+
 		# update cached XMIN values
 		row = rows[0]
 		for key in idx:
@@ -468,16 +408,10 @@ class cBusinessDBObject:
 				return (False, data)
 		# execute cached changes to subtables
 		if len(self._subtable_cmd_queue) > 0:
-#			successful, result = gmPG.run_commit2(link_obj = conn, queries=self._subtable_cmd_queue)
 			queries = []
 			for query in self._subtable_cmd_queue:
 				queries.append({'cmd': query})
 			rows, idx = gmPG2.run_rw_queries(link_obj=conn, queries = queries)
-#			if not successful:
-#				conn.rollback()
-#				close_conn()
-#				_log.Log(gmLog.lErr, '[%s:%s]: cannot change subtables' % (self.__class__.__name__, self.pk_obj))
-#				return (False, result)
 			self._subtable_cmd_queue = []
 		try:
 			conn.commit()
@@ -583,7 +517,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.36  2006-10-09 11:42:16  ncq
+# Revision 1.37  2006-10-21 20:39:48  ncq
+# - a bunch of cleanup
+#
+# Revision 1.36  2006/10/09 11:42:16  ncq
 # - in refetch_payload() properly handle scalar vs complex self.pk_obj
 #
 # Revision 1.35  2006/10/08 14:26:16  ncq
