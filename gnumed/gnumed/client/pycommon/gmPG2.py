@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -239,6 +239,28 @@ def get_col_indices(cursor = None):
 		col_indices[col_desc[0]] = col_index
 		col_index += 1
 	return col_indices
+# =======================================================================
+def get_child_tables(schema='public', table=None):
+	"""Return child tables of <table>."""
+	cmd = u"""
+select
+	pgn.nspname as namespace,
+	pgc.relname as table
+from
+	pg_namespace pgn,
+	pg_class pgc
+where
+	pgc.relnamespace = pgn.oid
+		and
+	pgc.oid in (
+		select inhrelid from pg_inherits where inhparent = (
+			select oid from pg_class where
+				relnamespace = (select oid from pg_namespace where nspname = %(schema)s) and
+				relname = %(table)s
+		)
+	)"""
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
+	return rows
 # =======================================================================
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
@@ -752,7 +774,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.5  2006-10-10 07:38:22  ncq
+# Revision 1.6  2006-10-23 13:22:38  ncq
+# - add get_child_tables()
+#
+# Revision 1.5  2006/10/10 07:38:22  ncq
 # - tighten checks on psycopg2 capabilities
 #
 # Revision 1.4  2006/10/08 09:23:40  ncq
