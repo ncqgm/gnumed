@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -154,8 +154,7 @@ where
 				relnamespace = (select oid from pg_namespace where nspname = %(schema)s) and
 				relname = %(table)s
 		)
-	)
-;"""
+	)"""
 
 
 # a handy return to dbapi simplicity
@@ -1362,7 +1361,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.82 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.83 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1599,7 +1598,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.82  2006-10-08 09:24:02  ncq
+# Revision 1.83  2006-10-23 13:22:26  ncq
+# - cleanup only
+#
+# Revision 1.82  2006/10/08 09:24:02  ncq
 # - add deprecation warning
 #
 # Revision 1.81  2006/09/21 19:47:40  ncq
