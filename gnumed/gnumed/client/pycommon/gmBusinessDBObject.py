@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.37 2006-10-21 20:39:48 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmBusinessDBObject.py,v 1.38 2006-10-23 13:22:07 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -145,7 +145,6 @@ class cBusinessDBObject:
 		- a list of fields available for update via object['field']
 
 	"""
-#	_conn_pool = None
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
@@ -517,7 +516,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.37  2006-10-21 20:39:48  ncq
+# Revision 1.38  2006-10-23 13:22:07  ncq
+# - no conn pool no more
+#
+# Revision 1.37  2006/10/21 20:39:48  ncq
 # - a bunch of cleanup
 #
 # Revision 1.36  2006/10/09 11:42:16  ncq
