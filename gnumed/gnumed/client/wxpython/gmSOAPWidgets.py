@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.76 2006-10-08 11:08:42 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmSOAPWidgets.py,v 1.77 2006-10-23 13:23:04 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,7 @@ except ImportError:
 
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider
-from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmVaccWidgets, gmEditArea
+from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
@@ -1113,7 +1113,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.76  2006-10-08 11:08:42  ncq
+# Revision 1.77  2006-10-23 13:23:04  ncq
+# - we don't need vacc widgets currently
+#
+# Revision 1.76  2006/10/08 11:08:42  ncq
 # - move to gmPG2 and only when testing
 #
 # Revision 1.75  2006/09/01 14:47:02  ncq
