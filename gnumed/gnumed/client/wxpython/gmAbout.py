@@ -1,19 +1,16 @@
+# -*- coding: latin1 -*-
 #====================================================================
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.24 2005-12-27 18:46:20 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmAbout.py,v 1.25 2006-10-23 15:48:07 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
 import zlib, cPickle
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 try:
 	_('dummy-no-need-to-translate')
@@ -32,19 +29,19 @@ class ScrollTxtWin (wx.Window):
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
 	name_list = [
-		'Dr Gerardo Arnaez',
-		'Dr Hilmar Berger',
-		'Michael Bonert',
-		'Dr Elizabeth Dodd',
-		'Engelbert Gruber',
-		'Dr David Guest',
-		'Ian Haywood',
-		'Dr Tony Lembke',
-		'Thierry Michel',
-		'Dr Richard Terry',
-		'Syan J Tan',
-		'Andreas Tille',
-		'Dr Carlos Moro'
+		u'Dr Gerardo Arnaez',
+		u'Dr Hilmar Berger',
+		u'Michael Bonert',
+		u'Dr Elizabeth Dodd',
+		u'Engelbert Gruber',
+		u'Dr David Guest',
+		u'Ian Haywood',
+		u'Dr Tony Lembke',
+		u'Thierry Michel',
+		u'Dr Richard Terry',
+		u'Syan J Tan',
+		u'Andreas Tille',
+		u'Dr Carlos Moro'
 	]
 
 	# initializations
@@ -200,7 +197,7 @@ Andreas Tille
  - Debian packages
  - encouragement, wisdom
 
-"""
+""".decode('latin1')
 	#----------------------------------------------
 	def __init__(self, *args, **kwargs):
 		wx.Dialog.__init__(self, *args, **kwargs)
@@ -227,7 +224,7 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wx.App):
 		def OnInit (self):
-			frame = AboutFrame(None, -1, "About GNUmed", size=wx.Size(300, 250))
+			frame = AboutFrame(None, -1, u"About GNUmed", size=wx.Size(300, 250))
 			frame.Show(1)
 			return 1
 	#---------------------
@@ -237,7 +234,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.24  2005-12-27 18:46:20  ncq
+# Revision 1.25  2006-10-23 15:48:07  ncq
+# - fix unicode/latin1 string issue
+#
+# Revision 1.24  2005/12/27 18:46:20  ncq
 # - define _()
 #
 # Revision 1.23  2005/12/24 10:27:42  shilbert
