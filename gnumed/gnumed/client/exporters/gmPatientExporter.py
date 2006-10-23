@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.82 2006-09-03 14:46:26 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmPatientExporter.py,v 1.83 2006-10-23 13:21:50 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -21,7 +21,7 @@ import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
-from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmVaccination, gmPathLab, gmMedDoc, gmDemographicRecord
+from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -1268,7 +1268,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.82  2006-09-03 14:46:26  ncq
+# Revision 1.83  2006-10-23 13:21:50  ncq
+# - vaccs/path lab not yet converted to gmPG2
+#
+# Revision 1.82  2006/09/03 14:46:26  ncq
 # - robustify regarding encoding issues
 # - improve test suite
 #
