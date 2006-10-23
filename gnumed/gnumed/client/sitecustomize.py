@@ -23,15 +23,15 @@ but that approach may not be fool-proof.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/sitecustomize.py,v $
-# $Id: sitecustomize.py,v 1.5 2005-09-28 21:18:36 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: sitecustomize.py,v 1.6 2006-10-23 13:27:37 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys
 
 # flip this flag if you need to set the encoding explicitely
-do_set_encoding = True
+do_set_encoding = False
 
 # - most European countries but shouldn't
 #   hurt in US-ASCII countries, either
@@ -68,7 +68,10 @@ if do_set_encoding:
 
 #==============================================================
 # $Log: sitecustomize.py,v $
-# Revision 1.5  2005-09-28 21:18:36  ncq
+# Revision 1.6  2006-10-23 13:27:37  ncq
+# - this is only an example, don't activate it by default
+#
+# Revision 1.5  2005/09/28 21:18:36  ncq
 # - need to explicitely set encoding on our reference platform
 #   (Debian Sarge with wx2.6 from testing)
 #
