@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.207 2006-07-19 20:25:00 ncq Exp $
-__version__ = "$Revision: 1.207 $"
+# $Id: gmClinicalRecord.py,v 1.208 2006-10-23 13:06:19 ncq Exp $
+__version__ = "$Revision: 1.208 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -34,7 +34,7 @@ import sys, string, time, copy
 import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N
-from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
+from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -66,28 +66,21 @@ class cClinicalRecord:
 
 		# ...........................................
 		# this is a hack to speed up get_encounters()
-		clin_root_item_children = gmPG.get_child_tables('clinical', 'clin', 'clin_root_item')
+		clin_root_item_children = gmPG2.get_child_tables('clin', 'clin_root_item')
 		if cClinicalRecord._clin_root_item_children_union_query is None:
-			union_phrase = """
+			union_phrase = u"""
 select fk_encounter from
 	%s.%s cn
 		inner join
 	(select pk from clin.episode ep where ep.fk_health_issue in %%s) as epi
 		on (cn.fk_episode =  epi.pk)
 """
-			cClinicalRecord._clin_root_item_children_union_query = 'union\n'.join (
+			cClinicalRecord._clin_root_item_children_union_query = u'union\n'.join (
 				[ union_phrase % (child[0], child[1]) for child in clin_root_item_children ]
 			)
 		# ...........................................
 
-		self._conn_pool = gmPG.ConnectionPool()
-
 		self.pk_patient = aPKey			# == identity.pk == primary key
-		if not self.__patient_exists():
-			raise gmExceptions.ConstructorError, "No patient with PK [%s] in database." % aPKey
-
-		if not self.__provider_exists():
-			raise gmExceptions.ConstructorError, "cannot make sure provider [%s] is in service 'historica'" % _me['pk_staff']
 
 		self.__db_cache = {
 			'vaccinations': {}
@@ -112,101 +105,37 @@ select fk_encounter from
 	def cleanup(self):
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.pk_patient)
 
-		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
-		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
+#		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
+#		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
 
-		sig = "%s:%s" % (gmSignals.episode_change_db(), self.pk_patient)
-		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified)
+#		sig = "%s:%s" % (gmSignals.episode_change_db(), self.pk_patient)
+#		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified)
 
-		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
-		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
+#		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
+#		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
 
-		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
-		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __patient_exists(self):
-		"""Does this patient exist ?
-
-		- true/false
-		"""
-		# patient in demographic database ?
-		cmd = "select exists(select pk from dem.identity where pk = %s)"
-		result = gmPG.run_ro_query('personalia', cmd, None, self.pk_patient)
-		if result is None:
-			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.pk_patient)
-			return False
-		exists = result[0][0]
-		if not exists:
-			_log.Log(gmLog.lErr, "patient [%s] not in demographic database" % self.pk_patient)
-			return False
-		# patient linked in our local clinical database ?
-		cmd = "select exists(select pk from clin.xlnk_identity where xfk_identity = %s)"
-		result = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
-		if result is None:
-			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in clinical database' % self.pk_patient)
-			return False
-		exists = result[0][0]
-		if not exists:
-			_log.Log(gmLog.lInfo, "patient [%s] not in clinical database" % self.pk_patient)
-			cmd1 = "insert into clin.xlnk_identity (xfk_identity, pupic) values (%s, %s)"
-			cmd2 = "select currval('clin.xlnk_identity_pk_seq')"
-			status = gmPG.run_commit('historica', [
-				(cmd1, [self.pk_patient, self.pk_patient]),
-				(cmd2, [])
-			])
-			if status is None:
-				_log.Log(gmLog.lErr, 'cannot insert patient [%s] into clinical database' % self.pk_patient)
-				return False
-			if status != 1:
-				_log.Log(gmLog.lData, 'inserted patient [%s] into clinical database with local id [%s]' % (self.pk_patient, status[0][0]))
-		return True
-	#--------------------------------------------------------
-	def __provider_exists(self):
-		"""Make sure provider is linked in clinical database.
-		"""
-		pk_provider = _me['pk_staff']
-		# provider linked in our local clinical database ?
-		cmd = "select exists(select pk from clin.xlnk_identity where xfk_identity = %s)"
-		exists = gmPG.run_ro_query('historica', cmd, None, pk_provider)
-		if exists is None:
-			_log.Log(gmLog.lErr, 'unable to check for provider [%s] existence in clinical database' % pk_provider)
-			return False
-		if not exists[0][0]:
-			_log.Log(gmLog.lInfo, "provider [%s] not in clinical database" % pk_provider)
-			cmd1 = "insert into clin.xlnk_identity (xfk_identity, pupic) values (%s, %s)"
-			cmd2 = "select currval('clin.xlnk_identity_pk_seq')"
-			status = gmPG.run_commit('historica', [
-				(cmd1, [pk_provider, pk_provider]),
-				(cmd2, [])
-			])
-			if status is None:
-				_log.Log(gmLog.lErr, 'cannot insert provider [%s] into clinical database' % pk_provider)
-				return False
-			if status != 1:
-				_log.Log(gmLog.lData, 'inserted provider [%s] into clinical database with local id [%s]' % (pk_provider, status[0][0]))
-		return True
+#		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
+#		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
 	def _register_interests(self):
 		# backend notifications
-		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
-		if not self._conn_pool.Listen('historica', sig, self.db_callback_vaccs_modified):
-			return None
+#		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
+#		if not self._conn_pool.Listen('historica', sig, self.db_callback_vaccs_modified):
+#			return None
 
-		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
-		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
-			return None
+#		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
+#		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
+#			return None
 
-		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
-		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
-			return None
+#		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
+#		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
+#			return None
 
-		sig = "%s:%s" % (gmSignals.episode_change_db(), self.pk_patient)
-		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified):
-			return None
+#		sig = "%s:%s" % (gmSignals.episode_change_db(), self.pk_patient)
+#		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified):
+#			return None
 
 		return 1
 	#--------------------------------------------------------
@@ -302,13 +231,9 @@ select fk_encounter from
 		try:
 			self.__db_cache['narrative']
 		except KeyError:
-			self.__db_cache['narrative'] = []
 			cmd = "select * from clin.v_pat_narrative where pk_patient=%s order by date"
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load narrative for patient [%s]' % self.pk_patient)
-				del self.__db_cache['narrative']
-				return None
+			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}])
+			self.__db_cache['narrative'] = []
 			if not self._build_narrative_cache_from_rows(rows, idx):
 				return None
 
@@ -340,7 +265,7 @@ select * from clin.v_narrative4search vn4s
 where
 	pk_patient = %s and
 	vn4s.narrative ~ %s"""		# case sensitive
-		rows = gmPG.run_ro_query('historica', cmd, False, self.pk_patient, search_term)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, search_term]}])
 		return rows
 	#--------------------------------------------------------
 	# __getitem__ handling
@@ -655,24 +580,16 @@ where
 	#--------------------------------------------------------
 	def get_summary(self):
 		cmds = [
-			('clinical', 'select count(*) from clin.v_problem_list where pk_patient=%s', 'problems'),
-			('clinical', 'select count(*) from clin.encounter where fk_patient=%s', 'visits'),
-			('clinical', 'select count(*) from clin.v_pat_items where pk_patient=%s', 'items'),
-			('blobs', 'select count(*) from blobs.doc_med where patient_id=%s', 'documents')
+			(u'select count(*) from clin.v_problem_list where pk_patient=%s', _('problems')),
+			(u'select count(*) from clin.encounter where fk_patient=%s', _('visits')),
+			(u'select count(*) from clin.v_pat_items where pk_patient=%s', _('items')),
+			(u'select count(*) from blobs.doc_med where fk_identity=%s', _('documents'))
 		]
 		summary = {}
 		for cmd in cmds:
-			service, query, key = cmd
-			rows = gmPG.run_ro_query (
-				service,
-				query,
-				None,
-				self.pk_patient
-			)
-			if rows is None:
-				summary[key] = _('unable to retrieve [%s]') % key
-			else:
-				summary[key] = rows[0][0]
+			query, key = cmd
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+			summary[key] = rows[0][0]
 		return summary
 	#--------------------------------------------------------
 	# allergy API
@@ -697,23 +614,14 @@ where
 			self.__db_cache['allergies']
 		except KeyError:
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
-			self.__db_cache['allergies'] = []
-			cmd = "select pk_allergy from clin.v_pat_allergies where pk_patient=%s"
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.pk_patient)
-				del self.__db_cache['allergies']
-				# better fail here contrary to what we do elsewhere
-				return None
+			cmd = u"select *, xmin_allergy from clin.v_pat_allergies where pk_patient=%s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 			# Instantiate allergy items and keep cache
+			self.__db_cache['allergies'] = []
+			tmp = []
 			for row in rows:
-				try:
-					self.__db_cache['allergies'].append(gmAllergy.cAllergy(aPK_obj=row[0]))
-				except gmExceptions.ConstructorError:
-					_log.LogException('allergy error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
-					_log.Log(gmLog.lInfo, 'better to report an error than rely on incomplete allergy information')
-					del self.__db_cache['allergies']
-					return None
+				tmp.append(gmAllergy.cAllergy(row = {'data': row, 'idx': idx, 'pk_field': 'pk_allergy'}))
+			self.__db_cache['allergies'] = tmp
 
 		# ok, let's constrain our list
 		filtered_allergies = []
@@ -770,21 +678,12 @@ where
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
-			cmd = """select pk_episode from clin.v_pat_episodes where pk_patient=%s"""
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.pk_patient)
-				del self.__db_cache['episodes']
-				return None
-			self.__db_cache['episodes'] = []
+			cmd = u"""select *, xmin_episode from clin.v_pat_episodes where pk_patient=%s"""
+			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}])
+			tmp = []
 			for row in rows:
-				try:
-					self.__db_cache['episodes'].append(gmEMRStructItems.cEpisode(aPK_obj=row[0]))
-				except gmExceptions.ConstructorError, msg:
-					_log.LogException(str(msg), sys.exc_info(), verbose=0)
-				except KeyError:
-					_log.LogException('concurrency error reloading episodes', sys.exc_info(), verbose=0)
-					self.__db_cache['episodes'] = []
+				tmp.append(gmEMRStructItems.cEpisode(row = {'data': row, 'idx': idx, 'pk_field': 'pk_episode'}))
+			self.__db_cache['episodes'] = tmp
 
 		if id_list is None and issues is None and open_status is None:
 			return self.__db_cache['episodes']
@@ -1794,7 +1693,13 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.207  2006-07-19 20:25:00  ncq
+# Revision 1.208  2006-10-23 13:06:19  ncq
+# - don't import path lab/vaccs business objects, they are not converted yet
+# - use gmPG2 (not finished yet)
+# - comment out backend signal handling for now
+# - drop services support
+#
+# Revision 1.207  2006/07/19 20:25:00  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.206  2006/06/26 12:25:30  ncq
