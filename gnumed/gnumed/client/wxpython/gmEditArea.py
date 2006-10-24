@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.106 2006-07-01 15:22:50 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmEditArea.py,v 1.107 2006-10-24 13:23:03 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -1441,7 +1441,7 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_specialty = gmPhraseWheel.cPhraseWheel (
 			parent = parent,
 			id = -1,
-			aMatchProvider = gmDemographicRecord.OccupationMP (),
+#			aMatchProvider = gmDemographicRecord.OccupationMP (),
 			style = wx.SIMPLE_BORDER
 			)
 		#_decorate_editarea_field (self.fld_specialty)
@@ -1454,7 +1454,7 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_name = gmPhraseWheel.cPhraseWheel (
 			parent = parent,
 			id = -1,
-			aMatchProvider = gmDemographicRecord.NameMP (),
+#			aMatchProvider = gmDemographicRecord.NameMP (),
 			style = wx.SIMPLE_BORDER
 			)
 		#_decorate_editarea_field (self.fld_name)
@@ -2344,7 +2344,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.106  2006-07-01 15:22:50  ncq
+# Revision 1.107  2006-10-24 13:23:03  ncq
+# - comment out removed match providers
+#
+# Revision 1.106  2006/07/01 15:22:50  ncq
 # - add comment on deprecated setDependant()
 #
 # Revision 1.105  2006/05/15 13:35:59  ncq
