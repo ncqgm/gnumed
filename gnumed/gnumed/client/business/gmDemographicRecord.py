@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.82 2006-07-19 20:25:00 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmDemographicRecord.py,v 1.83 2006-10-24 13:15:48 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -23,29 +23,6 @@ _log.Log(gmLog.lInfo, __version__)
 # 3rd party
 import mx.DateTime as mxDT
 
-
-#============================================================
-# map gender abbreviations in a GnuMed demographic service
-# to a meaningful localised string
-#demographics_GENDER_DICT = {
-#			'm' : _('Male'),
-#			'f' : _('Female'),
-#			'?' : _('Unknown'),
-#			'tm' : _('Transexual to Male'),
-#			'tf' : _('Transexual to Female'),
-#			'h' : _('Hermaphrodite')
-#		}
-#===================================================================
-#class cComm (gmBusinessDBObject.cBusinessDBObject):
-	
-#===================================================================
-
-#class cAddress (gmBusinessDBObject.cBusinessObject):
-	# to be honest, I'm not really convinced it means much sense to be able to
-	# change addresses and comms. When someone 'changes' their address, really they are unbinding
-	# from the old address and binding to a new one,
-	# so I'm going back to having addresses and comms as plain dictionaries
-	
 #===================================================================
 class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	"""
@@ -270,11 +247,13 @@ where
 	else:
 		return tuple (row_list[0])
 #-------------------------------------------------------------------------------
-class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
-	"""Returns a list of valid postcodes,
-	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
-	"""
-	def __init__ (self):
+#class PostcodeMP (gmMatchProvider.cMatchProvider_SQL2):
+#	pass
+
+#	"""Returns a list of valid postcodes,
+#	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
+#	"""
+#	def __init__ (self):
 		# we search two tables here, as in some jurisdictions (UK, Germany, US)
 		# postcodes are tied to streets or small groups of streets,
 		# and in others (Australia) postcodes refer to an entire town
@@ -285,135 +264,71 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 		#   the postcode for urb or street , not the id of those tables.
 		#   This is in the cMatchProvider.__findMatches code.
 
-		source = [{
-			'column':'postcode',
-			'pk':'postcode',
-			'limit':10,
-			'table':'dem.urb',
-			'extra conditions':{'dem.urb':'id = %s', 'default':'postcode is not null'}
-			, 'service': 'personalia'
-			},{
-			'column':'postcode',
-			'table':'dem.street',
-			'limit':10,
-			'pk':'postcode',
-			'extra conditions':{'dem.urb':'id_urb = %s', 'dem.street': 'id = %s', 'default':'postcode is not null'}
-			, 'service': 'personalia'
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-			
+#		source = [{
+#			'column':'postcode',
+#			'pk':'postcode',
+#			'limit':10,
+#			'table':'dem.urb',
+#			'extra conditions':{'dem.urb':'id = %s', 'default':'postcode is not null'}
+##			, 'service': 'personalia'
+#			},{
+#			'column':'postcode',
+#			'table':'dem.street',
+#			'limit':10,
+#			'pk':'postcode',
+#			'extra conditions':{'dem.urb':'id_urb = %s', 'dem.street': 'id = %s', 'default':'postcode is not null'}
+#			, 'service': 'personalia'
+#			}]
+#		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
+
 #----------------------------------------------------------------
-class StreetMP (gmMatchProvider.cMatchProvider_SQL):
-	"""Returns a list of streets
-
-	accepts "urb" and "postcode" contexts  
-		e.g.
-			using cMatchProvider_SQL's  self.set_context("urb",...) 
-					
-	"""
-	def __init__ (self):
-		source = [{
-			'service': 'personlia',
-			'table': 'dem.street',
-			'pk':'id',
-			'column': 'name',
-			'limit': 10,
-			'extra conditions': {
-				'dem.urb': 'id_urb = %s',
-				'dem.postcode': 'postcode = %s or postcode is null'
-				}
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-#------------------------------------------------------------
-
-class StateMP (gmMatchProvider.cMatchProvider_SQL):
-					
-	"""
-	"""
-	def __init__ (self):
-		source = [{
-			'service': 'personlia',
-			'table': 'dem.state',
-			'pk':'id',
-			'column': 'name',
-			'limit': 10,
-			'extra conditions': {}
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
+#class StreetMP (gmMatchProvider.cMatchProvider_SQL):
+#	"""Returns a list of streets
+#
+#	accepts "urb" and "postcode" contexts  
+#		e.g.
+#			using cMatchProvider_SQL's  self.set_context("urb",...) 
+#					
+#	"""
+#	def __init__ (self):
+#		source = [{
+#			'service': 'personlia',
+#			'table': 'dem.street',
+#			'pk':'id',
+#			'column': 'name',
+#			'limit': 10,
+#			'extra conditions': {
+#				'dem.urb': 'id_urb = %s',
+#				'dem.postcode': 'postcode = %s or postcode is null'
+#				}
+#			}]
+#		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 #-----------------------------------------------------------
-class MP_urb_by_zip (gmMatchProvider.cMatchProvider_SQL):
-	"""Returns a list of urbs
+#class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
+#	"""
+#	Returns a list of occupations
+#	"""
+#	def __init__ (self):
+#		source = [{
+#			'service':'personalia',
+#			'table':'dem.occupation',
+#			'pk':'id',
+#			'column':'name',
+#			'limit':7
+#			}]
+#		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
 
-	accepts "postcode" and "state" contexts
-	"""
-	def __init__ (self):
-		source = [{
-			'service': 'personalia',
-			'table': 'dem.urb',
-			'pk':'id',
-			'column': 'name',
-			'limit': 15,
-			'extra conditions': {'postcode': '(postcode = %s or postcode is null)',
-					     'state':'(id_state = %s)'}
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-
-class CountryMP (gmMatchProvider.cMatchProvider_SQL):
-	"""
-	Returns a list of countries
-	"""
-	def __init__ (self):
-		source = [{
-			'service':'personalia',
-			'table':'dem.country',
-			'pk':'code',
-			'column':'name',
-			'limit':5
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-
-class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
-	"""
-	Returns a list of occupations
-	"""
-	def __init__ (self):
-		source = [{
-			'service':'personalia',
-			'table':'dem.occupation',
-			'pk':'id',
-			'column':'name',
-			'limit':7
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-
-class NameMP (gmMatchProvider.cMatchProvider):
-	"""
-	List of names
-	"""
-	def getMatches (self, fragment):
-		cmd = "select search_identity (%s)"
-		data, idx = gmPG.run_ro_query ('personalia', cmd, 1, fragment)
-		if data is None:
-			_log.Log(gmLog.lErr, "cannot search for identity")
-			return None
-		return [{'data':cIdentity (idx, i), 'label':"%s %s %s" % (i[idx['title']], i[idx['firstnames']], i[idx['lastnames']])} for i in data]
-
-#------------------------------------------------------------
-class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
-	"""
-	List of org categories.
-	"""
-	def __init__(self):
-		source = [ {
-			'service': 'personalia',
-			'table'	: 'dem.org_category',
-			'pk'	: 'id',
-			'column': 'description',
-			'result': 'description' ,
-			'limit' : 5,
-			}]
-		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-#------------------------------------------------------------
+#class NameMP (gmMatchProvider.cMatchProvider):
+#	"""
+#	List of names
+#	"""
+#	def getMatches (self, fragment):
+#		cmd = "select search_identity (%s)"
+#		data, idx = gmPG.run_ro_query ('personalia', cmd, 1, fragment)
+#		if data is None:
+#			_log.Log(gmLog.lErr, "cannot search for identity")
+#			return None
+#		return [{'data':cIdentity (idx, i), 'label':"%s %s %s" % (i[idx['title']], i[idx['firstnames']], i[idx['lastnames']])} for i in data]
 
 #============================================================
 # callbacks
@@ -446,7 +361,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.82  2006-07-19 20:25:00  ncq
+# Revision 1.83  2006-10-24 13:15:48  ncq
+# - comment out/remove a bunch of deprecated/unused match providers
+#
+# Revision 1.82  2006/07/19 20:25:00  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.81  2006/06/14 10:22:46  ncq
