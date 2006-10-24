@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-v_narrative4search.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-v_narrative4search.sql,v 1.2 2006-10-24 13:10:30 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 begin;
@@ -44,7 +44,7 @@ where
 
 union all	-- health issues
 select
-	chi.id_patient as pk_patient,
+	chi.fk_patient as pk_patient,
 	'a' as soap_cat,
 	chi.description as narrative,
 	null as pk_encounter,
@@ -186,13 +186,16 @@ comment on view clin.v_narrative4search is
 grant select on clin.v_narrative4search to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.2 $');
 
 commit;
 
 -- ==============================================================
 -- $Log: clin-v_narrative4search.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2006-10-24 13:10:30  ncq
+-- - health issue id_patient -> fk_patient
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.2  2006/09/18 17:32:26  ncq
