@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.44 2006-09-13 07:55:11 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPatSearchWidgets.py,v 1.45 2006-10-24 13:26:43 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -19,7 +19,7 @@ import sys, os.path, time, string, re, glob
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmCfg
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListPnl, wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
@@ -583,11 +583,6 @@ class cPatientSelector(wx.TextCtrl):
 				except KeyError:
 					self.__pat_expander = patient_expander['default']
 
-		# get connection
-		backend = gmPG.ConnectionPool()
-		self.__conn = backend.GetConnection('personalia')
-		# FIXME: error handling
-
 		self.__prev_search_term = None
 		self.__prev_idents = []
 		self.__pat_picklist_col_defs = []
@@ -981,7 +976,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.44  2006-09-13 07:55:11  ncq
+# Revision 1.45  2006-10-24 13:26:43  ncq
+# - switch to gmPG2
+#
+# Revision 1.44  2006/09/13 07:55:11  ncq
 # - handle encoding in xDT patient sources
 #
 # Revision 1.43  2006/09/06 07:22:34  ncq
