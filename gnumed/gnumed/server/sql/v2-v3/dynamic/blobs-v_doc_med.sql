@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_doc_med.sql,v 1.2 2006-09-28 14:40:37 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: blobs-v_doc_med.sql,v 1.3 2006-10-24 13:10:04 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 begin;
@@ -34,7 +34,7 @@ select
 	cle.description as episode,
 	dm.comment as comment,
 	cle.is_open as episode_open,
-	dm.type as pk_type,
+	dm.fk_type as pk_type,
 	dm.fk_encounter as pk_encounter,
 	dm.fk_episode as pk_episode,
 	cle.fk_health_issue as pk_health_issue,
@@ -45,7 +45,7 @@ from
 	blobs.v_doc_type vdt,
 	clin.episode cle
 where
-	vdt.pk_doc_type = dm.type and
+	vdt.pk_doc_type = dm.fk_type and
 	cle.pk = dm.fk_episode
 ;
 
@@ -58,13 +58,16 @@ comment on index blobs.idx_docs_by_patient is
 GRANT SELECT ON blobs.v_doc_med TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_doc_med.sql,v $', '$Revision: 1.2 $');
+select public.log_script_insertion('$RCSfile: blobs-v_doc_med.sql,v $', '$Revision: 1.3 $');
 
 commit;
 
 -- ==============================================================
 -- $Log: blobs-v_doc_med.sql,v $
--- Revision 1.2  2006-09-28 14:40:37  ncq
+-- Revision 1.3  2006-10-24 13:10:04  ncq
+-- - type -> fk_type
+--
+-- Revision 1.2  2006/09/28 14:40:37  ncq
 -- - add index on fk_patient
 --
 -- Revision 1.1  2006/09/25 10:55:01  ncq
