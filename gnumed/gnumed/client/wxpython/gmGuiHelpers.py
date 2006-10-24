@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.38 2006-10-08 11:03:09 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmGuiHelpers.py,v 1.39 2006-10-24 13:23:31 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -196,7 +196,7 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		return None
 
 	# 2) connect as gm-dbo
-	login = gmLoginInfo.LoginInfo()
+	login = gmPG2.get_default_login()
 	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user='gm-dbo', password=pwd_gm_dbo)
 	try:
 		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True)
@@ -357,7 +357,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.38  2006-10-08 11:03:09  ncq
+# Revision 1.39  2006-10-24 13:23:31  ncq
+# - use gmPG2.get_default_login() in get_dbowner_connection()
+#
+# Revision 1.38  2006/10/08 11:03:09  ncq
 # - convert to gmPG2
 #
 # Revision 1.37  2006/09/03 11:29:30  ncq
