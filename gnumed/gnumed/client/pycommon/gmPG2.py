@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -78,6 +78,7 @@ try:
 except: pass
 
 _default_dsn = None
+_default_login = None
 
 _v2_schema_hash = 'not released, testing only'
 #_v2_schema_hash = 'b09d50d7ed3f91ddf4c4ddb8ea507720'
@@ -92,8 +93,8 @@ def database_schema_compatible():
 	return True
 # =======================================================================
 def get_current_user():
-	result = run_ro_queries(link_obj=None, queries = [{'cmd': u'select CURRENT_USER'}])
-	return result[0][0]
+	rows,idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
+	return rows[0][0]
 # =======================================================================
 def set_default_client_encoding(encoding = None):
 	# check whether psycopg2 can handle this encoding
@@ -212,21 +213,34 @@ def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=N
 
 	return ' '.join(dsn_parts)
 # ------------------------------------------------------
+def get_default_login():
+	# make sure we do have a login
+	get_default_dsn()
+	return _default_login
+# ------------------------------------------------------
 def get_default_dsn():
 	global _default_dsn
 	if _default_dsn is not None:
 		return _default_dsn
 
 	login = request_login_params()
-	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
-	set_default_dsn(dsn)
+	set_default_login(login=login)
 
 	return _default_dsn
 # ------------------------------------------------------
-def set_default_dsn(dsn = None):
+def set_default_login(login=None):
+	if login is None:
+		return False
+
+	global _default_login
+	_log.Log(gmLog.lInfo, 'setting default login from [%s] to [%s]' % (_default_login, login))
+	_default_long = login
+
 	global _default_dsn
+	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
 	_log.Log(gmLog.lInfo, 'setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 	_default_dsn = dsn
+
 	return True
 # =======================================================================
 def get_col_indices(cursor = None):
@@ -481,7 +495,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	# set connection properties
 
 	# 1) client encoding
-	_log.Log(gmLog.lData, 'setting client string encoding to [%s]' % encoding)
+	_log.Log(gmLog.lData, 'client string encoding [%s]' % encoding)
 	try:
 		conn.set_client_encoding(encoding)
 	except dbapi.OperationalError:
@@ -493,21 +507,21 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	# 2) transaction isolation level
 	if readonly:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-		_log.Log(gmLog.lData, 'setting isolation level to [read committed]')
+		_log.Log(gmLog.lData, 'isolation level [read committed]')
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
-		_log.Log(gmLog.lData, 'setting isolation level to [serializable]')
+		_log.Log(gmLog.lData, 'isolation level [serializable]')
 
 	curs = conn.cursor()
 
 	# 3) client time zone
-	_log.Log(gmLog.lData, 'setting time zone to [%s]' % _default_client_timezone)
+	_log.Log(gmLog.lData, 'time zone [%s]' % _default_client_timezone)
 	cmd = "set time zone '%s'" % _default_client_timezone
 	curs.execute(cmd)
 
 	# 4) datestyle
 	# FIXME: add DMY/YMD handling
-	_log.Log(gmLog.lData, 'setting datestyle to [ISO]')
+	_log.Log(gmLog.lData, 'datestyle [ISO]')
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
 
@@ -516,7 +530,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		access_mode = 'READ ONLY'
 	else:
 		access_mode = 'READ WRITE'
-	_log.Log(gmLog.lData, 'setting access mode to [%s]' % access_mode)
+	_log.Log(gmLog.lData, 'access mode [%s]' % access_mode)
 	cmd = 'set session characteristics as transaction %s' % access_mode
 	curs.execute(cmd)
 
@@ -774,7 +788,13 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.6  2006-10-23 13:22:38  ncq
+# Revision 1.7  2006-10-24 13:20:07  ncq
+# - fix get_current_user()
+# - add default login handling
+# - remove set_default_dsn() - now use set_default_login() which will create the DSN, too
+# - slighly less verbose logging for log size sanity
+#
+# Revision 1.6  2006/10/23 13:22:38  ncq
 # - add get_child_tables()
 #
 # Revision 1.5  2006/10/10 07:38:22  ncq
