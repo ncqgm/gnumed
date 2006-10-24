@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-xlnk_identity.sql,v 1.1 2006-09-26 14:47:53 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-xlnk_identity.sql,v 1.2 2006-10-24 13:10:56 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -23,15 +23,20 @@ begin;
 -- --------------------------------------------------------------
 drop table blobs.xlnk_identity cascade;
 
+delete from audit.audited_tables where schema = 'blobs' and table_name = 'xlnk_identity';
+
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-xlnk_identity.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: blobs-xlnk_identity.sql,v $', '$Revision: 1.2 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: blobs-xlnk_identity.sql,v $
--- Revision 1.1  2006-09-26 14:47:53  ncq
+-- Revision 1.2  2006-10-24 13:10:56  ncq
+-- - remove from list of audited tables
+--
+-- Revision 1.1  2006/09/26 14:47:53  ncq
 -- - those live here now
 --
 -- Revision 1.3  2006/09/18 17:32:53  ncq
