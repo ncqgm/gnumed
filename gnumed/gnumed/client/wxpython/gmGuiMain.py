@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.266 2006-10-09 12:25:21 ncq Exp $
-__version__ = "$Revision: 1.266 $"
+# $Id: gmGuiMain.py,v 1.267 2006-10-24 13:24:12 ncq Exp $
+__version__ = "$Revision: 1.267 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -882,8 +882,7 @@ class gmApp(wx.App):
 
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
-		self.__backend = gmLogin.Login()
-		if self.__backend is None:
+		if not gmLogin.connect_to_database():
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
@@ -1124,7 +1123,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.266  2006-10-09 12:25:21  ncq
+# Revision 1.267  2006-10-24 13:24:12  ncq
+# - now use gmLogin.connect_to_database()
+#
+# Revision 1.266  2006/10/09 12:25:21  ncq
 # - almost entirely convert over to gmPG2
 # - rip out layout manager selection code
 # - better use of db level cfg
