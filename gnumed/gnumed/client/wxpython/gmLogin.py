@@ -6,14 +6,13 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.26 2006-10-08 11:04:45 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmLogin.py,v 1.27 2006-10-24 13:25:19 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "H.Herb"
 
 import wx
 
-from Gnumed.pycommon import gmPG, gmLog, gmExceptions, gmI18N
-from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmPG, gmLog, gmExceptions, gmI18N, gmPG2
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
 
 try:
@@ -23,7 +22,7 @@ except NameError:
 
 _log = gmLog.gmDefLog
 #==============================================================
-def Login(max_attempts=3):
+def connect_to_database(max_attempts=3):
 	"""Display the login dialog and try to log into the backend.
 
 	- up to max_attempts times
@@ -32,40 +31,68 @@ def Login(max_attempts=3):
 		- None otherwise
 	"""
 	attempt = 0
-	backend = None
-	#display the login dialog
+	connected = False
 	dlg = gmLoginDialog.LoginDialog(None, -1)
 	dlg.Centre(wx.BOTH)
 	while attempt < max_attempts:
 		dlg.ShowModal()
-		#get the login parameters
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
 			_log.Log(gmLog.lInfo, "user cancelled login dialog")
 			break
 		#now try to connect to the backend
+		dsn = gmPG2.make_psycopg2_dsn (
+			database=login.database,
+			host=login.host,
+			port=login.port,
+			user=login.user,
+			password=login.password
+		)
 		try:
-			backend = gmPG.ConnectionPool(login)
-			# save the login settings for next login
+			gmPG2.get_connection(dsn=dsn, verbose=True)
+			gmPG2.set_default_login(login=login)
 			dlg.panel.save_settings()
+			try: gmPG.ConnectionPool(login)
+			except: pass
+			connected = True
 			break
-		except gmExceptions.ConnectionError, e:
+		except gmPG2.cAuthenticationError, e:
 			attempt += 1
+			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
 			if attempt < max_attempts:
-				msg = _('Unable to connect to database:\n\n%s\n\nPlease retry or cancel !') % e
-				gmGuiHelpers.gm_show_error (
-					msg,
-					_('connecting to backend'),
+				gmGuiHelpers.gm_show_error (_(
+						"Unable to connect to database:\n\n"
+						" %s\n\n"
+						"Please retry or cancel !"
+					) % e,
+					_('Connecting to backend'),
 					gmLog.lErr
 				)
-			_log.LogException("login attempt %s of %s failed" % (attempt, max_attempts), verbose=0)
+			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
+		except StandardError:
+			_log.LogException(u"login attempt %s/%s failed" % (attempt+1, max_attempts), verbose=0)
+			break
+
+#		try:
+#			backend = gmPG.ConnectionPool(login)
+			# save the login settings for next login
+#			dlg.panel.save_settings()
+#			break
+#		except gmExceptions.ConnectionError, e:
+#			attempt += 1
+#			if attempt < max_attempts:
+#				msg = _('Unable to connect to database:\n\n%s\n\nPlease retry or cancel !') % e
+#				gmGuiHelpers.gm_show_error (
+#					msg,
+#					_('connecting to backend'),
+#					gmLog.lErr
+#				)
+#			_log.LogException("login attempt %s of %s failed" % (attempt, max_attempts), verbose=0)
 
 	dlg.Close()
 	dlg.Destroy()
-	# piggyback gmPG2
-	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user=login.user, password=login.password)
-	gmPG2.set_default_dsn(dsn=dsn)
-	return backend
+
+	return connected
 #==============================================================
 # main
 #==============================================================
@@ -73,7 +100,11 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.26  2006-10-08 11:04:45  ncq
+# Revision 1.27  2006-10-24 13:25:19  ncq
+# - Login() -> connect_to_database()
+# - make gmPG2 main connection provider, piggyback gmPG onto it for now
+#
+# Revision 1.26  2006/10/08 11:04:45  ncq
 # - simplify wx import
 # - piggyback gmPG2 until gmPG is pruned
 #
