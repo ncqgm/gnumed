@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.82 2006-10-21 20:44:06 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmPerson.py,v 1.83 2006-10-24 13:16:38 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2
+from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
@@ -550,9 +550,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=aPK_obj, row=row)
 
 		# are we SELF ?
-		cmd = "select CURRENT_USER"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-		self.__is_current_user = (rows[0][0] == self._payload[self._idx['db_user']])
+		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'db_user':
@@ -1476,6 +1474,22 @@ where
 
 		return ({'cmd': query, 'args': args})
 #============================================================
+# match providers
+#============================================================
+class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
+	def __init__(self):
+		gmMatchProvider.cMatchProvider_SQL2.__init__(
+			self,
+			queries = [u"""select
+							pk_staff,
+							short_alias || ' (' || title || firstnames || ' ' || lastnames || ')',
+							1
+						from dem.v_staff
+						where
+							short_alias || ' ' || firstnames || ' ' || lastnames || ' ' || db_user %(fragment_condition)s"""]
+		)
+		self.setThresholds(1, 2, 3)
+#============================================================
 # convenience functions
 #============================================================
 def dob2medical_age(dob):
@@ -1844,7 +1858,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.82  2006-10-21 20:44:06  ncq
+# Revision 1.83  2006-10-24 13:16:38  ncq
+# - add Provider match provider
+#
+# Revision 1.82  2006/10/21 20:44:06  ncq
 # - no longer import gmPG
 # - convert to gmPG2
 # - add __gender2salutation_map, map_gender2salutation()
