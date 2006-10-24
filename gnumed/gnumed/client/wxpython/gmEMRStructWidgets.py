@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.29 2006-09-03 11:30:28 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmEMRStructWidgets.py,v 1.30 2006-10-24 13:22:40 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -150,7 +150,6 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			service = 'clinical',
 			# FIXME: consider clin.health_issue.clinically_relevant
 			queries = ["""
 (select pk, description, 1
@@ -256,7 +255,6 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			service = 'clinical',
 			queries = [
 """select pk_episode, description, 1 from clin.v_pat_episodes where
 		episode_open is true and
@@ -405,7 +403,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		cmd = """
 			select distinct on (description) pk, description
 			from clin.health_issue where description %(fragment_condition)s"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
+		mp = gmMatchProvider.cMatchProvider_SQL2([cmd])
 		mp.setThresholds(aWord=2, aSubstring=5)
 		self.fld_condition = gmPhraseWheel.cPhraseWheel (
 			parent = parent
@@ -466,7 +464,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		cmd = """
 			select distinct on (narrative) pk, narrative
 			from clin.clin_narrative where narrative %(fragment_condition)s limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
+		mp = gmMatchProvider.cMatchProvider_SQL2([cmd])
 		mp.setThresholds(2, 4, 6)
 		self.fld_progress_note = gmPhraseWheel.cPhraseWheel (
 			parent = parent
@@ -1185,7 +1183,6 @@ if __name__ == '__main__':
 				
 	#================================================================
 #	import sys
-#	from Gnumed.pycommon import gmCfg, gmPG
 
 #	_cfg = gmCfg.gmDefCfgFile	 
 #	if _cfg is None:
@@ -1194,8 +1191,7 @@ if __name__ == '__main__':
 
 #	try:
 #		# make sure we have a db connection
-#		gmPG.set_default_client_encoding('latin1')
-#		pool = gmPG.ConnectionPool()
+#		gmPG2.set_default_client_encoding('UNICODE')
 
 #		# obtain patient
 #		patient = gmPerson.ask_for_patient()
@@ -1218,11 +1214,6 @@ if __name__ == '__main__':
 #		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 #		# but re-raise them
 #		raise
-#	try:
-#		pool.StopListeners()
-#	except:
-#		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-#		raise
 
 #	_log.Log (gmLog.lInfo, "closing notes input...")
 
@@ -1240,7 +1231,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.29  2006-09-03 11:30:28  ncq
+# Revision 1.30  2006-10-24 13:22:40  ncq
+# - gmPG -> gmPG2
+# - no need for service name in cMatchProvider_SQL2()
+#
+# Revision 1.29  2006/09/03 11:30:28  ncq
 # - add move_episode_to_issue()
 #
 # Revision 1.28  2006/06/26 21:37:43  ncq
