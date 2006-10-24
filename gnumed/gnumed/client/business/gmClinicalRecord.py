@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.208 2006-10-23 13:06:19 ncq Exp $
-__version__ = "$Revision: 1.208 $"
+# $Id: gmClinicalRecord.py,v 1.209 2006-10-24 13:14:07 ncq Exp $
+__version__ = "$Revision: 1.209 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -33,7 +33,7 @@ import sys, string, time, copy
 # 3rd party
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmPG, gmSignals, gmDispatcher, gmI18N
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
 _log = gmLog.gmDefLog
@@ -1693,7 +1693,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.208  2006-10-23 13:06:19  ncq
+# Revision 1.209  2006-10-24 13:14:07  ncq
+# - must import gmPG2, too, now
+#
+# Revision 1.208  2006/10/23 13:06:19  ncq
 # - don't import path lab/vaccs business objects, they are not converted yet
 # - use gmPG2 (not finished yet)
 # - comment out backend signal handling for now
