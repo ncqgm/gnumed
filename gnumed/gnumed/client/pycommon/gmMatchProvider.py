@@ -8,15 +8,15 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.17 2006-05-25 22:13:30 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmMatchProvider.py,v 1.18 2006-10-24 13:18:29 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
 import string, types, time, sys, re
 
 # GNUmed
-import gmPG, gmExceptions, gmLog
+import gmPG2, gmExceptions, gmLog
 
 _log = gmLog.gmDefLog
 #============================================================
@@ -381,10 +381,9 @@ class cMatchProvider_SQL2(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
 	"""
-	def __init__(self, service = 'default', queries = None):
+	def __init__(self, queries = None):
 		if type(queries) != types.ListType:
 			queries = [str(queries)]
-		self._service = service
 		self._queries = queries
 		self._context_vals = {}
 		cMatchProvider.__init__(self)
@@ -431,11 +430,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		matches = []
 		for query in self._queries:
 			query = query % {'fragment_condition': fragment_condition}
-			rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
-				_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
-				return (False, [])
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': self._context_vals}])
 			# no matches found: try next query
 			if len(rows) == 0:
 				continue
@@ -453,167 +448,6 @@ class cMatchProvider_SQL2(cMatchProvider):
 			return 0
 		return 1
 #------------------------------------------------------------
-class cMatchProvider_SQL(cMatchProvider):
-	"""Match provider which searches matches
-	   in possibly several database tables.
-	"""
-	def __init__(self, source_defs, score_def = []):
-		"""
-		source_defs is a list of dictionaries of (pk, column, table, extra conditions, limit)
-		column: the column containing the string to be matched
-		pk: the primary key's column name
-		table: the table (in reality will nearly always be a view)
-		limit: the max. number of returned rows
-		extra conditions: a dictionary, where keys are context variables, values are
-		SQL expressions applying that context to the query
-		result: the result string where it differs from column
-		"""
-		self.dbpool = gmPG.ConnectionPool()
-
-		# sanity check table connections
-		self.srcs = []
-		for src_def in source_defs:
-			# FIXME: testing every table at load time is going to get slow
-			# that remains to be seen
-			conn = self.dbpool.GetConnection(src_def['service'])
-			if conn is None:
-				self.__close_sources()
-				raise gmExceptions.ConstructorError, 'cannot connect to source service [%s]' % src_def['service']
-			curs = conn.cursor()
-			cmd = "select %s from %s limit 1" % (src_def['column'], src_def['table'])
-			if not gmPG.run_query(curs, None, cmd):
-				curs.close()
-				self.__close_sources()
-				raise gmExceptions.ConstructorError, 'cannot access [%s.%s] in service [%s]' % (src_def['table'], src_def['column'], src_def['service'])
-			if not src_def.has_key('pk'):
-				pk = gmPG.get_pkey_name(curs, src_def['table'])
-				if pk is None:
-					src_def['pk'] = "oid"
-				else:
-					src_def['pk'] = pk
-			curs.close()
-			src_def['conn'] = conn
-			self.srcs.append(src_def)
-			_log.Log(gmLog.lData, 'valid match source: %s' % src_def)
-
-		if score_def <> []:
-			rw_conn = self.dbpool.GetConnection(score_def['service'], readonly = 0)
-			if rw_conn is None:
-				self.__close_sources()
-				raise gmExceptions.ConstructorError, 'cannot connect to score storage service [%s]' % score_def['service']
-			rw_curs = rw_conn.cursor()
-			cmd = "select %s, cookie, user, score from %s limit 1" % (score_def['column'], score_def['table'])
-			if not gmPG.run_query(rw_curs, None, cmd):
-				rw_curs.close()
-				rw_conn.close()
-				self.__close_sources()
-				raise gmExceptions.ConstructorError, 'cannot access [%s.{%s/gmpw_user/gmpw_score}] in service [%s]' % (score_def['table'], score_def['column'], score_def['service'])
-			if not score_def.has_key('pk'):
-				pk = gmPG.get_pkey_name(rw_curs, score_def['table'])
-				if pk is None:
-					score_def['pk'] = "oid"
-				else:
-					score_def['pk'] = pk
-			rw_curs.close()
-			score_def['conn'] = rw_conn
-#			score_def['query'] = "select %s, %s from %s where %s" % (
-#				src_def['pk'],
-#				src_def['column'],
-#				src_def['table'],
-#				src_def['column'])
-			self.score_def = score_def
-			_log.Log(gmLog.lData, 'valid score storage target: %s' % score_def)
-
-		cMatchProvider.__init__(self)
-	#--------------------------------------------------------
-	def __close_sources(self):
-		for src in self.srcs:
-			self.dbpool.ReleaseConnection(src['service'])
-	#--------------------------------------------------------
-	# internal matching algorithms
-	#
-	# if we end up here:
-	#	- aFragment will not be "None"
-	#   - aFragment will be lower case
-	#	- we _do_ deliver matches (whether we find any is a different story)
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		"""Return matches for aFragment at start of phrases."""
-		operator = "ilike"
-		fragment = "%s%%" % aFragment
-		return self.__find_matches(operator, fragment)
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		"""Return matches for aFragment at start of words inside phrases."""
-		operator = "~*"
-		fragment = "( %s)|(^%s)" % (aFragment, aFragment)
-		return self.__find_matches(operator, fragment)
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		"""Return matches for aFragment as a true substring."""
-		operator = "ilike"
-		fragment = "%%%s%%" % aFragment
-		return self.__find_matches(operator, fragment)
-	#--------------------------------------------------------
-	def getAllMatches(self):
-		"""Return all items."""
-		return self.getMatchesBySubstr('')
-	#--------------------------------------------------------
-	def __find_matches(self, search_operator, aFragment):
-		matches = []
-		for src in self.srcs:
-			curs = src['conn'].cursor()
-			# FIXME: deal with gmpw_score...
-			values = [aFragment]
-			# process any extra conditions defined for this source
-			ctxt_where = ''
-			if src.has_key('extra conditions'):
-				# loop over name and condition for contexts
-				for ctxt_name, ctxt_condition in src['extra conditions'].iteritems():
-					# value known for this context condition ?
-					if self._context_val.has_key(ctxt_name) and self._context_val[ctxt_name]:
-						# add context condition
-						ctxt_where += " and (%s)" % ctxt_condition
-						# remember value for condition
-						values.append(self._context_val[ctxt_name])
-				# do we have any contexts that always apply ?
-				if src['extra conditions'].has_key('default'):
-					ctxt_where += " and (%s)" % src['extra conditions']['default']
-
-			if not src.has_key ('result'):
-				src['result'] = src['column'] 
-			cmd = "select %s, %s from %s where %s %s %%s %s" % (
-				src['pk'],
-				src['result'],
-				src['table'],
-				src['column'],
-				search_operator,
-				ctxt_where
-			)
-			if not gmPG.run_query(curs, None, cmd, values):
-				curs.close()
-				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
-				return (False, [])
-			matching_rows = curs.fetchall()
-			curs.close()
-			for row in matching_rows:
-				matches.append({'data': row[0], 'label': row[1], 'weight':0})
-
-		# no matches found
-		if len(matches) == 0:
-			return (False, [])
-
-		matches.sort(self.__cmp_items)
-		return (True, matches)
-	#--------------------------------------------------------
-	def __cmp_items(self, item1, item2):
-		"""naive ordering"""
-		if item1 < item2:
-			return -1
-		if item1 == item2:
-			return 0
-		return 1
-
 
 # FUTURE: a cMatchProvider_LDAP
 #================================================================
@@ -622,7 +456,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.17  2006-05-25 22:13:30  ncq
+# Revision 1.18  2006-10-24 13:18:29  ncq
+# - switch to gmPG2
+# - remove cMatchProvider_SQL()
+#
+# Revision 1.17  2006/05/25 22:13:30  ncq
 # - robustify set_context()
 #
 # Revision 1.16  2006/05/01 18:46:05  ncq
