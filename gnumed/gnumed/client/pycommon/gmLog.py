@@ -1,4 +1,4 @@
-"""GNUMed client log handling.
+"""GNUmed client log handling.
 
 All error logging, user notification and otherwise unhandled 
 exception handling should go through classes or functions of 
@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -64,9 +64,9 @@ import sys, time, traceback, os.path, os, string, stat
 # safely import SYSLOG, currently POSIX only
 try:
 	import syslog
-	_use_syslog = (1 == 1)
+	_use_syslog = True
 except ImportError:
-	_use_syslog = (1 == 0)
+	_use_syslog = False
 	if os.name == 'posix':
 		print "Although we are on a POSIX compliant platform the module SYSLOG cannot be imported !"
 		print "You should download and install this module !"
@@ -191,7 +191,6 @@ class cLogger:
 		- for a list of log levels see top of file
 		- messages above the currently active level of logging/verbosity are dropped silently
 		- if Rawness == lCooked non-printables < 32 (space) will be mapped to their name in ASCII
-		- FIXME: this should be a Unicode mapping
 		"""
 		# are we in for work ?
 		if self.__targets is not None:
@@ -392,7 +391,7 @@ class cLogTargetFile(cLogTarget):
 	# the actual file handle
 	__handle = None
 	#---------------------------
-	def __init__ (self, aLogLevel = lErr, aFileName = "", aMode = "ab"):
+	def __init__ (self, aLogLevel = lErr, aFileName = '', aMode = 'ab'):
 		# do our extra work
 		self.__handle = open (aFileName, aMode)
 		if self.__handle is None:
@@ -402,7 +401,7 @@ class cLogTargetFile(cLogTarget):
 			cLogTarget.__init__(self, aLogLevel)
 			self.ID = os.path.abspath (aFileName) # the file name canonicalized
 
-		self.writeMsg (lInfo, "instantiated log file " + aFileName + " with ID " + str(self.ID))
+		self.writeMsg (lInfo, "instantiated log file [%s] with ID [%s] " % (aFileName, self.ID))
 	#---------------------------
 	def dummy(self):
 		for module in sys.modules.values():
@@ -411,9 +410,15 @@ class cLogTargetFile(cLogTarget):
 		cLogTarget.close(self)
 		self.__handle.close()
 	#---------------------------
-	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
+	def dump2stderr(self, aTimeStamp, aPrefix, aLocation, aMsg):
+		msg = []
+		for tmp in [aTimeStamp, aPrefix, aLocation, aMsg]:
+			if type(tmp) == type(u''):
+				msg.append(tmp.encode('latin1'))
+			if type(tmp) == type(''):
+				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
-			self.__handle.write(aTimeStamp + aPrefix + aLocation + aMsg)
+			self.__handle.write(' '.join(msg))
 		except:
 			print "*** cannot write to log file [%s] ***" % self.ID
 #---------------------------------------------------------------
@@ -432,9 +437,15 @@ class cLogTargetConsole(cLogTarget):
 			print aPrefix + aLocation + aMsg
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
+#		msg = []
+#		for tmp in [aPrefix, aLocation, aMsg]:
+#			if type(tmp) == type(u''):
+#				msg.append(tmp.encode('ascii'))
+#			if type(tmp) == type(''):
+#				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('ascii'))
 		try:
 			sys.stderr.write(aPrefix + aLocation + aMsg)
-		except IOError:
+		except:
 			print aPrefix + aLocation + aMsg
 #---------------------------------------------------------------
 class cLogTargetSyslog(cLogTarget):
@@ -824,7 +835,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.18  2006-09-01 14:42:16  ncq
+# Revision 1.19  2006-10-24 13:17:30  ncq
+# - much improved string handling, should catch most Unicode decode output errors now
+#
+# Revision 1.18  2006/09/01 14:42:16  ncq
 # - handle unicode output to log file slightly smarter
 #
 # Revision 1.17  2006/06/20 14:28:23  ncq
