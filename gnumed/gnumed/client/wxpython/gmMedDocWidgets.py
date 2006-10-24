@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.94 2006-10-08 11:05:32 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmMedDocWidgets.py,v 1.95 2006-10-24 13:26:11 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -11,7 +11,7 @@ import os.path, sys, re, time
 import wxversion
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
@@ -116,7 +116,6 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			service = 'blobs',
 			queries = [
 """select * from ((
 	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
@@ -329,19 +328,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
 		gmPlugin.cPatientChange_PluginMixin.__init__(self)
 
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			service = 'personalia',
-			queries = ["""
-select
-	pk_staff,
-	short_alias || ' (' || title || firstnames || ' ' || lastnames || ')',
-	1
-from dem.v_staff
-where
-	short_alias || ' ' || firstnames || ' ' || lastnames || ' ' || db_user %(fragment_condition)s"""]
-		)
-		mp.setThresholds(1, 2, 3)
-		self._PhWheel_reviewer.setMatchProvider(mp = mp)
+		self._PhWheel_reviewer.setMatchProvider(mp = gmPerson.cMatchProvider_Provider())
 
 		self.__init_ui_data()
 
@@ -377,7 +364,7 @@ where
 		self._PhWheel_reviewer.selection_only = True
 		me = gmPerson.gmCurrentProvider()
 		self._PhWheel_reviewer.SetValue (
-			value = '%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
+			value = u'%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
 		)
 		# -----------------------------
@@ -1227,7 +1214,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.94  2006-10-08 11:05:32  ncq
+# Revision 1.95  2006-10-24 13:26:11  ncq
+# - no more gmPG.
+# - use cMatchProvider_Provider() in scan/index panel
+#
+# Revision 1.94  2006/10/08 11:05:32  ncq
 # - properly use db cfg
 #
 # Revision 1.93  2006/09/19 12:00:42  ncq
