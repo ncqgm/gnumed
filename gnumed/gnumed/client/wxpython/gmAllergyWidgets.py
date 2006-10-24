@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -15,7 +15,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmExceptions, gmI18N
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmI18N
 from Gnumed.wxpython import gmEditArea, gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPerson, gmAllergy
 
@@ -352,7 +352,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.15  2006-05-15 13:35:59  ncq
+# Revision 1.16  2006-10-24 13:20:57  ncq
+# - do not import gmPG
+#
+# Revision 1.15  2006/05/15 13:35:59  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
