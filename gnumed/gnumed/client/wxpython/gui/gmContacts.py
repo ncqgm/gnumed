@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -24,7 +24,7 @@ except ImportError:
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, OrgCategoryMP
+from Gnumed.business.gmDemographicRecord import OrgCategoryMP
 from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2, cOrgHelperImpl3, cCatFinder, setPostcodeWidgetFromUrbId  
 
 DISPLAYPERSON = 0
@@ -175,11 +175,11 @@ class cContactsPanel(wx.wx.Panel):
 		self.txt_org_name = TextBox_RedBold(self,-1)
 		self.txt_org_type = TextBox_RedBold(self,-1)       #head office, branch or department
 		#self.txt_org_number = TextBox_RedBold(self, -1)
-		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize )
+#		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize )
 		self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
-		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1)
-		self.txt_org_suburb.add_callback_on_selection(self.__urb_selected)
-		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
+#		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1)
+#		self.txt_org_suburb.add_callback_on_selection(self.__urb_selected)
+#		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		# FIXME: replace with set_callback_on_*
 #		self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
 	
@@ -193,7 +193,7 @@ class cContactsPanel(wx.wx.Panel):
 		self.txt_org_user1 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user2 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user3 = TextBox_BlackNormal(self,-1)
-		self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
+#		self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		#self.txt_pers_occupation = TextBox_BlackNormal(self,-1)
 		self.txt_org_phone = TextBox_BlackNormal(self,-1)
 		self.txt_org_fax = TextBox_BlackNormal(self,-1)
@@ -1043,7 +1043,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.44  2006-07-01 15:22:50  ncq
+# Revision 1.45  2006-10-25 07:22:43  ncq
+# - remove outdated phrasewheels
+#
+# Revision 1.44  2006/07/01 15:22:50  ncq
 # - add comment on deprecated setDependant()
 #
 # Revision 1.43  2006/06/05 21:37:28  ncq
