@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.26 2006-07-19 20:25:48 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmLDTimporter.py,v 1.27 2006-10-25 07:18:12 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 	else:
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
 
-from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
+from Gnumed.pycommon import gmCfg, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson
 
 import mx.DateTime as mxDT
@@ -775,7 +775,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.26 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.27 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -930,7 +930,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.26 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.27 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -964,7 +964,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.26  2006-07-19 20:25:48  ncq
+# Revision 1.27  2006-10-25 07:18:12  ncq
+# - no more gmPG
+#
+# Revision 1.26  2006/07/19 20:25:48  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.25  2006/05/06 18:53:56  ncq

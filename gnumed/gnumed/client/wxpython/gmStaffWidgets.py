@@ -7,14 +7,14 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.8 2006-09-03 11:32:10 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmStaffWidgets.py,v 1.9 2006-10-25 07:21:57 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmPG, gmTools
+from Gnumed.pycommon import gmLog, gmPG2, gmTools
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
@@ -261,7 +261,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.8  2006-09-03 11:32:10  ncq
+# Revision 1.9  2006-10-25 07:21:57  ncq
+# - no more gmPG
+#
+# Revision 1.8  2006/09/03 11:32:10  ncq
 # - clean up wx import
 # - use gmTools.coalesce()
 # - use gmGuiHelpers.get_dbowner_connection instead of local crap copy

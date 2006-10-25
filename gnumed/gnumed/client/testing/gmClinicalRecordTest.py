@@ -2,14 +2,14 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.11 2006-07-19 20:27:03 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmClinicalRecordTest.py,v 1.12 2006-10-25 07:19:29 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
 import unittest, time
 
-from Gnumed.pycommon import gmPG, gmExceptions, gmLog
+from Gnumed.pycommon import gmExceptions, gmLog
 from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab
 
 gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
@@ -295,7 +295,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.11  2006-07-19 20:27:03  ncq
+# Revision 1.12  2006-10-25 07:19:29  ncq
+# - no more gmPG
+#
+# Revision 1.11  2006/07/19 20:27:03  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.10  2005/12/06 14:24:15  ncq

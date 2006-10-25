@@ -24,7 +24,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmPG, gmLog
+from Gnumed.pycommon import gmLog
 
 _log = gmLog.gmDefLog
 

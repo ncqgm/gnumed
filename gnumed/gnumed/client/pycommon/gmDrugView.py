@@ -1,7 +1,7 @@
 #========================================================
 import sys, string, re, types
 
-from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmDrugObject, gmExceptions
+from Gnumed.pycommon import gmLog, gmCfg, gmDrugObject, gmExceptions
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -394,7 +394,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.8  2006-05-14 21:44:22  ncq
+# Revision 1.9  2006-10-25 07:19:03  ncq
+# - no more gmPG
+#
+# Revision 1.8  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #

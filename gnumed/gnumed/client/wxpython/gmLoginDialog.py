@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.70 2006-09-01 14:45:03 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmLoginDialog.py,v 1.71 2006-10-25 07:21:57 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -341,7 +341,7 @@ class LoginPanel(wx.Panel):
 
 	def GetLoginInfo(self):
 		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
-		if not self.cancelled:			
+		if not self.cancelled:
 			login = gmLoginInfo.LoginInfo(user=self.GetUser(), passwd=self.GetPassword(), host=self.GetHost())
 			login.SetDatabase(self.GetDatabase())
 			login.SetPort(self.GetPort())
@@ -472,7 +472,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.70  2006-09-01 14:45:03  ncq
+# Revision 1.71  2006-10-25 07:21:57  ncq
+# - no more gmPG
+#
+# Revision 1.70  2006/09/01 14:45:03  ncq
 # - assume conf file is latin1 ... FIX later !
 #
 # Revision 1.69  2006/07/30 17:50:03  ncq

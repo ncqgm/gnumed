@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -21,7 +21,7 @@ import wx.lib.mixins.listctrl as listmixins
 #import wx.ColumnSorterMixin, wx.ListCtrlAutoWidthMixin
 #from wxPython import grid
 
-from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmMatchProvider, gmGuiBroker
+from Gnumed.pycommon import gmLog, gmI18N, gmPG2, gmCfg, gmExceptions, gmMatchProvider, gmGuiBroker
 from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 
@@ -126,7 +126,7 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			select pk, internal_name
 			from test_org
 			"""
-		self.mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
+		self.mp = gmMatchProvider.cMatchProvider_SQL2([query])
 		self.mp.setThresholds(aWord=2, aSubstring=4)
 
 		gmPhraseWheel.cPhraseWheel.__init__(
@@ -863,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.21  2006-08-04 05:46:15  ncq
+# Revision 1.22  2006-10-25 07:21:57  ncq
+# - no more gmPG
+#
+# Revision 1.21  2006/08/04 05:46:15  ncq
 # - fix wx import style
 #
 # Revision 1.20  2006/07/19 20:29:50  ncq

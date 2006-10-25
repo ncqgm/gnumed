@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.74 2006-07-30 21:15:53 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmTopPanel.py,v 1.75 2006-10-25 07:21:57 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,7 +16,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPerson, gmEMRStructItems
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets
 
@@ -412,7 +412,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.74  2006-07-30 21:15:53  ncq
+# Revision 1.75  2006-10-25 07:21:57  ncq
+# - no more gmPG
+#
+# Revision 1.74  2006/07/30 21:15:53  ncq
 # - do not import preg widgets
 #
 # Revision 1.73  2006/07/22 12:51:13  ncq

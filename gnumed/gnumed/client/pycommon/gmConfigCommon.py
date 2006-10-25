@@ -15,12 +15,12 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string, types, pickle
 
-from Gnumed.pycommon import gmLog, gmPG, gmCfg
+from Gnumed.pycommon import gmLog, gmCfg
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
@@ -885,7 +885,10 @@ def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.6  2004-07-19 11:50:42  ncq
+# Revision 1.7  2006-10-25 07:19:03  ncq
+# - no more gmPG
+#
+# Revision 1.6  2004/07/19 11:50:42  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.5  2004/03/09 08:37:54  ncq

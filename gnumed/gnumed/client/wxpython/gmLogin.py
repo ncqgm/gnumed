@@ -6,13 +6,13 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.27 2006-10-24 13:25:19 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmLogin.py,v 1.28 2006-10-25 07:21:57 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "H.Herb"
 
 import wx
 
-from Gnumed.pycommon import gmPG, gmLog, gmExceptions, gmI18N, gmPG2
+from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
 
 try:
@@ -52,8 +52,8 @@ def connect_to_database(max_attempts=3):
 			gmPG2.get_connection(dsn=dsn, verbose=True)
 			gmPG2.set_default_login(login=login)
 			dlg.panel.save_settings()
-			try: gmPG.ConnectionPool(login)
-			except: pass
+#			try: gmPG.ConnectionPool(login)
+#			except: pass
 			connected = True
 			break
 		except gmPG2.cAuthenticationError, e:
@@ -100,7 +100,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.27  2006-10-24 13:25:19  ncq
+# Revision 1.28  2006-10-25 07:21:57  ncq
+# - no more gmPG
+#
+# Revision 1.27  2006/10/24 13:25:19  ncq
 # - Login() -> connect_to_database()
 # - make gmPG2 main connection provider, piggyback gmPG onto it for now
 #

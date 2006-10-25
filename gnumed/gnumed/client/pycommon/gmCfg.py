@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -958,7 +958,7 @@ def getDBParam(workplace = None, cookie = None, option = None):
 	if option is None:
 		return (None, None)
 
-	# connect to database (imports gmPG if need be)
+	# connect to database (imports gmPG2 if need be)
 	dbcfg = cCfgSQL()
 
 	# (set_name, user, workplace)
@@ -1118,7 +1118,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.43  2006-10-08 11:02:02  ncq
+# Revision 1.44  2006-10-25 07:19:03  ncq
+# - no more gmPG
+#
+# Revision 1.43  2006/10/08 11:02:02  ncq
 # - support decimal type, too
 # - make queries unicode
 #
