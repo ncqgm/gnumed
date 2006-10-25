@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.76 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmPhraseWheel.py,v 1.77 2006-10-25 07:24:51 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -21,7 +21,7 @@ import wx
 import wx.lib.mixins.listctrl as listmixins
 
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmMatchProvider, gmGuiBroker, gmNull
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -558,7 +558,8 @@ if __name__ == '__main__':
 					'table': 'score_gmpw_sql_test',
 					'column': 'fk_gmpw_sql_test'
 				}
-				mp2 = gmMatchProvider.cMatchProvider_SQL([src], score)
+#				mp2 = gmMatchProvider.cMatchProvider_SQL([src], score)
+				mp2 = None
 				ww2 = cPhraseWheel(
 					parent = frame,
 					id = -1,
@@ -575,7 +576,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.76  2006-07-19 20:29:50  ncq
+# Revision 1.77  2006-10-25 07:24:51  ncq
+# - gmPG -> gmPG2
+# - match provider _SQL deprecated
+#
+# Revision 1.76  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.75  2006/07/04 14:15:17  ncq
