@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.77 2006-10-23 13:23:04 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmSOAPWidgets.py,v 1.78 2006-10-25 07:25:38 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -604,8 +604,6 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		progress_note = []
 		aoe = ''
 		rfe = ''
-		has_rfe = False
-		has_plan = False
 		soap_lines_contents = self.GetValue()
 		for line_content in soap_lines_contents.values():
 			if line_content.text.strip() == '':
@@ -617,15 +615,8 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			})
 			if line_content.data.is_rfe:
 				rfe += line_content.text.rstrip()
-				has_rfe = True
-			if line_content.data.soap_cat == 'p':
-				has_plan = True
 			if line_content.data.soap_cat == 'a':
 				aoe += line_content.text.rstrip()
-		if not (has_rfe and has_plan):
-			msg = _('Progress note must have Reason for Encounter and Plan.')
-			gmGuiHelpers.gm_show_info(msg, _('saving progress note'), gmLog.lErr)
-			return False
 
 		# work out episode name
 		emr = self.__pat.get_emr()
@@ -1113,7 +1104,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.77  2006-10-23 13:23:04  ncq
+# Revision 1.78  2006-10-25 07:25:38  ncq
+# - drop minimum soap entry as requested by user
+#
+# Revision 1.77  2006/10/23 13:23:04  ncq
 # - we don't need vacc widgets currently
 #
 # Revision 1.76  2006/10/08 11:08:42  ncq
