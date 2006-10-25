@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.95 2006-10-24 13:26:11 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmMedDocWidgets.py,v 1.96 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -215,7 +215,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, col=wx.BLUE)
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].Format('%Y-%m-%d %H:%M'))
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].strftime('%Y-%m-%d %H:%M'))
 			if review_by_responsible_doc[2]:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
 			if review_by_responsible_doc[3]:
@@ -225,7 +225,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		for rev in reviews_by_others:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=rev[0])
-			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].Format('%Y-%m-%d %H:%M'))
+			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].strftime('%Y-%m-%d %H:%M'))
 			if rev[2]:
 				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
 			if rev[3]:
@@ -857,7 +857,7 @@ class cDocTree(wx.TreeCtrl):
 
 			label = _('%s%7s %s: %s (%s page(s), %s)') % (
 				review,
-				doc['date'].Format('%m/%Y'),
+				doc['date'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
 				cmt,
 				page_num,
@@ -1214,7 +1214,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.95  2006-10-24 13:26:11  ncq
+# Revision 1.96  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.95  2006/10/24 13:26:11  ncq
 # - no more gmPG.
 # - use cMatchProvider_Provider() in scan/index panel
 #

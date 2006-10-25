@@ -10,9 +10,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.2 2006-05-24 09:59:57 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.3 2006-10-25 07:46:44 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -114,19 +114,19 @@ class cFuzzyTimestamp:
 			return str(self.timestamp.year)
 
 		if self.accuracy == 2:
-			return self.timestamp.Format('%m/%Y')
+			return self.timestamp.strftime('%m/%Y')
 
 		if self.accuracy == 3:
-			return self.timestamp.Format('%Y-%m-%d')
+			return self.timestamp.strftime('%Y-%m-%d')
 
 		if self.accuracy == 4:
-			return self.timestamp.Format("%Y-%m-%d %I%p")
+			return self.timestamp.strftime("%Y-%m-%d %I%p")
 
 		if self.accuracy == 5:
-			return self.timestamp.Format("%Y-%m-%d %H:%M")
+			return self.timestamp.strftime("%Y-%m-%d %H:%M")
 
 		if self.accuracy == 6:
-			return self.timestamp.Format("%Y-%m-%d %H:%M:%S")
+			return self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
 		if self.accuracy == 7:
 			return str(self.timestamp)
@@ -156,7 +156,6 @@ if __name__ == '__main__':
 		print "  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy])
 		print "  format_accurately:", fts.format_accurately()
 		print "  strftime()       :", fts.strftime('%c')
-		print "  Format()         :", fts.Format('%c')
 		print "  print ...        :", fts
 		print "  print '%%s' %% ... : %s" % fts
 		print "  str()            :", str(fts)
@@ -165,7 +164,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.2  2006-05-24 09:59:57  ncq
+# Revision 1.3  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.2  2006/05/24 09:59:57  ncq
 # - add constants for accuracy values
 # - __init__() now defaults to now()
 # - add accuracy-aware Format()/strftime() proxies

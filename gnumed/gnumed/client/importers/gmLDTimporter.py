@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.27 2006-10-25 07:18:12 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmLDTimporter.py,v 1.28 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -480,7 +480,7 @@ class cLDTImporter:
 					pat_db = request.get_patient()
 					if ((pat_ldt['lastnames'] != pat_db[3]) or
 					    (pat_ldt['firstnames'] != pat_db[2]) or
-					    (pat_ldt['dob'] != pat_db[4].Format('%Y-%m-%d'))):
+					    (pat_ldt['dob'] != pat_db[4].strftime('%Y-%m-%d'))):
 						_log.Log(gmLog.lErr, 'patient mismatch LDT-Datei <-> Datenbank')
 						_log.Log(gmLog.lData, 'Datei: %s' % pat_ldt)
 						_log.Log(gmLog.lData, 'DB: %s' % pat_db)
@@ -775,7 +775,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.27 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.28 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -930,7 +930,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.27 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.28 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -964,7 +964,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.27  2006-10-25 07:18:12  ncq
+# Revision 1.28  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.27  2006/10/25 07:18:12  ncq
 # - no more gmPG
 #
 # Revision 1.26  2006/07/19 20:25:48  ncq

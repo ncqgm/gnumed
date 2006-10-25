@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.9 2006-10-25 07:21:57 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmStaffWidgets.py,v 1.10 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -211,7 +211,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		name = ident.get_active_name()
 		txt = _("""
   %s "%s" %s
-  born: %s""") % (name['first'], name['preferred'], name['last'], ident['dob'].Format(_('%Y-%m-%d')))
+  born: %s""") % (name['first'], name['preferred'], name['last'], ident['dob'].strftime(_('%Y-%m-%d')))
 		self._TXT_person.SetValue(txt)
 		txt = name['first'][:2] + name['last'][:2]
 		self._TXT_short_alias.SetValue(txt)
@@ -261,7 +261,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.9  2006-10-25 07:21:57  ncq
+# Revision 1.10  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.9  2006/10/25 07:21:57  ncq
 # - no more gmPG
 #
 # Revision 1.8  2006/09/03 11:32:10  ncq

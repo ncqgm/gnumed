@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.78 2006-10-25 07:25:38 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmSOAPWidgets.py,v 1.79 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -335,16 +335,16 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 				issue = emr.problem2issue(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk'])
 				if last_encounter is None:
-					last = issue['modified_when'].Format('%m/%Y')
+					last = issue['modified_when'].strftime('%m/%Y')
 				else:
-					last = last_encounter['last_affirmed'].Format('%m/%Y')
+					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
-					last = epi['episode_modified_when'].Format('%m/%Y')
+					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
-					last = last_encounter['last_affirmed'].Format('%m/%Y')
+					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 			item = _('%s "%s" (%s)') % (last, problem['problem'], problem['l10n_type'])
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
@@ -1104,7 +1104,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.78  2006-10-25 07:25:38  ncq
+# Revision 1.79  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.78  2006/10/25 07:25:38  ncq
 # - drop minimum soap entry as requested by user
 #
 # Revision 1.77  2006/10/23 13:23:04  ncq

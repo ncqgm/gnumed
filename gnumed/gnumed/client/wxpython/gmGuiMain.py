@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.268 2006-10-25 07:26:42 ncq Exp $
-__version__ = "$Revision: 1.268 $"
+# $Id: gmGuiMain.py,v 1.269 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.269 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -634,7 +634,7 @@ Search results:
 			time.strftime('%Y-%m-%d',time.localtime()),
 			ident['lastnames'].replace(' ', '-'),
 			ident['firstnames'].replace(' ', '_'),
-			ident['dob'].Format('%Y-%m-%d')
+			ident['dob'].strftime('%Y-%m-%d')
 		)
 		dlg = wx.FileDialog (
 			parent = self,
@@ -784,7 +784,7 @@ Search results:
 				title = ''
 			else:
 				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, ident['firstnames'], ident['lastnames'], ident['dob'].Format (_('%d/%m/%y')), ident['pk_identity'])
+			pat_str = "%s%s %s (%s) #%d" % (title, ident['firstnames'], ident['lastnames'], ident['dob'].strftime (_('%d/%m/%y')), ident['pk_identity'])
 		else:
 			pat_str = _('no patient')
 
@@ -1123,7 +1123,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.268  2006-10-25 07:26:42  ncq
+# Revision 1.269  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.268  2006/10/25 07:26:42  ncq
 # - make do without gmPG
 #
 # Revision 1.267  2006/10/24 13:24:12  ncq

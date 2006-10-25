@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -191,7 +191,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 
 		if isinstance(allergy, gmAllergy.cAllergy):
 			self.data = allergy
-			self.fld_date_noted.SetValue(allergy['date'].Format('%Y-%m-%d'))
+			self.fld_date_noted.SetValue(allergy['date'].strftime('%Y-%m-%d'))
 			self.fld_substance.SetValue(allergy['substance'])
 
 			if allergy['generics'] is not None:
@@ -352,7 +352,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.16  2006-10-24 13:20:57  ncq
+# Revision 1.17  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.16  2006/10/24 13:20:57  ncq
 # - do not import gmPG
 #
 # Revision 1.15  2006/05/15 13:35:59  ncq

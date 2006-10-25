@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.84 2006-10-25 07:18:12 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmPatientExporter.py,v 1.85 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -121,7 +121,7 @@ class cEmrExport:
         
         #patient_dob = mxParser.DateFromString(self.__patient.get_identity().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
         patient_dob = self.__patient.get_identity()['dob']
-        date_length = len(patient_dob.Format('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
+        date_length = len(patient_dob.strftime('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
 
         # dictionary of pairs indication : scheduled vaccination
         vaccinations4regimes = {}
@@ -154,7 +154,7 @@ class cEmrExport:
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
                 
         # patient dob in top of vaccination chart 
-        txt = '\nDOB: %s' %(patient_dob.Format('%Y-%m-%d')) + '\n'         
+        txt = '\nDOB: %s' %(patient_dob.strftime('%Y-%m-%d')) + '\n'         
 
         # vacc chart table headers
         # top ---- header line
@@ -192,7 +192,7 @@ class cEmrExport:
                 elif row_index < seq_no: # vaccination scheduled
                     try:
                         vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                           
-                        vacc_date_str = vacc_date.Format('%Y-%m-%d')                        
+                        vacc_date_str = vacc_date.strftime('%Y-%m-%d')                        
                         txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'                           
                         prev_displayed_date[col_index] = vacc_date                                                  
                     except:
@@ -200,7 +200,7 @@ class cEmrExport:
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['age_due_min'] # FIXME 'age_due_min' not properly retrieved
                         else: # due any other than first shot
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['min_interval']
-                        txt += '('+ due_date.Format('%Y-%m-%d') + ')' + (column_widths[col_index] - date_length) * ' ' + '|'
+                        txt += '('+ due_date.strftime('%Y-%m-%d') + ')' + (column_widths[col_index] - date_length) * ' ' + '|'
                         prev_displayed_date[col_index] = due_date
                 else: # not scheduled vaccination at that position
                     txt += column_widths[col_index] * ' ' + '|'
@@ -240,21 +240,21 @@ class cEmrExport:
             else:
                 indication = vacc_regimes[cont]['indication']
                 if len(vaccinations[indication]) > vacc_regimes[cont]['shots']: # boosters given
-                    all_vreg_boosters[cont] = vaccinations[indication][len(vaccinations[indication])-1]['date'].Format('%Y-%m-%d') # show last given booster date
+                    all_vreg_boosters[cont] = vaccinations[indication][len(vaccinations[indication])-1]['date'].strftime('%Y-%m-%d') # show last given booster date
                     scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
                     booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                                        
                     if booster_date < mxDT.today():
-                        all_next_boosters[cont] = '<(' + booster_date.Format('%Y-%m-%d') + ')>' # next booster is due
+                        all_next_boosters[cont] = '<(' + booster_date.strftime('%Y-%m-%d') + ')>' # next booster is due
                     else:
-                        all_next_boosters[cont] = booster_date.Format('%Y-%m-%d')
+                        all_next_boosters[cont] = booster_date.strftime('%Y-%m-%d')
                 elif len(vaccinations[indication]) == vacc_regimes[cont]['shots']: # just finished vaccinations, begin boosters
                     all_vreg_boosters[cont] = column_widths[cont+1] * ' '
                     scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
                     booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                    
                     if booster_date < mxDT.today():
-                        all_next_boosters[cont] = '<(' + booster_date.Format('%Y-%m-%d') + ')>' # next booster is due
+                        all_next_boosters[cont] = '<(' + booster_date.strftime('%Y-%m-%d') + ')>' # next booster is due
                     else:
-                        all_next_boosters[cont] = booster_date.Format('%Y-%m-%d')
+                        all_next_boosters[cont] = booster_date.strftime('%Y-%m-%d')
                 else:
                     all_vreg_boosters[cont] = column_widths[cont+1] * ' '  # unfinished schedule
                     all_next_boosters[cont] = column_widths[cont+1] * ' '
@@ -443,7 +443,7 @@ class cEmrExport:
         if self.lab_new_encounter:
             txt += (left_margin+3)*' ' + _('Lab') + ': '  + \
                 lab_result['unified_name'] + '-> ' + lab_result['unified_val'] + \
-                ' ' + lab_result['val_unit']+ '\n' + '(' + lab_result['req_when'].Format('%Y-%m-%d') + ')'
+                ' ' + lab_result['val_unit']+ '\n' + '(' + lab_result['req_when'].strftime('%Y-%m-%d') + ')'
         return txt
     #--------------------------------------------------------
     def get_item_summary(self, item, left_margin = 0):
@@ -531,7 +531,7 @@ class cEmrExport:
     #--------------------------------------------------------             
     def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
                for an_encounter in encounters:
-                    label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].Format('%Y-%m-%d'))
+                    label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].strftime('%Y-%m-%d'))
                     encounter_node = emr_tree.AppendItem(episode_node, label)
 		    #import threading
 		    #def added():
@@ -688,10 +688,10 @@ class cEmrExport:
         txt += _('%s%s episode(s) between %s and %s\n') % (
             left_margin * ' ',
             str(no_epis),
-            first_encounter['started'].Format('%m/%Y'),
-            last_encounter['last_affirmed'].Format('%m/%Y')
+            first_encounter['started'].strftime('%m/%Y'),
+            last_encounter['last_affirmed'].strftime('%m/%Y')
         )
-        txt += _('%sLast seen: %s\n\n') % (left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'))
+        txt += _('%sLast seen: %s\n\n') % (left_margin * ' ', last_encounter['last_affirmed'].strftime('%Y-%m-%d %H:%M'))
         # FIXME: list each episode with range of time
         return txt
     #--------------------------------------------------------
@@ -719,8 +719,8 @@ class cEmrExport:
             '%sLast worked on: %s\n'
         ) % (
             left_margin * ' ', episode['description'], status,
-            left_margin * ' ', no_encs, first_encounter['started'].Format('%m/%Y'), last_encounter['last_affirmed'].Format('%m/%Y'),
-            left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M')
+            left_margin * ' ', no_encs, first_encounter['started'].strftime('%m/%Y'), last_encounter['last_affirmed'].strftime('%m/%Y'),
+            left_margin * ' ', last_encounter['last_affirmed'].strftime('%Y-%m-%d %H:%M')
         )
         return txt
     #--------------------------------------------------------
@@ -731,8 +731,8 @@ class cEmrExport:
         emr = self.__patient.get_emr()
         # general
         txt = (' ' * left_margin) + '%s - %s: %s' % (
-            encounter['started'].Format('%Y-%m-%d  %H:%M'),
-            encounter['last_affirmed'].Format('%H:%M'),
+            encounter['started'].strftime('%Y-%m-%d  %H:%M'),
+            encounter['last_affirmed'].strftime('%H:%M'),
             encounter['l10n_type']
         )
         if (encounter['assessment_of_encounter'] is not None) and (len(encounter['assessment_of_encounter']) > 0):
@@ -765,7 +765,7 @@ class cEmrExport:
             for soap_entry in soap_cat_narratives:
                 txt += (
                     (' ' * (left_margin+3)) +
-                    soap_entry['date'].Format(_('%H:%M %.8s: ')) % soap_entry['provider'] +
+                    soap_entry['date'].strftime(_('%H:%M %.8s: ')) % soap_entry['provider'] +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )
@@ -815,8 +815,8 @@ class cEmrExport:
                         '\n            %s %s: %s - %s (%s)\n' % (
                             _('Encounter'),
                             an_encounter['l10n_type'],
-                            an_encounter['started'].Format('%A, %Y-%m-%d %H:%M'),
-                            an_encounter['last_affirmed'].Format('%m-%d %H:%M'),
+                            an_encounter['started'].strftime('%A, %Y-%m-%d %H:%M'),
+                            an_encounter['last_affirmed'].strftime('%m-%d %H:%M'),
                             an_encounter['assessment_of_encounter']
                         )
                     )
@@ -864,7 +864,7 @@ class cEmrExport:
         docs = doc_folder.get_documents()
         for doc in docs:
             self.__target.write('\n\n    (%s) %s - %s "%s"' % (
-                doc['date'].Format('%Y-%m-%d'),
+                doc['date'].strftime('%Y-%m-%d'),
                 doc['ext_ref'],
                 doc['l10n_type'],
                 doc['comment'])
@@ -902,7 +902,7 @@ class cEmrExport:
             cont += 1
         self.__target.write('    Gender: %s\n' % ident['gender'])
         self.__target.write('    Title: %s\n' % ident['title'])
-        self.__target.write('    Dob: %s\n' % ident['dob'].Format('%Y-%m-%d'))
+        self.__target.write('    Dob: %s\n' % ident['dob'].strftime('%Y-%m-%d'))
         self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(ident['dob']))
         #addr_types = ident['addresses'].keys()
         #for addr_t in addr_types:
@@ -917,11 +917,11 @@ class cEmrExport:
         self.__first_constraint = True
         if not self.__constraints['since'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nSince: %s' % self.__constraints['since'].Format('%Y-%m-%d'))
+            self.__target.write('\nSince: %s' % self.__constraints['since'].strftime('%Y-%m-%d'))
 
         if not self.__constraints['until'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nUntil: %s' % self.__constraints['until'].Format('%Y-%m-%d'))
+            self.__target.write('\nUntil: %s' % self.__constraints['until'].strftime('%Y-%m-%d'))
 
         if not self.__constraints['encounters'] is None:
             self.dump_constraints_header()
@@ -981,7 +981,7 @@ class cEMRJournalExporter:
 				os.path.join(path, _('emr-journal')),
 				ident['lastnames'].replace(' ', '-'),
 				ident['firstnames'].replace(' ', '_'),
-				ident['dob'].Format('%Y-%m-%d')
+				ident['dob'].strftime('%Y-%m-%d')
 			)
 		f = open(filename, 'wb')
 		status = self.__export(target = f)
@@ -1003,7 +1003,7 @@ class cEMRJournalExporter:
 		target.write('=' * (len(txt)-1))
 		target.write('\n')
 		target.write(_('Patient: %s (%s), No: %s\n').encode('iso8859-15') % (ident['description'], ident['gender'], self.__pat['ID']))
-		target.write(_('Born   : %s, age: %s\n\n').encode('iso8859-15') % (ident['dob'].Format('%Y-%m-%d'), ident.get_medical_age()))
+		target.write(_('Born   : %s, age: %s\n\n').encode('iso8859-15') % (ident['dob'].strftime('%Y-%m-%d'), ident.get_medical_age()))
 		target.write('.-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
 		target.write('| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
 		target.write('|-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
@@ -1095,7 +1095,7 @@ class cMedistarSOAPExporter:
 				time.strftime('%Y-%m-%d',time.localtime()),
 				ident['lastnames'].replace(' ', '-'),
 				ident['firstnames'].replace(' ', '_'),
-				ident['dob'].Format('%Y-%m-%d')
+				ident['dob'].strftime('%Y-%m-%d')
 			)
 		f = open(filename, 'wb')
 		status = self.__export(target = f)
@@ -1268,7 +1268,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.84  2006-10-25 07:18:12  ncq
+# Revision 1.85  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.84  2006/10/25 07:18:12  ncq
 # - no more gmPG
 #
 # Revision 1.83  2006/10/23 13:21:50  ncq

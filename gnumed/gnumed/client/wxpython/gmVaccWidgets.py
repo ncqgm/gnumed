@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.28 2006-10-25 07:24:08 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmVaccWidgets.py,v 1.29 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -244,7 +244,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			self.data = aVacc
 			self.fld_vaccine.SetValue(aVacc['vaccine'])
 			self.fld_batch_no.SetValue(aVacc['batch_no'])
-			self.fld_date_given.SetValue(aVacc['date'].Format('%Y-%m-%d'))
+			self.fld_date_given.SetValue(aVacc['date'].strftime('%Y-%m-%d'))
 			self.fld_site_given.SetValue(aVacc['site'])
 			self.fld_progress_note.SetValue(aVacc['narrative'])
 			return True
@@ -259,7 +259,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			# FIXME: use previously used value from table ?
 			self.fld_site_given.SetValue(_('left/right deltoid'))
 			if aVacc['overdue']:
-				self.fld_progress_note.SetValue(_('was due: %s, delayed because:') % aVacc['latest_due'].Format('%Y-%m-%d'))
+				self.fld_progress_note.SetValue(_('was due: %s, delayed because:') % aVacc['latest_due'].strftime('%Y-%m-%d'))
 			else:
 				self.fld_progress_note.SetValue('')
 			return True
@@ -273,7 +273,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			# FIXME: use previously used value from table ?
 			self.fld_site_given.SetValue(_('left/right deltoid'))
 			if aVacc['overdue']:
-				self.fld_progress_note.SetValue(_('booster: was due: %s, delayed because:') % aVacc['latest_due'].Format('%Y-%m-%d'))
+				self.fld_progress_note.SetValue(_('booster: was due: %s, delayed because:') % aVacc['latest_due'].strftime('%Y-%m-%d'))
 			else:
 				self.fld_progress_note.SetValue(_('booster'))
 			return True
@@ -425,7 +425,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 				marker = 'B'
 			else:
 				marker = '#%s' % shot['seq_no']
-			label = '%s - %s: %s' % (marker, shot['date'].Format('%m/%Y'), shot['vaccine'])
+			label = '%s - %s: %s' % (marker, shot['date'].strftime('%m/%Y'), shot['vaccine'])
 			self.LBOX_given_shots.Append(label, shot)
 	#----------------------------------------------------
 	def __reset_ui_content(self):
@@ -507,7 +507,7 @@ class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 					shot['seq_no'],
 					shot['indication'],
 					shot['regime'],
-					shot['latest_due'].Format('%m/%Y'),
+					shot['latest_due'].strftime('%m/%Y'),
 					shot['vacc_comment']
 				)
 				self.LBOX_missing_shots.Append(label, shot)
@@ -551,7 +551,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.28  2006-10-25 07:24:08  ncq
+# Revision 1.29  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.28  2006/10/25 07:24:08  ncq
 # - match provider _SQL2 does not need service name anymore
 #
 # Revision 1.27  2006/05/15 13:36:00  ncq

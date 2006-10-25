@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.28 2006-10-25 07:21:57 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmLogin.py,v 1.29 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "H.Herb"
 
 import wx
@@ -62,7 +62,7 @@ def connect_to_database(max_attempts=3):
 			if attempt < max_attempts:
 				gmGuiHelpers.gm_show_error (_(
 						"Unable to connect to database:\n\n"
-						" %s\n\n"
+						"%s\n\n"
 						"Please retry or cancel !"
 					) % e,
 					_('Connecting to backend'),
@@ -100,7 +100,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.28  2006-10-25 07:21:57  ncq
+# Revision 1.29  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.28  2006/10/25 07:21:57  ncq
 # - no more gmPG
 #
 # Revision 1.27  2006/10/24 13:25:19  ncq

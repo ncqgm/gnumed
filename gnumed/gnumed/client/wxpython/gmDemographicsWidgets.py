@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.100 2006-10-24 13:21:53 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmDemographicsWidgets.py,v 1.101 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1149,7 +1149,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		try:
 			pageCtrl = self.GetWindow().GetParent()
 			pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
-			pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
+			pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].strftime(DATE_FORMAT))
 			pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 			pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
 			pageCtrl.PRW_title.SetValue(self.__dtd['title'])
@@ -1976,7 +1976,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.100  2006-10-24 13:21:53  ncq
+# Revision 1.101  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.100  2006/10/24 13:21:53  ncq
 # - gmPG -> gmPG2
 # - cMatchProvider_SQL2() does not need service name anymore
 #

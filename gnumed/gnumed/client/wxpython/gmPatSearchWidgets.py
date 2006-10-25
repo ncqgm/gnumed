@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.45 2006-10-24 13:26:43 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPatSearchWidgets.py,v 1.46 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -88,7 +88,7 @@ class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromLis
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = '')
 			else:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = ident['preferred'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = ident['dob'].Format('%x'))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = ident['dob'].strftime('%x'))
 			if ident['l10n_gender'] is None:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = '?')
 			else:
@@ -160,7 +160,7 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 			dto = rec['dto']
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.Format('%x'))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x'))
 			if dto.gender is not None:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = dto.gender)
 
@@ -310,7 +310,7 @@ def load_patient_from_external_sources(parent=None):
 				_(
 				'Cannot create new patient:\n\n'
 				' [%s %s (%s), %s]'
-				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
+				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x')),
 				_('Activating xDT patient')
 			)
 			return False
@@ -335,7 +335,7 @@ def load_patient_from_external_sources(parent=None):
 			'Cannot activate patient:\n\n'
 			'%s %s (%s)\n'
 			'%s'
-			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.Format('%x')),
+			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x')),
 			_('Activating xDT patient')
 		)
 		return False
@@ -976,7 +976,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.45  2006-10-24 13:26:43  ncq
+# Revision 1.46  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.45  2006/10/24 13:26:43  ncq
 # - switch to gmPG2
 #
 # Revision 1.44  2006/09/13 07:55:11  ncq

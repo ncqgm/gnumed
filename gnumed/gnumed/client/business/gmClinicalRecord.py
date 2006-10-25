@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.210 2006-10-25 07:17:40 ncq Exp $
-__version__ = "$Revision: 1.210 $"
+# $Id: gmClinicalRecord.py,v 1.211 2006-10-25 07:46:44 ncq Exp $
+__version__ = "$Revision: 1.211 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1286,7 +1286,7 @@ where
 			pat[0][1][:12],
 			pat[0][2][:12],
 			pat[0][3],
-			pat[0][4].Format('%Y-%m-%d'),
+			pat[0][4].strftime('%Y-%m-%d'),
 			self.pk_patient
 		)
 		msg = _(
@@ -1634,7 +1634,7 @@ if __name__ == "__main__":
 		# vaccination next shot and booster
 		vaccinations = emr.get_vaccinations()
 		for a_vacc in vaccinations:
-			print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].Format('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
+			print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].strftime('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
 
 		# first and last encounters
 		first_encounter = emr.get_first_encounter(issue_id = 1)
@@ -1663,7 +1663,7 @@ if __name__ == "__main__":
 		print '# of clinical notes:', str(len(narrative))
 		for a_narr in narrative:
 			print '%s - %s - %s - %s - %s - %s\n' % (
-				a_narr['date'].Format('%Y-%m-%d'),
+				a_narr['date'].strftime('%Y-%m-%d'),
 				str(a_narr['pk_health_issue']),
 				str(a_narr['pk_episode']),
 				str(a_narr['pk_encounter']),
@@ -1693,7 +1693,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.210  2006-10-25 07:17:40  ncq
+# Revision 1.211  2006-10-25 07:46:44  ncq
+# - Format() -> strftime() since datetime.datetime does not have .Format()
+#
+# Revision 1.210  2006/10/25 07:17:40  ncq
 # - no more gmPG
 # - no more cClinItem
 #
