@@ -7,14 +7,14 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.83 2006-10-24 13:15:48 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmDemographicRecord.py,v 1.84 2006-10-25 07:17:40 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
 import sys, os.path, time, string
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject
+from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject
 from Gnumed.business import gmMedDoc
 
 _log = gmLog.gmDefLog
@@ -361,7 +361,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.83  2006-10-24 13:15:48  ncq
+# Revision 1.84  2006-10-25 07:17:40  ncq
+# - no more gmPG
+# - no more cClinItem
+#
+# Revision 1.83  2006/10/24 13:15:48  ncq
 # - comment out/remove a bunch of deprecated/unused match providers
 #
 # Revision 1.82  2006/07/19 20:25:00  ncq

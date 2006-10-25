@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.15 2006-10-23 13:06:54 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmSOAPimporter.py,v 1.16 2006-10-25 07:17:40 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -37,7 +37,7 @@ import sys, re
 import mx.DateTime as mxDT
 
 # GnuMed
-from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmLoginInfo, gmExceptions, gmI18N, gmDispatcher, gmSignals
 from Gnumed.business import gmClinNarrative, gmPerson
 
 _log = gmLog.gmDefLog
@@ -245,7 +245,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.15  2006-10-23 13:06:54  ncq
+# Revision 1.16  2006-10-25 07:17:40  ncq
+# - no more gmPG
+# - no more cClinItem
+#
+# Revision 1.15  2006/10/23 13:06:54  ncq
 # - vaccs DB object not yet converted
 #
 # Revision 1.14  2006/07/19 21:37:51  ncq

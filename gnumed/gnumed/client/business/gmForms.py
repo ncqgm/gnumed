@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.36 2006-05-14 21:44:22 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmForms.py,v 1.37 2006-10-25 07:17:40 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
 
 # standard library 
@@ -17,7 +17,7 @@ import sys, os.path, string, time, re, tempfile, cStringIO, types
 import Cheetah.Template, Cheetah.Filters
 
 # our modules
-from Gnumed.pycommon import gmLog, gmPG, gmCfg, gmExceptions, gmMatchProvider, gmI18N
+from Gnumed.pycommon import gmLog, gmCfg, gmExceptions, gmMatchProvider, gmI18N
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # start logging
@@ -395,7 +395,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.36  2006-05-14 21:44:22  ncq
+# Revision 1.37  2006-10-25 07:17:40  ncq
+# - no more gmPG
+# - no more cClinItem
+#
+# Revision 1.36  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #
