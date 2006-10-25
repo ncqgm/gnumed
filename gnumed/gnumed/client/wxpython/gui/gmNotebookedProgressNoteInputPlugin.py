@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     except ImportError:
 		from wxPython import wx
 
-    from Gnumed.pycommon import gmPG, gmCfg
+    from Gnumed.pycommon import gmCfg
     from Gnumed.business import gmPerson
 
     _cfg = gmCfg.gmDefCfgFile	
@@ -102,7 +102,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.8  2006-05-04 09:49:20  ncq
+# Revision 1.9  2006-10-25 07:23:30  ncq
+# - no gmPG no more
+#
+# Revision 1.8  2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted

@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     except ImportError:
         from wxPython import wx
 
-    from Gnumed.pycommon import gmPG, gmCfg
+    from Gnumed.pycommon import gmCfg
     from Gnumed.exporters import gmPatientExporter
     from Gnumed.business import gmPerson
 
@@ -106,7 +106,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.11  2006-05-28 16:18:52  ncq
+# Revision 1.12  2006-10-25 07:23:30  ncq
+# - no gmPG no more
+#
+# Revision 1.11  2006/05/28 16:18:52  ncq
 # - use new splitter plugin class
 #
 # Revision 1.10  2006/05/04 09:49:20  ncq

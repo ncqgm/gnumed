@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 try:
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
-from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmExceptions
+from Gnumed.pycommon import gmDrugView, gmCfg, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers
 
 _cfg = gmCfg.gmDefCfgFile
@@ -628,7 +628,7 @@ else:
 	#=================================================
 	# make this into GNUMed plugin
 
-	from Gnumed.pycommon import gmPG, gmI18N
+	from Gnumed.pycommon import gmI18N
 	from Gnumed.wxpython import gmPlugin
 
 	class gmDrugDisplay (gmPlugin.cNotebookPlugin):
@@ -644,7 +644,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.30  2006-05-14 21:44:22  ncq
+# Revision 1.31  2006-10-25 07:23:30  ncq
+# - no gmPG no more
+#
+# Revision 1.30  2006/05/14 21:44:22  ncq
 # - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
 # - remove use of gmWhoAmI.py
 #
