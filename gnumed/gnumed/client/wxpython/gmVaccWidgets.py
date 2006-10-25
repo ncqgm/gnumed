@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.27 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmVaccWidgets.py,v 1.28 2006-10-25 07:24:08 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -61,7 +61,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			where
 				short_name || ' ' || trade_name %(fragment_condition)s
 			limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
+		mp = gmMatchProvider.cMatchProvider_SQL2([query])
 		mp.setThresholds(aWord=2, aSubstring=4)
 		self.fld_vaccine = gmPhraseWheel.cPhraseWheel(
 			parent = parent
@@ -108,7 +108,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			where
 				tmp.site %(fragment_condition)s
 			limit 10"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
+		mp = gmMatchProvider.cMatchProvider_SQL2([query])
 		mp.setThresholds(aWord=1, aSubstring=3)
 		self.fld_site_given = gmPhraseWheel.cPhraseWheel(
 			parent = parent
@@ -133,7 +133,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			where
 				narrative %(fragment_condition)s
 			limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
+		mp = gmMatchProvider.cMatchProvider_SQL2([query])
 		mp.setThresholds(aWord=3, aSubstring=5)
 		self.fld_progress_note = gmPhraseWheel.cPhraseWheel(
 			parent = parent
@@ -551,7 +551,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.27  2006-05-15 13:36:00  ncq
+# Revision 1.28  2006-10-25 07:24:08  ncq
+# - match provider _SQL2 does not need service name anymore
+#
+# Revision 1.27  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
