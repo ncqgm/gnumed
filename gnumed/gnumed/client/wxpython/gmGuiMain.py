@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.267 2006-10-24 13:24:12 ncq Exp $
-__version__ = "$Revision: 1.267 $"
+# $Id: gmGuiMain.py,v 1.268 2006-10-25 07:26:42 ncq Exp $
+__version__ = "$Revision: 1.268 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -56,7 +56,7 @@ if (version != '2.6') or ('unicode' not in wx.PlatformInfo):
 	raise ValueError('wxPython 2.6.x with unicode support not found')
 
 
-from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
@@ -80,13 +80,13 @@ if encoding is not None:
 	gmPG2.set_default_client_encoding(encoding)
 if encoding is None:
 	encoding = locale.getlocale()[1]
-gmPG.set_default_client_encoding({'wire': encoding, 'string': encoding})
+#gmPG.set_default_client_encoding({'wire': encoding, 'string': encoding})
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
 if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
-	gmPG.set_default_client_timezone(timezone)
+#	gmPG.set_default_client_timezone(timezone)
 
 ID_ABOUT = wx.NewId ()
 ID_CONTRIBUTORS = wx.NewId()
@@ -738,7 +738,7 @@ Search results:
 			workplace = gmPerson.gmCurrentProvider().get_workplace()
 		)
 		# handle our own stuff
-		gmPG.ConnectionPool().StopListeners()
+#		gmPG.ConnectionPool().StopListeners()
 		try:
 			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
 		except KeyError:
@@ -1123,7 +1123,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.267  2006-10-24 13:24:12  ncq
+# Revision 1.268  2006-10-25 07:26:42  ncq
+# - make do without gmPG
+#
+# Revision 1.267  2006/10/24 13:24:12  ncq
 # - now use gmLogin.connect_to_database()
 #
 # Revision 1.266  2006/10/09 12:25:21  ncq
