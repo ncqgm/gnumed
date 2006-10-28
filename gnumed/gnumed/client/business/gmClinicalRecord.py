@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.211 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.211 $"
+# $Id: gmClinicalRecord.py,v 1.212 2006-10-28 15:01:21 ncq Exp $
+__version__ = "$Revision: 1.212 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -614,14 +614,12 @@ where
 			self.__db_cache['allergies']
 		except KeyError:
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
-			cmd = u"select *, xmin_allergy from clin.v_pat_allergies where pk_patient=%s"
+			cmd = u"select * from clin.v_pat_allergies where pk_patient=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 			# Instantiate allergy items and keep cache
 			self.__db_cache['allergies'] = []
-			tmp = []
 			for row in rows:
-				tmp.append(gmAllergy.cAllergy(row = {'data': row, 'idx': idx, 'pk_field': 'pk_allergy'}))
-			self.__db_cache['allergies'] = tmp
+				self.__db_cache['allergies'].append(gmAllergy.cAllergy(row = {'data': row, 'idx': idx, 'pk_field': 'pk_allergy'}))
 
 		# ok, let's constrain our list
 		filtered_allergies = []
@@ -1215,27 +1213,19 @@ where
 		"""
 		days, seconds = _encounter_soft_ttl.absvalues()
 		sttl = '%s days %s seconds' % (days, seconds)
-		cmd = """
+		cmd = u"""
 			select pk_encounter
 			from clin.v_most_recent_encounters
 			where
 				pk_patient=%s
 					and
 				last_affirmed > (now() - %s::interval)"""
-		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, sttl)
-		# error
-		if enc_rows is None:
-			_log.Log(gmLog.lErr, 'error accessing encounter tables')
-			return False
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, sttl]}])
 		# none found
 		if len(enc_rows) == 0:
 			return False
 		# attach to existing
-		try:
-			self.__encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
-		except gmExceptions.ConstructorError, msg:
-			_log.LogException(str(msg), sys.exc_info(), verbose=0)
-			return False
+		self.__encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
 		_log.Log(gmLog.lData, '"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
@@ -1254,32 +1244,24 @@ where
 		sttl = '%s days %s seconds' % (days, seconds)
 		days, seconds = _encounter_hard_ttl.absvalues()
 		httl = '%s days %s seconds' % (days, seconds)
-		cmd = """
+		cmd = u"""
 			select pk_encounter
 			from clin.v_most_recent_encounters
 			where
 				pk_patient=%s
 					and
 				last_affirmed between (now() - %s::interval) and (now() - %s::interval)"""
-		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, sttl, httl)
-		# error
-		if enc_rows is None:
-			_log.Log(gmLog.lErr, 'error accessing encounter tables')
-			return False
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, sttl, httl]}])
 		# none found
 		if len(enc_rows) == 0:
 			return False
-		try:
-			encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
-		except gmExceptions.ConstructorError:
-			return False
+		encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		# ask user whether to attach or not
-		cmd = """
+		cmd = u"""
 			select title, firstnames, lastnames, gender, dob
-			from clin.v_basic_person	where pk_identity=%s"""
-		pat = gmPG.run_ro_query('personalia', cmd, None, self.pk_patient)
-		if (pat is None) or (len(pat) == 0):
-			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.pk_patient)
+			from clin.v_basic_person where pk_identity=%s"""
+		pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		if len(pats) == 0:
 			return False
 		pat_str = '%s %s %s (%s), %s, #%s' % (
 			pat[0][0][:5],
@@ -1333,7 +1315,7 @@ where
 					'pk_field': 'pk_encounter',
 					'idx': idx
 				}
-				self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row = row_map))
+				self.__db_cache['encounters'].append()
 			except gmExceptions.ConstructorError, msg:
 				_log.LogException(str(msg), sys.exc_info(), verbose=0)
 				del self.__db_cache['encounters']
@@ -1360,14 +1342,11 @@ where
 			self.__db_cache['encounters']
 		except KeyError:
 			# fetch all encounters for patient
+			cmd = u"select * from clin.v_pat_encounters where pk_patient=%s order by started"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			self.__db_cache['encounters'] = []
-			cmd = "select * from clin.v_pat_encounters where pk_patient=%s order by started"
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load encounters for patient [%s]' % self.pk_patient)
-				del self.__db_cache['encounters']
-				return None
-			self._build_encounter_cache_from_rows(rows, idx)
+			for row in rows:
+				self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row={'data': row, 'idx': idx, 'pk_field': 'pk_encounter'}))
 
 		# we've got the encounters, start filtering
 		filtered_encounters = []
@@ -1408,17 +1387,12 @@ where
 				episodes.extend(epi_ids)
 
 		if (episodes is not None) and (episodes != [None]) and (len(episodes) > 0):
-			if len(episodes) == 1:
-				episodes.append(episodes[0])
 			# if the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
-			cmd = "select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
-			rows = gmPG.run_ro_query('historica', cmd, None, {'epis': tuple(episodes)})
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load encounters for episodes [%s] (patient [%s])' % (str(episodes), self.pk_patient))
-			else:
-				enc_ids = map(lambda x:x[0], rows)
-				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
+			cmd = u"select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'epis': episodes}}])
+			enc_ids = map(lambda x:x[0], rows)
+			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
 		return filtered_encounters
 	#--------------------------------------------------------		
@@ -1693,7 +1667,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.211  2006-10-25 07:46:44  ncq
+# Revision 1.212  2006-10-28 15:01:21  ncq
+# - speed up allergy, encounter fetching
+# - unicode() queries
+#
+# Revision 1.211  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.210  2006/10/25 07:17:40  ncq
