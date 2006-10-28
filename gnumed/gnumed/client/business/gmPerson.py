@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.83 2006-10-24 13:16:38 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmPerson.py,v 1.84 2006-10-28 14:52:07 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -660,6 +660,11 @@ class cPatient(cPerson):
 			return None
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
+	def get_last_encounter(self):
+		cmd = u'select * from clin.v_most_recent_encounters where pk_patient=%s'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._ID]}])
+		return rows[0]
+	#--------------------------------------------------------
 	def get_document_folder(self):
 		try:
 			return self.__db_cache['document folder']
@@ -843,23 +848,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
 	def __init__(self):
-		# list more generators here once they are written
-		self.__query_generators = {
-			'default': self._generate_queries_de,
-			'de': self._generate_queries_de
-		}
-		# set locale dependant query handlers
-		# - generator
-		try:
-			self._generate_queries = self.__query_generators[gmI18N.system_locale_level['full']]
-		except KeyError:
-			try:
-				self._generate_queries = self.__query_generators[gmI18N.system_locale_level['country']]
-			except KeyError:
-				try:
-					self._generate_queries = self.__query_generators[gmI18N.system_locale_level['language']]
-				except KeyError:
-					self._generate_queries = self.__query_generators['default']
+		self._generate_queries = self._generate_queries_de
 		# make a cursor
 		self.conn = gmPG2.get_connection()
 		self.curs = self.conn.cursor()
@@ -1017,17 +1006,18 @@ class cPatientSearcher_SQL:
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.strip()
 			queries.append ({
-				'cmd': u"select *, %s::text as match_type FROM dem.v_basic_person WHERE pk_identity = %s",
+				'cmd': u"select *, %s::text as match_type FROM dem.v_basic_person WHERE pk_identity = %s order by lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
 			queries.append ({
-				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp",
+				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
 				'args': [_('date of birth'), tmp]
 			})
 			queries.append ({
 				'cmd': u"""
 					select vba.*, %s::text as match_type from dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
-					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s""",
+					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s
+					order by lastnames, firstnames, dob""",
 				'args': [_('external patient ID'), tmp]
 			})
 			return queries
@@ -1035,7 +1025,7 @@ class cPatientSearcher_SQL:
 		# "<d igi ts>" - DOB or patient PK
 		if re.match("^(\d|\s|\t)+$", raw):
 			queries.append ({
-				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp",
+				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
 				'args': [_('date of birth'), raw]
 			})
 			tmp = raw.replace(' ', '')
@@ -1054,7 +1044,7 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the PK actually exists
 			queries.append ({
-				'cmd': u"SELECT *, %s::text as match_type from dem.v_basic_person WHERE pk_identity = %s",
+				'cmd': u"SELECT *, %s::text as match_type from dem.v_basic_person WHERE pk_identity = %s order by lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
 			# but might also be an external ID
@@ -1066,7 +1056,8 @@ class cPatientSearcher_SQL:
 			queries.append ({
 				'cmd': u"""
 					select vba.*, %s::text as match_type from dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
-					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s""",
+					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s
+					order by lastnames, firstnames, dob""",
 				'args': [_('external patient ID'), tmp]
 			})
 			return queries
@@ -1083,7 +1074,8 @@ class cPatientSearcher_SQL:
 			queries.append ({
 				'cmd': u"""
 					select vba.*, %s::text as match_type from dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
-					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s""",
+					where vba.pk_identity = li2ext_id.id_identity and li2ext_id.external_id ~* %s
+					order by lastnames, firstnames, dob""",
 				'args': [_('external patient ID'), tmp]
 			})
 			return queries
@@ -1097,7 +1089,7 @@ class cPatientSearcher_SQL:
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
 			queries.append ({
-				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp",
+				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
 				'args': [_('date of birth'), tmp]
 			})
 			return queries
@@ -1106,13 +1098,20 @@ class cPatientSearcher_SQL:
 		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
 			tmp = raw.split(',')[1].strip()
 			tmp = self._normalize_soundalikes(tmp)
+			cmd = u"""
+SELECT DISTINCT ON (pk_identity) *, %s as match_type from ((
+	select vbp.*
+	FROM dem.names, dem.v_basic_person vbp
+	WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
+) union all (
+	select vbp.*
+	FROM dem.names, dem.v_basic_person vbp
+	WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
+)) as super_list
+order by pk_identity, lastnames, firstnames, dob"""
 			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity",
-				'args': [_('first name'), '^' + self._make_sane_caps(tmp)]
-			})
-			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.* FROM dem.names, dem.v_basic_person vbp WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity",
-				'args': [_('first name'), '^' + tmp]
+				'cmd': cmd,
+				'args': [_('first name'), '^' + self._make_sane_caps(tmp), '^' + tmp]
 			})
 			return queries
 
@@ -1121,7 +1120,7 @@ class cPatientSearcher_SQL:
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
 			queries.append ({
-				'cmd': u"SELECT * from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
+				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
 				'args': [_('date of birth'), tmp]
 			})
 			return queries
@@ -1173,10 +1172,10 @@ class cPatientSearcher_SQL:
 			return None
 
 		cmd = u"""
-			select *, %%s::text as match_type from dem.v_basic_person
+			select *, %%s as match_type from dem.v_basic_person
 			where pk_identity in (
 				select id_identity from dem.names where %s
-			)""" % ' and '.join(where_snippets)
+			) order by lastnames, firstnames, dob""" % ' and '.join(where_snippets)
 
 		queries = [
 			{'cmd': cmd, 'args': vals}
@@ -1210,29 +1209,36 @@ class cPatientSearcher_SQL:
 		if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term):
 			# there's no intermediate whitespace due to the regex
 			tmp = normalized.strip()
-			# assumption: this is a last name
+			args = []
+			cmd = u"""
+SELECT DISTINCT ON (pk_identity) * from ((
+	-- last name
+	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames ~ %s
+) union all (
+	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* %s
+) union all (
+	-- first name
+	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s
+) union all (
+	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s
+) union all (
+	-- anywhere in name
+	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames || coalesce(n.preferred, '') ~* %s
+)) as super_list order by pk_identity, lastnames, firstnames, dob"""
+			args.append(_('last name'))
+			args.append('^' + self._make_sane_caps(tmp))
+			args.append(_('last name'))
+			args.append('^' + tmp)
+			args.append(_('first name'))
+			args.append('^' + self._make_sane_caps(tmp))
+			args.append(_('first name'))
+			args.append('^' + tmp)
+			args.append(_('any name part'))
+			args.append(tmp)
+
 			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames ~ %s",
-				'args': [_('last name'), '^' + self._make_sane_caps(tmp)]
-			})
-			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* %s",
-				'args': [_('last name'), '^' + tmp]
-			})
-			# assumption: this is a first name
-			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s",
-				'args': [_('first name'), '^' + self._make_sane_caps(tmp)]
-			})
-			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s",
-				'args': [_('first name'), '^' + tmp]
-			})
-			# name parts anywhere in name
-			# FIXME: support preferred, etc, too ?
-			queries.append ({
-				'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* %s",
-				'args': [_('first or last name'), tmp]
+				'cmd': cmd,
+				'args': args
 			})
 			return queries
 
@@ -1470,7 +1476,11 @@ from
 	dem.names n
 where
 	vbp.pk_identity = n.id_identity
-	%s""" % where_clause
+	%s
+order by
+	lastnames,
+	firstnames,
+	dob""" % where_clause
 
 		return ({'cmd': query, 'args': args})
 #============================================================
@@ -1858,7 +1868,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.83  2006-10-24 13:16:38  ncq
+# Revision 1.84  2006-10-28 14:52:07  ncq
+# - add get_last_encounter()
+#
+# Revision 1.83  2006/10/24 13:16:38  ncq
 # - add Provider match provider
 #
 # Revision 1.82  2006/10/21 20:44:06  ncq
