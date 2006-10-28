@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -112,7 +112,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_episode from clin.v_pat_episodes where pk_episode=%s"
+	_cmd_fetch_payload = u"select * from clin.v_pat_episodes where pk_episode=%s"
 	_cmds_store_payload = [
 		u"""update clin.episode set
 				fk_health_issue=%(pk_health_issue)s,
@@ -213,7 +213,7 @@ from (
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_encounter from clin.v_pat_encounters where pk_encounter=%s"
+	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter=%s"
 	_cmds_store_payload = [
 		u"""update clin.encounter set
 				started=%(started)s,
@@ -379,10 +379,9 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
 		queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
 	# retrieve PK
-	cmd = u"select currval('clin.episode_pk_seq')"
-	queries.append({'cmd': cmd})
+	queries.append({'cmd': cEpisode.__cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	# run queries
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 	# now there ?
 	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return (True, episode)
@@ -418,7 +417,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 				%s, -1,	coalesce((select pk from clin.encounter_type where description=%s), 0)
 			)"""
 	queries.append({'cmd': cmd, 'args': [fk_patient, enc_type]})
-	queries.append({'cmd': u"select currval('clin.encounter_pk_seq')"})
+	queries.append({'cmd': cEncounter._cmd_fetch_payload % u"currval('clin.encounter_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
 	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 	return (True, encounter)
@@ -521,7 +520,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.84  2006-10-10 07:26:37  ncq
+# Revision 1.85  2006-10-28 14:59:20  ncq
+# - when reading from views no need to explicitely load xmin_*, it's part of the view anyways
+# - reduce query duplication by reuse of _cmd_fetch_payload
+#
+# Revision 1.84  2006/10/10 07:26:37  ncq
 # - no more clinitem exceptions
 #
 # Revision 1.83  2006/10/09 12:18:18  ncq
