@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.269 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.269 $"
+# $Id: gmGuiMain.py,v 1.270 2006-10-28 13:03:58 ncq Exp $
+__version__ = "$Revision: 1.270 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -413,6 +413,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.updateTitle()
 	#----------------------------------------------
 	def _on_pre_patient_selection(self, **kwargs):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			return True
 		wx.CallAfter(self.__on_pre_patient_selection, **kwargs)
 	#----------------------------------------------
 	def __on_pre_patient_selection(self, **kwargs):
@@ -426,8 +429,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		# update encounter summary
 		if ((enc['assessment_of_encounter'] is None)
-		or (enc['assessment_of_encounter'].find('auto-created') >= 0)
-		or (len(enc['assessment_of_encounter'].strip()) == 0)):
+			or (enc['assessment_of_encounter'].find('auto-created') >= 0)
+			or (len(enc['assessment_of_encounter'].strip()) == 0)):
 			# - work out suitable default
 			epis = emr.get_episodes_by_encounter()
 			if len(epis) > 0:
@@ -784,7 +787,7 @@ Search results:
 				title = ''
 			else:
 				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, ident['firstnames'], ident['lastnames'], ident['dob'].strftime (_('%d/%m/%y')), ident['pk_identity'])
+			pat_str = "%s%s %s (%s) #%d" % (title, ident['firstnames'], ident['lastnames'], ident['dob'].strftime ('%x'), ident['pk_identity'])
 		else:
 			pat_str = _('no patient')
 
@@ -1123,7 +1126,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.269  2006-10-25 07:46:44  ncq
+# Revision 1.270  2006-10-28 13:03:58  ncq
+# - check patient before calling wxCallAfter() in _pre_patient_selection
+# - strftime() doesn't take u''
+#
+# Revision 1.269  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.268  2006/10/25 07:26:42  ncq
