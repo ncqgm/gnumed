@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -379,7 +379,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
 		queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
 	# retrieve PK
-	queries.append({'cmd': cEpisode.__cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
+	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	# run queries
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 	# now there ?
@@ -520,7 +520,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.85  2006-10-28 14:59:20  ncq
+# Revision 1.86  2006-10-28 14:59:38  ncq
+# - __ -> _
+#
+# Revision 1.85  2006/10/28 14:59:20  ncq
 # - when reading from views no need to explicitely load xmin_*, it's part of the view anyways
 # - reduce query duplication by reuse of _cmd_fetch_payload
 #
