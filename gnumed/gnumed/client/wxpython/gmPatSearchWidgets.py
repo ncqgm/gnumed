@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.47 2006-10-28 12:34:53 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPatSearchWidgets.py,v 1.48 2006-10-28 14:57:17 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -22,7 +22,7 @@ import wx
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
-from Gnumed.wxGladeWidgets import wxgSelectPersonFromListPnl, wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
+from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -70,9 +70,9 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(ident['preferred'], ''))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = ident['dob'].strftime('%x'))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(ident['l10n_gender'], '?'))
-			emr = gmPerson.cPatient(identity=ident).get_emr()
-			enc = emr.get_last_encounter()
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = enc['started'].strftime('%x'))
+			pat = gmPerson.cPatient(identity=ident)
+			enc = pat.get_last_encounter()
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = u'%s (%s)' % (enc['started'].strftime('%x'), enc['l10n_type']))
 			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = ident['match_type'])
 			except: pass
 
@@ -97,7 +97,8 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 		self._BTN_select.Enable(True)
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
-		self.Close(wx.ID_OK)
+		else:
+			self.Close(wx.ID_OK)
 #============================================================
 class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg):
 
@@ -153,7 +154,8 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 		self._BTN_select.Enable(True)
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
-		self.Close(wx.ID_OK)
+		else:
+			self.Close(wx.ID_OK)
 #============================================================
 def load_persons_from_xdt():
 
@@ -952,7 +954,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.47  2006-10-28 12:34:53  ncq
+# Revision 1.48  2006-10-28 14:57:17  ncq
+# - use cPatient.get_last_encounter()
+#
+# Revision 1.47  2006/10/28 12:34:53  ncq
 # - make person and dto selector dialogs handle functionality themselves
 # - remove person selector panel class
 # - act on ENTER/double-click in person/dto select list
