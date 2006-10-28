@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.46 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmPatSearchWidgets.py,v 1.47 2006-10-28 12:34:53 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -19,7 +19,7 @@ import sys, os.path, time, string, re, glob
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListPnl, wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
@@ -37,17 +37,6 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 
 	def __init__(self, *args, **kwargs):
 		wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg.__init__(self, *args, **kwargs)
-	#--------------------------------------------------------
-	def set_persons(self, persons=None):
-		self._PNL_select_person.set_persons(persons=persons)
-	#--------------------------------------------------------
-	def get_selected_person(self):
-		return self._PNL_select_person.get_selected_person()
-#============================================================
-class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl):
-
-	def __init__(self, *args, **kwargs):
-		wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl.__init__(self, *args, **kwargs)
 
 		self.__cols = [
 			_('Title'),
@@ -55,18 +44,15 @@ class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromLis
 			_('Firstname'),
 			_('Nickname'),
 			_('DOB'),
-			_('Gender')
+			_('Gender'),
+			_('last visit'),
+			_('found via')
 		]
 		self.__init_ui()
 	#--------------------------------------------------------
 	def __init_ui(self):
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
-
-#		msg = _('Please select a patient from the list below.')
-#		self._lbl_message.SetLabel(msg)
-	#--------------------------------------------------------
-	# public API
 	#--------------------------------------------------------
 	def set_persons(self, persons=None):
 		self._LCTRL_persons.DeleteAllItems()
@@ -78,21 +64,17 @@ class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromLis
 		for person in persons:
 			ident = person.get_identity()
 
-			if ident['title'] is None:
-				row_num = self._LCTRL_persons.InsertStringItem(pos, label = '')
-			else:
-				row_num = self._LCTRL_persons.InsertStringItem(pos, label = ident['title'])
+			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(ident['title'], ''))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = ident['lastnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = ident['firstnames'])
-			if ident['preferred'] is None:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = '')
-			else:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = ident['preferred'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(ident['preferred'], ''))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = ident['dob'].strftime('%x'))
-			if ident['l10n_gender'] is None:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = '?')
-			else:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = ident['l10n_gender'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(ident['l10n_gender'], '?'))
+			emr = gmPerson.cPatient(identity=ident).get_emr()
+			enc = emr.get_last_encounter()
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = enc['started'].strftime('%x'))
+			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = ident['match_type'])
+			except: pass
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
@@ -113,24 +95,14 @@ class cSelectPersonFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromLis
 	#--------------------------------------------------------
 	def _on_list_item_activated(self, evt):
 		self._BTN_select.Enable(True)
-		# FIXME: somehow invoke SELECT button
-		print "need code to invoke SELECT button"
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		self.Close(wx.ID_OK)
 #============================================================
 class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg):
 
 	def __init__(self, *args, **kwargs):
 		wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg.__init__(self, *args, **kwargs)
-	#--------------------------------------------------------
-	def set_dtos(self, dtos=None):
-		return self._PNL_select_person.set_dtos(dtos=dtos)
-	#--------------------------------------------------------
-	def get_selected_dto(self):
-		return self._PNL_select_person.get_selected_dto()
-#============================================================
-class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl):
-
-	def __init__(self, *args, **kwargs):
-		wxgSelectPersonFromListPnl.wxgSelectPersonFromListPnl.__init__(self, *args, **kwargs)
 
 		self.__cols = [
 			_('Source'),
@@ -139,14 +111,11 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 			_('DOB'),
 			_('Gender')
 		]
-
 		self.__init_ui()
 	#--------------------------------------------------------
 	def __init_ui(self):
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
-	#--------------------------------------------------------
-	# public API
 	#--------------------------------------------------------
 	def set_dtos(self, dtos=None):
 		self._LCTRL_persons.DeleteAllItems()
@@ -161,8 +130,7 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x'))
-			if dto.gender is not None:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = dto.gender)
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
@@ -182,9 +150,10 @@ class cSelectPersonDTOFromListPnl(wxgSelectPersonFromListPnl.wxgSelectPersonFrom
 		return
 	#--------------------------------------------------------
 	def _on_list_item_activated(self, evt):
-		self._BTN_select.Enable(False)
-		# FIXME: somehow invoke SELECT button
-		print "need code to invoke SELECT button"
+		self._BTN_select.Enable(True)
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		self.Close(wx.ID_OK)
 #============================================================
 def load_persons_from_xdt():
 
@@ -284,6 +253,7 @@ def load_patient_from_external_sources(parent=None):
 		if result == wx.ID_CANCEL:
 			return True
 		dto = dlg.get_selected_dto()['dto']
+		dlg.Destroy()
 
 	# FIXME: config: delete DTO source after selection
 
@@ -328,6 +298,7 @@ def load_patient_from_external_sources(parent=None):
 		if result == wx.ID_CANCEL:
 			return True
 		person = dlg.get_selected_person()
+		dlg.Destroy()
 
 	if not gmPerson.set_active_patient(patient = person.get_identity()):
 		gmGuiHelpers.gm_show_info (
@@ -733,6 +704,7 @@ class cPatientSelector(wx.TextCtrl):
 			persons = []
 			for ident in self.__prev_idents:
 				persons.append(gmPerson.cPerson(identity=ident))
+
 			dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
 			dlg.set_persons(persons=persons)
 			result = dlg.ShowModal()
@@ -740,7 +712,9 @@ class cPatientSelector(wx.TextCtrl):
 				wx.BeginBusyCursor()
 				person = dlg.get_selected_person()
 				self.SetActivePatient(person)
-				wx.EndBusyCursor()
+			dlg.Destroy()
+
+			wx.EndBusyCursor()
 			return True
 
 		# previous search fragment
@@ -841,10 +815,12 @@ class cPatientSelector(wx.TextCtrl):
 		wx.EndBusyCursor()
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
+			dlg.Destroy()
 			return None
 
 		wx.BeginBusyCursor()
 		person = dlg.get_selected_person()
+		dlg.Destroy()
 		self.SetActivePatient(person)
 		wx.EndBusyCursor()
 
@@ -976,7 +952,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.46  2006-10-25 07:46:44  ncq
+# Revision 1.47  2006-10-28 12:34:53  ncq
+# - make person and dto selector dialogs handle functionality themselves
+# - remove person selector panel class
+# - act on ENTER/double-click in person/dto select list
+#
+# Revision 1.46  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.45  2006/10/24 13:26:43  ncq
