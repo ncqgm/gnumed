@@ -11,16 +11,13 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: cfg-cfg_item.sql,v 1.2 2006-10-08 09:15:57 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: cfg-cfg_item.sql,v 1.3 2006-10-28 12:22:48 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-begin;
-
--- --------------------------------------------------------------
 alter table cfg.cfg_item
 	alter column workplace
 		drop not null;
@@ -38,9 +35,12 @@ alter table cfg.cfg_item
 	alter column cookie
 		set default null;
 
-
+\unset ON_ERROR_STOP
 alter table cfg.cfg_item
 	drop constraint "$1";
+alter table cfg.cfg_item
+	drop constraint "cfg_item_fk_template_fkey";
+\set ON_ERROR_STOP 1
 
 alter table cfg.cfg_item
 	add foreign key (fk_template)
@@ -59,14 +59,15 @@ values (
 );
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-cfg_item.sql,v $', '$Revision: 1.2 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: cfg-cfg_item.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: cfg-cfg_item.sql,v $
--- Revision 1.2  2006-10-08 09:15:57  ncq
+-- Revision 1.3  2006-10-28 12:22:48  ncq
+-- - 8.1 prides itself in naming FKs differently -- better -- but makes
+--   changing auto-named foreign keys a pain
+--
+-- Revision 1.2  2006/10/08 09:15:57  ncq
 -- - add workplace
 --
 -- Revision 1.1  2006/09/26 14:47:53  ncq

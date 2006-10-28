@@ -11,19 +11,20 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-doc_med.sql,v 1.2 2006-10-08 09:15:17 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: blobs-doc_med.sql,v 1.3 2006-10-28 12:22:48 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-begin;
-
--- --------------------------------------------------------------
+\unset ON_ERROR_STOP
 -- patient_id -> fk_identity
 alter table blobs.doc_med
 	drop constraint "$1";
+alter table blobs.doc_med
+	drop constraint "doc_med_patient_id_fkey";
+\set ON_ERROR_STOP 1
 
 alter table blobs.doc_med
 	rename column patient_id to fk_identity;
@@ -39,14 +40,15 @@ alter table blobs.doc_med
 	rename column type to fk_type;
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-doc_med.sql,v $', '$Revision: 1.2 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: blobs-doc_med.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: blobs-doc_med.sql,v $
--- Revision 1.2  2006-10-08 09:15:17  ncq
+-- Revision 1.3  2006-10-28 12:22:48  ncq
+-- - 8.1 prides itself in naming FKs differently -- better -- but makes
+--   changing auto-named foreign keys a pain
+--
+-- Revision 1.2  2006/10/08 09:15:17  ncq
 -- - type -> fk_type
 --
 -- Revision 1.1  2006/09/26 14:47:53  ncq
