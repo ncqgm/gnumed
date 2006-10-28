@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.22 2006-10-08 14:27:52 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmAllergy.py,v 1.23 2006-10-28 15:02:24 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ _log.Log(gmLog.lInfo, __version__)
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one allergy event.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_allergy from clin.v_pat_allergies where pk_allergy=%s"
+	_cmd_fetch_payload = u"select * from clin.v_pat_allergies where pk_allergy=%s"
 	_cmds_store_payload = [
 		u"""update clin.allergy set
 				clin_when=%(date)s,
@@ -128,7 +128,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.22  2006-10-08 14:27:52  ncq
+# Revision 1.23  2006-10-28 15:02:24  ncq
+# - remove superfluous xmin_allergy
+#
+# Revision 1.22  2006/10/08 14:27:52  ncq
 # - convert to cBusinessDBObject
 # - convert to gmPG2
 #
