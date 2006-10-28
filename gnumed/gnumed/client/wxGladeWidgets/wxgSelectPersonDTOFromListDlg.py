@@ -12,27 +12,53 @@ class wxgSelectPersonDTOFromListDlg(wx.Dialog):
         # begin wxGlade: wxgSelectPersonDTOFromListDlg.__init__
         kwds["style"] = wx.CAPTION|wx.RESIZE_BORDER|wx.CLOSE_BOX|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
-        self._PNL_select_person = gmPatSearchWidgets.cSelectPersonDTOFromListPnl(self, -1)
+        self._lbl_message = wx.StaticText(self, -1, _("Please select a person from the list below."))
+        self._LCTRL_persons = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_VRULES|wx.SUNKEN_BORDER|wx.NO_BORDER)
+        self._BTN_select = wx.Button(self, wx.ID_OK, _("Select"))
+        self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_persons)
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_persons)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgSelectPersonDTOFromListDlg.__set_properties
         self.SetTitle(_("Select person from list"))
         self.SetSize((600, 400))
+        self._LCTRL_persons.SetToolTipString(_("Displays the list of persons to select from."))
+        self._LCTRL_persons.SetFocus()
+        self._BTN_select.SetToolTipString(_("Select the person highlighted in the list above."))
+        self._BTN_select.Enable(False)
+        self._BTN_select.SetDefault()
+        self._BTN_cancel.SetToolTipString(_("Cancel person selection."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgSelectPersonDTOFromListDlg.__do_layout
         _szr_main = wx.BoxSizer(wx.VERTICAL)
-        _szr_main.Add(self._PNL_select_person, 1, wx.ALL|wx.EXPAND, 3)
+        _szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+        _szr_main.Add(self._lbl_message, 0, wx.EXPAND, 0)
+        _szr_main.Add(self._LCTRL_persons, 1, wx.EXPAND, 0)
+        _szr_buttons.Add((20, 20), 1, 0, 0)
+        _szr_buttons.Add(self._BTN_select, 0, 0, 0)
+        _szr_buttons.Add(self._BTN_cancel, 0, 0, 0)
+        _szr_main.Add(_szr_buttons, 0, wx.EXPAND, 0)
         self.SetAutoLayout(True)
         self.SetSizer(_szr_main)
         self.Layout()
         self.Centre()
         # end wxGlade
+
+    def _on_list_item_selected(self, event): # wxGlade: wxgSelectPersonDTOFromListDlg.<event_handler>
+        print "Event handler `_on_list_item_selected' not implemented"
+        event.Skip()
+
+    def _on_list_item_activated(self, event): # wxGlade: wxgSelectPersonDTOFromListDlg.<event_handler>
+        print "Event handler `_on_list_item_activated' not implemented"
+        event.Skip()
 
 # end of class wxgSelectPersonDTOFromListDlg
 
