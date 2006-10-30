@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """GNUmed xDT viewer.
 
 TODO:
@@ -10,44 +8,151 @@ TODO:
   - search
   - print
   - ...
-- on plugin.receivefocus():
-	 if not self.file_loaded:
-		load file
-
-- connect to gmDispatcher.patient_changed -> on signal check for patient file
-  and parse in thread
-
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.21 2006-07-19 20:32:11 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmXdtViewer.py,v 1.22 2006-10-30 16:48:13 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
-import sys, os, fileinput, string
+import sys, os, os.path, codecs
 
-try:
-	import wxversion
-	import wx
-	import wx.lib.mixins.listctrl
-except ImportError:
-	from wxPython import wx
-	#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wx.ListCtrlAutoWidthMixin
+import wx
 
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmGuiHelpers, gmPlugin
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business.gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
+from Gnumed.business import gmXdtMappings
+from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
 
 #=============================================================================
-class gmXdtListCtrl(wx.ListCtrl, wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin):
-	def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
-		wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
-		wx.lib.mixins.listctrl.ListCtrlAutoWidthMixin.__init__(self)
+# FIXME: this belongs elsewhere under wxpython/
+class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
+	def __init__(self, *args, **kwargs):
+		wxgXdtListPnl.wxgXdtListPnl.__init__(self, *args, **kwargs)
+
+		self.filename = None
+
+		self.__cols = [
+			_('xDT field'),
+			_('field content')
+		]
+		self.__init_ui()
+	#--------------------------------------------------------------
+	def __init_ui(self):
+		for col in range(len(self.__cols)):
+			self._LCTRL_xdt.InsertColumn(col, self.__cols[col])
+	#--------------------------------------------------------------
+	# external API
+	#--------------------------------------------------------------
+	def select_file(self, path=None):
+		if path is None:
+			root_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'xDT'))
+		else:
+			root_dir = path
+		# get file name
+		# - via file select dialog
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _("Choose an xDT file"),
+			defaultDir = root_dir,
+			defaultFile = '',
+			wildcard = '%s (*.xDT)|*.?DT;*.?dt|%s (*.*)|*.*' % (_('xDT files'), _('all files')),
+			style = wx.OPEN | wx.FILE_MUST_EXIST
+		)
+		choice = dlg.ShowModal()
+		fname = None
+		if choice == wx.ID_OK:
+			fname =  dlg.GetPath()
+		dlg.Destroy()
+		return fname
+	#--------------------------------------------------------------
+	def load_file(self, filename=None):
+		if filename is None:
+			filename = self.select_file()
+		if filename is None:
+			return True
+
+		self.filename = None
+
+		try:
+			f = file(filename, 'r')
+		except IOError:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot access xDT file\n\n'
+				  ' [%s]'),
+				_('loading xDT file'),
+				gmLog.lErr
+			)
+			return False
+
+		encoding = 'iso8859-15'
+		for line in f:
+			field = line[3:7]
+			if field in gmXdtMappings._charset_fields:
+				val = line[7:8]
+				encoding = gmXdtMappings._map_field2charset[field][val]
+		f.close()
+
+		try:
+			xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding, errors='replace')
+		except IOError:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot access xDT file\n\n'
+				  ' [%s]'),
+				_('loading xDT file'),
+				gmLog.lErr
+			)
+			return False
+
+		# parse and display file
+		self._LCTRL_xdt.DeleteAllItems()
+		idx = 0
+		for line in xdt_file:
+			line = line.replace('\015','')
+			line = line.replace('\012','')
+			length, field, content = line[:3], line[3:7], line[7:]
+
+			try:
+				left = gmXdtMappings.xdt_id_map[field]
+			except KeyError:
+				left = field
+
+			try:
+				right = gmXdtMappings.xdt_map_of_content_maps[field][content]
+			except KeyError:
+				right = content
+
+			self._LCTRL_xdt.InsertStringItem(index=idx, label=left)
+			self._LCTRL_xdt.SetStringItem(index=idx, col=1, label=right)
+			idx += 1
+
+		xdt_file.close()
+
+		self._LCTRL_xdt.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+		self._LCTRL_xdt.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+
+		self._LCTRL_xdt.SetFocus()
+		self._LCTRL_xdt.SetItemState (
+			item = 0,
+			state = wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED,
+			stateMask = wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED
+		)
+
+		self.filename = filename
+	#--------------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------------
+	def _on_load_button_pressed(self, evt):
+		self.load_file()
+	#--------------------------------------------------------------
+	# plugin API
+	#--------------------------------------------------------------
+	def repopulate_ui(self):
+		if self.filename is None:
+			self.load_file()
 #=============================================================================
 class gmXdtViewerPanel(wx.Panel):
 	def __init__(self, parent, aFileName = None):
@@ -244,6 +349,24 @@ class gmXdtViewerPanel(wx.Panel):
 		w,h = self.GetClientSizeTuple()
 		self.list.SetDimensions(0, 0, w, h)
 #======================================================
+class gmXdtViewer(gmPlugin.cNotebookPlugin):
+	"""Plugin to encapsulate xDT list-in-panel viewer"""
+
+	tab_name = _('xDT Viewer')
+
+	def name(self):
+		return gmXdtViewer.tab_name
+
+	def GetWidget(self, parent):
+		self._widget = cXdtListPnl(parent, -1)
+		return self._widget
+
+	def MenuInfo(self):
+		return ('tools', _('xDT viewer'))
+
+	def can_receive_focus(self):
+		return True
+#======================================================
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
@@ -290,53 +413,12 @@ if __name__ == '__main__':
 		_log.LogException('Unhandled exception.', sys.exc_info(), verbose=1)
 		raise
 
-else:
-	from Gnumed.wxpython import gmPlugin
-
-	class gmXdtViewer(gmPlugin.cNotebookPluginOld):
-		tab_name = 'XDT'
-
-		def name (self):
-			return gmXdtViewer.tab_name
-
-		def GetWidget (self, parent):
-			self.viewer = gmXdtViewerPanel(parent)
-			return self.viewer
-
-		def MenuInfo (self):
-			return ('tools', _('&show XDT'))
-
-		def populate_with_data(self):
-			# no use reloading if invisible
-			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-				return 1
-			# get file name
-			# - via file select dialog
-			aWildcard = "%s (*.BDT)|*.BDT|%s (*.*)|*.*" % (_("xDT file"), _("all files"))
-			aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', "gnumed")))
-			dlg = wxFileDialog(
-				parent = NULL,
-				message = _("Choose an xDT file"),
-				defaultDir = aDefDir,
-				defaultFile = "",
-				wildcard = aWildcard,
-				style = wxOPEN | wxFILE_MUST_EXIST
-			)
-			choice = dlg.ShowModal()
-			fname = dlg.GetPath()
-			dlg.Destroy()
-			if choice == wxID_OK:
-				_log.Log(gmLog.lData, 'selected [%s]' % fname)
-				self.viewer.filename = fname
-				self.viewer.Populate()
-
-			# - via currently selected patient -> XDT files
-			# ...
-
-			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.21  2006-07-19 20:32:11  ncq
+# Revision 1.22  2006-10-30 16:48:13  ncq
+# - bring back in line with the plugin framework
+#
+# Revision 1.21  2006/07/19 20:32:11  ncq
 # - cleanup
 #
 # Revision 1.20  2005/12/06 16:44:16  ncq
