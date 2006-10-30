@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.17 2006-10-08 10:48:28 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmXdtObjects.py,v 1.18 2006-10-30 16:42:27 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -23,7 +23,6 @@ from Gnumed.business import gmXdtMappings
 #==============================================================
 def read_person_from_xdt(filename=None, encoding=None):
 
-	_charset_fields = ['9206']
 	_map_id2name = {
 		'3101': 'lastnames',
 		'3102': 'firstnames',
@@ -46,7 +45,7 @@ def read_person_from_xdt(filename=None, encoding=None):
 		f = file(filename, 'r')
 		for line in f:
 			field = line[3:7]
-			if field in _charset_fields:
+			if field in gmXdtMappings._charset_fields:
 				val = line[7:8]
 				encoding = gmXdtMappings._map_field2charset[field][val]
 		f.close()
@@ -251,7 +250,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.17  2006-10-08 10:48:28  ncq
+# Revision 1.18  2006-10-30 16:42:27  ncq
+# - use more gmXdtMappings
+#
+# Revision 1.17  2006/10/08 10:48:28  ncq
 # - teach xdt reader to derive encoding from gdt 6301 record
 #
 # Revision 1.16  2006/09/13 07:54:32  ncq
