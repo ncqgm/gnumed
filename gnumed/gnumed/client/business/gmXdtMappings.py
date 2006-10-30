@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.29 2006-10-08 10:48:28 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmXdtMappings.py,v 1.30 2006-10-30 16:41:12 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -659,7 +659,7 @@ xdt_id_map = {
 	#number of media for this data package     
 	'9203':'Anzahl Datenträger im Paket',
 	'9204':'Abrechnungsquartal',
-	'9206': 'Zeichensatz (encoding)'
+	'9206': 'Zeichensatz (encoding)',
 	#ADT-version
 	'9210':'Version ADT-Satzbeschreibung',
 	'9212':'Version der Satzbeschreibung',
@@ -746,11 +746,15 @@ xdt_character_code_map = {
 	'3':'ISO 8859-1/cp1252'
 }
 
+_charset_fields = [
+	'9206'			# GDT
+]
+
 _map_field2charset = {
 	'9206': {
 		'1': 'ascii',
 		'2': 'cp437',
-		'3': 'iso8859-1'	# for some reason the GDT thinks iso8859-1 == cp1252
+		'3': 'iso8859-1'
 	}
 }
 
@@ -1363,7 +1367,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.29  2006-10-08 10:48:28  ncq
+# Revision 1.30  2006-10-30 16:41:12  ncq
+# - add _charset_fields
+#
+# Revision 1.29  2006/10/08 10:48:28  ncq
 # - teach xdt reader to derive encoding from gdt 6301 record
 #
 # Revision 1.28  2006/07/13 21:00:32  ncq
