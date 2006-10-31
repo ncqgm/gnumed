@@ -5,13 +5,13 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.31 2006-10-31 12:01:17 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmXdtMappings.py,v 1.32 2006-10-31 15:59:11 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
 try:
-	_('dummy-no-need-to-translate')
+	_('dummy-no-need-to-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 #==============================================================
@@ -761,17 +761,22 @@ map_8407_2str = {
 
 # xDT character code mapping : 9106
 xdt_character_code_map = {
-	'1':'7-bit ASCII',
-	'2':'8-bit extended ASCII',
-	##'2':'IBM-Code',
-	'3':'ISO 8859-1/cp1252'
+	'1': 'ASCII (DIN 66003/ISO 646)',
+	'2': 'cp437 (8 Bit)',
+	'3': 'ISO 8859-1/cp1252'
 }
 
 _charset_fields = [
+	'9106',			# LDT
 	'9206'			# GDT
 ]
 
 _map_field2charset = {
+	'9106': {
+		'1': 'ascii',
+		'2': 'cp437',
+		'3': 'iso8859-1'
+	},
 	'9206': {
 		'1': 'ascii',
 		'2': 'cp437',
@@ -1388,7 +1393,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.31  2006-10-31 12:01:17  ncq
+# Revision 1.32  2006-10-31 15:59:11  ncq
+# - somewhat improved mappings
+#
+# Revision 1.31  2006/10/31 12:01:17  ncq
 # - some xDT mappings provided by Kai Schmidt
 #
 # Revision 1.30  2006/10/30 16:41:12  ncq
