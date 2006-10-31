@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.101 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmDemographicsWidgets.py,v 1.102 2006-10-31 12:38:30 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -23,9 +23,10 @@ from Gnumed.business import gmDemographicRecord, gmPerson
 # constant defs
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
-_name_gender_map = None
 
 DATE_FORMAT = '%Y-%m-%d'
+
+#FIXME: properly capitalize names/streets etc
 
 #============================================================
 def disable_identity(identity=None):
@@ -59,21 +60,8 @@ def disable_identity(identity=None):
 		return False
 
 	# now disable patient
-	cmd = "update dem.identity set deleted=True where pk=%s"
-	success, data = gmPG.run_commit2 (
-		link_obj = 'demographics',
-		queries = [(cmd, [identity['pk_identity']])]
-	)
-	if not success:
-		err, msg = data
-		gmGuiHelpers.gm_show_error (
-			_('Cannot disable patient !\n'
-			  '\n'
-			  ' [%s]'
-			) % msg,
-			_('Disabling patient')
-		)
-		return False
+	gmPG2.run_rw_queries(queries = [{'cmd': u"update dem.identity set deleted=True where pk=%s", 'args': [identity['pk_identity']]}])
+
 	return True
 #============================================================
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -85,17 +73,11 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		if cGenderSelectionPhraseWheel._gender_map is None:
-			cmd = """
-			select
-				tag,
-				l10n_label,
-				sort_weight
-			from
-				dem.v_gender_labels
-			order by sort_weight desc"""
-			rows, idx = gmPG.run_ro_query('personalia', cmd, True)
-			if rows is None:
-				raise gmExceptions.gmConstructorError, 'cannot retrieve gender values from database'
+			cmd = u"""
+				select tag, l10n_label, sort_weight
+				from dem.v_gender_labels
+				order by sort_weight desc"""
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			cGenderSelectionPhraseWheel._gender_map = {}
 			for gender in rows:
 				cGenderSelectionPhraseWheel._gender_map[gender[idx['tag']]] = {
@@ -446,11 +428,10 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		Matches are fetched from existing records in backend.
 		"""
 		firstname = self.PRW_firstname.GetValue().strip()
-		cmd = "select gender from dem.name_gender_map where name ilike %s"
-		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
-			return False
+		rows, idx = gmPG2.run_ro_queries(queries = [{
+			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
+			'args': [firstname]
+		}])
 		if len(rows) == 0:
 			return True
 		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
@@ -1089,11 +1070,10 @@ class cPatIdentityPanel(wx.Panel):
 		Matches are fetched from existing records in backend.
 		"""
 		firstname = self.PRW_firstname.GetValue().strip()
-		cmd = "select gender from dem.name_gender_map where name ilike %s"
-		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
-			return False
+		rows, idx = gmPG2.run_ro_queries(queries = [{
+			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
+			'args': [firstname]
+		}])
 		if len(rows) == 0:
 			return True
 		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
@@ -1801,8 +1781,8 @@ def create_identity_from_dtd(dtd=None):
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
 		dob = dtd['dob'].timestamp,
-		lastnames = capitalize_first(dtd['lastnames']),
-		firstnames = capitalize_first(dtd['firstnames'])
+		lastnames = dtd['lastnames'],
+		firstnames = dtd['firstnames']
 	)
 	if new_identity is None:
 		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
@@ -1825,8 +1805,8 @@ def update_identity_from_dtd(identity, dtd=None):
 		identity['gender'] = dtd['gender']
 	if identity['dob'] != dtd['dob'].timestamp:
 		identity['dob'] = dtd['dob'].timestamp
-	if len(dtd['title']) > 0 and identity['title'] != capitalize_first(dtd['title']):
-		identity['title'] = capitalize_first(dtd['title'])
+	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
+		identity['title'] = dtd['title']
 	# FIXME: error checking
 	# FIXME: we need a trigger to update the values of the
 	# view, identity['keys'], eg. lastnames and firstnames
@@ -1834,11 +1814,11 @@ def update_identity_from_dtd(identity, dtd=None):
 	identity.save_payload()
 	# names
 	# FIXME: proper handling of "active"
-	if identity['firstnames'] != capitalize_first(dtd['firstnames']) or identity['lastnames'] != capitalize_first(dtd['lastnames']):
-		identity.add_name(firstnames = capitalize_first(dtd['firstnames']), lastnames = capitalize_first(dtd['lastnames']), active = True, nickname = None)
+	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
+		identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True, nickname = None)
 	# nickname
-	if len(dtd['nick']) > 0 and identity['preferred'] != capitalize_first(dtd['nick']):
-		identity.set_nickname(nickname = capitalize_first(dtd['nick']))
+	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
+		identity.set_nickname(nickname = dtd['nick'])
 
 	return True
 #============================================================				
@@ -1860,9 +1840,9 @@ def link_contacts_from_dtd(identity, dtd=None):
 
 	# form addresses
 	input_number = dtd['address_number']
-	input_street = capitalize_first(dtd['street'])
+	input_street = dtd['street']
 	input_postcode = dtd['zip_code']
-	input_urb = capitalize_first(dtd['town'])
+	input_urb = dtd['town']
 	input_state = dtd['state']
 	input_country = dtd['country']
 	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and len (input_state) > 0 and \
@@ -1907,31 +1887,7 @@ def link_occupation_from_dtd(identity, dtd=None):
 	input_occupation = dtd['occupation']
 	if len(input_occupation) > 0 and (last_idx == -1 or occupations[last_idx]['occupation'] !=input_occupation):
 		identity.link_occupation(occupation = input_occupation)
-	return True	
-#============================================================
-def get_name_gender_map():
-	"""
-	Build from backend a cached dictionary of pairs 'firstname' : gender_tag
-	"""	
-	global _name_gender_map
-	if _name_gender_map is None:
-		#cmd = "select lower(name), gender from dem.name_gender_map"
-		cmd = "select name, gender from dem.name_gender_map"
-		rows = gmPG.run_ro_query('personalia', cmd, False)
-		if rows is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve name-gender map from database')
-			return {}
-		_name_gender_map = {}
-		for row in rows:
-			_name_gender_map[row[0].lower()] = row[1]
-	return _name_gender_map
-#============================================================
-def capitalize_first(txt):
-	txt_lst = txt.split()
-	if len(txt_lst) > 0:
-		txt_lst[0] = txt_lst[0].capitalize()
-		txt = ' '.join(txt_lst)
-	return txt
+	return True
 #============================================================
 class TestWizardPanel(wx.Panel):   
 	"""
@@ -1976,7 +1932,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.101  2006-10-25 07:46:44  ncq
+# Revision 1.102  2006-10-31 12:38:30  ncq
+# - stop improper capitalize_first()
+# - more gmPG -> gmPG2
+# - remove get_name_gender_map()
+#
+# Revision 1.101  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.100  2006/10/24 13:21:53  ncq
