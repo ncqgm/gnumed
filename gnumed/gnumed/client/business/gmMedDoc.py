@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.81 2006-10-08 15:07:11 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmMedDoc.py,v 1.82 2006-10-31 16:16:28 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -139,14 +139,14 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"""select * from blobs.v_obj4doc_no_data where pk_obj=%s"""
 	_cmds_store_payload = [
-		"""update blobs.doc_obj set
+		u"""update blobs.doc_obj set
 				seq_idx=%(seq_idx)s,
 				comment=%(obj_comment)s,
 				fk_intended_reviewer=%(pk_intended_reviewer)s
 			where
 				pk=%(pk_obj)s and
 				xmin=%(xmin_doc_obj)s""",
-		"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_obj)s"""
+		u"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_obj)s"""
 	]
 	_updatable_fields = [
 		'seq_idx',
@@ -381,9 +381,9 @@ where
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
 
-	_cmd_fetch_payload = """select *, xmin_doc_med from blobs.v_doc_med where pk_doc=%s"""
+	_cmd_fetch_payload = u"""select * from blobs.v_doc_med where pk_doc=%s"""
 	_cmds_store_payload = [
-		"""update blobs.doc_med set
+		u"""update blobs.doc_med set
 				fk_type=%(pk_type)s,
 				comment=%(comment)s,
 				date=%(date)s,
@@ -392,7 +392,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			where
 				pk=%(pk_doc)s and
 				xmin=%(xmin_doc_med)s""",
-		"""select xmin_doc_med from blobs.v_doc_med where pk_doc=%(pk_doc)s"""
+		u"""select xmin_doc_med from blobs.v_doc_med where pk_doc=%(pk_doc)s"""
 		]
 
 	_updatable_fields = [
@@ -517,14 +517,14 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a document type."""
-	_cmd_fetch_payload = """select * from blobs.v_doc_type where pk_doc_type=%s"""
+	_cmd_fetch_payload = u"""select * from blobs.v_doc_type where pk_doc_type=%s"""
 	_cmds_store_payload = [
-		"""update blobs.doc_type set
+		u"""update blobs.doc_type set
 				name = %(type)s
 			where
 				pk=%(pk_obj)s and
 				xmin=%(xmin_doc_type)s""",
-		"""select xmin_doc_type from blobs.v_doc_type where pk_doc_type = %(pk_obj)s"""
+		u"""select xmin_doc_type from blobs.v_doc_type where pk_doc_type = %(pk_obj)s"""
 	]
 	_updatable_fields = ['type']
 	#--------------------------------------------------------
@@ -715,7 +715,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.81  2006-10-08 15:07:11  ncq
+# Revision 1.82  2006-10-31 16:16:28  ncq
+# - query strings as unicode
+#
+# Revision 1.81  2006/10/08 15:07:11  ncq
 # - convert to gmPG2
 # - drop blobs.xlnk_identity support
 # - use cBusinessDBObject
