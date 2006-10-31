@@ -2,13 +2,12 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.96 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmMedDocWidgets.py,v 1.97 2006-10-31 17:22:49 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
 
-import wxversion
 import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
@@ -117,7 +116,7 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-"""select * from ((
+u"""select * from ((
 	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
 		is_user is True and
 		l10n_type %(fragment_condition)s
@@ -190,7 +189,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if self.__part['reviewed_by_you']:
 			revs = self.__part.get_reviews()
 			for rev in revs:
-				if rev[5]:
+				if rev['is_your_review']:
 					self._ChBOX_abnormal.SetValue(bool(rev[2]))
 					self._ChBOX_relevant.SetValue(bool(rev[3]))
 					break
@@ -206,9 +205,9 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		review_by_responsible_doc = None
 		reviews_by_others = []
 		for rev in revs:
-			if rev[4] and not rev[5]:
+			if rev['is_review_by_responsible_reviewer'] and not rev['is_your_review']:
 				review_by_responsible_doc = rev
-			if not (rev[4] or rev[5]):
+			if not (rev['is_review_by_responsible_reviewer'] or rev['is_your_review']):
 				reviews_by_others.append(rev)
 		# display them
 		if review_by_responsible_doc is not None:
@@ -216,20 +215,20 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, col=wx.BLUE)
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=review_by_responsible_doc[1].strftime('%Y-%m-%d %H:%M'))
-			if review_by_responsible_doc[2]:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
-			if review_by_responsible_doc[3]:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
+			if review_by_responsible_doc['is_technically_abnormal']:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label=u'X')
+			if review_by_responsible_doc['clinically_relevant']:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label=u'X')
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=review_by_responsible_doc[6])
 			row_num += 1
 		for rev in reviews_by_others:
 			row_num = self._LCTRL_existing_reviews.InsertStringItem(sys.maxint, label=rev[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=0, label=rev[0])
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=1, label=rev[1].strftime('%Y-%m-%d %H:%M'))
-			if rev[2]:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label='X')
-			if rev[3]:
-				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label='X')
+			if rev['is_technically_abnormal']:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=2, label=u'X')
+			if rev['clinically_relevant']:
+				self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=3, label=u'X')
 			self._LCTRL_existing_reviews.SetStringItem(index = row_num, col=4, label=rev[6])
 		return True
 	#--------------------------------------------------------
@@ -464,7 +463,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				return None
 			chosen_device = devices[device_idx][0]
 
-		tmpdir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp')))
+		tmpdir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp'))
 		if not os.path.isdir(tmpdir):
 			try:
 				os.makedirs(tmpdir)
@@ -517,7 +516,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
 		(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
 		if not result:
-			gmGuiHelpers.gm_show_error (
+			gmGuiHelpers.gm_show_warning (
 				aMessage = _('Cannot display document part:\n%s') % msg,
 				aTitle = _('displaying page')
 			)
@@ -1107,14 +1106,14 @@ class cDocTree(wx.TreeCtrl):
 		# sanity check
 		if part['size'] == 0:
 			_log.Log(gmLog.lErr, 'cannot display part [%s] - 0 bytes' % part['pk_obj'])
-			gmGuiHelpers.gm_show_error(
+			gmGuiHelpers.gm_show_error (
 				aMessage = _('Document part does not seem to exist in database !'),
 				aTitle = _('showing document')
 			)
 			return None
 
 		# get export directory for temporary files
-		def_tmp_dir = os.path.join('~', 'gnumed', 'tmp')
+		def_tmp_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp'))
 		if not os.path.isdir(def_tmp_dir):
 			try:
 				os.makedirs(def_tmp_dir)
@@ -1129,7 +1128,7 @@ class cDocTree(wx.TreeCtrl):
 		)
 		exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
 		if not os.path.isdir(exp_base):
-			_log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is None == tempfile.tempdir == use system defaults
+			_log.Log(gmLog.lWarn, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is None == tempfile.tempdir == use system defaults
 			exp_base = None
 		else:
 			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
@@ -1214,7 +1213,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.96  2006-10-25 07:46:44  ncq
+# Revision 1.97  2006-10-31 17:22:49  ncq
+# - unicode()ify queries
+# - cleanup
+# - PgResult is now dict, so use it instead of index
+# - add missing os.path.expanduser()
+#
+# Revision 1.96  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.95  2006/10/24 13:26:11  ncq
