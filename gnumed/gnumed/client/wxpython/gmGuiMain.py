@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.270 2006-10-28 13:03:58 ncq Exp $
-__version__ = "$Revision: 1.270 $"
+# $Id: gmGuiMain.py,v 1.271 2006-10-31 12:39:54 ncq Exp $
+__version__ = "$Revision: 1.271 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -80,13 +80,11 @@ if encoding is not None:
 	gmPG2.set_default_client_encoding(encoding)
 if encoding is None:
 	encoding = locale.getlocale()[1]
-#gmPG.set_default_client_encoding({'wire': encoding, 'string': encoding})
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
 if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
-#	gmPG.set_default_client_timezone(timezone)
 
 ID_ABOUT = wx.NewId ()
 ID_CONTRIBUTORS = wx.NewId()
@@ -741,7 +739,6 @@ Search results:
 			workplace = gmPerson.gmCurrentProvider().get_workplace()
 		)
 		# handle our own stuff
-#		gmPG.ConnectionPool().StopListeners()
 		try:
 			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
 		except KeyError:
@@ -1126,7 +1123,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.270  2006-10-28 13:03:58  ncq
+# Revision 1.271  2006-10-31 12:39:54  ncq
+# - remove traces of gmPG
+#
+# Revision 1.270  2006/10/28 13:03:58  ncq
 # - check patient before calling wxCallAfter() in _pre_patient_selection
 # - strftime() doesn't take u''
 #
