@@ -10,11 +10,13 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.3 2006-10-25 07:46:44 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.4 2006-10-31 17:18:55 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
+
+import datetime as pyDT
 
 import mx.DateTime as mxDT
 
@@ -70,8 +72,12 @@ class cFuzzyTimestamp:
 			accuracy = acc_subseconds
 			modifier = ''
 
+		if isinstance(timestamp, pyDT.datetime):
+			timestamp = mxDT.DateTime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, timestamp.second)
+
 		if type(timestamp) != mxDT.DateTimeType:
-			raise TypeError, '%s.__init__(): <timestamp> must be of mx.DateTime.DateTime type' % self.__class__.__name__
+			raise TypeError, '%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__
+
 		self.timestamp = timestamp
 
 		if (accuracy < 1) or (accuracy > 7):
@@ -164,7 +170,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.3  2006-10-25 07:46:44  ncq
+# Revision 1.4  2006-10-31 17:18:55  ncq
+# - make cFuzzyTimestamp accept datetime.datetime instances, too
+#
+# Revision 1.3  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.2  2006/05/24 09:59:57  ncq
