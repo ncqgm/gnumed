@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.10 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmStaffWidgets.py,v 1.11 2006-10-31 13:30:27 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -116,27 +116,18 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if conn is None:
 			return False
 
-		# 1) inactivate staff entry
+		# 1) activate staff entry
 		staff = gmPerson.cStaff(aPK_obj=pk_staff)
 		staff['is_active'] = True
 		staff.save_payload(conn=conn)				# FIXME: error handling
 
 		# 2) enable database account login
-		queries = [('select gm_create_user(%s, %s)', [staff['db_user'], 'flying wombat'])]
-		success, data = gmPG.run_commit2 (
+		rowx, idx = gmPG2.run_rw_queries (
 			link_obj = conn,
-			queries = queries,
+			queries = [{'cmd': u'select gm_create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
 			end_tx = True
 		)
 		conn.close()
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Failed to activate GNUmed database user.'),
-				aTitle = _('Activating GNUmed staff member'),
-				aLogLevel = gmLog.lErr
-			)
-			return False
-
 		self.__init_ui_data()
 		return True
 	#--------------------------------------------------------
@@ -153,21 +144,12 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		staff.save_payload(conn=conn)				# FIXME: error handling
 
 		# 2) disable database account login
-		queries = [('select gm_disable_user(%s)', [staff['db_user']])]
-		success, data = gmPG.run_commit2 (
+		rows, idx = gmPG2.run_rw_queries (
 			link_obj = conn,
-			queries = queries,
+			queries = [{'cmd': u'select gm_disable_user(%s)', 'args': [staff['db_user']]}],
 			end_tx = True
 		)
 		conn.close()
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Failed to disable GNUmed database user.'),
-				aTitle = _('Disabling GNUmed staff member'),
-				aLogLevel = gmLog.lErr
-			)
-			return False
-
 		self.__init_ui_data()
 		return True
 	#--------------------------------------------------------
@@ -242,26 +224,21 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		pat = gmPerson.gmCurrentPatient()
 		queries = [
 			# database account
-			('select gm_create_user(%s, %s)', [self._TXT_account.GetValue(), self._TXT_password.GetValue()]),
+			{'cmd': u'select gm_create_user(%s, %s)', 'args': [self._TXT_account.GetValue(), self._TXT_password.GetValue()]},
 			# staff entry
-			('insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name=\'doctor\'), %s, %s)', [pat.getID(), self._TXT_account.GetValue(), self._TXT_short_alias.GetValue()])
+			{'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)", 'args': [pat.getID(), self._TXT_account.GetValue(), self._TXT_short_alias.GetValue()]}
 		]
-		success, data = gmPG.run_commit2 (
-			link_obj = conn,
-			queries = queries,
-			end_tx = True
-		)
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Failed to create new GNUmed database user.\n\nTherefore cannot add new staff member.'),
-				aTitle = _('Adding GNUmed staff member'),
-				aLogLevel = gmLog.lErr
-			)
-			return False
-		self.Close()
+		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		if self.IsModal():
+			self.EndModal()
+		else:
+			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.10  2006-10-25 07:46:44  ncq
+# Revision 1.11  2006-10-31 13:30:27  ncq
+# - use gmPG2
+#
+# Revision 1.10  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.9  2006/10/25 07:21:57  ncq
