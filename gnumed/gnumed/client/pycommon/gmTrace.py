@@ -9,8 +9,8 @@ Certain modules (such as pycommon) are not traced.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmTrace.py,v $
-# $Id: gmTrace.py,v 1.1 2005-10-09 08:06:00 ihaywood Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmTrace.py,v 1.2 2006-10-31 16:03:25 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,7 +18,7 @@ import sys, inspect
 
 oldvals = {}
 watches = []
-taboo = ['gmTrace.py', 'gmPG.py', 'gmDispatcher.py', 'gmSignals.py', 'gmLog.py', '/site-packages/', '/usr/lib/', 'gmGuiMain.py', 'gmRegetMixin.py', 'gmGuiHelpers.py']
+taboo = ['gmTrace.py', 'gmPG2.py', 'gmDispatcher.py', 'gmSignals.py', 'gmLog.py', '/site-packages/', '/usr/lib/', 'gmGuiMain.py', 'gmRegetMixin.py', 'gmGuiHelpers.py']
 
 
 def get_code (frame):
