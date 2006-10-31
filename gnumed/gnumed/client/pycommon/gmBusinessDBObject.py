@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.38 2006-10-23 13:22:07 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmBusinessDBObject.py,v 1.39 2006-10-31 15:59:47 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -369,7 +369,7 @@ class cBusinessDBObject:
 		- True: success
 		- False: an error occurred
 			* data is (error, message)
-			* for error meanings see gmPG.run_commit2()
+			* for error meanings see gmPG2.run_rw_queries()
 		"""
 		if not self._is_modified:
 			return (True, None)
@@ -516,7 +516,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.38  2006-10-23 13:22:07  ncq
+# Revision 1.39  2006-10-31 15:59:47  ncq
+# - we are dealing with gmPG2 now
+#
+# Revision 1.38  2006/10/23 13:22:07  ncq
 # - no conn pool no more
 #
 # Revision 1.37  2006/10/21 20:39:48  ncq
