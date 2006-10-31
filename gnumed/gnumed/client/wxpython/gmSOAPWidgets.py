@@ -1,9 +1,9 @@
-"""GnuMed SOAP related widgets.
+"""GNUmed SOAP related widgets.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.79 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmSOAPWidgets.py,v 1.80 2006-10-31 13:32:58 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -11,13 +11,9 @@ __license__ = "GPL"
 import types
 
 # 3rd party
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
-# GnuMed
+# GNUmed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
@@ -604,6 +600,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		progress_note = []
 		aoe = ''
 		rfe = ''
+		has_rfe = False
 		soap_lines_contents = self.GetValue()
 		for line_content in soap_lines_contents.values():
 			if line_content.text.strip() == '':
@@ -614,6 +611,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				gmSOAPimporter.soap_bundle_TEXT_KEY: line_content.text.rstrip()
 			})
 			if line_content.data.is_rfe:
+				has_rfe = True
 				rfe += line_content.text.rstrip()
 			if line_content.data.soap_cat == 'a':
 				aoe += line_content.text.rstrip()
@@ -643,33 +641,28 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
 				open_epis = emr.get_episodes(open_status = True)
 				open_epis = filter(lambda epi: epi['pk_health_issue'] == issue['pk'], open_epis)
-				if len(open_epis) > 1:
-						_log.Log(gmLog.lErr, 'there is more than one open episode for health issue [%s]' % str(issue))
-						for e in open_epis:
-							_log.Log(gmLog.lData, str(e))
 
-				if len(open_epis) == 1:
-						# need to ask user what to do
-						# - close old open episode and continue with new one ?
-						# - use old open episode as is ?
-						# - use old open episode but rename ?
-						#xxxxxxxxxxxxxxxxxxxx
-						
-						print "FIXME  len(open_epis) == 1"
-						d = wx.MessageDialog (
-							self,
-							_("There is an episode still open for this issue. Close the old episode (yes)\nRelink under old episode(no)\nThink about it (cancel)"),
-							caption = "WARNING !",
-							style = wx.YES| wx.NO | wx.CANCEL
-						)
-						answ = d.ShowModal()
-						if answ == wx.ID_YES:
-							open_epis[0]['episode_open'] = False
-							open_epis[0].save_payload()
-						elif answ == wx.ID_NO:
-							episode = open_epis[0]
-						else:
-							return False
+				# need to ask user what to do
+				# - close old open episode and continue with new one ?
+				# - use old open episode as is ?
+				# - use old open episode but rename ?
+				#xxxxxxxxxxxxxxxxxxxx
+
+				print "FIXME  len(open_epis) == 1"
+				d = wx.MessageDialog (
+					self,
+					_("There is an episode still open for this issue. Close the old episode (yes)\nRelink under old episode(no)\nThink about it (cancel)"),
+					caption = "WARNING !",
+					style = wx.YES| wx.NO | wx.CANCEL
+				)
+				answ = d.ShowModal()
+				if answ == wx.ID_YES:
+					open_epis[0]['episode_open'] = False
+					open_epis[0].save_payload()
+				elif answ == wx.ID_NO:
+					episode = open_epis[0]
+				else:
+					return False
 						
 				if episode is None:
 					# error, close all and hope things work out ...
@@ -1104,7 +1097,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.79  2006-10-25 07:46:44  ncq
+# Revision 1.80  2006-10-31 13:32:58  ncq
+# - cleanup
+# - require only rfe
+#
+# Revision 1.79  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.78  2006/10/25 07:25:38  ncq
