@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.30 2006-10-24 13:22:40 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmEMRStructWidgets.py,v 1.31 2006-10-31 17:21:16 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -151,7 +151,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
-			queries = ["""
+			queries = [u"""
 (select pk, description, 1
 	from clin.health_issue where
 		is_active is true and
@@ -256,11 +256,11 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-"""select pk_episode, description, 1 from clin.v_pat_episodes where
+u"""select pk_episode, description, 1 from clin.v_pat_episodes where
 		episode_open is true and
 		pk_patient=%%(pat)s and
 		description %(fragment_condition)s""",
-"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
+u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
 		pk_patient=%%(pat)s and
 		description %(fragment_condition)s
 """]
@@ -400,7 +400,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 		# condition
-		cmd = """
+		cmd = u"""
 			select distinct on (description) pk, description
 			from clin.health_issue where description %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2([cmd])
@@ -461,7 +461,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			weight = 2
 		)
 		# Progress note
-		cmd = """
+		cmd = u"""
 			select distinct on (narrative) pk, narrative
 			from clin.clin_narrative where narrative %(fragment_condition)s limit 30"""
 		mp = gmMatchProvider.cMatchProvider_SQL2([cmd])
@@ -1231,7 +1231,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.30  2006-10-24 13:22:40  ncq
+# Revision 1.31  2006-10-31 17:21:16  ncq
+# - unicode()ify queries
+#
+# Revision 1.30  2006/10/24 13:22:40  ncq
 # - gmPG -> gmPG2
 # - no need for service name in cMatchProvider_SQL2()
 #
