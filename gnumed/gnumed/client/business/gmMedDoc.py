@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.82 2006-10-31 16:16:28 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmMedDoc.py,v 1.83 2006-10-31 17:18:08 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -292,7 +292,7 @@ order by
 	reviewed_when desc
 """
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		return data
+		return rows
 	#--------------------------------------------------------
 	def get_containing_document(self):
 		return cMedDoc(aPK_obj = self._payload[self._idx['pk_doc']])
@@ -412,7 +412,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"SELECT text FROM blobs.doc_desc WHERE fk_doc=%s"
 		else:
 			cmd = u"SELECT substring(text from 1 for %s) FROM blobs.doc_desc WHERE fk_doc=%%s" % max_lng
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 		if len(rows) == 0:
 			return [_('no descriptions available')]
 		data = []
@@ -715,7 +715,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.82  2006-10-31 16:16:28  ncq
+# Revision 1.83  2006-10-31 17:18:08  ncq
+# - fix a few programming errors
+#
+# Revision 1.82  2006/10/31 16:16:28  ncq
 # - query strings as unicode
 #
 # Revision 1.81  2006/10/08 15:07:11  ncq
