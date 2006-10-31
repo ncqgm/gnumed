@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.16 2006-10-25 07:17:40 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmSOAPimporter.py,v 1.17 2006-10-31 11:27:15 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -185,10 +185,6 @@ if __name__ == '__main__':
 		sys.exit("Cannot run without config file.")
 
 	try:
-		# make sure we have a db connection
-		gmPG.set_default_client_encoding('latin1')
-		pool = gmPG.ConnectionPool()
-		
 		# obtain patient
 		patient = gmPerson.ask_for_patient()
 		if patient is None:
@@ -236,16 +232,14 @@ if __name__ == '__main__':
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
 		raise
-	try:
-		pool.StopListeners()
-	except:
-		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-		raise
 
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.16  2006-10-25 07:17:40  ncq
+# Revision 1.17  2006-10-31 11:27:15  ncq
+# - remove use of gmPG
+#
+# Revision 1.16  2006/10/25 07:17:40  ncq
 # - no more gmPG
 # - no more cClinItem
 #
