@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.6 2006-09-12 17:23:30 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMimeLib.py,v 1.7 2006-10-31 17:19:26 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -182,9 +182,9 @@ def call_viewer_on_file(aFile = None, block=None):
 		_log.Log(gmLog.lData, 'os.system(%s) returned [%s]' % (viewer_cmd, exit_code))
 		return True, ''
 
-	_log.Log(gmLog.lErr, "no viewer found via standard mailcap system")
+	_log.Log(gmLog.lWarn, "no viewer found via standard mailcap system")
 	if os.name == "posix":
-		_log.Log(gmLog.lErr, "You should add a viewer for this mime type to your mailcap file.")
+		_log.Log(gmLog.lWarn, "You should add a viewer for this mime type to your mailcap file.")
 		msg = _("Unable to display the file:\n\n"
 				" [%s]\n\n"
 				"Your system does not seem to have any\n"
@@ -201,7 +201,7 @@ def call_viewer_on_file(aFile = None, block=None):
 		# try to guess one
 		f_ext = guess_ext_by_mimetype(mime_type)
 		if f_ext is None:
-			_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
+			_log.Log(gmLog.lWarn, "Unable to guess file extension from mime type. Trying sheer luck.")
 			file_to_display = aFile
 			f_ext = ''
 		else:
@@ -234,7 +234,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.6  2006-09-12 17:23:30  ncq
+# Revision 1.7  2006-10-31 17:19:26  ncq
+# - some ERRORs are really WARNings
+#
+# Revision 1.6  2006/09/12 17:23:30  ncq
 # - add block argument to call_viewer_on_file()
 # - improve file access checks and raise exception on failure
 # - improve some error messages
