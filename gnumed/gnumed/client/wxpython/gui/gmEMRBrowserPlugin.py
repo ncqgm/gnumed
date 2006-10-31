@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -67,10 +67,6 @@ if __name__ == "__main__":
         sys.exit("Cannot run without config file.")
 
     try:
-        # make sure we have a db connection
-        gmPG.set_default_client_encoding('latin1')
-        pool = gmPG.ConnectionPool()
-        
         # obtain patient
         patient = gmPerson.ask_for_patient()
         if patient is None:
@@ -96,17 +92,15 @@ if __name__ == "__main__":
         _log.LogException("unhandled exception caught !", sys.exc_info(), 1)
         # but re-raise them
         raise
-    try:
-        pool.StopListeners()
-    except:
-        _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-        raise
 
     _log.Log (gmLog.lInfo, "closing emr browser plugin...")
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.12  2006-10-25 07:23:30  ncq
+# Revision 1.13  2006-10-31 16:06:19  ncq
+# - no more gmPG
+#
+# Revision 1.12  2006/10/25 07:23:30  ncq
 # - no gmPG no more
 #
 # Revision 1.11  2006/05/28 16:18:52  ncq
