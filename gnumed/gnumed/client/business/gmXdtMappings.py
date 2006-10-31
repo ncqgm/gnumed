@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.30 2006-10-30 16:41:12 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmXdtMappings.py,v 1.31 2006-10-31 12:01:17 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -584,8 +584,22 @@ xdt_id_map = {
 	'8000':'Satzidentifikation >>===============',
 	# Satzlänge
 	'8100': 'Satzlänge',
+
 	# LDT
+	'8301': 'UNBEKANNT Datum',       ## nicht in GDT 2.1 Specs (KS)
+	'8302': 'UNBEKANNT Datum',       ## nicht in GDT 2.1 Specs (KS)
+	'8303': 'UNBEKANNT Uhrzeit',     ## nicht in GDT 2.1 Specs (KS)
+
 	'8310': 'Anforderungsnummer', 
+
+	'8311': 'UNBEKANNT Integer lang',## nicht in GDT 2.1 Specs (KS)
+	'8312': 'UNBEKANNT Integer kurz',## nicht in GDT 2.1 Specs (KS)
+
+	'8320': 'Labor Bezeichnung',     ## nicht in GDT 2.1 Specs (KS)
+	'8321': 'Labor Strasse',         ## nicht in GDT 2.1 Specs (KS)
+	'8322': 'Labor PLZ',             ## nicht in GDT 2.1 Specs (KS)
+	'8323': 'Labor Ort',             ## nicht in GDT 2.1 Specs (KS)
+
 	# Befundstatus -- nur bei header 6200/8202 --
 	'8401': 'Befundstatus',
 	#Geräte- bzw. Verfahrensspezifisches Kennfeld -- nur bei header 6200 --
@@ -595,6 +609,8 @@ xdt_id_map = {
 	# LDT
 	'8404': 'Kosten in Doppelpfennigen',
 	'8406': 'Kosten in Cent',
+	'8407': 'UNBEKANNT Flag 1|2',    ## nicht in GDT 2.1 Specs (KS)
+
 	#Test-Ident -- nur bei header 6200 --
 	'8410':'Test-Ident',
 	#Testbezeichnung -- nur bei header 6200 --
@@ -607,6 +623,7 @@ xdt_id_map = {
 	'8421':'Einheit',
 	#Grenzwert Indikator -- nur bei header 6200 --
 	'8422':'Grenzwert Indikator',
+	'8428':'Probematerial-Ident',
 	#Probematerial-Nummer -- nur bei header 6200 --
 	'8429':'Probenmaterial-Nummer',
 	#Probenmaterial-Bezeichnung -- nur bei header 6200 --
@@ -635,6 +652,10 @@ xdt_id_map = {
 	'8447':'Resistenz-Interpretation',
 	#Normalwert-Text -- nur bei header 6200 --
 	'8460':'Normalwert-Text',
+
+	'8461':'Normalwert untere Grenze',
+	'8462':'Normalwert obere Grenze',
+
 	#Anmerkung -- nur bei header 6200 --
 	'8470':'Anmerkung',
 	#Ergebnis-Text -- nur bei header 6200 --
@@ -1367,7 +1388,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.30  2006-10-30 16:41:12  ncq
+# Revision 1.31  2006-10-31 12:01:17  ncq
+# - some xDT mappings provided by Kai Schmidt
+#
+# Revision 1.30  2006/10/30 16:41:12  ncq
 # - add _charset_fields
 #
 # Revision 1.29  2006/10/08 10:48:28  ncq
