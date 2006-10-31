@@ -18,8 +18,8 @@ Should not gmSchemaRevisionChecker inherit from cBorg ? See gmCurrentPatient.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSchemaRevisionCheck.py,v $
-# $Id: gmSchemaRevisionCheck.py,v 1.4 2006-10-24 13:20:34 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSchemaRevisionCheck.py,v 1.5 2006-10-31 16:00:05 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Hilmar Berger <ju0815nk@gmx.net>"
 
 # access our modules
@@ -100,11 +100,8 @@ class gmSchemaRevisionChecker:
 		Sets the class-wide dictionary '_revisions'.
 		"""
 		# retrieve revisions
-		cmd = "select filename, version from gm_schema_revision"
-		result = gmPG.run_ro_query('default', cmd, None)
-		if result is None:
-			_log.Log(gmLog.lWarn, 'unable to fetch schema revision information')
-			return None
+		cmd = u"select filename, version from gm_schema_revision"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 
 		# extract schema and revision from stored strings
 		schemaPattern = re.compile("\$RCSfile: (\S+).sql")
@@ -139,7 +136,10 @@ if __name__ == "__main__":
 	print a.checkSchemaRevision('gmconfiguration',float(x)+0.1,exact = 1), " should be 0"
 #============================================================
 # $Log: gmSchemaRevisionCheck.py,v $
-# Revision 1.4  2006-10-24 13:20:34  ncq
+# Revision 1.5  2006-10-31 16:00:05  ncq
+# - use gmPG2
+#
+# Revision 1.4  2006/10/24 13:20:34  ncq
 # - gmPG -> gmPG2
 #
 # Revision 1.3  2004/03/20 19:46:38  ncq
