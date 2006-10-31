@@ -6,13 +6,13 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.84 2006-10-28 14:52:07 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmPerson.py,v 1.85 2006-10-31 11:26:56 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re, string, types
+import sys, os.path, time, re, string, types, datetime
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -1505,24 +1505,30 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 def dob2medical_age(dob):
 	"""format patient age in a hopefully meaningful way"""
 
-	age = mxDT.Age(mxDT.now(), dob)
+	age = datetime.datetime.now(tz = dob.tzinfo) - dob
 
-	if age.years > 0:
-		return "%sy%sm" % (age.years, age.months)
-	weeks = age.days / 7
-	if weeks > 4:
-		return "%sm%sw" % (age.months, age.weeks)
-	if weeks > 1:
+	if age.days > 364:
+		years, months = divmod(age.days, 365)
+		return "%sy%sm" % (int(years), int(months))
+	if age.days > 30:
+		months, days = divmod(age.days, 30)
+		weeks = days // 7
+		return "%sm%sw" % (int(months), int(weeks))
+	if age.days > 7:
 		return "%sd" % age.days
 	if age.days > 1:
-		return "%sd (%sh)" % (age.days, age.hours)
-	if age.hours > 3:
-		return "%sh" % age.hours
-	if age.hours > 0:
-		return "%sh%sm" % (age.hours, age.minutes)
-	if age.minutes > 5:
-		return "%sm" % (age.minutes)
-	return "%sm%ss" % (age.minutes, age.seconds)
+		hours, seconds = divmod(age.seconds, 3600)
+		return "%sd (%sh)" % (age.days, int(hours))
+	if age.seconds > (3*3600):
+		return "%sh" % int(age.seconds // 3600)
+	if age.seconds > 3600:
+		hours, seconds = divmod(age.seconds, 3600)
+		minutes = seconds // 60
+		return "%sh%sm" % (int(hours), int(minutes))
+	if age.seconds > (5*60):
+		return "%sm" % (int(age.seconds // 60))
+	minutes, seconds = divmod(age.seconds, 60)
+	return "%sm%ss" % (int(minutes), int(seconds))
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
@@ -1845,9 +1851,11 @@ if __name__ == '__main__':
 #		docs = myPatient.get_document_folder()
 #		print "docs     ", docs
 #		emr = myPatient.get_emr()
-#		print "EMR      ", emr		
+#		print "EMR      ", emr
 	#--------------------------------------------------------
-
+	def test_dob2medical_age():
+		pass
+	#--------------------------------------------------------
 #	test_patient_search_queries()
 	test_ask_for_patient()
 #	test_dto_person()
@@ -1868,7 +1876,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.84  2006-10-28 14:52:07  ncq
+# Revision 1.85  2006-10-31 11:26:56  ncq
+# - dob2medical_age(): use datetime.datetime
+#
+# Revision 1.84  2006/10/28 14:52:07  ncq
 # - add get_last_encounter()
 #
 # Revision 1.83  2006/10/24 13:16:38  ncq
