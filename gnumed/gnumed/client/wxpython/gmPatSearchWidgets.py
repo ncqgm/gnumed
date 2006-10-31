@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.49 2006-10-30 16:46:52 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmPatSearchWidgets.py,v 1.50 2006-10-31 12:43:09 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -306,195 +306,6 @@ def load_patient_from_external_sources(parent=None):
 		return False
 
 	return True
-
-#============================================================
-# country-specific functions
-#------------------------------------------------------------
-# FIXME: this belongs elsewhere !!!!
-
-def pat_expand_default(curs = None, ID_list = None):
-	if ID_list is None:
-		return ([], [])
-
-	if curs is None:
-		return ([], [])
-
-	pat_data = []
-
-	# FIXME: add more data here
-	# - last visit
-	# - appointment
-	# - current waiting time
-	# - presence
-	# - KVK indicator
-	# - been here this Quartal
-	# ...
-	# Note: this query must ALWAYS return the ID in field 0
-	cmd = """
-		SELECT pk_identity, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
-		FROM v_basic_person
-		WHERE pk_identity in (%s)
-		""" % ','.join(map(lambda x: str(x), ID_list))
-	pat_data = gmPG.run_ro_query(curs, cmd)
-	if pat_data is None:
-		_log.Log(gmLog.lErr, 'cannot fetch extended patient data')
-
-	return pat_data, col_order
-#------------------------------------------------------------
-patient_expander = {
-	'default': pat_expand_default,
-	'de': pat_expand_default
-}
-#============================================================
-class cPatientPickList(wx.Dialog):
-	def __init__(
-		self,
-		parent,
-		id = -1,
-		title = None,
-		pos = (-1, -1),
-		size = (600, 400),
-	):
-
-		if title is None:
-			title = _('please select a patient')
-
-		# this works (as suggested by Robin Dunn) but is quite ugly IMO
-		prnt = wx.GetTopLevelParent(parent)
-		wx.Dialog.__init__(
-			self,
-			prnt,
-			id,
-			title,
-			pos,
-			size,
-			style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.STAY_ON_TOP
-		)
-
-		self.__register_events()
-
-		self.__do_layout()
-		self.__items = []
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def SetItems(self, items = None, col_order = None):
-		if items is None:
-			items = []
-		if col_order is None:
-			col_order = []
-		# TODO: make selectable by 0-9
-		self.__items = items
-		# set col_order
-		if not col_order:
-			col_order = [
-				{'label': _('Surname'), 'field name': 'lastnames'},
-				{'label': _('First name'), 'field name': 'firstnames'},
-				{'label': _('nick'), 'field name': 'preferred'},
-				{'label': _('DOB'), 'field name': 'dob'}
-			]
-
-		# 1) set up column headers
-		self.__listctrl.ClearAll()
-		for order_idx in range(len(col_order)):
-			self.__listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
-
-		# 2) add items
-		for row_idx in range(len(self.__items)):
-			row = self.__items[row_idx]
-			# first column
-			self.__listctrl.InsertStringItem(row_idx, str(row[col_order[0]['field name']]))
-			# subsequent columns
-			for order_idx in range(1, len(col_order)):
-				self.__listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['field name']]))
-
-		# adjust column width
-		for order_idx in range(len(col_order)):
-			self.__listctrl.SetColumnWidth(col=order_idx, width=wx.LIST_AUTOSIZE)
-
-		# FIXME: and make ourselves just big enough
-		self.sizer_main.Fit(self)
-		self.Fit()
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __register_events(self):
-		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
-		wx.EVT_BUTTON(self, wx.ID_CANCEL, self._on_cancel)
-	#--------------------------------------------------------
-	def __do_layout(self):
-		self.__listctrl = wx.ListCtrl(
-			parent = self,
-			id = ID_PatPickList,
-			size = (600,200),
-			style = wx.LC_SINGLE_SEL | wx.VSCROLL | wx.SUNKEN_BORDER| wx.LC_REPORT | wx.LC_VRULES| wx.LC_HRULES
-		)
-		#-----------------------------------------------------------------------------------------------------------
-		# make horizontal sizer and put <Add><Ok><Cancel> into it
-		#-----------------------------------------------------------------------------------------------------------
-		sizer_buttons = wx.BoxSizer(wx.HORIZONTAL)				#bottom sizer to hold buttons
-		# Ok Button = load patient
-		btnOK = wx.Button (
-			self,
-			wx.ID_OK,
-			_("&Activate"),
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			0
-		)
-		# allow add new patient
-		btnAddNew = wx.Button (
-			self,
-			ID_BTN_AddNew,
-			_("Add as &New"),
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			0
-		)
-		# cancel pick list
-		btnCancel = wx.Button (
-			self,
-			wx.ID_CANCEL,
-			_("&Cancel"),
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			0
-		)
-		spacer = wx.BoxSizer(wx.HORIZONTAL)
-		sizer_buttons.Add(spacer, 20, 1, wx.EXPAND)
-		sizer_buttons.Add(btnAddNew, 0, wx.EXPAND | wx.TOP | wx.BOTTOM, 5)
-		sizer_buttons.Add(btnOK, 0, wx.EXPAND | wx.ALL , 5)
-		sizer_buttons.Add(btnCancel, 0, wx.EXPAND | wx.ALL, 5)
-		#---------------------------------------------------------------------------------------
-		# vertical box sizer will stack vertically
-		#  - list control
-		#  - row of buttons
-		#----------------------------------------------------------------------------------------
-		self.sizer_main = wx.BoxSizer(wx.VERTICAL)
-		self.sizer_main.Add(self.__listctrl, 1, wx.EXPAND | wx.ALL, 10)
-		self.sizer_main.AddSizer(sizer_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
-		#-----------------------------------
-		# now set the main sizer
-		#-----------------------------------
-		self.SetAutoLayout(True)
-		self.SetSizer(self.sizer_main)
-		self.sizer_main.Fit(self)
-		self.sizer_main.SetSizeHints(self)
-		self.__listctrl.SetFocus()					# won't work on Windoze without this
-	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_item_activated(self, evt):
-		# item dict must always contain ID to be used for selection later on at index 0
-		self.selected_item = self.__items[evt.m_itemIndex]
-		try:
-			self.EndModal(1)
-		except KeyError:
-			_log.LogException('item [%s] has faulty structure' % item, sys.exc_info())
-			self.EndModal(-1)
-	#--------------------------------------------------------
-	def _on_cancel(self, evt):
-		self.EndModal(-1)
 #============================================================
 class cPatientSelector(wx.TextCtrl):
 	"""Widget for smart search for patients."""
@@ -535,18 +346,6 @@ class cPatientSelector(wx.TextCtrl):
 
 		# FIXME: set query generator
 		self.__pat_searcher = gmPerson.cPatientSearcher_SQL()
-
-		# - retriever
-		try:
-			self.__pat_expander = patient_expander[gmI18N.system_locale_level['full']]
-		except KeyError:
-			try:
-				self.__pat_expander = patient_expander[gmI18N.system_locale_level['country']]
-			except KeyError:
-				try:
-					self.__pat_expander = patient_expander[gmI18N.system_locale_level['language']]
-				except KeyError:
-					self.__pat_expander = patient_expander['default']
 
 		self.__prev_search_term = None
 		self.__prev_idents = []
@@ -829,7 +628,6 @@ if __name__ == "__main__":
 	gmI18N.install_domain()
 
 	app = wx.PyWidgetTester(size = (200, 40))
-#	app.SetWidget(cPatientSelector, -1)
 	app.SetWidget(cSelectPersonFromListDlg, -1)
 	app.MainLoop()
 
@@ -946,7 +744,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.49  2006-10-30 16:46:52  ncq
+# Revision 1.50  2006-10-31 12:43:09  ncq
+# - out with the crap
+# - no more patient expanders
+#
+# Revision 1.49  2006/10/30 16:46:52  ncq
 # - missing encoding in xDT source defs does not *have* to be
 #   an error as the file itself may contain the encoding itself
 #
