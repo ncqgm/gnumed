@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.50 2006-10-31 12:43:09 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPatSearchWidgets.py,v 1.51 2006-11-01 12:54:40 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -72,7 +72,11 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(ident['l10n_gender'], '?'))
 			pat = gmPerson.cPatient(identity=ident)
 			enc = pat.get_last_encounter()
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = u'%s (%s)' % (enc['started'].strftime('%x'), enc['l10n_type']))
+			if enc is None:
+				label = u''
+			else:
+				label = u'%s (%s)' % (enc['started'].strftime('%x'), enc['l10n_type'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
 			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = ident['match_type'])
 			except: pass
 
@@ -744,7 +748,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.50  2006-10-31 12:43:09  ncq
+# Revision 1.51  2006-11-01 12:54:40  ncq
+# - there may not be a previous encounter so don't try to
+#   format it's start date if so
+#
+# Revision 1.50  2006/10/31 12:43:09  ncq
 # - out with the crap
 # - no more patient expanders
 #
