@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.85 2006-10-31 11:26:56 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmPerson.py,v 1.86 2006-11-01 12:54:03 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -663,7 +663,10 @@ class cPatient(cPerson):
 	def get_last_encounter(self):
 		cmd = u'select * from clin.v_most_recent_encounters where pk_patient=%s'
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._ID]}])
-		return rows[0]
+		if len(rows) > 0:
+			return rows[0]
+		else:
+			return None
 	#--------------------------------------------------------
 	def get_document_folder(self):
 		try:
@@ -1099,16 +1102,17 @@ class cPatientSearcher_SQL:
 			tmp = raw.split(',')[1].strip()
 			tmp = self._normalize_soundalikes(tmp)
 			cmd = u"""
-SELECT DISTINCT ON (pk_identity) *, %s as match_type from ((
-	select vbp.*
-	FROM dem.names, dem.v_basic_person vbp
-	WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
-) union all (
-	select vbp.*
-	FROM dem.names, dem.v_basic_person vbp
-	WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
-)) as super_list
-order by pk_identity, lastnames, firstnames, dob"""
+SELECT DISTINCT ON (pk_identity) * from (
+	select *, %s as match_type from ((
+		select vbp.*
+		FROM dem.names, dem.v_basic_person vbp
+		WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
+	) union all (
+		select vbp.*
+		FROM dem.names, dem.v_basic_person vbp
+		WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
+	)) as super_list order by lastnames, firstnames, dob
+) as sorted_list"""
 			queries.append ({
 				'cmd': cmd,
 				'args': [_('first name'), '^' + self._make_sane_caps(tmp), '^' + tmp]
@@ -1211,20 +1215,22 @@ order by pk_identity, lastnames, firstnames, dob"""
 			tmp = normalized.strip()
 			args = []
 			cmd = u"""
-SELECT DISTINCT ON (pk_identity) * from ((
-	-- last name
-	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames ~ %s
-) union all (
-	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* %s
-) union all (
-	-- first name
-	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s
-) union all (
-	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s
-) union all (
-	-- anywhere in name
-	select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames || coalesce(n.preferred, '') ~* %s
-)) as super_list order by pk_identity, lastnames, firstnames, dob"""
+SELECT DISTINCT ON (pk_identity) * from (
+	select * from ((
+		-- last name
+		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames ~ %s
+	) union all (
+		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* %s
+	) union all (
+		-- first name
+		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s
+	) union all (
+		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s
+	) union all (
+		-- anywhere in name
+		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames || coalesce(n.preferred, '') ~* %s
+	)) as super_list order by lastnames, firstnames, dob
+) as sorted_list"""
 			args.append(_('last name'))
 			args.append('^' + self._make_sane_caps(tmp))
 			args.append(_('last name'))
@@ -1470,17 +1476,20 @@ SELECT DISTINCT ON (pk_identity) * from ((
 			args.append(arg)
 
 		query = u"""
-select distinct on (pk_identity) vbp.*, %%s::text as match_type
-from
-	dem.v_basic_person vbp,
-	dem.names n
-where
-	vbp.pk_identity = n.id_identity
-	%s
-order by
-	lastnames,
-	firstnames,
-	dob""" % where_clause
+select distinct on (pk_identity) * from (
+	select
+		vbp.*, %%s::text as match_type
+	from
+		dem.v_basic_person vbp,
+		dem.names n
+	where
+		vbp.pk_identity = n.id_identity
+		%s
+	order by
+		lastnames,
+		firstnames,
+		dob
+) as ordered_list""" % where_clause
 
 		return ({'cmd': query, 'args': args})
 #============================================================
@@ -1876,7 +1885,12 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.85  2006-10-31 11:26:56  ncq
+# Revision 1.86  2006-11-01 12:54:03  ncq
+# - return None from get_last_encounter() if there is none, that's the whole point !
+# - fix patient search queries: select distinct on level above order by
+#   so pk_identity does not have to be first order by parameter
+#
+# Revision 1.85  2006/10/31 11:26:56  ncq
 # - dob2medical_age(): use datetime.datetime
 #
 # Revision 1.84  2006/10/28 14:52:07  ncq
