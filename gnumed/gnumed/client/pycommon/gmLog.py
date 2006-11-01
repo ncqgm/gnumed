@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -414,7 +414,7 @@ class cLogTargetFile(cLogTarget):
 		msg = []
 		for tmp in [aTimeStamp, aPrefix, aLocation, aMsg]:
 			if type(tmp) == type(u''):
-				msg.append(tmp.encode('latin1'))
+				msg.append(tmp.encode('latin1'))			# FIXME: should be locale encoding, not latin1
 			if type(tmp) == type(''):
 				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
@@ -437,12 +437,12 @@ class cLogTargetConsole(cLogTarget):
 			print aPrefix + aLocation + aMsg
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-#		msg = []
-#		for tmp in [aPrefix, aLocation, aMsg]:
-#			if type(tmp) == type(u''):
-#				msg.append(tmp.encode('ascii'))
-#			if type(tmp) == type(''):
-#				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('ascii'))
+		msg = []
+		for tmp in [aPrefix, aLocation, aMsg]:
+			if type(tmp) == type(u''):
+				msg.append(tmp.encode('latin1'))
+			if type(tmp) == type(''):
+				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
 			sys.stderr.write(aPrefix + aLocation + aMsg)
 		except:
@@ -835,7 +835,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.19  2006-10-24 13:17:30  ncq
+# Revision 1.20  2006-11-01 12:21:39  ncq
+# - apply unicode handling to console logger, too
+#
+# Revision 1.19  2006/10/24 13:17:30  ncq
 # - much improved string handling, should catch most Unicode decode output errors now
 #
 # Revision 1.18  2006/09/01 14:42:16  ncq
