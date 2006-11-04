@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -431,8 +431,14 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
+		msg = []
+		for tmp in [aPrefix, aLocation, aMsg]:
+			if type(tmp) == type(u''):
+				msg.append(tmp.encode('latin1'))
+			if type(tmp) == type(''):
+				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
-			sys.stdout.write(aPrefix + aLocation + aMsg)
+			sys.stdout.write(' '.join(msg))
 		except:
 			print aPrefix + aLocation + aMsg
 	#---------------------------
@@ -835,7 +841,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.22  2006-11-04 19:59:35  ncq
+# Revision 1.23  2006-11-04 20:04:47  ncq
+# - be even more careful about console output
+#
+# Revision 1.22  2006/11/04 19:59:35  ncq
 # - remove superfluous " "
 #
 # Revision 1.21  2006/11/01 23:20:09  ncq
