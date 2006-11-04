@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -431,7 +431,7 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		try: 
+		try:
 			sys.stdout.write(aPrefix + aLocation + aMsg)
 		except:
 			print aPrefix + aLocation + aMsg
@@ -835,7 +835,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.21  2006-11-01 23:20:09  ncq
+# Revision 1.22  2006-11-04 19:59:35  ncq
+# - remove superfluous " "
+#
+# Revision 1.21  2006/11/01 23:20:09  ncq
 # - be even *more* careful about unicode-to-console
 #
 # Revision 1.20  2006/11/01 12:21:39  ncq
