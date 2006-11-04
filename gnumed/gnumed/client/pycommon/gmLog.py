@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -411,14 +411,14 @@ class cLogTargetFile(cLogTarget):
 		self.__handle.close()
 	#---------------------------
 	def dump2stderr(self, aTimeStamp, aPrefix, aLocation, aMsg):
-		msg = []
-		for tmp in [aTimeStamp, aPrefix, aLocation, aMsg]:
-			if type(tmp) == type(u''):
-				msg.append(tmp.encode('latin1'))			# FIXME: should be locale encoding, not latin1
-			if type(tmp) == type(''):
-				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
-			self.__handle.write(' '.join(msg))
+			msg = []
+			for tmp in [aTimeStamp, aPrefix, aLocation, aMsg]:
+				if type(tmp) == type(u''):
+					msg.append(tmp.encode('latin1'))			# FIXME: should be locale encoding, not latin1
+				if type(tmp) == type(''):
+					msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
+				self.__handle.write(' '.join(msg))
 		except:
 			print "*** cannot write to log file [%s] ***" % self.ID
 #---------------------------------------------------------------
@@ -431,25 +431,25 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		msg = []
-		for tmp in [aPrefix, aLocation, aMsg]:
-			if type(tmp) == type(u''):
-				msg.append(tmp.encode('latin1'))
-			if type(tmp) == type(''):
-				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
+			msg = []
+			for tmp in [aPrefix, aLocation, aMsg]:
+				if type(tmp) == type(u''):
+					msg.append(tmp.encode('latin1'))
+				if type(tmp) == type(''):
+					msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 			sys.stdout.write(' '.join(msg))
 		except:
 			print aPrefix + aLocation + aMsg
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		msg = []
-		for tmp in [aPrefix, aLocation, aMsg]:
-			if type(tmp) == type(u''):
-				msg.append(tmp.encode('latin1'))
-			if type(tmp) == type(''):
-				msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 		try:
+			msg = []
+			for tmp in [aPrefix, aLocation, aMsg]:
+				if type(tmp) == type(u''):
+					msg.append(tmp.encode('latin1'))
+				if type(tmp) == type(''):
+					msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
 			sys.stderr.write(' '.join(msg))
 		except:
 			print aPrefix + aLocation + aMsg
@@ -841,7 +841,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.23  2006-11-04 20:04:47  ncq
+# Revision 1.24  2006-11-04 22:25:10  ncq
+# - try to catch more encoding errors in console handler
+#
+# Revision 1.23  2006/11/04 20:04:47  ncq
 # - be even more careful about console output
 #
 # Revision 1.22  2006/11/04 19:59:35  ncq
