@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.39 2006-10-24 13:23:31 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmGuiHelpers.py,v 1.40 2006-11-05 14:18:57 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -133,7 +133,7 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 	if cancel_button:
 		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	else:
-		wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
+		style = wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
 
 	dlg = wx.MessageDialog (
 		None,
@@ -357,7 +357,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.39  2006-10-24 13:23:31  ncq
+# Revision 1.40  2006-11-05 14:18:57  ncq
+# - missing "style ="
+#
+# Revision 1.39  2006/10/24 13:23:31  ncq
 # - use gmPG2.get_default_login() in get_dbowner_connection()
 #
 # Revision 1.38  2006/10/08 11:03:09  ncq
