@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.86 2006-11-01 12:54:03 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmPerson.py,v 1.87 2006-11-05 16:01:24 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -234,10 +234,15 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""Return descriptive string for patient."""
 		title = self._payload[self._idx['title']]
 		if title is None:
-			title = map_gender2salutation(self._payload[self._idx['gender']])
+			title = map_gender2salutation(self._payload[self._idx['gender']]) + u' '
 		else:
-			title = title[:4] + '.'
-		return "%s %s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
+			title = title[:4] + u'.'
+		nick = self._payload[self._idx['preferred']]
+		if nick is None:
+			nick = u''
+		else:
+			nick = u' (%s)' % nick
+		return u'%s%s %s%s' % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']], nick)
 	#-------------------------------------------------------- 	
 	def add_name(self, firstnames, lastnames, active=True, nickname=None):
 		"""
@@ -1885,7 +1890,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.86  2006-11-01 12:54:03  ncq
+# Revision 1.87  2006-11-05 16:01:24  ncq
+# - include nick in identity description string, user wants to
+#   abuse it for other means
+#
+# Revision 1.86  2006/11/01 12:54:03  ncq
 # - return None from get_last_encounter() if there is none, that's the whole point !
 # - fix patient search queries: select distinct on level above order by
 #   so pk_identity does not have to be first order by parameter
