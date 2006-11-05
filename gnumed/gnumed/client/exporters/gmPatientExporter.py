@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.86 2006-11-05 17:02:54 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmPatientExporter.py,v 1.87 2006-11-05 17:54:17 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -20,7 +20,7 @@ import os.path, sys, traceback, string, types, time
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
+from Gnumed.pycommon import gmLog, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull, gmPG2
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
 
 _log = gmLog.gmDefLog
@@ -696,10 +696,9 @@ class cEmrExport:
         return txt
     #--------------------------------------------------------
     def get_episode_summary (self, episode, left_margin = 0):
-        """Dumps episode specific data
-        """
+        """Dumps episode specific data"""
         emr = self.__patient.get_emr()
-        encs = emr.get_encounters(episodes=[episode['pk_episode']], issues=[episode['pk_health_issue']])
+        encs = emr.get_encounters(episodes = [episode['pk_episode']])
         if encs is None:
             txt = left_margin * ' ' + _('Error retrieving encounters for episode\n%s') % str(episode)
             return txt
@@ -1008,22 +1007,14 @@ class cEMRJournalExporter:
 		target.write('| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
 		target.write('|-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
 		# get data
-		cmd = """
+		cmd = u"""
 select
 	to_char(vemrj.clin_when, 'YYYY-MM-DD') as date,
 	vemrj.*,
 	(select rank from clin.soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
 from clin.v_emr_journal vemrj
 where pk_patient=%s order by date, pk_episode, scr"""
-		rows, idx = gmPG.run_ro_query (
-			'clinical',
-			cmd,
-			True,
-			self.__pat['ID']
-		)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot export EMR as journal')
-			return False
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__pat['ID']]}], get_col_idx = True)
 		# write data
 		prev_date = ''
 		prev_doc = ''
@@ -1114,19 +1105,9 @@ class cMedistarSOAPExporter:
 		if encounter is None:
 			encounter = emr.get_active_encounter()
 		# get data
-		cmd = "select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
+		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in 'soap':
-			rows = gmPG.run_ro_query (
-				'clinical',
-				cmd,
-				False,
-				self.__pat['ID'],
-				encounter['pk_encounter'],
-				soap_cat
-			)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot export SOAP from EMR')
-				return False
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__pat['ID'], encounter['pk_encounter'], soap_cat]}])
 			target.write('*MD%s*\n' % self.__tx_soap[soap_cat])
 			for row in rows:
 				target.write('%s\n' % wrap(row[0], 64))
@@ -1252,9 +1233,6 @@ if __name__ == "__main__":
     if gmCLI.has_arg('--help'):
         usage()
 
-    gmPG.set_default_client_encoding({'wire': 'utf8', 'string': 'utf8'})
-    # make sure we have a connection
-    pool = gmPG.ConnectionPool()
     # run main loop
     try:
         run()
@@ -1268,7 +1246,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.86  2006-11-05 17:02:54  ncq
+# Revision 1.87  2006-11-05 17:54:17  ncq
+# - don't use issue pk in get_encounters()
+# - gmPG -> gmPG2
+#
+# Revision 1.86  2006/11/05 17:02:54  ncq
 # - comment out lab results access, not in use yet
 #
 # Revision 1.85  2006/10/25 07:46:44  ncq
