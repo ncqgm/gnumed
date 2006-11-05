@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.212 2006-10-28 15:01:21 ncq Exp $
-__version__ = "$Revision: 1.212 $"
+# $Id: gmClinicalRecord.py,v 1.213 2006-11-05 15:59:16 ncq Exp $
+__version__ = "$Revision: 1.213 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -33,17 +33,13 @@ import sys, string, time, copy
 # 3rd party
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N, gmCfg
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
 _me = None
-
-# in AU the soft timeout better be 4 hours as of 2004
-_encounter_soft_ttl = mxDT.TimeDelta(hours=4)
-_encounter_hard_ttl = mxDT.TimeDelta(hours=6)
 
 _func_ask_user = None
 #============================================================
@@ -202,13 +198,9 @@ select fk_encounter from
 				'idx': idx,
 				'data': row
 			}
-			try:
-				narr = gmClinNarrative.cNarrative(row=narr_row)
-				self.__db_cache['narrative'].append(narr)
-			except gmExceptions.ConstructorError:
-				_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
-				del self.__db_cache['narrative']
-				return False
+			narr = gmClinNarrative.cNarrative(row=narr_row)
+			self.__db_cache['narrative'].append(narr)
+
 		return True
 	#--------------------------------------------------------
 	def get_clin_narrative(self, since=None, until=None, encounters=None,
@@ -234,8 +226,7 @@ select fk_encounter from
 			cmd = "select * from clin.v_pat_narrative where pk_patient=%s order by date"
 			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}])
 			self.__db_cache['narrative'] = []
-			if not self._build_narrative_cache_from_rows(rows, idx):
-				return None
+			self._build_narrative_cache_from_rows(rows, idx)
 
 		# ok, let's constrain our list
 		filtered_narrative = []
@@ -615,7 +606,7 @@ where
 		except KeyError:
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
 			cmd = u"select * from clin.v_pat_allergies where pk_patient=%s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			# Instantiate allergy items and keep cache
 			self.__db_cache['allergies'] = []
 			for row in rows:
@@ -738,9 +729,8 @@ where
 		return episode
 	#--------------------------------------------------------
 	def get_most_recent_episode(issue=None):
-		episode = None
 		# try to find the episode with the most recently modified clinical item
-		cmd = """
+		cmd = u"""
 select pk
 from clin.episode
 where pk=(
@@ -752,26 +742,18 @@ where pk=(
 		modified_when=(
 			select max(vpi.modified_when)
 			from clin.v_pat_items vpi
-			where vpi.pk_patient=%s
+			where vpi.pk_patient=%(pat)s
 		)
 	-- guard against several episodes created at the same moment of time
 	limit 1
 	)"""
-		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, self.pk_patient)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'error getting most recent episode from clin.v_pat_items for patient [%s]' % self.pk_patient)
-		else:
-			if len(rows) != 0:
-				try:
-					episode = gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
-				except gmExceptions.ConstructorError, msg:
-					_log.LogException(str(msg), sys.exc_info(), verbose=0)
-					episode = None
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		if len(rows) != 0:
+			return gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
 
 		# no clinical items recorded, so try to find
 		# the youngest episode for this patient
-		if episode is None:
-			cmd = """
+		cmd = u"""
 select vpe0.pk_episode
 from
 	clin.v_pat_episodes vpe0
@@ -783,17 +765,11 @@ where
 		from clin.v_pat_episodes vpe1
 		where vpe1.pk_episode=vpe0.pk_episode
 	)"""
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'error getting most recently touched episode on patient [%s]' % self.pk_patient)
-			else:
-				if len(rows) != 0:
-					try:
-						episode = gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
-					except gmExceptions.ConstructorError, msg:
-						_log.Log(str(msg), sys.exc_info(), verbose=0)
-						episode = None
-		return episode
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		if len(rows) != 0:
+			return gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
+
+		return None
 	#--------------------------------------------------------
 	def episode2problem(self, episode=None):
 		return self.get_problems(episodes = [episode['pk_episode']])
@@ -811,24 +787,16 @@ where
 		try:
 			self.__db_cache['problems']
 		except KeyError:
+			cmd = u"""select pk_health_issue, pk_episode from clin.v_problem_list where pk_patient=%s"""
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			self.__db_cache['problems'] = []
-			cmd= """select pk_health_issue, pk_episode from clin.v_problem_list
-					where pk_patient=%s"""
-			rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load problems for patient [%s]' % self.pk_patient)
-				del self.__db_cache['problems']
-				return None
 			# Instantiate problem items
 			pk_args = {}
 			for row in rows:
 				pk_args['pk_health_issue'] = row[idx['pk_health_issue']]
 				pk_args['pk_episode'] = row[idx['pk_episode']]				
-				try:
-					problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
-					self.__db_cache['problems'].append(problem)
-				except gmExceptions.ConstructorError:
-					_log.LogException('problem error on [%s] for patient [%s]' % (row, self.pk_patient), sys.exc_info(), verbose=0)
+				problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
+				self.__db_cache['problems'].append(problem)
 					
 		if episodes is None and issues is None:
 			return self.__db_cache['problems']
@@ -887,18 +855,13 @@ where
 		try:
 			self.__db_cache['health issues']
 		except KeyError:
+			cmd = u"select *, xmin from clin.health_issue where id_patient=%s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
 			self.__db_cache['health issues'] = []
-			cmd = "select pk from clin.health_issue where id_patient=%s"
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load health issues for patient [%s]' % self.pk_patient)
-				del self.__db_cache['health issues']
-				return None
 			for row in rows:
-				try:
-					self.__db_cache['health issues'].append(gmEMRStructItems.cHealthIssue(aPK_obj=row[0]))
-				except gmExceptions.ConstructorError, msg:
-					_log.LogException(str(msg), sys.exc_info(), verbose=0)
+				r = {'idx': idx, 'data': row, 'pk_field': 'pk'}
+				self.__db_cache['health issues'].append(gmEMRStructItems.cHealthIssue(row=r))
+
 		if id_list is None:
 			return self.__db_cache['health issues']
 		if id_list == []:
@@ -951,10 +914,7 @@ where
 				return None
 			# Instantiate vaccination items and keep cache
 			for row in rows:
-				try:
-					self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
-				except gmExceptions.ConstructorError:
-					_log.LogException('vaccination course error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
+				self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
 
 		# ok, let's constrain our list
 		filtered_regimes = []
@@ -1031,11 +991,8 @@ where
 					'idx': idx,
 					'data': row
 				}
-				try:
-					vacc = gmVaccination.cVaccination(row=vacc_row)
-					self.__db_cache['vaccinations']['vaccinated'].append(vacc)
-				except gmExceptions.ConstructorError:
-					_log.LogException('vaccination error on [%s] for patient [%s]' % (row, self.pk_patient), sys.exc_info(), verbose=0)
+				vacc = gmVaccination.cVaccination(row=vacc_row)
+				self.__db_cache['vaccinations']['vaccinated'].append(vacc)
 				# keep them, ordered by indication
 				try:
 					vaccs_by_ind[vacc['indication']].append(vacc)
@@ -1107,10 +1064,7 @@ where
 					'idx': idx,
 					'data': row
 				}
-				try:
-					self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(row = vacc_row))
-				except gmExceptions.ConstructorError:
-					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.pk_patient), sys.exc_info(), verbose=0)
+				self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(row = vacc_row))
 
 		# ok, let's constrain our list
 		if indications is None:
@@ -1138,10 +1092,8 @@ where
 				for row in rows:
 					pk_args['indication'] = row[0]
 					pk_args['seq_no'] = row[1]
-					try:
-						self.__db_cache['vaccinations']['missing']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
-					except gmExceptions.ConstructorError:
-						_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
+					self.__db_cache['vaccinations']['missing']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
+
 			# 2) boosters
 			self.__db_cache['vaccinations']['missing']['boosters'] = []
 			# get list of indications
@@ -1154,10 +1106,8 @@ where
 			if rows is not None:
 				for row in rows:
 					pk_args['indication'] = row[0]
-					try:
-						self.__db_cache['vaccinations']['missing']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
-					except gmExceptions.ConstructorError:
-						_log.LogException('booster error on [%s] for patient [%s]' % (row[0], self.pk_patient) , sys.exc_info(), verbose=0)
+					self.__db_cache['vaccinations']['missing']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
+
 		# if any filters ...
 		if indications is None:
 			return self.__db_cache['vaccinations']['missing']
@@ -1211,8 +1161,13 @@ where
 			False: no "very recent" encounter, create new one
 	    	True: success
 		"""
-		days, seconds = _encounter_soft_ttl.absvalues()
-		sttl = '%s days %s seconds' % (days, seconds)
+		cfg_db = gmCfg.cCfgSQL()
+		min_ttl = cfg_db.get2 (
+			option = u'encounter.minimum_ttl',
+			workplace = _me.get_workplace(),
+			bias = u'user',
+			default = u'1 hour 30 minutes'
+		)
 		cmd = u"""
 			select pk_encounter
 			from clin.v_most_recent_encounters
@@ -1220,7 +1175,9 @@ where
 				pk_patient=%s
 					and
 				last_affirmed > (now() - %s::interval)"""
-		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, sttl]}])
+		print min_ttl
+		print cmd
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
 			return False
@@ -1240,10 +1197,19 @@ where
 		# if we find one will we even be able to ask the user ?
 		if _func_ask_user is None:
 			return False
-		days, seconds = _encounter_soft_ttl.absvalues()
-		sttl = '%s days %s seconds' % (days, seconds)
-		days, seconds = _encounter_hard_ttl.absvalues()
-		httl = '%s days %s seconds' % (days, seconds)
+		cfg_db = gmCfg.cCfgSQL()
+		min_ttl = cfg_db.get2 (
+			option = u'encounter.minimum_ttl',
+			workplace = _me.get_workplace(),
+			bias = u'user',
+			default = u'1 hour 30 minutes'
+		)
+		max_ttl = cfg_db.get2 (
+			option = u'encounter.maximum_ttl',
+			workplace = _me.get_workplace(),
+			bias = u'user',
+			default = u'6 hours'
+		)
 		cmd = u"""
 			select pk_encounter
 			from clin.v_most_recent_encounters
@@ -1251,7 +1217,7 @@ where
 				pk_patient=%s
 					and
 				last_affirmed between (now() - %s::interval) and (now() - %s::interval)"""
-		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, sttl, httl]}])
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl, max_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
 			return False
@@ -1309,17 +1275,12 @@ where
 	#------------------------------------------------------------------
 	def _build_encounter_cache_from_rows(self, rows, idx):
 		for a_row in rows:
-			try:
-				row_map = {
-					'data': a_row,
-					'pk_field': 'pk_encounter',
-					'idx': idx
-				}
-				self.__db_cache['encounters'].append()
-			except gmExceptions.ConstructorError, msg:
-				_log.LogException(str(msg), sys.exc_info(), verbose=0)
-				del self.__db_cache['encounters']
-				return None
+			row_map = {
+				'data': a_row,
+				'pk_field': 'pk_encounter',
+				'idx': idx
+			}
+			self.__db_cache['encounters'].append()
 	#--------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
 		"""
@@ -1331,12 +1292,14 @@ where
 		episodes - PKs of the episodes the encounters belong to (many-to-many relation)
 		issues - PKs of the health issues the encounters belong to (many-to-many relation)
 
-		NOTE: if you specify *both* issue(s) and episode(s)
+		NOTE: if you specify *both* issues and episodes
 		you will get the *aggregate* of all encounters even
-		if the episode(s) all belong to the health issues.
+		if the episodes all belong to the health issues listed.
 		IOW, the issues broaden the episode list rather than
 		the episode list narrowing the episodes-from-issues
 		list.
+		Rationale: If it was the other way round it would be
+		redundant to specify the list of issues at all.
 		"""
 		try:
 			self.__db_cache['encounters']
@@ -1358,9 +1321,7 @@ where
 		if until is not None:
 			filtered_encounters = filter(lambda enc: enc['last_affirmed'] <= until, filtered_encounters)
 
-		if (issues is not None) and (issues != [None]) and (len(issues) > 0):
-			if len(issues) == 1:		# work around pyPgSQL IN() bug with one-element-tuples
-				issues.append(issues[0])
+		if (issues is not None) and (len(issues) > 0):
 
 			# Syan attests that an explicit union of child tables is way faster
 			# as there seem to be problems with parent table expansion and use
@@ -1376,17 +1337,14 @@ where
 
 			# however, this seems like the proper approach:
 			# - find episodes corresponding to the health issues in question
-			cmd = "select distinct pk from clin.episode where fk_health_issue in %(issues)s"
-			rows = gmPG.run_ro_query('historica', cmd, None, {'issues': tuple(issues)})
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot load episodes for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
-			else:
-				epi_ids = map(lambda x:x[0], rows)
-				if (episodes is None) or (episodes == [None]):
-					episodes = []
-				episodes.extend(epi_ids)
+			cmd = u"select distinct pk from clin.episode where fk_health_issue in %(issues)s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'issues': issues}}])
+			epi_ids = map(lambda x:x[0], rows)
+			if episodes is None:
+				episodes = []
+			episodes.extend(epi_ids)
 
-		if (episodes is not None) and (episodes != [None]) and (len(episodes) > 0):
+		if (episodes is not None) and (len(episodes) > 0):
 			# if the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			cmd = u"select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
@@ -1397,50 +1355,55 @@ where
 		return filtered_encounters
 	#--------------------------------------------------------		
 	def get_first_encounter(self, issue_id=None, episode_id=None):
-		"""
-			Retrieves first encounter for a particular issue and/or episode
+		"""Retrieves first encounter for a particular issue and/or episode
 
-			issue_id - First encounter associated health issue
-			episode - First encounter associated episode
+		issue_id - First encounter associated health issue
+		episode - First encounter associated episode
 		"""
-		h_iss = issue_id
-		epis = episode_id
-		if issue_id is not None:
+		if issue_id is None:
+			issues = None
+		else:
 			h_iss = [issue_id]
-		if episode_id is not None:
+
+		if episode_id is None:
+			episodes = None
+		else:
 			epis = [episode_id]
-		encounters = self.get_encounters(issues=h_iss, episodes=epis)
-		if encounters is None:
-			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient PK [%s])' % (str(epis), str(h_iss), self.pk_patient))
-			return None
+
+		encounters = self.get_encounters(issues=issues, episodes=episodes)
 		if len(encounters) == 0:
 			return None
-		# FIXME: this does not scale particularly well
+
+		# FIXME: this does not scale particularly well, I assume
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[0]
 	#--------------------------------------------------------		
 	def get_last_encounter(self, issue_id=None, episode_id=None):
-		"""
-			Retrieves last encounter for a concrete issue and/or episode
+		"""Retrieves last encounter for a concrete issue and/or episode
 			
-			issue_id - Last encounter associated health issue
-			episode_id - Last encounter associated episode
+		issue_id - Last encounter associated health issue
+		episode_id - Last encounter associated episode
 		"""
-		h_iss = issue_id
-		epis = episode_id
-		if issue_id is not None:
+		if issue_id is None:
+			issues = None
+		else:
 			h_iss = [issue_id]
-		if episode_id is not None:
+
+		if episode_id is None:
+			episodes = None
+		else:
 			epis = [episode_id]
+
 		encounters = self.get_encounters(issues=h_iss, episodes=epis)
-		if encounters is None:
-			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues [%s]. Patient PK [%s]' % (str(epis), str(h_iss), self.pk_patient))
-			return None
 		if len(encounters) == 0:
 			return None
-		# FIXME: this does not scale particularly well
+
+		# FIXME: this does not scale particularly well, I assume
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
+	#------------------------------------------------------------------
+	def is_encounter_modified(self):
+		cmd = u'select exists(select 1 from clin.clin_root_item where pk_encounter=%s)'
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
@@ -1478,11 +1441,8 @@ where
 				'idx': idx,
 				'data': row
 			}			
-			try:
-				lab_result = gmPathLab.cLabResult(row=lab_row)
-				self.__db_cache['lab results'].append(lab_result)
-			except gmExceptions.ConstructorError:
-				_log.Log('lab result error', sys.exc_info())
+			lab_result = gmPathLab.cLabResult(row=lab_row)
+			self.__db_cache['lab results'].append(lab_result)
 
 		# ok, let's constrain our list
 		filtered_lab_results = []
@@ -1501,11 +1461,7 @@ where
 	#------------------------------------------------------------------
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
 		# FIXME: verify that it is our patient ? ...
-		try:
-			req = gmPathLab.cLabRequest(aPK_obj=pk, req_id=req_id, lab=lab)
-		except gmExceptions.ConstructorError:
-			_log.LogException('cannot get lab request', sys.exc_info())
-			return None
+		req = gmPathLab.cLabRequest(aPK_obj=pk, req_id=req_id, lab=lab)
 		return req
 	#------------------------------------------------------------------
 	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
@@ -1522,62 +1478,19 @@ where
 			_log.Log(gmLog.lErr, str(data))
 			return None
 		return data
-	#------------------------------------------------------------------
-	# unchecked stuff
-	#------------------------------------------------------------------
-        def store_referral (self, cursor, text, form_id):
-		"""
-		Stores a referral in the clinical narrative
-		"""
-		cmd = """
-		insert into au.referral (
-		fk_encounter, fk_episode, narrative, fk_form
-		) values (
-		%s, %s, %s, %s
-		)
-		"""
-		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], text, form_id])])
-
-
-	def update_cache( self, key, obj):
-		if not type(obj) is list:
-			obj = [ obj ]
-		try:
-			if not self.__db_cache.has_key(key):
-				self.__db_cache[key] = []
-			self.__db_cache[key].extend(obj)
-		except:
-			print sys.exc_info()[0], sys.exc_info()[1]
-			import traceback
-			traceback.print_tb(sys.exc_info()[2])
-
 #============================================================
 # convenience functions
-#------------------------------------------------------------
-def set_encounter_ttl(soft = None, hard = None):
-	if soft is not None:
-		global _encounter_soft_ttl
-		_encounter_soft_ttl = soft
-	if hard is not None:
-		global _encounter_hard_ttl
-		_encounter_hard_ttl = hard
 #------------------------------------------------------------
 def set_func_ask_user(a_func = None):
 	if a_func is not None:
 		global _func_ask_user
 		_func_ask_user = a_func
-#------------------------------------------------------------
-def get_item_types():
-	cmd = "select pk, type, code from clin.clin_item_type"
-	data = gmPG.run_ro_query('historica', cmd)
-
-#------------------------------------------------------------
+#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
 	import traceback
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-	gmPG.set_default_client_encoding('latin1')
 	try:
 		emr = cClinicalRecord(aPKey = 12)
 
@@ -1664,10 +1577,18 @@ if __name__ == "__main__":
 	except:
 		traceback.print_exc(file=sys.stdout)
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
-	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.212  2006-10-28 15:01:21  ncq
+# Revision 1.213  2006-11-05 15:59:16  ncq
+# - make encounter ttl configurable
+# - audit clinical data retrieval and never appear to succeed if something fails
+#   - this will show up some more exceptions which were thought harmless before and therefor masked out
+# - u'' some queries
+# - clarify get_encounters()
+# - remove cruft
+# - more gmPG -> gmPG2
+#
+# Revision 1.212  2006/10/28 15:01:21  ncq
 # - speed up allergy, encounter fetching
 # - unicode() queries
 #
