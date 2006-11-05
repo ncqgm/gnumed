@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.56 2006-10-09 12:22:27 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmEMRBrowser.py,v 1.57 2006-11-05 16:02:00 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -11,11 +11,7 @@ __license__ = "GPL"
 import sys, types, os.path, StringIO
 
 # 3rd party
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
@@ -728,7 +724,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.56  2006-10-09 12:22:27  ncq
+# Revision 1.57  2006-11-05 16:02:00  ncq
+# - cleanup
+#
+# Revision 1.56  2006/10/09 12:22:27  ncq
 # - some cleanup
 # - adjust to changed signature of encounter.transfer_clinical_data()
 #
