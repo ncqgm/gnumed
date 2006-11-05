@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.213 2006-11-05 15:59:16 ncq Exp $
-__version__ = "$Revision: 1.213 $"
+# $Id: gmClinicalRecord.py,v 1.214 2006-11-05 16:20:49 ncq Exp $
+__version__ = "$Revision: 1.214 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1175,8 +1175,6 @@ where
 				pk_patient=%s
 					and
 				last_affirmed > (now() - %s::interval)"""
-		print min_ttl
-		print cmd
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
@@ -1579,7 +1577,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.213  2006-11-05 15:59:16  ncq
+# Revision 1.214  2006-11-05 16:20:49  ncq
+# - remove 2 printk()s
+#
+# Revision 1.213  2006/11/05 15:59:16  ncq
 # - make encounter ttl configurable
 # - audit clinical data retrieval and never appear to succeed if something fails
 #   - this will show up some more exceptions which were thought harmless before and therefor masked out
