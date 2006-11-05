@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.85 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmPatientExporter.py,v 1.86 2006-11-05 17:02:54 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -375,9 +375,9 @@ class cEmrExport:
             txt += self.get_allergy_output(item, left_margin)
 #        elif isinstance(item, gmVaccination.cVaccination):
  #           txt += self.get_vaccination_output(item, left_margin)
-        elif isinstance(item, gmPathLab.cLabResult):
-            txt += self.get_lab_result_output(item, left_margin)
-            self.lab_new_encounter = False
+#        elif isinstance(item, gmPathLab.cLabResult):
+ #           txt += self.get_lab_result_output(item, left_margin)
+  #          self.lab_new_encounter = False
         return txt
     #--------------------------------------------------------
     def __fetch_filtered_items(self):
@@ -404,12 +404,12 @@ class cEmrExport:
        # except:
         #        _log.Error("vaccination error? outside regime")
 
-        filtered_items.extend(emr.get_lab_results(
-            since=self.__constraints['since'],
-            until=self.__constraints['until'],
-            encounters=self.__constraints['encounters'],
-            episodes=self.__constraints['episodes'],
-            issues=self.__constraints['issues']))
+#        filtered_items.extend(emr.get_lab_results(
+ #           since=self.__constraints['since'],
+  #          until=self.__constraints['until'],
+   #         encounters=self.__constraints['encounters'],
+    #        episodes=self.__constraints['episodes'],
+     #       issues=self.__constraints['issues']))
         self.__filtered_items = filtered_items
         return True
     #--------------------------------------------------------
@@ -457,11 +457,11 @@ class cEmrExport:
             txt += self.get_allergy_summary(item, left_margin)
 #        elif isinstance(item, gmVaccination.cVaccination):
  #           txt += self.get_vaccination_summary(item, left_margin)
-        elif isinstance(item, gmPathLab.cLabResult) and \
-	    True: 
-            #(item['relevant'] == True or item['abnormal'] == True):
-            txt += self.get_lab_result_summary(item, left_margin)
-            self.lab_new_encounter = False
+#        elif isinstance(item, gmPathLab.cLabResult) and \
+#	    True: 
+ #           #(item['relevant'] == True or item['abnormal'] == True):
+  #          txt += self.get_lab_result_summary(item, left_margin)
+   #         self.lab_new_encounter = False
         return txt
     #--------------------------------------------------------             
     def refresh_historical_tree(self, emr_tree):
@@ -1268,7 +1268,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.85  2006-10-25 07:46:44  ncq
+# Revision 1.86  2006-11-05 17:02:54  ncq
+# - comment out lab results access, not in use yet
+#
+# Revision 1.85  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.84  2006/10/25 07:18:12  ncq
