@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -585,7 +585,8 @@ class cEncodingError(dbapi.OperationalError):
 # make sure psycopg2 knows how to handle unicode ...
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 # likewise with iterator types ...
-#psycopg2.extensions.register_type(psycopg2.extras.SQL_IN)
+psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
+psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
 
 
 if __name__ == "__main__":
@@ -788,7 +789,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.7  2006-10-24 13:20:07  ncq
+# Revision 1.8  2006-11-05 17:03:26  ncq
+# - register SQL_INI adapter for tuples and lists
+#
+# Revision 1.7  2006/10/24 13:20:07  ncq
 # - fix get_current_user()
 # - add default login handling
 # - remove set_default_dsn() - now use set_default_login() which will create the DSN, too
