@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -36,18 +36,18 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		'age_noted'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx'):
+	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx', row=None):
 		pk = aPK_obj
-		if pk is None:
+		if pk is None and row is None:
 			cmd = u"select *, xmin from clin.health_issue where id_patient=%s and description=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient_id, name]}], get_col_idx=True)
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [%s:%s]' % (patient_id, name)
 			pk = rows[0][0]
-			row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk'}
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
+			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk'}
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['id_patient']]
@@ -129,17 +129,17 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		'description'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
+	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', row=None):
 		pk = aPK_obj
-		if pk is None:
+		if pk is None and row is None:
 			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [id_patient, name]}], get_col_idx=True)
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s]' % (id_patient, name)
-			row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=rows[0])
+			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
 	#--------------------------------------------------------
 	def get_access_range(self):
 		"""Get earliest and latest access to this episode.
@@ -520,7 +520,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.86  2006-10-28 14:59:38  ncq
+# Revision 1.87  2006-11-05 17:02:25  ncq
+# - enable health issue and episode to be inited from row
+#
+# Revision 1.86  2006/10/28 14:59:38  ncq
 # - __ -> _
 #
 # Revision 1.85  2006/10/28 14:59:20  ncq
