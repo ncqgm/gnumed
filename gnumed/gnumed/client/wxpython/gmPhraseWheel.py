@@ -10,13 +10,12 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.77 2006-10-25 07:24:51 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmPhraseWheel.py,v 1.78 2006-11-05 16:10:11 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
-import wxversion
 import wx
 import wx.lib.mixins.listctrl as listmixins
 
@@ -48,7 +47,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def GetSelectedItemData(self):
 		return self.__data[self.GetFirstSelected()]['data']
 #============================================================
-class cPhraseWheel (wx.TextCtrl):
+class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
 
 	default_phrase_separators = re.compile('[;/|]+')
@@ -113,6 +112,8 @@ class cPhraseWheel (wx.TextCtrl):
 				callback = self._on_timer_fired,
 				delay = aDelay
 			)
+			# initially stopped
+			self.__timer.Stop()
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -201,15 +202,18 @@ class cPhraseWheel (wx.TextCtrl):
 			return False
 		return True
 	#--------------------------------------------------------
-	def set_context (self, context, val):
+	def set_context (self, context=None, val=None):
 		if self.__real_matcher:
 			# forget any caching, as it's now invalid
 			self.__matcher = self.__real_matcher
 			self.__real_matcher = None
 		if self.__matcher:
-			self.__matcher.set_context (context, val)
+			self.__matcher.set_context(context=context, val=val)
 		else:
 			_log.Log(gmLog.lErr, "aMatchProvider must be set to set context")
+	#---------------------------------------------------------
+	def unset_context(self, context=None):
+		self.__matcher.unset_context(context=context)
 	#---------------------------------------------------------
 	def _updateMatches(self, val=None):
 		"""Get the matches for the currently typed input fragment."""
@@ -461,7 +465,7 @@ class cPhraseWheel (wx.TextCtrl):
 				_log.LogException("[%s:_on_set_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
 
 		# if empty set to first "match"
-		if self.GetValue().strip() == '':
+		if self.GetValue().strip() == u'':
 			# programmers better make sure the turnaround time is limited
 			self._updateMatches()
 			if len(self.__currMatches) > 0:
@@ -469,6 +473,8 @@ class cPhraseWheel (wx.TextCtrl):
 				self.data = self.__currMatches[0]['data']
 				self._input_was_selected = True
 				self.MarkDirty()
+
+		self.__timer.Start(oneShot = True)
 
 		return True
 	#--------------------------------------------------------
@@ -576,7 +582,15 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.77  2006-10-25 07:24:51  ncq
+# Revision 1.78  2006-11-05 16:10:11  ncq
+# - cleanup
+# - now really handle context
+# - add unset_context()
+# - stop timer in __init__()
+# - start timer in _on_set_focus()
+# - some u''-ification
+#
+# Revision 1.77  2006/10/25 07:24:51  ncq
 # - gmPG -> gmPG2
 # - match provider _SQL deprecated
 #
