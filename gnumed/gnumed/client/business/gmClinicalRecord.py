@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.215 2006-11-05 16:28:24 ncq Exp $
-__version__ = "$Revision: 1.215 $"
+# $Id: gmClinicalRecord.py,v 1.216 2006-11-05 17:01:50 ncq Exp $
+__version__ = "$Revision: 1.216 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -667,8 +667,8 @@ where
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
-			cmd = u"""select *, xmin_episode from clin.v_pat_episodes where pk_patient=%s"""
-			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}])
+			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s"
+			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			tmp = []
 			for r in rows:
 				tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
@@ -855,7 +855,7 @@ where
 		try:
 			self.__db_cache['health issues']
 		except KeyError:
-			cmd = u"select *, xmin from clin.health_issue where id_patient=%s"
+			cmd = u"select *, xmin from clin.health_issue where fk_patient=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
 			self.__db_cache['health issues'] = []
 			for row in rows:
@@ -1281,8 +1281,7 @@ where
 			self.__db_cache['encounters'].append()
 	#--------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
-		"""
-		Retrieves patient's encounters
+		"""Retrieves patient's encounters.
 
 		id_list - PKs of encounters to fetch
 		since - initial date for encounter items, DateTime instance
@@ -1346,7 +1345,7 @@ where
 			# if the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			cmd = u"select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
-			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'epis': episodes}}])
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'epis': episodes}}])
 			enc_ids = map(lambda x:x[0], rows)
 			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
@@ -1361,12 +1360,12 @@ where
 		if issue_id is None:
 			issues = None
 		else:
-			h_iss = [issue_id]
+			issues = [issue_id]
 
 		if episode_id is None:
 			episodes = None
 		else:
-			epis = [episode_id]
+			episodes = [episode_id]
 
 		encounters = self.get_encounters(issues=issues, episodes=episodes)
 		if len(encounters) == 0:
@@ -1385,14 +1384,14 @@ where
 		if issue_id is None:
 			issues = None
 		else:
-			h_iss = [issue_id]
+			issues = [issue_id]
 
 		if episode_id is None:
 			episodes = None
 		else:
-			epis = [episode_id]
+			episodes = [episode_id]
 
-		encounters = self.get_encounters(issues=h_iss, episodes=epis)
+		encounters = self.get_encounters(issues=issues, episodes=episodes)
 		if len(encounters) == 0:
 			return None
 
@@ -1577,7 +1576,11 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.215  2006-11-05 16:28:24  ncq
+# Revision 1.216  2006-11-05 17:01:50  ncq
+# - fix some queries to produce proper rows
+# - var name fixes in get_encounters()
+#
+# Revision 1.215  2006/11/05 16:28:24  ncq
 # - fix a few double uses of variable row
 #
 # Revision 1.214  2006/11/05 16:20:49  ncq
