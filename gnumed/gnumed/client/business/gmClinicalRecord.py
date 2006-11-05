@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.216 2006-11-05 17:01:50 ncq Exp $
-__version__ = "$Revision: 1.216 $"
+# $Id: gmClinicalRecord.py,v 1.217 2006-11-05 17:53:15 ncq Exp $
+__version__ = "$Revision: 1.217 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -224,7 +224,7 @@ select fk_encounter from
 			self.__db_cache['narrative']
 		except KeyError:
 			cmd = "select * from clin.v_pat_narrative where pk_patient=%s order by date"
-			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}])
+			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			self.__db_cache['narrative'] = []
 			self._build_narrative_cache_from_rows(rows, idx)
 
@@ -1350,7 +1350,7 @@ where
 			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
 		return filtered_encounters
-	#--------------------------------------------------------		
+	#--------------------------------------------------------
 	def get_first_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves first encounter for a particular issue and/or episode
 
@@ -1576,7 +1576,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.216  2006-11-05 17:01:50  ncq
+# Revision 1.217  2006-11-05 17:53:15  ncq
+# - one more get_col_idx
+#
+# Revision 1.216  2006/11/05 17:01:50  ncq
 # - fix some queries to produce proper rows
 # - var name fixes in get_encounters()
 #
