@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -276,7 +276,7 @@ limit 1""" % where_clause
 		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
 
 		opt_value = value
-		if type(value) is types.StringType:
+		if type(value) in [types.StringType, types.UnicodeType]:
 			val_type = '::text'
 		elif (type(value) in [types.FloatType, types.IntType, types.LongType]) or isinstance(value, decimal.Decimal):
 			val_type = '::numeric'
@@ -1118,7 +1118,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.44  2006-10-25 07:19:03  ncq
+# Revision 1.45  2006-11-05 16:00:17  ncq
+# - unicode is text so don't pickle it
+#
+# Revision 1.44  2006/10/25 07:19:03  ncq
 # - no more gmPG
 #
 # Revision 1.43  2006/10/08 11:02:02  ncq
