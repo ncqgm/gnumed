@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.214 2006-11-05 16:20:49 ncq Exp $
-__version__ = "$Revision: 1.214 $"
+# $Id: gmClinicalRecord.py,v 1.215 2006-11-05 16:28:24 ncq Exp $
+__version__ = "$Revision: 1.215 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -609,8 +609,8 @@ where
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			# Instantiate allergy items and keep cache
 			self.__db_cache['allergies'] = []
-			for row in rows:
-				self.__db_cache['allergies'].append(gmAllergy.cAllergy(row = {'data': row, 'idx': idx, 'pk_field': 'pk_allergy'}))
+			for r in rows:
+				self.__db_cache['allergies'].append(gmAllergy.cAllergy(row = {'data': r, 'idx': idx, 'pk_field': 'pk_allergy'}))
 
 		# ok, let's constrain our list
 		filtered_allergies = []
@@ -670,8 +670,8 @@ where
 			cmd = u"""select *, xmin_episode from clin.v_pat_episodes where pk_patient=%s"""
 			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}])
 			tmp = []
-			for row in rows:
-				tmp.append(gmEMRStructItems.cEpisode(row = {'data': row, 'idx': idx, 'pk_field': 'pk_episode'}))
+			for r in rows:
+				tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
 			self.__db_cache['episodes'] = tmp
 
 		if id_list is None and issues is None and open_status is None:
@@ -1306,8 +1306,8 @@ where
 			cmd = u"select * from clin.v_pat_encounters where pk_patient=%s order by started"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			self.__db_cache['encounters'] = []
-			for row in rows:
-				self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row={'data': row, 'idx': idx, 'pk_field': 'pk_encounter'}))
+			for r in rows:
+				self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row={'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}))
 
 		# we've got the encounters, start filtering
 		filtered_encounters = []
@@ -1577,7 +1577,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.214  2006-11-05 16:20:49  ncq
+# Revision 1.215  2006-11-05 16:28:24  ncq
+# - fix a few double uses of variable row
+#
+# Revision 1.214  2006/11/05 16:20:49  ncq
 # - remove 2 printk()s
 #
 # Revision 1.213  2006/11/05 15:59:16  ncq
