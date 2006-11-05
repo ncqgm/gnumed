@@ -2,19 +2,14 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.75 2006-10-25 07:21:57 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmTopPanel.py,v 1.76 2006-11-05 16:04:45 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import sys, os.path
-#cPickle, zlib, string
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPerson, gmEMRStructItems
@@ -412,7 +407,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.75  2006-10-25 07:21:57  ncq
+# Revision 1.76  2006-11-05 16:04:45  ncq
+# - some cleanup
+#
+# Revision 1.75  2006/10/25 07:21:57  ncq
 # - no more gmPG
 #
 # Revision 1.74  2006/07/30 21:15:53  ncq
