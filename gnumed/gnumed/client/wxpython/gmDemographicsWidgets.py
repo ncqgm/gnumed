@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.102 2006-10-31 12:38:30 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmDemographicsWidgets.py,v 1.103 2006-11-05 16:18:29 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,8 +16,10 @@ import wx
 import wx.wizard
 
 # GNUmed specific
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
-from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
@@ -27,6 +29,11 @@ _cfg = gmCfg.gmDefCfgFile
 DATE_FORMAT = '%Y-%m-%d'
 
 #FIXME: properly capitalize names/streets etc
+
+try:
+	_('do-not-translate-but-make-epydoc-happy')
+except NameError:
+	_ = lambda x:x
 
 #============================================================
 def disable_identity(identity=None):
@@ -64,9 +71,89 @@ def disable_identity(identity=None):
 
 	return True
 #============================================================
+class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		context = {
+			u'ctxt_country_name': {
+				u'where_part': u'and l10n_country ilike %(country_name)s or country ilike %(country_name)s',
+				u'placeholder': u'country_name'
+			},
+			u'ctxt_zip': {
+				u'where_part': u'and zip ilike %(zip)s',
+				u'placeholder': 'zip'
+			},
+			u'ctxt_country_code': {
+				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
+				u'placeholder': u'country_name'
+			}
+		}
+
+		query = u"""
+select code, name from (
+	select distinct on (code, name) code, name, rank from (
+			-- 1: find states based on name, context: zip and country name
+			select
+				code_state as code, state as name, 1 as rank
+			from dem.v_zip2data
+			where
+				state %(fragment_condition)s
+				%(ctxt_country_name)s
+				%(ctxt_zip)s
+
+		union all
+
+			-- 2: find states based on code, context: zip and country name
+			select
+				code_state as code, state as name, 2 as rank
+			from dem.v_zip2data
+			where
+				code_state %(fragment_condition)s
+				%(ctxt_country_name)s
+				%(ctxt_zip)s
+
+		union all
+
+			-- 3: find states based on name, context: country
+			select
+				code as code, name as name, 3 as rank
+			from dem.state
+			where
+				name %(fragment_condition)s
+				%(ctxt_country_code)s
+
+		union all
+
+			-- 4: find states based on code, context: country
+			select
+				code as code, name as name, 3 as rank
+			from dem.state
+			where
+				code %(fragment_condition)s
+				%(ctxt_country_code)s
+
+	) as q2
+) as q1 order by rank limit 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp.setThresholds(2, 5, 6)
+		mp.setWordSeparators(separators=u'[ \t]+')
+
+		kwargs['aMatchProvider'] = mp
+		kwargs['selection_only'] = True
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.unset_context(context = 'zip')
+		self.unset_context(context = 'country_name')
+
+		self.SetToolTipString(_("Select a state/region/province/territory."))
+#============================================================
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
-	"""Let user select a gender.
-	"""
+	"""Let user select a gender."""
 
 	_gender_map = None
 
@@ -179,11 +266,11 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput (
+		self.PRW_dob = gmDateTimeInput.cFuzzyTimestampInput (
 			parent = PNL_form,
 			id = -1
 		)
-		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
+		self.PRW_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
@@ -270,49 +357,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# state
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		queries = []
-		queries.append("""
-		select distinct on (code, name) code, name from (
-			select * from (
-					-- context: state name, country, zip
-					select
-						code_state as code, state as name, 1 as rank
-					from dem.v_zip2data
-					where
-						state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
-				union
-					-- context: state name and country
-					select
-						code as code, name as name, 2 as rank
-					from dem.state
-					where
-						name %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
-				union
-					-- context: state code, country, zip
-					select
-						code_state as code, state as name, 3 as rank
-					from dem.v_zip2data
-					where
-						code_state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
-				union
-					-- context: state code, country
-					select
-						code as code, name as name, 3 as rank
-					from dem.state
-					where
-						code %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
-			) as q2 order by rank, name
-		) as q1 limit 50""")
-		mp = gmMatchProvider.cMatchProvider_SQL2 (queries)
-		mp.setThresholds(2, 5, 6)
-		self.PRW_state = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			selection_only = True
-		)
-		self.PRW_state.set_context(context='zip', val='%')
-		self.PRW_state.set_context(context='country', val='%')
+		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
@@ -376,7 +421,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		SZR_input.Add(STT_nick, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
@@ -419,7 +464,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		"""
 		Set the states according to entered country.
 		"""
-		self.PRW_state.set_context(context='country', val=data)
+		self.PRW_state.set_context(context=u'country', val=data)
 		return True
 	#--------------------------------------------------------
 	def on_name_set(self):
@@ -442,10 +487,10 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		Set the street, town, state and country according to entered zip code.
 		"""
 		zip_code = self.PRW_zip_code.GetValue().strip()
-		self.PRW_street.set_context(context='zip', val=zip_code)
-		self.PRW_town.set_context(context='zip', val=zip_code)
-		self.PRW_state.set_context(context='zip', val=zip_code)
-		self.PRW_country.set_context(context='zip', val=zip_code)
+		self.PRW_street.set_context(context=u'zip', val=zip_code)
+		self.PRW_town.set_context(context=u'zip', val=zip_code)
+		self.PRW_state.set_context(context=u'zip', val=zip_code)
+		self.PRW_country.set_context(context=u'zip', val=zip_code)
 		return True				
 #============================================================
 class cNewPatientWizard(wx.wizard.Wizard):
@@ -568,15 +613,15 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			_pnl_form.PRW_gender.Refresh()
 
 		# dob validation
-		if not _pnl_form.TTC_dob.is_valid_timestamp():
+		if not _pnl_form.PRW_dob.is_valid_timestamp():
 			error = True
-			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.TTC_dob.GetValue()
+			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
 			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, msg)
-			_pnl_form.TTC_dob.SetBackgroundColour('pink')
-			_pnl_form.TTC_dob.Refresh()
+			_pnl_form.PRW_dob.SetBackgroundColour('pink')
+			_pnl_form.PRW_dob.Refresh()
 		else:
-			_pnl_form.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-			_pnl_form.TTC_dob.Refresh()
+			_pnl_form.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			_pnl_form.PRW_dob.Refresh()
 						
 		# address		
 		address_fields = (
@@ -613,7 +658,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		_pnl_form = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
 		_pnl_form.PRW_gender.SetValue(self.form_DTD['gender'])
-		_pnl_form.TTC_dob.SetValue(self.form_DTD['dob'])
+		_pnl_form.PRW_dob.SetValue(self.form_DTD['dob'])
 		_pnl_form.PRW_lastname.SetValue(self.form_DTD['lastnames'])
 		_pnl_form.PRW_firstname.SetValue(self.form_DTD['firstnames'])
 		_pnl_form.PRW_title.SetValue(self.form_DTD['title'])
@@ -641,7 +686,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			_pnl_form = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = _pnl_form.PRW_gender.GetData()
-			self.form_DTD['dob'] = _pnl_form.TTC_dob.GetData()
+			self.form_DTD['dob'] = _pnl_form.PRW_dob.GetData()
 			self.form_DTD['lastnames'] = _pnl_form.PRW_lastname.GetValue()
 			self.form_DTD['firstnames'] = _pnl_form.PRW_firstname.GetValue()
 			self.form_DTD['title'] = _pnl_form.PRW_title.GetValue()
@@ -744,7 +789,7 @@ class cPatEditionNotebook(wx.Notebook):
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 
 		self.ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
-		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)		
+		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)
 		self.occupations_form_DTD = cFormDTD(fields = self.__class__.occupations_form_fields)
 		# genders
 		genders, idx = gmPerson.get_gender_list()
@@ -771,7 +816,6 @@ class cPatEditionNotebook(wx.Notebook):
 		"""
 		Populate fields in pages with data from model.
 		"""
-		
 		identity = self.__pat.get_identity()
 		# refresh identity reference in pages
 		for page_idx in range(self.GetPageCount()):
@@ -1009,8 +1053,8 @@ class cPatIdentityPanel(wx.Panel):
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.TTC_dob = gmDateTimeInput.cFuzzyTimestampInput(parent = PNL_form, id = -1)
-		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
+		self.PRW_dob = gmDateTimeInput.cFuzzyTimestampInput(parent = PNL_form, id = -1)
+		self.PRW_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
@@ -1044,7 +1088,7 @@ class cPatIdentityPanel(wx.Panel):
 		SZR_input.Add(STT_nick, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
@@ -1129,7 +1173,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		try:
 			pageCtrl = self.GetWindow().GetParent()
 			pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
-			pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].strftime(DATE_FORMAT))
+			pageCtrl.PRW_dob.SetData(self.__dtd['dob'].timestamp)
 			pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 			pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
 			pageCtrl.PRW_title.SetValue(self.__dtd['title'])
@@ -1144,15 +1188,15 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# dob validation
-		if not pageCtrl.TTC_dob.is_valid_timestamp():
+		if not pageCtrl.PRW_dob.is_valid_timestamp():
 			msg = _('Cannot parse <%s> into proper timestamp.')
 			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
-			pageCtrl.TTC_dob.SetBackgroundColour('pink')
-			pageCtrl.TTC_dob.Refresh()
-			pageCtrl.TTC_dob.SetFocus()
+			pageCtrl.PRW_dob.SetBackgroundColour('pink')
+			pageCtrl.PRW_dob.Refresh()
+			pageCtrl.PRW_dob.SetFocus()
 			return False
-		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		pageCtrl.TTC_dob.Refresh()
+		pageCtrl.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		pageCtrl.PRW_dob.Refresh()
 
 		return True
 	#--------------------------------------------------------
@@ -1165,8 +1209,10 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		try:
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.__dtd with values from controls
-			self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
-			self.__dtd['dob'] = pageCtrl.TTC_dob.GetData()
+			if pageCtrl.PRW_gender.IsModified():
+				self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
+			if pageCtrl.PRW_dob.IsModified():
+				self.__dtd['dob'] = pageCtrl.PRW_dob.GetData()
 			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
@@ -1179,7 +1225,6 @@ class cPatContactsPanel(wx.Panel):
 	"""
 	Page containing patient contacts edition fields.
 	"""
-		
 	def __init__(self, parent, id, dtd=None, ident=None):
 		"""
 		Creates a new instance of BasicPatDetailsPanel
@@ -1190,7 +1235,8 @@ class cPatContactsPanel(wx.Panel):
 		@param dtd The object containing the data model.
 		@type dtd A cFormDTD instance
 		"""
-		wx.Panel.__init__(self, parent, id)		
+		wx.Panel.__init__(self, parent, id)
+
 		self.__dtd = dtd
 		self.__ident = ident
 		if os.environ.has_key ("LANG"):
@@ -1201,7 +1247,6 @@ class cPatContactsPanel(wx.Panel):
 		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_number (self):
-		
 		# address number
 		STT_address_number = wx.StaticText(self.PNL_form, -1, _('Number'))
 		self.TTC_address_number = wx.TextCtrl(self.PNL_form, -1)
@@ -1279,36 +1324,13 @@ class cPatContactsPanel(wx.Panel):
 		
 		self.SZR_input.Add(STT_town, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
-
+	#--------------------------------------------------------
 	def __do_state_country (self):
 		# state
-		# FIXME: default in config
 		STT_state = wx.StaticText(self.PNL_form, -1, _('State'))
 		STT_state.SetForegroundColour('red')
-		queries = []
-		queries.append("""
-		select distinct on (code,name) code, name from (
-			select * from (				
-				select code_state as code, state as name, 1 as rank from dem.v_zip2data where state %(fragment_condition)s and l10n_country ilike %%(country)s and zip ilike %%(zip)s
-					union
-				select
-					code as code, name as name, 2 as rank
-				from dem.state
-				where
-					name %(fragment_condition)s and country in (select code from dem.country where name ilike %%(country)s)
-			) as q1 order by rank, name
-		) as q2				
-		""")
-		mp = gmMatchProvider.cMatchProvider_SQL2 (queries)
-		mp.setThresholds(3, 5, 6)
-		self.PRW_state = gmPhraseWheel.cPhraseWheel (
-			parent = self.PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			selection_only = True
-		)
-		self.PRW_state.set_context(context='zip', val='%')
-		self.PRW_state.set_context(context='country', val='%')
+		# FIXME: default in config
+		self.PRW_state = cStateSelectionPhraseWheel(parent=self.PNL_form, id=-1)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
@@ -1334,6 +1356,7 @@ class cPatContactsPanel(wx.Panel):
 		)
 		self.PRW_country.set_context(context='zip', val='%')
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
+
 		self.SZR_input.Add(STT_state, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
 		self.SZR_input.Add(STT_country, 0, wx.SHAPED)
@@ -1373,6 +1396,7 @@ class cPatContactsPanel(wx.Panel):
 			self.__do_town ()
 			self.__do_state_country ()
 			self.__do_phones ()
+
 		# Set validator for identity form
 		self.PNL_form.SetValidator(cPatContactsPanelValidator(dtd = self.__dtd))
 		
@@ -1410,10 +1434,10 @@ class cPatContactsPanel(wx.Panel):
 		Set the street, town, state and country according to entered zip code.
 		"""
 		zip_code = self.PRW_zip_code.GetValue()
-		self.PRW_street.set_context(context='zip', val=zip_code)
-		self.PRW_town.set_context(context='zip', val=zip_code)
-		self.PRW_state.set_context(context='zip', val=zip_code)
-		self.PRW_country.set_context(context='zip', val=zip_code)
+		self.PRW_street.set_context(context=u'zip', val=zip_code)
+		self.PRW_town.set_context(context=u'zip', val=zip_code)
+		self.PRW_state.set_context(context=u'zip', val=zip_code)
+		self.PRW_country.set_context(context=u'zip', val=zip_code)
 		return True
 	#--------------------------------------------------------
 	def on_town_set (self, data):
@@ -1428,24 +1452,24 @@ class cPatContactsPanel(wx.Panel):
 			self.TTC_phone.SetFocus ()
 	#--------------------------------------------------------
 	# public API
-	#--------------------------------------------------------			
+	#--------------------------------------------------------
 	def set_identity(self, identity):
 		self.__ident = identity
-			
+	#--------------------------------------------------------
 	def save(self):
 		msg = _("Data in Contacts section can't be saved.\nPlease, correct any invalid input.")
 		if not self.Validate():
 			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)
 			return False
 		if not self.TransferDataFromWindow():
-			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)			
+			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)
 			return False
 		if not link_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
 			msg = _("An error happened while saving Contacts section.\nPlease, refresh and check all the data.")
 			gmGuiHelpers.gm_show_error(msg, _('Contacts saving error'), gmLog.lErr)
 			return False
-		return True		
-#============================================================		
+		return True
+#============================================================
 class cPatContactsPanelValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered all
@@ -1502,10 +1526,9 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		return True
 	#--------------------------------------------------------
 	def TransferToWindow(self):
-		"""
-		Transfer data from validator to window.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
+		"""Transfer data from validator to window.
+
+		The default implementation returns False, indicating that an error occurred.
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
@@ -1514,7 +1537,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		pageCtrl.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
 		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
-		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
+		pageCtrl.PRW_state.SetData(self.form_DTD['state'])
 		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
@@ -1524,20 +1547,31 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		try:
-			pageCtrl = self.GetWindow().GetParent()
-			# fill in self.form_DTD with values from controls
+		pageCtrl = self.GetWindow().GetParent()
+		# fill in self.form_DTD with values from controls
+		if pageCtrl.TTC_address_number.IsModified():
+			self.form_DTD.is_modified = True
 			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
+		if pageCtrl.PRW_street.IsModified():
+			self.form_DTD.is_modified = True
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
+		if pageCtrl.PRW_zip_code.IsModified():
+			self.form_DTD.is_modified = True
 			self.form_DTD['zip_code'] = pageCtrl.PRW_zip_code.GetValue()
+		if pageCtrl.PRW_town.IsModified():
+			self.form_DTD.is_modified = True
 			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-			if not pageCtrl.PRW_state.GetData() is None:
+		if pageCtrl.PRW_state.IsModified():
+			self.form_DTD.is_modified = True
+			if pageCtrl.PRW_state.GetData() is not None:
 				self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
-			if not pageCtrl.PRW_country.GetData() is None:
+		if pageCtrl.PRW_country.IsModified():
+			self.form_DTD.is_modified = True
+			if pageCtrl.PRW_country.GetData() is not None:
 				self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
+		if pageCtrl.TTC_phone.IsModified():
+			self.form_DTD.is_modified = True
 			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
-		except:
-			return False
 		return True
 #============================================================
 class cPatOccupationsPanel(wx.Panel):
@@ -1905,34 +1939,47 @@ class TestWizardPanel(wx.Panel):
 		print wizard.RunWizard()
 #============================================================
 if __name__ == "__main__":
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(text_domain='gnumed')
+	gmPG2.get_connection()
 	
 	try:
-		
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
-		if patient is None:
-			print "No patient. Exiting gracefully..."
-			sys.exit(0)
-		gmPerson.set_active_patient(patient=patient)
+#		patient = gmPerson.ask_for_patient()
+#		if patient is None:
+#			print "No patient. Exiting gracefully..."
+#			sys.exit(0)
+#		gmPerson.set_active_patient(patient=patient)
 	
-		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
-		
-		app1 = wx.PyWidgetTester(size = (800, 600))
-		app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		#app1.SetWidget(TestWizardPanel, -1)
-		app1.MainLoop()
+#		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
+
+		app = wx.PyWidgetTester(size = (400, 300))
+#		app.SetWidget(cNotebookedPatEditionPanel, -1)
+#		app.SetWidget(TestWizardPanel, -1)
+
+		pw = cStateSelectionPhraseWheel(app.frame, -1)
+#		pw.set_context(context = u'zip', val = u'04318')
+		pw.set_context(context = u'country', val = u'Deutschland')
+		app.frame.Show(True)
+
+		app.MainLoop()
 	
 	except StandardError:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
 		raise
-	
-#	app2 = wx.PyWidgetTester(size = (800, 600))
-#	app2.SetWidget(DemographicDetailWindow, -1)
-#	app2.MainLoop()
+
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.102  2006-10-31 12:38:30  ncq
+# Revision 1.103  2006-11-05 16:18:29  ncq
+# - cleanup, _() handling in test mode, sys.path handling in CVS mode
+# - add cStateSelectionPhraseWheel and use it
+# - try being more careful in contacts/identity editing such as not
+#   to change gender/state/dob behind the back of the user
+#
+# Revision 1.102  2006/10/31 12:38:30  ncq
 # - stop improper capitalize_first()
 # - more gmPG -> gmPG2
 # - remove get_name_gender_map()
