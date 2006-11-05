@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -418,7 +418,7 @@ class cLogTargetFile(cLogTarget):
 					msg.append(tmp.encode('latin1'))			# FIXME: should be locale encoding, not latin1
 				if type(tmp) == type(''):
 					msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
-				self.__handle.write(' '.join(msg))
+			self.__handle.write(' '.join(msg))
 		except:
 			print "*** cannot write to log file [%s] ***" % self.ID
 #---------------------------------------------------------------
@@ -841,7 +841,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.24  2006-11-04 22:25:10  ncq
+# Revision 1.25  2006-11-05 14:24:53  ncq
+# - fix improper indentation
+#
+# Revision 1.24  2006/11/04 22:25:10  ncq
 # - try to catch more encoding errors in console handler
 #
 # Revision 1.23  2006/11/04 20:04:47  ncq
