@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.103 2006-11-05 16:18:29 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmDemographicsWidgets.py,v 1.104 2006-11-05 17:55:33 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1173,7 +1173,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		try:
 			pageCtrl = self.GetWindow().GetParent()
 			pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
-			pageCtrl.PRW_dob.SetData(self.__dtd['dob'].timestamp)
+			pageCtrl.PRW_dob.SetData(self.__dtd['dob'])
 			pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 			pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
 			pageCtrl.PRW_title.SetValue(self.__dtd['title'])
@@ -1973,7 +1973,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.103  2006-11-05 16:18:29  ncq
+# Revision 1.104  2006-11-05 17:55:33  ncq
+# - dtd['dob'] already is a timestamp
+#
+# Revision 1.103  2006/11/05 16:18:29  ncq
 # - cleanup, _() handling in test mode, sys.path handling in CVS mode
 # - add cStateSelectionPhraseWheel and use it
 # - try being more careful in contacts/identity editing such as not
