@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.271 2006-10-31 12:39:54 ncq Exp $
-__version__ = "$Revision: 1.271 $"
+# $Id: gmGuiMain.py,v 1.272 2006-11-05 16:04:29 ncq Exp $
+__version__ = "$Revision: 1.272 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -242,7 +242,12 @@ class gmTopLevelFrame(wx.Frame):
 		# menu "GNUmed"
 		menu_gnumed = wx.Menu()
 
-#		menu_gnumed.AppendSeparator()
+		ID_UNBLOCK = wx.NewId()
+		menu_gnumed.Append(ID_UNBLOCK, _('Unlock mouse.'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
+
+		menu_gnumed.AppendSeparator()
+
 		menu_gnumed.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
 		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
 
@@ -418,12 +423,19 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_pre_patient_selection(self, **kwargs):
 
+		# FIXME: we need a way to make sure the patient has not yet changed
+		# FIXME: because we are called wx.CallAfter()
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
 
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
+
+		# did we add anything to the EMR
+#		if not emr.is_encounter_modified():
+#			print "encounter not modified"
+#			return True
 
 		# update encounter summary
 		if ((enc['assessment_of_encounter'] is None)
@@ -466,6 +478,9 @@ class gmTopLevelFrame(wx.Frame):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
 		# calls wx.EVT_CLOSE handler
 		self.Close()
+	#----------------------------------------------
+	def __on_unblock_cursor(self, evt):
+		wx.EndBusyCursor()
 	#----------------------------------------------
 	def OnClose(self, event):
 		"""wx.EVT_CLOSE handler.
@@ -1123,7 +1138,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.271  2006-10-31 12:39:54  ncq
+# Revision 1.272  2006-11-05 16:04:29  ncq
+# - add menu item GNUmed/Unlock mouse
+#
+# Revision 1.271  2006/10/31 12:39:54  ncq
 # - remove traces of gmPG
 #
 # Revision 1.270  2006/10/28 13:03:58  ncq
