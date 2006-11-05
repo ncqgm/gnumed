@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.18 2006-10-24 13:18:29 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmMatchProvider.py,v 1.19 2006-11-05 16:07:31 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -40,7 +40,7 @@ class cMatchProvider:
 		self.setThresholds()
 		self.setWordSeparators()
 		self.setIgnoredChars()
-		self._context_val = {}
+		self._context_vals = {}
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -180,17 +180,23 @@ class cMatchProvider:
 		"""Immediately start learning new items."""
 		self.__learnNewItems = True
 	#--------------------------------------------------------
-	def set_context (self, name=None, val=None):
+	def set_context (self, context=None, val=None):
 		"""Set value to provide context information	for matches.
 
 		The matching code may ignore it depending on its exact
 		implementation. Names and values of the context depend
 		on what is being matched.
 		"""
-		if name is None:
+		if context is None:
 			return False
-		self._context_val[name] = val
+		self._context_vals[context] = val
 		return True
+	#--------------------------------------------------------
+	def unset_context(self, context=None):
+		try:
+			del self._context_vals[context]
+		except KeyError:
+			pass
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -381,21 +387,25 @@ class cMatchProvider_SQL2(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
 	"""
-	def __init__(self, queries = None):
+	def __init__(self, queries = None, context = None):
 		if type(queries) != types.ListType:
 			queries = [str(queries)]
-		self._queries = queries
-		self._context_vals = {}
-		cMatchProvider.__init__(self)
-	#--------------------------------------------------------
-	def set_context (self, name, val):
-		"""Set value to provide context information	for matches.
 
-		The matching code may ignore it depending on its exact
-		implementation. Names and values of the context depend
-		on what is being matched.
-		"""
-		self._context_vals[name] = val
+		# queries: a list of unicode strings
+		# each string is a query
+		# each string must contain: "... where <column> %(fragment_condition)s ..."
+		# each string can contain in the where clause: "... %(<context_key>)s ..."
+		self._queries = queries
+
+		# context definitions to be used in the queries
+		# example: {'ctxt_country': {'where_part': 'and country=%(country)', 'placeholder': 'country'}}
+		if context is None:
+			self._context = {}
+		else:
+			self._context = context
+
+		self._args = {}
+		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -407,19 +417,19 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 		fragment_condition = "ilike %(fragment)s"
-		self._context_vals['fragment'] = "%s%%" % aFragment
+		self._args['fragment'] = "%s%%" % aFragment
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
 		fragment_condition = "~* %(fragment)s"
-		self._context_vals['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
+		self._args['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
 		fragment_condition = "ilike %(fragment)s"
-		self._context_vals['fragment'] = "%%%s%%" % aFragment
+		self._args['fragment'] = "%%%s%%" % aFragment
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getAllMatches(self):
@@ -429,34 +439,45 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def __find_matches(self, fragment_condition):
 		matches = []
 		for query in self._queries:
-			query = query % {'fragment_condition': fragment_condition}
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': self._context_vals}])
+			where_fragments = {'fragment_condition': fragment_condition}
+
+			for context_key, context_def in self._context.items():
+				try:
+					placeholder = context_def['placeholder']
+					where_part = context_def['where_part']
+					self._args[placeholder] = self._context_vals[placeholder]
+					# we do have a context value for this key, so add the where condition
+					where_fragments[context_key] = where_part
+				except KeyError:
+					# we don't have a context value for this key, so skip the where condition
+					where_fragments[context_key] = u''
+
+			query = query % where_fragments
+
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': self._args}])
+
 			# no matches found: try next query
 			if len(rows) == 0:
 				continue
+
 			for row in rows:
 				matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+
 			return (True, matches)
 		# none found whatsoever
 		return (False, [])
-	#--------------------------------------------------------
-	def __cmp_items(self, item1, item2):
-		"""naive ordering"""
-		if item1 < item2:
-			return -1
-		if item1 == item2:
-			return 0
-		return 1
-#------------------------------------------------------------
-
-# FUTURE: a cMatchProvider_LDAP
 #================================================================
 if __name__ == '__main__':
 	pass
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.18  2006-10-24 13:18:29  ncq
+# Revision 1.19  2006-11-05 16:07:31  ncq
+# - *_SQL2 now really handles context values, tested, too
+# - some u''-ification
+# - don't sort items in *_SQL2, rely on in-query ORDER BY instead
+#
+# Revision 1.18  2006/10/24 13:18:29  ncq
 # - switch to gmPG2
 # - remove cMatchProvider_SQL()
 #
