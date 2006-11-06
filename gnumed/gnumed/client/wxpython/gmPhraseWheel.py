@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.78 2006-11-05 16:10:11 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmPhraseWheel.py,v 1.79 2006-11-06 12:54:00 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -63,7 +63,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.__matcher = aMatchProvider
 		self.__real_matcher = None
 		self.__currMatches = []
-		self._input_was_selected = False
+#		self._input_was_selected = False
 
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.allow_multiple_phrases()
@@ -72,7 +72,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.left_part = ''
 		self.right_part = ''
 		self.data = None
-		
+
 		self.selection_only = selection_only
 		self._has_focus = False
 		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
@@ -180,12 +180,14 @@ class cPhraseWheel(wx.TextCtrl):
 	def SetValue (self, value, data=None):
 
 		wx.TextCtrl.SetValue(self, value)
-		self._input_was_selected = False
+		self.data = data
+#		self._input_was_selected = False
 
-		# set data item if available
-		if data is not None:
-			self.data = data
-			self._input_was_selected = True
+		# if data already available
+		if self.data is not None:
+#		if data is not None:
+#			self.data = data
+#			self._input_was_selected = True
 			return True
 
 		# or try to find one from matches
@@ -193,11 +195,11 @@ class cPhraseWheel(wx.TextCtrl):
 		for match in matches:
 			if match['label'] == value:
 				self.data = match['data']
-				self._input_was_selected = True
+#				self._input_was_selected = True
 				return True
 
 		# not found
-		self.data = None
+#		self.data = None
 		if self.selection_only:
 			return False
 		return True
@@ -259,7 +261,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
-		if self._input_was_selected:
+		if self.data is not None:
 			return 1
 
 		if not self._has_focus:
@@ -271,7 +273,7 @@ class cPhraseWheel(wx.TextCtrl):
 		# if only one match and text == match
 		if len(self.__currMatches) == 1:
 			if self.__currMatches[0]['label'] == self.input2match:
-				self._input_was_selected = 1
+#				self._input_was_selected = 1
 				self.data = self.__currMatches[0]['data']
 				return 1
 
@@ -326,16 +328,16 @@ class cPhraseWheel(wx.TextCtrl):
 			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
 		else:
 			wx.TextCtrl.SetValue (self, self._calc_display_string())
-		self.Navigate()
 		self.MarkDirty()
 
 		self.data = self._picklist.GetSelectedItemData()
-		self._input_was_selected = True
+#		self._input_was_selected = True
 
 		# and tell the listeners about the user's selection
 		for call_listener in self._on_selection_callbacks:
 			call_listener(self.data)
 		self.notified_listeners = True
+		self.Navigate()
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -413,7 +415,7 @@ class cPhraseWheel(wx.TextCtrl):
 	def _on_text_update (self, event):
 		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
-		self._input_was_selected = False
+#		self._input_was_selected = False
 		self.data = None
 
 		# if empty string then kill list dropdown window
@@ -471,7 +473,7 @@ class cPhraseWheel(wx.TextCtrl):
 			if len(self.__currMatches) > 0:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-				self._input_was_selected = True
+#				self._input_was_selected = True
 				self.MarkDirty()
 
 		self.__timer.Start(oneShot = True)
@@ -488,13 +490,13 @@ class cPhraseWheel(wx.TextCtrl):
 		self._hide_dropdown()
 
 		# can/must we auto-set the value from the match list ?
-		if (self.selection_only) and (not self._input_was_selected) and (self.GetValue().strip() != ''):
+		if (self.selection_only) and (self.data is None) and (self.GetValue().strip() != ''):
 			self._updateMatches()
 			no_matches = len(self.__currMatches)
 			if no_matches == 1:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-				self._input_was_selected = True
+#				self._input_was_selected = True
 				self.MarkDirty()
 			elif no_matches > 1:
 				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
@@ -582,7 +584,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.78  2006-11-05 16:10:11  ncq
+# Revision 1.79  2006-11-06 12:54:00  ncq
+# - we don't actually need self._input_was_selected thanks to self.data
+#
+# Revision 1.78  2006/11/05 16:10:11  ncq
 # - cleanup
 # - now really handle context
 # - add unset_context()
