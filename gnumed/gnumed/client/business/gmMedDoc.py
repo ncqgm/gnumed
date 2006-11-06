@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.83 2006-10-31 17:18:08 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmMedDoc.py,v 1.84 2006-11-06 09:57:39 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -564,7 +564,8 @@ def create_document(patient_id=None, document_type=None, encounter=None, episode
 		queries = [
 			{'cmd': cmd1, 'args': [patient_id, document_type, encounter, episode]},
 			{'cmd': cmd2}
-		]
+		],
+		return_data = True
 	)
 	doc_id = rows[0][0]
 	doc = cMedDoc(aPK_obj = doc_id)
@@ -621,14 +622,15 @@ def create_document_type(document_type=None):
 			queries = [
 				{'cmd': cmd1, 'args': [document_type]},
 				{'cmd': cmd2}
-			]
+			],
+			return_data = True
 		)
 	return cDocumentType(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 def delete_document_type(document_type=None):
 	gmPG2.run_rw_queries (
 		queries = [{
-			'cmd': u'delete from blobs.doc_type where pk=%s and is_user is True',
+			'cmd': u'delete from blobs.doc_type where pk=%s',
 			'args': [document_type['pk_doc_type']]
 		}]
 	)
@@ -715,7 +717,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.83  2006-10-31 17:18:08  ncq
+# Revision 1.84  2006-11-06 09:57:39  ncq
+# - need to return_data to return data
+# - cannot drop non-user doc types from blobs.doc_type so drop is_user where condition
+#
+# Revision 1.83  2006/10/31 17:18:08  ncq
 # - fix a few programming errors
 #
 # Revision 1.82  2006/10/31 16:16:28  ncq
