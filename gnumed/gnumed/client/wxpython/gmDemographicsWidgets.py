@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.105 2006-11-06 10:28:49 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmDemographicsWidgets.py,v 1.106 2006-11-06 12:51:53 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -84,7 +84,7 @@ class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			},
 			u'ctxt_zip': {
 				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': 'zip'
+				u'placeholder': u'zip'
 			},
 			u'ctxt_country_code': {
 				u'where_part': u'and country in (select code from dem.country where _(name) ilike %(country_name)s or name ilike %(country_name)s)',
@@ -147,8 +147,8 @@ select code, name from (
 			*args,
 			**kwargs
 		)
-		self.unset_context(context = 'zip')
-		self.unset_context(context = 'country_name')
+		self.unset_context(context = u'zip')
+		self.unset_context(context = u'country_name')
 
 		self.SetToolTipString(_("Select a state/region/province/territory."))
 #============================================================
@@ -161,7 +161,7 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 				union
 			(select distinct postcode, postcode from dem.urb where postcode %(fragment_condition)s limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(3, 5, 15)
+		mp.setThresholds(2, 3, 15)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
@@ -176,7 +176,7 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		context = {
 			u'ctxt_zip': {
 				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': 'zip'
+				u'placeholder': u'zip'
 			}
 		}
 		query = u"""
@@ -199,15 +199,15 @@ select s1, s2 from (
 
 	) as q2
 ) as q1 order by rank, s2 limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(3, 5, 15)				
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp.setThresholds(3, 5, 8)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
-		self.unset_context(context = 'zip')
+		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a street.'))
 #============================================================
@@ -217,12 +217,12 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		context = {
 			u'ctxt_zip': {
 				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': 'zip'
+				u'placeholder': u'zip'
 			}
 		}
 		query = u"""
 select u1, u2 from (
-	select distinct on (u1,u2) u1, u2 from (
+	select distinct on (u1,u2) u1, u2, rank from (
 			select
 				urb as u1, urb as u2, 1 as rank
 			from dem.v_zip2data
@@ -240,15 +240,15 @@ select u1, u2 from (
 
 	) as q2
 ) as q1 order by rank, u2 limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(3, 5, 6)
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp.setThresholds(3, 5, 7)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
-		self.unset_context(context = 'zip')
+		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
 #============================================================
@@ -260,12 +260,12 @@ class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		context = {
 			u'ctxt_zip': {
 				u'where_part': u'and zip ilike %(zip)s',
-				u'placeholder': 'zip'
+				u'placeholder': u'zip'
 			}
 		}
 		query = u"""
 select code, name from (
-	select distinct on (code, name) code, name from (
+	select distinct on (code, name) code, name, rank from (
 
 		-- localized to user
 
@@ -305,15 +305,15 @@ select code, name from (
 
 	) as q2
 ) as q1 order by rank, name limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(2, 5, 15)
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp.setThresholds(2, 5, 9)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
-		self.unset_context(context = 'zip')
+		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a country.'))
 #============================================================
@@ -324,7 +324,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 		query = u"select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(3, 5, 15)
+		mp.setThresholds(3, 5, 9)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
@@ -341,7 +341,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 				union
 			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(3, 5, 15)
+		mp.setThresholds(3, 5, 9)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
@@ -360,7 +360,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 				union
 			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(3, 5, 15)
+		mp.setThresholds(3, 5, 9)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
@@ -374,7 +374,7 @@ class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 		query = u"select distinct title, title from dem.identity where title %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 3, 15)
+		mp.setThresholds(1, 3, 9)
 		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
@@ -1927,7 +1927,28 @@ class TestWizardPanel(wx.Panel):
 #============================================================
 if __name__ == "__main__":
 
-	from Gnumed.pycommon import gmI18N
+	#--------------------------------------------------------
+	def test_zipcode_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cZipcodePhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_state_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cStateSelectionPhraseWheel(app.frame, -1)
+#		pw.set_context(context = u'zip', val = u'04318')
+#		pw.set_context(context = u'country', val = u'Deutschland')
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_street_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cStreetPhraseWheel(app.frame, -1)
+#		pw.set_context(context = u'zip', val = u'04318')
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
 	gmI18N.activate_locale()
 	gmI18N.install_domain(text_domain='gnumed')
 	gmPG2.get_connection()
@@ -1942,16 +1963,16 @@ if __name__ == "__main__":
 	
 #		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 
-		app = wx.PyWidgetTester(size = (400, 300))
+#		app = wx.PyWidgetTester(size = (400, 300))
 #		app.SetWidget(cNotebookedPatEditionPanel, -1)
 #		app.SetWidget(TestWizardPanel, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 
-		pw = cStateSelectionPhraseWheel(app.frame, -1)
-#		pw.set_context(context = u'zip', val = u'04318')
-		pw.set_context(context = u'country', val = u'Deutschland')
-		app.frame.Show(True)
-
-		app.MainLoop()
+		# run tests
+#		test_zipcode_prw()
+#		test_state_prw()
+		test_street_prw()
 	
 	except StandardError:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
@@ -1960,7 +1981,13 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.105  2006-11-06 10:28:49  ncq
+# Revision 1.106  2006-11-06 12:51:53  ncq
+# - a few u''s
+# - actually need to *pass* context to match providers, too
+# - adjust a few thresholds
+# - improved test suite
+#
+# Revision 1.105  2006/11/06 10:28:49  ncq
 # - zipcode/street/urb/country/lastname/firstname/nickname/title phrasewheels
 # - use them
 #
