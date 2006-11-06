@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.19 2006-11-05 16:07:31 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmMatchProvider.py,v 1.20 2006-11-06 09:59:42 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -389,7 +389,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 	"""
 	def __init__(self, queries = None, context = None):
 		if type(queries) != types.ListType:
-			queries = [str(queries)]
+			queries = [queries]
 
 		# queries: a list of unicode strings
 		# each string is a query
@@ -416,20 +416,20 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		fragment_condition = "ilike %(fragment)s"
-		self._args['fragment'] = "%s%%" % aFragment
+		fragment_condition = u"ilike %(fragment)s"
+		self._args['fragment'] = u"%s%%" % aFragment
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
-		fragment_condition = "~* %(fragment)s"
-		self._args['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
+		fragment_condition = u"~* %(fragment)s"
+		self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
-		fragment_condition = "ilike %(fragment)s"
-		self._args['fragment'] = "%%%s%%" % aFragment
+		fragment_condition = u"ilike %(fragment)s"
+		self._args['fragment'] = u"%%%s%%" % aFragment
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getAllMatches(self):
@@ -472,7 +472,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.19  2006-11-05 16:07:31  ncq
+# Revision 1.20  2006-11-06 09:59:42  ncq
+# - when allowing non-list strings to turn into query list do not
+#   str() them or else we may lose unicodity
+# - more u''ing
+#
+# Revision 1.19  2006/11/05 16:07:31  ncq
 # - *_SQL2 now really handles context values, tested, too
 # - some u''-ification
 # - don't sort items in *_SQL2, rely on in-query ORDER BY instead
