@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.104 2006-11-05 17:55:33 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmDemographicsWidgets.py,v 1.105 2006-11-06 10:28:49 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -71,6 +71,8 @@ def disable_identity(identity=None):
 
 	return True
 #============================================================
+# address phrasewheels
+#============================================================
 class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -134,14 +136,12 @@ select code, name from (
 				%(ctxt_country_code)s
 
 	) as q2
-) as q1 order by rank limit 50"""
+) as q1 order by rank, name limit 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 6)
 		mp.setWordSeparators(separators=u'[ \t]+')
-
 		kwargs['aMatchProvider'] = mp
-		kwargs['selection_only'] = True
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -151,6 +151,237 @@ select code, name from (
 		self.unset_context(context = 'country_name')
 
 		self.SetToolTipString(_("Select a state/region/province/territory."))
+#============================================================
+class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		# FIXME: add possible context
+		query = u"""
+			(select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s limit 20)
+				union
+			(select distinct postcode, postcode from dem.urb where postcode %(fragment_condition)s limit 20)"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(3, 5, 15)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select a zip code (postcode)."))
+#============================================================
+class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		context = {
+			u'ctxt_zip': {
+				u'where_part': u'and zip ilike %(zip)s',
+				u'placeholder': 'zip'
+			}
+		}
+		query = u"""
+select s1, s2 from (
+	select distinct on (s1, s2) s1, s2, rank from (
+			select
+				street as s1, street as s2, 1 as rank
+			from dem.v_zip2data
+			where
+				street %(fragment_condition)s
+				%(ctxt_zip)s
+
+		union all
+
+			select
+				name as s1, name as s2, 2 as rank
+			from dem.street
+			where
+				name %(fragment_condition)s
+
+	) as q2
+) as q1 order by rank, s2 limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(3, 5, 15)				
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.unset_context(context = 'zip')
+
+		self.SetToolTipString(_('Type or select a street.'))
+#============================================================
+class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		context = {
+			u'ctxt_zip': {
+				u'where_part': u'and zip ilike %(zip)s',
+				u'placeholder': 'zip'
+			}
+		}
+		query = u"""
+select u1, u2 from (
+	select distinct on (u1,u2) u1, u2 from (
+			select
+				urb as u1, urb as u2, 1 as rank
+			from dem.v_zip2data
+			where
+				urb %(fragment_condition)s
+				%(ctxt_zip)s
+
+		union all
+
+			select
+				name as u1, name as u2, 2 as rank
+			from dem.urb
+			where
+				name %(fragment_condition)s
+
+	) as q2
+) as q1 order by rank, u2 limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(3, 5, 6)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.unset_context(context = 'zip')
+
+		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
+#============================================================
+class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	# FIXME: default in config
+
+	def __init__(self, *args, **kwargs):
+		context = {
+			u'ctxt_zip': {
+				u'where_part': u'and zip ilike %(zip)s',
+				u'placeholder': 'zip'
+			}
+		}
+		query = u"""
+select code, name from (
+	select distinct on (code, name) code, name from (
+
+		-- localized to user
+
+			select
+				code_country as code, l10n_country as name, 1 as rank
+			from dem.v_zip2data
+			where
+				l10n_country %(fragment_condition)s
+				%(ctxt_zip)s
+
+		union all
+
+			select
+				code as code, _(name) as name, 2 as rank
+			from dem.country
+			where
+				_(name) %(fragment_condition)s
+
+		union all
+
+		-- non-localized
+
+			select
+				code_country as code, country as name, 3 as rank
+			from dem.v_zip2data
+			where
+				country %(fragment_condition)s
+				%(ctxt_zip)s
+
+		union all
+
+			select
+				code as code, name as name, 4 as rank
+			from dem.country
+			where
+				name %(fragment_condition)s
+
+	) as q2
+) as q1 order by rank, name limit 25"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(2, 5, 15)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.unset_context(context = 'zip')
+
+		self.SetToolTipString(_('Type or select a country.'))
+#============================================================
+# identity phrasewheels
+#============================================================
+class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(3, 5, 15)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select a lastname (family name)."))
+#============================================================
+class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"""
+			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
+				union
+			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(3, 5, 15)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select a firstname (surname/given name)."))
+#============================================================
+class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"""
+			(select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s order by preferred limit 20)
+				union
+			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s order by firstnames limit 20)
+				union
+			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(3, 5, 15)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select an alias (nick name, preferred name, call name, warrior name, artist name)."))
+#============================================================
+class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"select distinct title, title from dem.identity where title %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 15)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select a title."))
 #============================================================
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a gender."""
@@ -217,60 +448,24 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
-		queries = []
-		queries.append("select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s limit 25")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
+		self.PRW_lastname = cLastnamePhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_lastname.SetToolTipString(_('Required: lastname (family name)'))
 
 		# first name
 		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
 		STT_firstname.SetForegroundColour('red')
-		queries = []
-		cmd = """
-			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s limit 20)
-				union
-			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s limit 20)"""
-		queries.append(cmd)
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
+		self.PRW_firstname = cFirstnamePhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_firstname.SetToolTipString(_('Required: surname/given name/first name'))
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
-		queries = []
-		cmd = """
-			(select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s limit 20)
-				union
-			(select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s limit 20)"""
-		queries.append(cmd)
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_nick.SetToolTipString(_("nick name, preferred name, call name, warrior name, artist name, alias"))
+		self.PRW_nick = cNicknamePhraseWheel(parent = PNL_form, id = -1)
 
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.PRW_dob = gmDateTimeInput.cFuzzyTimestampInput (
-			parent = PNL_form,
-			id = -1
-		)
-		self.PRW_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
+		self.PRW_dob = gmDateTimeInput.cFuzzyTimestampInput(parent = PNL_form, id = -1)
+		self.PRW_dob.SetToolTipString(_("Required: date of birth, if unknown or aliasing wanted then invent one"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
@@ -280,51 +475,16 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
-		queries = []
-		queries.append("select distinct title, title from dem.identity where title %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(1, 3, 15)
-		self.PRW_title = gmPhraseWheel.cPhraseWheel(
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_title.SetToolTipString(_("title of patient"))
+		self.PRW_title = cTitlePhraseWheel(parent = PNL_form, id = -1)
 
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
-		queries = []
-		queries.append("select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s limit 50")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)				
-		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
+		self.PRW_zip_code = cZipcodePhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
-		queries = []
-		queries.append ("""
-		select distinct on (s1,s2) s1, s2 from (
-			select * from (
-				select street as s1, street as s2, 1 as rank from dem.v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select name as s1, name as s2, 2 as rank from dem.street where name %(fragment_condition)s
-			) as q1 order by rank, s1
-		) as q2
-		limit 50
-		""")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)				
-		self.PRW_street = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_street.set_context(context='zip', val='%')
+		self.PRW_street = cStreetPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 
 		# address number
@@ -334,59 +494,17 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
-		queries = []
-		queries.append("""
-		select distinct on (u1,u2) u1, u2 from (
-			select * from (
-				select urb as u1, urb as u2, 1 as rank from dem.v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select name as u1, name as u2, 2 as rank from dem.urb where name %(fragment_condition)s
-			) as t1 order by rank, u1
-		) as q2
-		limit 50
-		""")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 6)
-		self.PRW_town = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_town.set_context(context='zip', val='%')
+		self.PRW_town = cUrbPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
+		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1, selection_only = True)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
-		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		queries = []
-		queries.append("""
-		select distinct on (code, name) code, name from (
-			select * from (
-				-- localized to user
-				select code_country as code, l10n_country as name, 1 as rank from dem.v_zip2data where l10n_country %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select code as code, _(name) as name, 2 as rank from dem.country where _(name) %(fragment_condition)s
-					union
-				-- non-localized
-				select code_country as code, country as name, 3 as rank from dem.v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select code as code, name as name, 4 as rank from dem.country where name %(fragment_condition)s
-			) as q2 order by rank, name
-		) as q1 limit 25""")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(2, 5, 15)
-		self.PRW_country = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			selection_only = True
-		)
-		self.PRW_country.set_context(context='zip', val='%')
+		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1, selection_only = True)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
@@ -452,24 +570,18 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		"""
-		Configure enabled event signals
-		"""
-		# custom
 		self.PRW_firstname.add_callback_on_lose_focus(self.on_name_set)
 		self.PRW_country.add_callback_on_selection(self.on_country_selected)
 		self.PRW_zip_code.add_callback_on_lose_focus(self.on_zip_set)
 	#--------------------------------------------------------
 	def on_country_selected(self, data):
-		"""
-		Set the states according to entered country.
-		"""
+		"""Set the states according to entered country."""
 		self.PRW_state.set_context(context=u'country', val=data)
 		return True
 	#--------------------------------------------------------
 	def on_name_set(self):
-		"""
-		Set the gender according to entered firstname.
+		"""Set the gender according to entered firstname.
+
 		Matches are fetched from existing records in backend.
 		"""
 		firstname = self.PRW_firstname.GetValue().strip()
@@ -483,15 +595,13 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		return True
 	#--------------------------------------------------------
 	def on_zip_set(self):
-		"""
-		Set the street, town, state and country according to entered zip code.
-		"""
+		"""Set the street, town, state and country according to entered zip code."""
 		zip_code = self.PRW_zip_code.GetValue().strip()
 		self.PRW_street.set_context(context=u'zip', val=zip_code)
 		self.PRW_town.set_context(context=u'zip', val=zip_code)
 		self.PRW_state.set_context(context=u'zip', val=zip_code)
 		self.PRW_country.set_context(context=u'zip', val=zip_code)
-		return True				
+		return True
 #============================================================
 class cNewPatientWizard(wx.wizard.Wizard):
 	"""
@@ -994,61 +1104,18 @@ class cPatIdentityPanel(wx.Panel):
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
-		queries = []
-		queries.append("select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextWidgetValidator (
-				message = _('Required: lastname (family name)'),
-				non_empty = True,
-				only_digits = False
-			)
-		)
-		self.PRW_lastname.SetToolTipString(_("Required: lastname (family name)"))
+		self.PRW_lastname = cLastnamePhraseWheel(parent = PNL_form, id = -1)
+		self.PRW_lastname.SetToolTipString(_('Required: lastname (family name)'))
 
 		# first name
 		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
 		STT_firstname.SetForegroundColour('red')
-		queries = []
-		cmd = """
-			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s
-				union
-			select distinct name, name from dem.name_gender_map where name %(fragment_condition)s"""
-		queries.append(cmd)
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextWidgetValidator (
-				message = _('Required: surname/given name/first name'),
-				non_empty = True,
-				only_digits = False
-			)
-		)
-		self.PRW_firstname.SetToolTipString(_("Required: surname/given name/first name"))
+		self.PRW_firstname = cFirstnamePhraseWheel(parent = PNL_form, id = -1)
+		self.PRW_firstname.SetToolTipString(_('Required: surname/given name/first name'))
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
-		queries = []
-		cmd = """
-			select distinct preferred, preferred from dem.names where preferred %(fragment_condition)s
-				union
-			select distinct firstnames, firstnames from dem.names where firstnames %(fragment_condition)s"""
-		queries.append(cmd)
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_nick.SetToolTipString(_("nick name, preferred name, call name, warrior name, artist name, alias"))
+		self.PRW_nick = cNicknamePhraseWheel(parent = PNL_form, id = -1)
 
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
@@ -1064,16 +1131,7 @@ class cPatIdentityPanel(wx.Panel):
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
-		queries = []
-		queries.append("select distinct title, title from dem.identity where title %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(1, 3, 15)
-		self.PRW_title = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_title.SetToolTipString(_("title of patient"))
+		self.PRW_title = cTitlePhraseWheel(parent = PNL_form, id = -1)
 
 		# Set validator for identity form
 		PNL_form.SetValidator(cPatIdentityPanelValidator(dtd = self.__dtd))
@@ -1127,7 +1185,7 @@ class cPatIdentityPanel(wx.Panel):
 	#--------------------------------------------------------		
 	def set_identity(self, identity):
 		self.__ident = identity
-		
+	#--------------------------------------------------------
 	def save(self):
 		msg = _("Data in Identity section can't be saved.\nPlease, correct any invalid input.")
 		if not self.Validate():
@@ -1253,75 +1311,25 @@ class cPatContactsPanel(wx.Panel):
 		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
 		self.SZR_input.Add(STT_address_number, 0, wx.SHAPED)
 		self.SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
-
+	#--------------------------------------------------------
 	def __do_zip (self):
-			
-		# zip code
 		STT_zip_code = wx.StaticText(self.PNL_form, -1, _('Zip code'))
-		queries = []
-		queries.append("select distinct postcode, postcode from dem.street where postcode %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(3, 5, 15)				
-		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
-			parent = self.PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
+		self.PRW_zip_code = cZipcodePhraseWheel(parent = self.PNL_form, id = -1)
 		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 		self.SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
-
+	#--------------------------------------------------------
 	def __do_street (self):
-				
-		# street
 		STT_street = wx.StaticText(self.PNL_form, -1, _('Street'))
-		queries = []
-		queries.append("""
-		select distinct on (s1,s2) s1, s2 from (
-			select * from (
-				select street as s1, street as s2, 1 as rank from dem.v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select name as s1, name as s2, 2 as rank from dem.street where name %(fragment_condition)s
-			) as q1 order by rank, s1
-		) as q2
-		""")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(3, 5, 15)				
-		self.PRW_street = gmPhraseWheel.cPhraseWheel (
-			parent = self.PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_street.set_context(context='zip', val='%')
+		self.PRW_street = cStreetPhraseWheel(parent = self.PNL_form, id = -1)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 		self.SZR_input.Add(STT_street, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
-
-
+	#--------------------------------------------------------
 	def __do_town (self):
-		
-		# town
 		STT_town = wx.StaticText(self.PNL_form, -1, _('Town'))
-		queries = []
-		queries.append("""
-		select distinct on (u1,u2) u1, u2 from (
-			select * from (		
-				select urb as u1, urb as u2, 1 as rank from dem.v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select name as u1, name as u2, 2 as rank from dem.urb where name %(fragment_condition)s
-			) as t1 order by rank, u1
-		) as q2
-		""")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(3, 5, 6)
-		self.PRW_town = gmPhraseWheel.cPhraseWheel (
-			parent = self.PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_town.set_context(context='zip', val='%')
+		self.PRW_town = cUrbPhraseWheel(parent = self.PNL_form, id = -1)
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
-		
 		self.SZR_input.Add(STT_town, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 	#--------------------------------------------------------
@@ -1329,39 +1337,18 @@ class cPatContactsPanel(wx.Panel):
 		# state
 		STT_state = wx.StaticText(self.PNL_form, -1, _('State'))
 		STT_state.SetForegroundColour('red')
-		# FIXME: default in config
 		self.PRW_state = cStateSelectionPhraseWheel(parent=self.PNL_form, id=-1)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
-
 		# country
-		# FIXME: default in config
 		STT_country = wx.StaticText(self.PNL_form, -1, _('Country'))
-		queries = []
-		queries.append("""
-		select distinct on (code,name) code, name from (
-			select * from (						
-				select code_country as code, l10n_country as name, 1 as rank from dem.v_zip2data where l10n_country %(fragment_condition)s and zip ilike %%(zip)s
-					union
-				select code as code, _(name) as name, 2 as rank from dem.country where _(name) %(fragment_condition)s
-			) as q1 order by rank, name
-		) as q2								
-		""")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(2, 5, 15)
-		self.PRW_country = gmPhraseWheel.cPhraseWheel (
-			parent = self.PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			selection_only = True
-		)
-		self.PRW_country.set_context(context='zip', val='%')
+		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1, selection_only = True)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		self.SZR_input.Add(STT_state, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
 		self.SZR_input.Add(STT_country, 0, wx.SHAPED)
 		self.SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
-
+	#--------------------------------------------------------
 	def __do_phones (self):
 		
 		# phone
@@ -1973,7 +1960,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.104  2006-11-05 17:55:33  ncq
+# Revision 1.105  2006-11-06 10:28:49  ncq
+# - zipcode/street/urb/country/lastname/firstname/nickname/title phrasewheels
+# - use them
+#
+# Revision 1.104  2006/11/05 17:55:33  ncq
 # - dtd['dob'] already is a timestamp
 #
 # Revision 1.103  2006/11/05 16:18:29  ncq
