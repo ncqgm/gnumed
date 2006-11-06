@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.272 2006-11-05 16:04:29 ncq Exp $
-__version__ = "$Revision: 1.272 $"
+# $Id: gmGuiMain.py,v 1.273 2006-11-06 12:53:09 ncq Exp $
+__version__ = "$Revision: 1.273 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -915,9 +915,9 @@ The client will, however, continue to start up because you are running a develop
 There may be schema related errors. Please report and/or fix them.
 
 Do not rely on this database to work properly in all cases !""")
-				gmGuiHelpers.gm_show_info(msg, _('Verifying database'), gmLog.lErr)
+				gmGuiHelpers.gm_show_info(msg, _('Verifying database'), gmLog.lWarn)
 			else:
-				gmGuiHelpers.gm_show_error(msg, _('Verifying database'), gmLog.lErr)
+				gmGuiHelpers.gm_show_error(msg, _('Verifying database'), gmLog.lWarn)
 				return False
 
 		# check account <-> staff member association
@@ -1138,7 +1138,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.272  2006-11-05 16:04:29  ncq
+# Revision 1.273  2006-11-06 12:53:09  ncq
+# - lower severity of verbose part of "incompatible database warning" message
+#
+# Revision 1.272  2006/11/05 16:04:29  ncq
 # - add menu item GNUmed/Unlock mouse
 #
 # Revision 1.271  2006/10/31 12:39:54  ncq
