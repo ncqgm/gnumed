@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.87 2006-11-05 16:01:24 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmPerson.py,v 1.88 2006-11-06 09:58:11 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -925,6 +925,7 @@ class cPatientSearcher_SQL:
 				rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx=True)
 			except:
 				_log.LogException('error running query')
+				continue
 			if len(rows) == 0:
 				continue
 			identities.extend (
@@ -1890,7 +1891,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.87  2006-11-05 16:01:24  ncq
+# Revision 1.88  2006-11-06 09:58:11  ncq
+# - add missing continue in get_identities()
+#
+# Revision 1.87  2006/11/05 16:01:24  ncq
 # - include nick in identity description string, user wants to
 #   abuse it for other means
 #
