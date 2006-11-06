@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.97 2006-10-31 17:22:49 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmMedDocWidgets.py,v 1.98 2006-11-06 10:01:17 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -108,6 +108,14 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 			gmMedDoc.create_document_type(document_type = self._TCTRL_description.GetValue().strip())
 
 		self.repopulate_ui()
+		return
+	#--------------------------------------------------------
+	def _on_description_modified(self, event):
+		if self._TCTRL_description.GetValue().strip() == '':
+			self._BTN_add.Enable(False)
+		else:
+			self._BTN_add.Enable(True)
+#		event.Skip()	# do I need this ??
 		return
 #============================================================
 class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1213,7 +1221,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.97  2006-10-31 17:22:49  ncq
+# Revision 1.98  2006-11-06 10:01:17  ncq
+# - handle _on_description_modified() in edit-doc-types
+#
+# Revision 1.97  2006/10/31 17:22:49  ncq
 # - unicode()ify queries
 # - cleanup
 # - PgResult is now dict, so use it instead of index
