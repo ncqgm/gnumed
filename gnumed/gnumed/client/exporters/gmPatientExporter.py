@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.87 2006-11-05 17:54:17 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmPatientExporter.py,v 1.88 2006-11-07 00:25:19 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -951,6 +951,8 @@ class cEmrExport:
 #============================================================
 class cEMRJournalExporter:
 	"""Exports patient EMR into a simple chronological journal.
+
+	Note that this export will emit u'' strings only.
 	"""
 	def __init__(self, patient=None):
 		if patient is None:
@@ -972,14 +974,14 @@ class cEMRJournalExporter:
 	#--------------------------------------------------------
 	def export_to_file(self, filename=None):
 		if not self.__pat.is_connected():
-			return (False, 'no active patient')
+			return (False, u'no active patient')
 		if filename is None:
 			ident = self.__pat.get_identity()
-			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
-			filename = '%s-%s-%s-%s.txt' % (
+			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export'))
+			filename = u'%s-%s-%s-%s.txt' % (
 				os.path.join(path, _('emr-journal')),
-				ident['lastnames'].replace(' ', '-'),
-				ident['firstnames'].replace(' ', '_'),
+				ident['lastnames'].replace(u' ', u'-'),
+				ident['firstnames'].replace(u' ', u'_'),
 				ident['dob'].strftime('%Y-%m-%d')
 			)
 		f = open(filename, 'wb')
@@ -997,15 +999,15 @@ class cEMRJournalExporter:
 			return False
 		ident = self.__pat.get_identity()
 		# write header
-		txt = _('Chronological EMR Journal\n').encode('iso8859-15')
+		txt = _('Chronological EMR Journal\n')
 		target.write(txt)
-		target.write('=' * (len(txt)-1))
+		target.write(u'=' * (len(txt)-1))
 		target.write('\n')
-		target.write(_('Patient: %s (%s), No: %s\n').encode('iso8859-15') % (ident['description'], ident['gender'], self.__pat['ID']))
-		target.write(_('Born   : %s, age: %s\n\n').encode('iso8859-15') % (ident['dob'].strftime('%Y-%m-%d'), ident.get_medical_age()))
-		target.write('.-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
-		target.write('| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
-		target.write('|-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
+		target.write(_('Patient: %s (%s), No: %s\n') % (ident['description'], ident['gender'], self.__pat['ID']))
+		target.write(_('Born   : %s, age: %s\n\n') % (ident['dob'].strftime('%Y-%m-%d'), ident.get_medical_age()))
+		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
+		target.write(u'| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
+		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		# get data
 		cmd = u"""
 select
@@ -1016,28 +1018,29 @@ from clin.v_emr_journal vemrj
 where pk_patient=%s order by date, pk_episode, scr"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__pat['ID']]}], get_col_idx = True)
 		# write data
-		prev_date = ''
-		prev_doc = ''
+		prev_date = u''
+		prev_doc = u''
 		for row in rows:
 			# narrative
-			if row[idx['narrative']] is not None:
-				txt = row[idx['narrative']].replace('\n', ' ').replace('\r', ' ')
+			if row[idx['narrative']] is None:
+				continue
+			txt = row[idx['narrative']].replace(u'\n', u' ').replace(u'\r', u' ')
 			no_parts = (len(txt) / self.__part_len) + 1
 			# doc
 			curr_doc = row[idx['modified_by']]
 			if curr_doc != prev_doc:
 				prev_doc = curr_doc
 			else:
-				curr_doc = ''
+				curr_doc = u''
 			# date
 			curr_date = row[idx['date']]
 			if curr_date != prev_date:
 				prev_date = curr_date
 				curr_doc = row[idx['modified_by']]
 			else:
-				curr_date = ''
+				curr_date = u''
 			# display first part
-			target.write('| %10.10s | %9.9s | %s | %s\n' % (
+			target.write(u'| %10.10s | %9.9s | %s | %s\n' % (
 				curr_date,
 				curr_doc,
 				self.__tx_soap[row[idx['soap_cat']]],
@@ -1051,10 +1054,10 @@ where pk_patient=%s order by date, pk_episode, scr"""
 				soap_cat = self.__tx_soap[row[idx['soap_cat']]]
 				msg = txt[(part * self.__part_len):((part+1) * self.__part_len)]
 				line = template % (u'', u'', soap_cat, msg)
-				target.write(line.encode('iso8859-15'))
+				target.write(line)
 		# write footer
-		target.write('`-%10.10s---%9.9s-------%72.72s\n\n'.encode('iso8859-15') % ('-' * 10, '-' * 9, '-' * self.__part_len))
-		target.write(_('Exported: %s\n').encode('iso8859-15') % time.asctime())
+		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
+		target.write(_('Exported: %s\n') % time.asctime())
 		return True
 #============================================================
 class cMedistarSOAPExporter:
@@ -1246,7 +1249,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.87  2006-11-05 17:54:17  ncq
+# Revision 1.88  2006-11-07 00:25:19  ncq
+# - make journal exporter emit strictly u''
+#
+# Revision 1.87  2006/11/05 17:54:17  ncq
 # - don't use issue pk in get_encounters()
 # - gmPG -> gmPG2
 #
