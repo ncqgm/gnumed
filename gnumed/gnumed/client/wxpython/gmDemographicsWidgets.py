@@ -1,16 +1,13 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.106 2006-11-06 12:51:53 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmDemographicsWidgets.py,v 1.107 2006-11-07 23:53:30 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os
-
-# 3rd party
-import mx.DateTime as mxDT
+import time, string, sys, os, datetime as pyDT
 
 import wx
 import wx.wizard
@@ -1801,7 +1798,7 @@ def create_identity_from_dtd(dtd=None):
 	"""
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
-		dob = dtd['dob'].timestamp,
+		dob = dtd['dob'].get_pydt(),
 		lastnames = dtd['lastnames'],
 		firstnames = dtd['firstnames']
 	)
@@ -1824,8 +1821,8 @@ def update_identity_from_dtd(identity, dtd=None):
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
-	if identity['dob'] != dtd['dob'].timestamp:
-		identity['dob'] = dtd['dob'].timestamp
+	if str(identity['dob']) != str(dtd['dob'].get_pydt()):
+		identity['dob'] = dtd['dob'].get_pydt()
 	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
 		identity['title'] = dtd['title']
 	# FIXME: error checking
@@ -1981,7 +1978,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.106  2006-11-06 12:51:53  ncq
+# Revision 1.107  2006-11-07 23:53:30  ncq
+# - be ever more careful in handling DOBs, use get_pydt() on fuzzy timestamps
+#
+# Revision 1.106  2006/11/06 12:51:53  ncq
 # - a few u''s
 # - actually need to *pass* context to match providers, too
 # - adjust a few thresholds
