@@ -10,15 +10,23 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.4 2006-10-31 17:18:55 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.5 2006-11-07 23:49:08 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import datetime as pyDT
+# stdlib
+import sys, datetime as pyDT
 
+# 3rd party
 import mx.DateTime as mxDT
+
+# GNUmed
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+# FIXME: remove this dependancy
+from Gnumed.pycommon import gmPG2
 
 (	acc_years,
 	acc_months,
@@ -141,7 +149,24 @@ class cFuzzyTimestamp:
 			self.__class__.__name__,
 			self.accuracy
 		)
-
+	#-----------------------------------------------------------------------
+	def get_mxdt(self):
+		return self.timestamp
+	#-----------------------------------------------------------------------
+	def get_pydt(self):
+		tz = gmPG2.FixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
+		secs, msecs = divmod(self.timestamp.second, 1)
+		ts = pyDT.datetime (
+			year = self.timestamp.year,
+			month = self.timestamp.month,
+			day = self.timestamp.day,
+			hour = self.timestamp.hour,
+			minute = self.timestamp.minute,
+			second = secs,
+			microsecond = msecs,
+			tzinfo = tz
+		)
+		return ts
 #===========================================================================
 if __name__ == '__main__':
 
@@ -170,7 +195,12 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.4  2006-10-31 17:18:55  ncq
+# Revision 1.5  2006-11-07 23:49:08  ncq
+# - make runnable standalone for testing
+# - add get_mxdt()/get_pydt()
+#   - but thus requires gmPG2, yuck, work around later
+#
+# Revision 1.4  2006/10/31 17:18:55  ncq
 # - make cFuzzyTimestamp accept datetime.datetime instances, too
 #
 # Revision 1.3  2006/10/25 07:46:44  ncq
