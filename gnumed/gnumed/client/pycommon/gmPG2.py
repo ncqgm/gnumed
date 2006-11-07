@@ -12,12 +12,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import time, locale, sys, re, os, codecs, types
+import time, locale, sys, re, os, codecs, types, datetime
 
 # GNUmed
 import gmLog, gmLoginInfo, gmExceptions
@@ -74,8 +74,11 @@ _log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_cli
 try:
 	import mx.DateTime as mxDT
 	_log.Log(gmLog.lInfo, 'mx.DateTime.now().gmtoffset() is: [%s]' % mxDT.now().gmtoffset())
-	del mxDT
 except: pass
+
+# MUST NOT be uniocde or else getquoted will not work
+_timestamp_template = "cast('%s' as timestamp with time zone)"
+FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 
 _default_dsn = None
 _default_login = None
@@ -577,7 +580,26 @@ class cEncodingError(dbapi.OperationalError):
 
 	def __str__(self):
 		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
+# =======================================================================
+class cAdapterPyDateTime(object):
 
+	def __init__(self, dt):
+		if dt.tzinfo is None:
+			raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
+		self.__dt = dt
+
+	def getquoted(self):
+		return _timestamp_template % self.__dt.isoformat()
+# -----------------------------------------------------------------------
+class cAdapterMxDateTime(object):
+
+	def __init__(self, dt):
+		if dt.tz == '???':
+			raise ValueError('mx.DateTime instance is lacking a time zone: [%s]' % _timestamp_template % dt)
+		self.__dt = dt
+
+	def getquoted(self):
+		return (_timestamp_template % self.__dt).replace(',', '.')
 # =======================================================================
 #  main
 # -----------------------------------------------------------------------
@@ -587,7 +609,11 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 # likewise with iterator types ...
 #psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
 psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
-
+psycopg2.extensions.register_adapter(datetime.datetime, cAdapterPyDateTime)
+try:
+	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+except:
+	pass
 
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
@@ -789,7 +815,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.9  2006-11-07 00:30:36  ncq
+# Revision 1.10  2006-11-07 23:52:48  ncq
+# - register our own adapters for mx.DateTime and datetime.datetime so
+#   we can solve the "ss,ms" issue in locale-aware str(timestamp)
+#
+# Revision 1.9  2006/11/07 00:30:36  ncq
 # - activate SQL_IN for lists only
 #
 # Revision 1.8  2006/11/05 17:03:26  ncq
