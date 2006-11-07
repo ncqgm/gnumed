@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.273 2006-11-06 12:53:09 ncq Exp $
-__version__ = "$Revision: 1.273 $"
+# $Id: gmGuiMain.py,v 1.274 2006-11-07 00:31:23 ncq Exp $
+__version__ = "$Revision: 1.274 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -722,12 +722,6 @@ Search results:
 		dlg = gmMedDocWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
-#	def __on_search_patient(self, event):
-#		"""Focus patient search widget."""
-#		# FIXME: directly accessing the top panel is ugly as sin
-#		searcher = self.__gb['horstspace.top_panel'].patient_selector
-#		searcher.SetFocus()
-	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
 
@@ -1138,7 +1132,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.273  2006-11-06 12:53:09  ncq
+# Revision 1.274  2006-11-07 00:31:23  ncq
+# - remove some cruft
+#
+# Revision 1.273  2006/11/06 12:53:09  ncq
 # - lower severity of verbose part of "incompatible database warning" message
 #
 # Revision 1.272  2006/11/05 16:04:29  ncq
