@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.64 2006-10-08 11:07:01 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPlugin.py,v 1.65 2006-11-07 00:34:52 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -211,7 +211,7 @@ class cNotebookPlugin:
 	def _on_raise_by_signal(self, **kwds):
 		# does this signal concern us ?
 		if kwds['name'] != self.__class__.__name__:
-			return True
+			return False
 		return self._on_raise_by_menu(None)
 	# -----------------------------------------------------
 	# event handlers for the popup window
@@ -433,7 +433,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.64  2006-10-08 11:07:01  ncq
+# Revision 1.65  2006-11-07 00:34:52  ncq
+# - fix logic error in _on_raise_by_signal()
+#
+# Revision 1.64  2006/10/08 11:07:01  ncq
 # - simplify wx import
 # - properly use db cfg in GetPluginLoadList()
 #
