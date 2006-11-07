@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.32 2006-10-08 11:04:09 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmHorstSpace.py,v 1.33 2006-11-07 00:34:16 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -21,13 +21,9 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmSignals, gmCfg
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
 from Gnumed.business import gmPerson
 
@@ -93,10 +89,16 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		self.nb.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._on_notebook_page_changed)
 		# - popup menu on right click in notebook
 		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
+
+		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
-		plugin_list = gmPlugin.GetPluginLoadList(option='horstspace.notebook.plugin_load_order', plugin_dir='gui', defaults=['gmProviderInboxPlugin'])
+		plugin_list = gmPlugin.GetPluginLoadList (
+			option = 'horstspace.notebook.plugin_load_order',
+			plugin_dir = 'gui',
+			defaults = ['gmProviderInboxPlugin']
+		)
 
 		nr_plugins = len(plugin_list)
 		wx.BeginBusyCursor()
@@ -146,6 +148,17 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		return True
 	#----------------------------------------------
 	# external callbacks
+	#----------------------------------------------
+	def _on_post_patient_selection(self, **kwargs):
+		db_cfg = gmCfg.cCfgSQL()
+		me = gmPerson.gmCurrentProvider()
+		default_plugin = db_cfg.get2 (
+			option = u'patient_search.plugin_to_raise_after_search',
+			workplace = me.get_workplace(),
+			bias = u'user',
+			default = u'gmEMRBrowserPlugin'
+		)
+		gmDispatcher.send(gmSignals.display_widget(), name=default_plugin)
 	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed."""
@@ -305,7 +318,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.32  2006-10-08 11:04:09  ncq
+# Revision 1.33  2006-11-07 00:34:16  ncq
+# - cleanup
+# - raise configured plugin after successful patient search
+#
+# Revision 1.32  2006/10/08 11:04:09  ncq
 # - add sensible default for plugin load list
 # - robustify __load_plugins() somewhat
 #
