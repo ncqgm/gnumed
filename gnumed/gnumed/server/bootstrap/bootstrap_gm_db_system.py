@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -47,9 +47,8 @@ try:
 	db_error = libpq.DatabaseError
 	dsn_format = "%s:%s:%s:%s:%s"
 except ImportError:
-	print "Cannot find Python module for connecting to the database server. Program halted."
+	print "Cannot find Python module pyPgSQL for connecting to the database server. Program halted."
 	print "Please check the log file and report to the mailing list."
-	_log.LogException("Cannot load pyPgSQL database adapter module.", sys.exc_info(), verbose=0)
 	raise
 
 # GNUmed imports
@@ -1370,7 +1369,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.33  2006-09-21 19:49:16  ncq
+# Revision 1.34  2006-11-07 00:37:06  ncq
+# - don't use _log before it's set up
+#
+# Revision 1.33  2006/09/21 19:49:16  ncq
 # - add database superuser to "gm-logins"
 #
 # Revision 1.32  2006/09/17 07:02:00  ncq
