@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -281,7 +281,8 @@ limit 1""" % where_clause
 		elif (type(value) in [types.FloatType, types.IntType, types.LongType]) or isinstance(value, decimal.Decimal):
 			val_type = '::numeric'
 		elif type(value) in [types.ListType]:
-			val_type = '::text[]'
+#			val_type = '::text[]'
+			val_type = ''
 		else:
 			try:
 				opt_value = gmPG2.dbapi.Binary(cPickle.dumps(value))
@@ -1118,7 +1119,12 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.45  2006-11-05 16:00:17  ncq
+# Revision 1.46  2006-11-07 00:27:45  ncq
+# - psycopg2 knows how to adapt lists/tuples to ARRAY syntax, at
+#   least when SQL_IN is loaded, so we can't use explicit casts with
+#   <datatype>[] anymore in our SQL
+#
+# Revision 1.45  2006/11/05 16:00:17  ncq
 # - unicode is text so don't pickle it
 #
 # Revision 1.44  2006/10/25 07:19:03  ncq
