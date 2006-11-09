@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.88 2006-11-07 00:25:19 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmPatientExporter.py,v 1.89 2006-11-09 17:48:05 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -20,7 +20,7 @@ import os.path, sys, traceback, string, types, time
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull, gmPG2
+from Gnumed.pycommon import gmLog, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull, gmPG2, gmTools
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
 
 _log = gmLog.gmDefLog
@@ -326,7 +326,7 @@ class cEmrExport:
         """
         txt = ''
         for a_field in field_list:
-            txt += offset*' ' + a_field + ': ' + str(item[a_field]) + '\n'
+            txt += offset*' ' + a_field + ': ' + gmTools.coalesce(item[a_field], '') + '\n'
         return txt
         
     #--------------------------------------------------------
@@ -420,7 +420,7 @@ class cEmrExport:
             left_margin - Number of spaces on the left margin
         """
         txt = left_margin*' ' + _('Allergy') + ': ' + allergy['descriptor'] + ', ' + \
-            allergy['reaction'] + '\n'
+            gmTools.coalesce(allergy['reaction'], _('unknown reaction')) + '\n'
         return txt
     #--------------------------------------------------------
     def get_vaccination_summary(self, vaccination, left_margin = 0):
@@ -1249,7 +1249,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.88  2006-11-07 00:25:19  ncq
+# Revision 1.89  2006-11-09 17:48:05  ncq
+# - ever more careful handling of NULLs
+#
+# Revision 1.88  2006/11/07 00:25:19  ncq
 # - make journal exporter emit strictly u''
 #
 # Revision 1.87  2006/11/05 17:54:17  ncq
