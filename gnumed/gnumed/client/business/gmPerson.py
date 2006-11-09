@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.89 2006-11-07 23:43:34 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmPerson.py,v 1.90 2006-11-09 17:46:04 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -164,6 +164,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if attribute == 'dob':
 			if type(value) != datetime.datetime:
 				raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime' % (self.__class__.__name__, type(value), value)
+			if value.tzinfo is None:
+				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def cleanup(self):
@@ -1889,7 +1891,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.89  2006-11-07 23:43:34  ncq
+# Revision 1.90  2006-11-09 17:46:04  ncq
+# - raise exception if dob is about to be set without a timezone
+#
+# Revision 1.89  2006/11/07 23:43:34  ncq
 # - cIdentity now requires datetime.datetime as DOB
 # - fix dob2medical_age()
 #
