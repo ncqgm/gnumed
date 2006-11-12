@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-v_address.sql,v 1.1 2006-11-09 20:21:56 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-v_address.sql,v 1.2 2006-11-12 23:25:52 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -19,6 +19,7 @@ create view dem.v_address as
 select
 	adr.id as pk_address,
 	vstr.street,
+	vstr.postcode,
 	adr.aux_street as notes_street,
 	adr.number,
 	adr.subunit,
@@ -32,8 +33,10 @@ select
 	vstr.lat_lon_urb,
 	vstr.code_state,
 	vstr.state,
+	vstr.l10n_state,
 	vstr.code_country,
 	vstr.country,
+	vstr.l10n_country,
 	vstr.country_deprecated,
 	adr.id_street as pk_street,
 	vstr.pk_urb,
@@ -54,12 +57,15 @@ comment on view dem.v_address is
 grant select on dem.v_address to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-v_address.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: dem-v_address.sql,v $', '$Revision: 1.2 $');
 
 
 -- ==============================================================
 -- $Log: dem-v_address.sql,v $
--- Revision 1.1  2006-11-09 20:21:56  ncq
+-- Revision 1.2  2006-11-12 23:25:52  ncq
+-- - include l10n_*, postcode
+--
+-- Revision 1.1  2006/11/09 20:21:56  ncq
 -- - added
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
