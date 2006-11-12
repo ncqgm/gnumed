@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-v_state.sql,v 1.1 2006-11-09 20:21:56 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-v_state.sql,v 1.2 2006-11-12 23:26:42 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -21,8 +21,10 @@ select
 	s.id as pk_state,
 	s.code as code_state,
 	s.name as state,
+	_(s.name) as l10n_state,
 	s.country as code_country,
 	c.name as country,
+	_(c.name) as l10n_country,
 	c.deprecated as country_deprecated,
 	s.xmin as xmin_state
 from
@@ -39,11 +41,14 @@ comment on view dem.v_state is
 grant select on dem.v_state to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-v_state.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: dem-v_state.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-v_state.sql,v $
--- Revision 1.1  2006-11-09 20:21:56  ncq
+-- Revision 1.2  2006-11-12 23:26:42  ncq
+-- - add l10n_* things
+--
+-- Revision 1.1  2006/11/09 20:21:56  ncq
 -- - added
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq

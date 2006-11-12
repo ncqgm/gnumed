@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-v_urb.sql,v 1.1 2006-11-09 20:21:56 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-v_urb.sql,v 1.2 2006-11-12 23:26:42 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -24,8 +24,10 @@ select
 	u.lat_lon as lat_lon_urb,
 	vs.code_state,
 	vs.state,
+	vs.l10n_state,
 	vs.code_country,
 	vs.country,
+	vs.l10n_country,
 	vs.country_deprecated,
 	u.id_state as pk_state,
 	u.xmin as xmin_urb
@@ -45,12 +47,15 @@ comment on view dem.v_urb is
 grant select on dem.v_urb to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('asdf$RCSfile: dem-v_urb.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('asdf$RCSfile: dem-v_urb.sql,v $', '$Revision: 1.2 $');
 
 
 -- ==============================================================
 -- $Log: dem-v_urb.sql,v $
--- Revision 1.1  2006-11-09 20:21:56  ncq
+-- Revision 1.2  2006-11-12 23:26:42  ncq
+-- - add l10n_* things
+--
+-- Revision 1.1  2006/11/09 20:21:56  ncq
 -- - added
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq

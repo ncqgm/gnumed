@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-v_street.sql,v 1.1 2006-11-09 20:21:56 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-v_street.sql,v 1.2 2006-11-12 23:26:42 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -20,6 +20,7 @@ create view dem.v_street as
 select
 	st.id as pk_street,
 	st.name as street,
+	coalesce(st.postcode, vu.postcode_urb) as postcode,
 	st.postcode as postcode_street,
 	st.lat_lon as lat_lon_street,
 	st.suburb as suburb,
@@ -28,8 +29,10 @@ select
 	vu.lat_lon_urb,
 	vu.code_state,
 	vu.state,
+	vu.l10n_state,
 	vu.code_country,
 	vu.country,
+	vu.l10n_country,
 	vu.country_deprecated,
 	st.id_urb as pk_urb,
 	vu.pk_state,
@@ -49,11 +52,14 @@ comment on view dem.v_street is
 grant select on dem.v_street to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfiledf: zzz-template.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfiledf: zzz-template.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-v_street.sql,v $
--- Revision 1.1  2006-11-09 20:21:56  ncq
+-- Revision 1.2  2006-11-12 23:26:42  ncq
+-- - add l10n_* things
+--
+-- Revision 1.1  2006/11/09 20:21:56  ncq
 -- - added
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
