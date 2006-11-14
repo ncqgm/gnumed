@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.39 2006-10-31 15:59:47 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmBusinessDBObject.py,v 1.40 2006-11-14 23:30:33 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -403,8 +403,8 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
 				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
-				_log.Log(gmLog.lErr, params)
-				return (False, data)
+				_log.Log(gmLog.lErr, args)
+				return (False, None)
 		# execute cached changes to subtables
 		if len(self._subtable_cmd_queue) > 0:
 			queries = []
@@ -516,7 +516,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.39  2006-10-31 15:59:47  ncq
+# Revision 1.40  2006-11-14 23:30:33  ncq
+# - fix var name
+#
+# Revision 1.39  2006/10/31 15:59:47  ncq
 # - we are dealing with gmPG2 now
 #
 # Revision 1.38  2006/10/23 13:22:07  ncq
