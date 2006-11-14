@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -28,7 +28,11 @@ _log.Log(gmLog.lInfo, __version__)
 # SQL statements for notification triggers
 #------------------------------------------------------------------
 trigger_ddl = """
-create or replace function clin.trf_announce_%(sig)s_mod() returns opaque as '
+\unset ON_ERROR_STOP
+drop function clin.trf_announce_%(sig)s_mod() cascade;
+\set ON_ERROR_STOP 1
+
+create function clin.trf_announce_%(sig)s_mod() returns trigger as '
 declare
 	episode_id integer;
 	patient_id integer;
@@ -105,7 +109,11 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.14  2005-12-04 09:34:44  ncq
+# Revision 1.15  2006-11-14 23:29:01  ncq
+# - explicitely drop notifiation functions so we can change
+#   return type from opaque to trigger
+#
+# Revision 1.14  2005/12/04 09:34:44  ncq
 # - make fit for schema support
 # - move some queries to gmPG
 # - improve DDL templates (use or replace on functions)
