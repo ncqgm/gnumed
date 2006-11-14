@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -66,7 +66,11 @@ tmpl_insert_trigger = """CREATE TRIGGER zt_ins_%s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%s()"""
 
 tmpl_insert_function = """
-CREATE OR REPLACE FUNCTION audit.ft_ins_%s()
+\unset ON_ERROR_STOP
+drop function audit.ft_ins_%s() cascade;
+\set ON_ERROR_STOP 1
+
+create FUNCTION audit.ft_ins_%s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -84,7 +88,11 @@ tmpl_update_trigger = """CREATE TRIGGER zt_upd_%s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%s()"""
 
 tmpl_update_function = """
-CREATE OR REPLACE FUNCTION audit.ft_upd_%s()
+\unset ON_ERROR_STOP
+drop function audit.ft_upd_%s() cascade;
+\set ON_ERROR_STOP 1
+
+create FUNCTION audit.ft_upd_%s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -110,7 +118,11 @@ CREATE TRIGGER zt_del_%s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%s()"""
 
 tmpl_delete_function = """
-CREATE OR REPLACE FUNCTION audit.ft_del_%s()
+\unset ON_ERROR_STOP
+drop function audit.ft_del_%s() cascade;
+\set ON_ERROR_STOP 1
+
+create FUNCTION audit.ft_del_%s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -140,15 +152,16 @@ def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, table2audit)
 
 	# does the audit trail target table exist ?
-	exists = gmPG.table_exists(aCursor, schema, audit_trail_table)
+	exists = gmPG.table_exists(aCursor, 'audit', audit_trail_table)
 	if exists is None:
-		_log.Log(gmLog.lErr, 'cannot check existance of table %s.%s' % (schema, audit_trail_table))
+		_log.Log(gmLog.lErr, 'cannot check existance of table [audit.%s]' % audit_trail_table)
 		return None
 	if exists:
+		_log.Log(gmLog.lInfo, 'audit trail table [audit.%s] already exists' % audit_trail_table)
 		return []
 	# must create audit trail table
 	_log.Log(gmLog.lInfo, 'no audit trail table found for [%s.%s]' % (schema, table2audit))
-	_log.Log(gmLog.lInfo, 'creating audit trail table [%s.%s]' % (schema, audit_trail_table))
+	_log.Log(gmLog.lInfo, 'creating audit trail table [audit.%s]' % audit_trail_table)
 
 	# which columns to potentially audit
 	audited_col_defs = gmPG.get_col_defs(source = aCursor, schema = schema, table = table2audit)
@@ -160,7 +173,7 @@ def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
 		if col in cols2skip:
 			continue
 		attribute_list.append("\t%s %s" % (col, audited_col_defs[1][col]))
-	attributes = string.join(attribute_list, ',\n')
+	attributes = ',\n'.join(attribute_list)
 
 	# create audit table DDL
 	table_def = tmpl_create_audit_trail_table % (
@@ -189,19 +202,19 @@ def trigger_ddl(aCursor='default', schema='audit', audited_table=None):
 	ddl = []
 
 	# insert
-	ddl.append(tmpl_insert_function % audited_table)
+	ddl.append(tmpl_insert_function % (audited_table, audited_table))
 	ddl.append('')
 	ddl.append(tmpl_insert_trigger % (audited_table, schema, audited_table, audited_table))
 	ddl.append('')
 
 	# update
-	ddl.append(tmpl_update_function % (audited_table, audit_trail_table, columns_clause, values_clause))
+	ddl.append(tmpl_update_function % (audited_table, audited_table, audit_trail_table, columns_clause, values_clause))
 	ddl.append('')
 	ddl.append(tmpl_update_trigger % (audited_table, schema, audited_table, audited_table))
 	ddl.append('')
 
 	# delete
-	ddl.append(tmpl_delete_function % (audited_table, audit_trail_table, columns_clause, values_clause))
+	ddl.append(tmpl_delete_function % (audited_table, audited_table, audit_trail_table, columns_clause, values_clause))
 	ddl.append('')
 	ddl.append(tmpl_delete_trigger % (audited_table, schema, audited_table, audited_table))
 	ddl.append('')
@@ -266,7 +279,12 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.26  2006-05-24 12:10:46  ncq
+# Revision 1.27  2006-11-14 23:27:56  ncq
+# - explicitely (cascade) drop audit trigger functions so we can
+#   change return type from opaque to trigger
+# - make sure audit tables are created in "audit."
+#
+# Revision 1.26  2006/05/24 12:10:46  ncq
 # - use session_user
 #
 # Revision 1.25  2006/01/05 16:07:11  ncq
