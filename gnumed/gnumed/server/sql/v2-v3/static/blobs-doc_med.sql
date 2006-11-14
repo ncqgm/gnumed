@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-doc_med.sql,v 1.3 2006-10-28 12:22:48 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: blobs-doc_med.sql,v 1.4 2006-11-14 23:52:20 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -29,6 +29,9 @@ alter table blobs.doc_med
 alter table blobs.doc_med
 	rename column patient_id to fk_identity;
 
+alter table audit.log_doc_med
+	rename column patient_id to fk_identity;
+
 alter table blobs.doc_med
 	add foreign key (fk_identity)
 		references dem.identity(pk)
@@ -39,12 +42,18 @@ alter table blobs.doc_med
 alter table blobs.doc_med
 	rename column type to fk_type;
 
+alter table audit.log_doc_med
+	rename column type to fk_type;
+
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-doc_med.sql,v $', '$Revision: 1.3 $');
+select public.log_script_insertion('$RCSfile: blobs-doc_med.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: blobs-doc_med.sql,v $
--- Revision 1.3  2006-10-28 12:22:48  ncq
+-- Revision 1.4  2006-11-14 23:52:20  ncq
+-- - alter columns in audit tables, too, so auditing works
+--
+-- Revision 1.3  2006/10/28 12:22:48  ncq
 -- - 8.1 prides itself in naming FKs differently -- better -- but makes
 --   changing auto-named foreign keys a pain
 --

@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-doc_desc.sql,v 1.1 2006-10-08 09:04:48 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-doc_desc.sql,v 1.2 2006-11-14 23:52:20 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -24,15 +24,21 @@ begin;
 alter table blobs.doc_desc
 	rename column doc_id to fk_doc;
 
+alter table audit.log_doc_desc
+	rename column doc_id to fk_doc;
+
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-doc_desc.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: blobs-doc_desc.sql,v $', '$Revision: 1.2 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: blobs-doc_desc.sql,v $
--- Revision 1.1  2006-10-08 09:04:48  ncq
+-- Revision 1.2  2006-11-14 23:52:20  ncq
+-- - alter columns in audit tables, too, so auditing works
+--
+-- Revision 1.1  2006/10/08 09:04:48  ncq
 -- - normalize column name
 --
 --
