@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -1018,6 +1018,8 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 #=============================================================
 if __name__ == "__main__":
 
+	_log.SetAllLogLevels(gmLog.lData)
+
 	#---------------------------------------------------------
 	def test_db_cfg():
 		print "testing database config"
@@ -1105,7 +1107,11 @@ if __name__ == "__main__":
 
 		sys.exit(0)
 
-	test_db_cfg()
+	try:
+		test_db_cfg()
+	except:
+		_log.LogException('test suite failed', sys.exc_info(), True)
+		raise
 
 else:
 	# - we are being imported
@@ -1119,7 +1125,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.46  2006-11-07 00:27:45  ncq
+# Revision 1.47  2006-11-14 16:27:36  ncq
+# - improved test suite
+#
+# Revision 1.46  2006/11/07 00:27:45  ncq
 # - psycopg2 knows how to adapt lists/tuples to ARRAY syntax, at
 #   least when SQL_IN is loaded, so we can't use explicit casts with
 #   <datatype>[] anymore in our SQL
