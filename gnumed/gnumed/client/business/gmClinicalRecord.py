@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.217 2006-11-05 17:53:15 ncq Exp $
-__version__ = "$Revision: 1.217 $"
+# $Id: gmClinicalRecord.py,v 1.218 2006-11-14 16:55:05 ncq Exp $
+__version__ = "$Revision: 1.218 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1320,6 +1320,8 @@ where
 
 		if (issues is not None) and (len(issues) > 0):
 
+			issues = tuple(issues)
+
 			# Syan attests that an explicit union of child tables is way faster
 			# as there seem to be problems with parent table expansion and use
 			# of child table indexes, so if get_encounter() runs very slow on
@@ -1342,6 +1344,9 @@ where
 			episodes.extend(epi_ids)
 
 		if (episodes is not None) and (len(episodes) > 0):
+
+			episodes = tuple(episodes)
+
 			# if the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			cmd = u"select distinct fk_encounter from clin.clin_root_item where fk_episode in %(epis)s"
@@ -1576,7 +1581,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.217  2006-11-05 17:53:15  ncq
+# Revision 1.218  2006-11-14 16:55:05  ncq
+# - make sure issues/episodes are tuple()s in get_encounters()
+#
+# Revision 1.217  2006/11/05 17:53:15  ncq
 # - one more get_col_idx
 #
 # Revision 1.216  2006/11/05 17:01:50  ncq
