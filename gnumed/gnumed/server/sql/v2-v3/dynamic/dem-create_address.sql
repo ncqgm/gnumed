@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-create_address.sql,v 1.1 2006-11-14 17:32:20 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-create_address.sql,v 1.2 2006-11-14 23:29:57 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -19,7 +19,7 @@
 DROP function dem.create_address(text, text, text, text, text, text);
 \set ON_ERROR_STOP 1
 
-create function dem.create_address(text, text, text, text, text, text)
+create function dem.create_address(text, text, text, text, text, text, text)
 	returns integer
 	LANGUAGE 'plpgsql'
 	AS '
@@ -30,6 +30,7 @@ DECLARE
 	_urb ALIAS FOR $4;
 	_state_code ALIAS FOR $5;
 	_country_code ALIAS FOR $6;
+	_subunit alias for $7;
 	
 	_street_id integer;
 	_address_id integer;
@@ -43,15 +44,15 @@ BEGIN
 	IF FOUND THEN
 		RETURN _address_id;
 	END IF;
-	INSERT INTO dem.address (number, id_street) VALUES ( _number, _street_id);
+	INSERT INTO dem.address (number, id_street, subunit) VALUES ( _number, _street_id, _subunit);
 	RETURN currval(''dem.address_id_seq'');
 END;';
 
-comment on function dem.create_address(text, text, text, text, text, text) IS
+comment on function dem.create_address(text, text, text, text, text, text, text) is
 	'This function takes as parameters the number of the address,\n
 	the name of the street, the postal code of the address, the\n
-	name of the urb, the code of the state and the code of the\n
-	country. If the country or the state do not exist in the\n
+	name of the urb, the code of the state, the code of the\n
+	country and the subunit. If the country or the state do not exist in the\n
 	database, the function fails.\n
 	At first, the urb, the street and the address are tried to be\n
 	retrieved according to the supplied information. If the fields\n
@@ -59,11 +60,14 @@ comment on function dem.create_address(text, text, text, text, text, text) IS
 	created or a new address is created and returned.';
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-create_address.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: dem-create_address.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-create_address.sql,v $
--- Revision 1.1  2006-11-14 17:32:20  ncq
+-- Revision 1.2  2006-11-14 23:29:57  ncq
+-- - need to handle subunit, too
+--
+-- Revision 1.1  2006/11/14 17:32:20  ncq
 -- - improve var names so we knows it's state/country *code*
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
