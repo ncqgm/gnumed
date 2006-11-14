@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -606,9 +606,12 @@ class cAdapterMxDateTime(object):
 
 # make sure psycopg2 knows how to handle unicode ...
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
-# likewise with iterator types ...
-#psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
-psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
+# properly adapt *tuples* into (a, b, c, ...) in "... IN ..." queries
+psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
+# do NOT adapt *lists* to "... IN (*) ..." syntax because we want
+# them adapted to "... ARRAY()..." so we can support PG arrays
+#psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
+# tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 psycopg2.extensions.register_adapter(datetime.datetime, cAdapterPyDateTime)
 try:
 	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
@@ -815,7 +818,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.10  2006-11-07 23:52:48  ncq
+# Revision 1.11  2006-11-14 16:56:23  ncq
+# - improved (and documented) rationale for registering SQL_IN adapter on tuples only
+#
+# Revision 1.10  2006/11/07 23:52:48  ncq
 # - register our own adapters for mx.DateTime and datetime.datetime so
 #   we can solve the "ss,ms" issue in locale-aware str(timestamp)
 #
