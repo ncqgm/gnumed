@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.31 2006-10-31 17:21:16 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmEMRStructWidgets.py,v 1.32 2006-11-15 00:40:07 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -149,14 +149,16 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
+		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}		
+
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
 			queries = [u"""
 (select pk, description, 1
 	from clin.health_issue where
 		is_active is true and
-		id_patient=%%(pat)s and
-		description %(fragment_condition)s
+		description %(fragment_condition)s and
+		%(ctxt_pat)s
 	order by description)
 
 union
@@ -164,10 +166,11 @@ union
 (select pk, description || _(' (inactive)'), 2
 	from clin.health_issue where
 		is_active is false and
-		id_patient=%%(pat)s and
-		description %(fragment_condition)s
+		description %(fragment_condition)s and
+		%(ctxt_pat)s
 	order by description)"""
-			]
+			],
+			context = ctxt
 		)
 
 		try: kwargs['patient_id']
@@ -254,17 +257,20 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
+		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}
+
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""select pk_episode, description, 1 from clin.v_pat_episodes where
 		episode_open is true and
-		pk_patient=%%(pat)s and
-		description %(fragment_condition)s""",
+		description %(fragment_condition)s and
+		%(ctxt_pat)s""",
 u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
-		pk_patient=%%(pat)s and
-		description %(fragment_condition)s
-"""]
-			)
+		description %(fragment_condition)s and
+		%(ctxt_pat)s"""
+			],
+			context = ctxt
+		)
 
 		try: kwargs['patient_id']
 		except KeyError: kwargs['patient_id'] = None
@@ -1231,7 +1237,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.31  2006-10-31 17:21:16  ncq
+# Revision 1.32  2006-11-15 00:40:07  ncq
+# - properly set up context for phrasewheels
+#
+# Revision 1.31  2006/10/31 17:21:16  ncq
 # - unicode()ify queries
 #
 # Revision 1.30  2006/10/24 13:22:40  ncq
