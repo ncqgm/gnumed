@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -230,7 +230,10 @@ class cLogger:
 				level1 = lWarn
 				level2 = lData
 			# split the tuple
-			exc_type, exc_val, exc_traceback = sys.exc_info()
+			if exception is None:
+				exc_type, exc_val, exc_traceback = sys.exc_info()
+			else:
+				exc_type, exc_val, exc_traceback = exception
 			# FIXME: I wonder if the following back-and-forth reversing is necessary
 			# trace back to root caller
 			tb = exc_traceback
@@ -841,7 +844,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.25  2006-11-05 14:24:53  ncq
+# Revision 1.26  2006-11-15 00:38:58  ncq
+# - only use sys.exc_info() if exception is not None
+#
+# Revision 1.25  2006/11/05 14:24:53  ncq
 # - fix improper indentation
 #
 # Revision 1.24  2006/11/04 22:25:10  ncq
