@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.274 2006-11-07 00:31:23 ncq Exp $
-__version__ = "$Revision: 1.274 $"
+# $Id: gmGuiMain.py,v 1.275 2006-11-19 11:15:13 ncq Exp $
+__version__ = "$Revision: 1.275 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -419,7 +419,7 @@ class gmTopLevelFrame(wx.Frame):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
-		wx.CallAfter(self.__on_pre_patient_selection, **kwargs)
+		self.__on_pre_patient_selection(**kwargs)
 	#----------------------------------------------
 	def __on_pre_patient_selection(self, **kwargs):
 
@@ -1132,7 +1132,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.274  2006-11-07 00:31:23  ncq
+# Revision 1.275  2006-11-19 11:15:13  ncq
+# - cannot wx.CallAfter() __on_pre_patient_selection() since
+#   patient would have changed underhand
+#
+# Revision 1.274  2006/11/07 00:31:23  ncq
 # - remove some cruft
 #
 # Revision 1.273  2006/11/06 12:53:09  ncq
