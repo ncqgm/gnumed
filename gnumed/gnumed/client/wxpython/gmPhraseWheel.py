@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.79 2006-11-06 12:54:00 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPhraseWheel.py,v 1.80 2006-11-19 11:16:02 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -181,13 +181,9 @@ class cPhraseWheel(wx.TextCtrl):
 
 		wx.TextCtrl.SetValue(self, value)
 		self.data = data
-#		self._input_was_selected = False
 
 		# if data already available
 		if self.data is not None:
-#		if data is not None:
-#			self.data = data
-#			self._input_was_selected = True
 			return True
 
 		# or try to find one from matches
@@ -195,11 +191,9 @@ class cPhraseWheel(wx.TextCtrl):
 		for match in matches:
 			if match['label'] == value:
 				self.data = match['data']
-#				self._input_was_selected = True
 				return True
 
 		# not found
-#		self.data = None
 		if self.selection_only:
 			return False
 		return True
@@ -584,7 +578,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.79  2006-11-06 12:54:00  ncq
+# Revision 1.80  2006-11-19 11:16:02  ncq
+# - remove self._input_was_selected
+#
+# Revision 1.79  2006/11/06 12:54:00  ncq
 # - we don't actually need self._input_was_selected thanks to self.data
 #
 # Revision 1.78  2006/11/05 16:10:11  ncq
