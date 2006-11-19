@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.41 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmDateTimeInput.py,v 1.42 2006-11-19 11:11:57 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -122,7 +122,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def getAllMatches(self):
 		"""Return all items."""
 		# FIXME: popup calendar to pick from
-		return None
+		return (False, [])
 	#--------------------------------------------------------
 	def __single_dot(self, aFragment):
 		"""Expand fragments containing a single dot.
@@ -745,7 +745,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.41  2006-07-19 20:29:50  ncq
+# Revision 1.42  2006-11-19 11:11:57  ncq
+# - fix wrong return value
+#
+# Revision 1.41  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.40  2006/07/01 13:12:32  ncq
