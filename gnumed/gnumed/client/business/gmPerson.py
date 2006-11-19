@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.90 2006-11-09 17:46:04 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmPerson.py,v 1.91 2006-11-19 11:02:33 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -90,34 +90,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
 	_subtable_dml_templates = {
-		'addresses': {
-			'select': u"""
-				select
-					vba.id as pk,
-					vba.number,
-					vba.addendum, 
-					vba.street,
-					vba.urb,
-					vba.postcode,
-					vba.state,
-					vba.country,
-					vba.state_code,
-					vba.country_code,					
-					at.name as type,
-					lpoa.id_type as id_type
-				from
-					dem.v_basic_address vba,
-					dem.lnk_person_org_address lpoa,
-					dem.address_type at
-				where
-					lpoa.id_address = vba.id
-					and lpoa.id_type = at.id
-					and lpoa.id_identity = %s""",
-			'insert': u"""
-				INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
-				VALUES (%(pk_master)s, dem.create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));""",
-			'delete': u"delete from dem.lnk_person_org_address where id_identity = %s and id_address = %s"
-		},
 		'ext_ids': {
 			'select': u"""
 				select
@@ -150,13 +122,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					and ect.id = id_type""",
 			'insert': u"SELECT dem.link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)",
 			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and url = %s"
-		},
-		'occupations': {
-			'select': u"select o.name as occupation, o.id as pk from dem.occupation o, dem.lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s",
-			'delete': u"delete from dem.lnk_job2person lj2p where id_identity = %s and id_occupation = %s",
-			'insert': u"""
-				INSERT INTO dem.lnk_job2person (id_identity, id_occupation)
-				VALUES (%(pk_master)s, dem.create_occupation(%(occupation)s))"""
 		}
 	}
 	#--------------------------------------------------------
@@ -265,6 +230,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		try:			
 			del self._ext_cache['names']
 		except: pass
+		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
@@ -273,25 +239,56 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		active name.
 		@param nickname The preferred/nick/warrior name to set.
 		"""
-		# dump to backend
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.getId(), nickname]}])
-		# delete names cache so will be refetched next time it is queried
 		try:
 			del self._ext_cache['names']
 		except: pass
+		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
-	def link_occupation(self, occupation):
+	# occupations API
+	#--------------------------------------------------------
+	def get_occupations(self):
+		cmd = u"select * from dem.v_person_jobs where pk_identity=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		return rows
+	#--------------------------------------------------------
+	def link_occupation(self, occupation=None, activities=None):
+		"""Link an occupation with a patient, creating the occupation if it does not exists.
+
+			@param occupation The name of the occupation to link the patient to.
 		"""
-		Link an occupation with a patient, creating the occupation if it does not exists.
-		@param occupation The name of the occupation to link the patient to.
-		"""
-		cmd = u"INSERT INTO dem.lnk_job2person (id_identity, id_occupation) VALUES (%(pk)s, dem.create_occupation(%(job)s))"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
-		try:
-			del self._ext_cache['occupations']
-		except: pass
+		activities = activities.strip()
+		args = {'act': activities, 'pat_id': self.pk_obj, 'job': occupation.strip()}
+
+		cmd = u"select activities from dem.v_person_jobs where pk_identity = %(pat_id)s and l10n_occupation = _(%(job)s)"
+		rows, idx = gmPG2.run_ro_queries(queries = {'cmd': cmd, 'args': args})
+
+		queries = []
+		if len(rows) == 0:
+			queries.append ({
+				'cmd': u"INSERT INTO dem.lnk_job2person (fk_identity, fk_occupation, activities) VALUES (%(pat_id)s, dem.create_occupation(%(job)s), %(act)s)",
+				'args': args
+			})
+		else:
+			if rows[0]['activities'] != activities:
+				queries.append ({
+					'cmd': u"update dem.lnk_job2person set activities=%(act)s where fk_identity=%(pat_id)s and fk_occupation=(select id from dem.occupation where _(name) = _(%(job)s))",
+					'args': args
+				})
+
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+
 		return True
+	#--------------------------------------------------------
+	def unlink_occupation(self, occupation=None):
+		cmd = u"delete from dem.lnk_job2person where fk_identity=%s and fk_occupation=(select id from dem.occupation where _(name) = _(%(job)s))"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, occupation.strip()]}])
+		return True
+	#--------------------------------------------------------
+	# comms API
+	#--------------------------------------------------------
+
 	#--------------------------------------------------------
 	def link_communication(self, comm_medium, url, is_confidential = False):
 		"""
@@ -310,14 +307,30 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: make link_person_comm() create comm type if necessary
 		cmd = u"SELECT dem.link_person_comm(%(pk)s, %(medium)s, %(url)s, %(secret)s)",
 		rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': {'pk': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
-		try:
-			del self._ext_cache['comms']
-		except: pass
 		return True
 	#--------------------------------------------------------
-	def link_address(self, number, street, postcode, urb, state, country):
-		"""
-		Link an address with a patient, creating the address if it does not exists.
+	# contacts API
+	#--------------------------------------------------------
+	def get_addresses(self, address_type=None):
+		cmd = u"select * from dem.v_pat_addresses where pk_identity=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx=True)
+		addresses = []
+		for r in rows:
+			addresses.append(gmDemographicRecord.cPatientAddress(row={'idx': idx, 'data': r, 'pk_field': 'pk_address'}))
+
+		filtered = addresses
+
+		if address_type is not None:
+			filtered = []
+			for adr in addresses:
+				if adr['address_type'] == address_type:
+					filtered.append(adr)
+
+		return filtered
+	#--------------------------------------------------------
+	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None):
+		"""Link an address with a patient, creating the address if it does not exists.
+
 		@param number The number of the address.
 		@param number A types.StringType instance.
 		@param street The name of the street.
@@ -330,23 +343,40 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param country The name of the country.
 		@param country A types.StringType instance.
 		"""
-		cmd = u"""
-			INSERT INTO dem.lnk_person_org_address (id_identity, id_address)
-			VALUES (%(pk)s, dem.create_address(%(number)s, %(street)s, %(postcode)s, %(urb)s, %(state)s, %(country)s))""",
-		args = {
-			'pk': self.pk_obj,
-			'number': number,
-			'street': street,
-			'postcode': postcode,
-			'urb': urb,
-			'state': state,
-			'country': country
-		}
-		rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': args}])
-		try:
-			del self._ext_cache['addresses']
+		# FIXME: add address type handling
+
+		# create/get address
+		adr = gmDemographicRecord.create_address (
+			country = country,
+			state = state,
+			urb = urb,
+			suburb = suburb,
+			postcode = postcode,
+			street = street,
+			number = number,
+			subunit = subunit
+		)
+
+		# purge cache
+		try:del self._ext_cache['addresses']
 		except: pass
+
+		# already linked ?
+		cmd = u"select exists(select 1 from dem.lnk_person_org_address where id_identity=%s and id_address=%s)"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, adr['pk_address']]}])
+		if rows[0][0]:
+			return True
+
+		# link to person
+		cmd = u"insert into dem.lnk_person_org_address(id_identity, id_address) values (%(id)s, %(adr)s)"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'id': self.pk_obj, 'adr': adr['pk_address']}}])
+
 		return True
+	#----------------------------------------------------------------------
+	def unlink_address(self, address=None):
+		print "[%s].unlink_address(): missing code" % self.__class__.__name__
+	#----------------------------------------------------------------------
+	# relatives API
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = u"""
@@ -1783,7 +1813,7 @@ if __name__ == '__main__':
 		new_identity.link_occupation('test occupation')
 		print 'Identity occupations: %s' % new_identity['occupations']
 	
-		print '\nIdentity addresses: %s' % new_identity['addresses']
+		print '\nIdentity addresses: %s' % new_identity.get_addresses()
 		print 'Creating identity address...'
 		# make sure the state exists in the backend
 		new_identity.link_address (
@@ -1794,7 +1824,7 @@ if __name__ == '__main__':
 			'Sachsen',
 			'Germany'
 		)
-		print 'Identity addresses: %s' % new_identity['addresses']
+		print 'Identity addresses: %s' % new_identity.get_addresses()
 		
 		print '\nIdentity communications: %s' % new_identity['comms']
 		print 'Creating identity communication...'
@@ -1863,6 +1893,7 @@ if __name__ == '__main__':
 			identity = myPatient.get_identity()
 			print "identity  ", identity
 			print "names     ", identity.get_all_names()
+			print "addresses:", identity.get_addresses(address_type='home')
 #		docs = myPatient.get_document_folder()
 #		print "docs     ", docs
 #		emr = myPatient.get_emr()
@@ -1891,7 +1922,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.90  2006-11-09 17:46:04  ncq
+# Revision 1.91  2006-11-19 11:02:33  ncq
+# - remove subtable defs, add corresponding APIs
+#
+# Revision 1.90  2006/11/09 17:46:04  ncq
 # - raise exception if dob is about to be set without a timezone
 #
 # Revision 1.89  2006/11/07 23:43:34  ncq
