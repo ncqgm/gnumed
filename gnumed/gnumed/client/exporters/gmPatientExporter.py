@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.89 2006-11-09 17:48:05 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmPatientExporter.py,v 1.90 2006-11-19 11:05:38 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -903,11 +903,6 @@ class cEmrExport:
         self.__target.write('    Title: %s\n' % ident['title'])
         self.__target.write('    Dob: %s\n' % ident['dob'].strftime('%Y-%m-%d'))
         self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(ident['dob']))
-        #addr_types = ident['addresses'].keys()
-        #for addr_t in addr_types:
-        #    addr_lst = ident['addresses'][addr_t]
-        #    for address in addr_lst:
-        #        self.__target.write('    Address (' + addr_t + '): ' + address + '\n')
     #--------------------------------------------------------
     def dump_constraints(self):
         """
@@ -1249,7 +1244,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.89  2006-11-09 17:48:05  ncq
+# Revision 1.90  2006-11-19 11:05:38  ncq
+# - cleanup
+#
+# Revision 1.89  2006/11/09 17:48:05  ncq
 # - ever more careful handling of NULLs
 #
 # Revision 1.88  2006/11/07 00:25:19  ncq
