@@ -1,4 +1,4 @@
-"""GnuMed demographics object.
+"""GNUmed demographics object.
 
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
@@ -7,22 +7,71 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.84 2006-10-25 07:17:40 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmDemographicRecord.py,v 1.85 2006-11-19 10:58:52 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
-# access our modules
+# stdlib
 import sys, os.path, time, string
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject
+# 3rd party
+import mx.DateTime as mxDT
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+
+# GNUmed
+from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject, gmPG2
 from Gnumed.business import gmMedDoc
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-# 3rd party
-import mx.DateTime as mxDT
+#===================================================================
+class cAddress(gmBusinessDBObject.cBusinessDBObject):
+	"""A class representing an entity in itself.
 
+	We consider addresses to be self-complete "labels" for locations.
+	It does not depend on any people potentially living there. Thus
+	an address can get attached to as many people as we want to
+	signify that that is their place of residence/work/...
+
+	This class acts on the address as an entity. Therefore it can
+	modify the address fields. Think carefully about *modifying*
+	addresses attached to people, though. Most times when you think
+	person.modify_address() what you *really* want is as sequence of
+	person.unlink_address(old) and person.link_address(new).
+
+	Modifying an address may or may not be the proper thing to do as
+	it will transparently modify the address for *all* the people to
+	whom it is attached. In many cases you will want to create a *new*
+	address and link it to a person instead of the old address.
+	"""
+	_cmd_fetch_payload = u"select * from dem.v_address where pk_address=%s"
+	_cmds_store_payload = [
+		u"""update dem.address set
+				aux_street = %(notes_street)s,
+				number = %(number)s,
+				subunit = %(subunit)s,
+				addendum = %(notes_subunit)s,
+				lat_lon = %(lat_lon_street)s
+			where id=%(pk_address)s and xmin=%(xmin_address)s""",
+		u"select xmin as xmin_address from dem.address where id=%(pk_address)s"
+	]
+	_updatable_fields = ['notes_street', 'number', 'subunit', 'notes_subunit', 'lat_lon_address']
+#===================================================================
+class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = u"select * from dem.v_pat_addresses where pk_address=%s"
+	_cmds_store_payload = [
+		u"""update dem.lnk_person_org_address set id_type=%(pk_address_type)s
+			where id=%(pk_lnk_person_org_address)s and xmin=%(xmin_lnk_person_org_address)s""",
+		u"""select xmin from dem.lnk_person_org_address where id=%(pk_lnk_person_org_address)s"""
+	]
+	_updatable_fields = ['id_type']
+	#---------------------------------------------------------------
+	def get_identities(self, same_lastname=False):
+		pass
 #===================================================================
 class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	"""
@@ -41,12 +90,10 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 			description=%(description)s,
 			id_category=(select id from dem.org_category where description=%(occupation)s)
 		where id=%(id)s""",
-		"select xmin from dem.org whereid=%(id)s"
+		"select xmin from dem.org where id=%(id)s"
 	]
 	_updatable_fields = ["description", "occupation"]
 	_service = 'personalia'
-		      
-		
 	#------------------------------------------------------------------
 	def cleanup (self):
 		pass
@@ -246,90 +293,6 @@ where
 		return (None, None, None, None, None)
 	else:
 		return tuple (row_list[0])
-#-------------------------------------------------------------------------------
-#class PostcodeMP (gmMatchProvider.cMatchProvider_SQL2):
-#	pass
-
-#	"""Returns a list of valid postcodes,
-#	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
-#	"""
-#	def __init__ (self):
-		# we search two tables here, as in some jurisdictions (UK, Germany, US)
-		# postcodes are tied to streets or small groups of streets,
-		# and in others (Australia) postcodes refer to an entire town
-
-		# reviewers' comments:
-		# - pk this will be the data return to the id_callback() function passed 
-		#   as  gmPhrasewheel.__init__ last parameter , so the event data  will be 
-		#   the postcode for urb or street , not the id of those tables.
-		#   This is in the cMatchProvider.__findMatches code.
-
-#		source = [{
-#			'column':'postcode',
-#			'pk':'postcode',
-#			'limit':10,
-#			'table':'dem.urb',
-#			'extra conditions':{'dem.urb':'id = %s', 'default':'postcode is not null'}
-##			, 'service': 'personalia'
-#			},{
-#			'column':'postcode',
-#			'table':'dem.street',
-#			'limit':10,
-#			'pk':'postcode',
-#			'extra conditions':{'dem.urb':'id_urb = %s', 'dem.street': 'id = %s', 'default':'postcode is not null'}
-#			, 'service': 'personalia'
-#			}]
-#		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-
-#----------------------------------------------------------------
-#class StreetMP (gmMatchProvider.cMatchProvider_SQL):
-#	"""Returns a list of streets
-#
-#	accepts "urb" and "postcode" contexts  
-#		e.g.
-#			using cMatchProvider_SQL's  self.set_context("urb",...) 
-#					
-#	"""
-#	def __init__ (self):
-#		source = [{
-#			'service': 'personlia',
-#			'table': 'dem.street',
-#			'pk':'id',
-#			'column': 'name',
-#			'limit': 10,
-#			'extra conditions': {
-#				'dem.urb': 'id_urb = %s',
-#				'dem.postcode': 'postcode = %s or postcode is null'
-#				}
-#			}]
-#		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
-#-----------------------------------------------------------
-#class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
-#	"""
-#	Returns a list of occupations
-#	"""
-#	def __init__ (self):
-#		source = [{
-#			'service':'personalia',
-#			'table':'dem.occupation',
-#			'pk':'id',
-#			'column':'name',
-#			'limit':7
-#			}]
-#		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-
-#class NameMP (gmMatchProvider.cMatchProvider):
-#	"""
-#	List of names
-#	"""
-#	def getMatches (self, fragment):
-#		cmd = "select search_identity (%s)"
-#		data, idx = gmPG.run_ro_query ('personalia', cmd, 1, fragment)
-#		if data is None:
-#			_log.Log(gmLog.lErr, "cannot search for identity")
-#			return None
-#		return [{'data':cIdentity (idx, i), 'label':"%s %s %s" % (i[idx['title']], i[idx['firstnames']], i[idx['lastnames']])} for i in data]
-
 #============================================================
 # callbacks
 #------------------------------------------------------------
@@ -337,7 +300,185 @@ def _post_patient_selection(**kwargs):
 	print "received post_patient_selection notification"
 	print kwargs['kwds']
 #============================================================
+def address_exists(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
+
+	where_parts = [u"""
+		code_country = %(country)s and
+		code_state = %(state)s and
+		urb = %(urb)s and
+		postcode = %(postcode)s and
+		street = %(street)s and
+		number = %(number)s"""
+	]
+
+	if suburb is None:
+		where_parts.append(u"suburb is %(suburb)s")
+	else:
+		where_parts.append(u"suburb = %(suburb)s")
+
+	if notes_street is None:
+		where_parts.append(u"notes_street is %(notes_street)s")
+	else:
+		where_parts.append(u"notes_street = %(notes_street)s")
+
+	if subunit is None:
+		where_parts.append(u"subunit is %(subunit)s")
+	else:
+		where_parts.append(u"subunit = %(subunit)s")
+
+	if notes_subunit is None:
+		where_parts.append(u"notes_subunit is %(notes_subunit)s")
+	else:
+		where_parts.append(u"notes_subunit = %(notes_subunit)s")
+
+	cmd = u"select pk_address from dem.v_address where %s" % u" and ".join(where_parts)
+	data = {
+		'country': country,
+		'state': state,
+		'urb': urb,
+		'suburb': suburb,
+		'postcode': postcode,
+		'street': street,
+		'notes_street': notes_street,
+		'number': number,
+		'subunit': subunit,
+		'notes_subunit': notes_subunit
+	}
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': data}])
+
+	if len(rows) == 0:
+		return None
+	return rows[0][0]
+#------------------------------------------------------------
+def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
+	# FIXME: if country/state/urb are None pull them from address of practice
+	pk_address = address_exists (
+		country=country,
+		state=state,
+		urb=urb,
+		suburb=suburb,
+		postcode=postcode,
+		street=street,
+		number=number,
+		subunit=subunit,
+		notes_street=notes_street,
+		notes_subunit=notes_subunit
+	)
+	if pk_address is not None:
+		return cAddress(aPK_obj=pk_address)
+
+	cmd = u"""
+		select dem.create_address (
+			%(number)s,
+			%(street)s,
+			%(postcode)s,
+			%(urb)s,
+			%(state)s,
+			%(country)s,
+			%(subunit)s
+		)"""
+	args = {
+		'number': number,
+		'street': street,
+		'postcode': postcode,
+		'urb': urb,
+		'state': state,
+		'country': country,
+		'subunit': subunit
+	}
+	queries = [{'cmd': cmd, 'args': args}]
+
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+	adr = cAddress(aPK_obj=rows[0][0])
+
+	if suburb is not None:
+		queries = [{
+			'cmd': u"insert into dem.street (suburb) values (%(suburb)s) where id=%(pk_street)s",
+			'args': {'suburb': suburb, 'pk_street': adr['pk_street']}
+		}]
+
+	if notes_street is not None:
+		adr['notes_street'] = notes_street
+	if notes_subunit is not None:
+		adr['notes_subunit'] = notes_subunit
+
+	adr.save_payload()
+
+	return adr
+#------------------------------------------------------------
+def delete_address(address=None):
+	cmd = u"delete from dem.address where id=%s"
+	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': [address['pk_address']]}])
+	return True
+#============================================================
+# main
+#------------------------------------------------------------
 if __name__ == "__main__":
+
+	_log.SetAllLogLevels(gmLog.lData)
+
+	import random
+	#--------------------------------------------------------
+	def test_address_exists():
+		exists = address_exists (
+			country ='Germany',
+			state ='Sachsen',
+			urb ='Leipzig',
+			suburb ='Sellerhausen',
+			postcode ='04318',
+			street = u'Cunnersdorfer Straﬂe',
+			number = '11',
+			notes_subunit = '4.Stock rechts'
+		)
+		if exists is None:
+			print "address does not exist"
+		else:
+			print "address exists, primary key:", exists
+	#--------------------------------------------------------
+	def test_create_address():
+		address = create_address (
+			country ='DE',
+			state ='SN',
+			urb ='Leipzig',
+			suburb ='Sellerhausen',
+			postcode ='04318',
+			street = u'Cunnersdorfer Straﬂe',
+			number = '11',
+			notes_subunit = '4.Stock rechts'
+		)
+		print "created existing address"
+		print address
+
+		su = str(random.random())
+
+		address = create_address (
+			country ='DE',
+			state = 'SN',
+			urb ='Leipzig',
+			suburb ='Sellerhausen',
+			postcode ='04318',
+			street = u'Cunnersdorfer Straﬂe',
+			number = '11',
+			notes_subunit = '4.Stock rechts',
+			subunit = su
+		)
+		print "created new address with subunit", su
+		print address
+		print "deleted address:", delete_address(address)
+	#--------------------------------------------------------
+
+	try:
+		gmPG2.get_connection()
+
+		test_address_exists()
+		test_create_address()
+	except:
+		_log.LogException('test suite failed', sys.exc_info(), True)
+		raise
+
+	sys.exit()
+
 	_log.SetAllLogLevels(gmLog.lData)
 	gmDispatcher.connect(_post_patient_selection, gmSignals.post_patient_selection())
 	while 1:
@@ -356,12 +497,20 @@ if __name__ == "__main__":
 		print "title    ", myPatient['title']
 		print "dob      ", myPatient['dob']
 		print "med age  ", myPatient['medical_age']
-		for adr in myPatient['addresses']:
-			print "address  ", adr	
+		for adr in myPatient.get_addresses():
+			print "address  ", adr
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.84  2006-10-25 07:17:40  ncq
+# Revision 1.85  2006-11-19 10:58:52  ncq
+# - fix imports
+# - add cAddress
+# - add cPatientAddress
+# - remove dead match provider code
+# - add address_exists(), create_address(), delete_address()
+# - improve test suite
+#
+# Revision 1.84  2006/10/25 07:17:40  ncq
 # - no more gmPG
 # - no more cClinItem
 #
