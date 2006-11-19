@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.218 2006-11-14 16:55:05 ncq Exp $
-__version__ = "$Revision: 1.218 $"
+# $Id: gmClinicalRecord.py,v 1.219 2006-11-19 10:50:35 ncq Exp $
+__version__ = "$Revision: 1.219 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -688,14 +688,14 @@ where
 		return filtered_episodes
 	#------------------------------------------------------------------
 	def get_episodes_by_encounter(self, pk_encounter=None):
-		cmd = """select distinct pk_episode
+		cmd = u"""select distinct pk_episode
 					from clin.v_pat_items
 					where pk_encounter=%(enc)s and pk_patient=%(pat)s"""
-		rows = gmPG.run_ro_query (
-			'historica',
-			cmd,
-			None,
-			{'enc': self.__encounter['pk_encounter'], 'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': {'enc': self.__encounter['pk_encounter'], 'pat': self.pk_patient}
+			}]
 		)
 		if len(rows) == 0:
 			return []
@@ -1581,7 +1581,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.218  2006-11-14 16:55:05  ncq
+# Revision 1.219  2006-11-19 10:50:35  ncq
+# - fix get_episodes_by_encounter()
+#
+# Revision 1.218  2006/11/14 16:55:05  ncq
 # - make sure issues/episodes are tuple()s in get_encounters()
 #
 # Revision 1.217  2006/11/05 17:53:15  ncq
