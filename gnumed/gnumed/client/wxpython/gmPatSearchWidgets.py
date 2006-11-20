@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.51 2006-11-01 12:54:40 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPatSearchWidgets.py,v 1.52 2006-11-20 17:05:55 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -558,9 +558,14 @@ class cPatientSelector(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
 
-		curr_search_term = self.GetValue()
-		if curr_search_term.strip() == '':
+		curr_search_term = self.GetValue().strip()
+		if curr_search_term == '':
 			return None
+
+		if self.curr_pat.is_connected():
+			ident = self.curr_pat.get_identity()
+			if curr_search_term == ident['description']:
+				return None
 
 		wx.BeginBusyCursor()
 
@@ -748,7 +753,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.51  2006-11-01 12:54:40  ncq
+# Revision 1.52  2006-11-20 17:05:55  ncq
+# - do not search if supposed search term matches 'description' of current patient
+#
+# Revision 1.51  2006/11/01 12:54:40  ncq
 # - there may not be a previous encounter so don't try to
 #   format it's start date if so
 #
