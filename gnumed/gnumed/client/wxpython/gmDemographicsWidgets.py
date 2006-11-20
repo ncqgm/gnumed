@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.107 2006-11-07 23:53:30 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmDemographicsWidgets.py,v 1.108 2006-11-20 16:01:35 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,7 +16,7 @@ import wx.wizard
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmFuzzyTimestamp, gmTools
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
@@ -439,7 +439,6 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
-		# main panel (required for a correct propagation of validator calls)
 		PNL_form = wx.Panel(self, -1)
 
 		# last name
@@ -639,6 +638,7 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
 		update_identity_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 		link_contacts_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+		#ident.link_occupation(occupation = self.PRW_occupation.GetValue().strip())
 		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
@@ -764,7 +764,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		_pnl_form = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
-		_pnl_form.PRW_gender.SetValue(self.form_DTD['gender'])
+		_pnl_form.PRW_gender.SetData(self.form_DTD['gender'])
 		_pnl_form.PRW_dob.SetValue(self.form_DTD['dob'])
 		_pnl_form.PRW_lastname.SetValue(self.form_DTD['lastnames'])
 		_pnl_form.PRW_firstname.SetValue(self.form_DTD['firstnames'])
@@ -775,8 +775,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		_pnl_form.PRW_street.SetValue(self.form_DTD['street'])
 		_pnl_form.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
 		_pnl_form.PRW_town.SetValue(self.form_DTD['town'])
-		_pnl_form.PRW_state.SetValue(self.form_DTD['state'])
-		_pnl_form.PRW_country.SetValue(self.form_DTD['country'])
+		_pnl_form.PRW_state.SetData(self.form_DTD['state'])
+		_pnl_form.PRW_country.SetData(self.form_DTD['country'])
 		_pnl_form.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
@@ -870,17 +870,6 @@ class cPatEditionNotebook(wx.Notebook):
 	aditional (insurance, relatives, etc), complex and multiple elements
 	(differet types of addresses, phones, etc).
 	"""
-	
-	# fields in every page/form/validator
-	ident_form_fields = (
-			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title'
-	)
-	contacts_form_fields = (
-			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone'
-	)
-	occupations_form_fields = (
-			'occupation',
-	)
 	#--------------------------------------------------------
 	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize):
 
@@ -895,18 +884,6 @@ class cPatEditionNotebook(wx.Notebook):
 		)
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 
-		self.ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
-		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)
-		self.occupations_form_DTD = cFormDTD(fields = self.__class__.occupations_form_fields)
-		# genders
-		genders, idx = gmPerson.get_gender_list()
-		self.__genders = []
-		for gender in genders:
-			self.__genders.append ({
-				'data': gender[idx['tag']],
-				'label': gender[idx['l10n_label']],
-				'weight': gender[idx['sort_weight']]
-			})
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__do_layout()
 		self.__register_interests()
@@ -915,82 +892,21 @@ class cPatEditionNotebook(wx.Notebook):
 	# public API
 	#--------------------------------------------------------
 	def save(self):
-		for page_idx in range(self.GetPageCount()):
-			page = self.GetPage(page_idx)
-			page.save()
+		return self.GetCurrentPage().save()
 	#--------------------------------------------------------
 	def refresh(self):
-		"""
-		Populate fields in pages with data from model.
+		"""Populate fields in pages with data from model.
 		"""
 		identity = self.__pat.get_identity()
+
 		# refresh identity reference in pages
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 			page.set_identity(identity)
 
-		# business class -> identity DTD
-		txt = identity['gender']
-		for gender in self.__genders:
-			if gender['data'] == txt:
-				txt = gender['label']
-				break
-		self.ident_form_DTD['gender'] = txt
-#xxxxxxxxxxxxxxxxx
-#check source of identity['dob'] == string
-#xxxxxxxxxxxxxxxxx
-		self.ident_form_DTD['dob'] = identity['dob']
-		txt = ''
-		if not identity['title'] is None:
-			txt = identity['title']
-		self.ident_form_DTD['title'] = txt
-		
-		# names
-		active_name = identity.get_active_name()		
-		self.ident_form_DTD['lastnames'] = active_name['last']
-		self.ident_form_DTD['firstnames'] = active_name['first']		
-		txt = ''
-		if not active_name['preferred'] is None:
-			txt = active_name['preferred']
-		self.ident_form_DTD['nick'] = txt		
-
-		# business class -> contacts DTD
-		addresses = identity['addresses']
-		if len(addresses) > 0:
-			last_idx = len(addresses)-1
-			self.contacts_form_DTD['address_number'] = addresses[last_idx]['number']
-			self.contacts_form_DTD['street'] = addresses[last_idx]['street']
-			self.contacts_form_DTD['zip_code'] = addresses[last_idx]['postcode']
-			self.contacts_form_DTD['town'] = addresses[last_idx]['urb']
-			self.contacts_form_DTD['state'] = addresses[last_idx]['state']
-			self.contacts_form_DTD['country'] = addresses[last_idx]['country']
-		else:
-			self.contacts_form_DTD['address_number'] = ''
-			self.contacts_form_DTD['street'] = ''
-			self.contacts_form_DTD['zip_code'] = ''
-			self.contacts_form_DTD['town'] = ''
-			self.contacts_form_DTD['state'] = ''
-			self.contacts_form_DTD['country'] = ''
-		comms = identity['comms']
-		if len(comms) > 0:
-			for a_comm in comms:
-				if a_comm['type'] == 'homephone':
-					self.contacts_form_DTD['phone'] = a_comm['url']
-					break
-		else:
-			self.contacts_form_DTD['phone'] = ''
-
-		# business class -> occupations DTD
-		occupations = identity['occupations']
-		if len(occupations) > 0:
-			last_idx = len(occupations)-1
-			self.occupations_form_DTD['occupation'] = occupations[last_idx]['occupation']
-		else:
-			self.occupations_form_DTD['occupation'] = ''
-
 		# Recursively calls TransferDataToWindow in notebook
 		# children, thanks to wx.WS_EX_VALIDATE_RECURSIVELY
-		self.TransferDataToWindow()
+#		self.TransferDataToWindow()
 
 		return True
 	#--------------------------------------------------------
@@ -1005,7 +921,6 @@ class cPatEditionNotebook(wx.Notebook):
 		new_page = cPatIdentityPanel (
 			parent = self,
 			id = -1,
-			dtd = self.ident_form_DTD,
 			ident = ident
 		)
 		self.AddPage (
@@ -1018,7 +933,6 @@ class cPatEditionNotebook(wx.Notebook):
 		new_page = cPatContactsPanel (
 			parent = self,
 			id = -1,
-			dtd = self.contacts_form_DTD,
 			ident = ident
 		)
 		self.AddPage (
@@ -1031,7 +945,6 @@ class cPatEditionNotebook(wx.Notebook):
 		new_page = cPatOccupationsPanel (
 			parent = self,
 			id = -1,
-			dtd = self.occupations_form_DTD,
 			ident = ident
 		)
 		self.AddPage (
@@ -1061,41 +974,27 @@ class cPatEditionNotebook(wx.Notebook):
 #		print "need code to  ask user about unsaved patient details"
 		pass
 #============================================================
+# FIXME: redo layout with wxGlade
+
 class cPatIdentityPanel(wx.Panel):
 	"""
 	Page containing patient identity edition fields.
 	"""
-	def __init__(self, parent, id, dtd=None, ident=None):
+	def __init__(self, parent, id, ident=None):
 		"""
 		Creates a new instance of cPatIdentityPanel
 		@param parent - The parent widget
 		@type parent - A wx.Window instance
 		@param id - The widget id
 		@type id - An integer
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
 		"""
 		wx.Panel.__init__(self, parent, id)
-		self.__dtd = dtd
 		self.__ident = ident
-		genders, idx = gmPerson.get_gender_list()
-		self.__gender_map = {}
-		for gender in genders:
-			self.__gender_map[gender[idx['tag']]] = {
-				'data': gender[idx['tag']],
-				'label': gender[idx['l10n_label']],
-				'weight': gender[idx['sort_weight']]
-			}
 		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
 
-		# FIXME: main panel, required for a correct propagation of validator calls.
-		# If this panel doesn't exists and the validator is set
-		# direclty to self, calling self.transferDataFromWindow
-		# just returns true without the method in validator being
-		# called. It seems that works for the children of self.
 		PNL_form = wx.Panel(self, -1)
 
 		# last name
@@ -1130,9 +1029,6 @@ class cPatIdentityPanel(wx.Panel):
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
 		self.PRW_title = cTitlePhraseWheel(parent = PNL_form, id = -1)
 
-		# Set validator for identity form
-		PNL_form.SetValidator(cPatIdentityPanelValidator(dtd = self.__dtd))
-		
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
@@ -1179,108 +1075,86 @@ class cPatIdentityPanel(wx.Panel):
 		return True
 	#--------------------------------------------------------
 	# public API
-	#--------------------------------------------------------		
-	def set_identity(self, identity):
-		self.__ident = identity
 	#--------------------------------------------------------
-	def save(self):
-		msg = _("Data in Identity section can't be saved.\nPlease, correct any invalid input.")
-		if not self.Validate():
-			gmGuiHelpers.gm_show_error(msg, _('Identity invalid input'), gmLog.lErr)
-			return False
-		if not self.TransferDataFromWindow():
-			gmGuiHelpers.gm_show_error(msg, _('Identity invalid input'), gmLog.lErr)					
-			return False
-		if not update_identity_from_dtd(identity = self.__ident, dtd = self.__dtd):
-			msg = _("An error happened while saving Identity section.\nPlease, refresh and check all the data.")
-			gmGuiHelpers.gm_show_error(msg, _('Identity saving error'), gmLog.lErr)
-			return False
-		return True
-#============================================================		
-class cPatIdentityPanelValidator(wx.PyValidator):
-	"""
-	This validator is used to ensure that the user has entered all
-	the required conditional values in patient identity page.
-	"""
-	#--------------------------------------------------------
-	def __init__(self, dtd):
-		"""
-		Validator initialization.
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
-		"""
-		wx.PyValidator.__init__(self)
-		self.__dtd = dtd
-	#--------------------------------------------------------
-	def Clone(self):
-		"""
-		Standard cloner.
-		Note that every validator must implement the Clone() method.
-		"""
-		return cPatIdentityPanelValidator(dtd = self.__dtd)		# FIXME: probably need new instance of DTD ?
-	#--------------------------------------------------------
-	def TransferToWindow(self):
-		"""
-		Transfer data from validator to window.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		try:
-			pageCtrl = self.GetWindow().GetParent()
-			pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
-			pageCtrl.PRW_dob.SetData(self.__dtd['dob'])
-			pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
-			pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
-			pageCtrl.PRW_title.SetValue(self.__dtd['title'])
-			pageCtrl.PRW_nick.SetValue(self.__dtd['nick'])
-		except:
-			_log.LogException('cannot transfer dtd to form', sys.exc_info(), verbose=0)
-			return False
-		return True
-	#--------------------------------------------------------
-	def Validate(self, parent = None):
-		"""Validate the contents of the given text control.
-		"""
-		pageCtrl = self.GetWindow().GetParent()
-		# dob validation
-		if not pageCtrl.PRW_dob.is_valid_timestamp():
+	def valid_for_save(self):
+		if not self.PRW_dob.is_valid_timestamp():
 			msg = _('Cannot parse <%s> into proper timestamp.')
 			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
-			pageCtrl.PRW_dob.SetBackgroundColour('pink')
-			pageCtrl.PRW_dob.Refresh()
-			pageCtrl.PRW_dob.SetFocus()
+			self.PRW_dob.SetBackgroundColour('pink')
+			self.PRW_dob.Refresh()
+			self.PRW_dob.SetFocus()
 			return False
-		pageCtrl.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		pageCtrl.PRW_dob.Refresh()
-
+		self.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self.PRW_dob.Refresh()
+		print "valid for save"
 		return True
 	#--------------------------------------------------------
-	def TransferFromWindow(self):
-		"""
-		Transfer data from window to validator.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		try:
-			pageCtrl = self.GetWindow().GetParent()
-			# fill in self.__dtd with values from controls
-			if pageCtrl.PRW_gender.IsModified():
-				self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
-			if pageCtrl.PRW_dob.IsModified():
-				self.__dtd['dob'] = pageCtrl.PRW_dob.GetData()
-			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
-			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
-			self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
-			self.__dtd['nick'] = pageCtrl.PRW_nick.GetValue()
-		except:
+	def set_identity(self, identity):
+		return self.refresh(identity=identity)
+	#--------------------------------------------------------
+	def refresh(self, identity=None):
+
+		if identity is not None:
+			self.__ident = identity
+
+		print "refresh: dob =", self.__ident['dob'], type(self.__ident['dob'])
+
+		dob = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__ident['dob'])
+		active_name = self.__ident.get_active_name()
+
+		self.PRW_gender.SetData(self.__ident['gender'])
+		self.PRW_dob.SetValue(val = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
+		self.PRW_lastname.SetValue(active_name['last'])
+		self.PRW_firstname.SetValue(active_name['first'])
+		self.PRW_title.SetValue(gmTools.coalesce(self.__ident['title'], ''))
+		self.PRW_nick.SetValue(gmTools.coalesce(active_name['preferred'], ''))
+		return True
+	#--------------------------------------------------------
+	def save(self):
+
+		if not self.valid_for_save():
 			return False
+
+		if self.__ident['gender'] != self.PRW_gender.GetData():
+			print "gender modified"
+			self.__ident['gender'] = self.PRW_gender.GetData()
+		new_dob = self.PRW_dob.GetData().get_pydt()
+		old_dob = self.__ident['dob']
+		if new_dob.strftime('%Y %M %d %H %M') != old_dob.strftime('%Y %M %d %H %M'):
+			print "dob modified"
+			print "old:", old_dob, type(old_dob)
+			print "new:", new_dob, type(new_dob)
+			self.__ident['dob'] = new_dob
+		if self.__ident['title'] != self.PRW_title.GetValue():
+			self.__ident['title'] = self.PRW_title.GetValue().strip()
+		# FIXME: error checking
+		# FIXME: we need a trigger to update the values of the
+		# view, identity['keys'], eg. lastnames and firstnames
+		# are not refreshed.
+		self.__ident.save_payload()
+
+		first = self.PRW_firstname.GetValue().strip()
+		last = self.PRW_lastname.GetValue().strip()
+		old_name = self.__ident['firstnames'] + self.__ident['lastnames']
+		if (first + last) != old_name:
+			# FIXME: proper handling of "active"
+			self.__ident.add_name(firstnames = first, lastnames = last, active = True, nickname = None)
+
+		nick = self.PRW_nick.GetValue().strip()
+		if (nick != self.__ident['preferred']) and (nick != ''):
+			print "setting nickname:", self.__ident['preferred'], nick
+			self.__ident.set_nickname(nickname = nick)
+
 		return True
 #============================================================
+# FIXME: support several addresses
+# FIXME: redo with wxGlade
+
 class cPatContactsPanel(wx.Panel):
 	"""
 	Page containing patient contacts edition fields.
 	"""
-	def __init__(self, parent, id, dtd=None, ident=None):
+	def __init__(self, parent, id, ident=None):
 		"""
 		Creates a new instance of BasicPatDetailsPanel
 		@param parent - The parent widget
@@ -1292,7 +1166,6 @@ class cPatContactsPanel(wx.Panel):
 		"""
 		wx.Panel.__init__(self, parent, id)
 
-		self.__dtd = dtd
 		self.__ident = ident
 		if os.environ.has_key ("LANG"):
 			self.locale = os.environ['LANG']
@@ -1302,7 +1175,6 @@ class cPatContactsPanel(wx.Panel):
 		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_number (self):
-		# address number
 		STT_address_number = wx.StaticText(self.PNL_form, -1, _('Number'))
 		self.TTC_address_number = wx.TextCtrl(self.PNL_form, -1)
 		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
@@ -1338,7 +1210,7 @@ class cPatContactsPanel(wx.Panel):
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 		# country
 		STT_country = wx.StaticText(self.PNL_form, -1, _('Country'))
-		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1, selection_only = True)
+		self.PRW_country = cCountryPhraseWheel(parent = self.PNL_form, id = -1)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		self.SZR_input.Add(STT_state, 0, wx.SHAPED)
@@ -1347,20 +1219,14 @@ class cPatContactsPanel(wx.Panel):
 		self.SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 	#--------------------------------------------------------
 	def __do_phones (self):
-		
 		# phone
 		STT_phone = wx.StaticText(self.PNL_form, -1, _('Phone'))
 		self.TTC_phone = wx.TextCtrl(self.PNL_form, -1)
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
 		self.SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		self.SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
-
+	#--------------------------------------------------------
 	def __do_layout(self):
-		# FIXME: main panel, required for a correct propagation of validator calls.
-		# If this panel doesn't exists and the validator is set
-		# direclty to self, calling self.transferDataFromWindow
-		# just returns true without the method in validator being
-		# called. It seems that works for the children of self.
 
 		self.PNL_form = wx.Panel(self, -1)
 		# layout input widgets
@@ -1381,9 +1247,6 @@ class cPatContactsPanel(wx.Panel):
 			self.__do_state_country ()
 			self.__do_phones ()
 
-		# Set validator for identity form
-		self.PNL_form.SetValidator(cPatContactsPanelValidator(dtd = self.__dtd))
-		
 		self.PNL_form.SetSizerAndFit(self.SZR_input)
 		
 		# layout page
@@ -1435,154 +1298,113 @@ class cPatContactsPanel(wx.Panel):
 			self.PRW_country.SetValue (country, country_id)
 			self.TTC_phone.SetFocus ()
 	#--------------------------------------------------------
-	# public API
+	# internal helpers
 	#--------------------------------------------------------
-	def set_identity(self, identity):
-		self.__ident = identity
-	#--------------------------------------------------------
-	def save(self):
-		msg = _("Data in Contacts section can't be saved.\nPlease, correct any invalid input.")
-		if not self.Validate():
-			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)
-			return False
-		if not self.TransferDataFromWindow():
-			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)
-			return False
-		if not link_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
-			msg = _("An error happened while saving Contacts section.\nPlease, refresh and check all the data.")
-			gmGuiHelpers.gm_show_error(msg, _('Contacts saving error'), gmLog.lErr)
-			return False
-		return True
-#============================================================
-class cPatContactsPanelValidator(wx.PyValidator):
-	"""
-	This validator is used to ensure that the user has entered all
-	the required conditional values in patietn contacts page.
-	"""
-	#--------------------------------------------------------
-	def __init__(self, dtd):
-		"""
-		Validator initialization.
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
-		"""
-		# initialize parent class
-		wx.PyValidator.__init__(self)
-		
-		# validator's storage object
-		self.form_DTD = dtd
-	#--------------------------------------------------------
-	def Clone(self):
-		"""
-		Standard cloner.
-		Note that every validator must implement the Clone() method.
-		"""
-		return cPatContactsPanelValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
-	#--------------------------------------------------------
-	def Validate(self, parent = None):
-		"""
-		Validate the contents of the given text control.
-		"""
-		pageCtrl = self.GetWindow().GetParent()
+	def __valid_for_save(self):
+
 		address_fields = (
-			pageCtrl.TTC_address_number,
-			pageCtrl.PRW_zip_code,
-			pageCtrl.PRW_street,
-			pageCtrl.PRW_town,
-			pageCtrl.PRW_state,
-			pageCtrl.PRW_country
+			self.TTC_address_number,
+			self.PRW_zip_code,
+			self.PRW_street,
+			self.PRW_town,
+			self.PRW_state,
+			self.PRW_country
 		)
+
 		# validate required fields
 		is_any_field_filled = False
 		for field in address_fields:
-			if len(field.GetValue()) > 0:
+			if len(field.GetValue().strip()) > 0:
 				is_any_field_filled = True
 				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 				field.Refresh()
 				continue
 			if is_any_field_filled:
-				msg = _('To properly create an address, all the related fields must be filled in.')
-				gmGuiHelpers.gm_show_error(msg, _('Required fields'), gmLog.lErr)
 				field.SetBackgroundColour('pink')
 				field.SetFocus()
 				field.Refresh()
+				gmGuiHelpers.gm_show_error (
+					_('Address details must be filled in completely or not at all.'),
+					_('Saving contact data')
+				)
 				return False
+
 		return True
 	#--------------------------------------------------------
-	def TransferToWindow(self):
-		"""Transfer data from validator to window.
-
-		The default implementation returns False, indicating that an error occurred.
-		"""
-		pageCtrl = self.GetWindow().GetParent()
-		# fill in controls with values from self.form_DTD
-		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
-		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
-		pageCtrl.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
-		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
-		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
-		pageCtrl.PRW_state.SetData(self.form_DTD['state'])
-		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
-		return True # Prevent wxDialog from complaining.	
+	# public API
 	#--------------------------------------------------------
-	def TransferFromWindow(self):
-		"""
-		Transfer data from window to validator.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		pageCtrl = self.GetWindow().GetParent()
-		# fill in self.form_DTD with values from controls
-		if pageCtrl.TTC_address_number.IsModified():
-			self.form_DTD.is_modified = True
-			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
-		if pageCtrl.PRW_street.IsModified():
-			self.form_DTD.is_modified = True
-			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
-		if pageCtrl.PRW_zip_code.IsModified():
-			self.form_DTD.is_modified = True
-			self.form_DTD['zip_code'] = pageCtrl.PRW_zip_code.GetValue()
-		if pageCtrl.PRW_town.IsModified():
-			self.form_DTD.is_modified = True
-			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-		if pageCtrl.PRW_state.IsModified():
-			self.form_DTD.is_modified = True
-			if pageCtrl.PRW_state.GetData() is not None:
-				self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
-		if pageCtrl.PRW_country.IsModified():
-			self.form_DTD.is_modified = True
-			if pageCtrl.PRW_country.GetData() is not None:
-				self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
-		if pageCtrl.TTC_phone.IsModified():
-			self.form_DTD.is_modified = True
-			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
+	def set_identity(self, identity):
+		return self.refresh(identity=identity)
+	#--------------------------------------------------------
+	def refresh(self, identity=None):
+		if identity is not None:
+			self.__ident = identity
+
+		adrs = self.__ident.get_addresses(address_type='home')
+		if len(adrs) != 0:
+			home = adrs[0]
+			self.TTC_address_number.SetValue(home['number'])
+			self.PRW_street.SetValue(home['street'])
+			self.PRW_zip_code.SetValue(home['postcode'])
+			self.PRW_town.SetValue(home['urb'])
+			self.PRW_country.SetData(data = home['code_country'])
+			self.PRW_state.SetData(data = home['code_state'])
+
+		comms = self.__ident.get_comm_channels(comm_medium = 'homephone')
+		if len(comms) != 0:
+			self.TTC_phone.SetValue(comms[0]['url'])
+
+		return True
+	#--------------------------------------------------------
+	def save(self):
+
+		if not self.__valid_for_save():
+			return False
+
+		success = self.__ident.link_address (
+			number = self.TTC_address_number.GetValue().strip(),
+			street = self.PRW_street.GetValue().strip(),
+			postcode = self.PRW_zip_code.GetValue().strip(),
+			urb = self.PRW_town.GetValue().strip(),
+			state = self.PRW_state.GetData(),
+			country = self.PRW_country.GetData()
+		)
+		if not success:
+			gmGuiHelpers.gm_beep_statustext(_('Cannot update patient address.'))
+			return False
+
+		phone = self.TTC_phone.GetValue().strip()
+		if len(phone) > 0:
+			success = self.__ident.link_communication (
+				comm_medium = 'homephone',
+				url = phone,
+				is_confidential = False
+			)
+		if not success:
+			gmGuiHelpers.gm_beep_statustext(_('Cannot update patient phone number.'))
+			return False
+
 		return True
 #============================================================
+# FIXME: support multiple occupations
+# FIXME: redo with wxGlade
+
 class cPatOccupationsPanel(wx.Panel):
+	"""Page containing patient occupations edition fields.
 	"""
-	Page containing patient occupations edition fields.
-	"""
-	def __init__(self, parent, id, dtd=None, ident=None):
+	def __init__(self, parent, id, ident=None):
 		"""
 		Creates a new instance of BasicPatDetailsPage
 		@param parent - The parent widget
 		@type parent - A wx.Window instance
 		@param id - The widget id
 		@type id - An integer
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
 		"""
 		wx.Panel.__init__(self, parent, id)
-		self.__dtd = dtd
 		self.__ident = ident
 		self.__do_layout()
 	#--------------------------------------------------------
 	def __do_layout(self):
-		# FIXME: main panel, required for a correct propagation of validator calls.
-		# If this panel doesn't exists and the validator is set
-		# direclty to self, calling self.transferDataFromWindow
-		# just returns true without the method in validator being
-		# called. It seems that works for the children of self.
 		PNL_form = wx.Panel(self, -1)		
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
@@ -1597,9 +1419,6 @@ class cPatOccupationsPanel(wx.Panel):
 		)
 		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
 
-		# Set validator for identity form
-		PNL_form.SetValidator(cPatOccupationsPanelValidator(dtd = self.__dtd))
-
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)				
@@ -1610,75 +1429,28 @@ class cPatOccupationsPanel(wx.Panel):
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
-		self.SetSizer(SZR_main)				
+		self.SetSizer(SZR_main)
 	#--------------------------------------------------------
 	def set_identity(self, identity):
-		self.__ident = identity
-			
-	def save(self):
-		msg = _("Data in Occupations section can't be saved.\nPlease, correct any invalid input.")
-		if not self.Validate():
-			gmGuiHelpers.gm_show_error(msg, _('Occupations invalid input'), gmLog.lErr)			
-			return False		
-		if not self.TransferDataFromWindow():
-			gmGuiHelpers.gm_show_error(msg, _('Occupations invalid input'), gmLog.lErr)			
-			return False
-		if not link_occupation_from_dtd(identity = self.__ident, dtd = self.__dtd):
-			msg = _("An error happened while saving Occupations section.\nPlease, refresh and check all the data.")
-			gmGuiHelpers.gm_show_error(msg, _('Occupations saving error'), gmLog.lErr)
-			return False
-		return True		
-#============================================================		
-class cPatOccupationsPanelValidator(wx.PyValidator):
-	"""
-	This validator is used to ensure that the user has entered all
-	the required conditional values in patient occupations page.
-	"""
+		return self.refresh(identity=identity)
 	#--------------------------------------------------------
-	def __init__(self, dtd):
-		"""
-		Validator initialization.
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
-		"""
-		wx.PyValidator.__init__(self)
-		self.form_DTD = dtd
-	#--------------------------------------------------------
-	def Clone(self):
-		"""
-		Standard cloner.
-		Note that every validator must implement the Clone() method.
-		"""
-		return cPatOccupationsPanelValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
-	#--------------------------------------------------------
-	def Validate(self, parent = None):
-		"""Validate the contents of the given text control.
-		"""
+	def refresh(self, identity=None):
+		if identity is not None:
+			self.__ident = identity
+		jobs = self.__ident.get_occupations()
+		if len(jobs) > 0:
+			self.PRW_occupation.SetValue(jobs[0]['l10n_occupation'])
 		return True
 	#--------------------------------------------------------
-	def TransferToWindow(self):
-		"""
-		Transfer data from validator to window.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		pageCtrl = self.GetWindow().GetParent()
-		# fill in controls with values from self.form_DTD		
-		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
-		return True # Prevent wxDialog from complaining.	
-	#--------------------------------------------------------
-	def TransferFromWindow(self):
-		"""
-		Transfer data from window to validator.
-		The default implementation returns False, indicating that an error
-		occurred.  We simply return True, as we don't do any data transfer.
-		"""
-		try:
-			pageCtrl = self.GetWindow().GetParent()
-			# fill in self.form_DTD with values from controls
-			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
-		except:
-			return False
+	def save(self):
+		if self.PRW_occupation.IsModified():
+			new_job = self.PRW_occupation.GetValue().strip()
+			jobs = self.__ident.get_occupations()
+			for job in jobs:
+				if job['l10n_occupation'] == new_job:
+					continue
+				self.__ident.unlink_occupation(occupation = job['l10n_occupation'])
+			self.__ident.link_occupation(occupation = new_job)
 		return True
 #============================================================
 class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
@@ -1762,10 +1534,9 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		# returning its version before save_payload().
 		# FIXME post 0.1: internal signal
 		if not self.__patient_notebook.save():
-			#self.__patient_notebook.refresh()
 			return False
 
-		#self.__patient_notebook.refresh()
+		self.__patient_notebook.refresh()
 		return True
 	#--------------------------------------------------------
 	def _on_restore(self, event):
@@ -1821,7 +1592,9 @@ def update_identity_from_dtd(identity, dtd=None):
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
-	if str(identity['dob']) != str(dtd['dob'].get_pydt()):
+	print "identity:", identity['dob']
+	print "dtd:", dtd['dob'].get_pydt()
+	if identity['dob'] != dtd['dob'].get_pydt():
 		identity['dob'] = dtd['dob'].get_pydt()
 	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
 		identity['title'] = dtd['title']
@@ -1839,7 +1612,7 @@ def update_identity_from_dtd(identity, dtd=None):
 		identity.set_nickname(nickname = dtd['nick'])
 
 	return True
-#============================================================				
+#============================================================
 def link_contacts_from_dtd(identity, dtd=None):
 	"""
 	Update patient details with data supplied by
@@ -1849,32 +1622,19 @@ def link_contacts_from_dtd(identity, dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
+	# FIXME: support address type
 
-	# current addresses in backend
-	addresses = identity['addresses']
-	last_idx = -1
-	if len(addresses) > 0:
-		last_idx = len(addresses) - 1
-
-	# form addresses
-	input_number = dtd['address_number']
-	input_street = dtd['street']
-	input_postcode = dtd['zip_code']
-	input_urb = dtd['town']
-	input_state = dtd['state']
-	input_country = dtd['country']
-	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and len (input_state) > 0 and \
-	 len(input_country) > 0 and len(input_urb) > 0 and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
-	 input_postcode != addresses[last_idx]['postcode'] or input_urb  != addresses[last_idx]['urb'] or
-	 input_state != addresses[last_idx]['state_code'] or input_country != addresses[last_idx]['country_code'])):
-		identity.link_address (
-			number = input_number,
-			street = input_street,
-			postcode = input_postcode,
-			urb = input_urb,
-			state = input_state,
-			country = input_country
-		)
+	success = identity.link_address (
+		number = dtd['address_number'].strip(),
+		street = dtd['street'].strip(),
+		postcode = dtd['zip_code'].strip(),
+		urb = dtd['town'].strip(),
+		state = dtd['state'].strip(),
+		country = dtd['country'].strip()
+	)
+	if not success:
+		gmGuiHelpers.gm_beep_statustext(_('Cannot update patient address.'))
+		return False
 
 	input_phone = dtd['phone']
 	if len(input_phone) > 0:
@@ -1898,13 +1658,7 @@ def link_occupation_from_dtd(identity, dtd=None):
 	@type basic_details_DTD A cFormDTD instance.
 	"""
 
-	occupations = identity['occupations']
-	last_idx = -1
-	if len(occupations) > 0:
-		last_idx = len(occupations) -1
-	input_occupation = dtd['occupation']
-	if len(input_occupation) > 0 and (last_idx == -1 or occupations[last_idx]['occupation'] !=input_occupation):
-		identity.link_occupation(occupation = input_occupation)
+
 	return True
 #============================================================
 class TestWizardPanel(wx.Panel):   
@@ -1978,7 +1732,15 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.107  2006-11-07 23:53:30  ncq
+# Revision 1.108  2006-11-20 16:01:35  ncq
+# - use gmTools.coalesce()
+# - some SetValue() -> SetData() fixes
+# - massively cleanup demographics edit notebook and consolidate save
+#   logic, remove validator use as it was more pain than gain
+# - we now do not lower() inside strings anymore
+# - we now take a lot of care not to invalidate the DOB
+#
+# Revision 1.107  2006/11/07 23:53:30  ncq
 # - be ever more careful in handling DOBs, use get_pydt() on fuzzy timestamps
 #
 # Revision 1.106  2006/11/06 12:51:53  ncq
