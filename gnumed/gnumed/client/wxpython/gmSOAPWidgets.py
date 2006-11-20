@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.80 2006-10-31 13:32:58 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmSOAPWidgets.py,v 1.81 2006-11-20 16:04:45 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import types
 import wx
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmTools
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
@@ -334,6 +334,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 					last = issue['modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
+				label = u'%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
@@ -341,8 +342,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-			item = _('%s "%s" (%s)') % (last, problem['problem'], problem['l10n_type'])
-			self.__LST_problems.Append(item, problem)
+				label = u'%s: %s "%s"%s' % (last, problem['l10n_type'], problem['problem'], gmTools.coalesce(epi['health_issue'], '', ' (%s)'))
+			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
 		return True
@@ -1097,7 +1098,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.80  2006-10-31 13:32:58  ncq
+# Revision 1.81  2006-11-20 16:04:45  ncq
+# - improve problem list problem labels (show associated issue for episodes)
+#
+# Revision 1.80  2006/10/31 13:32:58  ncq
 # - cleanup
 # - require only rfe
 #
