@@ -1,14 +1,14 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.2 2006-10-31 16:03:06 ncq Exp $
+# $Id: gmTools.py,v 1.3 2006-11-20 15:58:10 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 #===========================================================================
-def coalesce(initial=None, instead=None):
+def coalesce(initial=None, instead=None, template=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
@@ -21,7 +21,9 @@ def coalesce(initial=None, instead=None):
 	"""
 	if initial is None:
 		return instead
-	return initial
+	if template is None:
+		return initial
+	return template % initial
 #---------------------------------------------------------------------------
 def capitalize(text=None):
 	"""Capitalize the first character but leave the rest alone."""
@@ -43,7 +45,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.2  2006-10-31 16:03:06  ncq
+# Revision 1.3  2006-11-20 15:58:10  ncq
+# - template handling in coalesce()
+#
+# Revision 1.2  2006/10/31 16:03:06  ncq
 # - add capitalize() and test
 #
 # Revision 1.1  2006/09/03 08:53:19  ncq
