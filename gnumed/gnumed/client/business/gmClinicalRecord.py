@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.219 2006-11-19 10:50:35 ncq Exp $
-__version__ = "$Revision: 1.219 $"
+# $Id: gmClinicalRecord.py,v 1.220 2006-11-20 18:22:39 ncq Exp $
+__version__ = "$Revision: 1.220 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -154,6 +154,10 @@ select fk_encounter from
 	def _health_issues_modified(self):
 		try:
 			del self.__db_cache['health issues']
+		except KeyError:
+			pass
+		try:
+			del self.__db_cache['problems']
 		except KeyError:
 			pass
 		gmDispatcher.send(signal = gmSignals.health_issue_updated(), sender = self.__class__.__name__)
@@ -664,16 +668,18 @@ where
 		issues - Health issues' PKs list to filter episodes by
 		open_status - return all episodes, only open or closed one(s)
 		"""
-		try:
-			self.__db_cache['episodes']
-		except KeyError:
-			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s"
-			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-			tmp = []
-			for r in rows:
-				tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
-			self.__db_cache['episodes'] = tmp
+#		try:
+#			self.__db_cache['episodes']
+#		except KeyError:
 
+		cmd = u"select * from clin.v_pat_episodes where pk_patient=%s"
+		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
+		tmp = []
+		for r in rows:
+			tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
+		self.__db_cache['episodes'] = tmp
+
+		# now filter
 		if id_list is None and issues is None and open_status is None:
 			return self.__db_cache['episodes']
 		# ok, let's filter episode list
@@ -681,6 +687,7 @@ where
 		filtered_episodes.extend(self.__db_cache['episodes'])
 		if open_status is not None:
 			filtered_episodes = filter(lambda epi: epi['episode_open'] == open_status, filtered_episodes)
+
 		if issues is not None:
 			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
 		if id_list is not None:
@@ -784,20 +791,22 @@ where
 		episodes - Episodes' PKs to filter problems by
 		issues - Health issues' PKs to filter problems by
 		"""
-		try:
-			self.__db_cache['problems']
-		except KeyError:
-			cmd = u"""select pk_health_issue, pk_episode from clin.v_problem_list where pk_patient=%s"""
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-			self.__db_cache['problems'] = []
-			# Instantiate problem items
-			pk_args = {}
-			for row in rows:
-				pk_args['pk_health_issue'] = row[idx['pk_health_issue']]
-				pk_args['pk_episode'] = row[idx['pk_episode']]				
-				problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
-				self.__db_cache['problems'].append(problem)
-					
+#		try:
+#			self.__db_cache['problems']
+#		except KeyError:
+
+		cmd = u"""select pk_health_issue, pk_episode from clin.v_problem_list where pk_patient=%s"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
+		self.__db_cache['problems'] = []
+		# Instantiate problem items
+		pk_args = {}
+		for row in rows:
+			pk_args['pk_health_issue'] = row[idx['pk_health_issue']]
+			pk_args['pk_episode'] = row[idx['pk_episode']]
+			problem = gmEMRStructItems.cProblem(aPK_obj=pk_args)
+			self.__db_cache['problems'].append(problem)
+
+		# now filter					
 		if episodes is None and issues is None:
 			return self.__db_cache['problems']
 		# ok, let's filter problem list
@@ -1581,7 +1590,11 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.219  2006-11-19 10:50:35  ncq
+# Revision 1.220  2006-11-20 18:22:39  ncq
+# - invalidate problem cache when health issues are updated, too
+# - do not use cache for now when getting problems/episodes
+#
+# Revision 1.219  2006/11/19 10:50:35  ncq
 # - fix get_episodes_by_encounter()
 #
 # Revision 1.218  2006/11/14 16:55:05  ncq
