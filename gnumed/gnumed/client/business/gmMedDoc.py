@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.84 2006-11-06 09:57:39 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmMedDoc.py,v 1.85 2006-11-20 15:55:41 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -453,7 +453,8 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			queries = [
 				{'cmd': cmd1, 'args': {'doc_id': self.pk_obj}},
 				{'cmd': u"select currval('blobs.doc_obj_pk_seq')"}
-			]
+			],
+			return_data = True
 		)
 		# init document part instance
 		pk_part = rows[0][0]
@@ -717,7 +718,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.84  2006-11-06 09:57:39  ncq
+# Revision 1.85  2006-11-20 15:55:41  ncq
+# - must use return_data when wanting data back from run_rw_queries()
+#
+# Revision 1.84  2006/11/06 09:57:39  ncq
 # - need to return_data to return data
 # - cannot drop non-user doc types from blobs.doc_type so drop is_user where condition
 #
