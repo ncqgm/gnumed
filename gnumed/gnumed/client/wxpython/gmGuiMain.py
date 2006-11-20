@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.275 2006-11-19 11:15:13 ncq Exp $
-__version__ = "$Revision: 1.275 $"
+# $Id: gmGuiMain.py,v 1.276 2006-11-20 16:04:08 ncq Exp $
+__version__ = "$Revision: 1.276 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -242,12 +242,6 @@ class gmTopLevelFrame(wx.Frame):
 		# menu "GNUmed"
 		menu_gnumed = wx.Menu()
 
-		ID_UNBLOCK = wx.NewId()
-		menu_gnumed.Append(ID_UNBLOCK, _('Unlock mouse.'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
-		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
-
-		menu_gnumed.AppendSeparator()
-
 		menu_gnumed.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
 		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
 
@@ -361,8 +355,14 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_tools = wx.Menu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
-		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
-		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
+
+		ID_UNBLOCK = wx.NewId()
+		menu_tools.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
+#		menu_gnumed.AppendSeparator()
+
+#		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
+#		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
 
 		# menu "Knowledge"
 		menu_knowledge = wx.Menu()
@@ -380,7 +380,7 @@ class gmTopLevelFrame(wx.Frame):
 		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
 		self.__gb['main.helpmenu'] = help_menu
-		self.mainmenu.Append(help_menu, "&Help")
+		self.mainmenu.Append(help_menu, _("&Help"))
 
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
@@ -1132,7 +1132,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.275  2006-11-19 11:15:13  ncq
+# Revision 1.276  2006-11-20 16:04:08  ncq
+# - translate Help menu title
+# - move unlock mouse to tools menu
+# - comment out dermatology module from tools menu as there is no maintainer
+#
+# Revision 1.275  2006/11/19 11:15:13  ncq
 # - cannot wx.CallAfter() __on_pre_patient_selection() since
 #   patient would have changed underhand
 #
