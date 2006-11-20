@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.276 2006-11-20 16:04:08 ncq Exp $
-__version__ = "$Revision: 1.276 $"
+# $Id: gmGuiMain.py,v 1.277 2006-11-20 17:26:46 ncq Exp $
+__version__ = "$Revision: 1.277 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -357,7 +357,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
 		ID_UNBLOCK = wx.NewId()
-		menu_tools.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		self.menu_tools.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
 #		menu_gnumed.AppendSeparator()
 
@@ -1132,7 +1132,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.276  2006-11-20 16:04:08  ncq
+# Revision 1.277  2006-11-20 17:26:46  ncq
+# - missing self.
+#
+# Revision 1.276  2006/11/20 16:04:08  ncq
 # - translate Help menu title
 # - move unlock mouse to tools menu
 # - comment out dermatology module from tools menu as there is no maintainer
