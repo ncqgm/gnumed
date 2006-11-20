@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -137,7 +137,7 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	cmd = u"""select pk_patient from clin.v_pat_episodes where pk_episode=%s 
 				 union 
 			 select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [episode_id, encounter_id]}])
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [episode_id, encounter_id]}])
 	if len(rows) == 0:
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (False, _('internal error, check log'))
@@ -202,7 +202,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.23  2006-10-08 15:02:14  ncq
+# Revision 1.24  2006-11-20 15:55:12  ncq
+# - gmPG2.run_ro_queries *always* returns (rows, idx) so be aware of that
+#
+# Revision 1.23  2006/10/08 15:02:14  ncq
 # - convert to gmPG2
 # - convert to cBusinessDBObject
 #
