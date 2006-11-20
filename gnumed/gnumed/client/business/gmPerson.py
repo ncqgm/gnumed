@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.92 2006-11-20 15:57:16 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmPerson.py,v 1.93 2006-11-20 19:10:39 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -958,12 +958,12 @@ class cPatientSearcher_SQL:
 				_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
 			# generate queries
 			if search_term is None:
-				_log.Log(gmLog.lErr, 'need search term (dto AND search_term are None)')
-				return None
+				raise ValueError('need search term (dto AND search_term are None)')
+
 			queries = self._generate_queries(search_term)
 
 		# anything to do ?
-		if (queries is None) or (len(queries) == 0):
+		if len(queries) == 0:
 			_log.Log(gmLog.lErr, 'query tree empty')
 			_log.Log(gmLog.lErr, '[%s] [%s] [%s]' % (search_term, a_locale, str(dto)))
 			return None
@@ -1057,9 +1057,9 @@ class cPatientSearcher_SQL:
 	# ORDER BY !
 	# FIXME: what about "< 40" ?
 	#--------------------------------------------------------
-	def _make_simple_query(self, raw):
+	def _generate_simple_query(self, raw):
 		"""Compose queries if search term seems unambigous."""
-		_log.Log(gmLog.lData, '_make_simple_query("%s")' % raw)
+		_log.Log(gmLog.lData, '_generate_simple_query("%s")' % raw)
 
 		queries = []
 
@@ -1187,7 +1187,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 			})
 			return queries
 
-		return None
+		return queries	# = []
 	#--------------------------------------------------------
 	# generic, locale independant queries
 	#--------------------------------------------------------
@@ -1197,6 +1197,8 @@ SELECT DISTINCT ON (pk_identity) * from (
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
+		_log.Log(gmLog.lData, '_generate_queries_from_dto("%s")' % dto)
+
 		if not isinstance(dto, cDTO_person):
 			return None
 
@@ -1256,8 +1258,8 @@ SELECT DISTINCT ON (pk_identity) * from (
 			return []
 
 		# check to see if we get away with a simple query ...
-		queries = self._make_simple_query(search_term)
-		if queries is not None:
+		queries = self._generate_simple_query(search_term)
+		if len(queries) > 0:
 			return queries
 
 		# no we don't
@@ -1387,11 +1389,11 @@ SELECT DISTINCT ON (pk_identity) * from (
 					})
 					return queries
 				# FIXME: "name name name" or "name date date"
-				queries.append([self._generate_dumb_brute_query(search_term)])
+				queries.append(self._generate_dumb_brute_query(search_term))
 				return queries
 
 			# FIXME: no ',;' but neither "name name" nor "name name date"
-			queries.append([self._generate_dumb_brute_query(search_term)])
+			queries.append(self._generate_dumb_brute_query(search_term))
 			return queries
 
 		# more than one major part (separated by ';,')
@@ -1526,6 +1528,9 @@ SELECT DISTINCT ON (pk_identity) * from (
 		return []
 	#--------------------------------------------------------
 	def _generate_dumb_brute_query(self, search_term=''):
+
+		_log.Log(gmLog.lData, '_generate_dumb_brute_query("%s")' % search_term)
+
 		where_clause = ''
 		args = [_('name')]
 		# FIXME: split on more than just ' '
@@ -1868,12 +1873,12 @@ if __name__ == '__main__':
 		for name in data:
 			print '%s: %s' % (name, searcher._normalize_soundalikes(name))
 
-		print "testing _make_simple_query()"
+		print "testing _generate_simple_query()"
 		print "----------------------------"
 		data = ['51234', '1 134 153', '#13 41 34', '#3-AFY322.4', '22-04-1906', '1235/32/3525', ' , johnny']
 		for fragment in data:
 			print "fragment:", fragment
-			qs = searcher._make_simple_query(fragment)
+			qs = searcher._generate_simple_query(fragment)
 			for q in qs:
 				print " match on:", q['args'][0]
 				print " query   :", q['cmd']
@@ -1943,7 +1948,13 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.92  2006-11-20 15:57:16  ncq
+# Revision 1.93  2006-11-20 19:10:39  ncq
+# - more consistent method names
+# - raise instead of return None where appropriate
+# - improved logging
+# - _generate_dumb_brute_query() returned wrong type
+#
+# Revision 1.92  2006/11/20 15:57:16  ncq
 # - fix (un)link_occupation when occupation/activies=None
 # - add get_comm_channels()
 #
