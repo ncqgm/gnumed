@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.52 2006-11-20 17:05:55 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPatSearchWidgets.py,v 1.53 2006-11-20 19:11:04 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -595,7 +595,8 @@ class cPatientSelector(wx.TextCtrl):
 		if len(persons) == 0:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_info (
-				_('Cannot find any matching patients.\n\n'
+				_('Cannot find any matching patients.\n'
+				  'You may want to try a shorter search term.\n\n'
 				  'Search term: "%s"\n\n'
 				  'You will be taken to the "New Patient" wizard now.'
 				) % curr_search_term,
@@ -753,7 +754,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.52  2006-11-20 17:05:55  ncq
+# Revision 1.53  2006-11-20 19:11:04  ncq
+# - improved message when no matching patient found
+#
+# Revision 1.52  2006/11/20 17:05:55  ncq
 # - do not search if supposed search term matches 'description' of current patient
 #
 # Revision 1.51  2006/11/01 12:54:40  ncq
