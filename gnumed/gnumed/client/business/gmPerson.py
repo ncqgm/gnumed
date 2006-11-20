@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.91 2006-11-19 11:02:33 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmPerson.py,v 1.92 2006-11-20 15:57:16 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -258,11 +258,17 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 
 			@param occupation The name of the occupation to link the patient to.
 		"""
-		activities = activities.strip()
-		args = {'act': activities, 'pat_id': self.pk_obj, 'job': occupation.strip()}
+		if (activities is None) and (occupation is None):
+			return True
+		if activities is not None:
+			activities = activities.strip()
+		if occupation is not None:
+			occupation = occupation.strip()
+
+		args = {'act': activities, 'pat_id': self.pk_obj, 'job': occupation}
 
 		cmd = u"select activities from dem.v_person_jobs where pk_identity = %(pat_id)s and l10n_occupation = _(%(job)s)"
-		rows, idx = gmPG2.run_ro_queries(queries = {'cmd': cmd, 'args': args})
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		queries = []
 		if len(rows) == 0:
@@ -282,13 +288,28 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		return True
 	#--------------------------------------------------------
 	def unlink_occupation(self, occupation=None):
+		if occupation is None:
+			return True
+		occupation = occupation.strip()
 		cmd = u"delete from dem.lnk_job2person where fk_identity=%s and fk_occupation=(select id from dem.occupation where _(name) = _(%(job)s))"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, occupation.strip()]}])
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, occupation]}])
 		return True
 	#--------------------------------------------------------
 	# comms API
 	#--------------------------------------------------------
+	def get_comm_channels(self, comm_medium=None):
+		cmd = u"select * from dem.v_person_comms where pk_identity=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 
+		filtered = rows
+
+		if comm_medium is not None:
+			filtered = []
+			for row in rows:
+				if row['comm_type'] == comm_medium:
+					filtered.append(row)
+
+		return filtered
 	#--------------------------------------------------------
 	def link_communication(self, comm_medium, url, is_confidential = False):
 		"""
@@ -305,8 +326,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
 			return False
 		# FIXME: make link_person_comm() create comm type if necessary
-		cmd = u"SELECT dem.link_person_comm(%(pk)s, %(medium)s, %(url)s, %(secret)s)",
-		rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': {'pk': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
+		cmd = u"SELECT dem.link_person_comm(%(pk)s, %(medium)s, %(url)s, %(secret)s)"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
 		return True
 	#--------------------------------------------------------
 	# contacts API
@@ -1922,7 +1943,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.91  2006-11-19 11:02:33  ncq
+# Revision 1.92  2006-11-20 15:57:16  ncq
+# - fix (un)link_occupation when occupation/activies=None
+# - add get_comm_channels()
+#
+# Revision 1.91  2006/11/19 11:02:33  ncq
 # - remove subtable defs, add corresponding APIs
 #
 # Revision 1.90  2006/11/09 17:46:04  ncq
