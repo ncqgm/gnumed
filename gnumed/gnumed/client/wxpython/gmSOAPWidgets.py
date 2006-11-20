@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.81 2006-11-20 16:04:45 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmSOAPWidgets.py,v 1.82 2006-11-20 18:23:53 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -125,23 +125,44 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def add_editor(self, problem=None):
+	def add_editor(self, problem=None, allow_same_problem=False):
 		"""Add a progress note editor page."""
+
 		label = _('new episode')
+
 		if problem is not None:
 			emr = self.__pat.get_emr()
 			if isinstance(problem, gmEMRStructItems.cEpisode):
 				problem = emr.episode2problem(episode = problem)
 			elif isinstance(problem, gmEMRStructItems.cHealthIssue):
 				problem = emr.health_issue2problem(issue = problem)
-			if isinstance(problem, gmEMRStructItems.cProblem):
-				label = problem['problem']
-			else:
-				_log.Log(gmLog.lErr, 'cannot open progress note editor for [%s] (TypeError)' % str(problem))
-				return False
+			if not isinstance(problem, gmEMRStructItems.cProblem):
+				raise TypeError('cannot open progress note editor for [%s]' % str(problem))
+
+			label = problem['problem']
 			# FIXME: configure length
 			if len(label) > 23:
 				label = label[:20] + '...'
+
+		if not allow_same_problem:
+			# check for dupes
+			for page_idx in range(self.GetPageCount()):
+				page = self.GetPage(page_idx)
+				existing_problem = page.get_problem()
+				# unassociated
+				if (problem is None) and (existing_problem is None):
+					self.SetSelection(page_idx)
+					return True
+				# episodes
+				if problem['type'] == 'episode':
+					if problem['pk_episode'] == existing_problem['pk_episode']:
+						self.SetSelection(page_idx)
+						return True
+				if problem['type'] == 'issue':
+					if problem['pk_health_issue'] == existing_problem['pk_health_issue']:
+						self.SetSelection(page_idx)
+						return True
+
 		new_page = cResizingSoapPanel(parent = self, problem = problem)
 		return self.AddPage (
 			page = new_page,
@@ -346,6 +367,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
+		#self.Refresh()
+		#self.Update()
 		return True
 	#--------------------------------------------------------
 	# event handling
@@ -404,40 +427,17 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		"""
 		problem_idx = self.__LST_problems.GetSelection()
 		problem = self.__LST_problems.GetClientData(problem_idx)
-		emr = self.__pat.get_emr()
 
-		title = _('opening progress note editor')
-		msg = _('Cannot open progress note editor for\n\n'
-				'[%s].\n\n') % problem['problem']
-
-		if problem['type'] == 'issue':
-			# health issue selected: user wants to start new episode
-			if self.__soap_notebook.add_editor(problem = problem):
-				# FIXME: ask whether closing "previous" episodes for issue
-				return True
-			gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = title)
-			return False
-
-		# must be episode, then
-		# editor for it already there ?
-		for page_idx in range(self.__soap_notebook.GetPageCount()):
-			page = self.__soap_notebook.GetPage(page_idx)
-			pnl_problem = page.get_problem()
-			# skip unassociated
-			if pnl_problem is None:
-				continue
-			# skip issues
-			if pnl_problem['type'] != 'episode':
-				continue
-			if pnl_problem['pk_episode'] == problem['pk_episode']:
-				# yes, so raise that editor (returns idx of old page)
-				self.__soap_notebook.SetSelection(page_idx)
-				return True
-
-		# no, add editor for episode
 		if self.__soap_notebook.add_editor(problem = problem):
 			return True
-		gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = title)
+
+		gmGuiHelpers.gm_show_error (
+			aMessage = _(
+				'Cannot open progress note editor for\n\n'
+				'[%s].\n\n'
+			) % problem['problem'],
+			aTitle = _('opening progress note editor')
+		)
 		return False
 	#--------------------------------------------------------
 	def __on_save(self, event):
@@ -448,6 +448,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		if not soap_nb_page.save():
 			return False
 		self.__soap_notebook.DeletePage(page_idx)
+		# always keep one unassociated editor open
+		self.__soap_notebook.add_editor()
 		self.__refresh_problem_list()
 		return True
 	#--------------------------------------------------------
@@ -1098,7 +1100,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.81  2006-11-20 16:04:45  ncq
+# Revision 1.82  2006-11-20 18:23:53  ncq
+# - smarten up add_editor() with allow_same_problem
+# - after save() open new unassociated editor if none there and refresh problem list
+#
+# Revision 1.81  2006/11/20 16:04:45  ncq
 # - improve problem list problem labels (show associated issue for episodes)
 #
 # Revision 1.80  2006/10/31 13:32:58  ncq
