@@ -4,14 +4,17 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.31 $ $Date: 2006-07-10 21:48:44 $ $Author: ncq $
+-- $Revision: 1.32 $ $Date: 2006-11-22 09:59:51 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-select audit.add_table_for_audit('blobs', 'xlnk_identity');
+-- removing this is
+-- a) necessary since it would clash with log_xlnk_identity from clin.clnk_identity
+-- b) safe since *.xlnk_identity is dropped during v2 to v3 transformation anyways
+--select audit.add_table_for_audit('blobs', 'xlnk_identity');
 
 -- -- doc_type --
 comment on table blobs.doc_type is
@@ -451,11 +454,15 @@ TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.31 $');
+select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.31  2006-07-10 21:48:44  ncq
+-- Revision 1.32  2006-11-22 09:59:51  ncq
+-- - do not mark blobs.xlnk_identity for auditing as it would clash
+--   with clin.xlnk_identity -- and it's dropped later on anyways
+--
+-- Revision 1.31  2006/07/10 21:48:44  ncq
 -- - improve blobs.v_doc_type
 --
 -- Revision 1.30  2006/07/04 21:40:17  ncq
