@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.34 2006-11-24 14:22:35 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmEMRStructWidgets.py,v 1.35 2006-11-24 16:40:35 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -506,10 +506,13 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		else:
 			self._ChBOX_right.SetValue(1)
 		self._TCTRL_notes.SetValue('')
-		self._PRW_age_diagnosed.SetValue (
-			value = '%sd' % self.__issue['age_noted'].days,
-			data = self.__issue['age_noted']
-		)
+		if self.__issue['age_noted'] is None:
+			self._PRW_age_diagnosed.SetValue('')
+		else:
+			self._PRW_age_diagnosed.SetValue (
+				value = '%sd' % self.__issue['age_noted'].days,
+				data = self.__issue['age_noted']
+			)
 		self._ChBOX_active.SetValue(self.__issue['is_active'])
 		self._ChBOX_relevant.SetValue(self.__issue['clinically_relevant'])
 		self._ChBOX_is_operation.SetValue(0)		# FIXME
@@ -1507,7 +1510,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.34  2006-11-24 14:22:35  ncq
+# Revision 1.35  2006-11-24 16:40:35  ncq
+# - age_noted can be NULL so handle set when refresh()ing health issue edit area
+#
+# Revision 1.34  2006/11/24 14:22:35  ncq
 # - cannot pass issue keyword to wx.Dialog child in cHealthIssueEditAreaDlg.__init__
 # - relabel buttons to save or update re clear/restore when adding/editing health issue
 # - EndModal needs argument
