@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.33 2006-11-24 09:55:05 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmEMRStructWidgets.py,v 1.34 2006-11-24 14:22:35 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -505,17 +505,20 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			self._ChBOX_right.SetValue(0)
 		else:
 			self._ChBOX_right.SetValue(1)
-		self._TCTRL_notes.SetValue('')				# FIXME: or rather not ? there's arguments for both sides
+		self._TCTRL_notes.SetValue('')
 		self._PRW_age_diagnosed.SetValue (
 			value = '%sd' % self.__issue['age_noted'].days,
 			data = self.__issue['age_noted']
 		)
-		self._PRW_year_diagnosed.SetValue('')		# FIXME; set from dob+age
 		self._ChBOX_active.SetValue(self.__issue['is_active'])
 		self._ChBOX_relevant.SetValue(self.__issue['clinically_relevant'])
 		self._ChBOX_is_operation.SetValue(0)		# FIXME
 		self._ChBOX_confidential.SetValue(self.__issue['is_confidential'])
 		self._ChBOX_caused_death.SetValue(self.__issue['is_cause_of_death'])
+
+		# this dance should assure self._PRW_year_diagnosed gets set -- but it doesn't ...
+#		self._PRW_age_diagnosed.SetFocus()
+#		self._PRW_condition.SetFocus()
 
 		return True
 	#--------------------------------------------------------
@@ -595,17 +598,30 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg):
 
 	def __init__(self, *args, **kwargs):
+		try:
+			issue = kwargs['issue']
+			del kwargs['issue']
+		except KeyError:
+			issue = None
+
 		wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg.__init__(self, *args, **kwargs)
 
-		try:
-			self._PNL_edit_area.refresh(issue = kwargs['issue'])
-		except KeyError:
-			pass
+		if issue is None:
+			self._BTN_save.SetLabel(_('Save'))
+			self._BTN_clear.SetLabel(_('Clear'))
+		else:
+			self._BTN_save.SetLabel(_('Update'))
+			self._BTN_clear.SetLabel(_('Restore'))
+
+		self.Refresh()
+		#self.Update()			# not needed
+
+		self._PNL_edit_area.refresh(issue = issue)
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_edit_area.save():
 			if self.IsModal():
-				self.EndModal()
+				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
 	#--------------------------------------------------------
@@ -1491,7 +1507,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.33  2006-11-24 09:55:05  ncq
+# Revision 1.34  2006-11-24 14:22:35  ncq
+# - cannot pass issue keyword to wx.Dialog child in cHealthIssueEditAreaDlg.__init__
+# - relabel buttons to save or update re clear/restore when adding/editing health issue
+# - EndModal needs argument
+#
+# Revision 1.33  2006/11/24 09:55:05  ncq
 # - cHealthIssueEditArea(Pnl/Dlg) closely following Richard's specs
 # - test code
 #
