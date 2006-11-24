@@ -8,23 +8,26 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.32 2006-11-15 00:40:07 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmEMRStructWidgets.py,v 1.33 2006-11-24 09:55:05 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
+# stdlib
+import sys, re, datetime as pydt
+
 # 3rd party
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 # GNUmed
-from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmFuzzyTimestamp
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
+if __name__ == '__main__':
+	gmI18N.install_domain()
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -361,6 +364,253 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 			)
 			return False
 		return True
+#============================================================
+class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
+	"""Panel encapsulating health issue edit area functionality."""
+
+	# FIXME: add on_lose_focus handling for year_diagnosed
+
+	def __init__(self, *args, **kwargs):
+		wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl.__init__(self, *args, **kwargs)
+
+		try:
+			self.__issue = kwargs['issue']
+		except KeyError:
+			self.__issue = None
+
+		# FIXME: include more sources: coding systems/other database columns
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"select distinct on (description) description, description from clin.health_issue where description %(fragment_condition)s limit 50"]
+		)
+		mp.setThresholds(1, 3, 5)
+		self._PRW_condition.setMatchProvider(mp = mp)
+
+		self._PRW_age_diagnosed.add_callback_on_lose_focus(self._on_leave_age_diagnosed)
+		self._PRW_year_diagnosed.add_callback_on_lose_focus(self._on_leave_year_diagnosed)
+
+		self.refresh()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def _on_leave_age_diagnosed(self, *args, **kwargs):
+
+		str_age = self._PRW_age_diagnosed.GetValue().strip()
+
+		if str_age == '':
+			wx.CallAfter(self._PRW_year_diagnosed.SetValue, '')
+			return True
+
+		age = gmTools.str2interval(str_interval = str_age)
+		pat = gmPerson.gmCurrentPatient()
+		ident = pat.get_identity()
+		max_age =  pydt.datetime.now(tz=ident['dob'].tzinfo) - ident['dob']
+
+		if age is None:
+			gmGuiHelpers.gm_statustext(_('Cannot parse [%s] into valid interval.') % str_age)
+		if age >= max_age:
+			gmGuiHelpers.gm_statustext(_('Patient is only %s old. Cannot accept age [%s].') % (ident.get_medical_age(), age))
+
+		if (age is None) or (age >= max_age):
+			self._PRW_age_diagnosed.SetBackgroundColour('pink')
+			self._PRW_age_diagnosed.Refresh()
+			wx.CallAfter(self._PRW_year_diagnosed.SetValue, '')
+			return True
+
+		self._PRW_age_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_diagnosed.Refresh()
+		self._PRW_age_diagnosed.SetData(data=age)
+
+		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
+			timestamp = ident['dob'] + age,
+			accuracy = gmFuzzyTimestamp.acc_months
+		)
+		wx.CallAfter(self._PRW_year_diagnosed.SetValue, str(fts), fts)
+		# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
+		#wx.CallAfter(self._ChBOX_active.SetFocus)
+		# if we do the following instead it will take us to the save/update button ...
+		#wx.CallAfter(self.Navigate)
+
+		return True
+	#--------------------------------------------------------
+	def _on_leave_year_diagnosed(self, *args, **kwargs):
+
+		year_diagnosed = self._PRW_year_diagnosed.GetData()
+
+		if year_diagnosed is None:
+			if self._PRW_year_diagnosed.GetValue().strip() == '':
+				wx.CallAfter(self._PRW_age_diagnosed.SetValue, '')
+				return True
+
+		year_diagnosed = year_diagnosed.get_pydt()
+
+		if year_diagnosed >= pydt.datetime.now(tz=year_diagnosed.tzinfo):
+			gmGuiHelpers.gm_statustext(_('Condition diagnosed in the future.'))
+			self._PRW_year_diagnosed.SetBackgroundColour('pink')
+			self._PRW_year_diagnosed.Refresh()
+			wx.CallAfter(self._PRW_age_diagnosed.SetValue, '')
+			return True
+
+		self._PRW_year_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_year_diagnosed.Refresh()
+
+		pat = gmPerson.gmCurrentPatient()
+		ident = pat.get_identity()
+		age = year_diagnosed - ident['dob']
+		str_age = gmPerson.format_age_medically(age)
+		wx.CallAfter(self._PRW_age_diagnosed.SetValue, str_age, age)
+
+		return True
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def clear(self):
+		self.__issue = None
+		return self.refresh()
+	#--------------------------------------------------------
+	def refresh(self, issue=None):
+
+		if issue is not None:
+			self.__issue = issue
+
+		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_condition.Refresh()
+		self._PRW_condition.SetFocus()
+		self._PRW_age_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_diagnosed.Refresh()
+
+		if self.__issue is None:
+			self._PRW_condition.SetValue('')
+			self._ChBOX_left.SetValue(0)
+			self._ChBOX_right.SetValue(0)
+			self._TCTRL_notes.SetValue('')
+			self._PRW_age_diagnosed.SetValue('')
+			self._PRW_year_diagnosed.SetValue('')
+			self._ChBOX_active.SetValue(0)
+			self._ChBOX_relevant.SetValue(1)
+			self._ChBOX_is_operation.SetValue(0)
+			self._ChBOX_confidential.SetValue(0)
+			self._ChBOX_caused_death.SetValue(0)
+			return True
+
+		if not isinstance(self.__issue, gmEMRStructItems.cHealthIssue):
+			raise ValueError('[%s].refresh(): expected gmEMRStructItems.cHealthIssue instance, got [%s] instead' % (self.__class__.__name__, self.__issue))
+
+		self._PRW_condition.SetValue(self.__issue['description'])
+		lat = gmTools.coalesce(self.__issue['laterality'], '')
+		if lat.find('s') == -1:
+			self._ChBOX_left.SetValue(0)
+		else:
+			self._ChBOX_left.SetValue(1)
+		if lat.find('d') == -1:
+			self._ChBOX_right.SetValue(0)
+		else:
+			self._ChBOX_right.SetValue(1)
+		self._TCTRL_notes.SetValue('')				# FIXME: or rather not ? there's arguments for both sides
+		self._PRW_age_diagnosed.SetValue (
+			value = '%sd' % self.__issue['age_noted'].days,
+			data = self.__issue['age_noted']
+		)
+		self._PRW_year_diagnosed.SetValue('')		# FIXME; set from dob+age
+		self._ChBOX_active.SetValue(self.__issue['is_active'])
+		self._ChBOX_relevant.SetValue(self.__issue['clinically_relevant'])
+		self._ChBOX_is_operation.SetValue(0)		# FIXME
+		self._ChBOX_confidential.SetValue(self.__issue['is_confidential'])
+		self._ChBOX_caused_death.SetValue(self.__issue['is_cause_of_death'])
+
+		return True
+	#--------------------------------------------------------
+	def __is_valid_for_save(self):
+
+		if self._PRW_condition.GetValue().strip() == '':
+			self._PRW_condition.SetBackgroundColour('pink')
+			self._PRW_condition.Refresh()
+			self._PRW_condition.SetFocus()
+			return False
+		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_condition.Refresh()
+
+		# FIXME: check age/year diagnosed
+		age_noted = self._PRW_age_diagnosed.GetValue().strip()
+		if age_noted != '':
+			if gmTools.str2interval(str_interval=age_noted) is None:
+				self._PRW_age_diagnosed.SetBackgroundColour('pink')
+				self._PRW_age_diagnosed.Refresh()
+				self._PRW_age_diagnosed.SetFocus()
+				return False
+		self._PRW_age_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_diagnosed.Refresh()
+
+		return True
+	#--------------------------------------------------------
+	def save(self, can_create=True):
+		if not self.__is_valid_for_save():
+			return False
+
+		desc = self._PRW_condition.GetValue().strip()
+
+		if self.__issue is None:
+			if not can_create:
+				gmGuiHelpers.gm_statustext(_('Creating new health issue not allowed.'))
+				return False
+			pat = gmPerson.gmCurrentPatient()
+			success, self.__issue = gmEMRStructItems.create_health_issue (
+				patient_id = pat.get_id(),
+				description = desc
+			)
+		else:
+			self.__issue['description'] = desc
+
+		side = ''
+		if self._ChBOX_left.GetValue():
+			side += 's'
+		if self._ChBOX_right.GetValue():
+			side += 'd'
+		if side != '':
+			self.__issue['laterality'] = side
+
+		self.__issue['is_active'] = bool(self._ChBOX_active.GetValue())
+		self.__issue['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
+		self.__issue['is_confidential'] = bool(self._ChBOX_confidential.GetValue())
+		self.__issue['is_cause_of_death'] = bool(self._ChBOX_caused_death.GetValue())
+		age_noted = self._PRW_age_diagnosed.GetData()
+		if age_noted is not None:
+			self.__issue['age_noted'] = age_noted
+
+		self.__issue.save_payload()			# FIXME: error checking
+
+		narr = self._TCTRL_notes.GetValue().strip()
+		if narr != '':
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk'], is_open=None)
+			if epi is not None:
+				epi['episode_open'] = False
+				epi.save_payload()			# FIXME: error handling
+				emr.add_clin_narrative(note = narr, soap_cat='s', episode=epi)
+
+		# FIXME: handle is_operation
+
+		return True
+#============================================================
+class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg.__init__(self, *args, **kwargs)
+
+		try:
+			self._PNL_edit_area.refresh(issue = kwargs['issue'])
+		except KeyError:
+			pass
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_edit_area.save():
+			if self.IsModal():
+				self.EndModal()
+			else:
+				self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PNL_edit_area.refresh()
 #============================================================
 class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	"""Edit Area for Health Issues.
@@ -1088,7 +1338,7 @@ if __name__ == '__main__':
 
 	_log.SetAllLogLevels(gmLog.lData)
 #	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
-	
+
 #	ID_EPISODE_SELECTOR = wx.NewId()
 #	ID_EPISODE_EDITOR = wx.NewId()
 #	ID_EXIT = wx.NewId()
@@ -1228,16 +1478,24 @@ if __name__ == '__main__':
 	if pat is None:
 		print "No patient. Exiting gracefully..."
 		sys.exit(0)
+	gmPerson.set_active_patient(patient=pat)
 
 	app = wx.PyWidgetTester(size = (200, 300))
 	gmPerson.set_active_patient(patient=pat)
-	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+	dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
+	dlg.ShowModal()
+#	app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
+#	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
 #	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20), patient_id=pat.getID())
 	app.MainLoop()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.32  2006-11-15 00:40:07  ncq
+# Revision 1.33  2006-11-24 09:55:05  ncq
+# - cHealthIssueEditArea(Pnl/Dlg) closely following Richard's specs
+# - test code
+#
+# Revision 1.32  2006/11/15 00:40:07  ncq
 # - properly set up context for phrasewheels
 #
 # Revision 1.31  2006/10/31 17:21:16  ncq
