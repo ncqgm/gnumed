@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.58 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmEMRBrowser.py,v 1.59 2006-11-24 14:20:44 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -188,8 +188,8 @@ class cEMRTree(wx.TreeCtrl):
 		# - health issues
 		self.__issue_context_popup = wx.Menu()
 		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('rename health issue')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__rename_issue)
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('edit health issue')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
 		
 		# - root node
 		self.__root_context_popup = wx.Menu()
@@ -379,30 +379,12 @@ class cEMRTree(wx.TreeCtrl):
 #		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__issue_context_popup, pos)
 	#--------------------------------------------------------
-	def __rename_issue(self, event):
-		dlg = wx.TextEntryDialog (
-			parent = self,
-			message = _('Old: "%s"\nPlease type the new description:\n') % self.__curr_node_data['description'],
-			caption = _('Renaming health issue ...'),
-			defaultValue = ''
-		)
-		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			return
-		new_name = dlg.GetValue().strip()
-		if new_name == '':
-			return
-		if new_name == self.__curr_node_data['description']:
-			return
-		if self.__curr_node_data.rename(new_name):
-			#DEBUG why doesn't a refresh occur ?
-			self.SetItemText(self.__curr_node, new_name)
-			return
-		gmGuiHelpers.gm_show_error (
-			_('Cannot rename health issue from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
-			_('Error renaming health issue ...'),
-			gmLog.lErr
-		)
+	def __edit_issue(self, event):
+		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1, issue=self.__curr_node_data)
+		ea.ShowModal()
+		self.SetItemText(self.__curr_node, self.__curr_node_data['description'])
+		self.Refresh()
+		#self.Update()
 		return
 	#--------------------------------------------------------
 	# root
@@ -724,7 +706,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.58  2006-11-24 10:01:31  ncq
+# Revision 1.59  2006-11-24 14:20:44  ncq
+# - used shiny new health issue edit area in issue context menu
+# - refresh tree after editing health issue
+#
+# Revision 1.58  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.57  2006/11/05 16:02:00  ncq
