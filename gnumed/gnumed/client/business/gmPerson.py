@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.93 2006-11-20 19:10:39 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmPerson.py,v 1.94 2006-11-24 09:33:22 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -105,23 +105,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			'insert': u"""
 				insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
 				values(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""
-		},
-		'comms': {
-			'select': u"""
-				select
-					l2c.id_type,
-					l2c.url,
-					l2c.url as pk,
-					l2c.is_confidential,
-					ect.description as type
-				from
-					dem.lnk_identity2comm l2c,
-					dem.enum_comm_types ect
-				where
-					l2c.id_identity = %s
-					and ect.id = id_type""",
-			'insert': u"SELECT dem.link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)",
-			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and url = %s"
 		}
 	}
 	#--------------------------------------------------------
@@ -512,8 +495,11 @@ class cPerson:
 		try:
 			return cPerson._get_handler[aVar](self)
 		except KeyError:
-			_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
-			return None
+			try:
+				return self.__db_cache['identity'][aVar]
+			except KeyError:
+				_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
+				return None
 	#--------------------------------------------------------
 	def getID(self):
 		return self._ID
@@ -661,7 +647,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def get_workplace(self):
 		workplace = 'xxxDEFAULTxxx'
-		if gmCfg.gmDefCfgFile is None:
+		if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
 			print _('No config file to read workplace name from !')
 		else:
 			tmp = gmCfg.gmDefCfgFile.get('workplace', 'name')
@@ -837,6 +823,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		return self.patient.get_document_folder()
 	#--------------------------------------------------------
 	def getID(self):
+		return self.patient.getID()
+	#--------------------------------------------------------
+	def get_id(self):
 		return self.patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
@@ -1577,6 +1566,9 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 def dob2medical_age(dob):
 	"""Format patient age in a hopefully meaningful way."""
 	age = datetime.datetime.now(tz=dob.tzinfo) - dob
+	return format_age_medically(age)
+#------------------------------------------------------------
+def format_age_medically(age=None):
 	if age.days > 364:
 		years, days = divmod(age.days, 365)
 		months, day = divmod(days, 30)
@@ -1948,7 +1940,13 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.93  2006-11-20 19:10:39  ncq
+# Revision 1.94  2006-11-24 09:33:22  ncq
+# - remove comms subtable
+# - chain cPerson.__getitem__ to underlying cIdentity where necessary
+# - fix no-cfg-file detection in get_workplace()
+# - add format_age_medically() and use it
+#
+# Revision 1.93  2006/11/20 19:10:39  ncq
 # - more consistent method names
 # - raise instead of return None where appropriate
 # - improved logging
