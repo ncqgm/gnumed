@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.54 2006-11-24 09:56:03 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmPatSearchWidgets.py,v 1.55 2006-11-24 14:23:19 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -102,7 +102,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
-			self.Close(wx.ID_OK)
+			self.Close()
 #============================================================
 class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonDTOFromListDlg):
 
@@ -159,7 +159,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
-			self.Close(wx.ID_OK)
+			self.Close()
 #============================================================
 def load_persons_from_xdt():
 
@@ -756,7 +756,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.54  2006-11-24 09:56:03  ncq
+# Revision 1.55  2006-11-24 14:23:19  ncq
+# - self.Close() does not need wx.ID_*
+#
+# Revision 1.54  2006/11/24 09:56:03  ncq
 # - improved message when error searching patient
 #
 # Revision 1.53  2006/11/20 19:11:04  ncq
