@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.57 2006-11-05 16:02:00 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmEMRBrowser.py,v 1.58 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -38,7 +38,7 @@ def export_emr_to_ascii(parent=None):
 	# sanity checks
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.is_connected():
-		gmGuiHelpers.gm_beep_statustext(_('Cannot export EMR. No active patient.'), gmLog.lErr)
+		gmGuiHelpers.gm_statustext(_('Cannot export EMR. No active patient.'), gmLog.lErr)
 		return False
 	if parent is None:
 		_log.Log(gmLog.lErr, 'cannot dump emr in gui mode without parent widget')
@@ -103,7 +103,7 @@ class cEMRTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext (
+			gmGuiHelpers.gm_statustext (
 				_('Cannot load documents. No active patient.'),
 				gmLog.lErr
 			)
@@ -413,7 +413,7 @@ class cEMRTree(wx.TreeCtrl):
 		# FIXME: refactor this code, present in three places
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot add health issue. No active patient.'), gmLog.lErr)
+			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'), gmLog.lErr)
 			return False
 		ea = gmEMRStructWidgets.cHealthIssueEditArea (
 			self,
@@ -724,7 +724,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.57  2006-11-05 16:02:00  ncq
+# Revision 1.58  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.57  2006/11/05 16:02:00  ncq
 # - cleanup
 #
 # Revision 1.56  2006/10/09 12:22:27  ncq

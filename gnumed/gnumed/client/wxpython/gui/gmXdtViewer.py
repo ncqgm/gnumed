@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.23 2006-10-31 16:05:40 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmXdtViewer.py,v 1.24 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -99,7 +99,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		f.close()
 		if not encoding_found:
 			encoding = 'iso8859-1'
-			gmGuiHelpers.gm_beep_statustext(_('Encoding missing in xDT file. Assuming ISO-8859-1.'))
+			gmGuiHelpers.gm_statustext(_('Encoding missing in xDT file. Assuming ISO-8859-1.'))
 
 		try:
 			xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding, errors='replace')
@@ -424,7 +424,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.23  2006-10-31 16:05:40  ncq
+# Revision 1.24  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.23  2006/10/31 16:05:40  ncq
 # - exit first scan as soon as encoding was found
 # - assume iso8859-1 if not found
 # - display LDT file name in first line of list control

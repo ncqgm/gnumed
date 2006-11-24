@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.18 2006-07-30 18:47:38 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPatPicWidgets.py,v 1.19 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -94,7 +94,7 @@ class cPatientPicture(wx.StaticBitmap):
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
 		if not self.__pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('No active patient.'))
+			gmGuiHelpers.gm_statustext(_('No active patient.'))
 			return False
 		self.PopupMenu(self.__photo_menu, event.GetPosition())
 	#-----------------------------------------------------------------
@@ -103,7 +103,7 @@ class cPatientPicture(wx.StaticBitmap):
 		doc_folder = self.__pat.get_document_folder()
 		photo = doc_folder.get_latest_mugshot()
 		if photo is None:
-			gmGuiHelpers.gm_beep_statustext(_('Cannot get most recent patient photo.'))
+			gmGuiHelpers.gm_statustext(_('Cannot get most recent patient photo.'))
 			return False
 		fname = photo.export_to_file()
 		if self.__set_pic_from_file(fname):
@@ -184,7 +184,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.18  2006-07-30 18:47:38  ncq
+# Revision 1.19  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.18  2006/07/30 18:47:38  ncq
 # - better comment
 #
 # Revision 1.17  2006/05/15 13:36:00  ncq

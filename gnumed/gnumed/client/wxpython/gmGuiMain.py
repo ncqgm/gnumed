@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.277 2006-11-20 17:26:46 ncq Exp $
-__version__ = "$Revision: 1.277 $"
+# $Id: gmGuiMain.py,v 1.278 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.278 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -450,7 +450,7 @@ class gmTopLevelFrame(wx.Frame):
 				enc['assessment_of_encounter'] = enc_summary
 			# FIXME: optionally pop up modal dialog to allow editing encounter summary before saving
 			if not enc.save_payload():
-				gmGuiHelpers.gm_beep_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
+				gmGuiHelpers.gm_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
 		return True
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -506,7 +506,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot add health issue. No active patient.'))
+			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'))
 			return False
 		ea = gmEMRStructWidgets.cHealthIssueEditArea (
 			self,
@@ -528,7 +528,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot show EMR summary. No active patient.'))
+			gmGuiHelpers.gm_statustext(_('Cannot show EMR summary. No active patient.'))
 			return False
 		emr = pat.get_emr()
 		msg = _("""Medical problems: %(problems)s
@@ -550,7 +550,7 @@ Stored documents: %(documents)s
 	def __on_search_emr(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot search EMR. No active patient.'))
+			gmGuiHelpers.gm_statustext(_('Cannot search EMR. No active patient.'))
 			return False
 		searcher = wx.TextEntryDialog (
 			parent = self,
@@ -589,7 +589,7 @@ Search results:
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot export EMR journal. No active patient.'), gmLog.lErr)
+			gmGuiHelpers.gm_statustext(_('Cannot export EMR journal. No active patient.'), gmLog.lErr)
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
@@ -637,7 +637,7 @@ Search results:
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot export EMR for Medistar. No active patient.'), gmLog.lErr)
+			gmGuiHelpers.gm_statustext(_('Cannot export EMR for Medistar. No active patient.'), gmLog.lErr)
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
@@ -693,7 +693,7 @@ Search results:
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot add staff member. No active patient.'))
+			gmGuiHelpers.gm_statustext(_('Cannot add staff member. No active patient.'))
 			return False
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
@@ -701,7 +701,7 @@ Search results:
 	def __on_delete_patient(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext(_('Cannot delete patient. No patient active.'))
+			gmGuiHelpers.gm_statustext(_('Cannot delete patient. No patient active.'))
 			return False
 		gmDemographicsWidgets.disable_identity(identity=pat.get_identity())
 		return True
@@ -1132,7 +1132,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.277  2006-11-20 17:26:46  ncq
+# Revision 1.278  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.277  2006/11/20 17:26:46  ncq
 # - missing self.
 #
 # Revision 1.276  2006/11/20 16:04:08  ncq

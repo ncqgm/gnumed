@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -510,7 +510,7 @@ class cLabJournalNB(wx.Notebook):
 
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
-			gmGuiHelpers.gm_beep_statustext(_('More unreviewed results available. Review some to see more.'))
+			gmGuiHelpers.gm_statustext(_('More unreviewed results available. Review some to see more.'))
 	#------------------------------------------------------------------------
 	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
@@ -595,7 +595,7 @@ class cLabJournalNB(wx.Notebook):
 		emr = self.__pat.get_emr()
 		request = emr.add_lab_request(lab=int(self.lab), req_id = req_id)
 		if request is None:
-			gmGuiHelpers.gm_beep_statustext(_('Cannot save lab request.'))
+			gmGuiHelpers.gm_statustext(_('Cannot save lab request.'))
 			return None
 
 		# FIXME: maybe populate request list only ?
@@ -763,7 +763,7 @@ class cLabDataGrid(wx.Grid):
 			)
 			return None
 		if len(results) == 0:
-			gmGuiHelpers.gm_beep_statustext(_('No lab data available.'))
+			gmGuiHelpers.gm_statustext(_('No lab data available.'))
 			return None
 			
 		dates, test_names = self.__compile_stats(results)
@@ -863,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.22  2006-10-25 07:21:57  ncq
+# Revision 1.23  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.22  2006/10/25 07:21:57  ncq
 # - no more gmPG
 #
 # Revision 1.21  2006/08/04 05:46:15  ncq

@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.82 2006-11-20 18:23:53 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmSOAPWidgets.py,v 1.83 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -638,7 +638,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				all_closed = issue.close_expired_episode(ttl=ttl)
 
 				if all_closed:
-					gmGuiHelpers.gm_beep_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
+					gmGuiHelpers.gm_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
 					# either error or non-expired open episode exists
 					# FIXME: all_closed not working
 
@@ -1100,7 +1100,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.82  2006-11-20 18:23:53  ncq
+# Revision 1.83  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.82  2006/11/20 18:23:53  ncq
 # - smarten up add_editor() with allow_same_problem
 # - after save() open new unassociated editor if none there and refresh problem list
 #

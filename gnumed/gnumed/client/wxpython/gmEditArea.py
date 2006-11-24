@@ -3,19 +3,15 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.107 2006-10-24 13:23:03 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmEditArea.py,v 1.108 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
 
 import sys, traceback, time
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord
@@ -337,7 +333,7 @@ class cEditAreaPopup(wx.Dialog):
 				'message in [%s].'
 			) % self.__editarea.__class__.__name__
 		if short_err is not None:
-			gmGuiHelpers.gm_beep_statustext(short_err, gmLog.lErr)
+			gmGuiHelpers.gm_statustext(short_err, gmLog.lErr)
 		if long_err is not None:
 			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'), gmLog.lErr)
 	#--------------------------------------------------------
@@ -2344,7 +2340,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.107  2006-10-24 13:23:03  ncq
+# Revision 1.108  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.107  2006/10/24 13:23:03  ncq
 # - comment out removed match providers
 #
 # Revision 1.106  2006/07/01 15:22:50  ncq

@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.108 2006-11-20 16:01:35 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmDemographicsWidgets.py,v 1.109 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -693,7 +693,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# name fields
 		if _pnl_form.PRW_lastname.GetValue().strip() == '':
 			error = True
-			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must enter lastname.'))
+			wx.CallAfter(gmGuiHelpers.gm_statustext, _('Must enter lastname.'))
 			_pnl_form.PRW_lastname.SetBackgroundColour('pink')
 			_pnl_form.PRW_lastname.Refresh()
 		else:
@@ -702,7 +702,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 
 		if _pnl_form.PRW_firstname.GetValue().strip() == '':
 			error = True
-			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must enter first name.'))
+			wx.CallAfter(gmGuiHelpers.gm_statustext, _('Must enter first name.'))
 			_pnl_form.PRW_firstname.SetBackgroundColour('pink')
 			_pnl_form.PRW_firstname.Refresh()
 		else:
@@ -712,7 +712,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# gender
 		if _pnl_form.PRW_gender.GetData() is None:
 			error = True
-			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, _('Must select gender.'))
+			wx.CallAfter(gmGuiHelpers.gm_statustext, _('Must select gender.'))
 			_pnl_form.PRW_gender.SetBackgroundColour('pink')
 			_pnl_form.PRW_gender.Refresh()
 		else:
@@ -723,7 +723,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		if not _pnl_form.PRW_dob.is_valid_timestamp():
 			error = True
 			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
-			wx.CallAfter(gmGuiHelpers.gm_beep_statustext, msg)
+			wx.CallAfter(gmGuiHelpers.gm_statustext, msg)
 			_pnl_form.PRW_dob.SetBackgroundColour('pink')
 			_pnl_form.PRW_dob.Refresh()
 		else:
@@ -1370,7 +1370,7 @@ class cPatContactsPanel(wx.Panel):
 			country = self.PRW_country.GetData()
 		)
 		if not success:
-			gmGuiHelpers.gm_beep_statustext(_('Cannot update patient address.'))
+			gmGuiHelpers.gm_statustext(_('Cannot update patient address.'))
 			return False
 
 		phone = self.TTC_phone.GetValue().strip()
@@ -1381,7 +1381,7 @@ class cPatContactsPanel(wx.Panel):
 				is_confidential = False
 			)
 		if not success:
-			gmGuiHelpers.gm_beep_statustext(_('Cannot update patient phone number.'))
+			gmGuiHelpers.gm_statustext(_('Cannot update patient phone number.'))
 			return False
 
 		return True
@@ -1633,7 +1633,7 @@ def link_contacts_from_dtd(identity, dtd=None):
 		country = dtd['country'].strip()
 	)
 	if not success:
-		gmGuiHelpers.gm_beep_statustext(_('Cannot update patient address.'))
+		gmGuiHelpers.gm_statustext(_('Cannot update patient address.'))
 		return False
 
 	input_phone = dtd['phone']
@@ -1732,7 +1732,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.108  2006-11-20 16:01:35  ncq
+# Revision 1.109  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.108  2006/11/20 16:01:35  ncq
 # - use gmTools.coalesce()
 # - some SetValue() -> SetData() fixes
 # - massively cleanup demographics edit notebook and consolidate save

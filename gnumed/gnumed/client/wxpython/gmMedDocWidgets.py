@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.98 2006-11-06 10:01:17 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmMedDocWidgets.py,v 1.99 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -269,7 +269,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			if doc_type != doc['pk_type']:
 				doc['pk_type'] = doc_type
 		else:
-			gmGuiHelpers.gm_beep_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
+			gmGuiHelpers.gm_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
 
 		if self._TCTRL_doc_comment.IsModified():
 			doc['comment'] = self._TCTRL_doc_comment.GetValue().strip()
@@ -442,7 +442,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		devices = self.scan_module.get_devices()
 
 		if devices is False:
-			gmGuiHelpers.gm_beep_statustext (
+			gmGuiHelpers.gm_statustext (
 				_('There is no scanner support installed on this machine.'),
 				gmLog.lWarn
 			)
@@ -453,7 +453,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			chosen_device = None
 		else:
 			if len(devices) == 0:
-				gmGuiHelpers.gm_beep_statustext (
+				gmGuiHelpers.gm_statustext (
 					_('Cannot find an active scanner.'),
 					gmLog.lWarn
 				)
@@ -689,7 +689,7 @@ off this message in the GNUmed configuration.""") % ref
 
 		# prepare for next document
 		self.__init_ui_data()
-		gmGuiHelpers.gm_beep_statustext(_('Successfully saved new document.'))
+		gmGuiHelpers.gm_statustext(_('Successfully saved new document.'))
 		return True
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
@@ -776,7 +776,7 @@ class cDocTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
-			gmGuiHelpers.gm_beep_statustext (
+			gmGuiHelpers.gm_statustext (
 				_('Cannot load documents. No active patient.'),
 				gmLog.lErr
 			)
@@ -1221,7 +1221,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.98  2006-11-06 10:01:17  ncq
+# Revision 1.99  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.98  2006/11/06 10:01:17  ncq
 # - handle _on_description_modified() in edit-doc-types
 #
 # Revision 1.97  2006/10/31 17:22:49  ncq

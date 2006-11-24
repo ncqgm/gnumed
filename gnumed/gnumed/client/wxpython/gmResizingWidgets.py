@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.42 2005-10-20 07:43:02 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmResizingWidgets.py,v 1.43 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -796,7 +796,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		try:
 			create_widget = self.__popup_keywords[kwd]['widget_factory']
 		except KeyError:
-			gmGuiHelpers.gm_beep_statustext (
+			gmGuiHelpers.gm_statustext (
 				aMessage = _('No action configured for keyword [%s].') % kwd,
 				aLogLevel = gmLog.lWarn
 			)
@@ -823,7 +823,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			return False
 
 		if not isinstance(popup, wx.Dialog):
-			gmGuiHelpers.gm_beep_statustext (
+			gmGuiHelpers.gm_statustext (
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
@@ -1068,7 +1068,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.42  2005-10-20 07:43:02  ncq
+# Revision 1.43  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.42  2005/10/20 07:43:02  ncq
 # - infrastructure for new way of handling popup data
 #
 # Revision 1.41  2005/10/19 09:13:29  ncq

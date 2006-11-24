@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.9 2006-05-28 16:19:54 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmProviderInboxWidgets.py,v 1.10 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -129,7 +129,7 @@ Leaving message in inbox.""") % handler_key,
 	def _on_delete_focussed_msg(self, evt):
 		inbox = gmProviderInbox.cProviderInbox()
 		if not inbox.delete_message(self.__focussed_msg[8]):
-			gmGuiHelpers.gm_beep_statustext (
+			gmGuiHelpers.gm_statustext (
 				_('Cannot remove message from Inbox.')
 			)
 			return False
@@ -151,7 +151,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.9  2006-05-28 16:19:54  ncq
+# Revision 1.10  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.9  2006/05/28 16:19:54  ncq
 # - repopulate_ui() needed for receive_focus() from plugin base class
 #
 # Revision 1.8  2006/05/20 18:55:21  ncq

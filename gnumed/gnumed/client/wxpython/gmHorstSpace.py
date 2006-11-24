@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.33 2006-11-07 00:34:16 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmHorstSpace.py,v 1.34 2006-11-24 10:01:31 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -193,7 +193,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			# but let's do a basic check anyways
 			pat = gmPerson.gmCurrentPatient()
 			if not pat.is_connected():
-				gmGuiHelpers.gm_beep_statustext (_('Cannot change notebook tabs. No active patient.'))
+				gmGuiHelpers.gm_statustext (_('Cannot change notebook tabs. No active patient.'))
 				event.Veto()
 				return
 			# that test passed, so let's hope things are fine
@@ -318,7 +318,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.33  2006-11-07 00:34:16  ncq
+# Revision 1.34  2006-11-24 10:01:31  ncq
+# - gm_beep_statustext() -> gm_statustext()
+#
+# Revision 1.33  2006/11/07 00:34:16  ncq
 # - cleanup
 # - raise configured plugin after successful patient search
 #
