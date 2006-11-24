@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.278 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.278 $"
+# $Id: gmGuiMain.py,v 1.279 2006-11-24 14:22:57 ncq Exp $
+__version__ = "$Revision: 1.279 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -508,22 +508,8 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.is_connected():
 			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'))
 			return False
-		ea = gmEMRStructWidgets.cHealthIssueEditArea (
-			self,
-			-1,
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			wx.NO_BORDER | wx.TAB_TRAVERSAL
-		)
-		popup = gmEditArea.cEditAreaPopup (
-			parent = None,
-			id = -1,
-			title = _('Add health issue (pHx item)'),
-			style = wx.CENTRE | wx.STAY_ON_TOP | wx.CAPTION | wx.SUNKEN_BORDER,
-			name = '',
-			edit_area = ea
-		)
-		result = popup.ShowModal()
+		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
+		ea.ShowModal()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -1132,7 +1118,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.278  2006-11-24 10:01:31  ncq
+# Revision 1.279  2006-11-24 14:22:57  ncq
+# - use shiny new health issue edit area
+#
+# Revision 1.278  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.277  2006/11/20 17:26:46  ncq
