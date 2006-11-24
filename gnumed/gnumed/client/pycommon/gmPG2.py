@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -439,7 +439,6 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			conn_rollback()
 			conn_close()
 			raise
-
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
 
@@ -818,7 +817,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.11  2006-11-14 16:56:23  ncq
+# Revision 1.12  2006-11-24 09:51:16  ncq
+# - whitespace fix
+#
+# Revision 1.11  2006/11/14 16:56:23  ncq
 # - improved (and documented) rationale for registering SQL_IN adapter on tuples only
 #
 # Revision 1.10  2006/11/07 23:52:48  ncq
