@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.43 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmDateTimeInput.py,v 1.44 2006-11-24 14:19:43 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -613,7 +613,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if re.match("^\d{1,2}/{1}\d{4}$", val):
 			parts = val.split('/')
 			self.data = gmFuzzyTimestamp.cFuzzyTimestamp (
-				timestamp = mxDT.now() + mxDT.RelativeDateTime(year = int(part[1]), month = int(part[0])),
+				timestamp = mxDT.now() + mxDT.RelativeDateTime(year = int(parts[1]), month = int(parts[0])),
 				accuracy = gmFuzzyTimestamp.acc_months
 			)
 			return True
@@ -745,7 +745,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.43  2006-11-24 10:01:31  ncq
+# Revision 1.44  2006-11-24 14:19:43  ncq
+# - variable name fix in __text2timestamp
+#
+# Revision 1.43  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.42  2006/11/19 11:11:57  ncq
