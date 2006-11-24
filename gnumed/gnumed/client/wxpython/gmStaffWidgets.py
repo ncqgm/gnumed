@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.11 2006-10-31 13:30:27 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmStaffWidgets.py,v 1.12 2006-11-24 14:23:41 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -230,12 +230,15 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		]
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		if self.IsModal():
-			self.EndModal()
+			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.11  2006-10-31 13:30:27  ncq
+# Revision 1.12  2006-11-24 14:23:41  ncq
+# - EndModal() needs wx.ID_*
+#
+# Revision 1.11  2006/10/31 13:30:27  ncq
 # - use gmPG2
 #
 # Revision 1.10  2006/10/25 07:46:44  ncq
