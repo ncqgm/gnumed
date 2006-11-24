@@ -132,7 +132,6 @@ class GuidelinesHtmlPanel(wx.Panel):
 
 
     def OnViewSource(self, event):
-		xxxxx
 		#FIXME:
         from wxPython.lib.dialogs import wxScrolledMessageDialog
         source = self.html.GetParser().GetSource()
