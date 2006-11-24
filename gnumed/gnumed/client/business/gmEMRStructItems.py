@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.87 $"
+__version__ = "$Revision: 1.88 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -25,7 +25,12 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
 				description=%(description)s,
-				age_noted=%(age_noted)s
+				age_noted=%(age_noted)s,
+				laterality=%(laterality)s,
+				is_active = %(is_active)s,
+				clinically_relevant = %(clinically_relevant)s,
+				is_confidential = %(is_confidential)s,
+				is_cause_of_death = %(is_cause_of_death)s
 			where
 				pk=%(pk)s and
 				xmin=%(xmin)s""",
@@ -33,13 +38,18 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'description',
-		'age_noted'
+		'age_noted',
+		'laterality',
+		'is_active',
+		'clinically_relevant',
+		'is_confidential',
+		'is_cause_of_death'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx', row=None):
 		pk = aPK_obj
 		if pk is None and row is None:
-			cmd = u"select *, xmin from clin.health_issue where id_patient=%s and description=%s"
+			cmd = u"select *, xmin from clin.health_issue where fk_patient=%s and description=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient_id, name]}], get_col_idx=True)
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchBusinessObjectError, 'no health issue for [%s:%s]' % (patient_id, name)
@@ -50,7 +60,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
 	#--------------------------------------------------------
 	def get_patient(self):
-		return self._payload[self._idx['id_patient']]
+		return self._payload[self._idx['fk_patient']]
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for issue renaming.
@@ -341,11 +351,11 @@ def create_health_issue(patient_id=None, description=None):
 	try:
 		h_issue = cHealthIssue(patient_id=patient_id, name=description)
 		return (True, h_issue)
-	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg))
+	except gmExceptions.ConstructorError:
+		_log.Log(gmLog.lData, 'health issue does not yet exist')
 	# insert new health issue
 	queries = []
-	cmd = u"insert into clin.health_issue (id_patient, description) values (%s, %s)"
+	cmd = u"insert into clin.health_issue (fk_patient, description) values (%s, %s)"
 	queries.append({'cmd': cmd, 'args': [patient_id, description]})
 	# get PK of inserted row
 	cmd = u"select currval('clin.health_issue_pk_seq')"
@@ -520,7 +530,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.87  2006-11-05 17:02:25  ncq
+# Revision 1.88  2006-11-24 09:30:33  ncq
+# - make cHealthIssue save more of its members
+# - if_patient -> fk_patient
+# - do not log i18n()ed message so failure there doesn't stop us from creating a health issue or episode
+#
+# Revision 1.87  2006/11/05 17:02:25  ncq
 # - enable health issue and episode to be inited from row
 #
 # Revision 1.86  2006/10/28 14:59:38  ncq
