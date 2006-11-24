@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.32 2006-10-25 07:17:40 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmVaccination.py,v 1.33 2006-11-24 14:15:36 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -151,7 +151,7 @@ class cMissingBooster(gmClinItem.cClinItem):
 class cScheduledVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination scheduled following a course.
 	"""
-	_cmd_fetch_payload = """select * from clin.v_vaccs_scheduled4pat where pk_vacc_def=%s"""
+	_cmd_fetch_payload = u"select * from clin.v_vaccs_scheduled4pat where pk_vacc_def=%s"
 	_cmds_lock_rows_for_update = []
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
@@ -544,7 +544,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.32  2006-10-25 07:17:40  ncq
+# Revision 1.33  2006-11-24 14:15:36  ncq
+# - u'' one query
+#
+# Revision 1.32  2006/10/25 07:17:40  ncq
 # - no more gmPG
 # - no more cClinItem
 #

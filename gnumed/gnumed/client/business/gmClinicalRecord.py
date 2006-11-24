@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.220 2006-11-20 18:22:39 ncq Exp $
-__version__ = "$Revision: 1.220 $"
+# $Id: gmClinicalRecord.py,v 1.221 2006-11-24 14:15:20 ncq Exp $
+__version__ = "$Revision: 1.221 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -227,7 +227,7 @@ select fk_encounter from
 		try:
 			self.__db_cache['narrative']
 		except KeyError:
-			cmd = "select * from clin.v_pat_narrative where pk_patient=%s order by date"
+			cmd = u"select * from clin.v_pat_narrative where pk_patient=%s order by date"
 			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 			self.__db_cache['narrative'] = []
 			self._build_narrative_cache_from_rows(rows, idx)
@@ -1590,7 +1590,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.220  2006-11-20 18:22:39  ncq
+# Revision 1.221  2006-11-24 14:15:20  ncq
+# - u'' one query
+#
+# Revision 1.220  2006/11/20 18:22:39  ncq
 # - invalidate problem cache when health issues are updated, too
 # - do not use cache for now when getting problems/episodes
 #
