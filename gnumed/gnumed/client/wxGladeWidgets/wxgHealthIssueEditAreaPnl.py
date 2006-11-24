@@ -32,7 +32,7 @@ class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgHealthIssueEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._PRW_condition.SetToolTipString(_("Enter the condition (health issue/past history item) here. Keep it short but precise."))
-        self._TCTRL_notes.SetToolTipString(_("Enter notes about the condition."))
+        self._TCTRL_notes.SetToolTipString(_("Enter past history facts about the condition here. Note that those can only ever be added to from this field."))
         self._PRW_age_diagnosed.SetToolTipString(_("Enter the age in years when this condition was diagnosed. Setting this will adjust the \"in the year\" field accordingly."))
         self._PRW_year_diagnosed.SetToolTipString(_("Enter the year when this condition was diagnosed. Setting this will adjust the \"at age\" field accordingly."))
         self._ChBOX_active.SetToolTipString(_("Check if this is an active, ongoing problem."))
