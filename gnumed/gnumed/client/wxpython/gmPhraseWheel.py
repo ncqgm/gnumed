@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.80 2006-11-19 11:16:02 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmPhraseWheel.py,v 1.81 2006-11-24 09:58:39 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -61,9 +61,7 @@ class cPhraseWheel(wx.TextCtrl):
 		**kwargs):
 
 		self.__matcher = aMatchProvider
-		self.__real_matcher = None
 		self.__currMatches = []
-#		self._input_was_selected = False
 
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.allow_multiple_phrases()
@@ -120,9 +118,8 @@ class cPhraseWheel(wx.TextCtrl):
 	def allow_multiple_phrases(self, state = True):
 		self.__handle_multiple_phrases = state
 	#--------------------------------------------------------
-	def setMatchProvider (self, mp):
+	def setMatchProvider (self, mp=None):
 		self.__matcher = mp
-		self.__real_matcher = None
 	#--------------------------------------------------------
 	def add_callback_on_selection(self, callback=None):
 		"""Add a callback for a listener.
@@ -160,15 +157,19 @@ class cPhraseWheel(wx.TextCtrl):
 		The whole thing will only work if data is found
 		in the match space anyways.
 		"""
-		matched, matches = self.__matcher.getMatches('*')
-		if not matched and self.selection_only:
+		if self.__matcher is None:
+			matched, matches = (False, [])
+		else:
+			matched, matches = self.__matcher.getMatches('*')
+
+		if (not matched and self.selection_only) or (len(matches) == 0):
 			return False
-		if len(matches) == 0:
-			return False
+
 		for match in matches:
 			if match['data'] == data:
 				self.SetValue(value = match['label'], data = data)
 				return True
+
 		return False
 	#---------------------------------------------------------
 	def GetData (self):
@@ -187,7 +188,11 @@ class cPhraseWheel(wx.TextCtrl):
 			return True
 
 		# or try to find one from matches
-		stat, matches = self.__matcher.getMatches(aFragment = value)
+		if self.__matcher is None:
+			stat, matches = (False, [])
+		else:
+			stat, matches = self.__matcher.getMatches(aFragment = value)
+
 		for match in matches:
 			if match['label'] == value:
 				self.data = match['data']
@@ -196,20 +201,20 @@ class cPhraseWheel(wx.TextCtrl):
 		# not found
 		if self.selection_only:
 			return False
+
 		return True
 	#--------------------------------------------------------
 	def set_context (self, context=None, val=None):
-		if self.__real_matcher:
-			# forget any caching, as it's now invalid
-			self.__matcher = self.__real_matcher
-			self.__real_matcher = None
-		if self.__matcher:
+		if self.__matcher is not None:
 			self.__matcher.set_context(context=context, val=val)
 		else:
-			_log.Log(gmLog.lErr, "aMatchProvider must be set to set context")
+			_log.Log(gmLog.lWarn, "aMatchProvider must be set to set context")
 	#---------------------------------------------------------
 	def unset_context(self, context=None):
-		self.__matcher.unset_context(context=context)
+		if self.__matcher is not None:
+			self.__matcher.unset_context(context=context)
+		else:
+			_log.Log(gmLog.lWarn, "aMatchProvider must be set to unset context")
 	#---------------------------------------------------------
 	def _updateMatches(self, val=None):
 		"""Get the matches for the currently typed input fragment."""
@@ -242,7 +247,7 @@ class cPhraseWheel(wx.TextCtrl):
 			self.input2match = val
 
 		# get all currently matching items
-		if self.__matcher:
+		if self.__matcher is not None:
 			matched, self.__currMatches = self.__matcher.getMatches(self.input2match)
 			self._picklist.SetItems(self.__currMatches)
 		else:
@@ -267,7 +272,6 @@ class cPhraseWheel(wx.TextCtrl):
 		# if only one match and text == match
 		if len(self.__currMatches) == 1:
 			if self.__currMatches[0]['label'] == self.input2match:
-#				self._input_was_selected = 1
 				self.data = self.__currMatches[0]['data']
 				return 1
 
@@ -325,7 +329,6 @@ class cPhraseWheel(wx.TextCtrl):
 		self.MarkDirty()
 
 		self.data = self._picklist.GetSelectedItemData()
-#		self._input_was_selected = True
 
 		# and tell the listeners about the user's selection
 		for call_listener in self._on_selection_callbacks:
@@ -409,7 +412,6 @@ class cPhraseWheel(wx.TextCtrl):
 	def _on_text_update (self, event):
 		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
 
-#		self._input_was_selected = False
 		self.data = None
 
 		# if empty string then kill list dropdown window
@@ -467,7 +469,6 @@ class cPhraseWheel(wx.TextCtrl):
 			if len(self.__currMatches) > 0:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-#				self._input_was_selected = True
 				self.MarkDirty()
 
 		self.__timer.Start(oneShot = True)
@@ -490,13 +491,12 @@ class cPhraseWheel(wx.TextCtrl):
 			if no_matches == 1:
 				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
 				self.data = self.__currMatches[0]['data']
-#				self._input_was_selected = True
 				self.MarkDirty()
 			elif no_matches > 1:
-				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
+				gmGuiHelpers.gm_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
 				return True
 			else:
-				gmGuiHelpers.gm_beep_statustext(_('There are no matches for this input.'))
+				gmGuiHelpers.gm_statustext(_('There are no matches for this input.'))
 				self.Clear()
 				return True
 
@@ -578,7 +578,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.80  2006-11-19 11:16:02  ncq
+# Revision 1.81  2006-11-24 09:58:39  ncq
+# - cleanup
+# - make it really work when matcher is None
+#
+# Revision 1.80  2006/11/19 11:16:02  ncq
 # - remove self._input_was_selected
 #
 # Revision 1.79  2006/11/06 12:54:00  ncq
