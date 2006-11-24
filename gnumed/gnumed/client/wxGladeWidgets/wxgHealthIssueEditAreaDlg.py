@@ -15,7 +15,7 @@ class wxgHealthIssueEditAreaDlg(wx.Dialog):
         self._PNL_edit_area = gmEMRStructWidgets.cHealthIssueEditAreaPnl(self, -1)
         self._BTN_save = wx.Button(self, wx.ID_OK, _("Save/Update"))
         self._BTN_clear = wx.Button(self, -1, _("Clear/Restore"))
-        self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Close"))
+        self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 
         self.__set_properties()
         self.__do_layout()
@@ -26,11 +26,11 @@ class wxgHealthIssueEditAreaDlg(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: wxgHealthIssueEditAreaDlg.__set_properties
-        self.SetTitle(_("past history item (health issue)"))
+        self.SetTitle(_("add/edit past history item (health issue)"))
         self._BTN_save.SetToolTipString(_("Save or update the condition (past history item)."))
-        self._BTN_save.SetDefault()
         self._BTN_clear.SetToolTipString(_("Clear fields or restore them to the values in the database."))
         self._BTN_close.SetToolTipString(_("Close this dialog."))
+        self._BTN_close.SetDefault()
         # end wxGlade
 
     def __do_layout(self):
