@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.40 2006-11-05 14:18:57 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmGuiHelpers.py,v 1.41 2006-11-24 09:53:24 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -152,16 +152,17 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 		return None
 #-------------------------------------------------------------------------
 # FIXME: actually make this use a signal !
-def gm_beep_statustext(aMessage=None, aLogLevel=None):
+def gm_statustext(aMessage=None, aLogLevel=None, beep=True):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify alert message')
 
 	if aLogLevel is not None:
-		log_msg = string.replace(aMessage, '\015', ' ')
-		log_msg = string.replace(log_msg, '\012', ' ')
+		log_msg = aMessage.replace('\015', ' ')
+		log_msg = log_msg.replace('\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
-	wx.Bell()
+	if beep:
+		wx.Bell()
 
 	# only now and here can we assume that wxWindows
 	# is sufficiently initialized
@@ -283,7 +284,7 @@ class cTextWidgetValidator(wx.PyValidator):
 
 		if self.__non_empty and val.strip() == '':
 			print self.__msg
-#			gm_beep_statustext(self.__msg)
+#			gm_statustext(self.__msg)
 			ctrl.SetBackgroundColour('pink')
 			ctrl.SetFocus()
 			ctrl.Refresh()
@@ -292,7 +293,7 @@ class cTextWidgetValidator(wx.PyValidator):
 			for char in val:
 				if not char in string.digits:
 					print self.__msg
-#					gm_beep_statustext(self.__msg)
+#					gm_statustext(self.__msg)
 					ctrl.SetBackgroundColour('pink')
 					ctrl.SetFocus()
 					ctrl.Refresh()					
@@ -357,7 +358,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.40  2006-11-05 14:18:57  ncq
+# Revision 1.41  2006-11-24 09:53:24  ncq
+# - gm_beep_statustext() -> gm_statustext(beep=True)
+#
+# Revision 1.40  2006/11/05 14:18:57  ncq
 # - missing "style ="
 #
 # Revision 1.39  2006/10/24 13:23:31  ncq
