@@ -61,7 +61,7 @@ class ConstructorError(Exception):
 		else:
 			self.errmsg = errmsg
 	def __str__(self):
-		return str(self.errmsg)
+		return self.errmsg
 
 # business DB-object exceptions
 class NoSuchBusinessObjectError(ConstructorError):
@@ -72,7 +72,7 @@ class NoSuchBusinessObjectError(ConstructorError):
 		else:
 			self.errmsg = errmsg
 	def __str__(self):
-		return str(self.errmsg)
+		return self.errmsg
 
 # access errors
 class NoSuchBusinessObjectAttributeError(KeyError):
@@ -83,7 +83,7 @@ class NoSuchBusinessObjectAttributeError(KeyError):
 		else:
 			self.errmsg = errmsg
 	def __str__(self):
-		return str(self.errmsg)
+		return self.errmsg
 
 class BusinessObjectAttributeNotSettableError(KeyError):
 	"""Raised when a clinical item attribute is not settable."""
@@ -93,7 +93,7 @@ class BusinessObjectAttributeNotSettableError(KeyError):
 		else:
 			self.errmsg = errmsg
 	def __str__(self):
-		return str(self.errmsg)
+		return self.errmsg
 
 #------------------------------------------------------------
 class InvalidInputError(Exception):
@@ -110,7 +110,10 @@ class InvalidInputError(Exception):
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.7  2006-10-10 07:27:34  ncq
+# Revision 1.8  2006-11-24 09:51:00  ncq
+# - don't blindly str() self.errmsg as this may not actually be possible (easily, with encodings)
+#
+# Revision 1.7  2006/10/10 07:27:34  ncq
 # - no more ClinItem exceptions
 #
 # Revision 1.6  2004/10/11 19:07:36  ncq
