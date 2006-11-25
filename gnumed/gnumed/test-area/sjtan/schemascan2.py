@@ -408,13 +408,14 @@ class schemascan2:
 			x = type_map[node]
 			for attr,typename in attrmap.items():
 				#print "DEBUG", node, attr, typename
-				if attr[:3] <> 'fk_':
+				if attr[:3] <> 'fk_' and [ y for y in x if y.find(attr) >= 0 ] == []:
 					x.append('\t\telement '+attr+' { '+typename +'} ' )
 
-		for node in order:	
-			lines.extend( type_map[node] + ["}\n"] )
+		for node in order:
+			x = type_map[node]
+			lines.extend( [x[0] ] + [",\n".join(x[1:])] + ["}\n"] )
 		
-		return "\n\t".join(lines) + "\n}"	
+		return "\n\t".join(lines) + "\tChildKey = element childkey { xsd:token  }"+ "\n}"	
 		
 
 		
@@ -458,7 +459,11 @@ if __name__ == "__main__":
 		print node
 		for map in follow_list:
 			print '\t', map['dir'] , map['to'], "fk=",map['child_fk'], "pk=", map['pk'] 
-
-	print s.get_compact_relax_ng()
+	
+	if '-o' in sys.argv: 
+		fname = sys.argv[sys.argv.index('-o')+1]
+		file(fname,'w').write( s.get_compact_relax_ng())
+	else:
+		print s.get_compact_relax_ng()
 
 
