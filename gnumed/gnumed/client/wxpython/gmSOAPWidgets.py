@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.83 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmSOAPWidgets.py,v 1.84 2006-11-26 17:13:17 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -150,9 +150,11 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 				page = self.GetPage(page_idx)
 				existing_problem = page.get_problem()
 				# unassociated
-				if (problem is None) and (existing_problem is None):
-					self.SetSelection(page_idx)
-					return True
+				if existing_problem is None:
+					if problem is None:
+						self.SetSelection(page_idx)
+						return True
+					continue
 				# episodes
 				if problem['type'] == 'episode':
 					if problem['pk_episode'] == existing_problem['pk_episode']:
@@ -1100,7 +1102,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.83  2006-11-24 10:01:31  ncq
+# Revision 1.84  2006-11-26 17:13:17  ncq
+# - properly check for duplicate episode editors in add_editor when problem is None
+#
+# Revision 1.83  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.82  2006/11/20 18:23:53  ncq
