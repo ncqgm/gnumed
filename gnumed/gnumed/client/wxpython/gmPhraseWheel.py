@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.82 2006-11-26 14:09:59 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmPhraseWheel.py,v 1.83 2006-11-26 14:51:19 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -516,64 +516,70 @@ class cPhraseWheel(wx.TextCtrl):
 #--------------------------------------------------------
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
-	#----------------------------------------------------
-	def clicked (data):
-		print "Selected :%s" % data
-	#----------------------------------------------------
-	class TestApp (wx.App):
-		def OnInit (self):
-
-			frame = wx.Frame (
-				None,
-				-4,
-				"phrase wheel test for GNUmed",
-				size=wx.Size(300, 350),
-				style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE
-			)
-
-			items = [	{'data':1, 'label':"Bloggs", 	'weight':5},
-						{'data':2, 'label':"Baker",  	'weight':4},
-						{'data':3, 'label':"Jones",  	'weight':3},
-						{'data':4, 'label':"Judson", 	'weight':2},
-						{'data':5, 'label':"Jacobs", 	'weight':1},
-						{'data':6, 'label':"Judson-Jacobs",'weight':5}
-					]
-			mp1 = gmMatchProvider.cMatchProvider_FixedList(items)
-			# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
-			mp1.setWordSeparators(separators = '[ \t=+&:@]+')
-			ww1 = cPhraseWheel(
-				parent = frame,
-				id = -1,
-#				pos = (50, 50),
-#				size = (180, 30),
-				aMatchProvider = mp1
-			)
-
-			print "Do you want to test the database connected phrase wheel ?"
-			yes_no = raw_input('y/n: ')
-			if yes_no == 'y':
-				gmPG2.get_connection()
-				# FIXME: add callbacks
-				# FIXME: add context
-				query = u'select code, name from dem.country where _(name) %(fragment_condition)s'
-				mp2 = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
-				ww2 = cPhraseWheel (
-					parent = frame,
-					id = -1,
-					pos = (50, 250),
-					size = (180, 30),
-					aMatchProvider = mp2
-				)
-
-			frame.Show (1)
-			return 1
+	gmI18N.activate_locale()
+	gmI18N.install_domain(text_domain='gnumed')
 	#--------------------------------------------------------
-	app = TestApp ()
-	app.MainLoop ()
+	def test_prw_fixed_list():
+		app = wx.PyWidgetTester(size = (200, 50))
+
+		items = [	{'data':1, 'label':"Bloggs", 	'weight':5},
+					{'data':2, 'label':"Baker",  	'weight':4},
+					{'data':3, 'label':"Jones",  	'weight':3},
+					{'data':4, 'label':"Judson", 	'weight':2},
+					{'data':5, 'label':"Jacobs", 	'weight':1},
+					{'data':6, 'label':"Judson-Jacobs",'weight':5}
+				]
+
+		mp = gmMatchProvider.cMatchProvider_FixedList(items)
+		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
+		mp.setWordSeparators(separators = '[ \t=+&:@]+')
+		ww = cPhraseWheel(
+			parent = app.frame,
+			id = -1,
+			aMatchProvider = mp
+		)
+
+		app.frame.Show(True)
+		app.MainLoop()
+
+		return True
+	#--------------------------------------------------------
+	def test_prw_sql2():
+		print "Do you want to test the database connected phrase wheel ?"
+		yes_no = raw_input('y/n: ')
+		if yes_no != 'y':
+			return True
+
+		gmPG2.get_connection()
+		# FIXME: add callbacks
+		# FIXME: add context
+		query = u'select code, name from dem.country where _(name) %(fragment_condition)s'
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
+		app = wx.PyWidgetTester(size = (200, 50))
+		prw = cPhraseWheel (
+			parent = app.frame,
+			id = -1,
+			aMatchProvider = mp
+		)
+
+		app.frame.Show(True)
+		app.MainLoop()
+
+		return True
+	#--------------------------------------------------------
+	try:
+		test_prw_fixed_list()
+		test_prw_sql2()
+	except StandardError:
+		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		raise
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.82  2006-11-26 14:09:59  ncq
+# Revision 1.83  2006-11-26 14:51:19  ncq
+# - cleanup/improve test suite so we can get MacOSX nailed (down)
+#
+# Revision 1.82  2006/11/26 14:09:59  ncq
 # - fix sys.path when running standalone for test suite
 # - fix test suite
 #
