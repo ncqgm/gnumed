@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.91 2006-11-24 14:16:20 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmPatientExporter.py,v 1.92 2006-11-26 15:44:34 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -765,7 +765,7 @@ class cEmrExport:
             for soap_entry in soap_cat_narratives:
                 txt += (
                     (' ' * (left_margin+3)) +
-                    soap_entry['date'].strftime(_('%H:%M %.8s: ')) % soap_entry['provider'] +
+                    soap_entry['date'].strftime('%H:%M %.8s: ') % soap_entry['provider'] +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )
@@ -1245,7 +1245,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.91  2006-11-24 14:16:20  ncq
+# Revision 1.92  2006-11-26 15:44:34  ncq
+# - strftime() does not accept u''
+#
+# Revision 1.91  2006/11/24 14:16:20  ncq
 # - unicode-robustify dump_item_fields()
 #
 # Revision 1.90  2006/11/19 11:05:38  ncq
