@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.221 2006-11-24 14:15:20 ncq Exp $
-__version__ = "$Revision: 1.221 $"
+# $Id: gmClinicalRecord.py,v 1.222 2006-11-26 15:43:41 ncq Exp $
+__version__ = "$Revision: 1.222 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -575,15 +575,15 @@ where
 	#--------------------------------------------------------
 	def get_summary(self):
 		cmds = [
-			(u'select count(*) from clin.v_problem_list where pk_patient=%s', _('problems')),
-			(u'select count(*) from clin.encounter where fk_patient=%s', _('visits')),
-			(u'select count(*) from clin.v_pat_items where pk_patient=%s', _('items')),
-			(u'select count(*) from blobs.doc_med where fk_identity=%s', _('documents'))
+			(u'select count(*) from clin.v_problem_list where pk_patient=%s', 'problems'),
+			(u'select count(*) from clin.encounter where fk_patient=%s', 'visits'),
+			(u'select count(*) from clin.v_pat_items where pk_patient=%s', 'items'),
+			(u'select count(*) from blobs.doc_med where fk_identity=%s', 'documents')
 		]
 		summary = {}
 		for cmd in cmds:
 			query, key = cmd
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': [self.pk_patient]}])
 			summary[key] = rows[0][0]
 		return summary
 	#--------------------------------------------------------
@@ -1590,7 +1590,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.221  2006-11-24 14:15:20  ncq
+# Revision 1.222  2006-11-26 15:43:41  ncq
+# - keys in get_summary() shouldn't be _()
+#
+# Revision 1.221  2006/11/24 14:15:20  ncq
 # - u'' one query
 #
 # Revision 1.220  2006/11/20 18:22:39  ncq
