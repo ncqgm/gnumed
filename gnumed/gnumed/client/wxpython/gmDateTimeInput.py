@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.44 2006-11-24 14:19:43 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmDateTimeInput.py,v 1.45 2006-11-26 22:38:14 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -259,6 +259,19 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 		val = int(aFragment)
 
 		matches = []
+
+		# that year
+		if (1850 < val) and (val < 2100):
+			ts = self.__now + mxDT.RelativeDateTime(year = val)
+			target_date = gmFuzzyTimestamp.cFuzzyTimestamp (
+				timestamp = ts,
+				accuracy = gmFuzzyTimestamp.acc_years
+			)
+			tmp = {
+				'data': target_date,
+				'label': '%s' % target_date
+			}
+			matches.append(tmp)
 
 		# day X of this month
 		if val <= month_length[self.__now.month]:
@@ -745,7 +758,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.44  2006-11-24 14:19:43  ncq
+# Revision 1.45  2006-11-26 22:38:14  ncq
+# - recognize 1953 as meaning that year :-)
+#
+# Revision 1.44  2006/11/24 14:19:43  ncq
 # - variable name fix in __text2timestamp
 #
 # Revision 1.43  2006/11/24 10:01:31  ncq
