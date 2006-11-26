@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.81 2006-11-24 09:58:39 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmPhraseWheel.py,v 1.82 2006-11-26 14:09:59 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -19,6 +19,9 @@ import string, types, time, sys, re
 import wx
 import wx.lib.mixins.listctrl as listmixins
 
+# GNUmed specific
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmMatchProvider, gmGuiBroker, gmNull
 
@@ -549,20 +552,12 @@ if __name__ == '__main__':
 			print "Do you want to test the database connected phrase wheel ?"
 			yes_no = raw_input('y/n: ')
 			if yes_no == 'y':
-				src = {
-					'service': 'default',
-					'table': 'gmpw_sql_test',
-					'column': 'phrase',
-					'limit': 25
-				}
-				score = {
-					'service': 'default',
-					'table': 'score_gmpw_sql_test',
-					'column': 'fk_gmpw_sql_test'
-				}
-#				mp2 = gmMatchProvider.cMatchProvider_SQL([src], score)
-				mp2 = None
-				ww2 = cPhraseWheel(
+				gmPG2.get_connection()
+				# FIXME: add callbacks
+				# FIXME: add context
+				query = u'select code, name from dem.country where _(name) %(fragment_condition)s'
+				mp2 = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
+				ww2 = cPhraseWheel (
 					parent = frame,
 					id = -1,
 					pos = (50, 250),
@@ -578,7 +573,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.81  2006-11-24 09:58:39  ncq
+# Revision 1.82  2006-11-26 14:09:59  ncq
+# - fix sys.path when running standalone for test suite
+# - fix test suite
+#
+# Revision 1.81  2006/11/24 09:58:39  ncq
 # - cleanup
 # - make it really work when matcher is None
 #
@@ -894,9 +893,6 @@ if __name__ == '__main__':
 # - highlight matched parts
 # - faster scrolling
 # - wxEditableListBox ?
-
-# - press down only once to get into list
-# - moving between list members is too slow
 
 # - if non-learning (i.e. fast select only): autocomplete with match
 #   and move cursor to end of match
