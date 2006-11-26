@@ -12,20 +12,14 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.35 2006-07-24 14:58:07 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmManual.py,v 1.36 2006-11-26 17:46:42 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
 
-try:
-	import wxversion
-	import wx
-	import wx.html
-except ImportError:
-	from wxPython.wx import *
-	from wxPython.html import *
-	import wxPython.lib.wxpTag
+import wx
+import wx.html
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
@@ -102,7 +96,7 @@ class ManualHtmlPanel(wx.Panel):
 			self.html.LoadPage(name)
 		else:
 			_log.Log (gmLog.lErr, "cannot load local document %s" % name)
-			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual')
+			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual?template=viewprint')
 	#--------------------------------------------------------
 	def OnLoadFile(self, event):
 		dlg = wx.FileDialog(self, wildcard = '*.htm*', style=wx.OPEN)
@@ -248,7 +242,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.35  2006-07-24 14:58:07  ncq
+# Revision 1.36  2006-11-26 17:46:42  ncq
+# - if loading from the web use template viewprint for better results
+#
+# Revision 1.35  2006/07/24 14:58:07  ncq
 # - acceptably smart access to user manual
 #
 # Revision 1.34  2006/05/20 18:56:03  ncq
