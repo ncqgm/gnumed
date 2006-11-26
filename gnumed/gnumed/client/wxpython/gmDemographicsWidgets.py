@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.109 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmDemographicsWidgets.py,v 1.110 2006-11-26 14:23:09 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -413,6 +413,20 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 #============================================================
+class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"select distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.SetToolTipString(_("Type or select an occupation."))
+#============================================================
 # new patient wizard classes
 #============================================================
 class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
@@ -510,16 +524,17 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		queries = []
-		queries.append("select distinct name, name from dem.occupation where name %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-		mp.setThresholds(3, 5, 15)		
-		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
+#		queries = []
+#		queries.append("select distinct name, name from dem.occupation where name %(fragment_condition)s")
+#		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
+#		mp.setThresholds(3, 5, 15)		
+#		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
+#			parent = PNL_form,
+#			id = -1,
+#			aMatchProvider = mp
+#		)
+#		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
 
 		# form main validator
 		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
@@ -882,7 +897,7 @@ class cPatEditionNotebook(wx.Notebook):
 			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER | wx.VSCROLL | wx.HSCROLL,
 			name = self.__class__.__name__
 		)
-		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
+#		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__do_layout()
@@ -903,10 +918,6 @@ class cPatEditionNotebook(wx.Notebook):
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 			page.set_identity(identity)
-
-		# Recursively calls TransferDataToWindow in notebook
-		# children, thanks to wx.WS_EX_VALIDATE_RECURSIVELY
-#		self.TransferDataToWindow()
 
 		return True
 	#--------------------------------------------------------
@@ -1405,25 +1416,22 @@ class cPatOccupationsPanel(wx.Panel):
 		self.__do_layout()
 	#--------------------------------------------------------
 	def __do_layout(self):
-		PNL_form = wx.Panel(self, -1)		
+		PNL_form = wx.Panel(self, -1)
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		queries = []
-		queries.append("select distinct name, name from dem.occupation where name %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=queries)
-		mp.setThresholds(3, 5, 15)		
-		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
+		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
 		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+		# known since
+		STT_occupation_updated = wx.StaticText(PNL_form, -1, _('Last updated'))
+		self.TTC_occupation_updated = wx.TextCtrl(PNL_form, -1, style = wx.TE_READONLY)
 
 		# layout input widgets
-		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
+		SZR_input = wx.FlexGridSizer(cols = 2, rows = 5, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)				
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
+		SZR_input.Add(STT_occupation_updated, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_occupation_updated, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
 		
 		# layout page
@@ -1440,6 +1448,7 @@ class cPatOccupationsPanel(wx.Panel):
 		jobs = self.__ident.get_occupations()
 		if len(jobs) > 0:
 			self.PRW_occupation.SetValue(jobs[0]['l10n_occupation'])
+			self.TTC_occupation_updated.SetValue(jobs[0]['modified_when'].strftime('%m/%Y'))
 		return True
 	#--------------------------------------------------------
 	def save(self):
@@ -1732,7 +1741,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.109  2006-11-24 10:01:31  ncq
+# Revision 1.110  2006-11-26 14:23:09  ncq
+# - add cOccupationPhraseWheel and use it
+# - display last modified on occupation entry
+#
+# Revision 1.109  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.108  2006/11/20 16:01:35  ncq
