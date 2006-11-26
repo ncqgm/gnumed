@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.83 2006-11-26 14:51:19 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmPhraseWheel.py,v 1.84 2006-11-26 20:58:20 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -86,7 +86,15 @@ class cPhraseWheel(wx.TextCtrl):
 		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
 
 		# multiple matches dropdown list
-		self.__dropdown = wx.PopupWindow(parent)
+		try:
+			self.__dropdown = wx.PopupWindow(parent)
+			add_picklist_to_sizer = False
+		except NotImplementedError:
+			self.__dropdown = wx.ScrolledWindow(parent=parent, style = wx.HSCROLL | wx.VSCROLL | wx.NO_BORDER)
+			self.__dropdown.SetScrollRate(10, 10)
+			szr_scroll = wx.BoxSizer(wx.VERTICAL)
+			self.__dropdown.SetSizer(szr_scroll)
+			add_picklist_to_sizer = True
 
 		# FIXME: support optional headers
 #		if kwargs['show_list_headers']:
@@ -98,6 +106,9 @@ class cPhraseWheel(wx.TextCtrl):
 			style = wx.LC_NO_HEADER
 		)
 		self._picklist.InsertColumn(0, '')
+
+		if add_picklist_to_sizer:
+			szr_scroll.Add(self._picklist, 1, wx.EXPAND)
 
 		self.__dropdown.Hide()
 
@@ -576,7 +587,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.83  2006-11-26 14:51:19  ncq
+# Revision 1.84  2006-11-26 20:58:20  ncq
+# - try working around lacking wx.PopupWindow
+#
+# Revision 1.83  2006/11/26 14:51:19  ncq
 # - cleanup/improve test suite so we can get MacOSX nailed (down)
 #
 # Revision 1.82  2006/11/26 14:09:59  ncq
