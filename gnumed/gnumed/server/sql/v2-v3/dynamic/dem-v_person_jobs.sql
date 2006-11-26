@@ -8,22 +8,21 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-v_person_jobs.sql,v 1.1 2006-11-19 10:16:20 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-v_person_jobs.sql,v 1.2 2006-11-26 14:19:22 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-drop view dem.v_person_jobs;
+drop view dem.v_person_jobs cascade;
 \set ON_ERROR_STOP 1
 
 create view dem.v_person_jobs as
 
 select
 	lj2p.fk_identity as pk_identity,
-	lj2p.fk_occupation as pk_occupation,
 	vbp.firstnames,
 	vbp.lastnames,
 	vbp.preferred,
@@ -32,6 +31,8 @@ select
 	o.name as occupation,
 	_(o.name) as l10n_occupation,
 	lj2p.activities,
+	lj2p.modified_when as modified_when,
+	lj2p.fk_occupation as pk_occupation,
 	lj2p.pk as pk_lnk_job2person,
 	lj2p.xmin as xmin_lnk_job2person
 from
@@ -50,11 +51,14 @@ comment on view dem.v_person_jobs is
 grant select on dem.v_person_jobs to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-v_person_jobs.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: dem-v_person_jobs.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-v_person_jobs.sql,v $
--- Revision 1.1  2006-11-19 10:16:20  ncq
+-- Revision 1.2  2006-11-26 14:19:22  ncq
+-- - add modified_when
+--
+-- Revision 1.1  2006/11/19 10:16:20  ncq
 -- - add this view
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
