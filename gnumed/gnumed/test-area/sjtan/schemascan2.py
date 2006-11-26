@@ -76,16 +76,35 @@ class schemascan2:
 		self.type_col = int( self.cfg.get('metadata config', 'dbapi_attrtype_col') )
 		self.desc_col = int( self.cfg.get('metadata config', 'dbapi_attrname_col') )
 		self.type_mapping = dict( [ (int(y[0].strip()), y[1].strip())  for y in [ x.split('/') for x in self.cfg.get('metadata config', 'attrtype_mapping').split(',')] ] )
+		self.app_types = dict( [ (y[0].strip(), y[1].strip())  for y in [ x.split('/') for x in self.cfg.get('metadata config', 'application_types').split(';')] ] )
+		# specific type for this program , currently, may change
+		self.app_types['childkey'] = 'xsd:token'
+
+		self.app_type_defs = [ typename.capitalize() + " = element " + typename + " { " + typedef + " } " for (typename, typedef) in self.app_types.items() ] 
+
 
 	def get_attributes(self, table):
 		cu = self.con.cursor()
 		cu.execute('set search_path to ' + self.search_path)
-		cu.execute("select * from %s limit 1" % table)
-		cu.fetchone()
 
-		l = {}
-		for x in cu.description:
-			l[x[self.desc_col]] = self.type_mapping[ x[self.type_col] ]
+		# old method of using dbapi cursor.description
+
+		#cu.execute("select * from %s limit 1" % table)
+		#cu.fetchone()
+
+		#l = {}
+		#for x in cu.description:
+			#t = self.type_mapping[ x[self.type_col] ] 
+			#t = t + "#"+str(x[self.type_col]) #debug type numbers
+			# ? use another method to get type information
+			#l[x[self.desc_col]]  = t
+
+		# use the mapping directly from the value atttypeid
+		cu.execute("select attname, atttypid from pg_attribute, pg_class  where not attisdropped and attnum > 0 and attrelid = pg_class.relfilenode and pg_class.relname = '%s'" % table)
+		r = cu.fetchall()
+		l = dict( [ (attname, self.type_mapping[int(atttypeid)] ) for attname, atttypeid in r] )
+
+		
 		return l
 
 
@@ -340,7 +359,7 @@ class schemascan2:
 			for child, fk in pk_child_fks_map['child_fks']:
 				child_pre = child.capitalize() + " = element " + child + " { "
 				child_fk = "\t\telement " + fk + " " + "{ xsd:integer}"
-				child_fk_name = "\t\telement "+fk+"_keyname "+ "{ ChildKey }"
+				child_fk_name = "\t\telement "+fk+"_keyname "+ "{ Childkey }"
 				x = type_map.get(child,[])
 				if x == []:
 					x.append( child_pre)
@@ -415,7 +434,7 @@ class schemascan2:
 			x = type_map[node]
 			lines.extend( [x[0] ] + [",\n".join(x[1:])] + ["}\n"] )
 		
-		return "\n\t".join(lines) + "\tChildKey = element childkey { xsd:token  }"+ "\n}"	
+		return "\n\t".join(lines) + "\t"+"\n\t".join(self.app_type_defs) + "\n}"	
 		
 
 		
