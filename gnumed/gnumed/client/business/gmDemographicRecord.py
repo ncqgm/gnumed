@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.85 2006-11-19 10:58:52 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmDemographicRecord.py,v 1.86 2006-11-26 15:44:03 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -427,7 +427,7 @@ if __name__ == "__main__":
 			urb ='Leipzig',
 			suburb ='Sellerhausen',
 			postcode ='04318',
-			street = u'Cunnersdorfer Straﬂe',
+			street = u'Cunnersdorfer Strasse',
 			number = '11',
 			notes_subunit = '4.Stock rechts'
 		)
@@ -443,7 +443,7 @@ if __name__ == "__main__":
 			urb ='Leipzig',
 			suburb ='Sellerhausen',
 			postcode ='04318',
-			street = u'Cunnersdorfer Straﬂe',
+			street = u'Cunnersdorfer Strasse',
 			number = '11',
 			notes_subunit = '4.Stock rechts'
 		)
@@ -458,7 +458,7 @@ if __name__ == "__main__":
 			urb ='Leipzig',
 			suburb ='Sellerhausen',
 			postcode ='04318',
-			street = u'Cunnersdorfer Straﬂe',
+			street = u'Cunnersdorfer Strasse',
 			number = '11',
 			notes_subunit = '4.Stock rechts',
 			subunit = su
@@ -502,7 +502,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.85  2006-11-19 10:58:52  ncq
+# Revision 1.86  2006-11-26 15:44:03  ncq
+# - do not use es-zet in test suite
+#
+# Revision 1.85  2006/11/19 10:58:52  ncq
 # - fix imports
 # - add cAddress
 # - add cPatientAddress
