@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.47 2006-11-27 23:04:49 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmDateTimeInput.py,v 1.48 2006-11-27 23:14:33 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -116,8 +116,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def __text2timestamp(self, val=None):
 
-		print "dti: text2timestamp"
-
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 
 		if val is None:
@@ -127,9 +125,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if val == '':
 			return None
 
-		print "parsing", val
 		matches = gmFuzzyTimestamp.str2fuzzy_timestamp_matches(str_timestamp=val)
-		print matches
 		if len(matches) == 0:
 			self.SetBackgroundColour('pink')
 			msg = _('Cannot parse <%s> into proper timestamp.') % val
@@ -145,21 +141,15 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	# phrasewheel internal API
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-		print "dti: on lose focus"
 		match = self.__text2timestamp()
-		print "dti: on lose focus", match
 		if match is None:
 			self.data = None
 		else:
 			wx.TextCtrl.SetValue(self, match['label'])
 			self.data = match['data']
-		print "dti: on lose focus", self.data
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
-		print "dti: on lose focus", self.data
 	#--------------------------------------------------------
 	def _calc_display_string(self):
-		print "dti: calc display string"
-
 		data = self._picklist.GetSelectedItemData()
 		if data is None:
 			return self.GetValue()
@@ -168,8 +158,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	# external API
 	#--------------------------------------------------------
 	def SetValue(self, val, data=None):
-		print "dti: set value"
-
 		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
 		if data is None:
 			match = self.__text2timestamp()
@@ -198,32 +186,6 @@ class cTimeInput(wx.TextCtrl):
 #--------------------------------------------------
 if __name__ == '__main__':
 	#----------------------------------------------------
-	def clicked (data):
-		print "Selected :%s" % data
-	#----------------------------------------------------
-	class TestApp (wx.App):
-		def OnInit (self):
-
-			frame = wx.Frame (
-				None,
-				-4,
-				"date input wheel test for GNUmed",
-				size=wx.Size(300, 350),
-				style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE
-			)
-
-			date_wheel = cFuzzyTimestampInput (
-				parent = frame,
-				id = -1,
-				pos = (50, 50),
-				size = (180, 30)
-			)
-			date_wheel.on_resize (None)
-
-			frame.Show (1)
-			return 1
-
-	#--------------------------------------------------------
 	def test_cli():
 		mp = cMatchProvider_FuzzyTimestamp()
 		mp.setWordSeparators('xxx_do_not_separate_words_xxx')
@@ -252,7 +214,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.47  2006-11-27 23:04:49  ncq
+# Revision 1.48  2006-11-27 23:14:33  ncq
+# - remove prints
+#
+# Revision 1.47  2006/11/27 23:04:49  ncq
 # - factor out UI-independant code
 #
 # Revision 1.46  2006/11/27 12:39:00  ncq

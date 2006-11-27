@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.37 2006-11-27 23:05:49 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmEMRStructWidgets.py,v 1.38 2006-11-27 23:15:01 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -458,8 +458,6 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		pat = gmPerson.gmCurrentPatient()
 		ident = pat.get_identity()
-		print year_noted
-		print ident['dob']
 		age = year_noted - ident['dob']
 		str_age = gmPerson.format_age_medically(age)
 		wx.CallAfter(self._PRW_age_noted.SetValue, str_age, age)
@@ -1527,7 +1525,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.37  2006-11-27 23:05:49  ncq
+# Revision 1.38  2006-11-27 23:15:01  ncq
+# - remove prints
+#
+# Revision 1.37  2006/11/27 23:05:49  ncq
 # - add commented out on_modified callbacks
 #
 # Revision 1.36  2006/11/27 12:40:20  ncq
