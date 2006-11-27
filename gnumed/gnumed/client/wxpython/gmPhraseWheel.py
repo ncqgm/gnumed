@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.86 2006-11-27 12:42:31 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmPhraseWheel.py,v 1.87 2006-11-27 23:08:36 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -30,8 +30,8 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 _log.Log(gmLog.lInfo, __version__)
-
 #============================================================
+# FIXME: merge with gmListWidgets
 class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def __init__(self, *args, **kwargs):
 		try:
@@ -49,6 +49,9 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		return self.__data[self.GetFirstSelected()]['data']
+	#--------------------------------------------------------
+	def get_selected_item_label(self):
+		return self.__data[self.GetFirstSelected()]['label']
 #============================================================
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
@@ -75,13 +78,14 @@ class cPhraseWheel(wx.TextCtrl):
 		self.data = None
 
 		self.selection_only = selection_only
+		self.snap_to_first_match = (False or self.selection_only)
 		self._has_focus = False
 		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
 		self._on_set_focus_callbacks = []
-		self.notified_listeners = False
+		self._on_modified_callbacks = []
 
 		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
 
@@ -129,6 +133,9 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	def set_snap_to_first_match(self, state = False):
+		self.snap_to_first_match = (state or self.selection_only)
+	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = True):
 		self.__handle_multiple_phrases = state
 	#--------------------------------------------------------
@@ -145,21 +152,27 @@ class cPhraseWheel(wx.TextCtrl):
 		user changes a previously selected value.
 		"""
 		if not callable(callback):
-			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
-			return False
+			raise ValueError('[add_callback_on_selection]: ignoring callback [%s], it is not callable' % callback)
+
 		self._on_selection_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_set_focus(self, callback=None):
 		if not callable(callback):
-			_log.Log(gmLog.lWarn, 'ignoring callback [%s] - not callable' % callback)
-			return False
+			raise ValueError('[add_callback_on_set_focus]: ignoring callback [%s] - not callable' % callback)
+
 		self._on_set_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
 		if not callable(callback):
-			_log.Log(gmLog.lWarn, 'ignoring callback [%s] - not callable' % callback)
-			return False
+			raise ValueError('[add_callback_on_lose_focus]: ignoring callback [%s] - not callable' % callback)
+
 		self._on_lose_focus_callbacks.append(callback)
+	#---------------------------------------------------------
+	def add_callback_on_modified(self, callback=None):
+		if not callable(callback):
+			raise ValueError('[add_callback_on_modified]: ignoring callback [%s] - not callable' % callback)
+
+		self._on_modified_callbacks.append(callback)
 	#---------------------------------------------------------
 	def SetData(self, data=None):
 		"""Set the data and thereby set the value, too.
@@ -176,15 +189,25 @@ class cPhraseWheel(wx.TextCtrl):
 		else:
 			matched, matches = self.__matcher.getMatches('*')
 
-		if (not matched and self.selection_only) or (len(matches) == 0):
-			return False
+		if self.selection_only:
+			if not matched or (len(matches) == 0):
+				self.SetBackgroundColour('pink')
+				return False
 
 		for match in matches:
 			if match['data'] == data:
-				self.SetValue(value = match['label'], data = data)
+				self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+				wx.TextCtrl.SetValue(match['label'])
+				self.data = data
 				return True
 
-		return False
+		# no match found ...
+		if self.selection_only:
+			self.SetBackgroundColour('pink')
+			return False
+
+		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		return True
 	#---------------------------------------------------------
 	def GetData (self):
 		"""
@@ -194,14 +217,18 @@ class cPhraseWheel(wx.TextCtrl):
 	#---------------------------------------------------------
 	def SetValue (self, value, data=None):
 
+		print "prw: set value"
+
 		wx.TextCtrl.SetValue(self, value)
 		self.data = data
+		print "prw.SetValue:", self.data
+		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 
 		# if data already available
 		if self.data is not None:
 			return True
 
-		# or try to find one from matches
+		# or try to find data from matches
 		if self.__matcher is None:
 			stat, matches = (False, [])
 		else:
@@ -214,6 +241,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# not found
 		if self.selection_only:
+			self.SetBackgroundColour('pink')
 			return False
 
 		return True
@@ -327,28 +355,41 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def _calc_display_string(self):
+		print "prw: calc display string"
+
 		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, *args, **kwargs):
 		"""Gets called when user selected a list item."""
-		self._hide_dropdown()
 
+		print "prw: on selection"
+
+		self._hide_dropdown()
+		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		self.data = self._picklist.GetSelectedItemData()	# just so that _calc_display_string could use it
+
+		print "before setting value"
 		# update our display
 		if self.__handle_multiple_phrases:
-			wx.TextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
+			print "multiple phrases"
+			wx.TextCtrl.SetValue (self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
 		else:
+			print "single phrase"
 			wx.TextCtrl.SetValue (self, self._calc_display_string())
-		self.MarkDirty()
+		print "after setting value"
 
 		self.data = self._picklist.GetSelectedItemData()
+		self.MarkDirty()
 
 		# and tell the listeners about the user's selection
 		for call_listener in self._on_selection_callbacks:
 			call_listener(self.data)
-		self.notified_listeners = True
+
 		self.Navigate()
+		return
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -424,13 +465,17 @@ class cPhraseWheel(wx.TextCtrl):
 		return
 	#--------------------------------------------------------
 	def _on_text_update (self, event):
-		"""Internal handler for wx.EVT_TEXT (called when text has changed)"""
+		"""Internal handler for wx.EVT_TEXT.
+
+		Called when text was changed by user or SetValue()."""
+
+		print "prw: on text update"
 
 		self.data = None
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
-		if self.GetValue().strip() == 0:
+		if self.GetValue().strip() == u'':
 			self._hide_dropdown()
 			self.__timer.Stop()
 		else:
@@ -438,12 +483,12 @@ class cPhraseWheel(wx.TextCtrl):
 			# milliseconds needed for Windows bug
 			self.__timer.Start(oneShot = True)
 
-		if self.notified_listeners:
-			# Aargh! we told the listeners that we selected <foo>
-			# but now the user is typing again !
-			for notify_listener in self._on_selection_callbacks:
-				notify_listener(None)
-			self.notified_listeners = False
+		# notify interested parties
+		for callback in self._on_modified_callbacks:
+			if not callback():
+				print "[%s:_on_text_update]: %s returned False" % (self.__class__.__name__, str(callback))
+
+		return
 	#--------------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		"""Callback for delayed match retrieval timer.
@@ -465,31 +510,32 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
 
+		print "prw: on set focus"
+
 		self._has_focus = True
 		event.Skip()
 
 		# notify interested parties
 		for callback in self._on_set_focus_callbacks:
-			try:
-				if not callback():
-					print "[%s:_on_set_focus]: %s returned False" % (self.__class__.__name__, str(callback))
-			except:
-				_log.LogException("[%s:_on_set_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
+			if not callback():
+				print "[%s:_on_set_focus]: %s returned False" % (self.__class__.__name__, str(callback))
 
-		# if empty set to first "match"
-		if self.GetValue().strip() == u'':
-			# programmers better make sure the turnaround time is limited
-			self._updateMatches()
-			if len(self.__currMatches) > 0:
-				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
-				self.data = self.__currMatches[0]['data']
-				self.MarkDirty()
+		if self.snap_to_first_match:
+			if self.GetValue().strip() == u'':
+				# programmers better make sure the turnaround time is limited
+				self._updateMatches(val='*')
+				if len(self.__currMatches) > 0:
+					wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
+					self.data = self.__currMatches[0]['data']
+					self.MarkDirty()
 
 		self.__timer.Start(oneShot = True)
 
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
+
+		print "prw: on lose focus", self.data
 
 		self._has_focus = False
 		event.Skip()
@@ -499,28 +545,37 @@ class cPhraseWheel(wx.TextCtrl):
 		self._hide_dropdown()
 
 		# can/must we auto-set the value from the match list ?
-		if (self.selection_only) and (self.data is None) and (self.GetValue().strip() != ''):
-			self._updateMatches()
-			no_matches = len(self.__currMatches)
-			if no_matches == 1:
-				wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
-				self.data = self.__currMatches[0]['data']
-				self.MarkDirty()
-			elif no_matches > 1:
-				gmGuiHelpers.gm_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
-				return True
-			else:
-				gmGuiHelpers.gm_statustext(_('There are no matches for this input.'))
-				self.Clear()
-				return True
+		if self.snap_to_first_match:
+			if self.data is None:
+				val = self.GetValue().strip()
+				if val != u'':
+					self._updateMatches()
+					no_matches = len(self.__currMatches)
+					if no_matches == 1:
+						wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
+						self.data = self.__currMatches[0]['data']
+						self.MarkDirty()
+					elif no_matches > 1:
+						gmGuiHelpers.gm_statustext(_('Cannot auto-select from list. There are several matches for the input [%s].') % val)
+						if self.selection_only:
+							self.SetBackgroundColour('pink')
+						return True
+					else:
+						gmGuiHelpers.gm_statustext(_('There are no matches for this input.'))
+						if self.selection_only:
+							self.SetBackgroundColour('pink')
+							self.Clear()
+						return True
+
+		print "prw: on lose focus", self.data
 
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
-			try:
-				if not callback():
-					print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
-			except:
-				_log.LogException("[%s:_on_lose_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
+			if not callback():
+				print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
+
+		print "prw: on lose focus", self.data
+
 		return True
 #--------------------------------------------------------
 # MAIN
@@ -529,6 +584,32 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain(text_domain='gnumed')
+
+	prw = None
+	#--------------------------------------------------------
+	def display_values_set_focus(*args, **kwargs):
+		print "got focus:"
+		print "value:", prw.GetValue()
+		print "data :", prw.GetData()
+		return True
+	#--------------------------------------------------------
+	def display_values_lose_focus(*args, **kwargs):
+		print "lost focus:"
+		print "value:", prw.GetValue()
+		print "data :", prw.GetData()
+		return True
+	#--------------------------------------------------------
+	def display_values_modified(*args, **kwargs):
+		print "modified:"
+		print "value:", prw.GetValue()
+		print "data :", prw.GetData()
+		return True
+	#--------------------------------------------------------
+	def display_values_selected(*args, **kwargs):
+		print "selected:"
+		print "value:", prw.GetValue()
+		print "data :", prw.GetData()
+		return True
 	#--------------------------------------------------------
 	def test_prw_fixed_list():
 		app = wx.PyWidgetTester(size = (200, 50))
@@ -544,11 +625,16 @@ if __name__ == '__main__':
 		mp = gmMatchProvider.cMatchProvider_FixedList(items)
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 		mp.setWordSeparators(separators = '[ \t=+&:@]+')
-		ww = cPhraseWheel(
+		global prw
+		prw = cPhraseWheel(
 			parent = app.frame,
 			id = -1,
 			aMatchProvider = mp
 		)
+		prw.add_callback_on_set_focus(callback=display_values_set_focus)
+		prw.add_callback_on_modified(callback=display_values_modified)
+		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
+		prw.add_callback_on_selection(callback=display_values_selected)
 
 		app.frame.Show(True)
 		app.MainLoop()
@@ -567,6 +653,7 @@ if __name__ == '__main__':
 		query = u'select code, name from dem.country where _(name) %(fragment_condition)s'
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (200, 50))
+		global prw
 		prw = cPhraseWheel (
 			parent = app.frame,
 			id = -1,
@@ -587,7 +674,13 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.86  2006-11-27 12:42:31  ncq
+# Revision 1.87  2006-11-27 23:08:36  ncq
+# - add snap_to_first_match
+# - add on_modified callbacks
+# - set background in lose_focus in some cases
+# - improve test suite
+#
+# Revision 1.86  2006/11/27 12:42:31  ncq
 # - somewhat improved dropdown picklist on Mac, not properly positioned yet
 #
 # Revision 1.85  2006/11/26 21:42:47  ncq
