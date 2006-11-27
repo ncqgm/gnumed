@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.36 2006-11-27 12:40:20 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmEMRStructWidgets.py,v 1.37 2006-11-27 23:05:49 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -388,6 +388,9 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
 		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
 
+#		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
+#		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
+
 		self.refresh()
 	#--------------------------------------------------------
 	# internal helpers
@@ -461,6 +464,18 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		str_age = gmPerson.format_age_medically(age)
 		wx.CallAfter(self._PRW_age_noted.SetValue, str_age, age)
 
+		return True
+	#--------------------------------------------------------
+	def _on_modified_age_noted(self, *args, **kwargs):
+		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		#self._PRW_year_noted.Refresh()
+		wx.CallAfter(self._PRW_year_noted.SetValue, '', None)
+		return True
+	#--------------------------------------------------------
+	def _on_modified_year_noted(self, *args, **kwargs):
+		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		#self._PRW_age_noted.Refresh()
+		wx.CallAfter(self._PRW_age_noted.SetValue, '', None)
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -1512,7 +1527,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.36  2006-11-27 12:40:20  ncq
+# Revision 1.37  2006-11-27 23:05:49  ncq
+# - add commented out on_modified callbacks
+#
+# Revision 1.36  2006/11/27 12:40:20  ncq
 # - adapt to field name fixes from wxGlade
 #
 # Revision 1.35  2006/11/24 16:40:35  ncq
