@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.85 2006-11-26 21:42:47 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmPhraseWheel.py,v 1.86 2006-11-27 12:42:31 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -87,12 +87,11 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
-			raise NotImplementedError
 			self.__dropdown = wx.PopupWindow(parent)
 			add_picklist_to_sizer = False
 		except NotImplementedError:
 			# on MacOSX wx.PopupWindow does not exist
-			self.__dropdown = wx.Window(parent=parent, style = wx.NO_BORDER)
+			self.__dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
 			self.__dropdown.SetSizer(szr_scroll)
 			add_picklist_to_sizer = True
@@ -588,7 +587,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.85  2006-11-26 21:42:47  ncq
+# Revision 1.86  2006-11-27 12:42:31  ncq
+# - somewhat improved dropdown picklist on Mac, not properly positioned yet
+#
+# Revision 1.85  2006/11/26 21:42:47  ncq
 # - don't use wx.ScrolledWindow or we suffer double-scrollers
 #
 # Revision 1.84  2006/11/26 20:58:20  ncq
