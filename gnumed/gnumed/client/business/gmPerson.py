@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.94 2006-11-24 09:33:22 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmPerson.py,v 1.95 2006-11-27 12:37:09 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1572,7 +1572,10 @@ def format_age_medically(age=None):
 	if age.days > 364:
 		years, days = divmod(age.days, 365)
 		months, day = divmod(days, 30)
-		return "%sy%sm" % (int(years), int(months))
+		if months == 0:
+			return "%sy" % int(years)
+		else:
+			return "%sy%sm" % (int(years), int(months))
 	if age.days > 30:
 		months, days = divmod(age.days, 30)
 		weeks = days // 7
@@ -1940,7 +1943,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.94  2006-11-24 09:33:22  ncq
+# Revision 1.95  2006-11-27 12:37:09  ncq
+# - do not display 12y0m but rather 12y in format_age_medically()
+#
+# Revision 1.94  2006/11/24 09:33:22  ncq
 # - remove comms subtable
 # - chain cPerson.__getitem__ to underlying cIdentity where necessary
 # - fix no-cfg-file detection in get_workplace()
