@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.35 2006-11-24 16:40:35 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmEMRStructWidgets.py,v 1.36 2006-11-27 12:40:20 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -385,19 +385,19 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		mp.setThresholds(1, 3, 5)
 		self._PRW_condition.setMatchProvider(mp = mp)
 
-		self._PRW_age_diagnosed.add_callback_on_lose_focus(self._on_leave_age_diagnosed)
-		self._PRW_year_diagnosed.add_callback_on_lose_focus(self._on_leave_year_diagnosed)
+		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
+		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
 
 		self.refresh()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def _on_leave_age_diagnosed(self, *args, **kwargs):
+	def _on_leave_age_noted(self, *args, **kwargs):
 
-		str_age = self._PRW_age_diagnosed.GetValue().strip()
+		str_age = self._PRW_age_noted.GetValue().strip()
 
 		if str_age == '':
-			wx.CallAfter(self._PRW_year_diagnosed.SetValue, '')
+			wx.CallAfter(self._PRW_year_noted.SetValue, '')
 			return True
 
 		age = gmTools.str2interval(str_interval = str_age)
@@ -411,20 +411,20 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			gmGuiHelpers.gm_statustext(_('Patient is only %s old. Cannot accept age [%s].') % (ident.get_medical_age(), age))
 
 		if (age is None) or (age >= max_age):
-			self._PRW_age_diagnosed.SetBackgroundColour('pink')
-			self._PRW_age_diagnosed.Refresh()
-			wx.CallAfter(self._PRW_year_diagnosed.SetValue, '')
+			self._PRW_age_noted.SetBackgroundColour('pink')
+			self._PRW_age_noted.Refresh()
+			wx.CallAfter(self._PRW_year_noted.SetValue, '')
 			return True
 
-		self._PRW_age_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_diagnosed.Refresh()
-		self._PRW_age_diagnosed.SetData(data=age)
+		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_noted.Refresh()
+		self._PRW_age_noted.SetData(data=age)
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
 			timestamp = ident['dob'] + age,
 			accuracy = gmFuzzyTimestamp.acc_months
 		)
-		wx.CallAfter(self._PRW_year_diagnosed.SetValue, str(fts), fts)
+		wx.CallAfter(self._PRW_year_noted.SetValue, str(fts), fts)
 		# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
 		#wx.CallAfter(self._ChBOX_active.SetFocus)
 		# if we do the following instead it will take us to the save/update button ...
@@ -432,32 +432,34 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		return True
 	#--------------------------------------------------------
-	def _on_leave_year_diagnosed(self, *args, **kwargs):
+	def _on_leave_year_noted(self, *args, **kwargs):
 
-		year_diagnosed = self._PRW_year_diagnosed.GetData()
+		year_noted = self._PRW_year_noted.GetData()
 
-		if year_diagnosed is None:
-			if self._PRW_year_diagnosed.GetValue().strip() == '':
-				wx.CallAfter(self._PRW_age_diagnosed.SetValue, '')
+		if year_noted is None:
+			if self._PRW_year_noted.GetValue().strip() == '':
+				wx.CallAfter(self._PRW_age_noted.SetValue, '')
 				return True
 
-		year_diagnosed = year_diagnosed.get_pydt()
+		year_noted = year_noted.get_pydt()
 
-		if year_diagnosed >= pydt.datetime.now(tz=year_diagnosed.tzinfo):
+		if year_noted >= pydt.datetime.now(tz=year_noted.tzinfo):
 			gmGuiHelpers.gm_statustext(_('Condition diagnosed in the future.'))
-			self._PRW_year_diagnosed.SetBackgroundColour('pink')
-			self._PRW_year_diagnosed.Refresh()
-			wx.CallAfter(self._PRW_age_diagnosed.SetValue, '')
+			self._PRW_year_noted.SetBackgroundColour('pink')
+			self._PRW_year_noted.Refresh()
+			wx.CallAfter(self._PRW_age_noted.SetValue, '')
 			return True
 
-		self._PRW_year_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_year_diagnosed.Refresh()
+		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_year_noted.Refresh()
 
 		pat = gmPerson.gmCurrentPatient()
 		ident = pat.get_identity()
-		age = year_diagnosed - ident['dob']
+		print year_noted
+		print ident['dob']
+		age = year_noted - ident['dob']
 		str_age = gmPerson.format_age_medically(age)
-		wx.CallAfter(self._PRW_age_diagnosed.SetValue, str_age, age)
+		wx.CallAfter(self._PRW_age_noted.SetValue, str_age, age)
 
 		return True
 	#--------------------------------------------------------
@@ -475,16 +477,16 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_condition.Refresh()
 		self._PRW_condition.SetFocus()
-		self._PRW_age_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_diagnosed.Refresh()
+		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_noted.Refresh()
 
 		if self.__issue is None:
 			self._PRW_condition.SetValue('')
 			self._ChBOX_left.SetValue(0)
 			self._ChBOX_right.SetValue(0)
 			self._TCTRL_notes.SetValue('')
-			self._PRW_age_diagnosed.SetValue('')
-			self._PRW_year_diagnosed.SetValue('')
+			self._PRW_age_noted.SetValue('')
+			self._PRW_year_noted.SetValue('')
 			self._ChBOX_active.SetValue(0)
 			self._ChBOX_relevant.SetValue(1)
 			self._ChBOX_is_operation.SetValue(0)
@@ -507,9 +509,9 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			self._ChBOX_right.SetValue(1)
 		self._TCTRL_notes.SetValue('')
 		if self.__issue['age_noted'] is None:
-			self._PRW_age_diagnosed.SetValue('')
+			self._PRW_age_noted.SetValue('')
 		else:
-			self._PRW_age_diagnosed.SetValue (
+			self._PRW_age_noted.SetValue (
 				value = '%sd' % self.__issue['age_noted'].days,
 				data = self.__issue['age_noted']
 			)
@@ -519,8 +521,8 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._ChBOX_confidential.SetValue(self.__issue['is_confidential'])
 		self._ChBOX_caused_death.SetValue(self.__issue['is_cause_of_death'])
 
-		# this dance should assure self._PRW_year_diagnosed gets set -- but it doesn't ...
-#		self._PRW_age_diagnosed.SetFocus()
+		# this dance should assure self._PRW_year_noted gets set -- but it doesn't ...
+#		self._PRW_age_noted.SetFocus()
 #		self._PRW_condition.SetFocus()
 
 		return True
@@ -536,15 +538,15 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_condition.Refresh()
 
 		# FIXME: check age/year diagnosed
-		age_noted = self._PRW_age_diagnosed.GetValue().strip()
+		age_noted = self._PRW_age_noted.GetValue().strip()
 		if age_noted != '':
 			if gmTools.str2interval(str_interval=age_noted) is None:
-				self._PRW_age_diagnosed.SetBackgroundColour('pink')
-				self._PRW_age_diagnosed.Refresh()
-				self._PRW_age_diagnosed.SetFocus()
+				self._PRW_age_noted.SetBackgroundColour('pink')
+				self._PRW_age_noted.Refresh()
+				self._PRW_age_noted.SetFocus()
 				return False
-		self._PRW_age_diagnosed.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_diagnosed.Refresh()
+		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_noted.Refresh()
 
 		return True
 	#--------------------------------------------------------
@@ -578,7 +580,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self.__issue['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
 		self.__issue['is_confidential'] = bool(self._ChBOX_confidential.GetValue())
 		self.__issue['is_cause_of_death'] = bool(self._ChBOX_caused_death.GetValue())
-		age_noted = self._PRW_age_diagnosed.GetData()
+		age_noted = self._PRW_age_noted.GetData()
 		if age_noted is not None:
 			self.__issue['age_noted'] = age_noted
 
@@ -1510,7 +1512,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.35  2006-11-24 16:40:35  ncq
+# Revision 1.36  2006-11-27 12:40:20  ncq
+# - adapt to field name fixes from wxGlade
+#
+# Revision 1.35  2006/11/24 16:40:35  ncq
 # - age_noted can be NULL so handle set when refresh()ing health issue edit area
 #
 # Revision 1.34  2006/11/24 14:22:35  ncq
