@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.4 2006-11-24 09:52:09 ncq Exp $
+# $Id: gmTools.py,v 1.5 2006-11-27 23:02:08 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -13,8 +13,9 @@ import datetime as pydt, re as regex
 days_per_year = 365
 days_per_month = 30
 days_per_week = 7
-
 #===========================================================================
+# FIXME: should this not be in gmTime or some such?
+
 def str2interval(str_interval=None):
 
 	# "(~)35(yYjJaA)"	- at age 35 years
@@ -138,7 +139,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.4  2006-11-24 09:52:09  ncq
+# Revision 1.5  2006-11-27 23:02:08  ncq
+# - add comment
+#
+# Revision 1.4  2006/11/24 09:52:09  ncq
 # - add str2interval() - this will need to end up in an interval input phrasewheel !
 # - improve test suite
 #
