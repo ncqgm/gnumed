@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.110 2006-11-26 14:23:09 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmDemographicsWidgets.py,v 1.111 2006-11-28 20:43:26 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1097,7 +1097,6 @@ class cPatIdentityPanel(wx.Panel):
 			return False
 		self.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self.PRW_dob.Refresh()
-		print "valid for save"
 		return True
 	#--------------------------------------------------------
 	def set_identity(self, identity):
@@ -1107,8 +1106,6 @@ class cPatIdentityPanel(wx.Panel):
 
 		if identity is not None:
 			self.__ident = identity
-
-		print "refresh: dob =", self.__ident['dob'], type(self.__ident['dob'])
 
 		dob = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__ident['dob'])
 		active_name = self.__ident.get_active_name()
@@ -1127,14 +1124,10 @@ class cPatIdentityPanel(wx.Panel):
 			return False
 
 		if self.__ident['gender'] != self.PRW_gender.GetData():
-			print "gender modified"
 			self.__ident['gender'] = self.PRW_gender.GetData()
 		new_dob = self.PRW_dob.GetData().get_pydt()
 		old_dob = self.__ident['dob']
 		if new_dob.strftime('%Y %M %d %H %M') != old_dob.strftime('%Y %M %d %H %M'):
-			print "dob modified"
-			print "old:", old_dob, type(old_dob)
-			print "new:", new_dob, type(new_dob)
 			self.__ident['dob'] = new_dob
 		if self.__ident['title'] != self.PRW_title.GetValue():
 			self.__ident['title'] = self.PRW_title.GetValue().strip()
@@ -1153,7 +1146,6 @@ class cPatIdentityPanel(wx.Panel):
 
 		nick = self.PRW_nick.GetValue().strip()
 		if (nick != self.__ident['preferred']) and (nick != ''):
-			print "setting nickname:", self.__ident['preferred'], nick
 			self.__ident.set_nickname(nickname = nick)
 
 		return True
@@ -1601,8 +1593,6 @@ def update_identity_from_dtd(identity, dtd=None):
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
-	print "identity:", identity['dob']
-	print "dtd:", dtd['dob'].get_pydt()
 	if identity['dob'] != dtd['dob'].get_pydt():
 		identity['dob'] = dtd['dob'].get_pydt()
 	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
@@ -1741,7 +1731,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.110  2006-11-26 14:23:09  ncq
+# Revision 1.111  2006-11-28 20:43:26  ncq
+# - remove lots of debugging prints
+#
+# Revision 1.110  2006/11/26 14:23:09  ncq
 # - add cOccupationPhraseWheel and use it
 # - display last modified on occupation entry
 #
