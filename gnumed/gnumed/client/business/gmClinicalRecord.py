@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.222 2006-11-26 15:43:41 ncq Exp $
-__version__ = "$Revision: 1.222 $"
+# $Id: gmClinicalRecord.py,v 1.223 2006-11-28 20:39:30 ncq Exp $
+__version__ = "$Revision: 1.223 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -818,7 +818,7 @@ where
 			filtered_problems = filter(lambda epi: epi['pk_episode'] in episodes, filtered_problems)
 		return filtered_problems
 	#--------------------------------------------------------
-	def problem2episode(self, problem):
+	def problem2episode(self, problem=None):
 		"""
 		Retrieve the cEpisode instance equivalent to the given problem.
 		The problem's type attribute must be 'episode'
@@ -826,13 +826,15 @@ where
 		@param problem: The problem to retrieve its related episode for
 		@type problem: A gmEMRStructItems.cProblem instance
 		"""
-		if (not isinstance(problem, gmEMRStructItems.cProblem)) or (problem['type'] != 'episode'):
-			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (problem['problem'], problem['type']))
-			# FIXME: raise TypeError (see below)
-			return None
-		return self.get_episodes(id_list=[problem['pk_episode']])[0]
+		if isinstance(problem, gmEMRStructItems.cProblem) and (problem['type'] == 'episode'):
+			return self.get_episodes(id_list=[problem['pk_episode']])[0]
+
+		if isinstance(problem, gmEMRStructItems.cEpisode):
+			return problem
+
+		raise TypeError('cannot convert [%s] to episode' % problem)
 	#--------------------------------------------------------
-	def problem2issue(self, problem):
+	def problem2issue(self, problem=None):
 		"""
 		Retrieve the cIssue instance equivalent to the given problem.
 		The problem's type attribute must be 'issue'.
@@ -840,11 +842,13 @@ where
 		@param problem: The problem to retrieve the corresponding issue for
 		@type problem: A gmEMRStructItems.cProblem instance
 		"""
-		if (not isinstance(problem, gmEMRStructItems.cProblem)) or (problem['type'] != 'issue'):
-			_log.Log(gmLog.lErr, 'cannot convert type [%s] to issue: problem [%s]' % (problem['type'], problem['problem']))
-			# FIXME: raise TypeError (see below)
-			return None
-		return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
+		if isinstance(problem, gmEMRStructItems.cProblem) and (problem['type'] == 'issue'):
+			return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
+
+		if isinstance(problem, gmEMRStructItems.cHealthIssue):
+			return problem
+
+		raise TypeError('cannot convert [%s] to health issue' % problem)
 	#--------------------------------------------------------
 	def reclass_problem(self, problem):
 		"""Transform given problem into either episode or health issue instance.
@@ -861,24 +865,23 @@ where
 	# health issues API
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
-		try:
-			self.__db_cache['health issues']
-		except KeyError:
-			cmd = u"select *, xmin from clin.health_issue where fk_patient=%s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
-			self.__db_cache['health issues'] = []
-			for row in rows:
-				r = {'idx': idx, 'data': row, 'pk_field': 'pk'}
-				self.__db_cache['health issues'].append(gmEMRStructItems.cHealthIssue(row=r))
+		cmd = u"select *, xmin from clin.health_issue where fk_patient=%s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
+		issues = []
+		for row in rows:
+			r = {'idx': idx, 'data': row, 'pk_field': 'pk'}
+			issues.append(gmEMRStructItems.cHealthIssue(row=r))
 
 		if id_list is None:
-			return self.__db_cache['health issues']
-		if id_list == []:
-			_log.Log(gmLog.lErr, 'id_list to filter by is empty, most likely a programming error')
+			return issues
+
+		raise ValueError('id_list to filter by is empty, most likely a programming error')
+
 		filtered_issues = []
-		for issue in self.__db_cache['health issues']:
+		for issue in issues:
 			if issue['pk'] in id_list:
 				filtered_issues.append(issue)
+
 		return filtered_issues
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
@@ -1590,7 +1593,11 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.222  2006-11-26 15:43:41  ncq
+# Revision 1.223  2006-11-28 20:39:30  ncq
+# - improve problem2*()
+# - de-cache get_health_issues()
+#
+# Revision 1.222  2006/11/26 15:43:41  ncq
 # - keys in get_summary() shouldn't be _()
 #
 # Revision 1.221  2006/11/24 14:15:20  ncq
