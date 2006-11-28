@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.87 2006-11-27 23:08:36 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmPhraseWheel.py,v 1.88 2006-11-28 20:51:13 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -197,7 +197,7 @@ class cPhraseWheel(wx.TextCtrl):
 		for match in matches:
 			if match['data'] == data:
 				self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				wx.TextCtrl.SetValue(match['label'])
+				wx.TextCtrl.SetValue(self, match['label'])
 				self.data = data
 				return True
 
@@ -217,11 +217,8 @@ class cPhraseWheel(wx.TextCtrl):
 	#---------------------------------------------------------
 	def SetValue (self, value, data=None):
 
-		print "prw: set value"
-
 		wx.TextCtrl.SetValue(self, value)
 		self.data = data
-		print "prw.SetValue:", self.data
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 
 		# if data already available
@@ -355,8 +352,6 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def _calc_display_string(self):
-		print "prw: calc display string"
-
 		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	# specific event handlers
@@ -364,22 +359,16 @@ class cPhraseWheel(wx.TextCtrl):
 	def _on_list_item_selected(self, *args, **kwargs):
 		"""Gets called when user selected a list item."""
 
-		print "prw: on selection"
-
 		self._hide_dropdown()
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 
 		self.data = self._picklist.GetSelectedItemData()	# just so that _calc_display_string could use it
 
-		print "before setting value"
 		# update our display
 		if self.__handle_multiple_phrases:
-			print "multiple phrases"
 			wx.TextCtrl.SetValue (self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
 		else:
-			print "single phrase"
 			wx.TextCtrl.SetValue (self, self._calc_display_string())
-		print "after setting value"
 
 		self.data = self._picklist.GetSelectedItemData()
 		self.MarkDirty()
@@ -467,10 +456,8 @@ class cPhraseWheel(wx.TextCtrl):
 	def _on_text_update (self, event):
 		"""Internal handler for wx.EVT_TEXT.
 
-		Called when text was changed by user or SetValue()."""
-
-		print "prw: on text update"
-
+		Called when text was changed by user or SetValue().
+		"""
 		self.data = None
 
 		# if empty string then kill list dropdown window
@@ -510,8 +497,6 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
 
-		print "prw: on set focus"
-
 		self._has_focus = True
 		event.Skip()
 
@@ -534,8 +519,6 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-
-		print "prw: on lose focus", self.data
 
 		self._has_focus = False
 		event.Skip()
@@ -567,14 +550,10 @@ class cPhraseWheel(wx.TextCtrl):
 							self.Clear()
 						return True
 
-		print "prw: on lose focus", self.data
-
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
 			if not callback():
 				print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
-
-		print "prw: on lose focus", self.data
 
 		return True
 #--------------------------------------------------------
@@ -674,7 +653,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.87  2006-11-27 23:08:36  ncq
+# Revision 1.88  2006-11-28 20:51:13  ncq
+# - a missing self
+# - remove some prints
+#
+# Revision 1.87  2006/11/27 23:08:36  ncq
 # - add snap_to_first_match
 # - add on_modified callbacks
 # - set background in lose_focus in some cases
