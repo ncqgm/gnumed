@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.84 2006-11-26 17:13:17 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmSOAPWidgets.py,v 1.85 2006-11-28 20:53:41 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -369,7 +369,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
-		#self.Refresh()
+		self.Refresh()
 		#self.Update()
 		return True
 	#--------------------------------------------------------
@@ -1102,7 +1102,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.84  2006-11-26 17:13:17  ncq
+# Revision 1.85  2006-11-28 20:53:41  ncq
+# - a missing Refresh()
+#
+# Revision 1.84  2006/11/26 17:13:17  ncq
 # - properly check for duplicate episode editors in add_editor when problem is None
 #
 # Revision 1.83  2006/11/24 10:01:31  ncq
