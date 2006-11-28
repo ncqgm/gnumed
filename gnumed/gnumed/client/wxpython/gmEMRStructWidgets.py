@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.38 2006-11-27 23:15:01 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmEMRStructWidgets.py,v 1.39 2006-11-28 20:44:36 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -631,10 +631,9 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 			self._BTN_save.SetLabel(_('Update'))
 			self._BTN_clear.SetLabel(_('Restore'))
 
-		self.Refresh()
-		#self.Update()			# not needed
-
 		self._PNL_edit_area.refresh(issue = issue)
+
+		self.Refresh()		# needed ?
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_edit_area.save():
@@ -1525,7 +1524,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.38  2006-11-27 23:15:01  ncq
+# Revision 1.39  2006-11-28 20:44:36  ncq
+# - some rearrangement
+#
+# Revision 1.38  2006/11/27 23:15:01  ncq
 # - remove prints
 #
 # Revision 1.37  2006/11/27 23:05:49  ncq
