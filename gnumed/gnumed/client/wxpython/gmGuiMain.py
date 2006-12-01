@@ -13,14 +13,14 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.279 2006-11-24 14:22:57 ncq Exp $
-__version__ = "$Revision: 1.279 $"
+# $Id: gmGuiMain.py,v 1.280 2006-12-01 13:58:12 ncq Exp $
+__version__ = "$Revision: 1.280 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import sys, time, os, cPickle, zlib, locale
+import sys, time, os, cPickle, zlib, locale, os.path
 
 # do not check inside py2exe and friends
 if not hasattr(sys, 'frozen'):
@@ -241,6 +241,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		# menu "GNUmed"
 		menu_gnumed = wx.Menu()
+
+		ID_SCREENSHOT = wx.NewId()
+		menu_gnumed.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
+		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
+
+		menu_gnumed.AppendSeparator()
 
 		menu_gnumed.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
 		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
@@ -481,6 +487,19 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
+	#----------------------------------------------
+	def __on_save_screenshot(self, evt):
+		w, h = self.GetClientSize()
+		cdc = wx.ClientDC(self)
+		mdc = wx.MemoryDC()
+		img = wx.EmptyBitmap(w, h)
+		mdc.SelectObject(img)
+		mdc.Blit(0, 0, w, h, cdc, 0, 0)
+		# FIXME: improve filename with timestamp/patient/workplace/provider, allow user to select/change
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot.png'))
+		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
+		gmGuiHelpers.gm_statustext(_('Saved screenshot to file [%s].') % fname)
+		evt.Skip()
 	#----------------------------------------------
 	def OnClose(self, event):
 		"""wx.EVT_CLOSE handler.
@@ -1118,7 +1137,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.279  2006-11-24 14:22:57  ncq
+# Revision 1.280  2006-12-01 13:58:12  ncq
+# - add screenshot function
+#
+# Revision 1.279  2006/11/24 14:22:57  ncq
 # - use shiny new health issue edit area
 #
 # Revision 1.278  2006/11/24 10:01:31  ncq
