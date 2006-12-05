@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -106,7 +106,7 @@ class cCfgSQL:
 		if None in [option, workplace]:
 			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace)
 		if str(bias).lower() not in ['user', 'workplace']:
-			raise ValueError, '<bias> must be in [user], [workplace]'
+			raise ValueError, '<bias> must be in ["user", "workplace"]'
 		bias = str(bias).lower()
 
 		# does this option exist ?
@@ -320,19 +320,19 @@ limit 1""" % where_clause
 		"""
 		# if no workplace given: any workplace (= cfg_DEFAULT)
 		where_snippets = [
-			'cfg_template.pk=cfg_item.fk_template',
-			'cfg_item.workplace=%(wplace)s'
+			u'cfg_template.pk=cfg_item.fk_template',
+			u'cfg_item.workplace=%(wplace)s'
 		]
 		where_args = {'wplace': workplace}
 
 		# if no user given: current db user
 		if user is None:
-			where_snippets.append('cfg_item.owner=CURRENT_USER')
+			where_snippets.append(u'cfg_item.owner=CURRENT_USER')
 		else:
-			where_snippets.append('cfg_item.owner=%(usr)s')
+			where_snippets.append(u'cfg_item.owner=%(usr)s')
 			where_args['usr'] = user
 
-		where_clause = ' and '.join(where_snippets)
+		where_clause = u' and '.join(where_snippets)
 
 		cmd = u"""
 select name, cookie, owner, type, description
@@ -352,8 +352,6 @@ where %s""" % where_clause
 		if option is None:
 			raise ValueError('<option> cannot be None')
 
-		rw_conn = gmPG2.get_connection(readonly=False)
-
 		if cookie is None:
 			cmd = u"""
 delete from cfg.cfg_item where
@@ -371,13 +369,7 @@ delete from cfg.cfg_item where
 	cookie = %(cookie)s
 """
 		args = {'opt': option, 'wp': workplace, 'cookie': cookie}
-
-		gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}])
-
-		# actually commit our stuff
-		rw_conn.commit()
-		rw_conn.close()
-
+		gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': args}])
 		return True
 	#----------------------------
 	def __make_alias(self, workplace, user, cookie, option):
@@ -1125,7 +1117,12 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.47  2006-11-14 16:27:36  ncq
+# Revision 1.48  2006-12-05 13:54:02  ncq
+# - better error messages
+# - u''ify some query parts
+# - simplify some code
+#
+# Revision 1.47  2006/11/14 16:27:36  ncq
 # - improved test suite
 #
 # Revision 1.46  2006/11/07 00:27:45  ncq
