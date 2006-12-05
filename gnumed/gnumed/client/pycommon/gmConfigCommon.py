@@ -15,12 +15,12 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string, types, pickle
 
-from Gnumed.pycommon import gmLog, gmCfg
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
@@ -456,31 +456,18 @@ class ConfigDataDB(ConfigData):
 	# static class variables that hold links to backend and gmCfg
 	# this will be shared by all ConfigDataDB objects
 	# this assumes that there will always be only one backend config source
-	_backend = None
 	_dbcfg = None
 
 	def __init__(self, aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 		""" Init DB connection"""
 		ConfigData.__init__(self,"DB")
 		
-		# get connection
-		if ConfigDataDB._backend is None:
-			ConfigDataDB._backend = gmPG.ConnectionPool()
-
 		# connect to config database
 		if ConfigDataDB._dbcfg is None:
-			ConfigDataDB._dbcfg = gmCfg.cCfgSQL(
-				aConn = self._backend.GetConnection('default'),
-				aDBAPI = gmPG.dbapi
-			)
+			ConfigDataDB._dbcfg = gmCfg.cCfgSQL()
 
-		if ConfigDataDB._dbcfg is None:
-			_log.Log(gmLog.lErr, "Cannot access configuration without database connection !")
-			raise ConstructorError, "ConfigData.__init__(): need db conn"
-			
 		self.mUser = aUser
 		self.mWorkplace = aWorkplace
-
 	#---------------------------------------------------------------------
 	def GetConfigData(self, aParameterName = None):
 		"""
@@ -490,7 +477,13 @@ class ConfigDataDB(ConfigData):
 		try:
 			name=self.mConfigData[aParameterName][0]
 			cookie = self.mConfigData[aParameterName][1]
-			result=ConfigDataDB._dbcfg.get(self.mWorkplace, self.mUser,cookie,name)
+			result = ConfigDataDB._dbcfg.get2 (
+				workplace=self.mWorkplace,
+#				self.mUser,
+				cookie = cookie,
+				option = name,
+				bias = 'user'
+			)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
 			return None
@@ -504,16 +497,13 @@ class ConfigDataDB(ConfigData):
 		try:
 			name=self.mConfigData[aParameterName][0]
 			cookie = self.mConfigData[aParameterName][1]
-	                rwconn = ConfigDataDB._backend.GetConnection(service = "default", readonly = 0)    
-
-			result=ConfigDataDB._dbcfg.set(	workplace = self.mWorkplace, 
-							user = self.mUser,
-							cookie = cookie,
-							option = name,
-							value = aValue,
-							aRWConn = rwconn )
-			rwconn.close()		
-			ConfigDataDB._backend.ReleaseConnection(service = "default")
+			result=ConfigDataDB._dbcfg.set (
+				workplace = self.mWorkplace,
+#				user = self.mUser,
+				cookie = cookie,
+				option = name,
+				value = aValue,
+			)
 		except:
 			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
 			return None
@@ -548,16 +538,13 @@ class ConfigDataDB(ConfigData):
 			return None
 		# now actually write the new parameter
 		try:
-			rwconn = ConfigDataDB._backend.GetConnection(service = "default", readonly = 0)    
-
-			result=ConfigDataDB._dbcfg.set(	workplace = self.mWorkplace, 
-							user = self.mUser,
-							cookie = cookie,
-							option = option,
-							value = aValue,
-							aRWConn = rwconn )
-			rwconn.close()		
-			ConfigDataDB._backend.ReleaseConnection(service = "default")
+			result=ConfigDataDB._dbcfg.set (
+				workplace = self.mWorkplace, 
+#				user = self.mUser,
+				cookie = cookie,
+				option = option,
+				value = aValue,
+			)
 		except:
 			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
 			return None
@@ -573,11 +560,7 @@ class ConfigDataDB(ConfigData):
 		parameter names where cookie and real name are concatenated.
 		Refreshes the parameter cache, too.
 		"""
-		try:
-			result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mWorkplace)
-		except:
-			_log.Log(gmLog.lErr, "Cannot get config parameter names.")
-			raise
+		result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mWorkplace)
 		if not result:
 			return None
 		else:
@@ -885,7 +868,10 @@ def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.7  2006-10-25 07:19:03  ncq
+# Revision 1.8  2006-12-05 13:55:13  ncq
+# - port to gmPG2/gmCfg.get2()
+#
+# Revision 1.7  2006/10/25 07:19:03  ncq
 # - no more gmPG
 #
 # Revision 1.6  2004/07/19 11:50:42  ncq
