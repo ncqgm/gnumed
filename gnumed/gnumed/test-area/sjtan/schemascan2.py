@@ -443,6 +443,33 @@ class schemascan2:
 
 
 if __name__ == "__main__":
+	import sys
+	if len(sys.argv) > 1 and sys.argv[1] in [ '-h', '-?', '--h' ] :
+		print """
+
+*relax_ng schema generator for a postgresql tree-like schema*
+
+this can be used to generate a compact relax_ng schema, 
+that can be read by "trang", the relax_ng to xsd or dtd  interchange converter,
+trang is a package on debian, and searching on trang on google with relax_ng should find it as well.
+Currently, schemascan2_gnumed.cfg  is the configuration file. This file was made for
+the gnumed_v3 schema. 
+
+superficially, there is no reason why this couldn't be used for any document storing schema
+that is based on a root table connected to a tree of tables. 
+
+example usage:
+
+
+	python schema_scan2.py	-o test.rnc
+
+	trang -I rnc -O xsd  test.rnc test.xsd     // note the capitals for the switches.
+
+this should generate a test.xsd schema, modelling the gnumed_v3 schema.
+
+
+"""
+		sys.exit(-1)
 	accept = 'n'
 	while accept[:1] is 'N' or accept [:1] is 'n':
 		print "credentials are ", credentials
