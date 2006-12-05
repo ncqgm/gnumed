@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -83,20 +83,36 @@ FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 _default_dsn = None
 _default_login = None
 
-_v2_schema_hash = 'not released, testing only'
-#_v2_schema_hash = 'b09d50d7ed3f91ddf4c4ddb8ea507720'
+known_schema_hashes = {
+	'devel': 'not released, testing only',
+	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
+	'v3': 'v3 database not yet released, MD5 hash still unknown'
+}
+
+map_schema_hash2version = {
+	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2'
+}
+
 # =======================================================================
-def database_schema_compatible():
-	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure())'}])
-	if rows[0][0] != _v2_schema_hash:
-		_log.Log(gmLog.lErr, 'incompatible database structure')
-		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % _v2_schema_hash)
-		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0][0])
+def database_schema_compatible(version=None):
+	expected_hash = known_schema_hashes[version]
+	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	if rows[0]['md5'] != expected_hash:
+		_log.Log(gmLog.lErr, 'not a valid [%s] database schema structure' % version)
+		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % expected_hash)
+		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0]['md5'])
 		return False
 	return True
 # =======================================================================
+def get_schema_version():
+	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	try:
+		return map_schema_hash2version[rows[0]['md5']]
+	except KeyError:
+		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+# =======================================================================
 def get_current_user():
-	rows,idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
+	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
 	return rows[0][0]
 # =======================================================================
 def set_default_client_encoding(encoding = None):
@@ -605,6 +621,7 @@ class cAdapterMxDateTime(object):
 
 # make sure psycopg2 knows how to handle unicode ...
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 # properly adapt *tuples* into (a, b, c, ...) in "... IN ..." queries
 psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
@@ -817,7 +834,12 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.12  2006-11-24 09:51:16  ncq
+# Revision 1.13  2006-12-05 13:58:45  ncq
+# - add get_schema_version()
+# - improve handling of known schema hashes
+# - register UNICODEARRAY psycopg2 extension
+#
+# Revision 1.12  2006/11/24 09:51:16  ncq
 # - whitespace fix
 #
 # Revision 1.11  2006/11/14 16:56:23  ncq
