@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -20,11 +20,7 @@ from Gnumed.pycommon import gmCfg, gmConfigCommon, gmI18N
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
 from Gnumed.business import gmPerson
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 _cfg = gmCfg.gmDefCfgFile
 
@@ -45,13 +41,15 @@ class cConfTree(wx.TreeCtrl):
 	"""This wx.TreeCtrl derivative displays a tree view of configuration 
 	parameter names.
 	"""
-	def __init__(self, parent, id, aConn = None,size=wx.DefaultSize,pos=wx.DefaultPosition,
+	def __init__(self, parent, id, size=wx.DefaultSize,pos=wx.DefaultPosition,
 				style=None,configSources = None,rootLabel = "",paramWidgets=None):
 		"""Set up our specialised tree."""
 
 		self.paramTextCtrl = paramWidgets[0]
 		self.paramDescription = paramWidgets[1]
 		self.mConfSources = configSources
+		for src in configSources:
+			_log.Log(gmLog.lData, 'config source: [%s]' % str(src))
 		self.rootLabel = rootLabel
 
 		wx.TreeCtrl.__init__(self, parent, id, pos, size, style)
@@ -91,7 +89,9 @@ class cConfTree(wx.TreeCtrl):
 
 		# now get subtrees for four maingroups (see __init__)
 
-		for nodeDescription in (self.mConfSources.keys()) :
+		for nodeDescription in (self.mConfSources.keys()):
+
+			_log.Log(gmLog.lData, 'adding node: [%s]' % nodeDescription)
 
 			# get subtree
 			subTree = self.__getSubTree(nodeDescription)
@@ -101,11 +101,11 @@ class cConfTree(wx.TreeCtrl):
 			# don't add empty subtrees, just display their subtree root node
 			if subTree is None:
 				self.SetItemHasChildren(node, False)
+				_log.Log(gmLog.lData, 'node has no children')
 				continue
-			else:
-				self.__addSubTree(node,subTree)
-				self.SortChildren(node)
-				self.SetItemHasChildren(node, True)
+			self.__addSubTree(node,subTree)
+			self.SortChildren(node)
+			self.SetItemHasChildren(node, True)
 						
 		self.SetItemHasChildren(self.root, True)
 		self.SortChildren(self.root)
@@ -120,6 +120,8 @@ class cConfTree(wx.TreeCtrl):
 		Adds a subtree of parameter names to an existing tree. 
 		Returns resulting tree.
 		"""
+		_log.Log(gmLog.lData, 'adding sub tree: [%s]' % str(aSubTree))
+
 		# check if subtree is empty
 		if aSubTree[1] == {}:
 			return None
@@ -298,12 +300,17 @@ class cConfTree(wx.TreeCtrl):
 #		if flags & (wx.TREE_HITTEST_ONITEMLABEL) == True:
 		self.SelectItem(item)
 	#------------------------------------------------------------------------
-	def __show_parameter(self,aSubtree=None, aParam=None):	
+	def __show_parameter(self,aSubtree=None, aParam=None):
 			# get the parameter value
 			value = self.mConfSources[aSubtree].getConfigData(aParam)
 			currType = self.mConfSources[aSubtree].getParamType(aParam)
 			# get description
 			description = self.mConfSources[aSubtree].getDescription(aParam)
+			print "showing parameter:"
+			print "param:", aParam
+			print "val  :", value
+			print "type :", currType
+			print "desc :", description
 			self.paramTextCtrl.ShowParam(aParam,currType,value)
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
@@ -381,12 +388,18 @@ class gmConfigEditorPanel(wx.Panel):
 		# now get the absolute path of the default cfg file
 		self.mConfSources['FILE:%s' % cfgFileName] = cfgFileDefault
 		try:
-			if not (self.currUser is None or self.currWorkplace is None) :
+			if not (self.currUser is None or self.currWorkplace is None):
 				self.mConfSources['DB:CURRENT_USER_CURRENT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_WORKPLACE',aWorkplace=self.currWorkplace)
+		except: pass
+		try:
 			if not (self.currUser is None) :
 				self.mConfSources['DB:CURRENT_USER_DEFAULT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_WORKPLACE')
-			if not (self.currWorkplace is None) :
+		except: pass
+		try:
+			if not (self.currWorkplace is None):
 				self.mConfSources['DB:DEFAULT_USER_CURRENT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_WORKPLACE',aUser='xxxDEFAULTxxx',aWorkplace=self.currWorkplace)
+		except: pass
+		try:
 			# this should always work
 			self.mConfSources['DB:DEFAULT_USER_DEFAULT_WORKPLACE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_WORKPLACE',aUser='xxxDEFAULTxxx')
 		except:
@@ -525,7 +538,11 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.38  2006-06-28 10:19:28  ncq
+# Revision 1.39  2006-12-05 14:02:09  ncq
+# - fix wx import
+# - add some logging
+#
+# Revision 1.38  2006/06/28 10:19:28  ncq
 # - remove reget mixin
 # - fix for receive_focus reload
 #
