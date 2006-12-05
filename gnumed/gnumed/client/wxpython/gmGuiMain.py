@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.280 2006-12-01 13:58:12 ncq Exp $
-__version__ = "$Revision: 1.280 $"
+# $Id: gmGuiMain.py,v 1.281 2006-12-05 14:00:16 ncq Exp $
+__version__ = "$Revision: 1.281 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -85,6 +85,8 @@ if encoding is None:
 timezone = _cfg.get('backend', 'client timezone')
 if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
+
+expected_db_ver = u'v3'
 
 ID_ABOUT = wx.NewId ()
 ID_CONTRIBUTORS = wx.NewId()
@@ -370,12 +372,17 @@ class gmTopLevelFrame(wx.Frame):
 #		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
 #		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
 
-		# menu "Knowledge"
+		# menu "Knowledge" ---------------------
 		menu_knowledge = wx.Menu()
 		self.__gb['main.knowledgemenu'] = menu_knowledge
 		self.mainmenu.Append(menu_knowledge, _("&Knowledge"))
 
-		# menu "Help"
+		# - IFAP drug DB
+		ID_IFAP = wx.NewId()			# FIXME: add only if installed
+		menu_knowledge.Append(ID_IFAP, _('ifap index'), _('Start ifap index Praxis drug browser'))
+		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
+
+		# menu "Help" -------------------------
 		help_menu = wx.Menu()
 		# - about
 		help_menu.Append(ID_ABOUT, _('About GNUmed'), "")
@@ -487,6 +494,15 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
+	#----------------------------------------------
+	def __on_ifap(self, evt):
+		try:
+			wx.BeginBusyCursor()
+			os.system('wine "C:\Ifapwin\WIAMDB.EXE"')				# FIXME: make path configurable
+			# FIXME: open drug file
+			# FIXME: if patient connected import drugs into EMR
+		finally:
+			wx.EndBusyCursor()
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
 		w, h = self.GetClientSize()
@@ -901,7 +917,11 @@ class gmApp(wx.App):
 			return False
 
 		# verify database
-		if not gmPG2.database_schema_compatible():
+		db_ver = gmPG2.get_schema_version()
+		if db_ver != expected_db_ver:
+#		if not gmPG2.database_schema_compatible():
+			_log.Log(gmLog.lErr, db_ver)
+			_log.Log(gmLog.lData, 'expected MD5 schema hash for %s database: [%s]' % (expected_db_ver, gmPG2.known_schema_hashes[expected_db_ver]))
 			msg = _(
 """You cannot use this database with a GNUmed client of version 0.2 ("Librarian" release) because the table structure is incompatible.
 
@@ -1137,7 +1157,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.280  2006-12-01 13:58:12  ncq
+# Revision 1.281  2006-12-05 14:00:16  ncq
+# - define expected db schema version
+# - improve schema hash checking
+# - add IFAP drug db link under "Knowledge" menu
+#
+# Revision 1.280  2006/12/01 13:58:12  ncq
 # - add screenshot function
 #
 # Revision 1.279  2006/11/24 14:22:57  ncq
