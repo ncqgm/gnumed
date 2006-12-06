@@ -5,8 +5,8 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.5 2005-11-29 18:57:03 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPsql.py,v 1.6 2006-12-06 16:07:51 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ import sys, os, string, re, urllib2
 import gmLog
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.5 $')
+_log.Log(gmLog.lInfo, '$Revision: 1.6 $')
 
 #===================================================================
 def shellrun (cmd):
@@ -26,8 +26,8 @@ def shellrun (cmd):
 	"""
 	stdin, stdout = os.popen4 (cmd.group (1))
 	r = stdout.read ()
-	stdout.close ()
-	stdin.close ()
+	stdout.close()
+	stdin.close()
 	return r
 #-------------------------------------------------------------------
 def shell(str):
@@ -77,13 +77,14 @@ class Psql:
 			else:
 				_log.Log (gmLog.lErr, "cannot open file [%s]" % filename)
 				return 1
-		self.cmd = ''
+
 		self.lineno = 0
 		self.filename = filename
-		instring = 0
+		in_string = False
 		bracketlevel = 0
+		curr_cmd = ''
 		curs = self.conn.cursor ()
-		commit_mode = 0
+#		transaction_started = False
 		for self.line in self.file.readlines():
 			self.lineno += 1
 			if len(self.line.strip()) == 0:
@@ -153,79 +154,100 @@ class Psql:
 					if self.vars['ON_ERROR_STOP']:
 						return 1
 				continue
+
 			# \i
 			if self.match (r"^\\i (\S+)"):
 				# create another interpreter instance in same connection
 				Psql(self.conn).run (os.path.join (os.path.dirname (self.filename), self.groups[0]))
 				continue
+
 			# \encoding
 			if self.match (r"^\\encoding.*"):
 				_log.Log (gmLog.lErr, self.fmt_msg("\\encoding not yet supported"))
 				continue
+
 			# other '\' commands
-			if self.match (r"^\\(.*)") and not instring:
+			if self.match (r"^\\(.*)") and not in_string:
 				# most other \ commands are for controlling output formats, don't make
 				# much sense in an installation script, so we gently ignore them
 				_log.Log (gmLog.lWarn, self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
 				continue
 
 			# non-'\' commands
-			i = self.line[0]
-			for next in self.line[1:] + ' ':
-				if i == "'":
-					if instring:
-						instring = 0
-					else:
-						instring = 1
-				if i == '-' and next == '-'and not instring:
+			this_char = self.line[0]
+			# loop over characters in line
+			for next_char in self.line[1:] + ' ':
+
+				# start/end of string detected
+				if this_char == "'":
+					in_string = not in_string
+
+				# detect -- style comments
+				if this_char == '-' and next_char == '-' and not in_string:
 					break
-				if i == '(' and not instring:
+
+				# detect bracketing
+				if this_char == '(' and not in_string:
 					bracketlevel += 1
-				if i == ')' and not instring:
+				if this_char == ')' and not in_string:
 					bracketlevel -= 1
-				if not instring and bracketlevel == 0 and i == ";":
+
+				# found end of command, not inside string, not inside bracket
+				if not (not in_string and (bracketlevel == 0) and (this_char == ';')):
+					curr_cmd += this_char
+				else:
 					try:
-						if self.cmd.strip ().upper () == 'COMMIT':
-							if commit_mode == 1:
-								self.conn.commit ()
-								curs.close ()
-								curs = self.conn.cursor ()
-								_log.Log (gmLog.lData, self.fmt_msg ("transaction committed"))
-							else:
-								_log.Log (gmLog.lWarn, self.fmt_msg ("COMMIT without BEGIN: no actual transaction happened!"))
-							commit_mode = 0
-						elif self.cmd.strip ().upper () == 'BEGIN':
-							if commit_mode == 1:
-								_log.Log (gmLog.lWarn, self.fmt_msg ("BEGIN inside transaction"))
-							else:
-								commit_mode = 1
-								_log.Log (gmLog.lData, self.fmt_msg ("starting transaction"))
-						else:	       
-							curs.execute (self.cmd)
-							if commit_mode == 0:
-								self.conn.commit ()
-								curs.close ()
-								curs = self.conn.cursor ()
+#						if curr_cmd.strip ().upper () == 'COMMIT':
+#							if transaction_started:
+#								self.conn.commit ()
+#								curs.close ()
+#								curs = self.conn.cursor ()
+#								_log.Log (gmLog.lData, self.fmt_msg ("transaction committed"))
+#							else:
+#								_log.Log (gmLog.lWarn, self.fmt_msg ("COMMIT without BEGIN: no actual transaction happened!"))
+#							transaction_started = False
+
+#						elif curr_cmd.strip ().upper () == 'BEGIN':
+#							if transaction_started:
+#								_log.Log (gmLog.lWarn, self.fmt_msg ("BEGIN inside transaction"))
+#							else:
+#								transaction_started = True
+#								_log.Log (gmLog.lData, self.fmt_msg ("starting transaction"))
+
+#						else:
+						if curr_cmd.strip() != '':
+							print "executing:", curr_cmd
+							curs.execute (curr_cmd)
+#							if not transaction_started:
 					except StandardError, error:
-						_log.Log (gmLog.lData, self.cmd)
+						_log.Log (gmLog.lData, curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
 							_log.Log (gmLog.lWarn, self.fmt_msg(error))
+							print "NOTICE seen"
 						else:
+							print "non-NOTICE seen:", error
 							if self.vars['ON_ERROR_STOP']:
 								_log.Log (gmLog.lErr, self.fmt_msg(error))
 								return 1
 							else:
 								_log.Log (gmLog.lData, self.fmt_msg(error))
-					self.cmd = ''
-				else:
-					self.cmd += i
-				i = next
+
+					self.conn.commit()
+					print "committed"
+					curs.close()
+					print "cursor closed"
+					curs = self.conn.cursor()
+					print "new cursor opened"
+					curr_cmd = ''
+
+				this_char = next_char
+
+			# end of loop over chars
 
 		# end of loop over lines
 		self.conn.commit()
 		curs.close()
 		return 0
-
 #===================================================================
 # testing code
 if __name__ == '__main__':
@@ -236,7 +258,11 @@ if __name__ == '__main__':
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.5  2005-11-29 18:57:03  ncq
+# Revision 1.6  2006-12-06 16:07:51  ncq
+# - cleanup/simplify somewhat
+# - remove explicit commit handling
+#
+# Revision 1.5  2005/11/29 18:57:03  ncq
 # - cleanup
 #
 # Revision 1.4  2005/01/12 14:47:48  ncq
