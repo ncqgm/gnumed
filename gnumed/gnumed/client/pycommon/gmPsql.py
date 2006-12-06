@@ -5,8 +5,8 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.6 2006-12-06 16:07:51 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPsql.py,v 1.7 2006-12-06 16:45:37 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ import sys, os, string, re, urllib2
 import gmLog
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.6 $')
+_log.Log(gmLog.lInfo, '$Revision: 1.7 $')
 
 #===================================================================
 def shellrun (cmd):
@@ -216,16 +216,13 @@ class Psql:
 
 #						else:
 						if curr_cmd.strip() != '':
-							print "executing:", curr_cmd
 							curs.execute (curr_cmd)
 #							if not transaction_started:
 					except StandardError, error:
 						_log.Log (gmLog.lData, curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
 							_log.Log (gmLog.lWarn, self.fmt_msg(error))
-							print "NOTICE seen"
 						else:
-							print "non-NOTICE seen:", error
 							if self.vars['ON_ERROR_STOP']:
 								_log.Log (gmLog.lErr, self.fmt_msg(error))
 								return 1
@@ -233,11 +230,8 @@ class Psql:
 								_log.Log (gmLog.lData, self.fmt_msg(error))
 
 					self.conn.commit()
-					print "committed"
 					curs.close()
-					print "cursor closed"
 					curs = self.conn.cursor()
-					print "new cursor opened"
 					curr_cmd = ''
 
 				this_char = next_char
@@ -258,7 +252,10 @@ if __name__ == '__main__':
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.6  2006-12-06 16:07:51  ncq
+# Revision 1.7  2006-12-06 16:45:37  ncq
+# - remove debugging printk()s
+#
+# Revision 1.6  2006/12/06 16:07:51  ncq
 # - cleanup/simplify somewhat
 # - remove explicit commit handling
 #
