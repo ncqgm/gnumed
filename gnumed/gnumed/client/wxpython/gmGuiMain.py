@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.281 2006-12-05 14:00:16 ncq Exp $
-__version__ = "$Revision: 1.281 $"
+# $Id: gmGuiMain.py,v 1.282 2006-12-06 16:08:44 ncq Exp $
+__version__ = "$Revision: 1.282 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -379,7 +379,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# - IFAP drug DB
 		ID_IFAP = wx.NewId()			# FIXME: add only if installed
-		menu_knowledge.Append(ID_IFAP, _('ifap index'), _('Start ifap index Praxis drug browser'))
+		menu_knowledge.Append(ID_IFAP, _('ifap index'), _('Start "ifap index PRAXIS" drug browser'))
 		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
 
 		# menu "Help" -------------------------
@@ -496,13 +496,36 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EndBusyCursor()
 	#----------------------------------------------
 	def __on_ifap(self, evt):
+		wx.BeginBusyCursor()
+
+		os.system('wine "C:\Ifapwin\WIAMDB.EXE"')				# FIXME: make path configurable
+
+		# COMMENT: this file must exist PRIOR to invoking IFAP
+		# COMMENT: or else IFAP will not write data into it ...
+		fname = os.path.expanduser('~/.wine/drive_c/Ifapwin/ifap2gnumed.csv')
 		try:
-			wx.BeginBusyCursor()
-			os.system('wine "C:\Ifapwin\WIAMDB.EXE"')				# FIXME: make path configurable
-			# FIXME: open drug file
-			# FIXME: if patient connected import drugs into EMR
-		finally:
+			csv_file = open(fname, 'rb')						# FIXME: encoding
+		except:
+			_log.LogException('cannot access [%s]' % fname)
+			csv_file = None
 			wx.EndBusyCursor()
+
+		if csv_file is not None:
+			import csv
+			r = csv.DictReader (
+				csv_file,
+				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 Feld1 Feld2 Packungszahl Packungsgröße'.split(),
+				delimiter = ';'
+			)
+			msg = _('You selected the following drugs in the ifap index PRAXIS drug database:\n\n')
+			for line in r:
+				for key, val in line.items():
+					msg += u'%s:  %s\n' % (key, val.strip())
+			wx.EndBusyCursor()
+			gmGuiHelpers.gm_show_info(msg, _('listing drugs'))
+			# FIXME: if patient connected import drugs into EMR
+
+		evt.Skip()
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
 		w, h = self.GetClientSize()
@@ -1157,7 +1180,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.281  2006-12-05 14:00:16  ncq
+# Revision 1.282  2006-12-06 16:08:44  ncq
+# - improved __on_ifap() to display return values in message box
+#
+# Revision 1.281  2006/12/05 14:00:16  ncq
 # - define expected db schema version
 # - improve schema hash checking
 # - add IFAP drug db link under "Knowledge" menu
