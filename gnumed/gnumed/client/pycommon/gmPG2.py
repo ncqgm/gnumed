@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -233,7 +233,7 @@ def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=N
 	if (host is not None) and (host.strip() != ''):
 		dsn_parts.append('host=%s' % host)
 
-	if (port is not None) and (port.strip() != ''):
+	if (port is not None) and (str(port).strip() != ''):
 		dsn_parts.append('port=%s' % port)
 
 	if (user is not None) and (user.strip() != ''):
@@ -908,7 +908,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.14  2006-12-06 16:06:30  ncq
+# Revision 1.15  2006-12-06 20:32:09  ncq
+# - careful about port.strip()
+#
+# Revision 1.14  2006/12/06 16:06:30  ncq
 # - cleanup
 # - handle empty port def in make_psycopg2_dsn()
 # - get_col_defs()
