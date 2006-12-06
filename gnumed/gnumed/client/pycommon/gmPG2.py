@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -83,6 +83,10 @@ FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 _default_dsn = None
 _default_login = None
 
+# =======================================================================
+# global data
+# =======================================================================
+
 known_schema_hashes = {
 	'devel': 'not released, testing only',
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
@@ -93,27 +97,32 @@ map_schema_hash2version = {
 	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2'
 }
 
+# get columns and data types for a given table
+query_table_col_defs = """select
+	cols.column_name,
+	cols.udt_name
+from
+	information_schema.columns cols
+where
+	cols.table_schema = %s
+		and
+	cols.table_name = %s
+order by
+	cols.ordinal_position"""
+
+query_table_attributes = """select
+	cols.column_name
+from
+	information_schema.columns cols
+where
+	cols.table_schema = %s
+		and
+	cols.table_name = %s
+order by
+	cols.ordinal_position"""
+
 # =======================================================================
-def database_schema_compatible(version=None):
-	expected_hash = known_schema_hashes[version]
-	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
-	if rows[0]['md5'] != expected_hash:
-		_log.Log(gmLog.lErr, 'not a valid [%s] database schema structure' % version)
-		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % expected_hash)
-		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0]['md5'])
-		return False
-	return True
-# =======================================================================
-def get_schema_version():
-	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
-	try:
-		return map_schema_hash2version[rows[0]['md5']]
-	except KeyError:
-		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
-# =======================================================================
-def get_current_user():
-	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
-	return rows[0][0]
+# module globals API
 # =======================================================================
 def set_default_client_encoding(encoding = None):
 	# check whether psycopg2 can handle this encoding
@@ -141,6 +150,8 @@ def set_default_client_timezone(timezone = None):
 	_log.Log(gmLog.lInfo, 'setting default client time zone from [%s] to [%s]' % (_default_client_timezone, timezone))
 	_default_client_timezone = timezone
 	return True
+# =======================================================================
+# login API
 # =======================================================================
 def __prompted_input(prompt, default=None):
 	usr_input = raw_input(prompt)
@@ -222,7 +233,8 @@ def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=N
 	if (host is not None) and (host.strip() != ''):
 		dsn_parts.append('host=%s' % host)
 
-	dsn_parts.append('port=%s' % port)
+	if (port is not None) and (port.strip() != ''):
+		dsn_parts.append('port=%s' % port)
 
 	if (user is not None) and (user.strip() != ''):
 		dsn_parts.append('user=%s' % user)
@@ -262,17 +274,29 @@ def set_default_login(login=None):
 
 	return True
 # =======================================================================
-def get_col_indices(cursor = None):
-	if cursor.description is None:
-		_log.Log(gmLog.lErr, 'no result description available: unused cursor or last query did not select rows')
-		return None
-	col_indices = {}
-	col_index = 0
-	for col_desc in cursor.description:
-		col_indices[col_desc[0]] = col_index
-		col_index += 1
-	return col_indices
+# netadata API
 # =======================================================================
+def database_schema_compatible(version=None):
+	expected_hash = known_schema_hashes[version]
+	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	if rows[0]['md5'] != expected_hash:
+		_log.Log(gmLog.lErr, 'not a valid [%s] database schema structure' % version)
+		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % expected_hash)
+		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0]['md5'])
+		return False
+	return True
+#------------------------------------------------------------------------
+def get_schema_version():
+	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	try:
+		return map_schema_hash2version[rows[0]['md5']]
+	except KeyError:
+		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+#------------------------------------------------------------------------
+def get_current_user():
+	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
+	return rows[0][0]
+#------------------------------------------------------------------------
 def get_child_tables(schema='public', table=None):
 	"""Return child tables of <table>."""
 	cmd = u"""
@@ -294,6 +318,56 @@ where
 	)"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
+#------------------------------------------------------------------------
+def table_exists(link_obj=None, schema=None, table=None):
+	"""Returns false, true."""
+	cmd = """
+select exists (
+	select 1 from information_schema.tables
+	where
+		table_schema = %s and
+		table_name = %s and
+		table_type = 'BASE TABLE'
+)"""
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': (schema, table)}])
+	return rows[0][0]
+#------------------------------------------------------------------------
+def get_col_indices(cursor = None):
+	if cursor.description is None:
+		_log.Log(gmLog.lErr, 'no result description available: unused cursor or last query did not select rows')
+		return None
+	col_indices = {}
+	col_index = 0
+	for col_desc in cursor.description:
+		col_indices[col_desc[0]] = col_index
+		col_index += 1
+	return col_indices
+#------------------------------------------------------------------------
+def get_col_defs(link_obj=None, schema='public', table=None):
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': query_table_col_defs, 'args': (schema, table)}])
+	col_names = []
+	col_type = {}
+	for row in rows:
+		col_names.append(row[0])
+		# map array types
+		if row[1].startswith('_'):
+			col_type[row[0]] = row[1][1:] + '[]'
+		else:
+			col_type[row[0]] = row[1]
+	col_defs = []
+	col_defs.append(col_names)
+	col_defs.append(col_type)
+	return col_defs
+#------------------------------------------------------------------------
+def get_col_names(link_obj=None, schema='public', table=None):
+	"""Return column attributes of table"""
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': query_table_attributes, 'args': (schema, table)}])
+	cols = []
+	for row in rows:
+		cols.append(row[0])
+	return cols
+# =======================================================================
+# query runners
 # =======================================================================
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
@@ -361,7 +435,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 	curs_close()
 	conn_close()
 	return (data, col_idx)
-# =======================================================================
+#------------------------------------------------------------------------
 def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, get_col_idx=False, verbose=False):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
@@ -834,7 +908,15 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.13  2006-12-05 13:58:45  ncq
+# Revision 1.14  2006-12-06 16:06:30  ncq
+# - cleanup
+# - handle empty port def in make_psycopg2_dsn()
+# - get_col_defs()
+# - get_col_indices()
+# - get_col_names()
+# - table_exists()
+#
+# Revision 1.13  2006/12/05 13:58:45  ncq
 # - add get_schema_version()
 # - improve handling of known schema hashes
 # - register UNICODEARRAY psycopg2 extension
