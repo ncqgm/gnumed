@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -124,8 +124,7 @@ where
 		and
 	cols.table_name = %s
 order by
-	cols.ordinal_position
-"""
+	cols.ordinal_position"""
 
 query_table_attributes = """select
 	cols.column_name
@@ -1361,7 +1360,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.83 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.84 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1598,7 +1597,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.83  2006-10-23 13:22:26  ncq
+# Revision 1.84  2006-12-06 16:04:48  ncq
+# - cleanup
+#
+# Revision 1.83  2006/10/23 13:22:26  ncq
 # - cleanup only
 #
 # Revision 1.82  2006/10/08 09:24:02  ncq
