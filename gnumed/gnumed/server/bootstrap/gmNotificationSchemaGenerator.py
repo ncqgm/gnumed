@@ -11,13 +11,13 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, os.path, string
 
-from Gnumed.pycommon import gmLog, gmPG
+from Gnumed.pycommon import gmLog, gmPG2
 _log = gmLog.gmDefLog
 if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
@@ -68,9 +68,7 @@ create constraint trigger tr_%(sig)s_mod
 #------------------------------------------------------------------
 def create_notification_schema(aCursor):
 	cmd = "select table_name, notification_name from notifying_tables";
-	if gmPG.run_query(aCursor, None, cmd) is None:
-		return None
-	rows = aCursor.fetchall()
+	rows, idx = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no notifying tables')
 		return None
@@ -78,8 +76,8 @@ def create_notification_schema(aCursor):
 	# for each notifying table
 	schema = []
 	for notifying_def in rows:
-		tbl = notifying_def[0]
-		sig = notifying_def[1]
+		tbl = notifying_def['table_name']
+		sig = notifying_def['notification_name']
 		schema.append(trigger_ddl % {'sig': sig, 'tbl': tbl})
 		schema.append('-- ----------------------------------------------')
 	return schema
@@ -88,15 +86,13 @@ def create_notification_schema(aCursor):
 #------------------------------------------------------------------
 if __name__ == "__main__" :
 
-	dbpool = gmPG.ConnectionPool()
-	conn = dbpool.GetConnection('default')
+	conn = gmGP2.get_connection(readonly=False, pooled=False)
 	curs = conn.cursor()
 
 	schema = create_notification_schema(curs)
 
 	curs.close()
 	conn.close()
-	dbpool.ReleaseConnection('default')
 
 	if schema is None:
 		print "error creating schema"
@@ -109,7 +105,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.15  2006-11-14 23:29:01  ncq
+# Revision 1.16  2006-12-06 16:11:25  ncq
+# - port to gmPG2
+#
+# Revision 1.15  2006/11/14 23:29:01  ncq
 # - explicitely drop notifiation functions so we can change
 #   return type from opaque to trigger
 #

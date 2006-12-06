@@ -31,25 +31,12 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # standard library
 import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile
-
-# 3rd party imports
-dbapi = None
-try:
-	from pyPgSQL import PgSQL
-	from pyPgSQL import libpq
-	dbapi = PgSQL
-	db_error = libpq.DatabaseError
-	dsn_format = "%s:%s:%s:%s:%s"
-except ImportError:
-	print "Cannot find Python module pyPgSQL for connecting to the database server. Program halted."
-	print "Please check the log file and report to the mailing list."
-	raise
 
 # GNUmed imports
 try:
@@ -57,7 +44,7 @@ try:
 except ImportError:
 	print """Please make sure the GNUmed Python modules are in the Python path !"""
 	raise
-from Gnumed.pycommon import gmCfg, gmPsql
+from Gnumed.pycommon import gmCfg, gmPsql, gmPG2
 from Gnumed.pycommon.gmExceptions import ConstructorError
 
 # local imports
@@ -175,14 +162,14 @@ def connect (host, port, db, user, passwd, superuser=0):
 			passwd = ''
 
 	conn = None
-	dsn = dsn_format % (host, port, db, user, passwd)
+	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	try:
 		_log.Log (gmLog.lInfo, "trying DB connection to %s on %s as %s" % (db, host or 'localhost', user))
-		conn = dbapi.connect(dsn)
+		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False)
 		cached_host = (host, port) # learn from past successes
 		cached_passwd[user] = passwd
 		_log.Log (gmLog.lInfo, 'successfully connected')
-	except db_error, message:
+	except gmPG2.dbapi.OperationalError, message:
 		_log.LogException('connection failed', sys.exc_info(), verbose = False)
 		m = str(message)
 		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
@@ -783,24 +770,28 @@ class database:
 			return True
 
 		# create database
+		self.conn.set_isolation_level(0)
 		cmd = """
 create database \"%s\" with
 	owner = \"%s\"
 	template = \"%s\"
 	encoding = 'unicode';""" % (self.name, self.owner.name, self.template_db)
-		self.conn.autocommit = True
+#		self.conn.autocommit = True
 		cursor = self.conn.cursor()
 		try:
 			cursor.execute(cmd)
-		except libpq.Warning, warning:
-			_log.Log(gmLog.lWarn, warning)
+#		except libpq.Warning, warning:
+#			_log.Log(gmLog.lWarn, warning)
 		except:
 			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
 			cursor.close()
-			self.conn.autocommit = False
+#			self.conn.autocommit = False
 			return None
 		cursor.close()
-		self.conn.autocommit = False
+		self.conn.commit()
+#		self.conn.autocommit = False
+
+#		self.conn.set_isolation_level(2)
 
 		if not self.__db_exists():
 			return None
@@ -1369,7 +1360,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.34  2006-11-07 00:37:06  ncq
+# Revision 1.35  2006-12-06 16:09:34  ncq
+# - port to gmPG2
+#
+# Revision 1.34  2006/11/07 00:37:06  ncq
 # - don't use _log before it's set up
 #
 # Revision 1.33  2006/09/21 19:49:16  ncq

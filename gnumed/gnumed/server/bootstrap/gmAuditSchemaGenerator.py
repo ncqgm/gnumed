@@ -18,13 +18,13 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
 import sys, os.path, string
 
-from Gnumed.pycommon import gmLog, gmPG
+from Gnumed.pycommon import gmLog, gmPG2
 _log = gmLog.gmDefLog
 if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
@@ -147,12 +147,12 @@ create table audit.%s (
 
 #------------------------------------------------------------------
 #------------------------------------------------------------------
-def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
+def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, table2audit)
 
 	# does the audit trail target table exist ?
-	exists = gmPG.table_exists(aCursor, 'audit', audit_trail_table)
+	exists = gmPG2.table_exists(aCursor, 'audit', audit_trail_table)
 	if exists is None:
 		_log.Log(gmLog.lErr, 'cannot check existance of table [audit.%s]' % audit_trail_table)
 		return None
@@ -164,9 +164,9 @@ def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
 	_log.Log(gmLog.lInfo, 'creating audit trail table [audit.%s]' % audit_trail_table)
 
 	# which columns to potentially audit
-	audited_col_defs = gmPG.get_col_defs(source = aCursor, schema = schema, table = table2audit)
+	audited_col_defs = gmPG2.get_col_defs(link_obj = aCursor, schema = schema, table = table2audit)
 	# which to skip
-	cols2skip = gmPG.get_col_names(source = aCursor, schema = schema, table = audit_fields_table)
+	cols2skip = gmPG2.get_col_names(link_obj = aCursor, schema = schema, table = audit_fields_table)
 	attribute_list = []
 	# which ones to really audit
 	for col in audited_col_defs[0]:
@@ -188,8 +188,8 @@ def audit_trail_table_ddl(aCursor='default', schema='audit', table2audit=None):
 def trigger_ddl(aCursor='default', schema='audit', audited_table=None):
 	audit_trail_table = '%s%s' % (audit_trail_table_prefix, audited_table)
 
-	target_columns = gmPG.get_col_names(source = aCursor, schema = schema, table = audited_table)
-	columns2skip = gmPG.get_col_names(source = aCursor, schema = schema, table =  audit_fields_table)
+	target_columns = gmPG2.get_col_names(link_obj = aCursor, schema = schema, table = audited_table)
+	columns2skip = gmPG2.get_col_names(link_obj = aCursor, schema = schema, table =  audit_fields_table)
 	columns = []
 	values = []
 	for column in target_columns:
@@ -226,9 +226,7 @@ def trigger_ddl(aCursor='default', schema='audit', audited_table=None):
 def create_audit_ddl(aCursor):
 	# get list of all marked tables
 	cmd = "select schema, table_name from audit.audited_tables";
-	if gmPG.run_query(aCursor, None, cmd) is None:
-		return None
-	rows = aCursor.fetchall()
+	rows, idx = gmPG2.run_ro_queries(link_obj=aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no tables to audit')
 		return None
@@ -236,7 +234,7 @@ def create_audit_ddl(aCursor):
 	# for each marked table
 	ddl = []
 	for row in rows:
-		audit_trail_ddl = audit_trail_table_ddl(aCursor=aCursor, schema=row[0], table2audit=row[1])
+		audit_trail_ddl = audit_trail_table_ddl(aCursor=aCursor, schema=row['schema'], table2audit=row['table_name'])
 		if audit_trail_ddl is None:
 			_log.Log(gmLog.lErr, 'cannot generate audit trail DDL for audited table [%s]' % audited_table)
 			return None
@@ -244,7 +242,7 @@ def create_audit_ddl(aCursor):
 		if len(audit_trail_ddl) != 0:
 			ddl.append('-- ----------------------------------------------')
 		# create corresponding triggers
-		ddl.extend(trigger_ddl(aCursor = aCursor, schema = row[0], audited_table = row[1]))
+		ddl.extend(trigger_ddl(aCursor = aCursor, schema = row['schema'], audited_table = row['table_name']))
 		ddl.append('-- ----------------------------------------------')
 	return ddl
 #==================================================================
@@ -259,15 +257,13 @@ if __name__ == "__main__" :
 	if tmp != '':
 		audit_trail_parent_table = tmp
 
-	dbpool = gmPG.ConnectionPool()
-	conn = dbpool.GetConnection('default')
+	conn = gmPG2.get_connection(readonly=False, pooled=False)
 	curs = conn.cursor()
 
 	schema = create_audit_ddl(curs)
 
 	curs.close()
 	conn.close()
-	dbpool.ReleaseConnection('default')
 
 	if schema is None:
 		print "error creating schema"
@@ -279,7 +275,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.27  2006-11-14 23:27:56  ncq
+# Revision 1.28  2006-12-06 16:11:08  ncq
+# - port to gmPG2
+#
+# Revision 1.27  2006/11/14 23:27:56  ncq
 # - explicitely (cascade) drop audit trigger functions so we can
 #   change return type from opaque to trigger
 # - make sure audit tables are created in "audit."
