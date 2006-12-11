@@ -5,14 +5,17 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.18 2006-10-30 16:42:27 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmXdtObjects.py,v 1.19 2006-12-11 18:53:43 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
-import os.path, sys, md5, linecache, codecs
+import os.path, sys, md5, linecache, codecs, re as regex
 
 import mx.DateTime as mxDT
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -27,7 +30,11 @@ def read_person_from_xdt(filename=None, encoding=None):
 		'3101': 'lastnames',
 		'3102': 'firstnames',
 		'3103': 'dob',
-		'3110': 'gender'
+		'3110': 'gender',
+		'3106': 'zipurb',
+		'3107': 'street',
+		'3112': 'zip',
+		'3113': 'urb'
 	}
 	needed_fields = (
 		'3101',
@@ -36,6 +43,10 @@ def read_person_from_xdt(filename=None, encoding=None):
 	)
 	interesting_fields = needed_fields + (
 		'3110',
+		'3106',
+		'3107',
+		'3112',
+		'3113'
 	)
 
 	data = {}
@@ -83,10 +94,34 @@ def read_person_from_xdt(filename=None, encoding=None):
 		int(data['dob'][2:4]),	# month
 		int(data['dob'][:2])	# day
 	)
+
 	try:
 		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
 	except:
 		dto.gender = None
+
+	try:
+		dto.zip = regex.match('\d{5}', data['zipurb']).group()
+	except:
+		dto.zip = None
+	try:
+		dto.zip = data['zip']
+	except:
+		dto.zip = None
+
+	try:
+		dto.urb = regex.sub('\d{5} ', '', data['zipurb'])
+	except:
+		dto.urb = None
+	try:
+		dto.urb = data['urb']
+	except:
+		dto.urb = None
+
+	try:
+		dto.street = data['street']
+	except:
+		dto.street = None
 
 	return dto
 #==============================================================
@@ -247,10 +282,15 @@ if __name__ == "__main__":
 	print "DTO:", dto
 	print dto.dob
 	print dto.dob.tz
+	print dto.zip, dto.urb
+	print dto.street
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.18  2006-10-30 16:42:27  ncq
+# Revision 1.19  2006-12-11 18:53:43  ncq
+# - make read_person_from_xdt() recognize address data
+#
+# Revision 1.18  2006/10/30 16:42:27  ncq
 # - use more gmXdtMappings
 #
 # Revision 1.17  2006/10/08 10:48:28  ncq
