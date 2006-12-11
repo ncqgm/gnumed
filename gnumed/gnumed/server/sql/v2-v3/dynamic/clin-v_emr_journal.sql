@@ -8,8 +8,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: clin-v_emr_journal.sql,v 1.1 2006-11-07 15:18:38 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-v_emr_journal.sql,v 1.2 2006-12-11 17:03:58 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -29,7 +29,7 @@ select
 	cn.modified_when as modified_when,
 	cn.clin_when as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = cn.modified_by),
+		(select short_alias from dem.staff where db_user = cn.modified_by),
 		'<' || cn.modified_by || '>'
 	) as modified_by,
 	cn.soap_cat as soap_cat,
@@ -51,7 +51,7 @@ select
 	chi.modified_when as modified_when,
 	chi.modified_when as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = chi.modified_by),
+		(select short_alias from dem.staff where db_user = chi.modified_by),
 		'<' || chi.modified_by || '>'
 	) as modified_by,
 	'a' as soap_cat,
@@ -81,7 +81,7 @@ select
 	-- FIXME: or last_affirmed ?
 	cenc.started as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = cenc.modified_by),
+		(select short_alias from dem.staff where db_user = cenc.modified_by),
 		'<' || cenc.modified_by || '>'
 	) as modified_by,
 	's' as soap_cat,
@@ -100,7 +100,7 @@ select
 	vpep.episode_modified_when as modified_when,
 	vpep.episode_modified_when as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = vpep.episode_modified_by),
+		(select short_alias from dem.staff where db_user = vpep.episode_modified_by),
 		'<' || vpep.episode_modified_by || '>'
 	) as modified_by,
 	's' as soap_cat,
@@ -119,7 +119,7 @@ select
 	vhxf.modified_when as modified_when,
 	vhxf.clin_when as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = vhxf.modified_by),
+		(select short_alias from dem.staff where db_user = vhxf.modified_by),
 		'<' || vhxf.modified_by || '>'
 	) as modified_by,
 	vhxf.soap_cat as soap_cat,
@@ -142,7 +142,7 @@ from
 --	vpv4i.modified_when as modified_when,
 --	vpv4i.date as clin_when,
 --	coalesce (
---		(select short_alias from dem.v_staff where db_user = vpv4i.modified_by),
+--		(select short_alias from dem.staff where db_user = vpv4i.modified_by),
 --		'<' || vpv4i.modified_by || '>'
 --	) as modified_by,
 --	'p' as soap_cat,
@@ -166,7 +166,7 @@ select
 	vpa.modified_when as modified_when,
 	vpa.date as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = vpa.modified_by),
+		(select short_alias from dem.staff where db_user = vpa.modified_by),
 		'<' || vpa.modified_by || '>'
 	) as modified_by,
 	's' as soap_cat,	-- FIXME: pull in proper soap_cat
@@ -191,7 +191,7 @@ select
 	vlr.modified_when as modified_when,
 	vlr.sampled_when as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = vlr.modified_by),
+		(select short_alias from dem.staff where db_user = vlr.modified_by),
 		'<' || vlr.modified_by || '>'
 	) as modified_by,
 	vlr.soap_cat as soap_cat,
@@ -215,7 +215,7 @@ select
 	vtr.modified_when as modified_when,
 	vtr.clin_when as clin_when,
 	coalesce (
-		(select short_alias from dem.v_staff where db_user = vtr.modified_by),
+		(select short_alias from dem.staff where db_user = vtr.modified_by),
 		'<' || vtr.modified_by || '>'
 	) as modified_by,
 	vtr.soap_cat as soap_cat,
@@ -248,11 +248,14 @@ comment on view clin.v_emr_journal is
 grant select on clin.v_emr_journal to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-v_emr_journal.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-v_emr_journal.sql,v $
--- Revision 1.1  2006-11-07 15:18:38  ncq
+-- Revision 1.2  2006-12-11 17:03:58  ncq
+-- - dem.v_staff -> dem.staff
+--
+-- Revision 1.1  2006/11/07 15:18:38  ncq
 -- - improved
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
