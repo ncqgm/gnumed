@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert/Syan Tan
 -- 
 -- ==============================================================
--- $Id: clin-episode.sql,v 1.2 2006-11-24 09:21:36 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: clin-episode.sql,v 1.3 2006-12-11 17:02:46 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -22,6 +22,7 @@
 drop index clin.idx_episode_valid_issue;
 drop index clin.idx_episode_with_issue;
 drop index clin.idx_episode_without_issue;
+drop index clin.idx_episode_modified_by;
 \set ON_ERROR_STOP 1
 
 create index idx_episode_with_issue on clin.episode(fk_health_issue) where fk_health_issue is not null;
@@ -31,6 +32,8 @@ comment on index clin.idx_episode_with_issue is
 create index idx_episode_without_issue on clin.episode(fk_health_issue) where fk_health_issue is null;
 comment on index clin.idx_episode_without_issue is
 	'index episodes without associated health issue';
+
+create index idx_episode_modified_by on clin.episode(modified_by);
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -84,11 +87,14 @@ create trigger tr_episode_mod
 --grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-episode.sql,v $', '$Revision: 1.2 $');
+select public.log_script_insertion('$RCSfile: clin-episode.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: clin-episode.sql,v $
--- Revision 1.2  2006-11-24 09:21:36  ncq
+-- Revision 1.3  2006-12-11 17:02:46  ncq
+-- - index on modified_by
+--
+-- Revision 1.2  2006/11/24 09:21:36  ncq
 -- - fix notification trigger col name use
 --
 -- Revision 1.1  2006/09/25 10:55:01  ncq
