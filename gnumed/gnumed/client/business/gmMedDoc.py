@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.85 2006-11-20 15:55:41 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmMedDoc.py,v 1.86 2006-12-11 18:52:11 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -529,14 +529,13 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = ['type']
 	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		if not self._payload[self._idx['is_user']]:
-			return
-		return gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-	#--------------------------------------------------------
 	def set_translation(self, translation=None):
-		if not self._payload[self._idx['is_user']]:
+
+		if translation.strip() == '':
 			return False
+
+		if translation.strip() == self._payload[self._idx['l10n_type']].strip():
+			return True
 
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
@@ -549,10 +548,9 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		)
 		if not rows[0][0]:
 			_log.Log(gmLog.lErr, 'cannot set translation to [%s]' % translation)
-			_log.Log(gmLog.lErr, str(data))
 			return False
 
-		return self.refetch_payload()		# FIXME: error handling ?
+		return self.refetch_payload()
 #============================================================
 # convenience functions
 #============================================================
@@ -611,7 +609,7 @@ def get_document_types():
 	return doc_types
 #------------------------------------------------------------
 def create_document_type(document_type=None):
-	# FIXME: handle case where doc type already exists
+	# check for potential dupes:
 	cmd = u'select pk from blobs.doc_type where name=%s'
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': [document_type]}]
@@ -629,6 +627,8 @@ def create_document_type(document_type=None):
 	return cDocumentType(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 def delete_document_type(document_type=None):
+	if document_type['is_in_use']:
+		return False
 	gmPG2.run_rw_queries (
 		queries = [{
 			'cmd': u'delete from blobs.doc_type where pk=%s',
@@ -718,7 +718,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.85  2006-11-20 15:55:41  ncq
+# Revision 1.86  2006-12-11 18:52:11  ncq
+# - do not delete doc types which are in use
+#
+# Revision 1.85  2006/11/20 15:55:41  ncq
 # - must use return_data when wanting data back from run_rw_queries()
 #
 # Revision 1.84  2006/11/06 09:57:39  ncq
