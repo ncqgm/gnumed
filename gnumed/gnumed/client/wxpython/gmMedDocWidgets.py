@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.99 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmMedDocWidgets.py,v 1.100 2006-12-11 21:40:12 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -39,83 +39,91 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self._LCTRL_doc_type.InsertColumn(0, _('type'))
 		self._LCTRL_doc_type.InsertColumn(1, _('description'))
 		self._LCTRL_doc_type.InsertColumn(2, _('user defined'))
+		self._LCTRL_doc_type.InsertColumn(3, _('in use'))
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 
-		self.doc_types = gmMedDoc.get_document_types()
-		pos = len(self.doc_types) + 1
+		doc_types = gmMedDoc.get_document_types()
+		pos = len(doc_types) + 1
 		self._LCTRL_doc_type.DeleteAllItems()
 
-		for doc_type in self.doc_types:
+		for doc_type in doc_types:
 			row_num = self._LCTRL_doc_type.InsertStringItem(pos, label = doc_type['type'])
 			self._LCTRL_doc_type.SetStringItem(index = row_num, col = 1, label = doc_type['l10n_type'])
-			if doc_type['is_user']:
-				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 2, label = 'X')
-			else:
-				self._LCTRL_doc_type.SetItemTextColour(row_num, col=wx.LIGHT_GREY)
+			if doc_type['is_user_defined']:
+				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 2, label = ' X ')
+			if doc_type['is_in_use']:
+				self._LCTRL_doc_type.SetStringItem(index = row_num, col = 3, label = ' X ')
 
-		if len(self.doc_types) > 0:
+		if len(doc_types) > 0:
+			self._LCTRL_doc_type.set_data(data = doc_types)
 			self._LCTRL_doc_type.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_doc_type.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_doc_type.SetColumnWidth(col=2, width=wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 
-		self._BTN_rename.Enable(False)
-		self._BTN_add.Enable(False)
+		self._BTN_set_translation.Enable(False)
 		self._BTN_delete.Enable(False)
 
 		self._TCTRL_type.SetValue('')
-		self._ChBOX_is_user.SetValue(False)
-		self._TCTRL_description.SetValue('')
+		self._TCTRL_l10n_type.SetValue('')
 
 		self._LCTRL_doc_type.SetFocus()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, evt):
-		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
+		doc_type = self._LCTRL_doc_type.get_selected_item_data()
 
 		self._TCTRL_type.SetValue(doc_type['type'])
-		self._TCTRL_type.SetEditable(bool(doc_type['is_user']))
-		self._ChBOX_is_user.SetValue(bool(doc_type['is_user']))
-		self._TCTRL_description.SetValue(doc_type['l10n_type'])
+		self._TCTRL_l10n_type.SetValue(doc_type['l10n_type'])
 
-		self._BTN_rename.Enable(bool(doc_type['is_user']))
-		self._BTN_delete.Enable(bool(doc_type['is_user']))
-		self._BTN_add.Enable(True)
+		self._BTN_set_translation.Enable(True)
+		self._BTN_delete.Enable(bool(doc_type['is_in_use']))
+		self._BTN_add.Enable(False)
 		return
 	#--------------------------------------------------------
-	def _on_rename_button_pressed(self, event):
-		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
-		doc_type['type'] = self._TCTRL_type.GetValue().strip()
-		doc_type.save_payload()			# FIXME: error handling ?
-		doc_type.set_translation(translation = self._TCTRL_description.GetValue().strip())
+	def _on_set_translation_button_pressed(self, event):
+		doc_type = self._LCTRL_doc_type.get_selected_item_data()
+		doc_type.set_translation(translation = self._TCTRL_l10n_type.GetValue().strip())
 
 		self.repopulate_ui()
 		return
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
-		doc_type = self.doc_types[self._LCTRL_doc_type.GetFirstSelected()]
-		gmMedDoc.delete_document_type(document_type = doc_type)			# FIXME: error handling
+		doc_type = self._LCTRL_doc_type.get_selected_item_data()
+		if doc_type['is_in_use']:
+			gmGuiHelpers.gm_show_info (
+				_(
+					'Cannot delete document type\n'
+					' [%s]\n'
+					'because it is currently in use.'
+				) % doc_type['l10n_type'],
+				_('deleting document type')
+			)
+			return
+
+		gmMedDoc.delete_document_type(document_type = doc_type)
 
 		self.repopulate_ui()
 		return
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
-		if self._TCTRL_type.IsEditable() and self._TCTRL_type.IsModified():
-			doc_type = gmMedDoc.create_document_type(document_type = self._TCTRL_type.GetValue().strip())
-			doc_type.set_translation(translation = self._TCTRL_description.GetValue().strip())
-		else:
-			gmMedDoc.create_document_type(document_type = self._TCTRL_description.GetValue().strip())
+		desc = self._TCTRL_type.GetValue().strip()
+		if desc != '':
+			doc_type = gmMedDoc.create_document_type(document_type = desc)		# does not create dupes
+			l10n_desc = self._TCTRL_l10n_type.GetValue().strip()
+			if (l10n_desc != '') and (l10n_desc != doc_type['l10n_type']):
+				doc_type.set_translation(translation = l10n_desc)
 
 		self.repopulate_ui()
 		return
 	#--------------------------------------------------------
-	def _on_description_modified(self, event):
-		if self._TCTRL_description.GetValue().strip() == '':
-			self._BTN_add.Enable(False)
-		else:
-			self._BTN_add.Enable(True)
-#		event.Skip()	# do I need this ??
+	def _on_type_modified(self, event):
+		self._BTN_set_translation.Enable(False)
+		self._BTN_delete.Enable(False)
+		self._BTN_add.Enable(True)
+#		self._LCTRL_doc_type.deselect_selected_item()
 		return
 #============================================================
 class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1221,7 +1229,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.99  2006-11-24 10:01:31  ncq
+# Revision 1.100  2006-12-11 21:40:12  ncq
+# - support in_use in doc type list ctrl
+# - slight improvement of doc type edit dialog logic
+#
+# Revision 1.99  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.98  2006/11/06 10:01:17  ncq
