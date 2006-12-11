@@ -11,8 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_reviewed_doc_objects.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-v_reviewed_doc_objects.sql,v 1.2 2006-12-11 17:01:28 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 begin;
@@ -27,13 +27,15 @@ drop view blobs.v_reviewed_doc_objects cascade;
 create view blobs.v_reviewed_doc_objects as
 select
 	rdo.fk_reviewed_row as pk_doc_obj,
-	(select short_alias from dem.v_staff where pk_staff = rdo.fk_reviewer)
-		as reviewer,
+	coalesce (
+		(select short_alias from dem.staff where pk=rdo.fk_reviewer),
+		'<#' || rdo.fk_reviewer || '>'
+	) as reviewer,
 	rdo.is_technically_abnormal as is_technically_abnormal,
 	rdo.clinically_relevant as clinically_relevant,
 	exists(select 1 from blobs.doc_obj where pk=rdo.fk_reviewed_row and fk_intended_reviewer=rdo.fk_reviewer)
 		as is_review_by_responsible_reviewer,
-	exists(select 1 from dem.v_staff where pk_staff=rdo.fk_reviewer and db_user=CURRENT_USER)
+	exists(select 1 from dem.staff where pk=rdo.fk_reviewer and db_user=CURRENT_USER)
 		as is_your_review,
 	rdo.comment,
 	rdo.modified_when as reviewed_when,
@@ -58,14 +60,17 @@ from
 grant select on blobs.v_reviewed_doc_objects to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_reviewed_doc_objects.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: blobs-v_reviewed_doc_objects.sql,v $', '$Revision: 1.2 $');
 
 -- --------------------------------------------------------------
 commit;
 
 -- ==============================================================
 -- $Log: blobs-v_reviewed_doc_objects.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2006-12-11 17:01:28  ncq
+-- - use coalesce to detect reviewer
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.1  2006/09/16 21:45:14  ncq
