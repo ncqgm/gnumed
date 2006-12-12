@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -769,13 +769,25 @@ class database:
 			# FIXME: verify that database is owned by "gm-dbo"
 			return True
 
+		tmp = _cfg.get(self.section, 'alternate location')
+		if tmp is None:
+			cmd = """
+				create database \"%s\" with
+					owner = \"%s\"
+					template = \"%s\"
+					encoding = 'unicode'
+				;""" % (self.name, self.owner.name, self.template_db)
+		else:
+			cmd = """
+				create database \"%s\" with
+					owner = \"%s\"
+					template = \"%s\"
+					encoding = 'unicode'
+					location = '%s'
+				;""" % (self.name, self.owner.name, self.template_db, tmp)
+
 		# create database
 		self.conn.set_isolation_level(0)
-		cmd = """
-create database \"%s\" with
-	owner = \"%s\"
-	template = \"%s\"
-	encoding = 'unicode';""" % (self.name, self.owner.name, self.template_db)
 #		self.conn.autocommit = True
 		cursor = self.conn.cursor()
 		try:
@@ -1360,7 +1372,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.35  2006-12-06 16:09:34  ncq
+# Revision 1.36  2006-12-12 13:15:11  ncq
+# - support alternate database locations
+#
+# Revision 1.35  2006/12/06 16:09:34  ncq
 # - port to gmPG2
 #
 # Revision 1.34  2006/11/07 00:37:06  ncq
