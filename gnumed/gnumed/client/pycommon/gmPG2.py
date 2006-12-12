@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -98,7 +98,7 @@ map_schema_hash2version = {
 }
 
 # get columns and data types for a given table
-query_table_col_defs = """select
+query_table_col_defs = u"""select
 	cols.column_name,
 	cols.udt_name
 from
@@ -110,7 +110,7 @@ where
 order by
 	cols.ordinal_position"""
 
-query_table_attributes = """select
+query_table_attributes = u"""select
 	cols.column_name
 from
 	information_schema.columns cols
@@ -908,7 +908,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.15  2006-12-06 20:32:09  ncq
+# Revision 1.16  2006-12-12 13:14:32  ncq
+# - u''ify queries
+#
+# Revision 1.15  2006/12/06 20:32:09  ncq
 # - careful about port.strip()
 #
 # Revision 1.14  2006/12/06 16:06:30  ncq
