@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.30 $
+version = $Revision: 1.31 $
 
 #----------------------------------
 [installation]
@@ -85,6 +85,14 @@ name = gnumed
 # the name of an environment variable which can be used
 # to override the database name from the shell
 override name by = GM_CORE_DB
+
+# the name of a variable set in the environment of the
+# PostgreSQL server process which specifies an alternate
+# location for the database as described in the Manual
+# under the "CREATE DATABASE" SQL command, it is recommended
+# to use variable names of the pattern PGDATA2_<database name>
+# such as PGDATA2_GNUMED_V3
+alternate location = PGDATA2_GNUMED
 
 # which [section] holds specifics about the server
 # hosting this databse -> [server ...]
@@ -278,7 +286,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.30  2006-09-17 07:02:00  ncq
+# Revision 1.31  2006-12-12 13:03:08  ncq
+# - document "alternate location" option for db creation
+#
+# Revision 1.30  2006/09/17 07:02:00  ncq
 # - we don't register services anymore
 #
 # Revision 1.29  2006/06/13 21:12:04  ncq
