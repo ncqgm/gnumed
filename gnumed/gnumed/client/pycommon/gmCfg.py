@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -80,12 +80,8 @@ gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
 class cCfgSQL:
 	def __init__(self):
 		self.ro_conn = gmPG2.get_connection()
-	#----------------------------
+	#-----------------------------------------------
 	# external API
-	#----------------------------
-	def get(self, workplace = None, user = None, cookie = None, option = None):
-		print '%s.get() deprecated, use get2() instead' % self.__class__.__name__
-		return None
 	#-----------------------------------------------
 	def get2(self, option=None, workplace=None, cookie=None, bias=None, default=None):
 		"""Retrieve configuration option from backend.
@@ -1117,7 +1113,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.48  2006-12-05 13:54:02  ncq
+# Revision 1.49  2006-12-13 14:55:56  ncq
+# - remove get() from SQL source
+#
+# Revision 1.48  2006/12/05 13:54:02  ncq
 # - better error messages
 # - u''ify some query parts
 # - simplify some code
