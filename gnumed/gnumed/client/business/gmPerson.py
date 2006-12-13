@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.95 2006-11-27 12:37:09 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmPerson.py,v 1.96 2006-12-13 13:43:10 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -552,10 +552,6 @@ class cStaffMember(cPerson):
 		- note that this may be called in a thread
 		"""
 		cPerson.cleanup()
-#		try:
-#			self.__db_cache[''].cleanup()	# if has cleanup()
-#			del self.__db_cache['']
-#		except KeyError: pass
 	#--------------------------------------------------------
 	def get_inbox(self):
 		return gmProviderInbox.cProviderInbox(provider_id = self._ID)
@@ -1943,7 +1939,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.95  2006-11-27 12:37:09  ncq
+# Revision 1.96  2006-12-13 13:43:10  ncq
+# - cleanup
+#
+# Revision 1.95  2006/11/27 12:37:09  ncq
 # - do not display 12y0m but rather 12y in format_age_medically()
 #
 # Revision 1.94  2006/11/24 09:33:22  ncq
