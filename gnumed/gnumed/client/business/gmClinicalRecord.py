@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.224 2006-12-13 00:30:43 ncq Exp $
-__version__ = "$Revision: 1.224 $"
+# $Id: gmClinicalRecord.py,v 1.225 2006-12-13 13:41:33 ncq Exp $
+__version__ = "$Revision: 1.225 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -101,6 +101,7 @@ select fk_encounter from
 	def cleanup(self):
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.pk_patient)
 
+
 #		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
 #		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
 
@@ -112,6 +113,10 @@ select fk_encounter from
 
 #		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
 #		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
+
+		self.remove_empty_encounters()
+
+		return True
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
@@ -1401,8 +1406,23 @@ where
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
 	#------------------------------------------------------------------
-	def is_encounter_modified(self):
-		cmd = u'select exists(select 1 from clin.clin_root_item where pk_encounter=%s)'
+	def remove_empty_encounters(self):
+		# remove empty encounters
+		# FIXME: this should be done async
+		# FIXME: au.referral is missing
+		cmd = u"""
+delete from clin.encounter where 
+	fk_patient = %(pat)s and
+	pk not in (select fk_encounter from clin.clin_root_item) and
+	pk not in (select fk_encounter from blobs.doc_med) and
+	pk not in (select fk_encounter from clin.operation)
+"""
+		try:
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}])
+		except:
+			_log.LogException('error deleting empty encounters')
+
+		return True
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
@@ -1578,7 +1598,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.224  2006-12-13 00:30:43  ncq
+# Revision 1.225  2006-12-13 13:41:33  ncq
+# - add remove_empty_encounters() and call from cleanup()
+#
+# Revision 1.224  2006/12/13 00:30:43  ncq
 # - fix get_health_issues() id_list sanity check insanity
 #
 # Revision 1.223  2006/11/28 20:39:30  ncq
