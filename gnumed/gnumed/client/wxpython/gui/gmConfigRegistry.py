@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -91,19 +91,18 @@ class cConfTree(wx.TreeCtrl):
 
 		for nodeDescription in (self.mConfSources.keys()):
 
-			_log.Log(gmLog.lData, 'adding node: [%s]' % nodeDescription)
-
-			# get subtree
-			subTree = self.__getSubTree(nodeDescription)
+			_log.Log(gmLog.lData, 'adding first level node: [%s]' % nodeDescription)
 			node = self.AppendItem(self.root, nodeDescription)
-			# store node description
 			self.SetPyData(node, {'type': 'defaultSubtree', 'name': nodeDescription})
-			# don't add empty subtrees, just display their subtree root node
+
+			# add subtree if any
+			subTree = self.__getSubTree(nodeDescription)
 			if subTree is None:
 				self.SetItemHasChildren(node, False)
 				_log.Log(gmLog.lData, 'node has no children')
 				continue
-			self.__addSubTree(node,subTree)
+			self.__addSubTree(node, subTree)
+
 			self.SortChildren(node)
 			self.SetItemHasChildren(node, True)
 						
@@ -164,12 +163,14 @@ class cConfTree(wx.TreeCtrl):
 		currSubTree = [None,{},""]
 		# add each item 
 		# attach parameter name (= reference for ConfigData) and subtree as object
-		for paramName in (tmpParamList):
-			self.__addTreeItem(currSubTree,paramName,
-				{'type': 'parameter', 'ref': paramName, 'subtree': nodeDescription})
+		for paramName in tmpParamList:
+			self.__addTreeItem (
+				currSubTree,
+				paramName,
+				{'type': 'parameter', 'ref': paramName, 'subtree': nodeDescription}
+			)
 
-		return currSubTree			
-
+		return currSubTree
 	#------------------------------------------------------------------------
 	def __addTreeItem(self,aSubTree, aStructuredName,object=None):
 		"""
@@ -306,11 +307,11 @@ class cConfTree(wx.TreeCtrl):
 			currType = self.mConfSources[aSubtree].getParamType(aParam)
 			# get description
 			description = self.mConfSources[aSubtree].getDescription(aParam)
-			print "showing parameter:"
-			print "param:", aParam
-			print "val  :", value
-			print "type :", currType
-			print "desc :", description
+#			print "showing parameter:"
+#			print "param:", aParam
+#			print "val  :", value
+#			print "type :", currType
+#			print "desc :", description
 			self.paramTextCtrl.ShowParam(aParam,currType,value)
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
@@ -538,7 +539,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.39  2006-12-05 14:02:09  ncq
+# Revision 1.40  2006-12-13 14:58:03  ncq
+# - a bit of cleanup
+#
+# Revision 1.39  2006/12/05 14:02:09  ncq
 # - fix wx import
 # - add some logging
 #
