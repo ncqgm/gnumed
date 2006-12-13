@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.100 2006-12-11 21:40:12 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmMedDocWidgets.py,v 1.101 2006-12-13 20:55:22 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -134,11 +134,11 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			queries = [
 u"""select * from ((
 	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
-		is_user is True and
+		is_user_defined and
 		l10n_type %(fragment_condition)s
 ) union (
 	select pk_doc_type, l10n_type, 2 from blobs.v_doc_type where
-		is_user is False and
+		is_user_defined and
 		l10n_type %(fragment_condition)s
 )) as q1 order by q1.rank, q1.l10n_type
 """]
@@ -1229,7 +1229,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.100  2006-12-11 21:40:12  ncq
+# Revision 1.101  2006-12-13 20:55:22  ncq
+# - is_user -> is_user_defined
+#
+# Revision 1.100  2006/12/11 21:40:12  ncq
 # - support in_use in doc type list ctrl
 # - slight improvement of doc type edit dialog logic
 #
