@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.101 2006-12-13 20:55:22 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmMedDocWidgets.py,v 1.102 2006-12-13 22:32:17 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -134,11 +134,11 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			queries = [
 u"""select * from ((
 	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
-		is_user_defined and
+		is_user_defined is True and
 		l10n_type %(fragment_condition)s
 ) union (
 	select pk_doc_type, l10n_type, 2 from blobs.v_doc_type where
-		is_user_defined and
+		is_user_defined is False and
 		l10n_type %(fragment_condition)s
 )) as q1 order by q1.rank, q1.l10n_type
 """]
@@ -1229,7 +1229,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.101  2006-12-13 20:55:22  ncq
+# Revision 1.102  2006-12-13 22:32:17  ncq
+# - need to explicitely check for "is_user_defined is True/False"
+#
+# Revision 1.101  2006/12/13 20:55:22  ncq
 # - is_user -> is_user_defined
 #
 # Revision 1.100  2006/12/11 21:40:12  ncq
