@@ -13,14 +13,14 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.282 2006-12-06 16:08:44 ncq Exp $
-__version__ = "$Revision: 1.282 $"
+# $Id: gmGuiMain.py,v 1.283 2006-12-13 15:00:38 ncq Exp $
+__version__ = "$Revision: 1.283 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import sys, time, os, cPickle, zlib, locale, os.path
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT
 
 # do not check inside py2exe and friends
 if not hasattr(sys, 'frozen'):
@@ -143,7 +143,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['EmergencyExit'] = self._clean_exit
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % gmPerson.gmCurrentProvider().get_workplace())
+		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _provider.get_workplace())
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -197,7 +197,7 @@ class gmTopLevelFrame(wx.Frame):
 		# width
 		width = int(cfg.get2 (
 			option = 'main.window.width',
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			workplace = _provider.get_workplace(),
 			bias = 'workplace',
 			default = 800
 		))
@@ -205,7 +205,7 @@ class gmTopLevelFrame(wx.Frame):
 		# height
 		height = int(cfg.get2 (
 			option = 'main.window.height',
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			workplace = _provider.get_workplace(),
 			bias = 'workplace',
 			default = 600
 		))
@@ -347,10 +347,18 @@ class gmTopLevelFrame(wx.Frame):
 		# - add health issue
 		menu_emr.Append (
 			ID_ADD_HEALTH_ISSUE_TO_EMR,
-			_('Add health issue (pHx item)'),
-			_('Add a health issue (pHx item) to the EMR of the active patient')
+			_('Add Past History (Foundational Issue)'),
+			_('Add a Past Medical History Item (Foundational Health Issue) to the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
+		# - document current medication
+		ID_ADD_DRUGS_TO_EMR = wx.NewId()
+		menu_emr.Append (
+			ID_ADD_DRUGS_TO_EMR,
+			_('Document current medication'),
+			_('Select current medication from drug database and save into progress notes.')
+		)
+		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
 		# - draw a line
 		menu_emr.AppendSeparator()
 
@@ -379,7 +387,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# - IFAP drug DB
 		ID_IFAP = wx.NewId()			# FIXME: add only if installed
-		menu_knowledge.Append(ID_IFAP, _('ifap index'), _('Start "ifap index PRAXIS" drug browser'))
+		menu_knowledge.Append(ID_IFAP, _('ifap index (Win)'), _('Start "ifap index PRAXIS (Windows)" drug browser'))
 		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
 
 		# menu "Help" -------------------------
@@ -437,10 +445,16 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_pre_patient_selection(self, **kwargs):
 
 		# FIXME: we need a way to make sure the patient has not yet changed
-		# FIXME: because we are called wx.CallAfter()
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
+
+#		gmGuiHelpers.gm_show_info (
+#			_('The previous patient was:\n\n'
+#			  ' [%s]'
+#			) % pat.get_identity().get_description(),
+#			_('changing patient')
+#		)
 
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
@@ -496,19 +510,39 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EndBusyCursor()
 	#----------------------------------------------
 	def __on_ifap(self, evt):
-		wx.BeginBusyCursor()
 
-		os.system('wine "C:\Ifapwin\WIAMDB.EXE"')				# FIXME: make path configurable
+		dbcfg = gmCfg.cCfgSQL()
+
+		transfer_file = os.path.expanduser(dbcfg.get2 (
+			option = 'external.ifap.win.transfer_file',
+			workplace = _provider.get_workplace(),
+			bias = 'workplace',
+			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
+		))
+		# file must exist for Ifap to write into it
+		f = open(transfer_file, 'w+b')
+		f.close()
+
+		# FIXME: make this more generic so several commands are tried
+		# FIXME: (windows, linux, mac) until one succeeds or all fail
+		ifap_cmd = dbcfg.get2 (
+			option = 'external.ifap.win.shell_command',
+			workplace = _provider.get_workplace(),
+			bias = 'workplace',
+			default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+		)
+
+		wx.BeginBusyCursor()
+		os.system(ifap_cmd)				# FIXME: factor out to gmShellRunner.py or something
+		wx.EndBusyCursor()
 
 		# COMMENT: this file must exist PRIOR to invoking IFAP
 		# COMMENT: or else IFAP will not write data into it ...
-		fname = os.path.expanduser('~/.wine/drive_c/Ifapwin/ifap2gnumed.csv')
 		try:
-			csv_file = open(fname, 'rb')						# FIXME: encoding
+			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
 		except:
 			_log.LogException('cannot access [%s]' % fname)
 			csv_file = None
-			wx.EndBusyCursor()
 
 		if csv_file is not None:
 			import csv
@@ -517,13 +551,12 @@ class gmTopLevelFrame(wx.Frame):
 				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 Feld1 Feld2 Packungszahl Packungsgröße'.split(),
 				delimiter = ';'
 			)
-			msg = _('You selected the following drugs in the ifap index PRAXIS drug database:\n\n')
+			msg = _('You selected the following drugs in the "ifap index PRAXIS (Windows)" drug database:\n\n')
 			for line in r:
 				for key, val in line.items():
 					msg += u'%s:  %s\n' % (key, val.strip())
-			wx.EndBusyCursor()
+			csv_file.close()
 			gmGuiHelpers.gm_show_info(msg, _('listing drugs'))
-			# FIXME: if patient connected import drugs into EMR
 
 		evt.Skip()
 	#----------------------------------------------
@@ -534,8 +567,8 @@ class gmTopLevelFrame(wx.Frame):
 		img = wx.EmptyBitmap(w, h)
 		mdc.SelectObject(img)
 		mdc.Blit(0, 0, w, h, cdc, 0, 0)
-		# FIXME: improve filename with timestamp/patient/workplace/provider, allow user to select/change
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot.png'))
+		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		gmGuiHelpers.gm_statustext(_('Saved screenshot to file [%s].') % fname)
 		evt.Skip()
@@ -557,7 +590,6 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __dermtool (self, event):
 		import Gnumed.wxpython.gmDermTool as DT
-
 		frame = DT.DermToolDialog(None, -1)
 		frame.Show(True)
 	#----------------------------------------------
@@ -568,6 +600,47 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
 		ea.ShowModal()
+	#----------------------------------------------
+	def __on_add_medication(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'))
+			return False
+
+		# FIXME: this belongs elsewhere
+		# file must exist for Ifap to write into it
+#		transfer_file = os.path.expanduser('~/.wine/drive_c/Ifapwin/ifap2gnumed.csv')
+#		f = open(transfer_file, 'wb')
+#		f.close()
+
+#		wx.BeginBusyCursor()
+#		os.system('wine "C:\Ifapwin\WIAMDB.EXE"')				# FIXME: make path configurable
+#		wx.EndBusyCursor()
+
+		# COMMENT: this file must exist PRIOR to invoking IFAP
+		# COMMENT: or else IFAP will not write data into it ...
+#		try:
+#			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
+#		except:
+#			_log.LogException('cannot access [%s]' % fname)
+#			csv_file = None
+
+#		if csv_file is not None:
+#			import csv
+#			r = csv.DictReader (
+#				csv_file,
+#				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 Feld1 Feld2 Packungszahl Packungsgröße'.split(),
+#				delimiter = ';'
+#			)
+
+#			msg = _('You selected the following drugs in the "ifap index PRAXIS (Windows)" drug database:\n\n')
+#			for line in r:
+#				for key, val in line.items():
+#					msg += u'%s:  %s\n' % (key, val.strip())
+#			csv_file.close()
+#			gmGuiHelpers.gm_show_info(msg, _('listing drugs'))
+
+		evt.Skip()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -658,8 +731,8 @@ Search results:
 
 		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
 		# instantiate exporter
-		wx.BeginBusyCursor()
 		exporter = gmPatientExporter.cEMRJournalExporter()
+		wx.BeginBusyCursor()
 		successful, fname = exporter.export_to_file(filename = fname)
 		wx.EndBusyCursor()
 		if not successful:
@@ -670,11 +743,8 @@ Search results:
 			)
 			return False
 
-#		gmGuiHelpers.gm_show_info (
-#				_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
-#				_('EMR journal export'),
-#				gmLog.lInfo
-#			)
+		gmGuiHelpers.gm_statustext(_('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
+
 		return True
 	#----------------------------------------------
 	def __on_export_for_medistar(self, event):
@@ -711,9 +781,9 @@ Search results:
 			return False
 
 		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
-		# instantiate exporter		
-		wx.BeginBusyCursor()
+		# instantiate exporter
 		exporter = gmPatientExporter.cMedistarSOAPExporter()
+		wx.BeginBusyCursor()
 		successful, fname = exporter.export_to_file(filename=fname)
 		wx.EndBusyCursor()
 		if not successful:
@@ -723,6 +793,9 @@ Search results:
 				gmLog.lErr
 			)
 			return False
+
+		gmGuiHelpers.gm_statustext(_('Successfully exported todays progress notes into file [%s] for Medistar import.') % fname, beep=False)
+
 		return True
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
@@ -784,12 +857,12 @@ Search results:
 		dbcfg.set (
 			option = 'main.window.width',
 			value = curr_width,
-			workplace = gmPerson.gmCurrentProvider().get_workplace()
+			workplace = _provider.get_workplace()
 		)
 		dbcfg.set (
 			option = 'main.window.height',
 			value = curr_height,
-			workplace = gmPerson.gmCurrentProvider().get_workplace()
+			workplace = _provider.get_workplace()
 		)
 		# handle our own stuff
 		try:
@@ -845,7 +918,7 @@ Search results:
 			_provider['title'],
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
-			gmPerson.gmCurrentProvider().get_workplace(),
+			_provider.get_workplace(),
 			self.title_activity,
 			pat_str
 		)
@@ -1180,7 +1253,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.282  2006-12-06 16:08:44  ncq
+# Revision 1.283  2006-12-13 15:00:38  ncq
+# - import datetime
+# - we already have _provider so no need for on-the-spot gmPerson.gmCurrentProvider()
+# - improve menu item labels
+# - make transfer file and shell command configurable for ifap call
+# - snapshot name includes timestamp
+#
+# Revision 1.282  2006/12/06 16:08:44  ncq
 # - improved __on_ifap() to display return values in message box
 #
 # Revision 1.281  2006/12/05 14:00:16  ncq
