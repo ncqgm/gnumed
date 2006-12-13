@@ -10,12 +10,12 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.92 2006-11-26 15:44:34 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmPatientExporter.py,v 1.93 2006-12-13 00:31:24 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import os.path, sys, traceback, string, types, time
+import os.path, sys, traceback, string, types, time, codecs
 
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
@@ -805,9 +805,17 @@ class cEmrExport:
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
             for an_episode in episodes:
                self.__target.write('\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
-               encounters = emr.get_encounters(since=self.__constraints['since'],
-                until=self.__constraints['until'], id_list=self.__constraints['encounters'],
-                episodes=[an_episode['pk_episode']], issues=[a_health_issue['pk']])
+               if a_health_issue['pk'] is None:
+                  issues = None
+               else:
+                  issues = [a_health_issue['pk']]
+               encounters = emr.get_encounters (
+                  since = self.__constraints['since'],
+                  until = self.__constraints['until'],
+                  id_list = self.__constraints['encounters'],
+                  episodes = [an_episode['pk_episode']],
+                  issues = issues
+               )
                for an_encounter in encounters:
                     # title
                     self.lab_new_encounter = True
@@ -980,7 +988,7 @@ class cEMRJournalExporter:
 				ident['firstnames'].replace(u' ', u'_'),
 				ident['dob'].strftime('%Y-%m-%d')
 			)
-		f = open(filename, 'wb')
+		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
 		status = self.__export(target = f)
 		f.close()
 		return (status, filename)
@@ -1087,7 +1095,7 @@ class cMedistarSOAPExporter:
 				ident['firstnames'].replace(' ', '_'),
 				ident['dob'].strftime('%Y-%m-%d')
 			)
-		f = open(filename, 'wb')
+		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
 		status = self.__export(target = f)
 		f.close()
 		return (status, filename)
@@ -1106,10 +1114,12 @@ class cMedistarSOAPExporter:
 		# get data
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in 'soap':
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__pat['ID'], encounter['pk_encounter'], soap_cat]}])
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['ID'], encounter['pk_encounter'], soap_cat)}])
 			target.write('*MD%s*\n' % self.__tx_soap[soap_cat])
 			for row in rows:
-				target.write('%s\n' % wrap(row[0], 64))
+				text = row[0]
+				if text is not None:
+					target.write('%s\n' % wrap(text, 64))
 		return True
 #============================================================
 def wrap(text, width):
@@ -1245,7 +1255,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.92  2006-11-26 15:44:34  ncq
+# Revision 1.93  2006-12-13 00:31:24  ncq
+# - export into unicode files
+# - fix use of get_encounters()
+#
+# Revision 1.92  2006/11/26 15:44:34  ncq
 # - strftime() does not accept u''
 #
 # Revision 1.91  2006/11/24 14:16:20  ncq
