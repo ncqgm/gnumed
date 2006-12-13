@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string, types, pickle
@@ -475,8 +475,11 @@ class ConfigDataDB(ConfigData):
 		Returns parameter value.
 		"""
 		try:
+#			print "param name:", aParameterName
 			name=self.mConfigData[aParameterName][0]
 			cookie = self.mConfigData[aParameterName][1]
+#			print "name:", name
+#			print "cookie.", cookie
 			result = ConfigDataDB._dbcfg.get2 (
 				workplace=self.mWorkplace,
 #				self.mUser,
@@ -868,7 +871,10 @@ def importDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.8  2006-12-05 13:55:13  ncq
+# Revision 1.9  2006-12-13 14:56:38  ncq
+# - comment out some printk()s
+#
+# Revision 1.8  2006/12/05 13:55:13  ncq
 # - port to gmPG2/gmCfg.get2()
 #
 # Revision 1.7  2006/10/25 07:19:03  ncq
