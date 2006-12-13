@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.223 2006-11-28 20:39:30 ncq Exp $
-__version__ = "$Revision: 1.223 $"
+# $Id: gmClinicalRecord.py,v 1.224 2006-12-13 00:30:43 ncq Exp $
+__version__ = "$Revision: 1.224 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -668,10 +668,6 @@ where
 		issues - Health issues' PKs list to filter episodes by
 		open_status - return all episodes, only open or closed one(s)
 		"""
-#		try:
-#			self.__db_cache['episodes']
-#		except KeyError:
-
 		cmd = u"select * from clin.v_pat_episodes where pk_patient=%s"
 		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 		tmp = []
@@ -875,7 +871,8 @@ where
 		if id_list is None:
 			return issues
 
-		raise ValueError('id_list to filter by is empty, most likely a programming error')
+		if len(id_list) == 0:
+			raise ValueError('id_list to filter by is empty, most likely a programming error')
 
 		filtered_issues = []
 		for issue in issues:
@@ -1283,15 +1280,6 @@ where
 	def get_active_encounter(self):
 		return self.__encounter
 	#------------------------------------------------------------------
-	def _build_encounter_cache_from_rows(self, rows, idx):
-		for a_row in rows:
-			row_map = {
-				'data': a_row,
-				'pk_field': 'pk_encounter',
-				'idx': idx
-			}
-			self.__db_cache['encounters'].append()
-	#--------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
 		"""Retrieves patient's encounters.
 
@@ -1310,19 +1298,16 @@ where
 		Rationale: If it was the other way round it would be
 		redundant to specify the list of issues at all.
 		"""
-		try:
-			self.__db_cache['encounters']
-		except KeyError:
-			# fetch all encounters for patient
-			cmd = u"select * from clin.v_pat_encounters where pk_patient=%s order by started"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-			self.__db_cache['encounters'] = []
-			for r in rows:
-				self.__db_cache['encounters'].append(gmEMRStructItems.cEncounter(row={'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}))
+		# fetch all encounters for patient
+		cmd = u"select * from clin.v_pat_encounters where pk_patient=%s order by started"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
+		encounters = []
+		for r in rows:
+			encounters.append(gmEMRStructItems.cEncounter(row={'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}))
 
 		# we've got the encounters, start filtering
 		filtered_encounters = []
-		filtered_encounters.extend(self.__db_cache['encounters'])
+		filtered_encounters.extend(encounters)
 		if id_list is not None:
 			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in id_list, filtered_encounters)
 		if since is not None:
@@ -1593,7 +1578,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.223  2006-11-28 20:39:30  ncq
+# Revision 1.224  2006-12-13 00:30:43  ncq
+# - fix get_health_issues() id_list sanity check insanity
+#
+# Revision 1.223  2006/11/28 20:39:30  ncq
 # - improve problem2*()
 # - de-cache get_health_issues()
 #
