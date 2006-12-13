@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.59 2006-11-24 14:20:44 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmEMRBrowser.py,v 1.60 2006-12-13 23:32:41 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -511,10 +511,11 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
 		return True
 #================================================================
-class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
+#class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
+class cEMRJournalPanel(wx.Panel):
 	def __init__(self, *args, **kwargs):
 		wx.Panel.__init__(self, *args, **kwargs)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+#		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__do_layout()
 
@@ -545,20 +546,13 @@ class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		return 1
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		self._schedule_data_reget()
+		# FIXME: check for visibility
+		self.__journal.SetValue(u'')
+		return True
 	#--------------------------------------------------------
-	# reget mixin API
+	# notebook plugin API
 	#--------------------------------------------------------
-	def _populate_with_data(self):
-		"""Fills UI with data.
-		"""
-#		self.__reset_ui_content()
-		if self.refresh_journal():
-			return True
-		return False
-	#--------------------------------------------------------
-	def refresh_journal(self):
-
+	def repopulate_ui(self):
 		# get data from backend
 		txt = StringIO.StringIO()
 		exporter = gmPatientExporter.cEMRJournalExporter()
@@ -575,8 +569,15 @@ class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__journal.SetValue(txt.getvalue())
 		txt.close()
 		return True
-
-
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+#	def _populate_with_data(self):
+#		"""Fills UI with data.
+#		"""
+#		if self.refresh_journal():
+#			return True
+#		return False
 #================================================================
 
 class ExpansionHistory:
@@ -706,7 +707,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.59  2006-11-24 14:20:44  ncq
+# Revision 1.60  2006-12-13 23:32:41  ncq
+# - emr journal on a diet
+#
+# Revision 1.59  2006/11/24 14:20:44  ncq
 # - used shiny new health issue edit area in issue context menu
 # - refresh tree after editing health issue
 #
