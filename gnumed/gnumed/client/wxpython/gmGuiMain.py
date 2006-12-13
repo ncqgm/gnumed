@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.283 2006-12-13 15:00:38 ncq Exp $
-__version__ = "$Revision: 1.283 $"
+# $Id: gmGuiMain.py,v 1.284 2006-12-13 15:01:35 ncq Exp $
+__version__ = "$Revision: 1.284 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -352,13 +352,13 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
 		# - document current medication
-		ID_ADD_DRUGS_TO_EMR = wx.NewId()
-		menu_emr.Append (
-			ID_ADD_DRUGS_TO_EMR,
-			_('Document current medication'),
-			_('Select current medication from drug database and save into progress notes.')
-		)
-		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
+#		ID_ADD_DRUGS_TO_EMR = wx.NewId()
+#		menu_emr.Append (
+#			ID_ADD_DRUGS_TO_EMR,
+#			_('Document current medication'),
+#			_('Select current medication from drug database and save into progress notes.')
+#		)
+#		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
 		# - draw a line
 		menu_emr.AppendSeparator()
 
@@ -1253,7 +1253,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.283  2006-12-13 15:00:38  ncq
+# Revision 1.284  2006-12-13 15:01:35  ncq
+# - on_add_medication does not work yet
+#
+# Revision 1.283  2006/12/13 15:00:38  ncq
 # - import datetime
 # - we already have _provider so no need for on-the-spot gmPerson.gmCurrentProvider()
 # - improve menu item labels
