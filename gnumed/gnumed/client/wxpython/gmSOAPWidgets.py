@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.85 2006-11-28 20:53:41 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmSOAPWidgets.py,v 1.86 2006-12-15 15:28:37 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -448,6 +448,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		page_idx = self.__soap_notebook.GetSelection()
 		soap_nb_page = self.__soap_notebook.GetPage(page_idx)
 		if not soap_nb_page.save():
+			gmGuiHelpers.gm_statustext(_('Problem saving progress note: duplicate information ?'))
 			return False
 		self.__soap_notebook.DeletePage(page_idx)
 		# always keep one unassociated editor open
@@ -1102,7 +1103,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.85  2006-11-28 20:53:41  ncq
+# Revision 1.86  2006-12-15 15:28:37  ncq
+# - signal problem saving progress note
+#
+# Revision 1.85  2006/11/28 20:53:41  ncq
 # - a missing Refresh()
 #
 # Revision 1.84  2006/11/26 17:13:17  ncq
