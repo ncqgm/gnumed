@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.285 2006-12-15 15:25:01 ncq Exp $
-__version__ = "$Revision: 1.285 $"
+# $Id: gmGuiMain.py,v 1.286 2006-12-15 15:26:21 ncq Exp $
+__version__ = "$Revision: 1.286 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1012,29 +1012,6 @@ class gmApp(wx.App):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
-		# verify database
-#		db_ver = gmPG2.get_schema_version()
-#		if db_ver != expected_db_ver:
-#		if not gmPG2.database_schema_compatible():
-#			_log.Log(gmLog.lErr, db_ver)
-#			_log.Log(gmLog.lData, 'expected MD5 schema hash for %s database: [%s]' % (expected_db_ver, gmPG2.known_schema_hashes[expected_db_ver]))
-#			msg = _(
-#"""You cannot use this database with a GNUmed client of version 0.2.3 because the table structure is incompatible.
-
-#Choose another database server profile or ask your administrator for help.""")
-#			if gmCLI.has_arg('--override-schema-check'):
-#				msg = msg + _("""
-
-#The client will, however, continue to start up because you are running a development/test version of GNUmed.
-
-#There may be schema related errors. Please report and/or fix them.
-
-#Do not rely on this database to work properly in all cases !""")
-#				gmGuiHelpers.gm_show_info(msg, _('Verifying database'), gmLog.lWarn)
-#			else:
-#				gmGuiHelpers.gm_show_error(msg, _('Verifying database'), gmLog.lWarn)
-#				return False
-
 		# check account <-> staff member association
 		try:
 			global _provider
@@ -1087,28 +1064,6 @@ class gmApp(wx.App):
 		gmPatSearchWidgets.load_patient_from_external_sources(parent=frame)
 
 		return True
-	#----------------------------------------------
-#	def HandleEvent(self, *args, **kwargs):
-#		"""Contains top level exception handler.
-#		"""
-#		try:
-#			wx.App.HandleEvent(args, kwargs)
-#		except:
-#			_log.LogException('unhandled exception caught', verbose=1)
-#			exc_type, val = sys.exc_info()[:2]
-#			msg = _(
-#"""An unhandled exception occurred.
-#
-#This probably indicates a rather severe error and this GNUmed client will be aborted.
-#
-#Type of exception: %s
-#Exception value  : %s
-#""")
-#			gmGuiHelpers.gm_show_error (
-#				aMessage = msg,
-#				aTitle = _('Unhandled exception')
-#			)
-#			raise
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -1253,7 +1208,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.285  2006-12-15 15:25:01  ncq
+# Revision 1.286  2006-12-15 15:26:21  ncq
+# - cleanup
+#
+# Revision 1.285  2006/12/15 15:25:01  ncq
 # - delete checking of database version to gmLogin.py where it belongs
 #
 # Revision 1.284  2006/12/13 15:01:35  ncq

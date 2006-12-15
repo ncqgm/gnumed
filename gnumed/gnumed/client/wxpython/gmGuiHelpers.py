@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.41 2006-11-24 09:53:24 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmGuiHelpers.py,v 1.42 2006-12-15 15:24:06 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -29,6 +29,33 @@ _log.Log(gmLog.lData, __version__)
 
 _set_status_text = None
 # ========================================================================
+def gm_SingleChoiceDialog(aMessage = None, aTitle = None, aLogLevel = None, choices = None):
+    if aMessage is None:
+        aMessage = _('programmer forgot to specify info message')
+
+    if aLogLevel is not None:
+        log_msg = string.replace(aMessage, '\015', ' ')
+        log_msg = string.replace(log_msg, '\012', ' ')
+        _log.Log(aLogLevel, log_msg)
+
+    if aTitle is None:
+        aTitle = _('generic single choice dialog')
+
+    dlg = wx.SingleChoiceDialog (
+        parent = None,
+        message = aMessage,
+        caption = aTitle,
+        choices = choices,
+        style = wx.OK | wx.CANCEL | wx.CENTRE
+    )
+    btn_pressed = dlg.ShowModal()
+    dlg.Destroy()
+
+    if btn_pressed == wx.ID_OK:
+        return dlg.GetSelection()
+    else:
+        return False
+#-------------------------------------------------------------------------
 def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify error message')
@@ -57,33 +84,6 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
-#-------------------------------------------------------------------------
-def gm_SingleChoiceDialog(aMessage = None, aTitle = None, aLogLevel = None, choices = None):
-    if aMessage is None:
-        aMessage = _('programmer forgot to specify info message')
-
-    if aLogLevel is not None:
-        log_msg = string.replace(aMessage, '\015', ' ')
-        log_msg = string.replace(log_msg, '\012', ' ')
-        _log.Log(aLogLevel, log_msg)
-
-    if aTitle is None:
-        aTitle = _('generic single choice dialog')
-
-    dlg = wx.SingleChoiceDialog (
-        parent = None,
-        message = aMessage,
-        caption = aTitle,
-        choices = choices,
-        style = wx.OK | wx.CANCEL | wx.CENTRE
-    )
-    btn_pressed = dlg.ShowModal()
-    dlg.Destroy()
-
-    if btn_pressed == wx.ID_OK:
-        return dlg.GetSelection()
-    else:
-        return False
 #-------------------------------------------------------------------------
 def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
@@ -358,7 +358,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.41  2006-11-24 09:53:24  ncq
+# Revision 1.42  2006-12-15 15:24:06  ncq
+# - cleanup
+#
+# Revision 1.41  2006/11/24 09:53:24  ncq
 # - gm_beep_statustext() -> gm_statustext(beep=True)
 #
 # Revision 1.40  2006/11/05 14:18:57  ncq
