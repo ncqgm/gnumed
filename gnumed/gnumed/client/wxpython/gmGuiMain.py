@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.284 2006-12-13 15:01:35 ncq Exp $
-__version__ = "$Revision: 1.284 $"
+# $Id: gmGuiMain.py,v 1.285 2006-12-15 15:25:01 ncq Exp $
+__version__ = "$Revision: 1.285 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1008,32 +1008,32 @@ class gmApp(wx.App):
 
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
-		if not gmLogin.connect_to_database():
+		if not gmLogin.connect_to_database(expected_version = 'v3', require_version = not gmCLI.has_arg('--override-schema-check')):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
 		# verify database
-		db_ver = gmPG2.get_schema_version()
-		if db_ver != expected_db_ver:
+#		db_ver = gmPG2.get_schema_version()
+#		if db_ver != expected_db_ver:
 #		if not gmPG2.database_schema_compatible():
-			_log.Log(gmLog.lErr, db_ver)
-			_log.Log(gmLog.lData, 'expected MD5 schema hash for %s database: [%s]' % (expected_db_ver, gmPG2.known_schema_hashes[expected_db_ver]))
-			msg = _(
-"""You cannot use this database with a GNUmed client of version 0.2 ("Librarian" release) because the table structure is incompatible.
+#			_log.Log(gmLog.lErr, db_ver)
+#			_log.Log(gmLog.lData, 'expected MD5 schema hash for %s database: [%s]' % (expected_db_ver, gmPG2.known_schema_hashes[expected_db_ver]))
+#			msg = _(
+#"""You cannot use this database with a GNUmed client of version 0.2.3 because the table structure is incompatible.
 
-Choose another database server profile or ask your administrator for help.""")
-			if gmCLI.has_arg('--override-schema-check'):
- 				msg = msg + _("""
+#Choose another database server profile or ask your administrator for help.""")
+#			if gmCLI.has_arg('--override-schema-check'):
+#				msg = msg + _("""
 
-The client will, however, continue to start up because you are running a development/test version of GNUmed.
+#The client will, however, continue to start up because you are running a development/test version of GNUmed.
 
-There may be schema related errors. Please report and/or fix them.
+#There may be schema related errors. Please report and/or fix them.
 
-Do not rely on this database to work properly in all cases !""")
-				gmGuiHelpers.gm_show_info(msg, _('Verifying database'), gmLog.lWarn)
-			else:
-				gmGuiHelpers.gm_show_error(msg, _('Verifying database'), gmLog.lWarn)
-				return False
+#Do not rely on this database to work properly in all cases !""")
+#				gmGuiHelpers.gm_show_info(msg, _('Verifying database'), gmLog.lWarn)
+#			else:
+#				gmGuiHelpers.gm_show_error(msg, _('Verifying database'), gmLog.lWarn)
+#				return False
 
 		# check account <-> staff member association
 		try:
@@ -1253,7 +1253,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.284  2006-12-13 15:01:35  ncq
+# Revision 1.285  2006-12-15 15:25:01  ncq
+# - delete checking of database version to gmLogin.py where it belongs
+#
+# Revision 1.284  2006/12/13 15:01:35  ncq
 # - on_add_medication does not work yet
 #
 # Revision 1.283  2006/12/13 15:00:38  ncq
