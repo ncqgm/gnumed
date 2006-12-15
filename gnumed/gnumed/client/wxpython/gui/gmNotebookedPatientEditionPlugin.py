@@ -7,10 +7,22 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
+
+if __name__ == '__main__':
+
+	# stdlib
+	import sys
+	sys.path.insert(0, '../../../')
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+# GNUmed
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
 from Gnumed.pycommon import gmLog
 
@@ -38,83 +50,82 @@ class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 		if not self._verify_patient_avail():
 			return None
 		return 1
-		    
+
 #======================================================================
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 
-    import sys
+	# 3rd party
+	import wx
 
-    try:
-		import wxversion
-		import wx
-    except ImportError:
-		from wxPython import wx
+	# GNUmed
+	from Gnumed.pycommon import gmCfg
+	from Gnumed.business import gmPerson
 
-    from Gnumed.pycommon import gmCfg
-    from Gnumed.business import gmPerson
+	_cfg = gmCfg.gmDefCfgFile	
+		
+	_log.Log (gmLog.lInfo, "starting Notebooked patient edition plugin...")
 
-    _cfg = gmCfg.gmDefCfgFile	
-	
-    _log.Log (gmLog.lInfo, "starting Notebooked patient edition plugin...")
+	if _cfg is None:
+		_log.Log(gmLog.lErr, "Cannot run without config file.")
+		sys.exit("Cannot run without config file.")
 
-    if _cfg is None:
-        _log.Log(gmLog.lErr, "Cannot run without config file.")
-        sys.exit("Cannot run without config file.")
+	try:
+		# obtain patient
+		patient = gmPerson.ask_for_patient()
+		if patient is None:
+			print "None patient. Exiting gracefully..."
+			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
+					
+		# display standalone notebooked patient editor
+		application = wx.PyWidgetTester(size=(800,600))
+		application.SetWidget(gmDemographicsWidgets.cNotebookedPatEditionPanel, -1)
+		
+		application.frame.Show(True)
+		application.MainLoop()
+		
+		# clean up
+		if patient is not None:
+			try:
+				patient.cleanup()
+			except:
+				print "error cleaning up patient"
+	except StandardError:
+		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		# but re-raise them
+		raise
 
-    try:
-        # obtain patient
-        patient = gmPerson.ask_for_patient()
-        if patient is None:
-            print "None patient. Exiting gracefully..."
-            sys.exit(0)
-        gmPerson.set_active_patient(patient=patient)
-                    
-        # display standalone notebooked patient editor
-        application = wx.wxPyWidgetTester(size=(800,600))
-        application.SetWidget(gmDemographicsWidgets.cNotebookedPatEditionPanel, -1)
-        
-        application.frame.Show(True)
-        application.MainLoop()
-        
-        # clean up
-        if patient is not None:
-            try:
-                patient.cleanup()
-            except:
-                print "error cleaning up patient"
-    except StandardError:
-        _log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-        # but re-raise them
-        raise
-
-    _log.Log (gmLog.lInfo, "closing Notebooked progress notes input plugin...")
+	_log.Log (gmLog.lInfo, "closing Notebooked progress notes input plugin...")
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.7  2006-10-31 16:06:19  ncq
+# Revision 1.8  2006-12-15 16:31:32  ncq
+# - fix test suite
+#
+# Revision 1.7	2006/10/31 16:06:19  ncq
 # - no more gmPG
 #
-# Revision 1.6  2006/10/25 07:23:30  ncq
+# Revision 1.6	2006/10/25 07:23:30  ncq
 # - no gmPG no more
 #
-# Revision 1.5  2006/05/04 09:49:20  ncq
+# Revision 1.5	2006/05/04 09:49:20  ncq
 # - get_clinical_record() -> get_emr()
 # - adjust to changes in set_active_patient()
 # - need explicit set_active_patient() after ask_for_patient() if wanted
 #
-# Revision 1.4  2005/10/03 13:49:21  sjtan
+# Revision 1.4	2005/10/03 13:49:21  sjtan
 # using new wx. temporary debugging to stdout(easier to read). where is rfe ?
 #
-# Revision 1.3  2005/09/26 18:01:52  ncq
+# Revision 1.3	2005/09/26 18:01:52  ncq
 # - use proper way to import wx26 vs wx2.4
 # - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
 # - time for fixup
 #
-# Revision 1.2  2005/05/26 15:57:03  ncq
+# Revision 1.2	2005/05/26 15:57:03  ncq
 # - slightly better strings
 #
-# Revision 1.1  2005/05/25 22:52:47  cfmoro
+# Revision 1.1	2005/05/25 22:52:47  cfmoro
 # Added notebooked patient edition plugin
 #
