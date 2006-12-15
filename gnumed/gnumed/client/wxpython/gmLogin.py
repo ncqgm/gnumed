@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.29 2006-10-25 07:46:44 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmLogin.py,v 1.30 2006-12-15 15:27:01 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "H.Herb"
 
 import wx
@@ -21,8 +21,38 @@ except NameError:
 	_ = lambda x:x
 
 _log = gmLog.gmDefLog
+
+msg_generic = _("""
+GNUmed database version mismatch.
+
+This database version cannot be used with this client:
+
+ version detected: %s
+ version needed: %s
+
+Currently connected to database:
+
+ host: %s
+ database: %s
+ user: %s
+""")
+
+msg_fail = _("""
+You must connect to a different database in order
+to use the GNUmed client. You may have to contact
+your administrator for help."""
+)
+
+msg_override = _("""
+The client will, however, continue to start up because
+you are running a development/test version of GNUmed.
+
+There may be schema related errors. Please report and/or
+fix them. Do not rely on this database to work properly
+in all cases !"""
+)
 #==============================================================
-def connect_to_database(max_attempts=3):
+def connect_to_database(max_attempts=3, expected_version=None, require_version=True):
 	"""Display the login dialog and try to log into the backend.
 
 	- up to max_attempts times
@@ -30,32 +60,49 @@ def connect_to_database(max_attempts=3):
 		- valid backend broker object if connection successful
 		- None otherwise
 	"""
+	# force programmer to set a valid expected_version
+	expected_hash = gmPG2.known_schema_hashes[expected_version]
+
 	attempt = 0
 	connected = False
+
 	dlg = gmLoginDialog.LoginDialog(None, -1)
 	dlg.Centre(wx.BOTH)
+
 	while attempt < max_attempts:
+
 		dlg.ShowModal()
+
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
 			_log.Log(gmLog.lInfo, "user cancelled login dialog")
 			break
-		#now try to connect to the backend
+
+		# now try to connect to the backend
 		dsn = gmPG2.make_psycopg2_dsn (
-			database=login.database,
-			host=login.host,
-			port=login.port,
-			user=login.user,
-			password=login.password
+			database = login.database,
+			host = login.host,
+			port = login.port,
+			user = login.user,
+			password = login.password
 		)
 		try:
 			gmPG2.get_connection(dsn=dsn, verbose=True)
 			gmPG2.set_default_login(login=login)
-			dlg.panel.save_settings()
-#			try: gmPG.ConnectionPool(login)
-#			except: pass
+
+			if gmPG2.database_schema_compatible(version = expected_version):
+				dlg.panel.save_settings()
+			else:
+				connected_db_version = gmPG2.get_schema_version()
+				msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
+				if require_version:
+					gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'), None)
+					continue
+				gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'), None)
+
 			connected = True
 			break
+
 		except gmPG2.cAuthenticationError, e:
 			attempt += 1
 			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
@@ -69,25 +116,10 @@ def connect_to_database(max_attempts=3):
 					gmLog.lErr
 				)
 			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
+
 		except StandardError:
 			_log.LogException(u"login attempt %s/%s failed" % (attempt+1, max_attempts), verbose=0)
 			break
-
-#		try:
-#			backend = gmPG.ConnectionPool(login)
-			# save the login settings for next login
-#			dlg.panel.save_settings()
-#			break
-#		except gmExceptions.ConnectionError, e:
-#			attempt += 1
-#			if attempt < max_attempts:
-#				msg = _('Unable to connect to database:\n\n%s\n\nPlease retry or cancel !') % e
-#				gmGuiHelpers.gm_show_error (
-#					msg,
-#					_('connecting to backend'),
-#					gmLog.lErr
-#				)
-#			_log.LogException("login attempt %s of %s failed" % (attempt, max_attempts), verbose=0)
 
 	dlg.Close()
 	dlg.Destroy()
@@ -100,7 +132,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.29  2006-10-25 07:46:44  ncq
+# Revision 1.30  2006-12-15 15:27:01  ncq
+# - move database schema version check here
+#
+# Revision 1.29  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.28  2006/10/25 07:21:57  ncq
