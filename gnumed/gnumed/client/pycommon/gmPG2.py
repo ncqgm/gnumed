@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -280,14 +280,14 @@ def database_schema_compatible(version=None):
 	expected_hash = known_schema_hashes[version]
 	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
 	if rows[0]['md5'] != expected_hash:
-		_log.Log(gmLog.lErr, 'not a valid [%s] database schema structure' % version)
-		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % expected_hash)
-		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0]['md5'])
+		_log.Log(gmLog.lErr, 'database schema version mismatch')
+		_log.Log(gmLog.lErr, 'expected: %s (%s)' % (version, expected_hash))
+		_log.Log(gmLog.lErr, 'detected: %s (%s)' % (get_schema_version(), rows[0]['md5']))
 		return False
 	return True
 #------------------------------------------------------------------------
 def get_schema_version():
-	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	rows, idx = run_ro_queries(queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
 	try:
 		return map_schema_hash2version[rows[0]['md5']]
 	except KeyError:
@@ -908,7 +908,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.16  2006-12-12 13:14:32  ncq
+# Revision 1.17  2006-12-15 15:23:50  ncq
+# - improve database_schema_compatible()
+#
+# Revision 1.16  2006/12/12 13:14:32  ncq
 # - u''ify queries
 #
 # Revision 1.15  2006/12/06 20:32:09  ncq
