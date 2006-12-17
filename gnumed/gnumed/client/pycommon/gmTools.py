@@ -1,21 +1,53 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.5 2006-11-27 23:02:08 ncq Exp $
+# $Id: gmTools.py,v 1.6 2006-12-17 20:47:16 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import datetime as pydt, re as regex
 
+#===========================================================================
+def open_uri_in_ooo(filename=None):
+	"""Connect to OOo and open document.
+
+	<filename> must be absolute
+
+	Actually, this whole thing is redundant. We should just
+	use call_editor_on_mimetype(filename). The advantage of
+	this is that we can connect to a single OOo *server*.
+	"""
+	try:
+		import uno
+	except ImportError:
+		_log.Log(gmLog.lInfo, 'open_uri_in_ooo(): cannot import UNO, OpenOffice and/or UNO installed ?')
+		# fail gracefully if OOo/UNO isn't insalled
+		return False
+
+	# failing early is good
+	document_uri = uno.systemPathToFileUrl(filename)
+
+	resolver_uri		= "com.sun.star.bridge.UnoUrlResolver"
+	remote_context_uri	= "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
+	ooo_desktop_uri		= "com.sun.star.frame.Desktop"
+
+	local_context	= uno.getComponentContext()
+	uri_resolver	= local_context.ServiceManager.createInstanceWithContext(resolver_uri, local_context)
+	remote_context	= uri_resolver.resolve(remote_context_uri)
+	ooo_desktop		= remote_context.ServiceManager.createInstanceWithContext(ooo_desktop_uri, remote_context)
+
+	document = ooo_desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
+
+	return True
+#===========================================================================
+# FIXME: should this not be in gmTime or some such?
 # close enough on average
 days_per_year = 365
 days_per_month = 30
 days_per_week = 7
-#===========================================================================
-# FIXME: should this not be in gmTime or some such?
-
+#---------------------------------------------------------------------------
 def str2interval(str_interval=None):
 
 	# "(~)35(yYjJaA)"	- at age 35 years
@@ -139,7 +171,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.5  2006-11-27 23:02:08  ncq
+# Revision 1.6  2006-12-17 20:47:16  ncq
+# - add open_uri_in_ooo()
+#
+# Revision 1.5  2006/11/27 23:02:08  ncq
 # - add comment
 #
 # Revision 1.4  2006/11/24 09:52:09  ncq
