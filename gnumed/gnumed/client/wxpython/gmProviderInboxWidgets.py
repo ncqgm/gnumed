@@ -2,17 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.10 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmProviderInboxWidgets.py,v 1.11 2006-12-17 20:46:24 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
 from Gnumed.business import gmProviderInbox, gmPerson
@@ -151,7 +147,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.10  2006-11-24 10:01:31  ncq
+# Revision 1.11  2006-12-17 20:46:24  ncq
+# - cleanup
+#
+# Revision 1.10  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.9  2006/05/28 16:19:54  ncq

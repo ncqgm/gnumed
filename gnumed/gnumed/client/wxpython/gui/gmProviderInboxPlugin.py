@@ -3,33 +3,29 @@
 # later to evolve into a more complete "provider-centric hub"
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmProviderInboxPlugin.py,v $
-# $Id: gmProviderInboxPlugin.py,v 1.5 2006-05-28 16:15:27 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmProviderInboxPlugin.py,v 1.6 2006-12-17 20:45:38 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-try:
-    import wxversion
-    import wx
-except ImportError:
-    from wxPython import wx
+import wx
 
 from Gnumed.wxpython import gmPlugin, gmProviderInboxWidgets
 
 #======================================================================
-class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin, gmPlugin.cPatientChange_PluginMixin):
+class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate the provider inbox window."""
 
 	tab_name = _('Inbox')
 	#--------------------------------------------------------
 	def __init__(self):
 		gmPlugin.cNotebookPlugin.__init__(self)
-		gmPlugin.cPatientChange_PluginMixin.__init__(self)
 	#--------------------------------------------------------
 	def name(self):
 		return gmProviderInboxPlugin.tab_name
 	#--------------------------------------------------------
 	def GetWidget(self, parent):
+#		print "%s parent:" % self.__class__.__name__, type(parent)
 		self._widget = gmProviderInboxWidgets.cProviderInboxPnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
@@ -38,18 +34,12 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin, gmPlugin.cPatientChange_Pl
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		return True
-	#--------------------------------------------------------
-	# gmPlugin.cPatientChange_PluginMixin API
-	#--------------------------------------------------------
-	def _pre_patient_selection(self, **kwds):
-		pass
-	#--------------------------------------------------------
-	def _post_patient_selection(self, **kwds):
-		self.Raise()
-		return True
 #======================================================================
 # $Log: gmProviderInboxPlugin.py,v $
-# Revision 1.5  2006-05-28 16:15:27  ncq
+# Revision 1.6  2006-12-17 20:45:38  ncq
+# - cleanup
+#
+# Revision 1.5  2006/05/28 16:15:27  ncq
 # - populate already handled by plugin base class now
 #
 # Revision 1.4  2006/05/20 18:56:03  ncq

@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.34 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmHorstSpace.py,v 1.35 2006-12-17 20:44:52 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -136,14 +136,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		# force-refresh first notebook page
 		page = self.nb.GetPage(0)
 		page.Refresh()
-
-#		if first_plugin is not None:
-#			print "giving focus"
-#			plugin.receive_focus()
-#			print "refreshing"
-#			plugin.Refresh()
-#			print "refreshing"
-#			self.nb.GetPage(0).Refresh()
 
 		return True
 	#----------------------------------------------
@@ -318,7 +310,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.34  2006-11-24 10:01:31  ncq
+# Revision 1.35  2006-12-17 20:44:52  ncq
+# - cleanup
+#
+# Revision 1.34  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.33  2006/11/07 00:34:16  ncq
