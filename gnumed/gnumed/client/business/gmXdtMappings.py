@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.32 2006-10-31 15:59:11 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmXdtMappings.py,v 1.33 2006-12-17 15:00:31 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -149,8 +149,8 @@ xdt_id_map = {
 	'3101':'Name des Patienten',
 	#Vorname des Patienten
 	'3102':'Vorname des Patienten',
-	#Geburstdatum des Patienten
-	'3103':'Geburstdatum des Patienten', 
+	#Geburtsdatum des Patienten
+	'3103':'Geburtsdatum des Patienten', 
 	#Titel des Patienten 
 	'3104':'Titel des Patienten',
 	#Versichertennummer des Patienten
@@ -1393,7 +1393,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.32  2006-10-31 15:59:11  ncq
+# Revision 1.33  2006-12-17 15:00:31  ncq
+# - fixed typo
+#
+# Revision 1.32  2006/10/31 15:59:11  ncq
 # - somewhat improved mappings
 #
 # Revision 1.31  2006/10/31 12:01:17  ncq
