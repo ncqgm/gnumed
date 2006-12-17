@@ -3,8 +3,8 @@
 # later to evolve into a more complete "provider-centric hub"
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmProviderInboxPlugin.py,v $
-# $Id: gmProviderInboxPlugin.py,v 1.6 2006-12-17 20:45:38 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmProviderInboxPlugin.py,v 1.7 2006-12-17 22:21:05 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -25,7 +25,6 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 		return gmProviderInboxPlugin.tab_name
 	#--------------------------------------------------------
 	def GetWidget(self, parent):
-#		print "%s parent:" % self.__class__.__name__, type(parent)
 		self._widget = gmProviderInboxWidgets.cProviderInboxPnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
@@ -36,7 +35,10 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 		return True
 #======================================================================
 # $Log: gmProviderInboxPlugin.py,v $
-# Revision 1.6  2006-12-17 20:45:38  ncq
+# Revision 1.7  2006-12-17 22:21:05  ncq
+# - cleanup
+#
+# Revision 1.6  2006/12/17 20:45:38  ncq
 # - cleanup
 #
 # Revision 1.5  2006/05/28 16:15:27  ncq
