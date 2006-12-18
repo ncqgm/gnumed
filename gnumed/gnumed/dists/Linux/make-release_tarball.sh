@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.19 2006-12-18 15:52:38 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.20 2006-12-18 18:39:15 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2.3"
@@ -202,6 +202,7 @@ echo "============"
 # client
 mkdir -p ./GNUmed-$REV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/server/
+cp -R ../../server/backup-gnumed-database.sh ./GNUmed-$REV/server/
 
 
 # pycommon
@@ -261,7 +262,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.19  2006-12-18 15:52:38  ncq
+# Revision 1.20  2006-12-18 18:39:15  ncq
+# - include backup script
+#
+# Revision 1.19  2006/12/18 15:52:38  ncq
 # - port improvements from rel-0-2-patches branch
 # - make it 0.2.3 now
 #
