@@ -7,10 +7,20 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
+if __name__ == '__main__':
+	# stdlib
+	import sys
+	sys.path.insert(0, '../../../')
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+# GNUmed
 from Gnumed.wxpython import gmPlugin, gmSOAPWidgets
 from Gnumed.pycommon import gmLog
 
@@ -43,9 +53,10 @@ class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 
-	import sys
+	# 3rd party
 	import wx
 
+	# GNUmed
 	from Gnumed.pycommon import gmCfg
 	from Gnumed.business import gmPerson
 
@@ -66,7 +77,7 @@ if __name__ == "__main__":
 		gmPerson.set_active_patient(patient=patient)
 
 		# display standalone multisash progress notes input
-		application = wx.wxPyWidgetTester(size=(800,600))
+		application = wx.wx.PyWidgetTester(size=(800,600))
 		multisash_notes = gmSOAPWidgets.cNotebookedProgressNoteInputPanel(application.frame, -1)
 
 		application.frame.Show(True)
@@ -86,7 +97,10 @@ if __name__ == "__main__":
 	_log.Log (gmLog.lInfo, "closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.11  2006-11-05 16:05:35  ncq
+# Revision 1.12  2006-12-18 12:12:27  ncq
+# - fix test suite
+#
+# Revision 1.11  2006/11/05 16:05:35  ncq
 # - cleanup, tabify
 #
 # Revision 1.10  2006/10/31 16:06:19  ncq
