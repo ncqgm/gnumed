@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 import sys
 
@@ -16,18 +16,6 @@ except ImportError:
 	print "INFO : sys.path is set as follows:"
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
-
-#print "=> checking for Python module 'pyPgSQL' ..."
-#try:
-#	import pyPgSQL.PgSQL
-#	print "=> found"
-#except ImportError:
-#	print "ERROR: pyPgSQL not installed"
-#	print "ERROR: this is needed to access PostgreSQL"
-#	print "ERROR: pyPgSQL is available from http://pypgsql.sourceforge.net"
-#	print "INFO : sys.path is set as follows:"
-#	print "INFO :", "\nINFO : ".join(sys.path)
-#	sys.exit(-1)
 
 print "=> checking for Python module 'psycopg2' ..."
 try:
@@ -127,7 +115,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.12  2006-11-05 18:00:06  ncq
+# Revision 1.13  2006-12-18 16:17:42  ncq
+# - do not check for pyPgSQL anymore
+#
+# Revision 1.12  2006/11/05 18:00:06  ncq
 # - drop check for pyPgSQL
 #
 # Revision 1.11  2006/09/01 15:31:13  ncq
