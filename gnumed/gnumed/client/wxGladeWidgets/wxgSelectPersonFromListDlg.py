@@ -12,7 +12,7 @@ class wxgSelectPersonFromListDlg(wx.Dialog):
         # begin wxGlade: wxgSelectPersonFromListDlg.__init__
         kwds["style"] = wx.CAPTION|wx.RESIZE_BORDER|wx.CLOSE_BOX|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
-        self._LCTRL_persons = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_VRULES|wx.SUNKEN_BORDER|wx.NO_BORDER)
+        self._LCTRL_persons = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_VRULES|wx.NO_BORDER)
         self._BTN_select = wx.Button(self, wx.ID_OK, _("Select"))
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 
