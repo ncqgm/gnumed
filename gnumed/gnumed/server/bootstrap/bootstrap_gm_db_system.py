@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -788,22 +788,15 @@ class database:
 
 		# create database
 		self.conn.set_isolation_level(0)
-#		self.conn.autocommit = True
 		cursor = self.conn.cursor()
 		try:
 			cursor.execute(cmd)
-#		except libpq.Warning, warning:
-#			_log.Log(gmLog.lWarn, warning)
 		except:
 			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
 			cursor.close()
-#			self.conn.autocommit = False
 			return None
 		cursor.close()
 		self.conn.commit()
-#		self.conn.autocommit = False
-
-#		self.conn.set_isolation_level(2)
 
 		if not self.__db_exists():
 			return None
@@ -1372,7 +1365,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.36  2006-12-12 13:15:11  ncq
+# Revision 1.37  2006-12-18 13:00:48  ncq
+# - remove some gmPG leftovers
+#
+# Revision 1.36  2006/12/12 13:15:11  ncq
 # - support alternate database locations
 #
 # Revision 1.35  2006/12/06 16:09:34  ncq
