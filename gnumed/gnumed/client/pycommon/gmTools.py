@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.6 2006-12-17 20:47:16 ncq Exp $
+# $Id: gmTools.py,v 1.7 2006-12-18 15:51:12 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -18,6 +18,10 @@ def open_uri_in_ooo(filename=None):
 	Actually, this whole thing is redundant. We should just
 	use call_editor_on_mimetype(filename). The advantage of
 	this is that we can connect to a single OOo *server*.
+
+	You will need to start an OOo server before using this:
+
+		oowriter -accept="socket,host=localhost,port=2002;urp;"
 	"""
 	try:
 		import uno
@@ -171,7 +175,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.6  2006-12-17 20:47:16  ncq
+# Revision 1.7  2006-12-18 15:51:12  ncq
+# - comment how to start server OOo writer
+#
+# Revision 1.6  2006/12/17 20:47:16  ncq
 # - add open_uri_in_ooo()
 #
 # Revision 1.5  2006/11/27 23:02:08  ncq
