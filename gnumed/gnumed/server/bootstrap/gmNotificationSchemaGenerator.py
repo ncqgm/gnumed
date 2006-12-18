@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -67,7 +67,7 @@ create constraint trigger tr_%(sig)s_mod
 """
 #------------------------------------------------------------------
 def create_notification_schema(aCursor):
-	cmd = "select table_name, notification_name from notifying_tables";
+	cmd = u"select table_name, notification_name from notifying_tables"
 	rows, idx = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no notifying tables')
@@ -105,7 +105,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.16  2006-12-06 16:11:25  ncq
+# Revision 1.17  2006-12-18 17:38:19  ncq
+# - u''ify 2 queries
+#
+# Revision 1.16  2006/12/06 16:11:25  ncq
 # - port to gmPG2
 #
 # Revision 1.15  2006/11/14 23:29:01  ncq

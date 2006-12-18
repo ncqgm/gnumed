@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -37,22 +37,6 @@ audit_trail_table_prefix = 'log_'
 audit_trail_parent_table = 'audit.audit_trail'
 # audited tables inherit these fields
 audit_fields_table = 'audit.audit_fields'
-
-#==================================================================
-# convenient queries
-#------------------------------------------------------------------
-# return all tables inheriting from another table
-#query_table_descendants = """SELECT relname, oid
-#FROM pg_class
-#WHERE pg_class.oid in (
-#	SELECT inhrelid
-#	FROM pg_inherits
-#	WHERE inhparent = (
-#		SELECT oid
-#		FROM pg_class
-#		WHERE relname = %s
-#	)
-#)"""
 
 #==================================================================
 # SQL statements for auditing setup script
@@ -225,7 +209,7 @@ def trigger_ddl(aCursor='default', schema='audit', audited_table=None):
 #------------------------------------------------------------------
 def create_audit_ddl(aCursor):
 	# get list of all marked tables
-	cmd = "select schema, table_name from audit.audited_tables";
+	cmd = u"select schema, table_name from audit.audited_tables"
 	rows, idx = gmPG2.run_ro_queries(link_obj=aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no tables to audit')
@@ -275,7 +259,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.28  2006-12-06 16:11:08  ncq
+# Revision 1.29  2006-12-18 17:38:19  ncq
+# - u''ify 2 queries
+#
+# Revision 1.28  2006/12/06 16:11:08  ncq
 # - port to gmPG2
 #
 # Revision 1.27  2006/11/14 23:27:56  ncq
