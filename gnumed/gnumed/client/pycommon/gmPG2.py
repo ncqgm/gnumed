@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -321,7 +321,7 @@ where
 #------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
 	"""Returns false, true."""
-	cmd = """
+	cmd = u"""
 select exists (
 	select 1 from information_schema.tables
 	where
@@ -908,7 +908,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.17  2006-12-15 15:23:50  ncq
+# Revision 1.18  2006-12-18 14:55:40  ncq
+# - u''ify a query
+#
+# Revision 1.17  2006/12/15 15:23:50  ncq
 # - improve database_schema_compatible()
 #
 # Revision 1.16  2006/12/12 13:14:32  ncq
