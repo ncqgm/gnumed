@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.287 2006-12-17 22:20:33 ncq Exp $
-__version__ = "$Revision: 1.287 $"
+# $Id: gmGuiMain.py,v 1.288 2006-12-18 12:59:24 ncq Exp $
+__version__ = "$Revision: 1.288 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -24,21 +24,24 @@ import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT
 
 # do not check inside py2exe and friends
 if not hasattr(sys, 'frozen'):
-	try:
-		import wxversion
-		wxversion.select(versions=['2.6-unicode', '2.7-unicode', '2.8-unicode'], optionsRequired=True)
-	except ImportError:
-		print "GNUmed startup: Cannot import wxPython version selection support."
-		print "GNUmed startup: Installing 'wxversion' version selection is highly"
-		print "GNUmed startup: recommended. For details, see here:"
-		print "GNUmed startup:  http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
-		print "GNUmed startup: Starting anyways and hoping for the best:"
-		print "GNUmed startup: wxPython must be at least v2.6 and unicode-enabled"
-	except wxversion.VersionError:
-		print "GNUmed startup: Cannot import proper wxPython library version."
-		print "GNUmed startup: wxPython 2.6+ with unicode support is required."
-		print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
-		raise
+	import wxversion
+	wxversion.ensureMinimal('2.6-unicode', optionsRequired=True)
+
+#	try:
+#		import wxversion
+#		wxversion.ensureMinimal('2.6-unicode', optionsRequired=True)
+#	except ImportError:
+#		print "GNUmed startup: Cannot import wxPython version selection support."
+#		print "GNUmed startup: Installing 'wxversion' version selection is highly"
+#		print "GNUmed startup: recommended. For details, see here:"
+#		print "GNUmed startup:  http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
+#		print "GNUmed startup: Starting anyways and hoping for the best:"
+#		print "GNUmed startup: wxPython must be at least v2.6 and unicode-enabled"
+#	except wxversion.VersionError:
+#		print "GNUmed startup: Cannot import proper wxPython library version."
+#		print "GNUmed startup: wxPython 2.6+ with unicode support is required."
+#		print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
+#		raise
 
 try:
 	import wx
@@ -48,6 +51,8 @@ except ImportError:
 	print 'CRITICAL ERROR: Error importing wxPython. Halted.'
 	raise
 
+# do this check just in case, so we can make sure
+# py2exe and friends include the proper version, too
 #version = '%s.%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION)
 #if (version =< '2.6') or ('unicode' not in wx.PlatformInfo):
 if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.PlatformInfo):
@@ -1209,7 +1214,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.287  2006-12-17 22:20:33  ncq
+# Revision 1.288  2006-12-18 12:59:24  ncq
+# - properly ensure minimum wxPython version, including unicode,
+#   should now allow for 2.7, 2.8, gtk2, mac, msw
+#
+# Revision 1.287  2006/12/17 22:20:33  ncq
 # - accept wxPython > 2.6
 #
 # Revision 1.286  2006/12/15 15:26:21  ncq
