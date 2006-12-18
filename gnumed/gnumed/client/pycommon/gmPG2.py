@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -90,11 +90,13 @@ _default_login = None
 known_schema_hashes = {
 	'devel': 'not released, testing only',
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
-	'v3': 'v3 database not yet released, MD5 hash still unknown'
+	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
+	'v4': 'v4 database not yet released, MD5 hash still unknown'
 }
 
 map_schema_hash2version = {
-	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2'
+	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
+	'e73718eaf230d8f1d2d01afa8462e176': 'v3'
 }
 
 # get columns and data types for a given table
@@ -908,7 +910,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.18  2006-12-18 14:55:40  ncq
+# Revision 1.19  2006-12-18 17:39:55  ncq
+# - make v3 database have known hash
+#
+# Revision 1.18  2006/12/18 14:55:40  ncq
 # - u''ify a query
 #
 # Revision 1.17  2006/12/15 15:23:50  ncq
