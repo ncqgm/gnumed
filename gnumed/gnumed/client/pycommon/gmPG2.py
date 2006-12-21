@@ -12,17 +12,22 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
 import time, locale, sys, re, os, codecs, types, datetime
 
+
 # GNUmed
-import gmLog, gmLoginInfo, gmExceptions
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmLoginInfo, gmExceptions, gmDateTime
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
 
 # 3rd party
 try:
@@ -57,24 +62,13 @@ import psycopg2.extras
 import psycopg2.extensions
 
 # =======================================================================
-
-_default_client_encoding = 'UNICODE'
+#_default_client_encoding = 'UNICODE'
+_default_client_encoding = 'UTF8'
 _log.Log(gmLog.lInfo, 'assuming default client encoding of [%s]' % _default_client_encoding)
 
 # default time zone for connections
-# OR: mxDT.now().gmtoffset()
-if time.daylight:
-	tz = time.altzone
-else:
-	tz = time.timezone
-# do some magic to convert Python's timezone to a valid ISO timezone
-# is this safe or will it return things like 13.5 hours ?
-_default_client_timezone = "%+.1f" % (-tz / 3600.0)
+_default_client_timezone = gmDateTime.current_iso_timezone
 _log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
-try:
-	import mx.DateTime as mxDT
-	_log.Log(gmLog.lInfo, 'mx.DateTime.now().gmtoffset() is: [%s]' % mxDT.now().gmtoffset())
-except: pass
 
 # MUST NOT be uniocde or else getquoted will not work
 _timestamp_template = "cast('%s' as timestamp with time zone)"
@@ -610,7 +604,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	# 3) client time zone
 	_log.Log(gmLog.lData, 'time zone [%s]' % _default_client_timezone)
-	cmd = "set time zone '%s'" % _default_client_timezone
+	cmd = "set time zone interval '%s' hour to minute" % _default_client_timezone
 	curs.execute(cmd)
 
 	# 4) datestyle
@@ -712,6 +706,10 @@ except:
 
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	# default time zone for connections
+	gmDateTime.init()
+	_default_client_timezone = gmDateTime.current_iso_timezone
+	_log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
 
 	#--------------------------------------------------------------------
 	def test_get_connection():
@@ -910,7 +908,12 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.19  2006-12-18 17:39:55  ncq
+# Revision 1.20  2006-12-21 10:52:52  ncq
+# - fix test suite
+# - set default client encoding to "UTF8" which is more precise than "UNICODE"
+# - use gmDateTime for timezone handling thereby fixing the time.daylight error
+#
+# Revision 1.19  2006/12/18 17:39:55  ncq
 # - make v3 database have known hash
 #
 # Revision 1.18  2006/12/18 14:55:40  ncq
