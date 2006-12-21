@@ -17,9 +17,9 @@ Note that if you want locale-aware formatting you need to call
 somehwere before importing this script.
 """)
 #===========================================================================
-# $Id: gmDateTime.py,v 1.1 2006-12-21 10:50:50 ncq Exp $
+# $Id: gmDateTime.py,v 1.2 2006-12-21 17:44:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -39,7 +39,8 @@ _log.Log(gmLog.lInfo, __version__)
 
 dst_currently_in_effect = None
 current_utc_offset = None
-current_iso_timezone = None
+current_timezone_interval = None
+current_iso_timezone_string = None
 
 #===========================================================================
 def init():
@@ -80,9 +81,11 @@ def init():
 	else:
 		_log.Log(gmLog.lData, 'UTC offset is ZERO, assuming Greenwich')
 
-	global current_iso_timezone
-	current_iso_timezone = mxDT.now().gmtoffset()
-	_log.Log(gmLog.lData, 'ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_iso_timezone)
+	global current_timezone_interval
+	current_timezone_interval = mxDT.now().gmtoffset()
+	_log.Log(gmLog.lData, 'ISO timezone: [%s] (taken from mx.DateTime.now().gmtoffset())' % current_timezone_interval)
+	global current_iso_timezone_string
+	current_iso_timezone_string = str(current_timezone_interval).replace(',', '.')
 
 	# do some magic to convert Python's timezone to a valid ISO timezone
 	# is this safe or will it return things like 13.5 hours ?
@@ -98,7 +101,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.1  2006-12-21 10:50:50  ncq
+# Revision 1.2  2006-12-21 17:44:26  ncq
+# - differentiate between timezone as interval and as string
+# - if timezone string is to be ISO aware it cannot contain ","
+#
+# Revision 1.1  2006/12/21 10:50:50  ncq
 # - date/time handling
 #
 #
