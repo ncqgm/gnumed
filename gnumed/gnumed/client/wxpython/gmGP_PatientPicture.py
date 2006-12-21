@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.14 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmGP_PatientPicture.py,v 1.15 2006-12-21 16:53:23 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -36,8 +36,8 @@ class cPatientPicture (wx.StaticBitmap):
 			self.default_photo = "../bitmaps/any_body2.png"
 
 		# just in case
-		wx.Image_AddHandler(wxPNGHandler())
-		wx.Image_AddHandler(wx.JPEGHandler ())
+#		wx.Image_AddHandler(wxPNGHandler())
+#		wx.Image_AddHandler(wx.JPEGHandler())
 		if not current_photo:
 			current_photo = self.default_photo
 		img_data = wx.Image(current_photo, wx.BITMAP_TYPE_ANY)
@@ -108,7 +108,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.14  2006-05-15 13:36:00  ncq
+# Revision 1.15  2006-12-21 16:53:23  ncq
+# - no extra init of grafic handlers
+#
+# Revision 1.14  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection
