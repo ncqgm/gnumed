@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -67,7 +67,7 @@ _default_client_encoding = 'UTF8'
 _log.Log(gmLog.lInfo, 'assuming default client encoding of [%s]' % _default_client_encoding)
 
 # default time zone for connections
-_default_client_timezone = gmDateTime.current_iso_timezone
+_default_client_timezone = gmDateTime.current_iso_timezone_string
 _log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
 
 # MUST NOT be uniocde or else getquoted will not work
@@ -706,10 +706,8 @@ except:
 
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-	# default time zone for connections
+
 	gmDateTime.init()
-	_default_client_timezone = gmDateTime.current_iso_timezone
-	_log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
 
 	#--------------------------------------------------------------------
 	def test_get_connection():
@@ -908,7 +906,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.20  2006-12-21 10:52:52  ncq
+# Revision 1.21  2006-12-21 17:44:54  ncq
+# - use gmDateTime.current_iso_timezone_*string* as that is ISO conformant
+#
+# Revision 1.20  2006/12/21 10:52:52  ncq
 # - fix test suite
 # - set default client encoding to "UTF8" which is more precise than "UNICODE"
 # - use gmDateTime for timezone handling thereby fixing the time.daylight error
