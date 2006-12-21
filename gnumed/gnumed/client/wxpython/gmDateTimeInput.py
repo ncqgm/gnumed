@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.48 2006-11-27 23:14:33 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmDateTimeInput.py,v 1.49 2006-12-21 10:54:18 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -157,6 +157,13 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	def SetData(self, data=None):
+		self.data = data
+		if data is not None:
+			gmPhraseWheel.cPhraseWheel.SetValue(self, self.data.format_accurately())
+		else:
+			gmPhraseWheel.cPhraseWheel.SetValue(self, '')
+	#--------------------------------------------------------
 	def SetValue(self, val, data=None):
 		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
 		if data is None:
@@ -214,7 +221,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.48  2006-11-27 23:14:33  ncq
+# Revision 1.49  2006-12-21 10:54:18  ncq
+# - add SetData
+#
+# Revision 1.48  2006/11/27 23:14:33  ncq
 # - remove prints
 #
 # Revision 1.47  2006/11/27 23:04:49  ncq
