@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.291 2006-12-21 17:19:49 ncq Exp $
-__version__ = "$Revision: 1.291 $"
+# $Id: gmGuiMain.py,v 1.292 2006-12-21 17:54:23 ncq Exp $
+__version__ = "$Revision: 1.292 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -22,6 +22,7 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
 import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT
+
 
 # 3rd party libs
 if not hasattr(sys, 'frozen'):		# do not check inside py2exe and friends
@@ -46,6 +47,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 	print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
 	raise ValueError('wxPython 2.6+ with unicode support not found')
 
+
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
@@ -66,14 +68,10 @@ _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.P
 
 
 # set up database connection encoding
-# 1) explicitely set by user
 encoding = _cfg.get('backend', 'encoding')
 if encoding is not None:
 	gmPG2.set_default_client_encoding(encoding)
-#if encoding is None:
-#	encoding = locale.getlocale()[1]
-#if encoding is not None:
-#	gmPG2.set_default_client_encoding(encoding)
+
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
@@ -1204,7 +1202,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.291  2006-12-21 17:19:49  ncq
+# Revision 1.292  2006-12-21 17:54:23  ncq
+# - cleanup
+#
+# Revision 1.291  2006/12/21 17:19:49  ncq
 # - need to do *something* in setup_platform, and be it "pass"
 #
 # Revision 1.290  2006/12/21 16:53:59  ncq
