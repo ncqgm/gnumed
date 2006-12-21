@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/backup-gnumed-database.sh,v $
-# $Id: backup-gnumed-database.sh,v 1.1 2006-12-05 14:48:08 ncq Exp $
+# $Id: backup-gnumed-database.sh,v 1.2 2006-12-21 19:01:21 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -15,6 +15,7 @@ BACKUPDIR="need to set this"
 # identify the logical/business-level owner of this
 # GNUmed database instance
 INSTANCEOWNER="need to set this"
+BACKUPOWNER="$USER.$USER"
 
 #==============================================================
 # There really should not be any need to
@@ -29,9 +30,14 @@ BACKUPFILE="$BACKUPDIR/backup-$PGDATABASE-$INSTANCEOWNER-$HOST-$TS.sql"
 
 pg_dump -f $BACKUPFILE
 
+chown $BACKUPOWNER $BACKUPFILE
+
 #==============================================================
 # $Log: backup-gnumed-database.sh,v $
-# Revision 1.1  2006-12-05 14:48:08  ncq
+# Revision 1.2  2006-12-21 19:01:21  ncq
+# - add target owner chown
+#
+# Revision 1.1  2006/12/05 14:48:08  ncq
 # - first release of a backup script
 #
 #
