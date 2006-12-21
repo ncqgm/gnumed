@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.102 2006-12-13 22:32:17 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmMedDocWidgets.py,v 1.103 2006-12-21 10:55:09 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -79,7 +79,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self._TCTRL_l10n_type.SetValue(doc_type['l10n_type'])
 
 		self._BTN_set_translation.Enable(True)
-		self._BTN_delete.Enable(bool(doc_type['is_in_use']))
+		self._BTN_delete.Enable(not bool(doc_type['is_in_use']))
 		self._BTN_add.Enable(False)
 		return
 	#--------------------------------------------------------
@@ -1229,7 +1229,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.102  2006-12-13 22:32:17  ncq
+# Revision 1.103  2006-12-21 10:55:09  ncq
+# - fix inverted is_in_use logic on enabling delete button
+#
+# Revision 1.102  2006/12/13 22:32:17  ncq
 # - need to explicitely check for "is_user_defined is True/False"
 #
 # Revision 1.101  2006/12/13 20:55:22  ncq
