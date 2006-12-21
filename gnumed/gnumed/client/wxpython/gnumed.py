@@ -42,8 +42,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.104 2006-11-15 00:40:35 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gnumed.py,v 1.105 2006-12-21 17:54:43 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -176,6 +176,10 @@ def setup_locale():
 	gmI18N.install_domain(text_domain = td, language = l)
 
 	return True
+#==========================================================
+def setup_date_time():
+	from Gnumed.pycommon import gmDateTime
+	gmDateTime.init()
 #==========================================================
 def setup_cfg_file():
 	from Gnumed.pycommon import gmCfg, gmNull
@@ -378,6 +382,7 @@ _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
 
+setup_date_time()
 setup_cfg_file()
 
 appPath = get_base_dir()
@@ -451,7 +456,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.104  2006-11-15 00:40:35  ncq
+# Revision 1.105  2006-12-21 17:54:43  ncq
+# - init date/time handling early on
+#
+# Revision 1.104  2006/11/15 00:40:35  ncq
 # - if we encounter and unhandled exception we can just as well be verbose
 #
 # Revision 1.103  2006/09/01 14:47:22  ncq
