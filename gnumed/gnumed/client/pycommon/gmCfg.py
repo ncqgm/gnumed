@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -1106,14 +1106,17 @@ else:
 
 	# - IF the caller really knows what she does she can handle
 	#   that exception in her own code
-	try:
-		gmDefCfgFile = cCfgFile()
-	except:
-		_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
+#	try:
+	gmDefCfgFile = cCfgFile()
+#	except:
+#		_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.49  2006-12-13 14:55:56  ncq
+# Revision 1.50  2006-12-21 10:49:38  ncq
+# - do not hide exceptiosn
+#
+# Revision 1.49  2006/12/13 14:55:56  ncq
 # - remove get() from SQL source
 #
 # Revision 1.48  2006/12/05 13:54:02  ncq
