@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.7 2006-12-18 15:51:12 ncq Exp $
+# $Id: gmTools.py,v 1.8 2006-12-21 10:53:53 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -39,6 +39,7 @@ def open_uri_in_ooo(filename=None):
 
 	local_context	= uno.getComponentContext()
 	uri_resolver	= local_context.ServiceManager.createInstanceWithContext(resolver_uri, local_context)
+	# FIXME: this can fail with a connect exception, catch it and start OOo like above
 	remote_context	= uri_resolver.resolve(remote_context_uri)
 	ooo_desktop		= remote_context.ServiceManager.createInstanceWithContext(ooo_desktop_uri, remote_context)
 
@@ -111,11 +112,15 @@ def coalesce(initial=None, instead=None, template=None):
 
 	To be used to simplify constructs like:
 
-	if value is None:
-		real_value = some_other_value
-	else:
-		real_value = value
-	print real_value
+		if value is None:
+			real_value = some_other_value
+		else:
+			real_value = some_template_with_%s_formatter % value
+		print real_value
+
+	<initial>: the string to be tested for None
+	<instead>: the string to be returned if <initial> is None
+	<template>: the template into which to insert <initial> if <initial> is NOT None, must contain one %s or similar
 	"""
 	if initial is None:
 		return instead
@@ -175,7 +180,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.7  2006-12-18 15:51:12  ncq
+# Revision 1.8  2006-12-21 10:53:53  ncq
+# - document coalesce() better
+#
+# Revision 1.7  2006/12/18 15:51:12  ncq
 # - comment how to start server OOo writer
 #
 # Revision 1.6  2006/12/17 20:47:16  ncq
