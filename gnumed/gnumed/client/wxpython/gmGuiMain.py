@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.290 2006-12-21 16:53:59 ncq Exp $
-__version__ = "$Revision: 1.290 $"
+# $Id: gmGuiMain.py,v 1.291 2006-12-21 17:19:49 ncq Exp $
+__version__ = "$Revision: 1.291 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1077,6 +1077,7 @@ class gmApp(wx.App):
 #			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
 			# need to explicitely init image handlers on windows
 #			wx.InitAllImageHandlers()
+		pass
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
@@ -1203,7 +1204,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.290  2006-12-21 16:53:59  ncq
+# Revision 1.291  2006-12-21 17:19:49  ncq
+# - need to do *something* in setup_platform, and be it "pass"
+#
+# Revision 1.290  2006/12/21 16:53:59  ncq
 # - init image handlers once for good
 #
 # Revision 1.289  2006/12/21 11:04:29  ncq
