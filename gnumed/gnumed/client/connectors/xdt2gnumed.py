@@ -12,14 +12,14 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/Attic/xdt2gnumed.py,v $
-# $Id: xdt2gnumed.py,v 1.9 2006-09-01 15:42:32 ncq Exp $
-__version__ = '$Revision: 1.9 $'
+# $Id: xdt2gnumed.py,v 1.10 2006-12-21 10:48:57 ncq Exp $
+__version__ = '$Revision: 1.10 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
 import sys, time, xmlrpclib, socket, time
 
-from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog, gmCLI
+from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog, gmCLI, gmNull
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -30,7 +30,7 @@ class cBaseConnector:
 
 	def __init__(self):
 		# sanity check
-		if _cfg is None:
+		if isinstance(_cfg, gmNull.cNull):
 			_log.Log(gmLog.lErr, 'cannot run without config file')
 			raise gmExceptions.ConstructorError, _("Cannot find config file. Option syntax: --conf-file=<file>")
 		self.__conn_auth = 0
@@ -108,6 +108,7 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
 	gmI18N.activate_locale()
+
 	td = None
 	if gmCLI.has_arg('--text-domain'):
 		td = gmCLI.arg['--text-domain']
@@ -127,7 +128,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: xdt2gnumed.py,v $
-# Revision 1.9  2006-09-01 15:42:32  ncq
+# Revision 1.10  2006-12-21 10:48:57  ncq
+# - properly check config file
+#
+# Revision 1.9  2006/09/01 15:42:32  ncq
 # - no more --unicode-gettext
 #
 # Revision 1.8  2006/07/24 20:29:23  ncq
