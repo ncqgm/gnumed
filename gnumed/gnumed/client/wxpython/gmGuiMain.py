@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.289 2006-12-21 11:04:29 ncq Exp $
-__version__ = "$Revision: 1.289 $"
+# $Id: gmGuiMain.py,v 1.290 2006-12-21 16:53:59 ncq Exp $
+__version__ = "$Revision: 1.290 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1072,11 +1072,11 @@ class gmApp(wx.App):
 	# internal helpers
 	#----------------------------------------------
 	def __setup_platform(self):
-		if wx.Platform == '__WXMSW__':
+#		if wx.Platform == '__WXMSW__':
 			# windoze specific stuff here
-			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
+#			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
 			# need to explicitely init image handlers on windows
-			wx.InitAllImageHandlers()
+#			wx.InitAllImageHandlers()
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
@@ -1176,6 +1176,9 @@ class gmApp(wx.App):
 		return False
 #==============================================================================
 def main():
+	wx.Image_AddHandler(wx.PNGHandler())
+	wx.Image_AddHandler(wx.JPEGHandler())
+	wx.Image_AddHandler(wx.GIFHandler())
 	# create an instance of our GNUmed main application
 	app = gmApp(False)
 	_log.Log(gmLog.lInfo, 'display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
@@ -1200,7 +1203,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.289  2006-12-21 11:04:29  ncq
+# Revision 1.290  2006-12-21 16:53:59  ncq
+# - init image handlers once for good
+#
+# Revision 1.289  2006/12/21 11:04:29  ncq
 # - ensureMinimal() is the proper way to go about ensuring a minimum wxPython version
 # - only set gmPG2 module global encoding if explicitely set by config file
 # - use more predefined wx.ID_*s and do away with module global wx.NewId() constants
