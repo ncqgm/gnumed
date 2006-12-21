@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.19 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPatPicWidgets.py,v 1.20 2006-12-21 16:54:32 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -49,9 +49,9 @@ class cPatientPicture(wx.StaticBitmap):
 		self.__fallback_pic_name = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'bitmaps', 'empty-face-in-bust.png')
 		self.__pat = gmPerson.gmCurrentPatient()
 		# just in case
-		wx.Image_AddHandler(wx.PNGHandler())
-		wx.Image_AddHandler(wx.JPEGHandler())
-		wx.Image_AddHandler(wx.GIFHandler())
+#		wx.Image_AddHandler(wx.PNGHandler())
+#		wx.Image_AddHandler(wx.JPEGHandler())
+#		wx.Image_AddHandler(wx.GIFHandler())
 		# load initial dummy bitmap
 		img_data = wx.Image(self.__fallback_pic_name, wx.BITMAP_TYPE_ANY)
 		bmp_data = wx.BitmapFromImage(img_data)
@@ -184,7 +184,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.19  2006-11-24 10:01:31  ncq
+# Revision 1.20  2006-12-21 16:54:32  ncq
+# - inage handlers already inited
+#
+# Revision 1.19  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.18  2006/07/30 18:47:38  ncq

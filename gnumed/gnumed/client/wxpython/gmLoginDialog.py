@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.72 2006-12-15 15:27:28 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmLoginDialog.py,v 1.73 2006-12-21 16:54:32 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -77,7 +77,7 @@ class LoginPanel(wx.Panel):
 
 		bitmap = os.path.join (self.gb['resource dir'], 'bitmaps', 'gnumedlogo.png')
 		try:
-			wx.Image_AddHandler(wx.PNGHandler())
+#			wx.Image_AddHandler(wx.PNGHandler())
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
 			bmp = wx.StaticBitmap(self, -1, png, wx.Point(10, 10), wx.Size(png.GetWidth(), png.GetHeight()))
 			self.topsizer.Add(bmp, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
@@ -468,7 +468,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.72  2006-12-15 15:27:28  ncq
+# Revision 1.73  2006-12-21 16:54:32  ncq
+# - inage handlers already inited
+#
+# Revision 1.72  2006/12/15 15:27:28  ncq
 # - cleanup
 #
 # Revision 1.71  2006/10/25 07:21:57  ncq
