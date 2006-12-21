@@ -13,35 +13,20 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.288 2006-12-18 12:59:24 ncq Exp $
-__version__ = "$Revision: 1.288 $"
+# $Id: gmGuiMain.py,v 1.289 2006-12-21 11:04:29 ncq Exp $
+__version__ = "$Revision: 1.289 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
+# stdlib
 import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT
 
-# do not check inside py2exe and friends
-if not hasattr(sys, 'frozen'):
+# 3rd party libs
+if not hasattr(sys, 'frozen'):		# do not check inside py2exe and friends
 	import wxversion
 	wxversion.ensureMinimal('2.6-unicode', optionsRequired=True)
-
-#	try:
-#		import wxversion
-#		wxversion.ensureMinimal('2.6-unicode', optionsRequired=True)
-#	except ImportError:
-#		print "GNUmed startup: Cannot import wxPython version selection support."
-#		print "GNUmed startup: Installing 'wxversion' version selection is highly"
-#		print "GNUmed startup: recommended. For details, see here:"
-#		print "GNUmed startup:  http://wiki.wxpython.org/index.cgi/MultiVersionInstalls"
-#		print "GNUmed startup: Starting anyways and hoping for the best:"
-#		print "GNUmed startup: wxPython must be at least v2.6 and unicode-enabled"
-#	except wxversion.VersionError:
-#		print "GNUmed startup: Cannot import proper wxPython library version."
-#		print "GNUmed startup: wxPython 2.6+ with unicode support is required."
-#		print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
-#		raise
 
 try:
 	import wx
@@ -61,7 +46,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 	print 'CRITICAL ERROR: Proper wxPython version not found. Halted.'
 	raise ValueError('wxPython 2.6+ with unicode support not found')
 
-
+# GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson
@@ -81,11 +66,14 @@ _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.P
 
 
 # set up database connection encoding
+# 1) explicitely set by user
 encoding = _cfg.get('backend', 'encoding')
 if encoding is not None:
 	gmPG2.set_default_client_encoding(encoding)
-if encoding is None:
-	encoding = locale.getlocale()[1]
+#if encoding is None:
+#	encoding = locale.getlocale()[1]
+#if encoding is not None:
+#	gmPG2.set_default_client_encoding(encoding)
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
@@ -93,24 +81,6 @@ if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v3'
-
-ID_ABOUT = wx.NewId ()
-ID_CONTRIBUTORS = wx.NewId()
-ID_EXIT = wx.NewId ()
-ID_HELP = wx.NewId ()
-ID_NOTEBOOK = wx.NewId ()
-ID_LEFTBOX = wx.NewId ()
-ID_EXPORT_EMR = wx.NewId()
-ID_EXPORT_EMR_JOURNAL = wx.NewId()
-ID_EXPORT_MEDISTAR = wx.NewId()
-ID_CREATE_PATIENT = wx.NewId()
-ID_SEARCH_PATIENT = wx.NewId()
-ID_SEARCH_EMR = wx.NewId()
-ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
-ID_DERMTOOL = wx.NewId ()
-ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
-ID_ADD_NEW_STAFF = wx.NewId()
-ID_EMR_SUMMARY = wx.NewId()
 
 #==============================================================================
 
@@ -234,8 +204,8 @@ class gmTopLevelFrame(wx.Frame):
 			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------
 	def __setup_accelerators(self):
-		self.acctbl.append ((wx.ACCEL_ALT | wx.ACCEL_CTRL, ord('X'), ID_EXIT))
-		self.acctbl.append ((wx.ACCEL_CTRL, ord('H'), ID_HELP))
+		self.acctbl.append ((wx.ACCEL_ALT | wx.ACCEL_CTRL, ord('X'), wx.ID_EXIT))
+		self.acctbl.append ((wx.ACCEL_CTRL, ord('H'), wx.ID_HELP))
 		self.SetAcceleratorTable(wx.AcceleratorTable(self.acctbl))
 	#----------------------------------------------
 	def __setup_main_menu(self):
@@ -256,8 +226,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu_gnumed.AppendSeparator()
 
-		menu_gnumed.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
-		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
+		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
+		wx.EVT_MENU(self, wx.ID_EXIT, self.OnFileExit)
 
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
@@ -266,6 +236,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# FIXME: regroup into sub-menus
 
+		ID_ADD_NEW_STAFF = wx.NewId()
 		menu_admin.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
@@ -289,6 +260,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external patient'), _('Load patient from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
 
+		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
 
@@ -296,6 +268,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_patient.Append(ID_DEL_PAT, _('Delete patient'), _('Deactivate patient in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
+		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
 		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current patient as staff member'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
 
@@ -310,13 +283,15 @@ class gmTopLevelFrame(wx.Frame):
 		menu_emr_export = wx.Menu()
 		menu_emr.AppendMenu(wx.NewId(), _('Export as ...'), menu_emr_export)
 		#   1) ASCII
+		ID_EXPORT_EMR_ASCII = wx.NewId()
 		menu_emr_export.Append (
-			ID_EXPORT_EMR,
+			ID_EXPORT_EMR_ASCII,
 			_('Text document'),
 			_("Export the EMR of the active patient into a text file")
 		)
-		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
+		wx.EVT_MENU(self, ID_EXPORT_EMR_ASCII, self.OnExportEMR)
 		#   2) journal format
+		ID_EXPORT_EMR_JOURNAL = wx.NewId()
 		menu_emr_export.Append (
 			ID_EXPORT_EMR_JOURNAL,
 			_('Journal'),
@@ -324,6 +299,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
 		#   3) Medistar import format
+		ID_EXPORT_MEDISTAR = wx.NewId()
 		menu_emr_export.Append (
 			ID_EXPORT_MEDISTAR,
 			_('MEDISTAR import format'),
@@ -331,6 +307,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
 		# - summary
+		ID_EMR_SUMMARY = wx.NewId()
 		menu_emr.Append (
 			ID_EMR_SUMMARY,
 			_('Show Summary'),
@@ -344,6 +321,7 @@ class gmTopLevelFrame(wx.Frame):
 		# - draw a line
 		menu_emr.AppendSeparator()
 		# - search
+		ID_SEARCH_EMR = wx.NewId()
 		menu_emr.Append (
 			ID_SEARCH_EMR,
 			_('Search'),
@@ -351,6 +329,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
 		# - add health issue
+		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 		menu_emr.Append (
 			ID_ADD_HEALTH_ISSUE_TO_EMR,
 			_('Add Past History (Foundational Issue)'),
@@ -383,7 +362,8 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
 #		menu_gnumed.AppendSeparator()
 
-#		self.menu_tools.Append (ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
+#		ID_DERMTOOL = wx.NewId()
+#		self.menu_tools.Append(ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
 #		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
 
 		# menu "Knowledge" ---------------------
@@ -399,9 +379,10 @@ class gmTopLevelFrame(wx.Frame):
 		# menu "Help" -------------------------
 		help_menu = wx.Menu()
 		# - about
-		help_menu.Append(ID_ABOUT, _('About GNUmed'), "")
-		wx.EVT_MENU (self, ID_ABOUT, self.OnAbout)
+		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
+		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
 		# - contributors
+		ID_CONTRIBUTORS = wx.NewId()
 		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
 		wx.EVT_MENU (self, ID_CONTRIBUTORS, self.__on_show_contributors)
 		# - among other things the Manual is added from a plugin
@@ -1204,6 +1185,11 @@ def main():
 # Main
 #==============================================================================
 if __name__ == '__main__':
+
+	from GNUmed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	_log.AddTarget(aLogTarget)
@@ -1214,7 +1200,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.288  2006-12-18 12:59:24  ncq
+# Revision 1.289  2006-12-21 11:04:29  ncq
+# - ensureMinimal() is the proper way to go about ensuring a minimum wxPython version
+# - only set gmPG2 module global encoding if explicitely set by config file
+# - use more predefined wx.ID_*s and do away with module global wx.NewId() constants
+# - fix standalone startup to init gmI18N
+#
+# Revision 1.288  2006/12/18 12:59:24  ncq
 # - properly ensure minimum wxPython version, including unicode,
 #   should now allow for 2.7, 2.8, gtk2, mac, msw
 #
