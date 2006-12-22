@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -67,6 +67,8 @@ _default_client_encoding = 'UTF8'
 _log.Log(gmLog.lInfo, 'assuming default client encoding of [%s]' % _default_client_encoding)
 
 # default time zone for connections
+if gmDateTime.current_iso_timezone_string is None:
+	gmDateTime.init()
 _default_client_timezone = gmDateTime.current_iso_timezone_string
 _log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
 
@@ -906,7 +908,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.21  2006-12-21 17:44:54  ncq
+# Revision 1.22  2006-12-22 16:54:44  ncq
+# - init gmDateTime if necessary
+#
+# Revision 1.21  2006/12/21 17:44:54  ncq
 # - use gmDateTime.current_iso_timezone_*string* as that is ISO conformant
 #
 # Revision 1.20  2006/12/21 10:52:52  ncq
