@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -11,7 +11,7 @@ import types, sys, string, datetime
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmNull, gmBusinessDBObject
+from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime
 from Gnumed.business import gmClinNarrative
 
 _log = gmLog.gmDefLog
@@ -255,7 +255,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 
 		staff_id - Provider's primary key
 		"""
-		self._payload[self._idx['last_affirmed']] = datetime.datetime.today()
+		self._payload[self._idx['last_affirmed']] = datetime.datetime.now(tz = gmDateTime.cLocalTimezone())
 		success, data = self.save_payload()
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
@@ -530,7 +530,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.88  2006-11-24 09:30:33  ncq
+# Revision 1.89  2006-12-22 16:53:31  ncq
+# - use timezone definition in gmDateTime
+#
+# Revision 1.88  2006/11/24 09:30:33  ncq
 # - make cHealthIssue save more of its members
 # - if_patient -> fk_patient
 # - do not log i18n()ed message so failure there doesn't stop us from creating a health issue or episode
