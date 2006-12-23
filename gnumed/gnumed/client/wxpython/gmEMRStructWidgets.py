@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.39 2006-11-28 20:44:36 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmEMRStructWidgets.py,v 1.40 2006-12-23 01:07:28 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -27,7 +27,7 @@ from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 if __name__ == '__main__':
 	gmI18N.install_domain()
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg, wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -37,6 +37,219 @@ dialog_CANCELLED = -1
 dialog_OK = -2
 
 #================================================================
+# encounter related widgets/functions
+#----------------------------------------------------------------
+class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Phrasewheel to allow selection of encounter type.
+
+	- user input interpreted as encounter type in English or local language
+	- data returned is pk of corresponding encounter type or None
+	"""
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [
+u"""
+select pk, l10n_description from (
+	select distinct on (pk) * from (
+		(select
+			pk,
+			_(description) as l10n_description,
+			1 as rank
+		from
+			clin.encounter_type
+		where
+			_(description) %(fragment_condition)s
+
+		) union all (
+
+		select
+			pk,
+			_(description) as l10n_description,
+			2 as rank
+		from
+			clin.encounter_type
+		where
+			description %(fragment_condition)s
+		)
+	) as q_distinct_pk
+) as q_ordered order by rank, l10n_description
+"""			]
+		)
+
+		mp.setThresholds(2, 4, 6)
+		kwargs['aMatchProvider'] = mp
+		kwargs['aDelay'] = 50
+		kwargs['selection_only'] = True
+
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+#----------------------------------------------------------------
+class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			self.__encounter = kwargs['encounter']
+			del kwargs['encounter']
+		except KeyError:
+			self.__encounter = None
+
+		wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self.__init_ui()
+		if self.__encounter is not None:
+			self.refresh()
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_problems.InsertColumn(0, _('Episode'))
+		self._LCTRL_problems.InsertColumn(1, _('Foundational Issue'))
+		self._LCTRL_problems.InsertColumn(2, _('Assessment'))
+		self._LCTRL_problems.InsertColumn(3, _('Narrative'))
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, encounter = None):
+
+		if encounter is not None:
+			self.__encounter = encounter
+
+		# getting the patient via the encounter allows us to act
+		# on any encounter regardless of the currently active encounter
+		pat = gmPerson.cPatient(identity = gmPerson.cIdentity(aPK_obj = self.__encounter['pk_patient']))
+		emr = pat.get_emr()
+		episodes = emr.get_episodes_by_encounter(pk_encounter = self.__encounter['pk_encounter'])
+		pos = len(episodes) + 1
+
+		print "epis:", episodes
+		print "FIXME: episodes empty"
+
+		self._LCTRL_problems.DeleteAllItems()
+		for episode in episodes:
+			row_num = self._LCTRL_problems.InsertStringItem(pos, label = episode['description'])
+			self._LCTRL_problems.SetStringItem(index = row_num, col = 1, label = gmTools.coalesce(episode['health_issue'], ''))
+		if len(episodes) > 0:
+			self._LCTRL_problems.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_problems.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)		# wx.LIST_AUTOSIZE_USEHEADER
+
+		self._PRW_encounter_type.SetValue(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
+
+		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
+			timestamp = self.__encounter['started'],
+			accuracy = gmFuzzyTimestamp.acc_minutes
+		)
+		self._PRW_start.SetData(data=fts)
+
+		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
+			timestamp = self.__encounter['last_affirmed'],
+			accuracy = gmFuzzyTimestamp.acc_minutes
+		)
+		self._PRW_end.SetData(data=fts)
+
+		self._TCTRL_rfe.SetValue(gmTools.coalesce(self.__encounter['reason_for_encounter'], ''))
+		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
+
+		if self.__encounter['last_affirmed'] == self.__encounter['started']:
+			self._PRW_end.SetFocus()
+		else:
+			self._TCTRL_aoe.SetFocus()
+
+		return True
+	#--------------------------------------------------------
+	def __is_valid_for_save(self):
+
+		if self._PRW_condition.GetValue().strip() == '':
+			self._PRW_condition.SetBackgroundColour('pink')
+			self._PRW_condition.Refresh()
+			self._PRW_condition.SetFocus()
+			return False
+		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_condition.Refresh()
+
+		# FIXME: check age/year diagnosed
+		age_noted = self._PRW_age_noted.GetValue().strip()
+		if age_noted != '':
+			if gmTools.str2interval(str_interval=age_noted) is None:
+				self._PRW_age_noted.SetBackgroundColour('pink')
+				self._PRW_age_noted.Refresh()
+				self._PRW_age_noted.SetFocus()
+				return False
+		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_age_noted.Refresh()
+
+		return True
+	#--------------------------------------------------------
+	def save(self, can_create=True):
+		if not self.__is_valid_for_save():
+			return False
+
+		desc = self._PRW_condition.GetValue().strip()
+
+		if self.__issue is None:
+			if not can_create:
+				gmGuiHelpers.gm_statustext(_('Creating new health issue not allowed.'))
+				return False
+			pat = gmPerson.gmCurrentPatient()
+			success, self.__issue = gmEMRStructItems.create_health_issue (
+				patient_id = pat.get_id(),
+				description = desc
+			)
+		else:
+			self.__issue['description'] = desc
+
+		side = ''
+		if self._ChBOX_left.GetValue():
+			side += 's'
+		if self._ChBOX_right.GetValue():
+			side += 'd'
+		if side != '':
+			self.__issue['laterality'] = side
+
+		self.__issue['is_active'] = bool(self._ChBOX_active.GetValue())
+		self.__issue['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
+		self.__issue['is_confidential'] = bool(self._ChBOX_confidential.GetValue())
+		self.__issue['is_cause_of_death'] = bool(self._ChBOX_caused_death.GetValue())
+		age_noted = self._PRW_age_noted.GetData()
+		if age_noted is not None:
+			self.__issue['age_noted'] = age_noted
+
+		self.__issue.save_payload()			# FIXME: error checking
+
+		narr = self._TCTRL_notes.GetValue().strip()
+		if narr != '':
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk'], is_open=None)
+			if epi is not None:
+				epi['episode_open'] = False
+				epi.save_payload()			# FIXME: error handling
+				emr.add_clin_narrative(note = narr, soap_cat='s', episode=epi)
+
+		# FIXME: handle is_operation
+
+		return True
+
+
+#----------------------------------------------------------------
+class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
+
+	def __init__(self, *args, **kwargs):
+		encounter = kwargs['encounter']
+		del kwargs['encounter']
+
+		wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg.__init__(self, *args, **kwargs)
+
+		self._PNL_edit_area.refresh(encounter=encounter)
+
+		self.Refresh()		# needed ?
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_edit_area.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+#================================================================
+# episode related widgets/functions
+#----------------------------------------------------------------
 def move_episode_to_issue(episode=None, target_issue=None):
 
 	# we need a target issue
@@ -120,21 +333,123 @@ you want to move it to also has an open episode:
 				epi_exist['episode_open'] = False
 				epi_exist.save_payload()
 
-		episode['pk_health_issue'] = target_issue['pk']
-		success, data = episode.save_payload()
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Cannot move episode\n [%(epi)s]\n into health issue\n [%(issue)s].') % {
-					'epi': episode['description'],
-					'issue': target_issue['description']
-				},
-				_('Moving episode')
-			)
-			return True
+	episode['pk_health_issue'] = target_issue['pk']
+	success, data = episode.save_payload()
+	if not success:
+		gmGuiHelpers.gm_show_error (
+			_('Cannot move episode\n [%(epi)s]\n into health issue\n [%(issue)s].') % {
+				'epi': episode['description'],
+				'issue': target_issue['description']
+			},
+			_('Moving episode')
+		)
+		return True
 
 	# FIXME: signal issue/episode change
+	return True
+#----------------------------------------------------------------
+class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let user select an episode.
 
-#============================================================
+	The user can select an episode from the existing episodes of a
+	patient. Selection is done with a phrasewheel so the user
+	can type the episode name and matches will be shown. Typing
+	"*" will show the entire list of episodes. Closed episodes
+	will be marked as such. If the user types an episode name not
+	in the list of existing episodes a new episode can be created
+	from it if the programmer activated that feature.
+
+	If keyword <patient_id> is set to None or left out the control
+	will listen to patient change signals and therefore act on
+	gmPerson.gmCurrentPatient() changes.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [
+u"""select pk_episode, description, 1 from clin.v_pat_episodes where
+		episode_open is true and
+		description %(fragment_condition)s and
+		%(ctxt_pat)s""",
+u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
+		description %(fragment_condition)s and
+		%(ctxt_pat)s"""
+			],
+			context = ctxt
+		)
+
+		try: kwargs['patient_id']
+		except KeyError: kwargs['patient_id'] = None
+
+		if kwargs['patient_id'] is None:
+			self.use_current_patient = True
+			self.__register_patient_change_signals()
+			pat = gmPerson.gmCurrentPatient()
+			if pat.is_connected():
+				mp.set_context('pat', pat.getID())
+		else:
+			self.use_current_patient = False
+			self.__patient_id = int(kwargs['patient_id'])
+			mp.set_context('pat', self.__patient_id)
+
+		del kwargs['patient_id']
+
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def set_patient(self, patient_id=None):
+		if self.use_current_patient:
+			return False
+		self.__patient_id = int(patient_id)
+		self.set_context('pat', self.__patient_id)
+		return True
+	#--------------------------------------------------------
+	def GetData(self, can_create=False, is_open=False):
+		if self.data is None:
+			if can_create:
+				epi_name = self.GetValue().strip()
+
+				if self.use_current_patient:
+					pat = gmPerson.gmCurrentPatient()
+				else:
+					ident = gmPerson.cIdentity(aPK_obj=self.__patient_id)
+					pat = gmPerson.cPatient(identity=ident)
+				emr = pat.get_emr()
+
+				epi = emr.add_episode(episode_name=epi_name, is_open=is_open)
+				if epi is None:
+					self.data = None
+				else:
+					self.data = epi['pk_episode']
+
+		return gmPhraseWheel.cPhraseWheel.GetData(self)
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __register_patient_change_signals(self):
+		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+	#--------------------------------------------------------
+	def _pre_patient_selection(self):
+		return True
+	#--------------------------------------------------------
+	def _post_patient_selection(self):
+		if self.use_current_patient:
+			patient = gmPerson.gmCurrentPatient()
+			self.set_context('pat', patient.getID())
+		return True
+
+#================================================================
+# foundational issue related widgets/functions
+#----------------------------------------------------------------
 class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let the user select a health issue.
 
@@ -242,106 +557,7 @@ union
 			patient = gmPerson.gmCurrentPatient()
 			self.set_context('pat', patient.getID())
 		return True
-#============================================================
-class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
-	"""Let user select an episode.
-
-	The user can select an episode from the existing episodes of a
-	patient. Selection is done with a phrasewheel so the user
-	can type the episode name and matches will be shown. Typing
-	"*" will show the entire list of episodes. Closed episodes
-	will be marked as such. If the user types an episode name not
-	in the list of existing episodes a new episode can be created
-	from it if the programmer activated that feature.
-
-	If keyword <patient_id> is set to None or left out the control
-	will listen to patient change signals and therefore act on
-	gmPerson.gmCurrentPatient() changes.
-	"""
-	def __init__(self, *args, **kwargs):
-
-		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}
-
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [
-u"""select pk_episode, description, 1 from clin.v_pat_episodes where
-		episode_open is true and
-		description %(fragment_condition)s and
-		%(ctxt_pat)s""",
-u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
-		description %(fragment_condition)s and
-		%(ctxt_pat)s"""
-			],
-			context = ctxt
-		)
-
-		try: kwargs['patient_id']
-		except KeyError: kwargs['patient_id'] = None
-
-		if kwargs['patient_id'] is None:
-			self.use_current_patient = True
-			self.__register_patient_change_signals()
-			pat = gmPerson.gmCurrentPatient()
-			if pat.is_connected():
-				mp.set_context('pat', pat.getID())
-		else:
-			self.use_current_patient = False
-			self.__patient_id = int(kwargs['patient_id'])
-			mp.set_context('pat', self.__patient_id)
-
-		del kwargs['patient_id']
-
-		kwargs['aMatchProvider'] = mp
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def set_patient(self, patient_id=None):
-		if self.use_current_patient:
-			return False
-		self.__patient_id = int(patient_id)
-		self.set_context('pat', self.__patient_id)
-		return True
-	#--------------------------------------------------------
-	def GetData(self, can_create=False, is_open=False):
-		if self.data is None:
-			if can_create:
-				epi_name = self.GetValue().strip()
-
-				if self.use_current_patient:
-					pat = gmPerson.gmCurrentPatient()
-				else:
-					ident = gmPerson.cIdentity(aPK_obj=self.__patient_id)
-					pat = gmPerson.cPatient(identity=ident)
-				emr = pat.get_emr()
-
-				epi = emr.add_episode(episode_name=epi_name, is_open=is_open)
-				if epi is None:
-					self.data = None
-				else:
-					self.data = epi['pk_episode']
-
-		return gmPhraseWheel.cPhraseWheel.GetData(self)
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
-	#--------------------------------------------------------
-	def _pre_patient_selection(self):
-		return True
-	#--------------------------------------------------------
-	def _post_patient_selection(self):
-		if self.use_current_patient:
-			patient = gmPerson.gmCurrentPatient()
-			self.set_context('pat', patient.getID())
-		return True
-#============================================================
+#------------------------------------------------------------
 class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -364,7 +580,7 @@ class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 			)
 			return False
 		return True
-#============================================================
+#------------------------------------------------------------
 class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl):
 	"""Panel encapsulating health issue edit area functionality."""
 
@@ -612,7 +828,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		# FIXME: handle is_operation
 
 		return True
-#============================================================
+#------------------------------------------------------------
 class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -645,171 +861,7 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 	def _on_clear_button_pressed(self, evt):
 		self._PNL_edit_area.refresh()
 #============================================================
-class cHealthIssueEditArea(gmEditArea.cEditArea2):
-	"""Edit Area for Health Issues.
-
-	They correspond to "Past History" items.
-	"""
-	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.NO_BORDER, data_sink=None):
-		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
-		# this edit area will ignore data_sink for now as
-		# it seems reasonable to save back new health issues
-		# immediately
-	#----------------------------------------------------
-	# public API
-	#----------------------------------------------------
-	def reset_ui(self):
-		self.fld_condition.SetValue('')
-		self.fld_age_onset.SetValue('')
-		self.fld_year_onset.SetValue('')
-		self.fld_progress_note.SetValue('')
-		self.fld_condition.SetFocus()
-	#----------------------------------------------------
-	def save_data(self):
-		# no pre-existing issue to deal with
-		if self.data is None:
-			return self.__save_new_entry()
-		else:
-			print self.__class__.__name__, "updating entry not implemented yet"
-	#----------------------------------------------------
-	def get_summary(self):
-		tmp = _('pHx: %s (noticed at age %s in %s)') % (
-			self.fld_condition.GetValue(),
-			self.fld_age_onset.GetValue(),
-			self.fld_year_onset.GetValue()
-		)
-		return tmp
-	#----------------------------------------------------
-	# intra-class API
-	#----------------------------------------------------
-	def _define_prompts(self):
-		self._add_prompt(line = 1, label = _('Condition'))
-		self._add_prompt(line = 2, label = _('Noticed'))
-		self._add_prompt(line = 3, label = _('Progress Note'))
-	#----------------------------------------------------
-	def _define_fields(self, parent):
-		# condition
-		cmd = u"""
-			select distinct on (description) pk, description
-			from clin.health_issue where description %(fragment_condition)s"""
-		mp = gmMatchProvider.cMatchProvider_SQL2([cmd])
-		mp.setThresholds(aWord=2, aSubstring=5)
-		self.fld_condition = gmPhraseWheel.cPhraseWheel (
-			parent = parent
-			, id = -1
-			, aMatchProvider = mp
-			, style = wx.SIMPLE_BORDER
-		)
-		gmEditArea._decorate_editarea_field(self.fld_condition)
-		self._add_field (
-			line = 1,
-			pos = 1,
-			widget = self.fld_condition,
-			weight = 3
-		)
-		self.fld_condition.SetFocus()
-		# Onset
-		label = wx.StaticText (
-			parent = parent,
-			id = -1,
-			label = '%s: ' % _('Age'),
-			style = wx.ALIGN_CENTRE
-		)
-		self._add_field (
-			line = 2,
-			pos = 1,
-			widget = label,
-			weight = 0
-		)
-		# FIXME: gmDateTimeInput
-		self.fld_age_onset = gmEditArea.cEditAreaField(parent)
-		self._add_field (
-			line = 2,
-			pos = 2,
-			widget = self.fld_age_onset,
-			weight = 2
-		)
-		label = wx.StaticText (
-			parent = parent,
-			id = -1,
-			label = '%s: ' % _('Year'),
-			style = wx.ALIGN_CENTRE
-		)
-		self._add_field (
-			line = 2,
-			pos = 3,
-			widget = label,
-			weight = 0
-		)
-		# FIXME: gmDateTimeInput
-		self.fld_year_onset = gmEditArea.cEditAreaField(parent)
-		self._add_field (
-			line = 2,
-			pos = 4,
-			widget = self.fld_year_onset,
-			weight = 2
-		)
-		# Progress note
-		cmd = u"""
-			select distinct on (narrative) pk, narrative
-			from clin.clin_narrative where narrative %(fragment_condition)s limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2([cmd])
-		mp.setThresholds(2, 4, 6)
-		self.fld_progress_note = gmPhraseWheel.cPhraseWheel (
-			parent = parent
-			, id = -1
-			, aMatchProvider = mp
-			, style = wx.SIMPLE_BORDER | wx.TE_MULTILINE
-		)
-		gmEditArea._decorate_editarea_field(self.fld_progress_note)
-		self._add_field (
-			line = 3,
-			pos = 1,
-			widget = self.fld_progress_note,
-			weight = 1
-		)
-		return 1
-	#----------------------------------------------------
-	# internal helpers
-	#----------------------------------------------------
-	def __save_new_entry(self):
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
-		# create issue
-		condition = self.fld_condition.GetValue()
-		new_issue = emr.add_health_issue(issue_name = condition)
-
-		#FIXME: use this for non-collapsing update of EMRBrowser
-		self._health_issue = new_issue
-
-		if new_issue is False:
-			self._short_error = _('Health issue [%s] already exists. Cannot add duplicate.') % condition
-			# FIXME: ask whether should update existing issue
-			return False
-		if new_issue is None:
-			self._short_error = _('Error adding health issue [%s]') % condition
-			return False
-		# age onset
-		age_onset = self.fld_age_onset.GetValue()
-		# FIXME: plausibility checks until proper gmDateTimeInput used
-		if age_onset != '':
-			new_issue['age_noted'] = age_onset
-			# FIXME: error handling
-			new_issue.save_payload()
-			
-		# FIXME: handle fld_year_onset
-
-		# progress note
-		narr = self.fld_progress_note.GetValue().strip()
-		if narr != '':
-			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['pk'])
-			epi['episode_open'] = False
-			epi.save_payload()
-			# FIXME: error handling
-			if epi is not None:
-				# FIXME: error handling
-				emr.add_clin_narrative(note = narr, episode=epi)
-		return True
+# unchecked older widgtets
 #============================================================
 class cEpisodeSelectorDlg(wx.Dialog):
 	"""
@@ -1469,7 +1521,30 @@ if __name__ == '__main__':
 				Close test aplication
 				"""
 				self.ExitMainLoop ()
-				
+	#----------------------------------------------------------------
+	def test_encounter_edit_area_panel():
+		app = wx.PyWidgetTester(size = (200, 300))
+		emr = pat.get_emr()
+		enc = emr.get_active_encounter()
+		#enc = gmEMRStructItems.cEncounter(1)
+		pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
+		app.frame.Show(True)
+		app.MainLoop()
+		return
+	#----------------------------------------------------------------
+	def test_encounter_edit_area_dialog():
+		app = wx.PyWidgetTester(size = (200, 300))
+		emr = pat.get_emr()
+		enc = emr.get_active_encounter()
+		#enc = gmEMRStructItems.cEncounter(1)
+
+		dlg = cEncounterEditAreaDlg(parent=app.frame, id=-1, size = (400,400), encounter=enc)
+		dlg.ShowModal()
+
+#		pnl = cEncounterEditAreaDlg(app.frame, -1, encounter=enc)
+#		app.frame.Show(True)
+#		app.MainLoop()
+		return
 	#================================================================
 #	import sys
 
@@ -1513,18 +1588,29 @@ if __name__ == '__main__':
 		sys.exit(0)
 	gmPerson.set_active_patient(patient=pat)
 
-	app = wx.PyWidgetTester(size = (200, 300))
-	gmPerson.set_active_patient(patient=pat)
-	dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
-	dlg.ShowModal()
+	#test_encounter_edit_area_panel()
+	test_encounter_edit_area_dialog()
+
+#	app = wx.PyWidgetTester(size = (200, 300))
+#	dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
+#	dlg.ShowModal()
+
 #	app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
 #	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
 #	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20), patient_id=pat.getID())
-	app.MainLoop()
+#	app.MainLoop()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.39  2006-11-28 20:44:36  ncq
+# Revision 1.40  2006-12-23 01:07:28  ncq
+# - fix encounter type phrasewheel query
+# - add encounter details edit area panel/dialog
+#   - still needs save() and friends fixed
+# - general cleanup/moving about of stuff
+# - fix move_episode_to_issue() logic
+# - start cleanup of test suite
+#
+# Revision 1.39  2006/11/28 20:44:36  ncq
 # - some rearrangement
 #
 # Revision 1.38  2006/11/27 23:15:01  ncq
