@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.37 2006-10-25 07:17:40 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmForms.py,v 1.38 2006-12-23 15:23:11 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
 
 # standard library 
@@ -17,7 +17,7 @@ import sys, os.path, string, time, re, tempfile, cStringIO, types
 import Cheetah.Template, Cheetah.Filters
 
 # our modules
-from Gnumed.pycommon import gmLog, gmCfg, gmExceptions, gmMatchProvider, gmI18N
+from Gnumed.pycommon import gmLog, gmCfg, gmExceptions, gmMatchProvider, gmI18N, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # start logging
@@ -175,9 +175,8 @@ class LaTeXForm (gmFormEngine):
 			stdin.write (str (latex)) #send text. LaTeX spits it's output into stdout
 			# FIXME: send LaTeX output to the logger
 			stdin.close ()
-			dvips = os.system ("dvips texput.dvi -o texput.ps")
-			if dvips != 0:
-				raise FormError ('DVIPS returned error [%d]' % dvips)
+			if not gmShellAPI.run_command_in_shell("dvips texput.dvi -o texput.ps", blocking=True):
+				raise FormError ('DVIPS returned error')
 		except EnvironmentError, e:
 			_log.Log (gmLog.lErr, e.strerror)
 			raise FormError (e.strerror)
@@ -188,18 +187,17 @@ class LaTeXForm (gmFormEngine):
 		For testing purposes, runs Xdvi on the intermediate TeX output
 		WARNING: don't try this on Windows
 		"""
-		os.system ("xdvi texput.dvi")
-		
+		gmShellAPI.run_command_in_shell("xdvi texput.dvi", blocking=True)
+
 	def exe (self, command):
 		if "%F" in command:
 			command.replace ("%F", "texput.ps")
 		else:
 			command	 = "%s < texput.ps" % command
 		try:
-			ret = os.system (command)
-			if ret != 0:
+			if not gmShellAPI.run_command_in_shell(command, blocking=True):
 				_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
-				raise FormError ('external command %s returned %s' % (command, ret))
+				raise FormError ('external command %s returned error' % command
 		except EnvironmentError, e:
 			_log.Log (gmLog.lErr, e.strerror)
 			raise FormError (e.strerror)		     
@@ -395,7 +393,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.37  2006-10-25 07:17:40  ncq
+# Revision 1.38  2006-12-23 15:23:11  ncq
+# - use gmShellAPI
+#
+# Revision 1.37  2006/10/25 07:17:40  ncq
 # - no more gmPG
 # - no more cClinItem
 #

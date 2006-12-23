@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.292 2006-12-21 17:54:23 ncq Exp $
-__version__ = "$Revision: 1.292 $"
+# $Id: gmGuiMain.py,v 1.293 2006-12-23 15:25:40 ncq Exp $
+__version__ = "$Revision: 1.293 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -49,7 +49,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
@@ -518,7 +518,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 
 		wx.BeginBusyCursor()
-		os.system(ifap_cmd)				# FIXME: factor out to gmShellRunner.py or something
+		gmShellAPI.run_command_in_shell(command=ifap_cmd, blocking=True)
 		wx.EndBusyCursor()
 
 		# COMMENT: this file must exist PRIOR to invoking IFAP
@@ -1202,7 +1202,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.292  2006-12-21 17:54:23  ncq
+# Revision 1.293  2006-12-23 15:25:40  ncq
+# - use gmShellAPI
+#
+# Revision 1.292  2006/12/21 17:54:23  ncq
 # - cleanup
 #
 # Revision 1.291  2006/12/21 17:19:49  ncq

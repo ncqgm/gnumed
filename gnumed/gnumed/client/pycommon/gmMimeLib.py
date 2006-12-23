@@ -2,14 +2,14 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.7 2006-10-31 17:19:26 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMimeLib.py,v 1.8 2006-12-23 15:24:28 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import os, mailcap, string, sys, mimetypes, shutil
 
-import gmLog
+import gmLog, gmShellAPI
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #=======================================================================================
@@ -155,39 +155,15 @@ def call_viewer_on_file(aFile = None, block=None):
 	_log.Log(gmLog.lData, "viewer cmd: <%s>" % viewer_cmd)
 
 	if viewer_cmd is not None:
-		# what the following hack does is this: the user indicated
-		# whether she wants non-blocking external display of files
-		# - the real way to go about this is to have a non-blocking command
-		#   in the line in the mailcap file for the relevant mime types
-		# - as non-blocking may not be desirable when *not* displaying
-		#   files from within GNUmed the really right way would be to
-		#   add a "test" clause to the non-blocking mailcap entry which
-		#   yields true if and only if GNUmed is running
-		# - however, this is cumbersome at best and not supported in
-		#   some mailcap implementations
-		# - so we allow the user to attempt some control over the process
-		#   from within GNUmed by setting a configuration option
-		# - leaving it None means to use the mailcap default
-		# - True means: tack " &" onto the shell command if necessary
-		# - False means: remove " &" from the shell command if its there
-		# - all this, of course, only works in shells which support
-		#   detaching jobs with " &" (so, most POSIX shells)
-		if block is False:
-			if viewer_cmd[-2:] != ' &':
-				viewer_cmd += ' &'
-		elif block is True:
-			if viewer_cmd[-2:] == ' &':
-				viewer_cmd = viewer_cmd[:-2]
-		exit_code = os.system(viewer_cmd)
-		_log.Log(gmLog.lData, 'os.system(%s) returned [%s]' % (viewer_cmd, exit_code))
-		return True, ''
+		if gmShellAPI.run_command_in_shell(command=viewer_cmd, blocking=block):
+			return True, ''
 
 	_log.Log(gmLog.lWarn, "no viewer found via standard mailcap system")
 	if os.name == "posix":
 		_log.Log(gmLog.lWarn, "You should add a viewer for this mime type to your mailcap file.")
 		msg = _("Unable to display the file:\n\n"
 				" [%s]\n\n"
-				"Your system does not seem to have any\n"
+				"Your system does not seem to have a (working)\n"
 				"viewer registered for the file type\n"
 				" [%s]"
 		) % (aFile, mime_type)
@@ -234,7 +210,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.7  2006-10-31 17:19:26  ncq
+# Revision 1.8  2006-12-23 15:24:28  ncq
+# - use gmShellAPI
+#
+# Revision 1.7  2006/10/31 17:19:26  ncq
 # - some ERRORs are really WARNings
 #
 # Revision 1.6  2006/09/12 17:23:30  ncq
