@@ -13,6 +13,7 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._LCTRL_problems = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT)
+        self._LBL_patient = wx.StaticText(self, -1, "")
         self._PRW_encounter_type = gmEMRStructWidgets.cEncounterTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_start = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
         self._PRW_end = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
@@ -35,10 +36,13 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
     def __do_layout(self):
         # begin wxGlade: wxgEncounterEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __gszr_encounter_details = wx.FlexGridSizer(5, 2, 1, 3)
-        __lbl_instructions = wx.StaticText(self, -1, _("Edit the encounter/consultation details below.\n\nThe following problems were touched upon during this consultation:"), style=wx.ALIGN_CENTRE)
+        __gszr_encounter_details = wx.FlexGridSizer(6, 2, 1, 3)
+        __lbl_instructions = wx.StaticText(self, -1, _("Edit the details for todays consultation below.\n\nThe following problems were discussed during this consultation:"), style=wx.ALIGN_CENTRE)
         __szr_main.Add(__lbl_instructions, 0, wx.EXPAND, 0)
         __szr_main.Add(self._LCTRL_problems, 1, wx.EXPAND, 0)
+        __lbl_patient = wx.StaticText(self, -1, _("Patient"))
+        __gszr_encounter_details.Add(__lbl_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __gszr_encounter_details.Add(self._LBL_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_type = wx.StaticText(self, -1, _("Type"))
         __gszr_encounter_details.Add(__lbl_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._PRW_encounter_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
