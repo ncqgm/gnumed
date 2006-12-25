@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.40 2006-12-23 01:07:28 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmEMRStructWidgets.py,v 1.41 2006-12-25 22:52:14 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -114,7 +114,8 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 		# getting the patient via the encounter allows us to act
 		# on any encounter regardless of the currently active encounter
-		pat = gmPerson.cPatient(identity = gmPerson.cIdentity(aPK_obj = self.__encounter['pk_patient']))
+		ident = gmPerson.cIdentity(aPK_obj = self.__encounter['pk_patient'])
+		pat = gmPerson.cPatient(identity = ident)
 		emr = pat.get_emr()
 		episodes = emr.get_episodes_by_encounter(pk_encounter = self.__encounter['pk_encounter'])
 		pos = len(episodes) + 1
@@ -136,13 +137,13 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			timestamp = self.__encounter['started'],
 			accuracy = gmFuzzyTimestamp.acc_minutes
 		)
-		self._PRW_start.SetData(data=fts)
+		self._PRW_start.SetValue(fts.format_accurately(), data=fts)
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
 			timestamp = self.__encounter['last_affirmed'],
 			accuracy = gmFuzzyTimestamp.acc_minutes
 		)
-		self._PRW_end.SetData(data=fts)
+		self._PRW_end.SetValue(fts.format_accurately(), data=fts)
 
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(self.__encounter['reason_for_encounter'], ''))
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
@@ -152,82 +153,47 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		else:
 			self._TCTRL_aoe.SetFocus()
 
+		self._LBL_patient.SetLabel(ident.get_description())
+
 		return True
 	#--------------------------------------------------------
 	def __is_valid_for_save(self):
 
-		if self._PRW_condition.GetValue().strip() == '':
-			self._PRW_condition.SetBackgroundColour('pink')
-			self._PRW_condition.Refresh()
-			self._PRW_condition.SetFocus()
+		if self._PRW_encounter_type.GetData is None:
+			self._PRW_encounter_type.SetBackgroundColour('pink')
+			self._PRW_encounter_type.Refresh()
+			self._PRW_encounter_type.SetFocus()
 			return False
-		self._PRW_condition.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_condition.Refresh()
+		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_encounter_type.Refresh()
 
-		# FIXME: check age/year diagnosed
-		age_noted = self._PRW_age_noted.GetValue().strip()
-		if age_noted != '':
-			if gmTools.str2interval(str_interval=age_noted) is None:
-				self._PRW_age_noted.SetBackgroundColour('pink')
-				self._PRW_age_noted.Refresh()
-				self._PRW_age_noted.SetFocus()
-				return False
-		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_noted.Refresh()
+		if not self._PRW_start.is_valid_timestamp():
+			self._PRW_start.SetFocus()
+			return False
+
+		if not self._PRW_end.is_valid_timestamp():
+			self._PRW_end.SetFocus()
+			return False
 
 		return True
 	#--------------------------------------------------------
-	def save(self, can_create=True):
+	def save(self):
 		if not self.__is_valid_for_save():
 			return False
 
-		desc = self._PRW_condition.GetValue().strip()
+		self.__encounter['pk_type'] = self._PRW_encounter_type.GetData()
+		self.__encounter['started'] = self._PRW_start.GetData().get_pydt()
+		self.__encounter['last_affirmed'] = self._PRW_end.GetData().get_pydt()
+		rfe = self._TCTRL_rfe.GetValue().strip()
+		if rfe != u'':
+			self.__encounter['reason_for_encounter'] = rfe
+		aoe = self._TCTRL_aoe.GetValue().strip()
+		if aoe != u'':
+			self.__encounter['assessment_of_encounter'] = aoe
 
-		if self.__issue is None:
-			if not can_create:
-				gmGuiHelpers.gm_statustext(_('Creating new health issue not allowed.'))
-				return False
-			pat = gmPerson.gmCurrentPatient()
-			success, self.__issue = gmEMRStructItems.create_health_issue (
-				patient_id = pat.get_id(),
-				description = desc
-			)
-		else:
-			self.__issue['description'] = desc
-
-		side = ''
-		if self._ChBOX_left.GetValue():
-			side += 's'
-		if self._ChBOX_right.GetValue():
-			side += 'd'
-		if side != '':
-			self.__issue['laterality'] = side
-
-		self.__issue['is_active'] = bool(self._ChBOX_active.GetValue())
-		self.__issue['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
-		self.__issue['is_confidential'] = bool(self._ChBOX_confidential.GetValue())
-		self.__issue['is_cause_of_death'] = bool(self._ChBOX_caused_death.GetValue())
-		age_noted = self._PRW_age_noted.GetData()
-		if age_noted is not None:
-			self.__issue['age_noted'] = age_noted
-
-		self.__issue.save_payload()			# FIXME: error checking
-
-		narr = self._TCTRL_notes.GetValue().strip()
-		if narr != '':
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_emr()
-			epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = self.__issue['pk'], is_open=None)
-			if epi is not None:
-				epi['episode_open'] = False
-				epi.save_payload()			# FIXME: error handling
-				emr.add_clin_narrative(note = narr, soap_cat='s', episode=epi)
-
-		# FIXME: handle is_operation
+		self.__encounter.save_payload()			# FIXME: error checking
 
 		return True
-
-
 #----------------------------------------------------------------
 class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 
@@ -1602,7 +1568,13 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.40  2006-12-23 01:07:28  ncq
+# Revision 1.41  2006-12-25 22:52:14  ncq
+# - encounter details editor
+#   - set patient name
+#   - valid_for_save(), save()
+#   - properly set started/ended
+#
+# Revision 1.40  2006/12/23 01:07:28  ncq
 # - fix encounter type phrasewheel query
 # - add encounter details edit area panel/dialog
 #   - still needs save() and friends fixed
