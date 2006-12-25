@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.293 2006-12-23 15:25:40 ncq Exp $
-__version__ = "$Revision: 1.293 $"
+# $Id: gmGuiMain.py,v 1.294 2006-12-25 22:54:28 ncq Exp $
+__version__ = "$Revision: 1.294 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -335,13 +335,13 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
 		# - document current medication
-#		ID_ADD_DRUGS_TO_EMR = wx.NewId()
-#		menu_emr.Append (
-#			ID_ADD_DRUGS_TO_EMR,
-#			_('Document current medication'),
-#			_('Select current medication from drug database and save into progress notes.')
-#		)
-#		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
+		ID_ADD_DRUGS_TO_EMR = wx.NewId()
+		menu_emr.Append (
+			ID_ADD_DRUGS_TO_EMR,
+			_('Document current medication'),
+			_('Select current medication from drug database and save into progress notes.')
+		)
+		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
 		# - draw a line
 		menu_emr.AppendSeparator()
 
@@ -358,11 +358,19 @@ class gmTopLevelFrame(wx.Frame):
 		ID_UNBLOCK = wx.NewId()
 		self.menu_tools.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
-#		menu_gnumed.AppendSeparator()
+		self.menu_tools.AppendSeparator()
+
+		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
+		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
+		ID_DICOM_VIEWER = wx.NewId()
+		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer for CD-ROM (X-Ray, CT, MR, etc). Linux only (on Windows just insert CD).'))
+		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 
 #		ID_DERMTOOL = wx.NewId()
 #		self.menu_tools.Append(ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
 #		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
+
+		self.menu_tools.AppendSeparator()
 
 		# menu "Knowledge" ---------------------
 		menu_knowledge = wx.Menu()
@@ -373,6 +381,13 @@ class gmTopLevelFrame(wx.Frame):
 		ID_IFAP = wx.NewId()			# FIXME: add only if installed
 		menu_knowledge.Append(ID_IFAP, _('ifap index (Win)'), _('Start "ifap index PRAXIS (Windows)" drug browser'))
 		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
+
+#		menu_knowledge.AppendSeparator()
+
+		# - "recommended" medical links in the Wiki
+		ID_FIREFOX = wx.NewId()
+		menu_knowledge.Append(ID_FIREFOX, _('WWW: medical links'), _('Show a page of links to useful medical content.'))
+		wx.EVT_MENU(self, ID_FIREFOX, self.__on_medical_links)
 
 		# menu "Help" -------------------------
 		help_menu = wx.Menu()
@@ -434,35 +449,23 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.is_connected():
 			return True
 
-#		gmGuiHelpers.gm_show_info (
-#			_('The previous patient was:\n\n'
-#			  ' [%s]'
-#			) % pat.get_identity().get_description(),
-#			_('changing patient')
-#		)
+		#pat.get_identity().get_description()
 
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
+		# did we add anything to the EMR ?
+		if enc.has_clinical_data() or True:
+			if enc['assessment_of_encounter'] is None:
+				# - work out suitable default
+				epis = emr.get_episodes_by_encounter()
+				if len(epis) > 0:
+					enc_summary = ''
+					for epi in epis:
+						enc_summary += '%s; ' % epi['description']
+					enc['assessment_of_encounter'] = enc_summary
+			dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
+			dlg.ShowModal()
 
-		# did we add anything to the EMR
-#		if not emr.is_encounter_modified():
-#			print "encounter not modified"
-#			return True
-
-		# update encounter summary
-		if ((enc['assessment_of_encounter'] is None)
-			or (enc['assessment_of_encounter'].find('auto-created') >= 0)
-			or (len(enc['assessment_of_encounter'].strip()) == 0)):
-			# - work out suitable default
-			epis = emr.get_episodes_by_encounter()
-			if len(epis) > 0:
-				enc_summary = ''
-				for epi in epis:
-					enc_summary += '%s; ' % epi['description']
-				enc['assessment_of_encounter'] = enc_summary
-			# FIXME: optionally pop up modal dialog to allow editing encounter summary before saving
-			if not enc.save_payload():
-				gmGuiHelpers.gm_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
 		return True
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -493,6 +496,15 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
+	#----------------------------------------------
+	def __on_dicom_viewer(self, evt):
+		# FIXME: scan CD for *.dcm files, put them into list and let
+		# FIXME: user call viewer for each
+		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+	#----------------------------------------------
+	#----------------------------------------------
+	def __on_medical_links(self, evt):
+		gmShellAPI.run_command_in_shell('firefox http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks')
 	#----------------------------------------------
 	def __on_ifap(self, evt):
 
@@ -544,6 +556,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmGuiHelpers.gm_show_info(msg, _('listing drugs'))
 
 		evt.Skip()
+	#----------------------------------------------
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
 		w, h = self.GetClientSize()
@@ -1202,7 +1215,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.293  2006-12-23 15:25:40  ncq
+# Revision 1.294  2006-12-25 22:54:28  ncq
+# - add comment on prospective DICOM viewer behaviour
+# - link to firefox with URL of medical content links wiki page from knowledge menu
+#
+# Revision 1.293  2006/12/23 15:25:40  ncq
 # - use gmShellAPI
 #
 # Revision 1.292  2006/12/21 17:54:23  ncq
