@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.60 2006-12-13 23:32:41 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmEMRBrowser.py,v 1.61 2006-12-25 22:50:50 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -179,8 +179,12 @@ class cEMRTree(wx.TreeCtrl):
 		# - encounters
 		self.__enc_context_popup = wx.Menu()
 		menu_id = wx.NewId()
+		# - move data
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('move encounter data to another episode')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
+		# - edit encounter details
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('edit consultation details')))
+		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
 		# attach encounter to another patient
 		# delete encounter
 		# attach all progress notes to another encounter
@@ -305,6 +309,11 @@ class cEMRTree(wx.TreeCtrl):
 	# encounters
 	def __handle_encounter_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__enc_context_popup, pos)
+	#--------------------------------------------------------
+	def __edit_consultation_details(self, event):
+		node_data = self.GetPyData(self.__curr_node)
+		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=node_data)
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	def __relink_encounter_data2episode(self, event):
 
@@ -707,7 +716,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.60  2006-12-13 23:32:41  ncq
+# Revision 1.61  2006-12-25 22:50:50  ncq
+# - add editing of consultation details from EMR tree right-click popup menu
+#
+# Revision 1.60  2006/12/13 23:32:41  ncq
 # - emr journal on a diet
 #
 # Revision 1.59  2006/11/24 14:20:44  ncq
