@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.225 2006-12-13 13:41:33 ncq Exp $
-__version__ = "$Revision: 1.225 $"
+# $Id: gmClinicalRecord.py,v 1.226 2006-12-25 22:48:09 ncq Exp $
+__version__ = "$Revision: 1.226 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -100,7 +100,6 @@ select fk_encounter from
 	#--------------------------------------------------------
 	def cleanup(self):
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.pk_patient)
-
 
 #		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
 #		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
@@ -1336,6 +1335,8 @@ where
 #				enc_ids = map(lambda x:x[0], rows)
 #				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
 
+			# this problem seems fixed for us as of PostgreSQL 8.2  :-)
+
 			# however, this seems like the proper approach:
 			# - find episodes corresponding to the health issues in question
 			cmd = u"select distinct pk from clin.episode where fk_health_issue in %(issues)s"
@@ -1598,7 +1599,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.225  2006-12-13 13:41:33  ncq
+# Revision 1.226  2006-12-25 22:48:09  ncq
+# - comment on PG 8.2 fixing child table index scans for us
+#
+# Revision 1.225  2006/12/13 13:41:33  ncq
 # - add remove_empty_encounters() and call from cleanup()
 #
 # Revision 1.224  2006/12/13 00:30:43  ncq
