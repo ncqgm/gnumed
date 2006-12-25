@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -73,7 +73,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.26 $" % self.__class__.__name__
+		return "%s $Revision: 1.27 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -117,7 +117,7 @@ class cMacroPrimitives:
 	def load_patient_from_external_source(self, auth_cookie = None):
 		"""Load external patient, perhaps create it.
 
-		Callers must use get_user_answer() to find get status information.
+		Callers must use get_user_answer() to get status information.
 		It is unsafe to proceed without knowing the completion state as
 		the controlled client may be waiting for user input from a
 		patient selection list.
@@ -283,7 +283,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.26  2006-07-22 12:15:08  ncq
+# Revision 1.27  2006-12-25 22:54:44  ncq
+# - comment fix
+#
+# Revision 1.26  2006/07/22 12:15:08  ncq
 # - add missing import
 #
 # Revision 1.25  2006/07/22 10:04:51  ncq
