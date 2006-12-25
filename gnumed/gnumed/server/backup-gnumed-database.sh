@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/backup-gnumed-database.sh,v $
-# $Id: backup-gnumed-database.sh,v 1.2 2006-12-21 19:01:21 ncq Exp $
+# $Id: backup-gnumed-database.sh,v 1.3 2006-12-25 22:55:10 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -32,9 +32,14 @@ pg_dump -f $BACKUPFILE
 
 chown $BACKUPOWNER $BACKUPFILE
 
+# GNotary support
+
 #==============================================================
 # $Log: backup-gnumed-database.sh,v $
-# Revision 1.2  2006-12-21 19:01:21  ncq
+# Revision 1.3  2006-12-25 22:55:10  ncq
+# - comment on gnotary support
+#
+# Revision 1.2  2006/12/21 19:01:21  ncq
 # - add target owner chown
 #
 # Revision 1.1  2006/12/05 14:48:08  ncq
