@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -221,8 +221,7 @@ from (
 		return True
 #============================================================
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one encounter.
-	"""
+	"""Represents one encounter."""
 	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter=%s"
 	_cmds_store_payload = [
 		u"""update clin.encounter set
@@ -288,6 +287,24 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [target_episode['pk_episode'], self.pk_obj, source_episode['pk_episode']]}])
 		self.refetch_payload()
 		return (True, True)
+	#--------------------------------------------------------
+	def has_clinical_data(self):
+		cmd = u"""
+select exists (
+	select 1 from clin.v_pat_items where pk_patient=%(pat)s and pk_encounter=%(enc)s union all
+	select 1 from blobs.doc_med where fk_identity=%(pat)s and fk_encounter=%(enc)s
+)"""
+		args = {
+			'pat': self._payload[self._idx['pk_patient']],
+			'enc': self.pk_obj
+		}
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': args
+			}]
+		)
+		return rows[0][0]
 #============================================================		
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
@@ -407,7 +424,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""
 	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
-		enc_type = 'in surgery'
+		enc_type = u'in surgery'
 	# insert new encounter
 	queries = []
 	try:
@@ -419,7 +436,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 				%s, -1, %s
 			)"""
 	except ValueError:
-		enc_type = str(enc_type)
+		enc_type = enc_type
 		cmd = u"""
 			insert into clin.encounter (
 				fk_patient, fk_location, fk_type
@@ -530,7 +547,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.89  2006-12-22 16:53:31  ncq
+# Revision 1.90  2006-12-25 22:48:52  ncq
+# - add cEncounter.has_clinical_data()
+#
+# Revision 1.89  2006/12/22 16:53:31  ncq
 # - use timezone definition in gmDateTime
 #
 # Revision 1.88  2006/11/24 09:30:33  ncq
