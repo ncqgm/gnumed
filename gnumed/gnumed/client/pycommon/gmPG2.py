@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -676,7 +676,7 @@ class cAdapterPyDateTime(object):
 		self.__dt = dt
 
 	def getquoted(self):
-		return _timestamp_template % self.__dt.isoformat()
+		return _timestamp_template % self.__dt.isoformat().replace(',', '.')
 # -----------------------------------------------------------------------
 class cAdapterMxDateTime(object):
 
@@ -694,11 +694,14 @@ class cAdapterMxDateTime(object):
 # make sure psycopg2 knows how to handle unicode ...
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
+
 # properly adapt *tuples* into (a, b, c, ...) in "... IN ..." queries
 psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
+
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY()..." so we can support PG arrays
 #psycopg2.extensions.register_adapter(list, psycopg2.extras.SQL_IN)
+
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 psycopg2.extensions.register_adapter(datetime.datetime, cAdapterPyDateTime)
 try:
@@ -908,7 +911,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.22  2006-12-22 16:54:44  ncq
+# Revision 1.23  2006-12-27 16:41:15  ncq
+# - make sure python datetime adapter does not put ',' into string
+#
+# Revision 1.22  2006/12/22 16:54:44  ncq
 # - init gmDateTime if necessary
 #
 # Revision 1.21  2006/12/21 17:44:54  ncq
