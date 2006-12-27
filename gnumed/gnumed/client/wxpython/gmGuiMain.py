@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.294 2006-12-25 22:54:28 ncq Exp $
-__version__ = "$Revision: 1.294 $"
+# $Id: gmGuiMain.py,v 1.295 2006-12-27 16:44:02 ncq Exp $
+__version__ = "$Revision: 1.295 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1042,9 +1042,6 @@ class gmApp(wx.App):
 		# and tell the app to use it
 		self.SetTopWindow(frame)
 
-		# NOTE: the following only works under Windows according
-		# to the docs and bombs under wxPython-2.4 on GTK/Linux
-		#frame.Maximize(True)
 		frame.CentreOnScreen(wx.BOTH)
 		frame.Show(True)
 
@@ -1059,7 +1056,7 @@ class gmApp(wx.App):
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
 			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
-		gmPatSearchWidgets.load_patient_from_external_sources(parent=frame)
+		wx.CallAfter(gmPatSearchWidgets.load_patient_from_external_sources, frame)
 
 		return True
 	#----------------------------------------------
@@ -1215,7 +1212,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.294  2006-12-25 22:54:28  ncq
+# Revision 1.295  2006-12-27 16:44:02  ncq
+# - delay looking up of external patients on startup so we don't
+#   fail the entire application if there's an error in that code
+#
+# Revision 1.294  2006/12/25 22:54:28  ncq
 # - add comment on prospective DICOM viewer behaviour
 # - link to firefox with URL of medical content links wiki page from knowledge menu
 #
