@@ -2,22 +2,29 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.19 2006-09-02 21:11:59 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmScanBackend.py,v 1.20 2006-12-27 16:42:53 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __license__ = "GPL"
-__author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>,
-Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
+__author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
 #==================================================
-import sys, os.path, os, Image, string, time, shutil, tempfile
+# stdlib
+import sys, os.path, os, Image, string, time, shutil, tempfile, codecs, glob, locale
 
-from Gnumed.pycommon import gmLog, gmExceptions
+
+# GNUmed
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmExceptions, gmShellAPI
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 _twain_module = None
 _sane_module = None
+
+use_XSane = True
 #=======================================================
 class cTwainScanner:
 
@@ -71,11 +78,6 @@ class cTwainScanner:
 		return True
 	#---------------------------------------------------
 	def close(self):
-#		self.__scanner.CancelAllPendingXfers()
-#		self.__scanner.destroy()
-#		self.__scanner = None
-#		self.__src_manager.destroy()
-#		self.__src_manager = None
 		return
 	#---------------------------------------------------
 	# TWAIN callback handling
@@ -87,9 +89,6 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def _twain_close_datasource(self):
 		_log.Log(gmLog.lInfo, "being asked to close data source")
-#		self.__scanner.CancelAllPendingXfers()
-#		self.__scanner.HideUI()
-#		self.__scanner.destroy()
 		self.__scanner = None
 		return True
 	#---------------------------------------------------
@@ -135,7 +134,7 @@ class cTwainScanner:
 
 		return True
 	#---------------------------------------------------
-	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
+	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
 			if tmpdir is None:
 				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
@@ -152,7 +151,7 @@ class cTwainScanner:
 			return False
 
 		self.__scanner.RequestAcquire()
-		return self.__filename
+		return [self.__filename]
 	#---------------------------------------------------
 #	def dummy(self):
 #
@@ -239,7 +238,7 @@ class cSaneScanner:
 	def close(self):
 		self.__scanner.close()
 	#---------------------------------------------------
-	def acquire_page_into_file(self, delay=None, filename=None, tmpdir=None):
+	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
 			if tmpdir is None:
 				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
@@ -263,7 +262,8 @@ class cSaneScanner:
 		except:
 			_log.LogException('Unable to get image from scanner into [%s] !' % filename, sys.exc_info(), verbose=1)
 			return False
-		return filename
+
+		return [filename]
 	#---------------------------------------------------
 #	def dummy(self):
 #		pass
@@ -284,6 +284,89 @@ class cSaneScanner:
 #		#self.__scannerdepth=6
 #		#self.__scannerbr_x = 412.0
 #		#self.__scannerbr_y = 583.0
+#==================================================
+class cXSaneScanner:
+
+	_filetype = '.png'					# FIXME: configurable, TIFF ?
+	_xsanerc = os.path.expanduser(os.path.join('~',".sane","xsane","xsane.rc"))
+	_xsanerc_backup = os.path.expanduser(os.path.join('~',".sane","xsane","xsane.rc.gnumed.bak"))
+
+	#----------------------------------------------
+	def __init__(self):
+		# while not strictly necessary it is good to fail early
+		# this will tell us fairly safely whether XSane is properly installed
+		if not os.access(cXSaneScanner._xsanerc, os.W_OK):
+			raise IOError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
+	#----------------------------------------------
+	def close(self):
+		pass
+	#----------------------------------------------
+	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
+		"""Call XSane.
+
+		<filename name part must have format name-xxx.ext>
+		"""
+		if filename is None:
+			if tmpdir is None:
+				(handle, filename) = tempfile.mkstemp(suffix=cXSaneScanner._filetype, prefix='gmScannedObj-')
+			else:
+				(handle, filename) = tempfile.mkstemp(suffix=cXSaneScanner._filetype, prefix='gmScannedObj-', dir=tmpdir)
+		else:
+			tmp, ext = os.path.splitext(filename)
+			if ext != cXSaneScanner._filetype:
+				filename = filename + cXSaneScanner._filetype
+
+		filename = os.path.abspath(os.path.expanduser(filename))
+		path, name = os.path.split(filename)
+
+		self.__prepare_xsanerc(tmpdir=path)
+
+		gmShellAPI.run_command_in_shell (
+			command = 'xsane --no-mode-selection --save --force-filename "%s"' % filename, 
+			blocking = True
+		)
+
+		self.__restore_xsanerc()
+
+		return glob.glob(filename.replace('###', '*'))
+	#----------------------------------------------
+	# internal API
+	#----------------------------------------------
+	def __prepare_xsanerc(self, tmpdir=None):
+
+		shutil.copy2(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_backup)
+
+		# our closest bet, might contain umalauts
+		enc = locale.getlocale()[1]
+		fread = codecs.open(cXSaneScanner._xsanerc_backup, mode = "rU", encoding = enc)
+		fwrite = codecs.open(cXSaneScanner._xsanerc, mode = "w", encoding = enc)
+
+		val_dict = {
+			'filetype': cXSaneScanner._filetype,
+			'tmp-path': tmpdir,
+			'working-directory': tmpdir
+		}
+
+		for idx, line in enumerate(fread):
+			line = line.replace(fread.newlines, '')
+
+			if idx % 2 == 0:			# even lines are keys
+				key = line.strip('"')
+			else: 						# odd lines are corresponding values
+				try:
+					value = val_dict[key]
+				except KeyError:
+					value = line
+				fwrite.write('"%s"%s' % (key, fread.newlines))
+				fwrite.write('%s%s' % (value, fread.newlines))
+
+		fwrite.close()
+		fread.close()
+
+		return True
+	#----------------------------------------------
+	def __restore_xsanerc(self):
+		shutil.copy2(cXSaneScanner._xsanerc_backup, cXSaneScanner._xsanerc)
 #==================================================
 def _twain_import_module():
 	global _twain_module
@@ -320,26 +403,37 @@ def get_devices():
 		# TWAIN does not support get_devices():
 		# devices can only be selected from within TWAIN itself
 		return None
+	if use_XSane:
+		return None
 	if _sane_import_module():
 		return _sane_module.get_devices()
 	return False
 #-----------------------------------------------------
-def acquire_page_into_file(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
+def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
 	except gmExceptions.ConstructorError:
-		try:
-			scanner = cSaneScanner(device=device)
-		except gmExceptions.ConstructorError:
-			_log.Log(gmLog.lErr, 'Cannot load any scanner driver (SANE or TWAIN).')
-			return None
+		if use_XSane:
+			_log.Log(gmLog.lData, 'using XSane')
+			try:
+				scanner = cXSaneScanner()
+			except IOError:
+				_log.LogException('Cannot load any scanner driver (XSANE or TWAIN).', verbose=False)
+				return None
+		else:
+			_log.Log(gmLog.lData, 'using SANE directly')
+			try:
+				scanner = cSaneScanner(device=device)
+			except gmExceptions.ConstructorError:
+				_log.LogException('Cannot load any scanner driver (SANE or TWAIN).', verbose=False)
+				return None
 
 	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
-	fname = scanner.acquire_page_into_file(filename=filename, delay=delay, tmpdir=tmpdir)
+	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
 	scanner.close()
-	_log.Log(gmLog.lData, 'acquired page into file: [%s]' % fname)
+	_log.Log(gmLog.lData, 'acquired page into files: %s' % str(fnames))
 
-	return fname
+	return fnames
 #==================================================
 # main
 #==================================================
@@ -352,25 +446,31 @@ if __name__ == '__main__':
 	print get_devices()
 
 	setups = [
-		{'dev': 'test:0', 'file': 'x1-test0-1'},
-		{'dev': 'test:1', 'file': 'x2-test1-1.bmp'},
-		{'dev': 'test:0', 'file': 'x3-test0-2.bmp-ccc'}
+		{'dev': 'test:0', 'file': 'x1-test0-1-0001'},
+		{'dev': 'test:1', 'file': 'x2-test1-1-0001.bmp'},
+		{'dev': 'test:0', 'file': 'x3-test0-2-0001.bmp-ccc'}
 	]
 
 	idx = 1
 	for setup in setups:
 		print "scanning page #%s from device [%s]" % (idx, setup['dev'])
 		idx += 1
-		fname = acquire_page_into_file(device = setup['dev'], filename = setup['file'], delay = (idx*5))
-		if fname is False:
+		fnames = acquire_pages_into_files(device = setup['dev'], filename = setup['file'], delay = (idx*5))
+		if fnames is False:
 			print "error, cannot acquire page"
 		else:
-			print " image file:", fname
+			print " image files:", fnames
 
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.19  2006-09-02 21:11:59  ncq
+# Revision 1.20  2006-12-27 16:42:53  ncq
+# - cleanup
+# - add XSane interface in cXSaneScanner as worked out by Kai Schmidt
+# - acquire_pages_into_files() now returns a list
+# - fix test suite
+#
+# Revision 1.19  2006/09/02 21:11:59  ncq
 # - improved test suite
 #
 # Revision 1.18  2006/08/29 18:41:58  ncq
