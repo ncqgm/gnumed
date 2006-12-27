@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.103 2006-12-21 10:55:09 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmMedDocWidgets.py,v 1.104 2006-12-27 16:45:42 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -485,21 +485,25 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				os.makedirs(tmpdir)
 			except:
 				tmpdir = None
-		fname = self.scan_module.acquire_page_into_file (
+		fnames = self.scan_module.acquire_pages_into_files (
 			device = chosen_device,
 			delay = 5,
 			tmpdir = tmpdir,
 			calling_window = self
 		)
-		if fname is False:
+		if fnames is False:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Page could not be acquired from source.'),
 				aTitle = _('acquiring page')
 			)
 			return None
-		self.acquired_pages.append(fname)
+		if len(fnames) == 0:		# no pages scanned
+			return True
+		# FIXME: configure whether to use XSane or sane directly
+		self.acquired_pages.extend(fnames)
 		# update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
+		return True
 	#--------------------------------------------------------
 	def _load_btn_pressed(self, evt):
 		# patient file chooser
@@ -1229,7 +1233,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.103  2006-12-21 10:55:09  ncq
+# Revision 1.104  2006-12-27 16:45:42  ncq
+# - adjust to acquire_pages_into_files() returning a list
+#
+# Revision 1.103  2006/12/21 10:55:09  ncq
 # - fix inverted is_in_use logic on enabling delete button
 #
 # Revision 1.102  2006/12/13 22:32:17  ncq
