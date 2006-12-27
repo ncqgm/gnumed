@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.33 2006-12-17 15:00:31 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmXdtMappings.py,v 1.34 2006-12-27 16:39:57 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -741,10 +741,13 @@ name_xdtID_map = {
 # sort of GNUmed compatible
 map_gender_xdt2gm = {
 	'1': 'm',
-	'2': 'f',
 	'm': 'm',
-	'f': 'f',
+	'M': 'm',
 	'4': 'm',
+	'2': 'f',
+	'f': 'f',
+	'W': 'f',
+	'w': 'f',
 	'5': 'f'
 }
 
@@ -1393,7 +1396,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.33  2006-12-17 15:00:31  ncq
+# Revision 1.34  2006-12-27 16:39:57  ncq
+# - a few more gender codes as used by Medistar
+#
+# Revision 1.33  2006/12/17 15:00:31  ncq
 # - fixed typo
 #
 # Revision 1.32  2006/10/31 15:59:11  ncq
