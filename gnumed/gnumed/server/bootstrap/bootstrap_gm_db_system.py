@@ -2,14 +2,11 @@
 
 """GNUmed schema installation.
 
-This script bootstraps a GNUmed database system. All the
-infrastructure is in place to support distributed
-services. However, until further notice one should stick
-to monolithic database design as cross-database links
-are not well supported yet.
+This script bootstraps a GNUmed database system.
 
-This will set up databases, services, database tables,
-groups, permissions and possibly users.
+This will set up databases, tables, groups, permissions and
+possibly users. Most of this will be handled via SQL
+scripts, not directly in the bootstrapper itself.
 
 There's a special user called "gm-dbo" who owns all the
 database objects.
@@ -31,7 +28,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -728,39 +725,30 @@ class database:
 			_log.LogException('cannot remove notification schema file [%s]' % tmpfile, sys.exc_info(), verbose = 0)
 		return True
 #==================================================================
-class gmService:
-	def __init__(self, aServiceAlias = None):
+class gmBundle:
+	def __init__(self, aBundleAlias = None):
 		# sanity check
-		if aServiceAlias is None:
-			raise ConstructorError, "Need to know service name to install it."
+		if aBundleAlias is None:
+			raise ConstructorError, "Need to know bundle name to install it."
 
-		self.alias = aServiceAlias
-		self.section = "service %s" % aServiceAlias
+		self.alias = aBundleAlias
+		self.section = "bundle %s" % aBundleAlias
 	#--------------------------------------------------------------
 	def bootstrap(self):
-		_log.Log(gmLog.lInfo, "bootstrapping service [%s]" % self.alias)
+		_log.Log(gmLog.lInfo, "bootstrapping bundle [%s]" % self.alias)
 
-		# load service definition
+		# load bundle definition
 		database_alias = _cfg.get(self.section, "database alias")
 		if database_alias is None:
-			_log.Log(gmLog.lErr, "Need to know database name to install service [%s]." % self.alias)
+			_log.Log(gmLog.lErr, "Need to know database name to install bundle [%s]." % self.alias)
 			return None
 		# bootstrap database
 		try:
 			database(aDB_alias = database_alias, aCfg = _cfg)
 		except:
-			_log.LogException("Cannot bootstrap service [%s]." % self.alias, sys.exc_info(), verbose = 1)
+			_log.LogException("Cannot bootstrap bundle [%s]." % self.alias, sys.exc_info(), verbose = 1)
 			return None
 		self.db = _bootstrapped_dbs[database_alias]
-
-		# are we imported yet ?
-#		result = self.__service_exists()
-#		if result == 1:
-#			_log.Log(gmLog.lWarn, "service [%s] already exists" % self.alias)
-#			return True
-#		elif result == -1:
-#			_log.Log(gmLog.lWarn, "error detecting status of service [%s]" % self.alias)
-#			return None
 
 		# check PostgreSQL version
 		if not self.__verify_pg_version():
@@ -769,81 +757,10 @@ class gmService:
 
 		# import schema
 		if not _import_schema(group=self.section, schema_opt='schema', conn=self.db.conn):
-			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
+			_log.Log(gmLog.lErr, "Cannot import schema definition for bundle [%s] into database [%s]." % (self.alias, database_alias))
 			return None
 
 		return True
-	#--------------------------------------------------------------
-	def __service_exists(self):
-		"""Do we exist in the database already ?
-
-		*  1 = yes, with correct version
-		*  0 = no, please import
-		* -1 = not sure: error or yes, but different version
-		"""
-		# we need the GNUmed name of the service later, so we store it here
-		self.name = _cfg.get(self.section, 'name')
-
-		curs = self.db.conn.cursor()
-
-		# do we have version tracking available ?
-		cmd = "select exists(select relname from pg_class where relname='gm_services' limit 1)"
-		try:
-			curs.execute(cmd)
-		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-			curs.close()
-			return -1
-		result = curs.fetchone()
-		if not result[0]:
-			# FIXME: this is a bit dangerous:
-			# if we don't find the gm_services table we assume it's
-			# OK to setup our service
-			_log.Log(gmLog.lInfo, "didn't find 'gm_services' table")
-			_log.Log(gmLog.lInfo, "assuming this is not a GNUmed database")
-			_log.Log(gmLog.lInfo, "hence assuming it's OK to install GNUmed services here")
-			curs.close()
-			return 0
-
-		# check if we got this service already
-		if self.name is None:
-			_log.Log(gmLog.lErr, "Need to know service name.")
-			curs.close()
-			return -1
-		cmd = "select exists(select id from public.gm_services where name = '%s' limit 1)" % self.name
-		try:
-			curs.execute(cmd)
-		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-		result = curs.fetchone()
-		if not result[0]:
-			_log.Log(gmLog.lInfo, "service [%s] not installed here yet" % self.name)
-			curs.close()
-			return 0
-
-		# check version
-		required_version = _cfg.get(self.section, "version")
-		if self.name is None:
-			_log.Log(gmLog.lErr, "Need to know service version.")
-			curs.close()
-			return -1
-		cmd = "select version, created from public.gm_services where name = '%s' limit 1)" % self.name
-		try:
-			curs.execute(cmd)
-		except:
-			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), verbose=1)
-		result = curs.fetchone()
-		existing_version = result[0][0]
-		created = result[0][1]
-		if existing_version == required_version:
-			_log.Log(gmLog.lInfo, "version [%s] of service [%s] already exists (created <%s>)" % (existing_version, name, created))
-			curs.close()
-			return True
-		_log.Log(gmLog.lErr, "service [%s] exists (created <%s>) but version mismatch" % (name, created))
-		_log.Log(gmLog.lErr, "required: [%s]")
-		_log.Log(gmLog.lErr, "existing: [%s]")
-		curs.close()
-		return -1
 	#--------------------------------------------------------------
 	def __verify_pg_version(self):
 		"""Verify database version information."""
@@ -853,33 +770,35 @@ class gmService:
 			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-		try:
-			existing_version = self.db.conn.version
-		except:
-			existing_version = None
+#		try:
+#			existing_version = self.db.conn.version
+#		except:
+#			existing_version = None
 
-		if existing_version is None:
+#		if existing_version is None:
+		if gmPG2.postgresql_version is None:
 			_log.Log(gmLog.lWarn, 'DB adapter does not support version checking')
 			_log.Log(gmLog.lWarn, 'assuming installed PostgreSQL server is compatible with required version %s' % required_version)
 			return True
 
-		if existing_version < required_version:
-			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (existing_version, required_version))
+#		if existing_version < required_version:
+		if gmPG2.postgresql_version < float(required_version):
+			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 
-		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % existing_version)
+		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % gmPG2.postgresql_version)
 		return True
 #==================================================================
-def bootstrap_services():
-	# get service list
-	services = _cfg.get("installation", "services")
-	if services is None:
-		exit_with_msg("Service list empty. Nothing to do here.")
-	# run through services
-	for service_alias in services:
-		print '==> bootstrapping "%s" ...' % service_alias
-		service = gmService(service_alias)
-		if not service.bootstrap():
+def bootstrap_bundles():
+	# get bundle list
+	bundles = _cfg.get("installation", "bundles")
+	if bundles is None:
+		exit_with_msg("Bundle list empty. Nothing to do here.")
+	# run through bundles
+	for bundle_alias in bundles:
+		print '==> bootstrapping "%s" ...' % bundle_alias
+		bundle = gmBundle(bundle_alias)
+		if not bundle.bootstrap():
 			return None
 	return True
 #--------------------------------------------------------------
@@ -917,18 +836,17 @@ def _run_query(aCurs, aQuery, args=None):
 	return True
 #------------------------------------------------------------------
 def ask_for_confirmation():
-	services = _cfg.get("installation", "services")
-	if services is None:
+	bundles = _cfg.get("installation", "bundles")
+	if bundles is None:
 		return True
 	print "You are about to install the following parts of GNUmed:"
 	print "-------------------------------------------------------"
-	for service in services:
-		service_name = _cfg.get("service %s" % service, "name")
-		db_alias = _cfg.get("service %s" % service, "database alias")
+	for bundle in bundles:
+		db_alias = _cfg.get("bundle %s" % bundle, "database alias")
 		db_name = _cfg.get("database %s" % db_alias, "name")
 		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
 		srv_name = _cfg.get("server %s" % srv_alias, "name")
-		print 'part "%s" [service <%s> in <%s> (or overridden) on <%s>]' % (service, service_name, db_name, srv_name)
+		print 'bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name)
 	print "-------------------------------------------------------"
 	desc = _cfg.get("installation", "description")
 	if desc is not None:
@@ -967,73 +885,12 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 	psql = gmPsql.Psql (conn)
 	for file in schema_files:
 		the_file = os.path.join(schema_base_dir, file)
-#		if _import_schema_file(anSQL_file = the_file, aSrv = aSrv_name, aDB = aDB_name, aUser = aUser):
 		if psql.run(the_file) == 0:
 			_log.Log (gmLog.lInfo, 'successfully imported [%s]' % the_file)
 		else:
 			_log.Log (gmLog.lErr, 'failed to import [%s]' % the_file)
 			return None
 	return True
-#--------------------------------------------------------------
-#def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None):
-	# sanity checks
-#	if anSQL_file is None:
-#		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
-#		return None
-#	SQL_file = os.path.abspath(anSQL_file)
-#	if not os.path.exists(SQL_file):
-#		_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
-#		return None
-
-#	old_path = os.getcwd()
-#	path = os.path.dirname(SQL_file)
-#	os.chdir(path)
-
-	# (at, 11.6.2003)
-	# The following psql call has to be done as user aUser (= gm-dbo)
-	# Because we can not ask for a password while non-interactive install
-	# authenitification method in /etc/postgresql/pg_hba.conf has to be set
-	# to TRUST.  This can be done via the following line:
-	#    local   gnumed-test  @gmTemplate1User.list                  trust
-	# This requires a file /var/lib/postgres/data/gmTemplate1User.list containing
-	# at least gm-dbo
-	# From `man psql`: If you omit the host name, psql will connect
-	#                  via a Unix domain socket to a server on the
-	#                  local host.
-	# This seems to be necessary under Debian GNU/Linux because
-	# otherwise the authentification fails
-	# We have to leave out the -h option here ...
-#	if aSrv in ['localhost', '']:
-#		srv_arg = ''
-#	else:
-#		srv_arg = '-h "%s"' % aSrv
-
-#	cmd = 'LC_CTYPE=UTF-8 psql -q %s -d "%s" -U "%s" -f "%s"' % (srv_arg, aDB, aUser, SQL_file)
-
-#	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
-#	result = os.system(cmd)
-#	_log.Log(gmLog.lInfo, "raw result: %s" % result)
-
-#	os.chdir(old_path)
-
-	# this seems to make trouble under pure Win2k (not CygWin, that is)
-#	if os.WIFEXITED(result):
-#		exitcode = os.WEXITSTATUS(result)
-#		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
-#		if exitcode == 0:
-#			_log.Log(gmLog.lInfo, "success")
-#			return True
-
-#		if exitcode == 1:
-#			_log.Log(gmLog.lErr, "failed: psql internal error")
-#		elif exitcode == 2:
-#			_log.Log(gmLog.lErr, "failed: database connection error")
-#		elif exitcode == 3:
-#			_log.Log(gmLog.lErr, "failed: psql script error")
-#	else:
-#		_log.Log(gmLog.lWarn, "aborted by signal")
-
-#	return None
 #------------------------------------------------------------------
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
@@ -1135,8 +992,8 @@ def handle_cfg():
 		print "Bootstrapping aborted by user."
 		return
 
-	if not bootstrap_services():
-		exit_with_msg("Cannot bootstrap services.")
+	if not bootstrap_bundles():
+		exit_with_msg("Cannot bootstrap bundles.")
 
 	if not bootstrap_auditing():
 		exit_with_msg("Cannot bootstrap audit trail.")
@@ -1199,7 +1056,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.38  2006-12-29 14:01:42  ncq
+# Revision 1.39  2006-12-29 16:30:08  ncq
+# - no more "services", only "bundles"
+# - fix PG version checking
+#
+# Revision 1.38  2006/12/29 14:01:42  ncq
 # - factor out proc lang bootstrapping into SQL script
 #
 # Revision 1.37  2006/12/18 13:00:48  ncq
