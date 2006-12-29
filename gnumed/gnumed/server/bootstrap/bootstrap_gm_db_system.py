@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -539,10 +539,6 @@ class database:
 		if not self.__connect_superuser_to_db():
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return None
-		# add languages
-		if not self.__bootstrap_proc_langs():
-			_log.Log(gmLog.lErr, "Cannot bootstrap procedural languages.")
-			return None
 		if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
 			return None
@@ -551,174 +547,11 @@ class database:
 		if not self.__connect_owner_to_db():
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return None
-
-		# import schema
 		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
 			return None
 
 		return True
-	#--------------------------------------------------------------
-	# procedural languages related
-	#--------------------------------------------------------------
-	def __bootstrap_proc_langs(self):
-		_log.Log(gmLog.lInfo, "bootstrapping procedural languages")
-
-		lang_aliases = self.cfg.get("GnuMed defaults", "procedural languages")
-		# FIXME: better separation
-		if (lang_aliases is None) or (len(lang_aliases) == 0):
-			_log.Log(gmLog.lWarn, "No procedural languages to activate or error loading language list.")
-			return True
-
-		lib_dirs = _cfg.get("GnuMed defaults", "language library dirs")
-		if lib_dirs is None:
-			_log.Log(gmLog.lErr, "Error loading procedural language library directories list.")
-			return None
-
-		for lang in lang_aliases:
-			if not self.__install_lang(lib_dirs, lang):
-				_log.Log(gmLog.lErr, "Error installing procedural language [%s]." % lang)
-				return None
-
-		return True
-	#--------------------------------------------------------------
-	def __install_lang(self, aDirList = None, aLanguage = None):
-		_log.Log(gmLog.lInfo, "installing procedural language [%s]" % aLanguage)
-
-		if aLanguage is None:
-			_log.Log(gmLog.lErr, "Need language name to install it !")
-			return None
-
-		lang_name = self.cfg.get(aLanguage, "name")
-		if self.__lang_exists(lang_name):
-			return True
-
-		# this should work on at least PG 8.1 and likely on 8.0 as well
-		cmd = 'create language %(lang)s'
-		cursor = self.conn.cursor()
-		if not _run_query(cursor, cmd, {'lang': lang_name}):
-			cursor.close()
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
-		else:
-			self.conn.commit()
-			cursor.close()
-		if self.__lang_exists(lang_name):
-			_log.Log(gmLog.lInfo, 'no-parameter install of [%s] succeeded' % aLanguage)
-			return True
-
-		# this uses $libdir
-		tmp = self.cfg.get(aLanguage, "call handler")
-		if tmp is None:
-			_log.Log(gmLog.lErr, "no call handler cmd specified in config file")
-			return None
-		call_handler_cmd = ('\r'.join(tmp)) % ('$libdir/' + lang_name)
-		tmp = self.cfg.get(aLanguage, "language activation")
-		if tmp is None:
-			_log.Log(gmLog.lErr, "no language activation cmd specified in config file")
-			return None
-		activate_lang_cmd = '\r'.join(tmp)
-		cmd = '%s\r%s' % (call_handler_cmd, activate_lang_cmd)
-		cursor = self.conn.cursor()
-		if not _run_query(cursor, cmd):
-			cursor.close()
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
-		else:
-			self.conn.commit()
-			cursor.close()
-		if self.__lang_exists(lang_name):
-			_log.Log(gmLog.lInfo, '$libdir install of [%s] succeeded' % aLanguage)
-			return True
-
-		# brute force absolute path
-		lib_name = self.cfg.get(aLanguage, "library name")
-		if lib_name is None:
-			_log.Log(gmLog.lErr, "no language library name specified in config file")
-			return None
-
-		# do we check for library file existence ?
-		check_for_lib = self.cfg.get(self.section, "procedural language library check")
-		if string.lower(check_for_lib) != "no":
-			if aDirList is None:
-				_log.Log(gmLog.lErr, "Need dir list to search for language library !")
-				return None
-			lib_path = None
-			for lib_dir in aDirList:
-				tmp = os.path.join(lib_dir, lib_name)
-				if os.path.exists(tmp):
-					lib_path = tmp
-					break
-			if lib_path is None:
-				_log.Log(gmLog.lErr, "cannot find language library file in any of %s" % aDirList)
-				return None
-		else:
-			tmp = self.cfg.get(aLanguage, "library dir")
-			if tmp is None:
-				_log.Log(gmLog.lErr, 'if procedural language library search is disabled, you need to set the library dir option')
-				return None
-			lib_path = os.path.join(tmp, lib_name)
-
-		tmp = self.cfg.get(aLanguage, "call handler")
-		if tmp is None:
-			_log.Log(gmLog.lErr, "no call handler cmd specified in config file")
-			return None
-		call_handler_cmd = ('\r'.join(tmp)) % lib_path
-
-		tmp = self.cfg.get(aLanguage, "language activation")
-		if tmp is None:
-			_log.Log(gmLog.lErr, "no language activation cmd specified in config file")
-			return None
-		activate_lang_cmd = '\r'.join(tmp)
-
-		cursor = self.conn.cursor()
-		if not _run_query(cursor, call_handler_cmd):
-			cursor.close()
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
-			return None
-		if not _run_query(cursor, activate_lang_cmd):
-			cursor.close()
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), verbose=1)
-			return None
-
-		self.conn.commit()
-		cursor.close()
-
-		if not self.__lang_exists(lang_name):
-			return None
-
-		_log.Log(gmLog.lInfo, "procedural language [%s] successfully installed" % aLanguage)
-		return True
-	#--------------------------------------------------------------
-	def __drop_lang(self, aLanguage):
-		drop_cmd = self.cfg.get(aLanguage, "drop command")
-		if drop_cmd is None:
-			_log.Log(gmLog.lErr, "no language drop cmd specified in config file")
-			return
-		drop_cmd = '\r'.join(drop_cmd)
-		cursor = self.conn.cursor()
-		if not _run_query(cursor, drop_cmd):
-			cursor.close()
-			_log.LogException("cannot drop procedural language [%s]" % aLanguage, sys.exc_info())
-			return
-		self.conn.commit()
-		cursor.close()
-		return
-	#--------------------------------------------------------------
-	def __lang_exists(self, aLanguage):
-		cmd = "SELECT lanname FROM pg_language WHERE lanname='%s'" % aLanguage
-		aCursor = self.conn.cursor()
-		if not _run_query(aCursor, cmd):
-			aCursor.close()
-			return None
-
-		res = aCursor.fetchone()
-		tmp = aCursor.rowcount
-		aCursor.close()
-		if tmp == 1:
-			_log.Log(gmLog.lInfo, "Language <%s> exists." % aLanguage)
-			return True
-
-		_log.Log(gmLog.lInfo, "Language <%s> does not exist." % aLanguage)
-		return None
 	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
 		srv = self.server
@@ -921,13 +754,13 @@ class gmService:
 		self.db = _bootstrapped_dbs[database_alias]
 
 		# are we imported yet ?
-		result = self.__service_exists()
-		if result == 1:
-			_log.Log(gmLog.lWarn, "service [%s] already exists" % self.alias)
-			return True
-		elif result == -1:
-			_log.Log(gmLog.lWarn, "error detecting status of service [%s]" % self.alias)
-			return None
+#		result = self.__service_exists()
+#		if result == 1:
+#			_log.Log(gmLog.lWarn, "service [%s] already exists" % self.alias)
+#			return True
+#		elif result == -1:
+#			_log.Log(gmLog.lWarn, "error detecting status of service [%s]" % self.alias)
+#			return None
 
 		# check PostgreSQL version
 		if not self.__verify_pg_version():
@@ -1067,19 +900,20 @@ def bootstrap_notifications():
 	return True
 #------------------------------------------------------------------
 def _run_query(aCurs, aQuery, args=None):
+	# FIXME: use gmPG2.run_rw_query()
 	if args is None:
 		try:
 			aCurs.execute(aQuery)
 		except:
 			_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
-			return None
+			return False
 	else:
 		try:
 			aCurs.execute(aQuery, args)
 		except:
 			_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
 			_log.Log(gmLog.lErr, str(args))
-			return None
+			return False
 	return True
 #------------------------------------------------------------------
 def ask_for_confirmation():
@@ -1365,7 +1199,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.37  2006-12-18 13:00:48  ncq
+# Revision 1.38  2006-12-29 14:01:42  ncq
+# - factor out proc lang bootstrapping into SQL script
+#
+# Revision 1.37  2006/12/18 13:00:48  ncq
 # - remove some gmPG leftovers
 #
 # Revision 1.36  2006/12/12 13:15:11  ncq
