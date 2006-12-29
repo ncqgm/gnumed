@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: gmCreateProceduralLanguages.sql,v 1.1 2006-12-29 13:52:12 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: gmCreateProceduralLanguages.sql,v 1.2 2006-12-29 16:30:40 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -42,13 +42,18 @@ SELECT CASE
     END
 ;
 
+drop function make_plpgsql();
+
 -- --------------------------------------------------------------
 -- don't forget appropriate grants
 --grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- ==============================================================
 -- $Log: gmCreateProceduralLanguages.sql,v $
--- Revision 1.1  2006-12-29 13:52:12  ncq
+-- Revision 1.2  2006-12-29 16:30:40  ncq
+-- - drop helper function after use
+--
+-- Revision 1.1  2006/12/29 13:52:12  ncq
 -- - factor out from bootstrapper proper
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
