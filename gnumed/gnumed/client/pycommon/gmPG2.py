@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -78,6 +78,9 @@ FixedOffsetTimezone = dbapi.tz.FixedOffsetTimezone
 
 _default_dsn = None
 _default_login = None
+
+postgresql_version_string = None
+postgresql_version = None			# accuracy: major.minor
 
 # =======================================================================
 # global data
@@ -561,6 +564,20 @@ def get_raw_connection(dsn=None, verbose=False):
 			raise cAuthenticationError, (dsn, v), tb
 		raise
 
+	global postgresql_version
+	if postgresql_version is None:
+		curs = conn.cursor()
+		curs.execute("""
+			select
+				(split_part(setting, '.', 1) || '.' || split_part(setting, '.', 2))::numeric as version
+			from pg_settings
+			where name='server_version'"""
+		)
+		postgresql_version = curs.fetchone()['version']
+		curs.close()
+		conn.commit()
+		_log.Log(gmLog.lInfo, 'PostgreSQL version (numeric): %s' % postgresql_version)
+
 	return conn
 # =======================================================================
 def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
@@ -623,6 +640,13 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	_log.Log(gmLog.lData, 'access mode [%s]' % access_mode)
 	cmd = 'set session characteristics as transaction %s' % access_mode
 	curs.execute(cmd)
+
+	# version string
+	global postgresql_version_string
+	if postgresql_version_string is None:
+		curs.execute('select version()')
+		postgresql_version_string = curs.fetchone()['version']
+		_log.Log(gmLog.lInfo, 'PostgreSQL version (string): "%s"' % postgresql_version_string)
 
 	curs.close()
 	conn.commit()
@@ -911,7 +935,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.23  2006-12-27 16:41:15  ncq
+# Revision 1.24  2006-12-29 16:25:35  ncq
+# - add PostgreSQL version handling
+#
+# Revision 1.23  2006/12/27 16:41:15  ncq
 # - make sure python datetime adapter does not put ',' into string
 #
 # Revision 1.22  2006/12/22 16:54:44  ncq
