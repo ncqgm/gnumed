@@ -11,8 +11,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: cfg-cfg_str_array.sql,v 1.2 2006-10-30 16:49:53 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: cfg-cfg_str_array.sql,v 1.3 2006-12-29 11:33:19 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -23,7 +23,7 @@ begin;
 insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
-	(select pk from cfg.cfg_item where workplace = 'post-Librarian Release'),
+	(select pk from cfg.cfg_item where workplace = 'Release 0.2.3'),
 	'{"gmProviderInboxPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmXdtViewer","gmManual","gmConfigRegistry"}'
 );
 
@@ -31,13 +31,16 @@ values (
 --	'';
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-cfg_str_array.sql,v $', '$Revision: 1.2 $');
+select public.log_script_insertion('$RCSfile: cfg-cfg_str_array.sql,v $', '$Revision: 1.3 $');
 
 commit;
 
 -- ==============================================================
 -- $Log: cfg-cfg_str_array.sql,v $
--- Revision 1.2  2006-10-30 16:49:53  ncq
+-- Revision 1.3  2006-12-29 11:33:19  ncq
+-- - Release 0.2.3 default workplace is called just that, "Release 0.2.3"
+--
+-- Revision 1.2  2006/10/30 16:49:53  ncq
 -- - add xdt viewer as plugin
 --
 -- Revision 1.1  2006/10/08 09:06:05  ncq
