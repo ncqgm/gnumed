@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.41 2006-12-25 22:52:14 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmEMRStructWidgets.py,v 1.42 2007-01-02 16:18:10 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -433,7 +433,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
-		ctxt = {'ctxt_pat': {'where_part': u'pk_patient=%(pat)s', 'placeholder': u'pat'}}		
+		ctxt = {'ctxt_pat': {'where_part': u'fk_patient=%(pat)s', 'placeholder': u'pat'}}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
@@ -1568,7 +1568,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.41  2006-12-25 22:52:14  ncq
+# Revision 1.42  2007-01-02 16:18:10  ncq
+# - health issue phrasewheel: clin.health_issue has fk_patient, not pk_patient
+#
+# Revision 1.41  2006/12/25 22:52:14  ncq
 # - encounter details editor
 #   - set patient name
 #   - valid_for_save(), save()
