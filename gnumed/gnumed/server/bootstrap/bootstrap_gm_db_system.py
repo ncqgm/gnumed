@@ -28,7 +28,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -527,6 +527,7 @@ class database:
 		if not self.__connect_owner_to_template():
 			_log.Log(gmLog.lErr, "Cannot connect to template database.")
 			return None
+
 		# make sure db exists
 		if not self.__create_db():
 			_log.Log(gmLog.lErr, "Cannot create database.")
@@ -598,6 +599,13 @@ class database:
 		if self.__db_exists():
 			# FIXME: verify that database is owned by "gm-dbo"
 			return True
+
+		# verify template database hash
+		template_version = _cfg.get(self.section, 'template version')
+		if template_version is not None:
+			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
+				_log.Log(gmLog.lErr, 'invalid template database')
+				return False
 
 		tmp = _cfg.get(self.section, 'alternate location')
 		if tmp is None:
@@ -770,18 +778,11 @@ class gmBundle:
 			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-#		try:
-#			existing_version = self.db.conn.version
-#		except:
-#			existing_version = None
-
-#		if existing_version is None:
 		if gmPG2.postgresql_version is None:
 			_log.Log(gmLog.lWarn, 'DB adapter does not support version checking')
 			_log.Log(gmLog.lWarn, 'assuming installed PostgreSQL server is compatible with required version %s' % required_version)
 			return True
 
-#		if existing_version < required_version:
 		if gmPG2.postgresql_version < float(required_version):
 			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
@@ -1056,7 +1057,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.39  2006-12-29 16:30:08  ncq
+# Revision 1.40  2007-01-02 19:14:39  ncq
+# - verify template database hash if so configured (useful for upgrades)
+#
+# Revision 1.39  2006/12/29 16:30:08  ncq
 # - no more "services", only "bundles"
 # - fix PG version checking
 #
