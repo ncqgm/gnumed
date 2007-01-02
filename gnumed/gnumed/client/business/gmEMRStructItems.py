@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.90 $"
+__version__ = "$Revision: 1.91 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -88,6 +88,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	def close_expired_episode(self, ttl=180):
 		"""ttl in days"""
 		open_episode = self.get_open_episode()
+		if open_episode is None:
+			return True
 		earliest, latest = open_episode.get_access_range()
 		ttl = datetime.timedelta(ttl)
 		now = datetime.datetime.now(tz=latest.tzinfo)
@@ -547,7 +549,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.90  2006-12-25 22:48:52  ncq
+# Revision 1.91  2007-01-02 16:14:41  ncq
+# - fix close_expired_episode()
+#
+# Revision 1.90  2006/12/25 22:48:52  ncq
 # - add cEncounter.has_clinical_data()
 #
 # Revision 1.89  2006/12/22 16:53:31  ncq
