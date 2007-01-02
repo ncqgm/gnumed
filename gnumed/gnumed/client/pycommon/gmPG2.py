@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -265,21 +265,21 @@ def set_default_login(login=None):
 		return False
 
 	global _default_login
+	_default_login = login
 	_log.Log(gmLog.lInfo, 'setting default login from [%s] to [%s]' % (_default_login, login))
-	_default_long = login
 
 	global _default_dsn
 	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
-	_log.Log(gmLog.lInfo, 'setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 	_default_dsn = dsn
+	_log.Log(gmLog.lInfo, 'setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 
 	return True
 # =======================================================================
 # netadata API
 # =======================================================================
-def database_schema_compatible(version=None):
+def database_schema_compatible(link_obj=None, version=None):
 	expected_hash = known_schema_hashes[version]
-	rows, idx = run_ro_queries(link_obj = None, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
 	if rows[0]['md5'] != expected_hash:
 		_log.Log(gmLog.lErr, 'database schema version mismatch')
 		_log.Log(gmLog.lErr, 'expected: %s (%s)' % (version, expected_hash))
@@ -490,8 +490,12 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		curs_close = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		conn_close = __noop
-		conn_commit = link_obj.commit
-		conn_rollback = link_obj.rollback
+		if end_tx:
+			conn_commit = link_obj.commit
+			conn_rollback = link_obj.rollback
+		else:
+			conn_commit = __noop
+			conn_rollback = __noop
 		curs = link_obj.cursor()
 		curs_close = curs.close
 	elif link_obj is None:
@@ -593,14 +597,12 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	if encoding is None:
 		encoding = _default_client_encoding
 	if encoding is None:
-#		encoding = sys.getdefaultencoding()
 		encoding = locale.getlocale()[1]
 		_log.Log(gmLog.lWarn, 'client encoding not specified')
 		_log.Log(gmLog.lWarn, 'the string encoding currently set in the active locale is used: [%s]' % encoding)
 		_log.Log(gmLog.lWarn, 'for this to work the application MUST have called locale.setlocale() before')
 
 	# set connection properties
-
 	# 1) client encoding
 	_log.Log(gmLog.lData, 'client string encoding [%s]' % encoding)
 	try:
@@ -935,7 +937,13 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.24  2006-12-29 16:25:35  ncq
+# Revision 1.25  2007-01-02 16:17:13  ncq
+# - slightly improved logging
+# - fix fatal typo in set_default_login()
+# - add <link_obj> support to database_schema_compatible()
+# - really apply end_tx to run_rw_queries !
+#
+# Revision 1.24  2006/12/29 16:25:35  ncq
 # - add PostgreSQL version handling
 #
 # Revision 1.23  2006/12/27 16:41:15  ncq
