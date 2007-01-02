@@ -28,7 +28,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -531,7 +531,7 @@ class database:
 		# make sure db exists
 		if not self.__create_db():
 			_log.Log(gmLog.lErr, "Cannot create database.")
-			return None
+			return False
 
 		# reconnect as superuser to db
 		if not self.__connect_superuser_to_db():
@@ -1057,7 +1057,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.40  2007-01-02 19:14:39  ncq
+# Revision 1.41  2007-01-02 19:48:10  ncq
+# - cleanup
+#
+# Revision 1.40  2007/01/02 19:14:39  ncq
 # - verify template database hash if so configured (useful for upgrades)
 #
 # Revision 1.39  2006/12/29 16:30:08  ncq
