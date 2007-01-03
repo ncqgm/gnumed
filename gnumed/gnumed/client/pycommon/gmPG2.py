@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -285,6 +285,7 @@ def database_schema_compatible(link_obj=None, version=None):
 		_log.Log(gmLog.lErr, 'expected: %s (%s)' % (version, expected_hash))
 		_log.Log(gmLog.lErr, 'detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
 		return False
+	_log.Log(gmLog.lInfo, 'detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
 	return True
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
@@ -937,7 +938,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.26  2007-01-02 19:47:29  ncq
+# Revision 1.27  2007-01-03 11:54:16  ncq
+# - log successful schema hash, too
+#
+# Revision 1.26  2007/01/02 19:47:29  ncq
 # - support (and use) <link_obj> in get_schema_version()
 #
 # Revision 1.25  2007/01/02 16:17:13  ncq
