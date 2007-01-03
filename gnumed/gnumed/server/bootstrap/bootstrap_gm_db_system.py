@@ -26,9 +26,10 @@ further details.
 # - warn if empty password
 # - option to drop databases
 # - verify that pre-created database is owned by "gm-dbo"
+# - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -641,6 +642,19 @@ class database:
 		_log.Log(gmLog.lInfo, "Successfully created GNUmed database [%s]." % self.name)
 		return True
 	#--------------------------------------------------------------
+	def verify_result_hash(self):
+		# verify template database hash
+		target_version = _cfg.get(self.section, 'target version')
+		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
+			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
+			print 'The identity hash of the database "%s" is [%s].' % (self.name, gmPG2.known_schema_hashes[target_version])
+			return True
+		_log.Log(gmLog.lErr, 'target database identity hash invalid')
+		if target_version == 'testing':
+			_log.Log(gmLog.lWarn, 'testing only, not failing due to invalid target database identity hash')
+			return True	
+		return False
+	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		# get audit trail configuration
 		tmp = _cfg.get(self.section, 'audit disable')
@@ -1003,6 +1017,12 @@ def handle_cfg():
 		exit_with_msg("Cannot bootstrap notification tables.")
 
 	print "Done with config file [%s]." % _cfg.cfgName
+
+	# verify result hash
+	db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
+	if not db.verify_result_hash():
+		exit_with_msg("Bootstrapping failed: wrong result hash")
+
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -1057,7 +1077,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.41  2007-01-02 19:48:10  ncq
+# Revision 1.42  2007-01-03 11:54:58  ncq
+# - add verifying result hash after bootstrapping
+#
+# Revision 1.41  2007/01/02 19:48:10  ncq
 # - cleanup
 #
 # Revision 1.40  2007/01/02 19:14:39  ncq
