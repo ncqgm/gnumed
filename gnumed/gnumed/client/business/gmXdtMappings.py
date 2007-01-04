@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.34 2006-12-27 16:39:57 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmXdtMappings.py,v 1.35 2007-01-04 22:50:35 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -51,37 +51,28 @@ xdt_id_map = {
 	'0130':'Telfonnummer des SB',
 	'0131':'Telefaxnummer des SB',
 	'0132':'Release-Stand der Software',
-	#Arztnummer 
-	'0201':'Arztnummer',
-	#Praxistyp 
-	'0202':'Praxistyp',
-	#Arztname
-	'0203':'Arztname',
-	#Arztgruppe verbal 
-	'0204':'Arztgruppe verbal',
-	#street
-	'0205':'Strasse der Praxisadresse',
-	#postcode and city
-	'0206':'PLZ Ort',
-	#Arzt und Leistungskennzeichen
-	'0207':'Arzt mit Leistungskennzeichen',
-	#phone
-	'0208':'Telefonnummer',
-	#fax
-	'0209':'Telefaxnummer',
-	#modem
-	'0210':'Modemnummer',
-	'0211':'Arztname für Leistungsdifferenzierung',
-	'0213':'Leistungskennzeichen',
-	'0214':'Erläuterung zum Leistungskennzeichen',
-	'0215':'PLZ der Praxisadresse',
-	'0216':'Ort der Praxisadresse',
-	#number of doctors
-	'0225':'Anzahl der Ärzte',
-	#name of first free category
+
+	'0201': 'Arztnummer',
+	'0202': 'Praxistyp',
+	'0203': 'Arztname',
+	'0204': 'Arztgruppe verbal',
+	'0205': 'Strasse der Praxisadresse',
+	'0206': 'PLZ Ort',
+	'0207': 'Arzt mit Leistungskennzeichen',
+	'0208': 'Telefonnummer',
+	'0209': 'Telefaxnummer',
+	'0210': ' Modemnummer',
+	'0211': 'Arztname für Leistungsdifferenzierung',
+	'0213': 'Leistungskennzeichen',
+	'0214': 'Erläuterung zum Leistungskennzeichen',
+	'0215': 'PLZ der Praxisadresse',
+	'0216': 'Ort der Praxisadresse',
+	'0218': 'E-Mail der Praxis/des Arztes'
+	'0225': 'Anzahl der Ärzte',
+
 	'0250':'Name erste freie Kategorie',
-	#content of first free category
 	'0251':'Inhalt erste freie Kategorie',
+
 	'0915':'PZN Medikament auf Kassenrezept',
 	'0917':'Packungsgrösse Medikament auf Kassenrezept',
 	'0918':'Packungsgrösse Medikament auf Privatrezept',
@@ -1396,7 +1387,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.34  2006-12-27 16:39:57  ncq
+# Revision 1.35  2007-01-04 22:50:35  ncq
+# - add a mapping
+#
+# Revision 1.34  2006/12/27 16:39:57  ncq
 # - a few more gender codes as used by Medistar
 #
 # Revision 1.33  2006/12/17 15:00:31  ncq
