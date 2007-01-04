@@ -5,26 +5,25 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.19 2006-12-11 18:53:43 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmXdtObjects.py,v 1.20 2007-01-04 23:09:38 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
-import os.path, sys, md5, linecache, codecs, re as regex
+import os.path, sys, md5, linecache, codecs, re as regex, time, datetime as pyDT
 
 import mx.DateTime as mxDT
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-
+from Gnumed.pycommon import gmLog, gmDateTime
 from Gnumed.business import gmXdtMappings
 
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
 #==============================================================
-def read_person_from_xdt(filename=None, encoding=None):
+def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	_map_id2name = {
 		'3101': 'lastnames',
@@ -79,7 +78,7 @@ def read_person_from_xdt(filename=None, encoding=None):
 
 	xdt_file.close()
 
-	# found all data ?
+	# found enough data ?
 	if len(data) < len(needed_fields):
 		raise ValueError('insufficient patient data in XDT file [%s], found only: %s' % (filename, data))
 
@@ -88,12 +87,20 @@ def read_person_from_xdt(filename=None, encoding=None):
 
 	dto.firstnames = data['firstnames']
 	dto.lastnames = data['lastnames']
+
 	# FIXME: different data orders are possible
-	dto.dob = mxDT.DateTime (
-		int(data['dob'][4:]),	# year
-		int(data['dob'][2:4]),	# month
-		int(data['dob'][:2])	# day
-	)
+	dob = time.strptime(data['dob'], dob_format)
+#	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.cLocalTimezone())
+	dto.dob = mxDT.DateTime(dob.tm_year, dob.tm_mon, dob.tm_mday)
+#	year = int(data['dob'][4:])
+#	month = int(data['dob'][2:4])
+#	day = int(data['dob'][:2])
+#	print year, month, day
+#	try:
+#		dto.dob = mxDT.DateTime(year, month, day)
+#	except mxDT.RangeError:
+#		# swappend around
+#		dto.dob = mxDT.DateTime(year, day, month)
 
 	try:
 		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
@@ -270,24 +277,27 @@ if __name__ == "__main__":
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+	gmDateTime.init()
 
 	# test framework if run by itself
 	_log.SetAllLogLevels(gmLog.lData)
-	_log.Log(gmLog.lInfo, __version__)
 
 	patfile = sys.argv[1]
 	print "reading patient data from xDT file [%s]" % patfile
 
-	dto = read_person_from_xdt(patfile)
+	dto = read_person_from_xdt(patfile, dob_format='%Y%m%d')
 	print "DTO:", dto
-	print dto.dob
-	print dto.dob.tz
-	print dto.zip, dto.urb
-	print dto.street
+	print "dto.dob:", dto.dob
+	print "dto.dob.tz:", dto.dob.tz
+	print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
+	print "dto.street", dto.street
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.19  2006-12-11 18:53:43  ncq
+# Revision 1.20  2007-01-04 23:09:38  ncq
+# - support explicit DOB format in xDT files
+#
+# Revision 1.19  2006/12/11 18:53:43  ncq
 # - make read_person_from_xdt() recognize address data
 #
 # Revision 1.18  2006/10/30 16:42:27  ncq
