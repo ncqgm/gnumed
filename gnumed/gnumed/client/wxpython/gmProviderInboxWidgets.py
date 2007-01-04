@@ -2,15 +2,15 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.11 2006-12-17 20:46:24 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmProviderInboxWidgets.py,v 1.12 2007-01-04 22:52:34 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmTools
 from Gnumed.business import gmProviderInbox, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
@@ -46,7 +46,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 		Welcome %(title)s %(lname)s !
 
 	Below find the new messages in your Inbox.
-""") % {'title': _me['title'], 'lname': _me['lastnames']}
+""") % {'title': gmTools.coalesce(_me['title'], gmPerson.map_gender2salutation(_me['gender'])), 'lname': _me['lastnames']}
 
 		self._msg_welcome.SetLabel(msg)
 	#--------------------------------------------------------
@@ -147,7 +147,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.11  2006-12-17 20:46:24  ncq
+# Revision 1.12  2007-01-04 22:52:34  ncq
+# - show proper salutation for people without title
+#
+# Revision 1.11  2006/12/17 20:46:24  ncq
 # - cleanup
 #
 # Revision 1.10  2006/11/24 10:01:31  ncq
