@@ -28,7 +28,3 @@ rm -rf ${LOG}
 echo "======================="
 echo "bootstrapping database"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-echo "======================="
-echo "The identity hash of the database \"${GM_CORE_DB}\" is:"
-psql -d ${GM_CORE_DB} -U gm-dbo -c "select md5(gm_concat_table_structure());"
-psql -d ${GM_CORE_DB} -U gm-dbo -c "select md5(gm_concat_table_structure());" >> ${LOG}
