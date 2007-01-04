@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -90,7 +90,7 @@ known_schema_hashes = {
 	'devel': 'not released, testing only',
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
 	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
-	'v4': 'v4 database not yet released, MD5 hash still unknown'
+	'v4': 'v4 not released'
 }
 
 map_schema_hash2version = {
@@ -938,7 +938,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.27  2007-01-03 11:54:16  ncq
+# Revision 1.28  2007-01-04 22:51:10  ncq
+# - change hash for unreleased v4
+#
+# Revision 1.27  2007/01/03 11:54:16  ncq
 # - log successful schema hash, too
 #
 # Revision 1.26  2007/01/02 19:47:29  ncq
