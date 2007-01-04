@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -650,8 +650,8 @@ class database:
 			print 'The identity hash of the database "%s" is [%s].' % (self.name, gmPG2.known_schema_hashes[target_version])
 			return True
 		_log.Log(gmLog.lErr, 'target database identity hash invalid')
-		if target_version == 'testing':
-			_log.Log(gmLog.lWarn, 'testing only, not failing due to invalid target database identity hash')
+		if target_version == 'devel':
+			_log.Log(gmLog.lWarn, 'testing/development only, not failing due to invalid target database identity hash')
 			return True	
 		return False
 	#--------------------------------------------------------------
@@ -1018,11 +1018,6 @@ def handle_cfg():
 
 	print "Done with config file [%s]." % _cfg.cfgName
 
-	# verify result hash
-	db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
-	if not db.verify_result_hash():
-		exit_with_msg("Bootstrapping failed: wrong result hash")
-
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -1044,6 +1039,11 @@ if __name__ == "__main__":
 		for cfg_file in cfg_files:
 			_cfg = gmCfg.cCfgFile(None, cfg_file, flags = gmCfg.cfg_IGNORE_CMD_LINE)
 			handle_cfg()
+
+	# verify result hash
+	db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
+	if not db.verify_result_hash():
+		exit_with_msg("Bootstrapping failed: wrong result hash")
 
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We probably succeeded."
@@ -1077,7 +1077,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.42  2007-01-03 11:54:58  ncq
+# Revision 1.43  2007-01-04 22:53:42  ncq
+# - support verifying result hash
+#
+# Revision 1.42  2007/01/03 11:54:58  ncq
 # - add verifying result hash after bootstrapping
 #
 # Revision 1.41  2007/01/02 19:48:10  ncq
