@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.295 2006-12-27 16:44:02 ncq Exp $
-__version__ = "$Revision: 1.295 $"
+# $Id: gmGuiMain.py,v 1.296 2007-01-04 22:52:01 ncq Exp $
+__version__ = "$Revision: 1.296 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -330,7 +330,7 @@ class gmTopLevelFrame(wx.Frame):
 		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 		menu_emr.Append (
 			ID_ADD_HEALTH_ISSUE_TO_EMR,
-			_('Add Past History (Foundational Issue)'),
+			_('Add &Past History (Foundational Issue)'),
 			_('Add a Past Medical History Item (Foundational Health Issue) to the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
@@ -1212,7 +1212,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.295  2006-12-27 16:44:02  ncq
+# Revision 1.296  2007-01-04 22:52:01  ncq
+# - accelerator key for "health issue" in EMR menu
+#
+# Revision 1.295  2006/12/27 16:44:02  ncq
 # - delay looking up of external patients on startup so we don't
 #   fail the entire application if there's an error in that code
 #
