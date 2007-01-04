@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.91 $"
+__version__ = "$Revision: 1.92 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -94,12 +94,12 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		ttl = datetime.timedelta(ttl)
 		now = datetime.datetime.now(tz=latest.tzinfo)
 		if (latest + ttl) > now:
-			return True
+			return False
 		open_episode['episode_open'] = False
 		success, data = open_episode.save_payload()
 		if success:
 			return True
-		return False
+		return False		# should be an exception
 	#--------------------------------------------------------
 	def close_episode(self):
 		open_episode = self.get_open_episode()
@@ -129,7 +129,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		u"""update clin.episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
-				description=%(description)s
+				description=%(description)s,
+				fk_patient=%(pk_patient)s
 			where
 				pk=%(pk_episode)s and
 				xmin=%(xmin_episode)s""",
@@ -138,7 +139,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'pk_health_issue',
 		'episode_open',
-		'description'
+		'description',
+		'pk_patient'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', row=None):
@@ -549,7 +551,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.91  2007-01-02 16:14:41  ncq
+# Revision 1.92  2007-01-04 22:50:04  ncq
+# - allow changing fk_patient in cEpisode
+#
+# Revision 1.91  2007/01/02 16:14:41  ncq
 # - fix close_expired_episode()
 #
 # Revision 1.90  2006/12/25 22:48:52  ncq
