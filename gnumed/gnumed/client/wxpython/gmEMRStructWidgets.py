@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.42 2007-01-02 16:18:10 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmEMRStructWidgets.py,v 1.43 2007-01-04 23:29:02 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -22,12 +22,15 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmFuzzyTimestamp
+from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmFuzzyTimestamp, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 if __name__ == '__main__':
 	gmI18N.install_domain()
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg, wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
+from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
+from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -185,10 +188,10 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['started'] = self._PRW_start.GetData().get_pydt()
 		self.__encounter['last_affirmed'] = self._PRW_end.GetData().get_pydt()
 		rfe = self._TCTRL_rfe.GetValue().strip()
-		if rfe != u'':
+		if len(rfe) != 0:
 			self.__encounter['reason_for_encounter'] = rfe
 		aoe = self._TCTRL_aoe.GetValue().strip()
-		if aoe != u'':
+		if len(aoe) != 0:
 			self.__encounter['assessment_of_encounter'] = aoe
 
 		self.__encounter.save_payload()			# FIXME: error checking
@@ -314,6 +317,36 @@ you want to move it to also has an open episode:
 	# FIXME: signal issue/episode change
 	return True
 #----------------------------------------------------------------
+class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let user select an episode *description*.
+
+	The user can select an episode description from the previously
+	used descriptions across all episodes across all patients.
+
+	Selection is done with a phrasewheel so the user can
+	type the episode name and matches will be shown. Typing
+	"*" will show the entire list of episodes.
+
+	If the user types a description not existing yet a
+	new episode description will be returned.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"""
+				select distinct on (description) description, description, 1
+				from clin.episode
+				order by description
+				limit 30"""
+			]
+		)
+		kwargs['aMatchProvider'] = mp
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+#----------------------------------------------------------------
 class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select an episode.
 
@@ -412,7 +445,108 @@ u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes
 			patient = gmPerson.gmCurrentPatient()
 			self.set_context('pat', patient.getID())
 		return True
+#----------------------------------------------------------------
+class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 
+	def __init__(self, *args, **kwargs):
+		try:
+			self.__episode = kwargs['episode']
+			del kwargs['episode']
+		except KeyError:
+			self.__episode = None
+
+		wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self.refresh()
+	#------------------------------------------------------------
+	def refresh(self, episode=None):
+		if episode is not None:
+			self.__episode = episode
+
+		if self.__episode is None:
+			return
+
+		ident = gmPerson.cIdentity(aPK_obj = self.__episode['pk_patient'])
+		self._TCTRL_patient.SetValue(ident.get_description())
+
+		if self.__episode['pk_health_issue'] is not None:
+			self._PRW_issue.SetValue(self.__episode['health_issue'], data=self.__episode['pk_health_issue'])
+
+		self._PRW_description.SetValue(self.__episode['description'], data=self.__episode['description'])
+
+		self._CHBOX_closed.SetValue(not self.__episode['episode_open'])
+	#------------------------------------------------------------
+	def save(self):
+		self.__episode['episode_open'] = not self.CHBOX_closed.IsChecked()
+
+		issue_name = self._PRW_issue.GetValue().strip()
+		if len(issue_name) == 0:
+			self.__episode['pk_health_issue'] = None
+		else:
+			self.__episode['pk_health_issue'] = self._PRW_issue.GetData(can_create=True)
+			if self.__episode['episode_open']:
+				issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
+				db_cfg = gmCfg.cCfgSQL()
+				epi_ttl = db_cfg.get2 (
+					option = u'episode.ttl',
+					workplace = gmPerson.gmCurrentProvider.get_workplace(),
+					bias = 'user',
+					default = 60				# 2 months
+				)
+				if issue.close_expired_episode(ttl=epi_ttl) is False:
+					prev_epi = issue.get_open_episode()
+					first, last = prev_epi.get_access_range()
+					title = _('open episode conflict')
+					msg = _(
+						'You want to move the open episode\n'
+						' [%s]\n'
+						'to the Foundational Issue\n'
+						' [%s]\n\n'
+						'That issue already has an open episode:\n'
+						' [%s]\n'
+						' last accessed: %s\n\n'
+						'There cannot be two open episodes at once, however!\n\n'
+						'Do you want to close the episode\n'
+						' [%s] ?'
+						) % (
+						self.__episode['description'],
+						issue_name,
+						prev_epi['description'],
+						last.strftime('%Y-%m-%d'),
+						prev_epi['description']
+					)
+					if not gmGuiHelpers.gm_show_question(msg, title):
+						return
+					issue.close_episode()
+
+		desc = self._PRW_description.GetValue().strip()
+		if len(desc) != 0:
+			self.__episode['description'] = desc
+
+		self.__episode.save_payload()
+#----------------------------------------------------------------
+class cEpisodeEditAreaDlg(wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			episode = kwargs['episode']
+			del kwargs['episode']
+		except KeyError:
+			episode = None
+
+		wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg.__init__(self, *args, **kwargs)
+
+		self._PNL_edit_area.refresh(episode=episode)
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_edit_area.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PNL_edit_area.refresh()
 #================================================================
 # foundational issue related widgets/functions
 #----------------------------------------------------------------
@@ -1511,6 +1645,23 @@ if __name__ == '__main__':
 #		app.frame.Show(True)
 #		app.MainLoop()
 		return
+	#----------------------------------------------------------------
+	def test_epsiode_edit_area_pnl():
+		app = wx.PyWidgetTester(size = (200, 300))
+		emr = pat.get_emr()
+		epi = emr.get_episodes()[0]
+		pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
+		app.frame.Show(True)
+		app.MainLoop()
+		return
+	#----------------------------------------------------------------
+	def test_episode_edit_area_dialog():
+		app = wx.PyWidgetTester(size = (200, 300))
+		emr = pat.get_emr()
+		epi = emr.get_episodes()[0]
+		dlg = cEpisodeEditAreaDlg(parent=app.frame, id=-1, size = (400,400), episode=epi)
+		dlg.ShowModal()
+		return
 	#================================================================
 #	import sys
 
@@ -1555,7 +1706,9 @@ if __name__ == '__main__':
 	gmPerson.set_active_patient(patient=pat)
 
 	#test_encounter_edit_area_panel()
-	test_encounter_edit_area_dialog()
+	#test_encounter_edit_area_dialog()
+	#test_epsiode_edit_area_pnl()
+	test_episode_edit_area_dialog()
 
 #	app = wx.PyWidgetTester(size = (200, 300))
 #	dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
@@ -1568,7 +1721,13 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.42  2007-01-02 16:18:10  ncq
+# Revision 1.43  2007-01-04 23:29:02  ncq
+# - cEpisodeDescriptionPhraseWheel
+# - cEpisodeEditAreaPnl
+# - cEpisodeEditAreaDlg
+# - test suite enhancement
+#
+# Revision 1.42  2007/01/02 16:18:10  ncq
 # - health issue phrasewheel: clin.health_issue has fk_patient, not pk_patient
 #
 # Revision 1.41  2006/12/25 22:52:14  ncq
