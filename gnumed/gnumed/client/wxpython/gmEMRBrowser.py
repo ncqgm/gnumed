@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.61 2006-12-25 22:50:50 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmEMRBrowser.py,v 1.62 2007-01-04 23:41:36 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -165,14 +165,19 @@ class cEMRTree(wx.TreeCtrl):
 
 		# - episodes
 		self.__epi_context_popup = wx.Menu()
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
 
 		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('move episode to another health issue')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode2issue)
-		# close episode
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit episode details')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
+
+#		menu_id = wx.NewId()
+#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
+#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
+
+#		menu_id = wx.NewId()
+#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('move episode to another health issue')))
+#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode2issue)
+
 		# delete episode
 		# attach all encounters to another episode
 
@@ -209,31 +214,38 @@ class cEMRTree(wx.TreeCtrl):
 		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
-	def __rename_episode(self, event):
-		dlg = wx.TextEntryDialog (
-			parent = self,
-			message = _('Old: "%s"\nPlease type the new description:\n') % self.__curr_node_data['description'],
-			caption = _('Renaming episode ...'),
-			defaultValue = ''
-		)
+	def __edit_episode(self, event):
+		node_data = self.GetPyData(self.__curr_node)
+		dlg = gmEMRStructWidgets.cEpisodeEditAreaDlg(parent=self, episode=node_data)
 		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			return
-		new_name = dlg.GetValue().strip()
-		if new_name == '':
-			return
-		if new_name == self.__curr_node_data['description']:
-			return
-		if self.__curr_node_data.rename(new_name):
-			# avoid collapsing view
-			self.SetItemText(self.__curr_node, new_name)
-			return
-		gmGuiHelpers.gm_show_error (
-			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
-			_('Error renaming episode ...'),
-			gmLog.lErr
-		)
-		return
+		if result == wx.ID_OK
+			self.__populate_tree()
+	#--------------------------------------------------------
+#	def __rename_episode(self, event):
+#		dlg = wx.TextEntryDialog (
+#			parent = self,
+#			message = _('Old: "%s"\nPlease type the new description:\n') % self.__curr_node_data['description'],
+#			caption = _('Renaming episode ...'),
+#			defaultValue = ''
+#		)
+#		result = dlg.ShowModal()
+#		if result == wx.ID_CANCEL:
+#			return
+#		new_name = dlg.GetValue().strip()
+#		if new_name == '':
+#			return
+#		if new_name == self.__curr_node_data['description']:
+#			return
+#		if self.__curr_node_data.rename(new_name):
+#			# avoid collapsing view
+#			self.SetItemText(self.__curr_node, new_name)
+#			return
+#		gmGuiHelpers.gm_show_error (
+#			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
+#			_('Error renaming episode ...'),
+#			gmLog.lErr
+#		)
+#		return
 	#--------------------------------------------------------
 	def __relink_episode2issue(self, event):
 		if self.__curr_node_data['health_issue'] is None:
@@ -294,10 +306,6 @@ class cEMRTree(wx.TreeCtrl):
 		self.__populate_tree()
 		return
 	#--------------------------------------------------------
-	def __close_episode(self, event):
-		print "closing episode"
-		print self.__curr_node_data
-	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		print "deleting episode"
 		print self.__curr_node_data
@@ -314,6 +322,7 @@ class cEMRTree(wx.TreeCtrl):
 		node_data = self.GetPyData(self.__curr_node)
 		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=node_data)
 		dlg.ShowModal()
+		self.__populate_tree()
 	#--------------------------------------------------------
 	def __relink_encounter_data2episode(self, event):
 
@@ -716,7 +725,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.61  2006-12-25 22:50:50  ncq
+# Revision 1.62  2007-01-04 23:41:36  ncq
+# - use new episode edit area
+#
+# Revision 1.61  2006/12/25 22:50:50  ncq
 # - add editing of consultation details from EMR tree right-click popup menu
 #
 # Revision 1.60  2006/12/13 23:32:41  ncq
