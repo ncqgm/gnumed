@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.62 2007-01-04 23:41:36 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmEMRBrowser.py,v 1.63 2007-01-06 23:41:40 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -218,7 +218,7 @@ class cEMRTree(wx.TreeCtrl):
 		node_data = self.GetPyData(self.__curr_node)
 		dlg = gmEMRStructWidgets.cEpisodeEditAreaDlg(parent=self, episode=node_data)
 		result = dlg.ShowModal()
-		if result == wx.ID_OK
+		if result == wx.ID_OK:
 			self.__populate_tree()
 	#--------------------------------------------------------
 #	def __rename_episode(self, event):
@@ -725,7 +725,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.62  2007-01-04 23:41:36  ncq
+# Revision 1.63  2007-01-06 23:41:40  ncq
+# - missing :
+#
+# Revision 1.62  2007/01/04 23:41:36  ncq
 # - use new episode edit area
 #
 # Revision 1.61  2006/12/25 22:50:50  ncq
