@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.104 2006-12-27 16:45:42 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmMedDocWidgets.py,v 1.105 2007-01-06 23:42:35 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re, time
@@ -18,6 +18,29 @@ from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelecta
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
+#============================================================
+class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Let user select a document comment from all existing comments."""
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"""
+select distinct on (comment) comment, comment, 1
+from blobs.doc_med
+where comment %(fragment_condition)s
+order by comment
+limit 25"""]
+			)
+		mp.setThresholds(3, 5, 7)
+
+		kwargs['aMatchProvider'] = mp
+		kwargs['aDelay'] = 50
+		kwargs['selection_only'] = False
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
 #============================================================
 class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 	"""A dialog showing a cEditDocumentTypesPnl."""
@@ -173,7 +196,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# associated episode (add " " to avoid popping up pick list)
 		self._PhWheel_episode.SetValue('%s ' % self.__part['episode'], self.__part['pk_episode'])
 		self._PhWheel_doc_type.SetValue(value = self.__part['l10n_type'], data = self.__part['pk_type'])
-		self._TCTRL_doc_comment.SetValue(self.__part['doc_comment'])
+		self._PRW_doc_comment.SetValue(self.__part['doc_comment'])
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
 		if self.__part['ext_ref'] is not None:
@@ -279,8 +302,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		else:
 			gmGuiHelpers.gm_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
 
-		if self._TCTRL_doc_comment.IsModified():
-			doc['comment'] = self._TCTRL_doc_comment.GetValue().strip()
+		if self._PRW_doc_comment.IsModified():
+			doc['comment'] = self._PRW_doc_comment.GetValue().strip()
 
 		if self._PhWheel_doc_date.IsModified():
 			doc['date'] = self._PhWheel_doc_date.GetData().timestamp
@@ -374,7 +397,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# FIXME: make this configurable: either now() or last_date()
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
 		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
-		self._TBOX_doc_comment.SetValue('')
+		self._PRW_doc_comment.SetValue('')
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
 		me = gmPerson.gmCurrentProvider()
@@ -421,7 +444,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return False
 
-		if self._TBOX_doc_comment.GetValue().strip() == '':
+		if self._PRW_doc_comment.GetValue().strip() == '':
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('No document comment supplied. Add a comment for this document.'),
 				aTitle = title
@@ -634,7 +657,7 @@ from your computer.""") % page_fname,
 		if ref is not None:
 			new_doc['ext_ref'] = ref
 		# - comment
-		comment = self._TBOX_doc_comment.GetLineText(0).strip()
+		comment = self._PRW_doc_comment.GetLineText(0).strip()
 		if comment != '':
 			new_doc['comment'] = comment
 		# - save it
@@ -1233,7 +1256,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.104  2006-12-27 16:45:42  ncq
+# Revision 1.105  2007-01-06 23:42:35  ncq
+# - cDocumentCommentPhraseWeel and adjust to wxGlade based uses thereof
+#
+# Revision 1.104  2006/12/27 16:45:42  ncq
 # - adjust to acquire_pages_into_files() returning a list
 #
 # Revision 1.103  2006/12/21 10:55:09  ncq
