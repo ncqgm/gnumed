@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.86 2006-12-11 18:52:11 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmMedDoc.py,v 1.87 2007-01-06 23:40:49 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -269,7 +269,7 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj))
 				raise
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(data[0][0]))
+			aFile.write(str(rows[0][0]))
 
 		conn.close()
 		return True
@@ -718,7 +718,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.86  2006-12-11 18:52:11  ncq
+# Revision 1.87  2007-01-06 23:40:49  ncq
+# - typo in remainder export code in __export
+#
+# Revision 1.86  2006/12/11 18:52:11  ncq
 # - do not delete doc types which are in use
 #
 # Revision 1.85  2006/11/20 15:55:41  ncq
