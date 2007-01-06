@@ -1,13 +1,26 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.8 2006-12-21 10:53:53 ncq Exp $
+# $Id: gmTools.py,v 1.9 2007-01-06 17:05:57 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import datetime as pydt, re as regex
+# std libs
+import datetime as pydt, re as regex, sys, os
+
+
+# GNUmed libs
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog
+
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
+
+ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 
 #===========================================================================
 def open_uri_in_ooo(filename=None):
@@ -25,6 +38,7 @@ def open_uri_in_ooo(filename=None):
 	"""
 	try:
 		import uno
+		from com.sun.star.connection import NoConnectException as UnoNoConnectException
 	except ImportError:
 		_log.Log(gmLog.lInfo, 'open_uri_in_ooo(): cannot import UNO, OpenOffice and/or UNO installed ?')
 		# fail gracefully if OOo/UNO isn't insalled
@@ -33,16 +47,21 @@ def open_uri_in_ooo(filename=None):
 	# failing early is good
 	document_uri = uno.systemPathToFileUrl(filename)
 
-	resolver_uri		= "com.sun.star.bridge.UnoUrlResolver"
-	remote_context_uri	= "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
-	ooo_desktop_uri		= "com.sun.star.frame.Desktop"
+	resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
+	remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
+	ooo_desktop_uri = "com.sun.star.frame.Desktop"
 
-	local_context	= uno.getComponentContext()
-	uri_resolver	= local_context.ServiceManager.createInstanceWithContext(resolver_uri, local_context)
-	# FIXME: this can fail with a connect exception, catch it and start OOo like above
-	remote_context	= uri_resolver.resolve(remote_context_uri)
-	ooo_desktop		= remote_context.ServiceManager.createInstanceWithContext(ooo_desktop_uri, remote_context)
+	local_context = uno.getComponentContext()
+	uri_resolver = local_context.ServiceManager.createInstanceWithContext(resolver_uri, local_context)
 
+	try:
+		remote_context = uri_resolver.resolve(remote_context_uri)
+	except UnoNoConnectException:
+		_log.Log(gmLog.lInfo, 'Cannot connect to OOo server. Trying to start one with: [%s]' % ooo_start_cmd)
+		os.system(ooo_start_cmd)
+		remote_context	= uri_resolver.resolve(remote_context_uri)
+
+	ooo_desktop	= remote_context.ServiceManager.createInstanceWithContext(ooo_desktop_uri, remote_context)
 	document = ooo_desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
 
 	return True
@@ -136,6 +155,15 @@ def capitalize(text=None):
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
+	_log.SetAllLogLevels(gmLog.lData)
+
+	#-----------------------------------------------------------------------
+	def test_open_uri_in_ooo():
+		try:
+			open_uri_in_ooo(filename=sys.argv[1])
+		except:
+			_log.LogException('cannot open [%s] in OOo' % sys.argv[1])
+			raise
 	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print "testing str2interval()"
@@ -174,13 +202,18 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	print __doc__
 
-	test_str2interval()
+	#test_str2interval()
 	#test_coalesce()
 	#test_capitalize()
+	test_open_uri_in_ooo()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.8  2006-12-21 10:53:53  ncq
+# Revision 1.9  2007-01-06 17:05:57  ncq
+# - start OOo server if cannot connect to one
+# - test suite
+#
+# Revision 1.8  2006/12/21 10:53:53  ncq
 # - document coalesce() better
 #
 # Revision 1.7  2006/12/18 15:51:12  ncq
