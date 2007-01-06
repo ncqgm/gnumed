@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.88 2006-11-28 20:51:13 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmPhraseWheel.py,v 1.89 2007-01-06 23:44:19 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -527,6 +527,8 @@ class cPhraseWheel(wx.TextCtrl):
 		self.__timer.Stop()
 		self._hide_dropdown()
 
+		self.SetSelection(1,1)
+
 		# can/must we auto-set the value from the match list ?
 		if self.snap_to_first_match:
 			if self.data is None:
@@ -653,7 +655,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.88  2006-11-28 20:51:13  ncq
+# Revision 1.89  2007-01-06 23:44:19  ncq
+# - explicitely unset selection on lose focus
+#
+# Revision 1.88  2006/11/28 20:51:13  ncq
 # - a missing self
 # - remove some prints
 #
