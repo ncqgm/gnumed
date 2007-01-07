@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.20 2006-11-06 09:59:42 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmMatchProvider.py,v 1.21 2007-01-07 23:02:11 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -186,6 +186,9 @@ class cMatchProvider:
 		The matching code may ignore it depending on its exact
 		implementation. Names and values of the context depend
 		on what is being matched.
+
+		<context> -- the *placeholder* key *inside* the context
+					 definition, not the context *definition* key
 		"""
 		if context is None:
 			return False
@@ -472,7 +475,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.20  2006-11-06 09:59:42  ncq
+# Revision 1.21  2007-01-07 23:02:11  ncq
+# - more documentation on context
+#
+# Revision 1.20  2006/11/06 09:59:42  ncq
 # - when allowing non-list strings to turn into query list do not
 #   str() them or else we may lose unicodity
 # - more u''ing
