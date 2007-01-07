@@ -2,11 +2,11 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.105 2007-01-06 23:42:35 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmMedDocWidgets.py,v 1.106 2007-01-07 23:08:52 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import os.path, sys, re, time
+import os.path, sys, re as regex
 
 import wx
 
@@ -23,15 +23,39 @@ class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
 	def __init__(self, *args, **kwargs):
 
+		context = {
+			u'ctxt_doc_type': {
+				u'where_part': u'and fk_type = %(pk_doc_type)s',
+				u'placeholder': u'pk_doc_type'
+			}
+		}
+
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [u"""
-select distinct on (comment) comment, comment, 1
-from blobs.doc_med
-where comment %(fragment_condition)s
-order by comment
-limit 25"""]
-			)
+select *
+from (
+	select distinct on (comment) *
+	from (
+		-- keyed by doc type
+		select comment, comment as pk, 1 as rank
+		from blobs.doc_med
+		where
+			comment %(fragment_condition)s
+			%(ctxt_doc_type)s
+
+		union all
+
+		select comment, comment as pk, 2 as rank
+		from blobs.doc_med
+		where comment %(fragment_condition)s
+	) as q_union
+) as q_distinct
+order by rank, comment
+limit 25"""],
+			context = context
+		)
 		mp.setThresholds(3, 5, 7)
+		mp.unset_context(u'pk_doc_type')
 
 		kwargs['aMatchProvider'] = mp
 		kwargs['aDelay'] = 50
@@ -196,7 +220,11 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# associated episode (add " " to avoid popping up pick list)
 		self._PhWheel_episode.SetValue('%s ' % self.__part['episode'], self.__part['pk_episode'])
 		self._PhWheel_doc_type.SetValue(value = self.__part['l10n_type'], data = self.__part['pk_type'])
+		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
+
 		self._PRW_doc_comment.SetValue(self.__part['doc_comment'])
+		self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
 		if self.__part['ext_ref'] is not None:
@@ -359,6 +387,14 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# NOTE: for now *always* apply to all pages so we can
 		# NOTE: offer review from document level as well
 		#self._ChBOX_sign_all_pages.Enable(enable = state)
+	#--------------------------------------------------------
+	def _on_doc_type_loses_focus(self):
+		pk_doc_type = self._PhWheel_doc_type.GetData()
+		if pk_doc_type is None:
+			self._PRW_doc_comment.unset_context(context = 'pk_doc_type')
+		else:
+			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
+		return True
 #============================================================
 # FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
@@ -369,6 +405,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._PhWheel_reviewer.setMatchProvider(mp = gmPerson.cMatchProvider_Provider())
 
 		self.__init_ui_data()
+		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
@@ -733,6 +770,14 @@ off this message in the GNUmed configuration.""") % ref
 	def _reviewed_box_checked(self, evt):
 		self._ChBOX_abnormal.Enable(enable = self._ChBOX_reviewed.GetValue())
 		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
+	#--------------------------------------------------------
+	def _on_doc_type_loses_focus(self):
+		pk_doc_type = self._PhWheel_doc_type.GetData()
+		if pk_doc_type is None:
+			self._PRW_doc_comment.unset_context(context = 'pk_doc_type')
+		else:
+			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
+		return True
 #============================================================
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A document tree that can be sorted."""
@@ -1100,27 +1145,37 @@ class cDocTree(wx.TreeCtrl):
 	# internal API
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
-		# build menu
+
+		menu = wx.Menu(title = _('document menu'))
+
+		# edit metadata
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
+		wx.EVT_MENU(menu, ID, self.__review_curr_part)
+
+		# export pages
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Export to disk')))
+		wx.EVT_MENU(menu, ID, self.__export_doc_to_disk)
+
+		# FIXME: add item "reorder pages"
+
+		# show descriptions
 		descriptions = self.__curr_node_data.get_descriptions()
 		desc_menu = wx.Menu()
 		for desc in descriptions:
 			d_id = wx.NewId()
 			# contract string
-			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
+			tmp = regex.split('\r\n+|\r+|\n+|\s+|\t+', desc)
 			tmp = ' '.join(tmp)
 			# but only use first 30 characters
 			tmp = "%s ..." % tmp[:30]
 			desc_menu.AppendItem(wx.MenuItem(desc_menu, d_id, tmp))
 			# connect handler
 			wx.EVT_MENU(desc_menu, d_id, self.__show_description)
-		ID_load_submenu = wx.NewId()
-		menu = wx.Menu(title = _('document menu'))
-		# FIXME: add item "reorder pages"
-		menu.AppendMenu(ID_load_submenu, _('descriptions ...'), desc_menu)
-		# edit metadata
-		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
-		wx.EVT_MENU(menu, ID, self.__review_curr_part)
+
+		menu.AppendMenu(wx.NewId(), _('descriptions ...'), desc_menu)
+
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
@@ -1245,6 +1300,49 @@ class cDocTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def __show_description(self, evt):
 		print "showing description"
+	#--------------------------------------------------------
+	# document level context menu handlers
+	#--------------------------------------------------------
+	def __export_doc_to_disk(self, evt):
+
+		# subdir name
+		pat = gmPerson.gmCurrentPatient()
+		ident = pat.get_identity()
+		dname = '%s_%s-%s' % (ident['lastnames'], ident['firstnames'], ident['dob'].strftime('%Y-%m-%d'))
+		# FIXME: make configurable
+		def_dir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname)))
+		if not os.access(def_dir, os.F_OK):
+			os.makedirs(def_dir)
+
+		# FIXME: make configurable
+		dlg = wx.DirDialog (
+			parent = self,
+			message = _('Save document into directory ...'),
+			defaultPath = def_dir,
+			style = wx.DD_DEFAULT_STYLE
+		)
+		if dlg.ShowModal() != wx.ID_OK:
+			dlg.Destroy()
+			return True
+
+		dirname = dlg.GetPath()
+		dlg.Destroy()
+		wx.BeginBusyCursor()
+		self.__curr_node_data.export_parts_to_files(export_dir=dirname)
+		wx.EndBusyCursor()
+
+		# instantiate exporter
+#		if not successful:
+#			gmGuiHelpers.gm_show_error (
+#				_('Error exporting patient EMR as chronological journal.'),
+#				_('EMR journal export'),
+#				gmLog.lErr
+#			)
+#			return False
+
+#		gmGuiHelpers.gm_statustext(_('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
+
+		return True
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1256,7 +1354,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.105  2007-01-06 23:42:35  ncq
+# Revision 1.106  2007-01-07 23:08:52  ncq
+# - improve cDocumentCommentPhraseWheel query and link it to the doc_type field
+# - add "export to disk" to doc tree context menu
+#
+# Revision 1.105  2007/01/06 23:42:35  ncq
 # - cDocumentCommentPhraseWeel and adjust to wxGlade based uses thereof
 #
 # Revision 1.104  2006/12/27 16:45:42  ncq
