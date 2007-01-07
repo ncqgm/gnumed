@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.87 2007-01-06 23:40:49 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmMedDoc.py,v 1.88 2007-01-07 23:01:26 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -14,7 +14,7 @@ from cStringIO import StringIO
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject, gmPG2
+from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject, gmPG2, gmTools
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -160,27 +160,28 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def export_to_file(self, aTempDir = None, aChunkSize = 0):
+	def export_to_file(self, aTempDir = None, aChunkSize = 0, filename=None):
 		"""Export binary object data into file.
 
 			- returns file name or None
 		"""
 		if self._payload[self._idx['size']] == 0:
 			return None
-		# if None -> use tempfile module default, else use given
-		# path as base directory for temp files
-		if aTempDir is not None:
-			tempfile.tempdir = aTempDir
-		tempfile.template = "gm-doc_obj-"
 
-		fname = tempfile.mktemp()
-		aFile = open(fname, 'wb+')
+		if filename is None:
+			# if tempdir is None -> use tempfile module default, else use given
+			# path as base directory for temp files
+			if aTempDir is not None:
+				tempfile.tempdir = aTempDir
+			tempfile.template = "gm-doc_obj-page_%s" % self._payload[self._idx['seq_idx']]
+			filename = tempfile.mktemp()
 
-		if self.__export(aFile, aChunkSize):
-			aFile.close()
-			return fname
+		# binary, no encoding
+		aFile = open(filename, 'wb+')
+
+		self.__export(aFile, aChunkSize)
 		aFile.close()
-		return None
+		return filename
 	#--------------------------------------------------------
 	def export_to_string (self, aChunkSize = 0):
 		"""Returns the document as a Python string.
@@ -235,10 +236,6 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			cmd = u"SELECT data FROM blobs.doc_obj WHERE pk=%s"
 			rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
 			conn.close()
-			if len(rows) == 0:
-				_log.Log(gmLog.lErr, 'BLOB [%s] does not exist' % self.pk_obj)
-				return None
-			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(rows[0][0]))
 			return True
 
@@ -494,6 +491,16 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 
 		return (True, '', new_parts)
 	#--------------------------------------------------------
+	def export_parts_to_files(self, export_dir=None, chunksize=0):
+		for part in self.get_parts():
+			# FIXME: add guess_extension_from_mimetype
+			# FIXME: use original_filename from archive
+			fname = u'%s%s%s_%s' % (part['l10n_type'], gmTools.coalesce(part['ext_ref'], '-', '-%s-'), _('part'), part['seq_idx'])
+			if export_dir is not None:
+				fname = os.path.join(export_dir, fname)
+			name = part.export_to_file(aChunkSize = chunksize, filename = fname)
+			# FIXME: error handling
+	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
 		cmd = u"select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
@@ -718,7 +725,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.87  2007-01-06 23:40:49  ncq
+# Revision 1.88  2007-01-07 23:01:26  ncq
+# - export_to_file(): add filename arg
+# - export_parts_to_files()
+#
+# Revision 1.87  2007/01/06 23:40:49  ncq
 # - typo in remainder export code in __export
 #
 # Revision 1.86  2006/12/11 18:52:11  ncq
