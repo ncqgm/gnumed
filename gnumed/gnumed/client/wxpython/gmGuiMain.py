@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.296 2007-01-04 22:52:01 ncq Exp $
-__version__ = "$Revision: 1.296 $"
+# $Id: gmGuiMain.py,v 1.297 2007-01-09 13:00:09 ncq Exp $
+__version__ = "$Revision: 1.297 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1056,9 +1056,15 @@ class gmApp(wx.App):
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
 			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
-		wx.CallAfter(gmPatSearchWidgets.load_patient_from_external_sources, frame)
+		wx.CallAfter(self._do_after_init)
 
 		return True
+	#----------------------------------------------
+	def _do_after_init(self):
+		# 1) raise default plugin
+		# 2) load external patients
+		gmPatSearchWidgets.load_patient_from_external_sources(self.GetTopWindow())
+		# 3) set focus to patient search widget
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -1212,7 +1218,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.296  2007-01-04 22:52:01  ncq
+# Revision 1.297  2007-01-09 13:00:09  ncq
+# - wx.CallAfter(self._do_after_init) in OnInit() so we can properly order things
+#   to do after init: we already check external patient sources
+#
+# Revision 1.296  2007/01/04 22:52:01  ncq
 # - accelerator key for "health issue" in EMR menu
 #
 # Revision 1.295  2006/12/27 16:44:02  ncq
