@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.43 2007-01-04 23:29:02 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmEMRStructWidgets.py,v 1.44 2007-01-09 12:59:01 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -477,7 +477,7 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 		self._CHBOX_closed.SetValue(not self.__episode['episode_open'])
 	#------------------------------------------------------------
 	def save(self):
-		self.__episode['episode_open'] = not self.CHBOX_closed.IsChecked()
+		self.__episode['episode_open'] = not self._CHBOX_closed.IsChecked()
 
 		issue_name = self._PRW_issue.GetValue().strip()
 		if len(issue_name) == 0:
@@ -487,12 +487,12 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			if self.__episode['episode_open']:
 				issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
 				db_cfg = gmCfg.cCfgSQL()
-				epi_ttl = db_cfg.get2 (
+				epi_ttl = int(db_cfg.get2 (
 					option = u'episode.ttl',
-					workplace = gmPerson.gmCurrentProvider.get_workplace(),
+					workplace = gmPerson.gmCurrentProvider().get_workplace(),
 					bias = 'user',
 					default = 60				# 2 months
-				)
+				))
 				if issue.close_expired_episode(ttl=epi_ttl) is False:
 					prev_epi = issue.get_open_episode()
 					first, last = prev_epi.get_access_range()
@@ -516,7 +516,7 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 						prev_epi['description']
 					)
 					if not gmGuiHelpers.gm_show_question(msg, title):
-						return
+						return False
 					issue.close_episode()
 
 		desc = self._PRW_description.GetValue().strip()
@@ -524,6 +524,7 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			self.__episode['description'] = desc
 
 		self.__episode.save_payload()
+		return True
 #----------------------------------------------------------------
 class cEpisodeEditAreaDlg(wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg):
 
@@ -1721,7 +1722,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.43  2007-01-04 23:29:02  ncq
+# Revision 1.44  2007-01-09 12:59:01  ncq
+# - datetime.timedelta needs int, not decimal, so make epi_ttl an int
+# - missing _ in front of CHBOX_closed
+# - save() needs to return True/False so dialog can close or not
+#
+# Revision 1.43  2007/01/04 23:29:02  ncq
 # - cEpisodeDescriptionPhraseWheel
 # - cEpisodeEditAreaPnl
 # - cEpisodeEditAreaDlg
