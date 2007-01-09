@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.92 $"
+__version__ = "$Revision: 1.93 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -400,20 +400,13 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		return (True, episode)
 	except gmExceptions.ConstructorError:
 		pass
-	# generate queries
+
 	queries = []
-	# insert episode
-	if patient_id is None:
-		cmd = u"insert into clin.episode (fk_health_issue, description, is_open) values (%s, %s, %s::boolean)"
-		queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open]})
-	else:
-		cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
-		queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
-	# retrieve PK
+	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
+	queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
-	# run queries
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
-	# now there ?
+
 	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return (True, episode)
 #-----------------------------------------------------------
@@ -551,7 +544,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.92  2007-01-04 22:50:04  ncq
+# Revision 1.93  2007-01-09 12:56:02  ncq
+# - create_episode() now always takes patient fk
+#
+# Revision 1.92  2007/01/04 22:50:04  ncq
 # - allow changing fk_patient in cEpisode
 #
 # Revision 1.91  2007/01/02 16:14:41  ncq

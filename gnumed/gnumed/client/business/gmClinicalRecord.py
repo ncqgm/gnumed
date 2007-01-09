@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.226 2006-12-25 22:48:09 ncq Exp $
-__version__ = "$Revision: 1.226 $"
+# $Id: gmClinicalRecord.py,v 1.227 2007-01-09 12:55:29 ncq Exp $
+__version__ = "$Revision: 1.227 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -716,20 +716,12 @@ where
 
 		- silently returns if episode already exists
 		"""		
-		if pk_health_issue is None:
-			# create unattached episode for the current patient
-			success, episode = gmEMRStructItems.create_episode (
-				episode_name = episode_name,
-				patient_id = self.pk_patient,
-				is_open = is_open
-			)
-		else:
-			# create episode for given health issue
-			success, episode = gmEMRStructItems.create_episode (
-				pk_health_issue = pk_health_issue,
-				episode_name = episode_name,
-				is_open = is_open
-			)
+		success, episode = gmEMRStructItems.create_episode (
+			pk_health_issue = pk_health_issue,
+			episode_name = episode_name,
+			patient_id = self.pk_patient,
+			is_open = is_open
+		)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.pk_patient, pk_health_issue))
 			return None
@@ -1599,7 +1591,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.226  2006-12-25 22:48:09  ncq
+# Revision 1.227  2007-01-09 12:55:29  ncq
+# - create_episode() now always takes patient fk
+#
+# Revision 1.226  2006/12/25 22:48:09  ncq
 # - comment on PG 8.2 fixing child table index scans for us
 #
 # Revision 1.225  2006/12/13 13:41:33  ncq
