@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.227 2007-01-09 12:55:29 ncq Exp $
-__version__ = "$Revision: 1.227 $"
+# $Id: gmClinicalRecord.py,v 1.228 2007-01-09 18:01:12 ncq Exp $
+__version__ = "$Revision: 1.228 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -716,15 +716,12 @@ where
 
 		- silently returns if episode already exists
 		"""		
-		success, episode = gmEMRStructItems.create_episode (
+		episode = gmEMRStructItems.create_episode (
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
 			patient_id = self.pk_patient,
 			is_open = is_open
 		)
-		if not success:
-			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.pk_patient, pk_health_issue))
-			return None
 		return episode
 	#--------------------------------------------------------
 	def get_most_recent_episode(issue=None):
@@ -1591,7 +1588,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.227  2007-01-09 12:55:29  ncq
+# Revision 1.228  2007-01-09 18:01:12  ncq
+# - error policy is now exceptions
+#
+# Revision 1.227  2007/01/09 12:55:29  ncq
 # - create_episode() now always takes patient fk
 #
 # Revision 1.226  2006/12/25 22:48:09  ncq
