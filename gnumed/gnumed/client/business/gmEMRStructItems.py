@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.93 $"
+__version__ = "$Revision: 1.94 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -391,13 +391,12 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	pk_health_issue - given health issue PK
 	episode_name - name of episode
 	"""
-	# already there ?
 	try:
 		episode = cEpisode(id_patient=patient_id, name=episode_name)
 		if episode['episode_open'] != is_open:
 			episode['episode_open'] = is_open
 			episode.save_payload()
-		return (True, episode)
+		return episode
 	except gmExceptions.ConstructorError:
 		pass
 
@@ -408,7 +407,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 
 	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
-	return (True, episode)
+	return episode
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
@@ -544,7 +543,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.93  2007-01-09 12:56:02  ncq
+# Revision 1.94  2007-01-09 18:01:32  ncq
+# - let exceptions report errors
+#
+# Revision 1.93  2007/01/09 12:56:02  ncq
 # - create_episode() now always takes patient fk
 #
 # Revision 1.92  2007/01/04 22:50:04  ncq
