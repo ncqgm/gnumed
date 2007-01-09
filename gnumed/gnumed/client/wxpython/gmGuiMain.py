@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.297 2007-01-09 13:00:09 ncq Exp $
-__version__ = "$Revision: 1.297 $"
+# $Id: gmGuiMain.py,v 1.298 2007-01-09 18:02:46 ncq Exp $
+__version__ = "$Revision: 1.298 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -90,6 +90,72 @@ icon_serpent = \
 \xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
+
+#==============================================================================
+# FIXME: this belongs elsewhere
+def jump_to_ifap(import_drugs=False):
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	if import_drugs:
+		transfer_file = os.path.expanduser(dbcfg.get2 (
+			option = 'external.ifap-win.transfer_file',
+			workplace = _provider.get_workplace(),
+			bias = 'workplace',
+			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
+		))
+		# file must exist for Ifap to write into it
+		f = open(transfer_file, 'w+b')
+		f.close()
+
+	# FIXME: make this more generic so several commands are tried
+	# FIXME: (windows, linux, mac) until one succeeds or all fail
+	ifap_cmd = dbcfg.get2 (
+		option = 'external.ifap-win.shell_command',
+		workplace = _provider.get_workplace(),
+		bias = 'workplace',
+		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+	)
+
+	wx.BeginBusyCursor()
+	gmShellAPI.run_command_in_shell(command = ifap_cmd, blocking = import_drugs)
+	wx.EndBusyCursor()
+
+	if import_drugs:
+		# COMMENT: this file must exist PRIOR to invoking IFAP
+		# COMMENT: or else IFAP will not write data into it ...
+		try:
+			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
+		except:
+			_log.LogException('cannot access [%s]' % fname)
+			csv_file = None
+
+		if csv_file is not None:
+			import csv
+			csv_lines = csv.DictReader (
+				csv_file,
+				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgröße'.split(),
+				delimiter = ';'
+			)
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			# dummy episode for now
+			epi = emr.add_episode(episode_name = _('Current medication'))
+			for line in csv_lines:
+				narr = u'%sx %s %s %s (\u2258 %s %s) von %s (%s)' % (
+					line['Packungszahl'].strip(),
+					line['Handelsname'].strip(),
+					line['Form'].strip(),
+					line[u'Packungsgröße'].strip(),
+					line['Abpackungsmenge'].strip(),
+					line['Einheit'].strip(),
+					line['Hersteller'].strip(),
+					line['PZN'].strip()
+				)
+				emr.add_clin_narrative(note = narr, soap_cat = 's', episode = epi)
+			csv_file.close()
+
+	return True
 
 #==============================================================================
 class gmTopLevelFrame(wx.Frame):
@@ -507,54 +573,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmShellAPI.run_command_in_shell('firefox http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks')
 	#----------------------------------------------
 	def __on_ifap(self, evt):
-
-		dbcfg = gmCfg.cCfgSQL()
-
-		transfer_file = os.path.expanduser(dbcfg.get2 (
-			option = 'external.ifap.win.transfer_file',
-			workplace = _provider.get_workplace(),
-			bias = 'workplace',
-			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
-		))
-		# file must exist for Ifap to write into it
-		f = open(transfer_file, 'w+b')
-		f.close()
-
-		# FIXME: make this more generic so several commands are tried
-		# FIXME: (windows, linux, mac) until one succeeds or all fail
-		ifap_cmd = dbcfg.get2 (
-			option = 'external.ifap.win.shell_command',
-			workplace = _provider.get_workplace(),
-			bias = 'workplace',
-			default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
-		)
-
-		wx.BeginBusyCursor()
-		gmShellAPI.run_command_in_shell(command=ifap_cmd, blocking=True)
-		wx.EndBusyCursor()
-
-		# COMMENT: this file must exist PRIOR to invoking IFAP
-		# COMMENT: or else IFAP will not write data into it ...
-		try:
-			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
-		except:
-			_log.LogException('cannot access [%s]' % fname)
-			csv_file = None
-
-		if csv_file is not None:
-			import csv
-			r = csv.DictReader (
-				csv_file,
-				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 Feld1 Feld2 Packungszahl Packungsgröße'.split(),
-				delimiter = ';'
-			)
-			msg = _('You selected the following drugs in the "ifap index PRAXIS (Windows)" drug database:\n\n')
-			for line in r:
-				for key, val in line.items():
-					msg += u'%s:  %s\n' % (key, val.strip())
-			csv_file.close()
-			gmGuiHelpers.gm_show_info(msg, _('listing drugs'))
-
+		jump_to_ifap()
 		evt.Skip()
 	#----------------------------------------------
 	#----------------------------------------------
@@ -602,41 +621,10 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_add_medication(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'))
+			gmGuiHelpers.gm_statustext(_('Cannot add medication. No active patient.'))
 			return False
 
-		# FIXME: this belongs elsewhere
-		# file must exist for Ifap to write into it
-#		transfer_file = os.path.expanduser('~/.wine/drive_c/Ifapwin/ifap2gnumed.csv')
-#		f = open(transfer_file, 'wb')
-#		f.close()
-
-#		wx.BeginBusyCursor()
-#		os.system('wine "C:\Ifapwin\WIAMDB.EXE"')				# FIXME: make path configurable
-#		wx.EndBusyCursor()
-
-		# COMMENT: this file must exist PRIOR to invoking IFAP
-		# COMMENT: or else IFAP will not write data into it ...
-#		try:
-#			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
-#		except:
-#			_log.LogException('cannot access [%s]' % fname)
-#			csv_file = None
-
-#		if csv_file is not None:
-#			import csv
-#			r = csv.DictReader (
-#				csv_file,
-#				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 Feld1 Feld2 Packungszahl Packungsgröße'.split(),
-#				delimiter = ';'
-#			)
-
-#			msg = _('You selected the following drugs in the "ifap index PRAXIS (Windows)" drug database:\n\n')
-#			for line in r:
-#				for key, val in line.items():
-#					msg += u'%s:  %s\n' % (key, val.strip())
-#			csv_file.close()
-#			gmGuiHelpers.gm_show_info(msg, _('listing drugs'))
+		jump_to_ifap(import_drugs = True)
 
 		evt.Skip()
 	#----------------------------------------------
@@ -1218,7 +1206,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.297  2007-01-09 13:00:09  ncq
+# Revision 1.298  2007-01-09 18:02:46  ncq
+# - add jump_to_ifap() ready for being factored out
+#
+# Revision 1.297  2007/01/09 13:00:09  ncq
 # - wx.CallAfter(self._do_after_init) in OnInit() so we can properly order things
 #   to do after init: we already check external patient sources
 #
