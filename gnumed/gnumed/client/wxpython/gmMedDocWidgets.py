@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.106 2007-01-07 23:08:52 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmMedDocWidgets.py,v 1.107 2007-01-10 23:01:07 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -317,27 +317,28 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				_('editing document properties')
 			)
 			return False
-		if pk_episode != doc['pk_episode']:
-			# since the phrasewheel operates on the active
-			# patient all episodes really should belong
-			# to it so we don't check patient change
-			doc['pk_episode'] = pk_episode
 
 		doc_type = self._PhWheel_doc_type.GetData(can_create = True)
-		if doc_type is not None:
-			if doc_type != doc['pk_type']:
-				doc['pk_type'] = doc_type
-		else:
-			gmGuiHelpers.gm_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
+		if doc_type is None:
+			gmGuiHelpers.gm_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip(), beep=True)
+			return False
 
-		if self._PRW_doc_comment.IsModified():
-			doc['comment'] = self._PRW_doc_comment.GetValue().strip()
+		# since the phrasewheel operates on the active
+		# patient all episodes really should belong
+		# to it so we don't check patient change
+		doc['pk_episode'] = pk_episode
+		doc['pk_type'] = doc_type
+		doc['comment'] = self._PRW_doc_comment.GetValue().strip()
+		doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
+		doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
-		if self._PhWheel_doc_date.IsModified():
-			doc['date'] = self._PhWheel_doc_date.GetData().timestamp
-
-		if self._TCTRL_reference.IsModified():
-			doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
+		success, data = doc.save_payload()
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_('Cannot link the document to episode\n\n [%s]') % epi_name,
+				_('editing document properties')
+			)
+			return False
 
 		# 2) handle review
 		if self._ChBOX_review.GetValue():
@@ -365,14 +366,6 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Error saving document review.'),
-				_('editing document properties')
-			)
-			return False
-
-		success, data = doc.save_payload()
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Cannot link the document to episode\n\n [%s]') % epi_name,
 				_('editing document properties')
 			)
 			return False
@@ -688,7 +681,7 @@ from your computer.""") % page_fname,
 
 		# update business object with metadata
 		# - date of generation
-		new_doc['date'] = self._PhWheel_doc_date.GetData().timestamp
+		new_doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
 		# - external reference
 		ref = gmMedDoc.get_ext_ref()
 		if ref is not None:
@@ -1026,9 +1019,8 @@ class cDocTree(wx.TreeCtrl):
 		# doc node
 		if isinstance(item1, gmMedDoc.cMedDoc):
 
-			# FIXME: should be "date" but have to wait until fuzzy date problem solved
-			#date_field = 'date'
-			date_field = 'modified_when'
+			date_field = 'date'
+			#date_field = 'modified_when'
 
 			if self.__sort_mode == 'age':
 				# reverse sort by date
@@ -1304,17 +1296,20 @@ class cDocTree(wx.TreeCtrl):
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __export_doc_to_disk(self, evt):
+		"""Export document into directory.
 
-		# subdir name
+		- one file per object
+		- into subdirectory named after patient
+		"""
 		pat = gmPerson.gmCurrentPatient()
 		ident = pat.get_identity()
+		# FIXME: make configurable
 		dname = '%s_%s-%s' % (ident['lastnames'], ident['firstnames'], ident['dob'].strftime('%Y-%m-%d'))
 		# FIXME: make configurable
 		def_dir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname)))
 		if not os.access(def_dir, os.F_OK):
 			os.makedirs(def_dir)
-
-		# FIXME: make configurable
+		
 		dlg = wx.DirDialog (
 			parent = self,
 			message = _('Save document into directory ...'),
@@ -1324,23 +1319,14 @@ class cDocTree(wx.TreeCtrl):
 		if dlg.ShowModal() != wx.ID_OK:
 			dlg.Destroy()
 			return True
-
 		dirname = dlg.GetPath()
 		dlg.Destroy()
+
 		wx.BeginBusyCursor()
-		self.__curr_node_data.export_parts_to_files(export_dir=dirname)
+		fnames = self.__curr_node_data.export_parts_to_files(export_dir=dirname)
 		wx.EndBusyCursor()
 
-		# instantiate exporter
-#		if not successful:
-#			gmGuiHelpers.gm_show_error (
-#				_('Error exporting patient EMR as chronological journal.'),
-#				_('EMR journal export'),
-#				gmLog.lErr
-#			)
-#			return False
-
-#		gmGuiHelpers.gm_statustext(_('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
+		gmGuiHelpers.gm_statustext(_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname), beep=False)
 
 		return True
 #============================================================
@@ -1354,7 +1340,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.106  2007-01-07 23:08:52  ncq
+# Revision 1.107  2007-01-10 23:01:07  ncq
+# - properly update document/object metadata
+#
+# Revision 1.106  2007/01/07 23:08:52  ncq
 # - improve cDocumentCommentPhraseWheel query and link it to the doc_type field
 # - add "export to disk" to doc tree context menu
 #
