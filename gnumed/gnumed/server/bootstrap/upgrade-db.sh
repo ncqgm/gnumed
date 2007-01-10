@@ -1,5 +1,19 @@
 #!/bin/sh
 
+# ========================================================
+# Upgrade GNUmed database from version to version.
+#
+# usage:
+#  upgrade-db.sh vX vX+1
+#
+# limitation:
+#  Only works from version to version sequentially.
+#
+# prerequisites:
+#  update_db-vX_vX+1.conf must exist
+#
+# ========================================================
+
 cd ../../
 ln -vfsn client Gnumed
 cd -
