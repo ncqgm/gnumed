@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.56 2006-12-13 14:57:16 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmPatSearchWidgets.py,v 1.57 2007-01-10 23:04:12 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -185,21 +185,29 @@ def load_persons_from_xdt():
 	for profile in xdt_profiles:
 		name = _cfg.get('XDT profile %s' % profile, 'filename')
 		if name is None:
-			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a file name' % profile)
+			_log.Log(gmLog.lErr, 'XDT profile [%s] does not define a <filename>' % profile)
 			continue
 		encoding = _cfg.get('XDT profile %s' % profile, 'encoding')
 		if encoding is None:
-			_log.Log(gmLog.lWarn, 'xDT source profile [%s] does not specify an encoding for BDT file [%s]' % (profile, name))
+			_log.Log(gmLog.lWarn, 'xDT source profile [%s] does not specify an <encoding> for BDT file [%s]' % (profile, name))
 		source = _cfg.get('XDT profile %s' % profile, 'source')
 		if source is None:
 			source = _('unknown')
-		bdt_files.append({'file': name, 'source': source, 'encoding': encoding})
+		dob_format = _cfg.get('XDT profile %s' % profile, 'DOB format')
+		if dob_format is None:
+			_log.Log(gmLog.lErr, 'XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
+			continue
+		bdt_files.append({'file': name, 'source': source, 'encoding': encoding, 'dob_format': dob_format})
 
 	dtos = []
 	for bdt_file in bdt_files:
 		try:
 			# FIXME: potentially return several patients per file
-			dto = gmPerson.get_person_from_xdt(filename = bdt_file['file'], encoding = bdt_file['encoding'])
+			dto = gmPerson.get_person_from_xdt (
+				filename = bdt_file['file'],
+				encoding = bdt_file['encoding'],
+				dob_format = bdt_file['dob_format']
+			)
 
 		except IOError:
 			gmGuiHelpers.gm_show_info (
@@ -211,7 +219,7 @@ def load_persons_from_xdt():
 				) % bdt_file,
 				_('Activating xDT patient')
 			)
-			_log.LogException('cannot access xDT file [%s]' % bdt_file)
+			_log.LogException('cannot access xDT file [%s]' % bdt_file['file'])
 			continue
 
 		except ValueError:
@@ -222,7 +230,19 @@ def load_persons_from_xdt():
 				) % bdt_file,
 				_('Activating xDT patient')
 			)
-			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file)
+			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
+			continue
+
+		except:
+			gmGuiHelpers.gm_show_error (
+				_(
+				'Cannot load patient from BDT file\n\n'
+				' [%s]'
+				) % bdt_file,
+				_('Activating xDT patient'),
+				aLogLevel = None
+			)
+			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
 			continue
 
 		dtos.append({'dto': dto, 'source': bdt_file['source']})
@@ -259,14 +279,7 @@ def load_patient_from_external_sources(parent=None):
 
 	# search
 	searcher = gmPerson.cPatientSearcher_SQL()
-	persons = searcher.get_persons (
-		search_dict = {
-			'firstnames': dto.firstnames,
-			'lastnames': dto.lastnames,
-			'gender': dto.gender,
-			'dob': dto.dob
-		}
-	)
+	persons = searcher.get_persons (dto = dto)
 
 	if len(persons) == 0:
 		ident = gmPerson.create_identity (
@@ -758,7 +771,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.56  2006-12-13 14:57:16  ncq
+# Revision 1.57  2007-01-10 23:04:12  ncq
+# - support explicit DOB format for xDT files
+#
+# Revision 1.56  2006/12/13 14:57:16  ncq
 # - inform about no patients found in external sources
 #
 # Revision 1.55  2006/11/24 14:23:19  ncq
