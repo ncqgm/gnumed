@@ -17,9 +17,9 @@ Note that if you want locale-aware formatting you need to call
 somehwere before importing this script."""
 )
 #===========================================================================
-# $Id: gmDateTime.py,v 1.3 2006-12-22 16:54:28 ncq Exp $
+# $Id: gmDateTime.py,v 1.4 2007-01-10 22:31:10 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -43,7 +43,8 @@ dst_currently_in_effect = None
 current_utc_offset = None
 current_timezone_interval = None
 current_iso_timezone_string = None
-cLocalTimezone = psycopg2.tz.LocalTimezone
+cLocalTimezone = psycopg2.tz.LocalTimezone					# remove as soon as datetime supports timezone classes
+cFixedOffsetTimezone = psycopg2.tz.FixedOffsetTimezone		# remove as soon as datetime supports timezone classes
 
 #===========================================================================
 def init():
@@ -115,7 +116,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.3  2006-12-22 16:54:28  ncq
+# Revision 1.4  2007-01-10 22:31:10  ncq
+# - add FixedOffsetTimezone() from psycopg2.tz
+#
+# Revision 1.3  2006/12/22 16:54:28  ncq
 # - add cLocalTimezone from psycopg2 until datetime supports it
 # - better logging
 # - enhanced test suite
