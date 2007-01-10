@@ -10,9 +10,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.6 2006-11-27 23:00:45 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.7 2007-01-10 22:43:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -26,7 +26,8 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 # FIXME: remove this dependancy
-from Gnumed.pycommon import gmPG2
+#from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDateTime
 
 (	acc_years,
 	acc_months,
@@ -707,7 +708,8 @@ class cFuzzyTimestamp:
 		return self.timestamp
 	#-----------------------------------------------------------------------
 	def get_pydt(self):
-		tz = gmPG2.FixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
+#		tz = gmPG2.FixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
+		tz = gmDateTime.cFixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
 		secs, msecs = divmod(self.timestamp.second, 1)
 		ts = pyDT.datetime (
 			year = self.timestamp.year,
@@ -722,6 +724,8 @@ class cFuzzyTimestamp:
 		return ts
 #===========================================================================
 if __name__ == '__main__':
+
+	gmDateTime.init()
 
 	print "testing fuzzy timestamp class"
 	print "-----------------------------"
@@ -748,7 +752,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.6  2006-11-27 23:00:45  ncq
+# Revision 1.7  2007-01-10 22:43:39  ncq
+# - depend on gmDateTime, not gmPG2
+#
+# Revision 1.6  2006/11/27 23:00:45  ncq
 # - add str2fuzzy_timestamp_matches() with all the needed infrastructure
 # - some unicode()ing
 # - user more symbolic names
