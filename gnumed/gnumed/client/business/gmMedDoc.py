@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.88 2007-01-07 23:01:26 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmMedDoc.py,v 1.89 2007-01-10 22:27:53 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -492,14 +492,15 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		return (True, '', new_parts)
 	#--------------------------------------------------------
 	def export_parts_to_files(self, export_dir=None, chunksize=0):
+		fnames = []
 		for part in self.get_parts():
 			# FIXME: add guess_extension_from_mimetype
 			# FIXME: use original_filename from archive
 			fname = u'%s%s%s_%s' % (part['l10n_type'], gmTools.coalesce(part['ext_ref'], '-', '-%s-'), _('part'), part['seq_idx'])
 			if export_dir is not None:
 				fname = os.path.join(export_dir, fname)
-			name = part.export_to_file(aChunkSize = chunksize, filename = fname)
-			# FIXME: error handling
+			fnames.append(part.export_to_file(aChunkSize = chunksize, filename = fname))
+		return fnames
 	#--------------------------------------------------------
 	def has_unreviewed_parts(self):
 		cmd = u"select exists(select 1 from blobs.v_obj4doc_no_data where pk_doc=%s and not reviewed)"
@@ -725,7 +726,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.88  2007-01-07 23:01:26  ncq
+# Revision 1.89  2007-01-10 22:27:53  ncq
+# - return a list of filenames from export_parts_to_files()
+#
+# Revision 1.88  2007/01/07 23:01:26  ncq
 # - export_to_file(): add filename arg
 # - export_parts_to_files()
 #
