@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.42 2006-12-15 15:24:06 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmGuiHelpers.py,v 1.43 2007-01-12 13:09:46 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -28,6 +28,23 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
 _set_status_text = None
+# ========================================================================
+class cFileDropTarget(wx.FileDropTarget):
+	"""Generic file drop target class.
+
+	Protocol:
+		Widgets being declared file drop targets
+		must provide the method:
+
+			add_filename(filenames)
+	"""
+	#-----------------------------------------------
+	def __init__(self, target):
+		wx.FileDropTarget.__init__(self)
+		self.target = target
+	#-----------------------------------------------
+	def OnDropFiles(self, x, y, filenames):
+		self.target.add_filenames(filenames)
 # ========================================================================
 def gm_SingleChoiceDialog(aMessage = None, aTitle = None, aLogLevel = None, choices = None):
     if aMessage is None:
@@ -358,7 +375,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.42  2006-12-15 15:24:06  ncq
+# Revision 1.43  2007-01-12 13:09:46  ncq
+# - cFileDropTarget
+#
+# Revision 1.42  2006/12/15 15:24:06  ncq
 # - cleanup
 #
 # Revision 1.41  2006/11/24 09:53:24  ncq
