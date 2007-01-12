@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.107 2007-01-10 23:01:07 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmMedDocWidgets.py,v 1.108 2007-01-12 13:10:11 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -400,10 +400,24 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.__init_ui_data()
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
+		# make me a file drop target
+		dt = gmGuiHelpers.cFileDropTarget(self)
+		self.SetDropTarget(dt)
+
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
 		from Gnumed.pycommon import gmScanBackend
 		self.scan_module = gmScanBackend
+	#--------------------------------------------------------
+	# file drop target API
+	#--------------------------------------------------------
+	def add_filenames(self, filenames):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_statustext(_('Cannot accept new documents. No active patient.'))
+			return
+		self.acquired_pages.extend(filenames)
+		self.__reload_LBOX_doc_pages()
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		pass
@@ -1340,7 +1354,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.107  2007-01-10 23:01:07  ncq
+# Revision 1.108  2007-01-12 13:10:11  ncq
+# - use cFileDropTarget in ScanIdxPnl
+#
+# Revision 1.107  2007/01/10 23:01:07  ncq
 # - properly update document/object metadata
 #
 # Revision 1.106  2007/01/07 23:08:52  ncq
