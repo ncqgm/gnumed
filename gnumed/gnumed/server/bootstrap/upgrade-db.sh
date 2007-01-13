@@ -25,6 +25,17 @@ LOG="update_db-v${PREV_VER}_v${VER}.log"
 CONF="update_db-v${PREV_VER}_v${VER}.conf"
 BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${VER}-"`hostname`".sql.bz2"
 
+if test ! -f $CONF ; then
+	echo "========================================="
+	echo "ERROR: The configuration file:"
+	echo "ERROR:"
+	echo "ERROR:  $CONF"
+	echo "ERROR"
+	echo "ERROR: does not exist. Aborting."
+	echo "========================================="
+	exit
+fi ;
+
 export GM_CORE_DB="gnumed_v${VER}"
 
 echo "==========================================================="
