@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.43 2007-01-12 13:09:46 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmGuiHelpers.py,v 1.44 2007-01-13 22:19:37 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -28,6 +28,89 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
 _set_status_text = None
+
+# ========================================================================
+class cTreeExpansionHistoryMixin:
+	"""TreeCtrl mixin class to record expansion history."""
+	def __init__(self):
+		if not isinstance(self, wx.TreeCtrl):
+			raise TypeError('[%s]: mixin can only be applied to wx.TreeCtrl, not [%s]' % (cTreeExpansionHistoryMixin, self.__class__.__name__))
+		self.expansion_state = {}
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def snapshot_expansion(self):
+		self.__record_subtree_expansion(start_node_id = self.GetRootItem())
+	#--------------------------------------------------------
+	def restore_expansion(self):
+		if len(self.expansion_state) == 0:
+			return True
+		self.__restore_subtree_expansion(start_node_id = self.GetRootItem())
+	#--------------------------------------------------------
+	def print_expansion(self):
+		if len(self.expansion_state) == 0:
+			print "currently no expansion snapshot available"
+			return True
+		print "last snapshot of state of expansion"
+		print "-----------------------------------"
+		print "listing expanded nodes:"
+		for node_id in self.expansion_state.keys():
+			print "node ID:", node_id
+			print "  selected:", self.expansion_state[node_id]
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __record_subtree_expansion(self, start_node_id=None):
+		"""This records node expansion states based on the item label.
+
+		A side effect of this is that identically named items can
+		become unduly synchronized in their expand state after a
+		snapshot/restore cycle.
+
+		Better choices might be
+
+			id(item.GetPyData()) or
+			item.GetPyData().get_tree_uid()
+
+		wehre get_tree_uid():
+
+			'[%s:%s]' % (self.__class__.__name__, id(self))
+
+		or some such. This would survive renaming of the item.
+
+		For database items it may be useful to include the
+		primary key which would - contrary to id() - survive
+		reloads from the database.
+		"""
+		if not self.IsExpanded(start_node_id):
+			return True
+
+		self.expansion_state[self.GetItemText(start_node_id)] = self.IsSelected(start_node_id)
+
+		child_id, cookie = self.GetFirstChild(start_node_id)
+		while child_id.IsOk():
+			self.__record_subtree_expansion(start_node_id = child_id)
+			child_id, cookie = self.GetNextChild(start_node_id, cookie)
+
+		return
+	#--------------------------------------------------------
+	def __restore_subtree_expansion(self, start_node_id=None):
+		start_node_label = self.GetItemText(start_node_id)
+		try:
+			node_selected = self.expansion_state[start_node_label]
+		except KeyError:
+			return
+
+		self.Expand(start_node_id)
+		if node_selected:
+			self.SelectItem(start_node_id)
+
+		child_id, cookie = self.GetFirstChild(start_node_id)
+		while child_id.IsOk():
+			self.__restore_subtree_expansion(start_node_id = child_id)
+			child_id, cookie = self.GetNextChild(start_node_id, cookie)
+
+		return
 # ========================================================================
 class cFileDropTarget(wx.FileDropTarget):
 	"""Generic file drop target class.
@@ -375,7 +458,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.43  2007-01-12 13:09:46  ncq
+# Revision 1.44  2007-01-13 22:19:37  ncq
+# - cTreeExpansionHistoryMixin
+#
+# Revision 1.43  2007/01/12 13:09:46  ncq
 # - cFileDropTarget
 #
 # Revision 1.42  2006/12/15 15:24:06  ncq
