@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.298 2007-01-09 18:02:46 ncq Exp $
-__version__ = "$Revision: 1.298 $"
+# $Id: gmGuiMain.py,v 1.299 2007-01-13 22:21:58 ncq Exp $
+__version__ = "$Revision: 1.299 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -578,12 +578,12 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
-		w, h = self.GetClientSize()
-		cdc = wx.ClientDC(self)
+		w, h = self.GetSize()
+		wdc = wx.WindowDC(self)
 		mdc = wx.MemoryDC()
 		img = wx.EmptyBitmap(w, h)
 		mdc.SelectObject(img)
-		mdc.Blit(0, 0, w, h, cdc, 0, 0)
+		mdc.Blit(0, 0, w, h, wdc, 0, 0)
 		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
@@ -1206,7 +1206,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.298  2007-01-09 18:02:46  ncq
+# Revision 1.299  2007-01-13 22:21:58  ncq
+# - try capturing the title bar, too, in snapshot()
+#
+# Revision 1.298  2007/01/09 18:02:46  ncq
 # - add jump_to_ifap() ready for being factored out
 #
 # Revision 1.297  2007/01/09 13:00:09  ncq
