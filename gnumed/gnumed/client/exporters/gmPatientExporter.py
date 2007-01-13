@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.93 2006-12-13 00:31:24 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmPatientExporter.py,v 1.94 2007-01-13 22:17:40 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -51,7 +51,7 @@ class cEmrExport:
         self.__target = fileout
         self.__patient = patient
         self.lab_new_encounter = True
-	self.__filtered_items = []
+        self.__filtered_items = []
     #--------------------------------------------------------
     def set_constraints(self, constraints = None):
         """Sets exporter constraints.
@@ -763,12 +763,20 @@ class cEmrExport:
                 continue
             txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             for soap_entry in soap_cat_narratives:
-                txt += (
-                    (' ' * (left_margin+3)) +
-                    soap_entry['date'].strftime('%H:%M %.8s: ') % soap_entry['provider'] +
-                    soap_entry['narrative'].replace('\n', eol_w_margin) +
-                    '\n'
+                txt += wrap (
+                    '%s %.8s: %s\n' % (
+                        soap_entry['date'].strftime('%H:%M'),
+                        soap_entry['provider'],
+                        soap_entry['narrative']
+                    ), 75
                 )
+
+#                txt += (
+ #                   (' ' * (left_margin+3)) +
+  #                  soap_entry['date'].strftime('%H:%M %.8s: ') % soap_entry['provider'] +
+   #                 soap_entry['narrative'].replace('\n', eol_w_margin) +
+    #                '\n'
+     #           )
 		#FIXME: add diagnoses
 
         # items
@@ -1255,7 +1263,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.93  2006-12-13 00:31:24  ncq
+# Revision 1.94  2007-01-13 22:17:40  ncq
+# - wrap narrative to 75 characters per line
+#
+# Revision 1.93  2006/12/13 00:31:24  ncq
 # - export into unicode files
 # - fix use of get_encounters()
 #
