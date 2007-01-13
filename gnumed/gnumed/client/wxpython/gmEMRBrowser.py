@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.63 2007-01-06 23:41:40 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmEMRBrowser.py,v 1.64 2007-01-13 22:26:55 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -24,9 +24,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 # module level constants
-dialog_CANCELLED = -1
 dialog_OK = -2
-MAX_EXPANSION_HISTORY = 2
 
 #============================================================
 def export_emr_to_ascii(parent=None):
@@ -71,11 +69,8 @@ def export_emr_to_ascii(parent=None):
 		exporter.dump_med_docs()
 		output_file.close()
 		gmGuiHelpers.gm_show_info('EMR successfully exported to file: %s' % fname, _('emr_dump'), gmLog.lInfo)
-
-
-
 #============================================================
-class cEMRTree(wx.TreeCtrl):
+class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	"""This wx.TreeCtrl derivative displays a tree view of the medical record."""
 
 	#--------------------------------------------------------
@@ -84,6 +79,8 @@ class cEMRTree(wx.TreeCtrl):
 		"""
 		kwds['style'] = wx.TR_HAS_BUTTONS | wx.NO_BORDER
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
+
+		gmGuiHelpers.cTreeExpansionHistoryMixin.__init__(self)
 
 		try:
 			self.__narr_display = kwds['narr_display']
@@ -94,9 +91,6 @@ class cEMRTree(wx.TreeCtrl):
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
 		self.__make_popup_menus()
-
-#		self.expansion_history = ExpansionHistory(self, self.__emr_tree)
-
 		self.__register_events()
 	#--------------------------------------------------------
 	# external API
@@ -104,8 +98,8 @@ class cEMRTree(wx.TreeCtrl):
 	def refresh(self):
 		if not self.__pat.is_connected():
 			gmGuiHelpers.gm_statustext (
-				_('Cannot load documents. No active patient.'),
-				gmLog.lErr
+				_('Cannot load clinical narrative. No active patient.'),
+				gmLog.lWarn
 			)
 			return False
 
@@ -130,9 +124,8 @@ class cEMRTree(wx.TreeCtrl):
 		# FIXME: error handling
 
 		wx.BeginBusyCursor()
-		# remember expansion for previous patient
-		#self.expansion_history.remember_expansion()
-		# clean old tree
+
+		self.snapshot_expansion()
 		self.DeleteAllItems()
 
 		# init new tree
@@ -155,7 +148,8 @@ class cEMRTree(wx.TreeCtrl):
 			self.__narr_display.Clear()
 			self.__narr_display.WriteText('%s\n%s\n\n' % (label, underline))
 			self.__narr_display.WriteText(self.__exporter.get_summary_info(0))
-#		self.expansion_history.restore_expansion()
+
+		self.restore_expansion()
 
 		wx.EndBusyCursor()
 		return True
@@ -205,7 +199,6 @@ class cEMRTree(wx.TreeCtrl):
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('create health issue')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
-		# print " add new episode to issue"
 		# print " attach issue to another patient"
 		# print " move all episodes to another issue"
 	#--------------------------------------------------------
@@ -362,7 +355,7 @@ class cEMRTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def __find_node(self, root, data_object):
 		nodes = []
-		id , cookie = self.GetFirstChild( root)
+		id , cookie = self.GetFirstChild(root)
 
 		#print "DEBUG id , cookie", id, cookie
 		#print "DEBUG id dict is ", id.__dict__.keys()
@@ -410,6 +403,9 @@ class cEMRTree(wx.TreeCtrl):
 		self.PopupMenu(self.__root_context_popup, pos)		
 	#--------------------------------------------------------
 	def __create_issue(self, event):
+
+		return True
+
 		# FIXME: refactor this code, present in three places
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
@@ -597,89 +593,6 @@ class cEMRJournalPanel(wx.Panel):
 #			return True
 #		return False
 #================================================================
-
-class ExpansionHistory:
-	def __init__(self, emr_browser, tree):
-		self._browser =emr_browser
-		self._tree = tree
-
-		
-		self._expansion_history = {} # for remembering expansion states of previously visited histories
-		self.__last_pat_desc = None
-		self.__selected_node = None
-		
-	def remember_expansion(self):
-		ix = self.__last_pat_desc
-		if ix is None:
-			return
-		#print "\nDEBUG Remembering with index",ix , " type of ix is ", type(ix)
-		#print
-		l = []
-		
-		#if cache full resize 
-		if not self._expansion_history.has_key(ix) and  len( self._expansion_history) > MAX_EXPANSION_HISTORY:
-				i = MAX_EXPANSION_HISTORY / 4
-				for k in self._expansion_history.keys():
-					del (self._expansion_history[k])
-					i -= 1
-					if i < 1:
-						break
-				
-		self._expansion_history[ix] = l
-		self._record_expansion(self._tree, self._tree.GetRootItem(), l)
-		
-
-	def _record_expansion(self,tree,  root, l):
-		if not root or not root.IsOk():
-			return
-		id, cookie = tree.GetFirstChild( root)
-		#print "id", id, " is Ok", id.IsOk()
-		while id.IsOk():
-			expanded = tree.IsExpanded(id)
-			#print "id expanded = ", expanded
-			l2 = [tree.IsSelected(id)]
-			
-			if expanded:
-				self._record_expansion(tree, id, l2)
-			#print "expansion at ", id , " is ",  l2
-			l.append(l2)
-			id, cookie = tree.GetNextChild(root,  cookie)
-		
-	def restore_expansion(self):
-		ix = gmPerson.gmCurrentPatient().get_identity()['description']
-		self.__last_pat_desc  = ix 
-
-		print "DEBUG restoring with ",ix 
-		if self._expansion_history.has_key(ix):
-			l = self._expansion_history[ix]
-		        self.__selected_node = None
-			self._restore_expand( self._tree, self._tree.GetRootItem(), l)
-
-		if self.__selected_node:		
-			self._tree.SelectItem( self.__selected_node)	
-
-	
-	
-	def _restore_expand(self, tree, root, l):
-		id, cookie = tree.GetFirstChild(root)
-		for x in l:
-			if not id.IsOk():
-				break
-			selected = x[0]
-			if selected:
-				self.__selected_node = id	
-			x = x[1:]
-			if x <>  []:
-				tree.Expand( id)
-				self._restore_expand( tree, id, x)
-			id, cookie = tree.GetNextChild(root, cookie)
-	
-			
-
-	
-
-		
-#================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
@@ -725,7 +638,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.63  2007-01-06 23:41:40  ncq
+# Revision 1.64  2007-01-13 22:26:55  ncq
+# - remove cruft
+# - mix expansion history into emr tree browser
+#
+# Revision 1.63  2007/01/06 23:41:40  ncq
 # - missing :
 #
 # Revision 1.62  2007/01/04 23:41:36  ncq
