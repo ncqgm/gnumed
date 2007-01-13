@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.44 2007-01-13 22:19:37 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmGuiHelpers.py,v 1.45 2007-01-13 22:43:41 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -165,7 +165,7 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		log_msg = string.replace(log_msg, '\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
-	aMessage = str(aMessage) + _("\n\nPlease consult the error log for all the gory details !")
+	aMessage += _("\n\nPlease consult the error log for all the gory details !")
 
 	if aTitle is None:
 		aTitle = _('generic error message')
@@ -458,7 +458,10 @@ class cReturnTraversalTextCtrl (wx.TextCtrl):
 	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.44  2007-01-13 22:19:37  ncq
+# Revision 1.45  2007-01-13 22:43:41  ncq
+# - remove str() raising Unicode exceptions
+#
+# Revision 1.44  2007/01/13 22:19:37  ncq
 # - cTreeExpansionHistoryMixin
 #
 # Revision 1.43  2007/01/12 13:09:46  ncq
