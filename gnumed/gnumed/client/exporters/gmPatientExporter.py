@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.94 2007-01-13 22:17:40 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmPatientExporter.py,v 1.95 2007-01-15 20:20:03 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -763,7 +763,7 @@ class cEmrExport:
                 continue
             txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             for soap_entry in soap_cat_narratives:
-                txt += wrap (
+                txt += gmTools.wrap (
                     '%s %.8s: %s\n' % (
                         soap_entry['date'].strftime('%H:%M'),
                         soap_entry['provider'],
@@ -1127,28 +1127,8 @@ class cMedistarSOAPExporter:
 			for row in rows:
 				text = row[0]
 				if text is not None:
-					target.write('%s\n' % wrap(text, 64))
+					target.write('%s\n' % gmTools.wrap(text, 64))
 		return True
-#============================================================
-def wrap(text, width):
-	"""
-	A word-wrap function that preserves existing line breaks
-	and most spaces in the text. Expects that existing line
-	breaks are posix newlines (\n).
-	"""
-	return reduce (
-		lambda line, word, width=width: '%s%s%s' % (
-			line,
-			' \n'[(
-				len(line)
-				- line.rfind('\n')
-				- 1
-				+ len(word.split('\n',1)[0])
-				>= width
-			)],
-			word),
-		text.split(' ')
-	)
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1263,7 +1243,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.94  2007-01-13 22:17:40  ncq
+# Revision 1.95  2007-01-15 20:20:03  ncq
+# - move wrap() to gmTools
+#
+# Revision 1.94  2007/01/13 22:17:40  ncq
 # - wrap narrative to 75 characters per line
 #
 # Revision 1.93  2006/12/13 00:31:24  ncq
