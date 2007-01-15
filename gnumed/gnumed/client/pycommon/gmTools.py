@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.9 2007-01-06 17:05:57 ncq Exp $
+# $Id: gmTools.py,v 1.10 2007-01-15 20:20:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -126,6 +126,8 @@ def str2interval(str_interval=None):
 
 	return None
 #===========================================================================
+# text related tools
+#---------------------------------------------------------------------------
 def coalesce(initial=None, instead=None, template=None):
 	"""Modelled after the SQL coalesce function.
 
@@ -150,6 +152,28 @@ def coalesce(initial=None, instead=None, template=None):
 def capitalize(text=None):
 	"""Capitalize the first character but leave the rest alone."""
 	return text[0].capitalize() + text[1:]
+#---------------------------------------------------------------------------
+def wrap(text, width):
+	"""
+	A word-wrap function that preserves existing line breaks
+	and most spaces in the text. Expects that existing line
+	breaks are posix newlines (\n).
+
+	FIXME: add initial/subsequent indent etc
+	"""
+	return reduce (
+		lambda line, word, width=width: '%s%s%s' % (
+			line,
+			' \n'[(
+				len(line)
+				- line.rfind('\n')
+				- 1
+				+ len(word.split('\n',1)[0])
+				>= width
+			)],
+			word),
+		text.split(' ')
+	)
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -209,7 +233,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.9  2007-01-06 17:05:57  ncq
+# Revision 1.10  2007-01-15 20:20:39  ncq
+# - add wrap()
+#
+# Revision 1.9  2007/01/06 17:05:57  ncq
 # - start OOo server if cannot connect to one
 # - test suite
 #
