@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.44 2007-01-09 12:59:01 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmEMRStructWidgets.py,v 1.45 2007-01-15 13:02:26 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -219,102 +219,100 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 #================================================================
 # episode related widgets/functions
 #----------------------------------------------------------------
-def move_episode_to_issue(episode=None, target_issue=None):
+def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False):
+	"""Prepare changing health issue for an episode.
 
-	# we need a target issue
-	if target_issue is None:
-		if episode['pk_health_issue'] is None:
-			msg = _(
-				'\nThe episode\n'
-				'  [%(epi)s]\n'
-				'currently does not belong to a health issue.\n\n'
-				'Please select the health issue you want to move it to:\n'
-			) % {'epi': episode['description']}
-		else:
-			msg = _(
-				'\nThe episode\n'
-				'  [%(epi)s]\n'
-				'currently belongs to the health issue\n'
-				'  [%(issue)s]\n\n'
-				'Please select the health issue you want to move it to:\n'
-			) % {'epi': episode['description'], 'issue': episode['health_issue']}
-
-		dlg = cIssueSelectionDlg(self, -1, message=msg)
-		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			dlg.Destroy()
-			return True
-
-		pk_issue = dlg._PhWheel_issue.GetData()
-		dlg.Destroy()
-		if episode['pk_health_issue'] == pk_issue:
-			return True
-
-		target_issue = gmEMRStructItems.cHealthIssue(aPK_obj=pk_issue)
-
-	# resolve two-open-episodes conflict
-	if episode['episode_open']:
-		# FIXME: should we do this on the source issue, too ?
-		target_issue.close_expired_episode(ttl=90)
-		epi_exist = target_issue.get_open_episode()
-		if epi_exist is not None:
-			move_range = episode.get_access_range()
-			exist_range = epi_exist.get_access_range()
-			decision = gmGuiHelpers.gm_show_question (
-"""There cannot be two open episodes for a
-health issue at the same time.
-
-The episode you want to move
-
- (1) "%(epi_move)s" (%(epi_move_first)s - %(epi_move_last)s)
-
-is currently open. The health issue
-
- "%(issue)s"
-
-you want to move it to also has an open episode:
-
- (2) "%(epi_exist)s" (%(epi_exist_first)s - %(epi_exist_last)s)
-
-[%(y)s] - close the episode on the move (1)
-[%(n)s] - close the existing episode (2)
-[%(c)s] - abort moving the episode
-"""				% {
-					'epi_move': episode['description'],
-					'epi_move_first': move_range['earliest'],
-					'epi_move_last': move_range['latest'],
-					'issue': target_issue['description'],
-					'epi_exist': epi_exist['description'],
-					'epi_exist_first': exist_range['earliest'],
-					'epi_exist_last': exist_range['latest'],
-					'y': _('yes'),
-					'n': _('no'),
-					'c': _('cancel')
-				},
-				_('Moving episode'),
-				cancel_button = True
-			)
-			if decision is None:
-				return True
-			if decision is True:
-				episode['episode_open'] = False
-			elif decision is False:
-				epi_exist['episode_open'] = False
-				epi_exist.save_payload()
-
-	episode['pk_health_issue'] = target_issue['pk']
-	success, data = episode.save_payload()
-	if not success:
-		gmGuiHelpers.gm_show_error (
-			_('Cannot move episode\n [%(epi)s]\n into health issue\n [%(issue)s].') % {
-				'epi': episode['description'],
-				'issue': target_issue['description']
-			},
-			_('Moving episode')
-		)
+	Checks for two-open-episodes conflict. When this
+	function succeeds, the pk_health_issue has been set
+	on the episode instance and the episode should - for
+	all practical purposes - be ready for save_payload().
+	"""
+	# episode is closed: should always work
+	if not episode['episode_open']:
+		episode['pk_health_issue'] = target_issue['pk']
+		if save_to_backend:
+			episode.save_payload()
 		return True
 
-	# FIXME: signal issue/episode change
+	# un-associate: should always work, too
+	if target_issue is None:
+		episode['pk_health_issue'] = None
+		if save_to_backend:
+			episode.save_payload()
+		return True
+
+	# try closing possibly expired episode on target issue if any
+	db_cfg = gmCfg.cCfgSQL()
+	epi_ttl = int(db_cfg.get2 (
+		option = u'episode.ttl',
+		workplace = gmPerson.gmCurrentProvider().get_workplace(),
+		bias = 'user',
+		default = 60				# 2 months
+	))
+	if target_issue.close_expired_episode(ttl=epi_ttl) is True:
+		gmGuiHelpers.gm_statustext(_('Closed episodes older than %s days on health issue [%s]') % (epi_ttl, target_issue['description']))
+	existing_epi = target_issue.get_open_episode()
+
+	# no more open episode on target issue: should work now
+	if existing_epi is None:
+		episode['pk_health_issue'] = target_issue['pk']
+		if save_to_backend:
+			episode.save_payload()
+		return True
+
+	# we got two open episodes at once, ask user
+	move_range = episode.get_access_range()
+	exist_range = existing_epi.get_access_range()
+	question = _(
+		'You want to associate the running episode:\n\n'
+		' "%(new_epi_name)s" (%(new_epi_start)s - %(new_epi_end)s)\n\n'
+		'with the foundational health issue:\n\n'
+		' "%(issue_name)s"\n\n'
+		'There already is another episode running\n'
+		'for this foundational isssue:\n\n'
+		' "%(old_epi_name)s" (%(old_epi_start)s - %(old_epi_end)s)\n\n'
+		'However, there can only be one running\n'
+		'episode per foundational health issue.\n\n'
+		'Which episode do you want to close ?'
+	) % {
+		'new_epi_name': episode['description'],
+		'new_epi_start': move_range['earliest'],
+		'new_epi_end': move_range['latest'],
+		'issue_name': target_issue['description'],
+		'old_epi_name': existing_epi['description'],
+		'old_epi_start': exist_range['earliest'],
+		'old_epi_end': exist_range['latest']
+	}
+	decision = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent = self,
+		id = -1,
+		caption = _('Resolving two-running-episodes conflict'),
+		question = question,
+		button_defs = [
+			{'label': _('old episode'), 'default': True, 'tooltip': _('close existing episode "%s"') % existing_epi['description']},
+			{'label': _('new episode'), 'default': False, 'tooltip': _('close moving (new) episode "%s"') % episode['description']}
+		]
+	)
+
+	if decision == wx.ID_CANCEL:
+		# button 3: move cancelled by user
+		return False
+
+	elif decision == wx.ID_YES:
+		# button 1: close old episode
+		existing_epi[episode_open] = False
+		existing_epi.save_payload()
+
+	elif decision == wx.ID_NO:
+		# button 2: close new episode
+		episode['episode_open'] = False
+
+	else:
+		raise ValueError('invalid result from c3ButtonQuestionDlg: [%s]')
+
+	episode['pk_health_issue'] = target_issue['pk']
+	if save_to_backend:
+		episode.save_payload()
 	return True
 #----------------------------------------------------------------
 class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -484,40 +482,15 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			self.__episode['pk_health_issue'] = None
 		else:
 			self.__episode['pk_health_issue'] = self._PRW_issue.GetData(can_create=True)
-			if self.__episode['episode_open']:
-				issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
-				db_cfg = gmCfg.cCfgSQL()
-				epi_ttl = int(db_cfg.get2 (
-					option = u'episode.ttl',
-					workplace = gmPerson.gmCurrentProvider().get_workplace(),
-					bias = 'user',
-					default = 60				# 2 months
-				))
-				if issue.close_expired_episode(ttl=epi_ttl) is False:
-					prev_epi = issue.get_open_episode()
-					first, last = prev_epi.get_access_range()
-					title = _('open episode conflict')
-					msg = _(
-						'You want to move the open episode\n'
-						' [%s]\n'
-						'to the Foundational Issue\n'
-						' [%s]\n\n'
-						'That issue already has an open episode:\n'
-						' [%s]\n'
-						' last accessed: %s\n\n'
-						'There cannot be two open episodes at once, however!\n\n'
-						'Do you want to close the episode\n'
-						' [%s] ?'
-						) % (
+			issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
+			if not move_episode_to_issue(episode = self.__episode, target_issue = issue, save_to_backend = False):
+				gmGuiHelpers.gm_statustext(
+					_('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
 						self.__episode['description'],
-						issue_name,
-						prev_epi['description'],
-						last.strftime('%Y-%m-%d'),
-						prev_epi['description']
+						issue['description']
 					)
-					if not gmGuiHelpers.gm_show_question(msg, title):
-						return False
-					issue.close_episode()
+				)
+				return False
 
 		desc = self._PRW_description.GetValue().strip()
 		if len(desc) != 0:
@@ -1722,7 +1695,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.44  2007-01-09 12:59:01  ncq
+# Revision 1.45  2007-01-15 13:02:26  ncq
+# - completely revamped move_episode_to_issue() and use it
+#
+# Revision 1.44  2007/01/09 12:59:01  ncq
 # - datetime.timedelta needs int, not decimal, so make epi_ttl an int
 # - missing _ in front of CHBOX_closed
 # - save() needs to return True/False so dialog can close or not
