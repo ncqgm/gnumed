@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.45 2007-01-13 22:43:41 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmGuiHelpers.py,v 1.46 2007-01-15 13:04:25 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,11 +24,52 @@ if __name__ == '__main__':
 import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
 _set_status_text = None
+# ========================================================================
+class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
+	def __init__(self, *args, **kwargs):
+
+		caption = kwargs['caption']
+		question = kwargs['question']
+		button_defs = kwargs['button_defs'][:3]
+
+		del kwargs['caption']
+		del kwargs['question']
+		del kwargs['button_defs']
+
+		wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg.__init__(self, *args, **kwargs)
+
+		self.SetTitle(title = caption)
+		self._LBL_question.SetLabel(label = question)
+
+		buttons = [self._BTN_1, self._BTN_2, self._BTN_3]
+		for idx in range(len(button_defs)):
+			buttons[idx].SetLabel(label = button_defs[idx]['label'])
+			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
+			if button_defs[idx]['default']:
+				buttons[idx].SetDefault()
+
+		self.Fit()
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_BTN_1_pressed(self, evt):
+		if self.IsModal():
+			self.EndModal(wx.ID_YES)
+		else:
+			self.Close()
+	#--------------------------------------------------------
+	def _on_BTN_2_pressed(self, evt):
+		if self.IsModal():
+			self.EndModal(wx.ID_NO)
+		else:
+			self.Close()
 # ========================================================================
 class cTreeExpansionHistoryMixin:
 	"""TreeCtrl mixin class to record expansion history."""
@@ -72,7 +113,7 @@ class cTreeExpansionHistoryMixin:
 			id(item.GetPyData()) or
 			item.GetPyData().get_tree_uid()
 
-		wehre get_tree_uid():
+		where get_tree_uid():
 
 			'[%s:%s]' % (self.__class__.__name__, id(self))
 
@@ -443,22 +484,13 @@ class cTextWidgetValidator(wx.PyValidator):
 		# before it gets to the text control
 		return
 
-#============================================================
-class cReturnTraversalTextCtrl (wx.TextCtrl):
-	"""
-	Acts exactly like a plain TextCtrl except that RETURN also
-	calls wxWindow.Navigate ()
-	"""
-	def __init__ (self, *args):
-		wx.TextCtrl.__init__ (self, *args)
-		wx.EVT_TEXT_ENTER (self, self.GetId(), self.__on_enter)
-
-	def __on_enter (self, event):
-		self.Navigate()
-	
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.45  2007-01-13 22:43:41  ncq
+# Revision 1.46  2007-01-15 13:04:25  ncq
+# - c3ButtonQuestionDlg
+# - remove cReturnTraversalTextCtrl
+#
+# Revision 1.45  2007/01/13 22:43:41  ncq
 # - remove str() raising Unicode exceptions
 #
 # Revision 1.44  2007/01/13 22:19:37  ncq
