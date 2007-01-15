@@ -13,15 +13,15 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.299 2007-01-13 22:21:58 ncq Exp $
-__version__ = "$Revision: 1.299 $"
+# $Id: gmGuiMain.py,v 1.300 2007-01-15 13:06:49 ncq Exp $
+__version__ = "$Revision: 1.300 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser
 
 
 # 3rd party libs
@@ -451,9 +451,9 @@ class gmTopLevelFrame(wx.Frame):
 #		menu_knowledge.AppendSeparator()
 
 		# - "recommended" medical links in the Wiki
-		ID_FIREFOX = wx.NewId()
-		menu_knowledge.Append(ID_FIREFOX, _('WWW: medical links'), _('Show a page of links to useful medical content.'))
-		wx.EVT_MENU(self, ID_FIREFOX, self.__on_medical_links)
+		ID_MEDICAL_LINKS = wx.NewId()
+		menu_knowledge.Append(ID_MEDICAL_LINKS, _('medical links (WWW)'), _('Show a page of links to useful medical content.'))
+		wx.EVT_MENU(self, ID_MEDICAL_LINKS, self.__on_medical_links)
 
 		# menu "Help" -------------------------
 		help_menu = wx.Menu()
@@ -570,7 +570,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
-		gmShellAPI.run_command_in_shell('firefox http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks')
+		webbrowser.open(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks', new = False, autoraise = True)
+#		gmShellAPI.run_command_in_shell('firefox http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks')
 	#----------------------------------------------
 	def __on_ifap(self, evt):
 		jump_to_ifap()
@@ -1206,7 +1207,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.299  2007-01-13 22:21:58  ncq
+# Revision 1.300  2007-01-15 13:06:49  ncq
+# - if we can "import webbrowser" we really shouldn't "gmShellAPI.run_command_in_shell('firefox')"
+#
+# Revision 1.299  2007/01/13 22:21:58  ncq
 # - try capturing the title bar, too, in snapshot()
 #
 # Revision 1.298  2007/01/09 18:02:46  ncq
