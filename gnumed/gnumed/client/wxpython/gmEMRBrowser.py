@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.64 2007-01-13 22:26:55 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmEMRBrowser.py,v 1.65 2007-01-15 13:08:55 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -168,10 +168,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 #		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
 #		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
 
-#		menu_id = wx.NewId()
-#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('move episode to another health issue')))
-#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode2issue)
-
 		# delete episode
 		# attach all encounters to another episode
 
@@ -239,65 +235,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 #			gmLog.lErr
 #		)
 #		return
-	#--------------------------------------------------------
-	def __relink_episode2issue(self, event):
-		if self.__curr_node_data['health_issue'] is None:
-			msg = _(
-				'\nThe episode\n'
-				'  [%(epi)s]\n'
-				'currently does not belong to a health issue.\n\n'
-				'Please select the health issue you want to move it to:\n'
-			) % {'epi': self.__curr_node_data['description']}
-		else:
-			msg = _(
-				'\nThe episode\n'
-				'  [%(epi)s]\n'
-				'currently belongs to the health issue\n'
-				'  [%(issue)s]\n\n'
-				'Please select the health issue you want to move it to:\n'
-			) % {'epi': self.__curr_node_data['description'], 'issue': self.__curr_node_data['health_issue']}
-
-		dlg = gmEMRStructWidgets.cIssueSelectionDlg(self, -1, message=msg)
-		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			dlg.Destroy()
-			return
-
-		pk_issue = dlg._PhWheel_issue.GetData()
-		dlg.Destroy()
-
-		if self.__curr_node_data['pk_health_issue'] == pk_issue:
-			return
-
-		issue = gmEMRStructItems.cHealthIssue(aPK_obj=pk_issue)
-		issue.close_expired_episode()
-		if issue.has_open_episode() and self.__curr_node_data['episode_open']:
-			if not gmGuiHelpers.gm_show_question (
-				_('The episode [%(epi)s] is open. However, there\n'
-				  'already exists an open episode for health issue\n\n'
-				  ' [%(issue)s]\n\n'
-				  'Do you want to close the episode [%(epi)s]\n'
-				  'before moving it to the new health issue ?\n'
-				) % {'epi': self.__curr_node_data['description'], 'issue': issue['description']},
-				_('Moving episode')
-			):
-				return
-			self.__curr_node_data['episode_open'] = False
-
-		self.__curr_node_data['pk_health_issue'] = pk_issue
-		success, data = self.__curr_node_data.save_payload()
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Cannot move episode\n [%(epi)s]\n into health issue\n [%(issue)s].') % {
-					'epi': self.__curr_node_data['description'],
-					'issue': issue['description']
-				},
-				_('Moving episode')
-			)
-			return
-
-		self.__populate_tree()
-		return
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		print "deleting episode"
@@ -638,7 +575,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.64  2007-01-13 22:26:55  ncq
+# Revision 1.65  2007-01-15 13:08:55  ncq
+# - remove explicit __relink_episode2issue as episode details editor now does it
+#
+# Revision 1.64  2007/01/13 22:26:55  ncq
 # - remove cruft
 # - mix expansion history into emr tree browser
 #
