@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.87 2007-01-15 13:05:38 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmSOAPWidgets.py,v 1.88 2007-01-15 20:22:46 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -637,7 +637,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
 			if self.__problem is not None:
 				issue = emr.problem2issue(self.__problem)
-				if not move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
+				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
 					print "error moving episode to issue"
 
 			epi_id = new_episode['pk_episode']
@@ -1064,7 +1064,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.87  2007-01-15 13:05:38  ncq
+# Revision 1.88  2007-01-15 20:22:46  ncq
+# - move_episode_to_issue() is in gmEMRStructWidgets
+#
+# Revision 1.87  2007/01/15 13:05:38  ncq
 # - use move_episode_to_issue()
 #
 # Revision 1.86  2006/12/15 15:28:37  ncq
