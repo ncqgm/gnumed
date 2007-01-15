@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.45 2007-01-15 13:02:26 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmEMRStructWidgets.py,v 1.46 2007-01-15 20:22:09 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -276,15 +276,15 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		'Which episode do you want to close ?'
 	) % {
 		'new_epi_name': episode['description'],
-		'new_epi_start': move_range['earliest'],
-		'new_epi_end': move_range['latest'],
+		'new_epi_start': move_range[0].strftime('%m/%y'),
+		'new_epi_end': move_range[1].strftime('%m/%y'),
 		'issue_name': target_issue['description'],
 		'old_epi_name': existing_epi['description'],
-		'old_epi_start': exist_range['earliest'],
-		'old_epi_end': exist_range['latest']
+		'old_epi_start': exist_range[0].strftime('%m/%y'),
+		'old_epi_end': exist_range[1].strftime('%m/%y')
 	}
-	decision = gmGuiHelpers.c3ButtonQuestionDlg (
-		parent = self,
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent = None,
 		id = -1,
 		caption = _('Resolving two-running-episodes conflict'),
 		question = question,
@@ -293,6 +293,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 			{'label': _('new episode'), 'default': False, 'tooltip': _('close moving (new) episode "%s"') % episode['description']}
 		]
 	)
+	decision = dlg.ShowModal()
 
 	if decision == wx.ID_CANCEL:
 		# button 3: move cancelled by user
@@ -300,7 +301,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 
 	elif decision == wx.ID_YES:
 		# button 1: close old episode
-		existing_epi[episode_open] = False
+		existing_epi['episode_open'] = False
 		existing_epi.save_payload()
 
 	elif decision == wx.ID_NO:
@@ -308,7 +309,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		episode['episode_open'] = False
 
 	else:
-		raise ValueError('invalid result from c3ButtonQuestionDlg: [%s]')
+		raise ValueError('invalid result from c3ButtonQuestionDlg: [%s]' % decision)
 
 	episode['pk_health_issue'] = target_issue['pk']
 	if save_to_backend:
@@ -1695,7 +1696,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.45  2007-01-15 13:02:26  ncq
+# Revision 1.46  2007-01-15 20:22:09  ncq
+# - fix several bugs in move_episode_to_issue()
+#
+# Revision 1.45  2007/01/15 13:02:26  ncq
 # - completely revamped move_episode_to_issue() and use it
 #
 # Revision 1.44  2007/01/09 12:59:01  ncq
