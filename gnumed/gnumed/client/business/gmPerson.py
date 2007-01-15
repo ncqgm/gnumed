@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.96 2006-12-13 13:43:10 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmPerson.py,v 1.97 2007-01-15 13:01:19 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -931,6 +931,7 @@ class cPatientSearcher_SQL:
 
 		if not parse_search_term:
 			queries = self._generate_queries_from_dto(dto)
+			print queries
 			if queries is None:
 				parse_search_term = True
 			if len(queries) == 0:
@@ -1056,8 +1057,8 @@ class cPatientSearcher_SQL:
 				'args': [_('internal patient ID'), tmp]
 			})
 			queries.append ({
-				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
-				'args': [_('date of birth'), tmp]
+				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone) order by lastnames, firstnames, dob",
+				'args': [_('date of birth'), tmp.replace(',', '.')]
 			})
 			queries.append ({
 				'cmd': u"""
@@ -1071,8 +1072,8 @@ class cPatientSearcher_SQL:
 		# "<d igi ts>" - DOB or patient PK
 		if re.match("^(\d|\s|\t)+$", raw):
 			queries.append ({
-				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob::timestamp) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
-				'args': [_('date of birth'), raw]
+				'cmd': u"SELECT *, %s::text as match_type FROM dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone) order by lastnames, firstnames, dob",
+				'args': [_('date of birth'), raw.replace(',', '.')]
 			})
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
@@ -1135,8 +1136,8 @@ class cPatientSearcher_SQL:
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
 			queries.append ({
-				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
-				'args': [_('date of birth'), tmp]
+				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone) order by lastnames, firstnames, dob",
+				'args': [_('date of birth'), tmp.replace(',', '.')]
 			})
 			return queries
 
@@ -1167,8 +1168,8 @@ SELECT DISTINCT ON (pk_identity) * from (
 			tmp = raw.replace('*', '')
 			tmp = tmp.replace('$', '')
 			queries.append ({
-				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp) order by lastnames, firstnames, dob",
-				'args': [_('date of birth'), tmp]
+				'cmd': u"SELECT *, %s as match_type from dem.v_basic_person WHERE date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone) order by lastnames, firstnames, dob",
+				'args': [_('date of birth'), tmp.replace(',', '.')]
 			})
 			return queries
 
@@ -1204,7 +1205,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 
 		try:
 			vals.append(dto.dob)
-			where_snippets.append(u"date_trunc('day', dob) = date_trunc('day', %s::timestamp)")
+			where_snippets.append(u"date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)")
 		except KeyError:
 			pass
 
@@ -1351,26 +1352,26 @@ SELECT DISTINCT ON (pk_identity) * from (
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
-						'args': [_('names: first-last, date of birth'), '^' + self._make_sane_caps(name_parts[0]), '^' + self._make_sane_caps(name_parts[1]), date_part]
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('names: first-last, date of birth'), '^' + self._make_sane_caps(name_parts[0]), '^' + self._make_sane_caps(name_parts[1]), date_part.replace(',', '.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* %s AND n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
-						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part]
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and firstnames ~* %s AND n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(',', '.')]
 					})
 					# assumption: last, first, dob - second order query
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
-						'args': [_('names: last-first, date of birth'), '^' + self._make_sane_caps(name_parts[1]), '^' + self._make_sane_caps(name_parts[0]), date_part]
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('names: last-first, date of birth'), '^' + self._make_sane_caps(name_parts[1]), '^' + self._make_sane_caps(name_parts[0]), date_part.replace(',', '.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s AND n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
-						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part]
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s AND n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(',', '.')]
 					})
 					# name parts anywhere in name - third order query ...
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* %s AND n.firstnames || n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
-						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part]
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames || n.lastnames ~* %s AND n.firstnames || n.lastnames ~* %s AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part.replace(',', '.')]
 					})
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -1476,30 +1477,30 @@ SELECT DISTINCT ON (pk_identity) * from (
 			if len(date_parts) == 1:
 				if len(where_parts) == 0:
 					where_parts.append ({
-						'conditions': u"date_trunc('day', dob) = date_trunc('day', %s::timestamp)",
-						'args': [_('date of birth'), date_parts[0]]
+						'conditions': u"date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('date of birth'), date_parts[0].replace(',', '.')]
 					})
 				if len(where_parts) > 0:
-					where_parts[0]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)"
-					where_parts[0]['args'].append(date_parts[0])
+					where_parts[0]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)"
+					where_parts[0]['args'].append(date_parts[0].replace(',', '.'))
 					where_parts[0]['args'][0] += u', ' + _('date of birth')
 				if len(where_parts) > 1:
-					where_parts[1]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp)"
-					where_parts[1]['args'].append(date_parts[0])
+					where_parts[1]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone)"
+					where_parts[1]['args'].append(date_parts[0].replace(',', '.'))
 					where_parts[1]['args'][0] += u', ' + _('date of birth')
 			elif len(date_parts) > 1:
 				if len(where_parts) == 0:
 					where_parts.append ({
-						'conditions': u"date_trunc('day', dob) = date_trunc('day', %s::timestamp) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp)",
-						'args': [_('date of birth/death'), date_parts[0], date_parts[1]]
+						'conditions': u"date_trunc('day', dob) = date_trunc('day', %s::timestamp witih time zone) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp with time zone)",
+						'args': [_('date of birth/death'), date_parts[0].replace(',', '.'), date_parts[1].replace(',', '.')]
 					})
 				if len(where_parts) > 0:
-					where_parts[0]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp)",
-					where_parts[0]['args'].append(date_parts[0], date_parts[1])
+					where_parts[0]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp with time zone)",
+					where_parts[0]['args'].append(date_parts[0].replace(',', '.'), date_parts[1].replace(',', '.'))
 					where_parts[0]['args'][0] += u', ' + _('date of birth/death')
 				if len(where_parts) > 1:
-					where_parts[1]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp)",
-					where_parts[1]['args'].append(date_parts[0], date_parts[1])
+					where_parts[1]['conditions'] += u" AND date_trunc('day', dob) = date_trunc('day', %s::timestamp with time zone) AND date_trunc('day', dem.identity.deceased) = date_trunc('day', %s::timestamp with time zone)",
+					where_parts[1]['args'].append(date_parts[0].replace(',', '.'), date_parts[1].replace(',', '.'))
 					where_parts[1]['args'][0] += u', ' + _('date of birth/death')
 
 			# and finally generate the queries ...
@@ -1747,9 +1748,9 @@ def get_staff_list(active_only=False):
 		staff_list.append(cStaff(row=obj_row))
 	return staff_list
 #============================================================
-def get_person_from_xdt(filename=None, encoding=None):
+def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	from Gnumed.business import gmXdtObjects
-	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding)
+	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding, dob_format=dob_format)
 #============================================================
 # main/testing
 #============================================================
@@ -1939,7 +1940,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.96  2006-12-13 13:43:10  ncq
+# Revision 1.97  2007-01-15 13:01:19  ncq
+# - make dob queries cast dob literal to timestamp with time zone as it ought to be
+# - support dob_format in get_person_from_xdt()
+#
+# Revision 1.96  2006/12/13 13:43:10  ncq
 # - cleanup
 #
 # Revision 1.95  2006/11/27 12:37:09  ncq
