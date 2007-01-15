@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.86 2006-12-15 15:28:37 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmSOAPWidgets.py,v 1.87 2007-01-15 13:05:38 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -622,66 +622,27 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			if line_content.data.soap_cat == 'a':
 				aoe += line_content.text.rstrip()
 
-		# work out episode name
 		emr = self.__pat.get_emr()
-		episode = None
-		problem = self.__problem
+
 		# - new episode, must get name from narrative (or user)
-		if (problem is None) or (problem['type'] == 'issue'):
+		if (self.__problem is None) or (self.__problem['type'] == 'issue'):
+			# work out episode name
 			if len(aoe) != 0:
 				epi_name = aoe
 			else:
 				epi_name = rfe
-			if problem is None:
-				episode = emr.add_episode(episode_name = epi_name[:45], is_open = True)		# FIXME: un-hardcode length ?
-			else:
-				issue = emr.problem2issue(problem)
-				# FIXME: make ttl configurable
-				ttl = 90	# 90 days, 3 months
-				all_closed = issue.close_expired_episode(ttl=ttl)
 
-				if all_closed:
-					gmGuiHelpers.gm_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
-					# either error or non-expired open episode exists
-					# FIXME: all_closed not working
+			# new unassociated episode
+			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
 
-				open_epis = emr.get_episodes(open_status = True)
-				open_epis = filter(lambda epi: epi['pk_health_issue'] == issue['pk'], open_epis)
+			if self.__problem is not None:
+				issue = emr.problem2issue(self.__problem)
+				if not move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
+					print "error moving episode to issue"
 
-				# need to ask user what to do
-				# - close old open episode and continue with new one ?
-				# - use old open episode as is ?
-				# - use old open episode but rename ?
-				#xxxxxxxxxxxxxxxxxxxx
-
-				print "FIXME  len(open_epis) == 1"
-				d = wx.MessageDialog (
-					self,
-					_("There is an episode still open for this issue. Close the old episode (yes)\nRelink under old episode(no)\nThink about it (cancel)"),
-					caption = "WARNING !",
-					style = wx.YES| wx.NO | wx.CANCEL
-				)
-				answ = d.ShowModal()
-				if answ == wx.ID_YES:
-					open_epis[0]['episode_open'] = False
-					open_epis[0].save_payload()
-				elif answ == wx.ID_NO:
-					episode = open_epis[0]
-				else:
-					return False
-						
-				if episode is None:
-					# error, close all and hope things work out ...
-					issue.close_expired_episode(ttl=-1)
-					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
-
-			if episode is None:
-				msg = _('Cannot create episode [%s] to save progress note under.' % epi_name)
-				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
-				return False
-			epi_id = episode['pk_episode']
+			epi_id = new_episode['pk_episode']
 		else:
-			epi_id = problem['pk_episode']
+			epi_id = self.__problem['pk_episode']
 
 		# set up clinical context in progress note
 		encounter = emr.get_active_encounter()
@@ -1103,7 +1064,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.86  2006-12-15 15:28:37  ncq
+# Revision 1.87  2007-01-15 13:05:38  ncq
+# - use move_episode_to_issue()
+#
+# Revision 1.86  2006/12/15 15:28:37  ncq
 # - signal problem saving progress note
 #
 # Revision 1.85  2006/11/28 20:53:41  ncq
