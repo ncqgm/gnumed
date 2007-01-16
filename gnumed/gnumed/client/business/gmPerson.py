@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.99 2007-01-16 14:23:24 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmPerson.py,v 1.100 2007-01-16 17:58:11 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -66,6 +66,7 @@ class cDTO_person(object):
 			return
 
 		object.__setattr__(self, attr, str(val))
+		return
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
@@ -1942,7 +1943,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.99  2007-01-16 14:23:24  ncq
+# Revision 1.100  2007-01-16 17:58:11  ncq
+#  -cleanup
+#
+# Revision 1.99  2007/01/16 14:23:24  ncq
 # - use current local time zone for now() in medical age calculation
 #
 # Revision 1.98  2007/01/16 12:08:29  ncq
