@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.46 2007-01-15 13:04:25 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmGuiHelpers.py,v 1.47 2007-01-16 13:59:51 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -123,6 +123,11 @@ class cTreeExpansionHistoryMixin:
 		primary key which would - contrary to id() - survive
 		reloads from the database.
 		"""
+		# protect against empty tree where not even
+		# a root node exists
+		if not start_node_id.IsOk():
+			return True
+
 		if not self.IsExpanded(start_node_id):
 			return True
 
@@ -486,7 +491,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.46  2007-01-15 13:04:25  ncq
+# Revision 1.47  2007-01-16 13:59:51  ncq
+# - protect against empty trees in expansion history mixin
+#
+# Revision 1.46  2007/01/15 13:04:25  ncq
 # - c3ButtonQuestionDlg
 # - remove cReturnTraversalTextCtrl
 #
