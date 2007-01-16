@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.98 2007-01-16 12:08:29 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmPerson.py,v 1.99 2007-01-16 14:23:24 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
 
 _log = gmLog.gmDefLog
@@ -1563,7 +1563,7 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 #============================================================
 def dob2medical_age(dob):
 	"""Format patient age in a hopefully meaningful way."""
-	age = pyDT.datetime.now(tz=dob.tzinfo) - dob
+	age = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
 	return format_age_medically(age)
 #------------------------------------------------------------
 def format_age_medically(age=None):
@@ -1760,6 +1760,7 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+	gmDateTime.init()
 
 	#--------------------------------------------------------
 	def test_set_active_pat():
@@ -1941,7 +1942,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.98  2007-01-16 12:08:29  ncq
+# Revision 1.99  2007-01-16 14:23:24  ncq
+# - use current local time zone for now() in medical age calculation
+#
+# Revision 1.98  2007/01/16 12:08:29  ncq
 # - move dto.dob to datetime.datetime
 #
 # Revision 1.97  2007/01/15 13:01:19  ncq
