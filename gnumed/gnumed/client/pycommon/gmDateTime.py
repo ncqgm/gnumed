@@ -17,9 +17,9 @@ Note that if you want locale-aware formatting you need to call
 somehwere before importing this script."""
 )
 #===========================================================================
-# $Id: gmDateTime.py,v 1.4 2007-01-10 22:31:10 ncq Exp $
+# $Id: gmDateTime.py,v 1.5 2007-01-16 13:42:21 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -45,6 +45,7 @@ current_timezone_interval = None
 current_iso_timezone_string = None
 cLocalTimezone = psycopg2.tz.LocalTimezone					# remove as soon as datetime supports timezone classes
 cFixedOffsetTimezone = psycopg2.tz.FixedOffsetTimezone		# remove as soon as datetime supports timezone classes
+gmCurrentLocalTimezone = 'gmCurrentLocalTimezone not initialized'
 
 #===========================================================================
 def init():
@@ -96,6 +97,12 @@ def init():
 	#_default_client_timezone = "%+.1f" % (-tz / 3600.0)
 	#_log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
 
+	global gmCurrentLocalTimezone
+	gmCurrentLocalTimezone = cFixedOffsetTimezone (
+		offset = (current_utc_offset / 60),
+		name = current_iso_timezone_string
+	)
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -116,7 +123,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.4  2007-01-10 22:31:10  ncq
+# Revision 1.5  2007-01-16 13:42:21  ncq
+# - add gmCurrentLocalTimezone() as cFixedOffsetTimezone instance
+#   with values taken from currently applicable UTC offset
+#
+# Revision 1.4  2007/01/10 22:31:10  ncq
 # - add FixedOffsetTimezone() from psycopg2.tz
 #
 # Revision 1.3  2006/12/22 16:54:28  ncq
