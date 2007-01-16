@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.22 2007-01-16 12:13:30 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmXdtObjects.py,v 1.23 2007-01-16 13:43:10 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -90,7 +90,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	# FIXME: different data orders are possible
 	dob = time.strptime(data['dob'], dob_format)
-	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.cLocalTimezone())
+	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 
 	try:
 		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
@@ -286,7 +286,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.22  2007-01-16 12:13:30  ncq
+# Revision 1.23  2007-01-16 13:43:10  ncq
+# - use gmDateTime.gmCurrentLocalTimezone for dto.dob
+#
+# Revision 1.22  2007/01/16 12:13:30  ncq
 # - dto.dob now requires datetime.datetime
 # - improve test suite
 #
