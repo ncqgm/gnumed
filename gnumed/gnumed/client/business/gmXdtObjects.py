@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.21 2007-01-16 10:26:29 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmXdtObjects.py,v 1.22 2007-01-16 12:13:30 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -90,8 +90,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	# FIXME: different data orders are possible
 	dob = time.strptime(data['dob'], dob_format)
-#	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.cLocalTimezone())
-	dto.dob = mxDT.DateTime(dob.tm_year, dob.tm_mon, dob.tm_mday)
+	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.cLocalTimezone())
 
 	try:
 		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
@@ -264,6 +263,7 @@ def add_file_to_patlst(ID, name, patlst, new_file, ahash):
 #--------------------------------------------------------------
 if __name__ == "__main__":
 	from Gnumed.pycommon import gmI18N
+	from Gnumed.business import gmPerson
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
@@ -272,19 +272,25 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 	patfile = sys.argv[1]
+	dobformat = sys.argv[2]
 	print "reading patient data from xDT file [%s]" % patfile
 
-#	dto = read_person_from_xdt(patfile, dob_format='%Y%m%d')
-	dto = read_person_from_xdt(patfile, dob_format='%d%m%Y')
+	dto = read_person_from_xdt(patfile, dob_format=dobformat)
 	print "DTO:", dto
-	print "dto.dob:", dto.dob
-	print "dto.dob.tz:", dto.dob.tz
+	print "dto.dob:", dto.dob, type(dto.dob)
+	print "dto.dob.tz:", dto.dob.tzinfo
 	print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
 	print "dto.street", dto.street
+	searcher = gmPerson.cPatientSearcher_SQL()
+	print searcher.get_identities(dto=dto)
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.21  2007-01-16 10:26:29  ncq
+# Revision 1.22  2007-01-16 12:13:30  ncq
+# - dto.dob now requires datetime.datetime
+# - improve test suite
+#
+# Revision 1.21  2007/01/16 10:26:29  ncq
 # - open xdt file in utf8 even for encoding detection since
 #   it can still contain umlauts et al
 # - fix zipurb vs zip + urb handling
