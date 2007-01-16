@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.65 2007-01-15 13:08:55 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmEMRBrowser.py,v 1.66 2007-01-16 18:00:59 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -163,11 +163,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		menu_id = wx.NewId()
 		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit episode details')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
-
-#		menu_id = wx.NewId()
-#		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
-#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
-
 		# delete episode
 		# attach all encounters to another episode
 
@@ -180,7 +175,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# - edit encounter details
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('edit consultation details')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
-		# attach encounter to another patient
 		# delete encounter
 		# attach all progress notes to another encounter
 
@@ -209,32 +203,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		result = dlg.ShowModal()
 		if result == wx.ID_OK:
 			self.__populate_tree()
-	#--------------------------------------------------------
-#	def __rename_episode(self, event):
-#		dlg = wx.TextEntryDialog (
-#			parent = self,
-#			message = _('Old: "%s"\nPlease type the new description:\n') % self.__curr_node_data['description'],
-#			caption = _('Renaming episode ...'),
-#			defaultValue = ''
-#		)
-#		result = dlg.ShowModal()
-#		if result == wx.ID_CANCEL:
-#			return
-#		new_name = dlg.GetValue().strip()
-#		if new_name == '':
-#			return
-#		if new_name == self.__curr_node_data['description']:
-#			return
-#		if self.__curr_node_data.rename(new_name):
-#			# avoid collapsing view
-#			self.SetItemText(self.__curr_node, new_name)
-#			return
-#		gmGuiHelpers.gm_show_error (
-#			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__curr_node_data['description'], new_name),
-#			_('Error renaming episode ...'),
-#			gmLog.lErr
-#		)
-#		return
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		print "deleting episode"
@@ -418,6 +386,34 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		else:
 			print "error: unknown node type, no popup menu"
 		event.Skip()
+	#--------------------------------------------------------
+	def OnCompareItems (self, node1=None, node2=None):
+		"""Used in sorting items.
+
+		-1: 1 < 2
+		 0: 1 = 2
+		 1: 1 > 2
+		"""
+		item1 = self.GetPyData(node1)
+		item2 = self.GetPyData(node2)
+
+		if isinstance(item1, gmEMRStructItems.cEpisode):
+			start1 = item1.get_access_range()[0]
+			start2 = item2.get_access_range()[0]
+			if start1 == start2:
+				return 0
+			if start1 < start2:
+				return -1
+			return 1
+
+		if isinstance(item1, gmEMRStructItems.cEncounter):
+			if item1['started'] == item2['started']:
+				return 0
+			if item1['started'] < item2['started']:
+				return -1
+			return 1
+
+		return 0
 #================================================================
 class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A scrollable panel holding an EMR tree.
@@ -575,7 +571,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.65  2007-01-15 13:08:55  ncq
+# Revision 1.66  2007-01-16 18:00:59  ncq
+# - cleanup
+# - explicitely sort episodes and encounters by when they were started
+#
+# Revision 1.65  2007/01/15 13:08:55  ncq
 # - remove explicit __relink_episode2issue as episode details editor now does it
 #
 # Revision 1.64  2007/01/13 22:26:55  ncq
