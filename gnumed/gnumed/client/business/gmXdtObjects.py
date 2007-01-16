@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.23 2007-01-16 13:43:10 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmXdtObjects.py,v 1.24 2007-01-16 17:57:54 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -282,11 +282,16 @@ if __name__ == "__main__":
 	print "dto.zip: %s dto.urb: %s" % (dto.zip, dto.urb)
 	print "dto.street", dto.street
 	searcher = gmPerson.cPatientSearcher_SQL()
-	print searcher.get_identities(dto=dto)
+	ident = searcher.get_identities(dto=dto)[0]
+	print ident
+	print ident.get_medical_age()
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.23  2007-01-16 13:43:10  ncq
+# Revision 1.24  2007-01-16 17:57:54  ncq
+# - improve test suite
+#
+# Revision 1.23  2007/01/16 13:43:10  ncq
 # - use gmDateTime.gmCurrentLocalTimezone for dto.dob
 #
 # Revision 1.22  2007/01/16 12:13:30  ncq
