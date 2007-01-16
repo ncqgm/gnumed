@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -714,7 +714,8 @@ class cAdapterMxDateTime(object):
 		self.__dt = dt
 
 	def getquoted(self):
-		return (_timestamp_template % mxDT.ISO.str(self.__dt)).replace(',', '.')
+#		return (_timestamp_template % mxDT.ISO.str(self.__dt)).replace(',', '.')
+		return mxDT.ISO.str(self.__dt).replace(',', '.')
 # =======================================================================
 #  main
 # -----------------------------------------------------------------------
@@ -733,9 +734,10 @@ psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 psycopg2.extensions.register_adapter(datetime.datetime, cAdapterPyDateTime)
 try:
+	import mx.DateTime as mxDT
 	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
-except:
-	pass
+except ImportError:
+	_log.Log(gmLog.lWarn, 'cannot import mx.DateTime')
 
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
@@ -939,7 +941,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.29  2007-01-16 10:28:49  ncq
+# Revision 1.30  2007-01-16 12:45:21  ncq
+# - properly import/adapt mx.DateTime
+#
+# Revision 1.29  2007/01/16 10:28:49  ncq
 # - do not FAIL on mxDT timezone string being ??? as
 #   it should then be assumed to be local time
 # - use mx.DateTime.ISO.str() to include timestamp in output
