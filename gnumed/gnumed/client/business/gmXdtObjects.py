@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.20 2007-01-04 23:09:38 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmXdtObjects.py,v 1.21 2007-01-16 10:26:29 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -52,7 +52,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	# try to find encoding if not given
 	if encoding is None:
-		f = file(filename, 'r')
+		f = codecs.open(filename=filename, mode='rU', encoding='utf8', errors='ignore')
 		for line in f:
 			field = line[3:7]
 			if field in gmXdtMappings._charset_fields:
@@ -92,38 +92,27 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	dob = time.strptime(data['dob'], dob_format)
 #	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.cLocalTimezone())
 	dto.dob = mxDT.DateTime(dob.tm_year, dob.tm_mon, dob.tm_mday)
-#	year = int(data['dob'][4:])
-#	month = int(data['dob'][2:4])
-#	day = int(data['dob'][:2])
-#	print year, month, day
-#	try:
-#		dto.dob = mxDT.DateTime(year, month, day)
-#	except mxDT.RangeError:
-#		# swappend around
-#		dto.dob = mxDT.DateTime(year, day, month)
 
 	try:
 		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
 	except:
 		dto.gender = None
 
+	dto.zip = None
 	try:
 		dto.zip = regex.match('\d{5}', data['zipurb']).group()
-	except:
-		dto.zip = None
+	except: pass
 	try:
 		dto.zip = data['zip']
-	except:
-		dto.zip = None
+	except: pass
 
+	dto.urb = None
 	try:
 		dto.urb = regex.sub('\d{5} ', '', data['zipurb'])
-	except:
-		dto.urb = None
+	except: pass
 	try:
 		dto.urb = data['urb']
-	except:
-		dto.urb = None
+	except: pass
 
 	try:
 		dto.street = data['street']
@@ -285,7 +274,8 @@ if __name__ == "__main__":
 	patfile = sys.argv[1]
 	print "reading patient data from xDT file [%s]" % patfile
 
-	dto = read_person_from_xdt(patfile, dob_format='%Y%m%d')
+#	dto = read_person_from_xdt(patfile, dob_format='%Y%m%d')
+	dto = read_person_from_xdt(patfile, dob_format='%d%m%Y')
 	print "DTO:", dto
 	print "dto.dob:", dto.dob
 	print "dto.dob.tz:", dto.dob.tz
@@ -294,7 +284,12 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.20  2007-01-04 23:09:38  ncq
+# Revision 1.21  2007-01-16 10:26:29  ncq
+# - open xdt file in utf8 even for encoding detection since
+#   it can still contain umlauts et al
+# - fix zipurb vs zip + urb handling
+#
+# Revision 1.20  2007/01/04 23:09:38  ncq
 # - support explicit DOB format in xDT files
 #
 # Revision 1.19  2006/12/11 18:53:43  ncq
