@@ -6,13 +6,13 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.97 2007-01-15 13:01:19 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmPerson.py,v 1.98 2007-01-16 12:08:29 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re, string, types, datetime
+import sys, os.path, time, re, string, types, datetime as pyDT
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -58,11 +58,12 @@ class cDTO_person(object):
 			raise ValueError(_('invalid gender: [%s]') % str(val))
 
 		if attr == 'dob':
-			# FIXME: move to datetime
-			if isinstance(val, mxDT.DateTimeType):
-				object.__setattr__(self, attr, val)
-				return
-			raise TypeError(_('invalid type for DOB (must be mx.DateTime): %s [%s]') % (type(val), str(val)))
+			if not isinstance(val, pyDT.datetime):
+				raise TypeError(_('invalid type for DOB (must be datetime.datetime): %s [%s]') % (type(val), str(val)))
+			if val.tzinfo is None:
+				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % val.isoformat())
+			object.__setattr__(self, attr, val)
+			return
 
 		object.__setattr__(self, attr, str(val))
 	#--------------------------------------------------------
@@ -110,7 +111,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'dob':
-			if type(value) != datetime.datetime:
+			if not isinstance(value, pyDT.datetime):
 				raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime' % (self.__class__.__name__, type(value), value)
 			if value.tzinfo is None:
 				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
@@ -1562,7 +1563,7 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 #============================================================
 def dob2medical_age(dob):
 	"""Format patient age in a hopefully meaningful way."""
-	age = datetime.datetime.now(tz=dob.tzinfo) - dob
+	age = pyDT.datetime.now(tz=dob.tzinfo) - dob
 	return format_age_medically(age)
 #------------------------------------------------------------
 def format_age_medically(age=None):
@@ -1940,7 +1941,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.97  2007-01-15 13:01:19  ncq
+# Revision 1.98  2007-01-16 12:08:29  ncq
+# - move dto.dob to datetime.datetime
+#
+# Revision 1.97  2007/01/15 13:01:19  ncq
 # - make dob queries cast dob literal to timestamp with time zone as it ought to be
 # - support dob_format in get_person_from_xdt()
 #
