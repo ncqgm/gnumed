@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -703,17 +703,18 @@ class cAdapterPyDateTime(object):
 		self.__dt = dt
 
 	def getquoted(self):
-		return _timestamp_template % self.__dt.isoformat().replace(',', '.')
+		return (_timestamp_template % self.__dt.isoformat()).replace(',', '.')
 # -----------------------------------------------------------------------
 class cAdapterMxDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tz == '???':
-			raise ValueError('mx.DateTime instance is lacking a time zone: [%s]' % _timestamp_template % dt)
+#			raise ValueError('mx.DateTime instance is lacking a time zone: [%s]' % _timestamp_template % dt)
+			_log.Log(gmLog.lInfo, '[%s]: no time zone string available in (%s), assuming local time zone' % (self.__class__.__name__, dt))
 		self.__dt = dt
 
 	def getquoted(self):
-		return (_timestamp_template % self.__dt).replace(',', '.')
+		return (_timestamp_template % mxDT.ISO.str(self.__dt)).replace(',', '.')
 # =======================================================================
 #  main
 # -----------------------------------------------------------------------
@@ -938,7 +939,12 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.28  2007-01-04 22:51:10  ncq
+# Revision 1.29  2007-01-16 10:28:49  ncq
+# - do not FAIL on mxDT timezone string being ??? as
+#   it should then be assumed to be local time
+# - use mx.DateTime.ISO.str() to include timestamp in output
+#
+# Revision 1.28  2007/01/04 22:51:10  ncq
 # - change hash for unreleased v4
 #
 # Revision 1.27  2007/01/03 11:54:16  ncq
