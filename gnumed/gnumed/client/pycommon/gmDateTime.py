@@ -1,6 +1,6 @@
 #===========================================================================
-__doc__ = (
-"""GNUmed date/time handling.
+__doc__ = """
+GNUmed date/time handling.
 
 This modules provides access to date/time handling.
 
@@ -14,12 +14,22 @@ Note that if you want locale-aware formatting you need to call
 
 	locale.setlocale(locale.LC_ALL, '')
 
-somehwere before importing this script."""
-)
+somehwere before importing this script.
+
+Note regarding UTC offsets
+--------------------------
+
+Looking from Greenwich:
+	WEST (IOW "behind"): negative values
+	EAST (IOW "ahead"):  positive values
+
+This is in compliance with what datetime.tzinfo.utcoffset()
+does but NOT what time.altzone/time.timezone do !
+"""
 #===========================================================================
-# $Id: gmDateTime.py,v 1.5 2007-01-16 13:42:21 ncq Exp $
+# $Id: gmDateTime.py,v 1.6 2007-01-16 17:59:55 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -60,7 +70,7 @@ def init():
 	except KeyError:
 		_log.Log(gmLog.lData, '$TZ not defined')
 
-	_log.Log(gmLog.lData, 'time.daylight: [%s] (whether or not DST is locally used)' % time.daylight)
+	_log.Log(gmLog.lData, 'time.daylight: [%s] (whether or not DST is locally used at all)' % time.daylight)
 	_log.Log(gmLog.lData, 'time.timezone: [%s] seconds' % time.timezone)
 	_log.Log(gmLog.lData, 'time.altzone : [%s] seconds' % time.altzone)
 	_log.Log(gmLog.lData, 'time.tzname  : [%s / %s] (non-DST / DST)' % time.tzname)
@@ -73,18 +83,18 @@ def init():
 	global current_utc_offset
 	msg = 'DST currently%sin effect, using UTC offset of [%s] seconds instead of [%s] seconds'
 	if dst_currently_in_effect:
-		current_utc_offset = time.altzone
-		_log.Log(gmLog.lData, msg % (' ', time.altzone, time.timezone))
+		current_utc_offset = time.altzone * -1
+		_log.Log(gmLog.lData, msg % (' ', time.altzone * -1, time.timezone * -1))
 	else:
-		current_utc_offset = time.timezone
-		_log.Log(gmLog.lData, msg % (' not ', time.timezone, time.altzone))
+		current_utc_offset = time.timezone * -1
+		_log.Log(gmLog.lData, msg % (' not ', time.timezone * -1, time.altzone * -1))
 
-	if current_utc_offset < 0:
-		_log.Log(gmLog.lData, 'UTC offset is negative, assuming EAST of Greenwich')
-	elif current_utc_offset > 0:
-		_log.Log(gmLog.lData, 'UTC offset is positive, assuming WEST of Greenwich')
+	if current_utc_offset > 0:
+		_log.Log(gmLog.lData, 'UTC offset is positive, assuming EAST of Greenwich ("clock is ahead)"')
+	elif current_utc_offset < 0:
+		_log.Log(gmLog.lData, 'UTC offset is negative, assuming WEST of Greenwich ("clock is behind")')
 	else:
-		_log.Log(gmLog.lData, 'UTC offset is ZERO, assuming Greenwich')
+		_log.Log(gmLog.lData, 'UTC offset is ZERO, assuming Greenwich Time')
 
 	global current_timezone_interval
 	current_timezone_interval = mxDT.now().gmtoffset()
@@ -115,15 +125,26 @@ if __name__ == '__main__':
 	print "current timezone (interval):", current_timezone_interval
 	print "current timezone (ISO conformant string):", current_iso_timezone_string
 	print "local timezone class:", cLocalTimezone
+	print ""
 	tz = cLocalTimezone()
 	print "local timezone instance:", tz
 	print " (total) UTC offset:", tz.utcoffset(pyDT.datetime.now())
 	print " DST adjustment:", tz.dst(pyDT.datetime.now())
 	print " timezone name:", tz.tzname(pyDT.datetime.now())
+	print ""
+	print "current local timezone:", gmCurrentLocalTimezone
+	print " (total) UTC offset:", gmCurrentLocalTimezone.utcoffset(pyDT.datetime.now())
+	print " DST adjustment:", gmCurrentLocalTimezone.dst(pyDT.datetime.now())
+	print " timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now())
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.5  2007-01-16 13:42:21  ncq
+# Revision 1.6  2007-01-16 17:59:55  ncq
+# - improved docs and tests
+# - normalized UTC offset since time and datetime modules
+#   do not agree sign vs direction
+#
+# Revision 1.5  2007/01/16 13:42:21  ncq
 # - add gmCurrentLocalTimezone() as cFixedOffsetTimezone instance
 #   with values taken from currently applicable UTC offset
 #
