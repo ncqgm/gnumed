@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.108 2007-01-12 13:10:11 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmMedDocWidgets.py,v 1.109 2007-01-17 14:01:56 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -416,7 +416,21 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if not pat.is_connected():
 			gmGuiHelpers.gm_statustext(_('Cannot accept new documents. No active patient.'))
 			return
-		self.acquired_pages.extend(filenames)
+
+		# dive into folders dropped onto us and extract files (one level deep only)
+		real_filenames = []
+		for pathname in filenames:
+			try:
+				files = os.listdir(pathname)
+				for file in files:
+					fullname = os.path.join(pathname, file)
+					if not os.path.isfile(fullname):
+						continue
+					real_filenames.append(fullname)
+			except OSError:
+				real_filenames.append(pathname)
+
+		self.acquired_pages.extend(real_filenames)
 		self.__reload_LBOX_doc_pages()
 	#--------------------------------------------------------
 	def repopulate_ui(self):
@@ -1354,7 +1368,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.108  2007-01-12 13:10:11  ncq
+# Revision 1.109  2007-01-17 14:01:56  ncq
+# - when folder dropped onto scanidxpnl extract files one level into it
+#
+# Revision 1.108  2007/01/12 13:10:11  ncq
 # - use cFileDropTarget in ScanIdxPnl
 #
 # Revision 1.107  2007/01/10 23:01:07  ncq
