@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -630,7 +630,8 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	curs.execute(cmd)
 
 	# 4) datestyle
-	# FIXME: add DMY/YMD handling
+	# regarding DMY/YMD handling: since we force *input* to
+	# ISO, too, the DMY/YMD setting is not needed
 	_log.Log(gmLog.lData, 'datestyle [ISO]')
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
@@ -703,13 +704,13 @@ class cAdapterPyDateTime(object):
 		self.__dt = dt
 
 	def getquoted(self):
-		return (_timestamp_template % self.__dt.isoformat()).replace(',', '.')
+		#return (_timestamp_template % self.__dt.isoformat()).replace(',', '.')
+		return _timestamp_template % self.__dt.isoformat()
 # -----------------------------------------------------------------------
 class cAdapterMxDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tz == '???':
-#			raise ValueError('mx.DateTime instance is lacking a time zone: [%s]' % _timestamp_template % dt)
 			_log.Log(gmLog.lInfo, '[%s]: no time zone string available in (%s), assuming local time zone' % (self.__class__.__name__, dt))
 		self.__dt = dt
 
@@ -941,7 +942,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.30  2007-01-16 12:45:21  ncq
+# Revision 1.31  2007-01-17 13:26:02  ncq
+# - note on MDY/DMY handling
+# - slightly easier python datetime adaptation
+#
+# Revision 1.30  2007/01/16 12:45:21  ncq
 # - properly import/adapt mx.DateTime
 #
 # Revision 1.29  2007/01/16 10:28:49  ncq
