@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.300 2007-01-15 13:06:49 ncq Exp $
-__version__ = "$Revision: 1.300 $"
+# $Id: gmGuiMain.py,v 1.301 2007-01-17 13:39:10 ncq Exp $
+__version__ = "$Revision: 1.301 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -520,7 +520,7 @@ class gmTopLevelFrame(wx.Frame):
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
 		# did we add anything to the EMR ?
-		if enc.has_clinical_data() or True:
+		if enc.has_clinical_data():
 			if enc['assessment_of_encounter'] is None:
 				# - work out suitable default
 				epis = emr.get_episodes_by_encounter()
@@ -1207,7 +1207,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.300  2007-01-15 13:06:49  ncq
+# Revision 1.301  2007-01-17 13:39:10  ncq
+# - show encounter summary editor before patient change
+#   only if actually entered any data
+#
+# Revision 1.300  2007/01/15 13:06:49  ncq
 # - if we can "import webbrowser" we really shouldn't "gmShellAPI.run_command_in_shell('firefox')"
 #
 # Revision 1.299  2007/01/13 22:21:58  ncq
