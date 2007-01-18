@@ -6,8 +6,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.17 2005-10-23 11:31:45 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmSnellen.py,v 1.18 2007-01-18 22:09:18 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -391,11 +391,11 @@ class cSnellenChart(wx.Frame):
 		self.dc = None 
 
 	def OnKeyUp (self, key):
-		if key.GetKeyCode () == wx.K_UP and self.distance < len (self.distances)-1:
+		if key.KeyCode == wx.K_UP and self.distance < len (self.distances)-1:
 			self.set_distance (self.distance+1)
-		if key.GetKeyCode () == wx.K_DOWN and self.distance > 0:
+		if key.KeyCode == wx.K_DOWN and self.distance > 0:
 			self.set_distance (self.distance-1)
-		if key.GetKeyCode () == wx.K_ESCAPE:
+		if key.KeyCode == wx.K_ESCAPE:
 			self.Destroy ()
 
 	def OnLeftDown (self, key):
@@ -541,7 +541,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.17  2005-10-23 11:31:45  ihaywood
+# Revision 1.18  2007-01-18 22:09:18  ncq
+# - wx2.8ification
+#
+# Revision 1.17  2005/10/23 11:31:45  ihaywood
 # Snellen now works again (with Andreas' packages, on wx2.4)
 #
 # Revision 1.16  2005/09/28 21:27:30  ncq

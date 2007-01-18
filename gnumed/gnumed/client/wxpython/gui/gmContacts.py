@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -480,8 +480,8 @@ class cContactsPanel(wx.wx.Panel):
 
 	def _checkForCutPaste(self, keyEvent):
 		#print "control down is ", keyEvent.ControlDown()
-		#print "keyCode is ", keyEvent.GetKeyCode()
-		c = keyEvent.GetKeyCode()
+		#print "keyCode is ", keyEvent.KeyCode
+		c = keyEvent.KeyCode
 		if keyEvent.ControlDown():
 			print c
 			if c == 88 : # ascii('x')
@@ -1043,7 +1043,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.45  2006-10-25 07:22:43  ncq
+# Revision 1.46  2007-01-18 22:09:18  ncq
+# - wx2.8ification
+#
+# Revision 1.45  2006/10/25 07:22:43  ncq
 # - remove outdated phrasewheels
 #
 # Revision 1.44  2006/07/01 15:22:50  ncq
