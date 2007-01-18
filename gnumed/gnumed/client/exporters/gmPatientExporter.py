@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.95 2007-01-15 20:20:03 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmPatientExporter.py,v 1.96 2007-01-18 22:03:58 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -466,18 +466,16 @@ class cEmrExport:
         return txt
     #--------------------------------------------------------             
     def refresh_historical_tree(self, emr_tree):
-    	"""
-	checks a emr_tree constructed with this.get_historical_tree() 
-	and sees if any new items need to be inserted.
-	"""
-	#TODO , caching eliminates tree update time, so don't really need this
-	
-    	self._traverse_health_issues( emr_tree, self._update_health_issue_branch)
+        """
+        checks a emr_tree constructed with this.get_historical_tree() 
+        and sees if any new items need to be inserted.
+        """
+        #TODO , caching eliminates tree update time, so don't really need this
+        self._traverse_health_issues( emr_tree, self._update_health_issue_branch)
 	
     #--------------------------------------------------------             
     def get_historical_tree( self, emr_tree):
-    	self._traverse_health_issues( emr_tree, self._add_health_issue_branch)
-	
+        self._traverse_health_issues( emr_tree, self._add_health_issue_branch)
     #--------------------------------------------------------             
     def _traverse_health_issues(self, emr_tree, health_issue_action):
         """
@@ -1243,7 +1241,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.95  2007-01-15 20:20:03  ncq
+# Revision 1.96  2007-01-18 22:03:58  ncq
+# - a bit of cleanup
+#
+# Revision 1.95  2007/01/15 20:20:03  ncq
 # - move wrap() to gmTools
 #
 # Revision 1.94  2007/01/13 22:17:40  ncq
