@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.23 2007-01-18 13:03:25 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmScanBackend.py,v 1.24 2007-01-18 13:27:16 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -55,24 +55,25 @@ class cTwainScanner:
 		if self.__src_manager is None:
 			# TWAIN talks to us via MS-Windows message queues so we
 			# need to pass it a handle to ourselves
+			# the following fails with "attempt to create Pseudo Window failed"
 #			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
 			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
 			if not self.__src_manager:
 				_log.Log(gmLog.lErr, "cannot get a handle for the TWAIN source manager")
 				return False
-			# TWAIN will notify us when the image is scanned
-			self.__src_manager.SetCallback(self._twain_event_callback)
 			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
 			# clean up scanner driver
 			if self.__scanner is not None:
 				self.__scanner.destroy()
 				del self.__scanner
-			self.__scanner = None
+				self.__scanner = None
 		return True
 	#---------------------------------------------------
 	def __init_scanner(self):
 #		if not self.__init_src_manager():
 #			return False
+		# TWAIN will notify us when the image is scanned
+		self.__src_manager.SetCallback(self._twain_event_callback)
 		if self.__scanner is None:
 			# FIXME: set source by string
 			self.__scanner = self.__src_manager.OpenSource()
@@ -143,6 +144,7 @@ class cTwainScanner:
 		_twain_module.GlobalHandleFree(external_data_handle)
 		# hide the scanner user interface again
 		self.__scanner.HideUI()
+		self.__scanner = None		# not sure why this is needed
 
 		return True
 	#---------------------------------------------------
@@ -476,7 +478,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.23  2007-01-18 13:03:25  ncq
+# Revision 1.24  2007-01-18 13:27:16  ncq
+# - try to comply more closely with TWAIN sample wx app
+#
+# Revision 1.23  2007/01/18 13:03:25  ncq
 # - no ProductName
 #
 # Revision 1.22  2007/01/18 12:34:01  ncq
