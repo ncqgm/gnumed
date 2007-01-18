@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.28 2007-01-18 18:43:07 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmScanBackend.py,v 1.29 2007-01-18 19:33:09 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -157,7 +157,7 @@ class cTwainScanner:
 
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
 		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
-		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
+		_log.Log(gmLog.lData, 'image layout: %s' % str(self.__scanner.GetImageLayout()))
 
 		# get from source
 #		try:
@@ -523,7 +523,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.28  2007-01-18 18:43:07  ncq
+# Revision 1.29  2007-01-18 19:33:09  ncq
+# - fix typo
+#
+# Revision 1.28  2007/01/18 18:43:07  ncq
 # - added print "" for debugging
 #
 # Revision 1.27  2007/01/18 17:58:34  ncq
