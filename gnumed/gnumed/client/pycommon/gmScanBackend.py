@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.26 2007-01-18 17:14:54 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmScanBackend.py,v 1.27 2007-01-18 17:58:34 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -57,8 +57,18 @@ class cTwainScanner:
 		if self.__scanner is None:
 			return False
 
-		self.__scanner.RequestAcquire(False)
+		self._done_acquiring = False
+		self.__scanner.RequestAcquire(True)
+
+		print "waiting for TWAIN to finish acquiring page(s)"
+		while not self._done_acquiring:
+			print "."
+			time.sleep(0.5)
+		print "TWAIN seems done"
+
 		return [self.__filename]
+	#---------------------------------------------------
+
 	#---------------------------------------------------
 	def close(self):
 		if self.__scanner is not None:
@@ -77,7 +87,7 @@ class cTwainScanner:
 			return True
 
 		self.__init_src_manager()
-		if self.__src_manger is None:
+		if self.__src_manager is None:
 			return False
 
 		# TWAIN will notify us when the image is scanned
@@ -174,6 +184,8 @@ class cTwainScanner:
 		# hide the scanner user interface again
 #		self.__scanner.HideUI()
 #		self.__scanner = None		# not sure why this is needed
+
+		self._done_acquiring = True
 	#---------------------------------------------------
 	def _twain_handle_transfer_by_file(self):
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
@@ -502,7 +514,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.26  2007-01-18 17:14:54  ncq
+# Revision 1.27  2007-01-18 17:58:34  ncq
+# - explicitely wait for TWAIN memory scan transfer to finish
+#
+# Revision 1.26  2007/01/18 17:14:54  ncq
 # - closer to twain example code
 #
 # Revision 1.25  2007/01/18 14:41:29  ncq
