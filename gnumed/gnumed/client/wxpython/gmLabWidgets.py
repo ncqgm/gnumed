@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -567,12 +567,12 @@ class cLabJournalNB(wx.Notebook):
 		#key.Skip()
 
 		# user moved down
-		if key.GetKeyCode() == WXK_DOWN:
+		if key.KeyCode == WXK_DOWN:
 			key.Skip()
 			#self.__on_down_arrow(key)
 			return
 		# user moved up
-		if key.GetKeyCode() == WXK_UP:
+		if key.KeyCode == WXK_UP:
 			key.Skip()
 			#self.__on_up_arrow(key)
 			return
@@ -580,7 +580,7 @@ class cLabJournalNB(wx.Notebook):
 		# FIXME: need PAGE UP/DOWN//POS1/END here
 			
 		#user pressed <SPACE>
-		if key.GetKeyCode() == WXK_SPACE:
+		if key.KeyCode == WXK_SPACE:
 			self.OnSelectCell(key,selector='SelKEY')
 			return
 	# -------------------------------------------------
@@ -863,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.23  2006-11-24 10:01:31  ncq
+# Revision 1.24  2007-01-18 22:07:52  ncq
+# - (Get)KeyCode() -> KeyCode so 2.8 can do
+#
+# Revision 1.23  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.22  2006/10/25 07:21:57  ncq

@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.57 2007-01-10 23:04:12 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPatSearchWidgets.py,v 1.58 2007-01-18 22:07:52 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -506,7 +506,7 @@ class cPatientSelector(wx.TextCtrl):
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_char(self, evt):
-		keycode = evt.GetKeyCode()
+		keycode = evt.KeyCode
 
 		# list of previously active patients
 		if keycode == wx.WXK_DOWN:
@@ -771,7 +771,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.57  2007-01-10 23:04:12  ncq
+# Revision 1.58  2007-01-18 22:07:52  ncq
+# - (Get)KeyCode() -> KeyCode so 2.8 can do
+#
+# Revision 1.57  2007/01/10 23:04:12  ncq
 # - support explicit DOB format for xDT files
 #
 # Revision 1.56  2006/12/13 14:57:16  ncq

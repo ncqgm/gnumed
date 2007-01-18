@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.43 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmResizingWidgets.py,v 1.44 2007-01-18 22:07:52 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -562,7 +562,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if in list: scroll list
 		# - if in last line: goto first line, same character, in next_in_tab_order
 		# - else standard behaviour
-		if event.KeyCode() == wx.WXK_DOWN:
+		if event.KeyCode == wx.WXK_DOWN:
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Down()
 #				return
@@ -577,7 +577,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if in list: scroll list
 		# - if in first line: goto last line, same character, in prev_in_tab_order
 		# - else standard behaviour
-		if event.KeyCode() == wx.WXK_UP:
+		if event.KeyCode == wx.WXK_UP:
 			_log.Log(gmLog.lData, '<UP-ARROW> key press detected')
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Up()
@@ -597,7 +597,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# <TAB> key
 		# - move to next/prev_in_tab_order
 		# FIXME: what about inside a list ?
-		if event.KeyCode() == wx.WXK_TAB:
+		if event.KeyCode == wx.WXK_TAB:
 			if event.m_shiftDown:
 				if self.prev_in_tab_order is not None:
 					self.prev_in_tab_order.SetFocus()
@@ -612,7 +612,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# <;>
 		# - do not put into empty field
 		# - do not allow consecutive ';'s
-		if event.KeyCode() == ord(';'):
+		if event.KeyCode == ord(';'):
 			if self.GetLength() == 0:
 				return
 			# FIXME: smartup for whitespace after trailing ';'
@@ -623,7 +623,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if inside embedded string
 		#	- delete entire string and data dict
 		# - else standard behaviour
-		if event.KeyCode() == wx.WXK_DELETE:
+		if event.KeyCode == wx.WXK_DELETE:
 			# FIXME: perhaps add check for regex, too ?
 			if self.GetStyleAt(curs_pos) == STYLE_EMBED:
 				self.DelPhrase(curs_pos)
@@ -634,7 +634,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - if inside embedded string
 		#	- delete entire string and data dict
 		# - else standard behaviour
-		if event.KeyCode() == wx.WXK_BACK:
+		if event.KeyCode == wx.WXK_BACK:
 			# FIXME: perhaps add check for regex, too ?
 			if self.GetStyleAt(curs_pos-1) == STYLE_EMBED:
 				self.DelPhrase (curs_pos-1)
@@ -647,7 +647,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - after last character in widget:
 		#	- if after ';': go to next in tab order
 		#	- f no ';' there: add one
-		if event.KeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
+		if event.KeyCode == wx.WXK_RETURN and not event.m_shiftDown:
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Enter()
 #				return
@@ -668,7 +668,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				return
 
 		# FIXME: why ?
-#		if event.KeyCode() == wx.WXK_F12 and self.__parent.complete:
+#		if event.KeyCode == wx.WXK_F12 and self.__parent.complete:
 #			self.__parent.complete()
 
 		event.Skip()	# skip to next event handler to keep processing
@@ -1068,7 +1068,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.43  2006-11-24 10:01:31  ncq
+# Revision 1.44  2007-01-18 22:07:52  ncq
+# - (Get)KeyCode() -> KeyCode so 2.8 can do
+#
+# Revision 1.43  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.42  2005/10/20 07:43:02  ncq
