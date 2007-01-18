@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.27 2007-01-18 17:58:34 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmScanBackend.py,v 1.28 2007-01-18 18:43:07 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -57,28 +57,31 @@ class cTwainScanner:
 		if self.__scanner is None:
 			return False
 
-		self._done_acquiring = False
+#		self._done_acquiring = False
+		print "before RequestAcquire()"
 		self.__scanner.RequestAcquire(True)
+		print "after RequestAcquire()"
 
-		print "waiting for TWAIN to finish acquiring page(s)"
-		while not self._done_acquiring:
-			print "."
-			time.sleep(0.5)
-		print "TWAIN seems done"
+#		print "waiting for TWAIN to finish acquiring page(s)"
+#		idx = 0
+#		while not self._done_acquiring or (idx > 20):
+#			print "."
+#			time.sleep(0.5)
+#			idx += 1
+#		print "TWAIN seems done"
 
 		return [self.__filename]
 	#---------------------------------------------------
-
-	#---------------------------------------------------
 	def close(self):
-		if self.__scanner is not None:
-			self.__scanner.destroy()
+#		if self.__scanner is not None:
+#			self.__scanner.destroy()
 
-		if self.__src_manager is not None:
-			self.__src_manager.destroy()
+#		if self.__src_manager is not None:
+#			self.__src_manager.destroy()
 
-		del self.__scanner
-		del self.__src_manager
+#		del self.__scanner
+#		del self.__src_manager
+		return
 	#---------------------------------------------------
 	# internal helpers
 	#---------------------------------------------------
@@ -150,6 +153,8 @@ class cTwainScanner:
 		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
 	#---------------------------------------------------
 	def _twain_handle_transfer_in_memory(self):
+		print "starting to handle transfer"
+
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
 		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
 		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
@@ -185,7 +190,8 @@ class cTwainScanner:
 #		self.__scanner.HideUI()
 #		self.__scanner = None		# not sure why this is needed
 
-		self._done_acquiring = True
+#		self._done_acquiring = True
+		print "handling transfer ended"
 	#---------------------------------------------------
 	def _twain_handle_transfer_by_file(self):
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
@@ -479,8 +485,11 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 				return None
 
 	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
+	print "before scanner.acquire()"
 	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
+	print "after scanner.acquire()"
 	scanner.close()
+	print "after closing scanner"
 	_log.Log(gmLog.lData, 'acquired pages into files: %s' % str(fnames))
 
 	return fnames
@@ -514,7 +523,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.27  2007-01-18 17:58:34  ncq
+# Revision 1.28  2007-01-18 18:43:07  ncq
+# - added print "" for debugging
+#
+# Revision 1.27  2007/01/18 17:58:34  ncq
 # - explicitely wait for TWAIN memory scan transfer to finish
 #
 # Revision 1.26  2007/01/18 17:14:54  ncq
