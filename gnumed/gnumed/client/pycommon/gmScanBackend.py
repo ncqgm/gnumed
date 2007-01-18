@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.24 2007-01-18 13:27:16 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmScanBackend.py,v 1.25 2007-01-18 14:41:29 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -38,13 +38,13 @@ class cTwainScanner:
 		self.__calling_window = calling_window
 		self.__src_manager = None
 		self.__scanner = None
-		if not self.__init_src_manager():
-			raise gmExceptions.ConstructorError, msg % u'cannot initialize TWAIN source manager'
+
+		self.__init_src_manager()
 	#---------------------------------------------------
 	def __register_event_handlers(self):
 		# FIXME: this means we cannot use more than one TWAIN source at once
 		self.__twain_event_handlers = {
-			_twain_module.MSG_XFERREADY: self._twain_handle_transfer,
+			_twain_module.MSG_XFERREADY: self._twain_handle_transfer_in_memory,
 			_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
 			_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
 			_twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
@@ -52,36 +52,42 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def __init_src_manager(self):
 		# open scanner manager
-		if self.__src_manager is None:
-			# TWAIN talks to us via MS-Windows message queues so we
-			# need to pass it a handle to ourselves
-			# the following fails with "attempt to create Pseudo Window failed"
-#			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
-			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
-			if not self.__src_manager:
-				_log.Log(gmLog.lErr, "cannot get a handle for the TWAIN source manager")
-				return False
-			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
-			# clean up scanner driver
-			if self.__scanner is not None:
-				self.__scanner.destroy()
-				del self.__scanner
-				self.__scanner = None
-		return True
+		if self.__src_manager is not None:
+			return
+
+		# clean up scanner driver since we will initialize the source manager
+		if self.__scanner is not None:
+			self.__scanner.destroy()
+			del self.__scanner
+			self.__scanner = None
+
+		# TWAIN talks to us via MS-Windows message queues so
+		# we need to pass it a handle to ourselves
+		# the following fails with "attempt to create Pseudo Window failed"
+#		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
+		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+
+		_log.Log(gmLog.lInfo, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
 	#---------------------------------------------------
 	def __init_scanner(self):
-#		if not self.__init_src_manager():
-#			return False
+		self.__init_src_manager()
+
+		if self.__scanner is not None:
+			return True
+
 		# TWAIN will notify us when the image is scanned
 		self.__src_manager.SetCallback(self._twain_event_callback)
+
+		# no arg == show "select source" dialog
+		# FIXME: set source by string
+		self.__scanner = self.__src_manager.OpenSource()
 		if self.__scanner is None:
-			# FIXME: set source by string
-			self.__scanner = self.__src_manager.OpenSource()
-			if self.__scanner is None:
-				_log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
-				return False
-			_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
-			_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
+			_log.Log(gmLog.lErr, "user cancelled scan source selection dialog")
+			return False
+
+		_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
+		_log.Log(gmLog.lData, "TWAIN data source config: %s" % str(self.__scanner.GetIdentity()))
+
 		return True
 	#---------------------------------------------------
 	def close(self):
@@ -113,9 +119,26 @@ class cTwainScanner:
 		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
 		return True
 	#---------------------------------------------------
-	def _twain_handle_transfer(self):
+	def _twain_handle_transfer_by_file(self):
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
 		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
+		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
+
+		self.__scanner.SetXferFileName(self.__filename)	# FIXME: allow format
+
+		more_images_pending = self.__scanner.XferImageByFile()
+		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
+
+		# hide the scanner user interface again
+		self.__scanner.HideUI()
+#		self.__scanner = None
+
+		return 
+	#---------------------------------------------------
+	def _twain_handle_transfer_in_memory(self):
+		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
+		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
+		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
 
 		# get from source
 		try:
@@ -164,7 +187,7 @@ class cTwainScanner:
 		if not self.__init_scanner():
 			return False
 
-		self.__scanner.RequestAcquire()
+		self.__scanner.RequestAcquire(ShowUI=True, ShowModal=True)
 		return [self.__filename]
 	#---------------------------------------------------
 #	def dummy(self):
@@ -478,7 +501,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.24  2007-01-18 13:27:16  ncq
+# Revision 1.25  2007-01-18 14:41:29  ncq
+# - use ShowModal in RequestAcquire()
+#
+# Revision 1.24  2007/01/18 13:27:16  ncq
 # - try to comply more closely with TWAIN sample wx app
 #
 # Revision 1.23  2007/01/18 13:03:25  ncq
