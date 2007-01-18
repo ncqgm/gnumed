@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.109 2007-01-17 14:01:56 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmMedDocWidgets.py,v 1.110 2007-01-18 22:13:37 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -422,6 +422,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		for pathname in filenames:
 			try:
 				files = os.listdir(pathname)
+				gmGuiHelpers.gm_statustext(_('Extracting files from folder [%s] ...') % pathname)
 				for file in files:
 					fullname = os.path.join(pathname, file)
 					if not os.path.isfile(fullname):
@@ -1368,7 +1369,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.109  2007-01-17 14:01:56  ncq
+# Revision 1.110  2007-01-18 22:13:37  ncq
+# - tell user when we expand a folder to extract files
+#
+# Revision 1.109  2007/01/17 14:01:56  ncq
 # - when folder dropped onto scanidxpnl extract files one level into it
 #
 # Revision 1.108  2007/01/12 13:10:11  ncq
