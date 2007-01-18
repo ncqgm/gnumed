@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.10 2007-01-15 20:20:39 ncq Exp $
+# $Id: gmTools.py,v 1.11 2007-01-18 12:46:30 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,7 +21,36 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
+#===========================================================================
+def import_module_from_directory(module_path=None, module_name=None):
+	"""Import a module from any location."""
+	if module_path not in sys.path:
+		_log.Log(gmLog.lInfo, 'appending to sys.path: [%s]' % module_path)
+		sys.path.append(module_path)
+		remove_path = True
+	else:
+		remove_path = False
 
+	try:
+		module = __import__(module_name)
+		_log.Log(gmLog.lInfo, 'imported module [%s] as [%s]' % (module_name, module))
+	except StandardError:
+		_log.LogException('cannot __import__() module [%s] from [%s]' % (module_name, module_path), exc_info=sys.exc_info(), verbose=0)
+		if remove_path:
+			sys.path.remove(module_path)
+		raise
+
+	# I am not sure *why* we need this. But the docs
+	# and Google say so. It's got something to do with
+	# package imports returning the toplevel package name.
+#	components = module_name.split('.')
+#	for component in components[1:]:
+#		mod = getattr(mod, component)
+
+	if remove_path:
+		sys.path.remove(module_path)
+
+	return module
 #===========================================================================
 def open_uri_in_ooo(filename=None):
 	"""Connect to OOo and open document.
@@ -224,16 +253,34 @@ if __name__ == '__main__':
 			print word, capitalize(word)
 		return True
 	#-----------------------------------------------------------------------
+	def test_import_module():
+		print "testing import_module_from_directory()"
+		path = sys.argv[1]
+		name = sys.argv[2]
+		try:
+			mod = import_module_from_directory(module_path = path, module_name = name)
+		except:
+			print "module import failed, see log"
+			return False
+
+		print "module import succeeded", mod
+		print dir(mod)
+		return True
+	#-----------------------------------------------------------------------
 	print __doc__
 
 	#test_str2interval()
 	#test_coalesce()
 	#test_capitalize()
-	test_open_uri_in_ooo()
+	#test_open_uri_in_ooo()
+	test_import_module()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.10  2007-01-15 20:20:39  ncq
+# Revision 1.11  2007-01-18 12:46:30  ncq
+# - add reasonably safe import_module_from_directory() and test
+#
+# Revision 1.10  2007/01/15 20:20:39  ncq
 # - add wrap()
 #
 # Revision 1.9  2007/01/06 17:05:57  ncq
