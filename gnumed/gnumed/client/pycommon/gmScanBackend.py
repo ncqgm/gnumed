@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.20 2006-12-27 16:42:53 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmScanBackend.py,v 1.21 2007-01-18 12:08:56 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -29,20 +29,21 @@ use_XSane = True
 class cTwainScanner:
 
 	def __init__(self, calling_window=None):
-		msg = 'cannot instantiate TWAIN driver class'
+		msg = u'cannot instantiate TWAIN driver class: %s'
 		if not _twain_import_module():
-			raise gmExceptions.ConstructorError, msg
+			raise gmExceptions.ConstructorError, msg % u'cannot import TWAIN module'
 
-		self.__setup_event_handler()
+		self.__register_event_handlers()
 
 		self.__calling_window = calling_window
-
-		self.__src_manager = None
-		self.__scanner = None
+#		self.__src_manager = None
+#		self.__scanner = None
+		if not self.__init_src_manager():
+			raise gmExceptions.ConstructorError, msg % u'cannot initialize TWAIN source manager'
 	#---------------------------------------------------
-	def __setup_event_handler(self):
+	def __register_event_handlers(self):
 		# FIXME: this means we cannot use more than one TWAIN source at once
-		self.__twain_event_handler = {
+		self.__twain_event_handlers = {
 			_twain_module.MSG_XFERREADY: self._twain_handle_transfer,
 			_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
 			_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
@@ -54,23 +55,27 @@ class cTwainScanner:
 		if self.__src_manager is None:
 			# TWAIN talks to us via MS-Windows message queues so we
 			# need to pass it a handle to ourselves
-			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+			self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
 			if not self.__src_manager:
 				_log.Log(gmLog.lErr, "cannot get a handle for the TWAIN source manager")
 				return False
 			# TWAIN will notify us when the image is scanned
 			self.__src_manager.SetCallback(self._twain_event_callback)
 			_log.Log(gmLog.lData, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
+			# clean up scanner driver
+			if self.__scanner is not None:
+				self.__scanner.destroy()
+				del self.__scanner
 			self.__scanner = None
 		return True
 	#---------------------------------------------------
 	def __init_scanner(self):
-		if not self.__init_src_manager():
-			return False
+#		if not self.__init_src_manager():
+#			return False
 		if self.__scanner is None:
 			# FIXME: set source by string
 			self.__scanner = self.__src_manager.OpenSource()
-			if not self.__scanner:
+			if self.__scanner is None:
 				_log.Log(gmLog.lErr, "cannot open scanner via TWAIN source manager")
 				return False
 			_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
@@ -78,13 +83,19 @@ class cTwainScanner:
 		return True
 	#---------------------------------------------------
 	def close(self):
+		if self.__scanner is not None:
+			self.__scanner.destroy()
+			del self.__scanner
+		if self.__src_manager is not None:
+			self.__src_manager.destroy()
+			del self.__src_manager
 		return
 	#---------------------------------------------------
 	# TWAIN callback handling
 	#---------------------------------------------------
 	def _twain_event_callback(self, twain_event):
 		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
-		self.__twain_event_handler[twain_event]()
+		self.__twain_event_handlers[twain_event]()
 		return
 	#---------------------------------------------------
 	def _twain_close_datasource(self):
@@ -464,7 +475,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.20  2006-12-27 16:42:53  ncq
+# Revision 1.21  2007-01-18 12:08:56  ncq
+# - try to once again fix/improve TWAIN scanning
+#
+# Revision 1.20  2006/12/27 16:42:53  ncq
 # - cleanup
 # - add XSane interface in cXSaneScanner as worked out by Kai Schmidt
 # - acquire_pages_into_files() now returns a list
