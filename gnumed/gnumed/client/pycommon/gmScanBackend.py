@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.21 2007-01-18 12:08:56 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmScanBackend.py,v 1.22 2007-01-18 12:34:01 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -36,8 +36,8 @@ class cTwainScanner:
 		self.__register_event_handlers()
 
 		self.__calling_window = calling_window
-#		self.__src_manager = None
-#		self.__scanner = None
+		self.__src_manager = None
+		self.__scanner = None
 		if not self.__init_src_manager():
 			raise gmExceptions.ConstructorError, msg % u'cannot initialize TWAIN source manager'
 	#---------------------------------------------------
@@ -475,7 +475,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.21  2007-01-18 12:08:56  ncq
+# Revision 1.22  2007-01-18 12:34:01  ncq
+# - must init self.__scanner/self.__src_manager
+#
+# Revision 1.21  2007/01/18 12:08:56  ncq
 # - try to once again fix/improve TWAIN scanning
 #
 # Revision 1.20  2006/12/27 16:42:53  ncq
