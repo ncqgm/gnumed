@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.25 2007-01-18 14:41:29 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmScanBackend.py,v 1.26 2007-01-18 17:14:54 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -29,51 +29,56 @@ use_XSane = True
 class cTwainScanner:
 
 	def __init__(self, calling_window=None):
-		msg = u'cannot instantiate TWAIN driver class: %s'
 		if not _twain_import_module():
-			raise gmExceptions.ConstructorError, msg % u'cannot import TWAIN module'
-
-		self.__register_event_handlers()
+			raise gmExceptions.ConstructorError, 'cannot instantiate TWAIN driver class: cannot import TWAIN module'
 
 		self.__calling_window = calling_window
 		self.__src_manager = None
 		self.__scanner = None
 
-		self.__init_src_manager()
+		self.__register_event_handlers()
 	#---------------------------------------------------
-	def __register_event_handlers(self):
-		# FIXME: this means we cannot use more than one TWAIN source at once
-		self.__twain_event_handlers = {
-			_twain_module.MSG_XFERREADY: self._twain_handle_transfer_in_memory,
-			_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
-			_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
-			_twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
-		}
+	# external API
 	#---------------------------------------------------
-	def __init_src_manager(self):
-		# open scanner manager
-		if self.__src_manager is not None:
-			return
+	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
+		if filename is None:
+			if tmpdir is None:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+			else:
+				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
+		else:
+			tmp, ext = os.path.splitext(filename)
+			if ext != '.bmp':
+				filename = filename + '.bmp'
 
-		# clean up scanner driver since we will initialize the source manager
+		self.__filename = os.path.abspath(os.path.expanduser(filename))
+
+		self.__init_scanner()
+		if self.__scanner is None:
+			return False
+
+		self.__scanner.RequestAcquire(False)
+		return [self.__filename]
+	#---------------------------------------------------
+	def close(self):
 		if self.__scanner is not None:
 			self.__scanner.destroy()
-			del self.__scanner
-			self.__scanner = None
 
-		# TWAIN talks to us via MS-Windows message queues so
-		# we need to pass it a handle to ourselves
-		# the following fails with "attempt to create Pseudo Window failed"
-#		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
-		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+		if self.__src_manager is not None:
+			self.__src_manager.destroy()
 
-		_log.Log(gmLog.lInfo, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
+		del self.__scanner
+		del self.__src_manager
+	#---------------------------------------------------
+	# internal helpers
 	#---------------------------------------------------
 	def __init_scanner(self):
-		self.__init_src_manager()
-
 		if self.__scanner is not None:
 			return True
+
+		self.__init_src_manager()
+		if self.__src_manger is None:
+			return False
 
 		# TWAIN will notify us when the image is scanned
 		self.__src_manager.SetCallback(self._twain_event_callback)
@@ -90,34 +95,85 @@ class cTwainScanner:
 
 		return True
 	#---------------------------------------------------
-	def close(self):
-		if self.__scanner is not None:
-			self.__scanner.destroy()
-			del self.__scanner
+	def __init_src_manager(self):
+		# open scanner manager
 		if self.__src_manager is not None:
-			self.__src_manager.destroy()
-			del self.__src_manager
-		return
+			return
+
+		# clean up scanner driver since we will initialize the source manager
+#		if self.__scanner is not None:
+#			self.__scanner.destroy()
+#			del self.__scanner
+#			self.__scanner = None
+
+		# TWAIN talks to us via MS-Windows message queues so
+		# we need to pass it a handle to ourselves
+		# the following fails with "attempt to create Pseudo Window failed"
+#		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle(), ProductName = 'GNUmed - The EMR that never sleeps.')
+		self.__src_manager = _twain_module.SourceManager(self.__calling_window.GetHandle())
+
+		_log.Log(gmLog.lInfo, "TWAIN source manager config: %s" % str(self.__src_manager.GetIdentity()))
 	#---------------------------------------------------
 	# TWAIN callback handling
+	#---------------------------------------------------
+	def __register_event_handlers(self):
+		self.__twain_event_handlers = {
+			_twain_module.MSG_XFERREADY: self._twain_handle_transfer_in_memory,
+			_twain_module.MSG_CLOSEDSREQ: self._twain_close_datasource,
+			_twain_module.MSG_CLOSEDSOK: self._twain_save_state,
+			_twain_module.MSG_DEVICEEVENT: self._twain_handle_src_event
+		}
 	#---------------------------------------------------
 	def _twain_event_callback(self, twain_event):
 		_log.Log(gmLog.lData, 'notification of TWAIN event <%s>' % str(twain_event))
 		self.__twain_event_handlers[twain_event]()
+		self.__scanner = None
 		return
 	#---------------------------------------------------
 	def _twain_close_datasource(self):
 		_log.Log(gmLog.lInfo, "being asked to close data source")
-		self.__scanner = None
-		return True
 	#---------------------------------------------------
-	def _twain_save_state():
+	def _twain_save_state(self):
 		_log.Log(gmLog.lInfo, "being asked to save application state")
-		return True
 	#---------------------------------------------------
-	def _twain_handle_src_event():
+	def _twain_handle_src_event(self):
 		_log.Log(gmLog.lInfo, "being asked to handle device specific event")
-		return True
+	#---------------------------------------------------
+	def _twain_handle_transfer_in_memory(self):
+		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
+		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
+		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
+
+		# get from source
+#		try:
+		(external_data_handle, more_images_pending) = self.__scanner.XferImageNatively()
+#		except:
+#			_log.LogException('XferImageNatively() failed, unable to get global heap image handle', sys.exc_info(), verbose=1)
+#			# free external image memory
+#			_twain_module.GlobalHandleFree(external_data_handle)
+#			# hide the scanner user interface again
+#			self.__scanner.HideUI()
+#			return
+
+		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
+
+		try:
+			# convert DIB to standard bitmap file
+			_twain_module.DIBToBMFile(external_data_handle, self.__filename)
+#		except:
+#			_log.LogException('DIBToBMFile() failed, unable to convert image in global heap handle into file [%s]' % self.__filename, sys.exc_info(), verbose=1)
+			# free external image memory
+		finally:
+			_twain_module.GlobalHandleFree(external_data_handle)
+			# hide the scanner user interface again
+#			self.__scanner.HideUI()
+#			return False
+
+		# free external image memory
+#		_twain_module.GlobalHandleFree(external_data_handle)
+		# hide the scanner user interface again
+#		self.__scanner.HideUI()
+#		self.__scanner = None		# not sure why this is needed
 	#---------------------------------------------------
 	def _twain_handle_transfer_by_file(self):
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
@@ -134,61 +190,6 @@ class cTwainScanner:
 #		self.__scanner = None
 
 		return 
-	#---------------------------------------------------
-	def _twain_handle_transfer_in_memory(self):
-		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
-		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
-		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
-
-		# get from source
-		try:
-			(external_data_handle, more_images_pending) = self.__scanner.XferImageNatively()
-		except:
-			_log.LogException('XferImageNatively() failed, unable to get global heap image handle', sys.exc_info(), verbose=1)
-			# free external image memory
-			_twain_module.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-			self.__scanner.HideUI()
-			return False
-
-		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
-
-		try:
-			# convert DIB to standard bitmap file
-			_twain_module.DIBToBMFile(external_data_handle, self.__filename)
-		except:
-			_log.LogException('DIBToBMFile() failed, unable to convert image in global heap handle into file [%s]' % self.__filename, sys.exc_info(), verbose=1)
-			# free external image memory
-			_twain_module.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-			self.__scanner.HideUI()
-			return False
-		# free external image memory
-		_twain_module.GlobalHandleFree(external_data_handle)
-		# hide the scanner user interface again
-		self.__scanner.HideUI()
-		self.__scanner = None		# not sure why this is needed
-
-		return True
-	#---------------------------------------------------
-	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
-		if filename is None:
-			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
-			else:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
-		else:
-			tmp, ext = os.path.splitext(filename)
-			if ext != '.bmp':
-				filename = filename + '.bmp'
-
-		self.__filename = os.path.abspath(os.path.expanduser(filename))
-
-		if not self.__init_scanner():
-			return False
-
-		self.__scanner.RequestAcquire(ShowUI=True, ShowModal=True)
-		return [self.__filename]
 	#---------------------------------------------------
 #	def dummy(self):
 #
@@ -468,7 +469,7 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
 	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
 	scanner.close()
-	_log.Log(gmLog.lData, 'acquired page into files: %s' % str(fnames))
+	_log.Log(gmLog.lData, 'acquired pages into files: %s' % str(fnames))
 
 	return fnames
 #==================================================
@@ -501,7 +502,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.25  2007-01-18 14:41:29  ncq
+# Revision 1.26  2007-01-18 17:14:54  ncq
+# - closer to twain example code
+#
+# Revision 1.25  2007/01/18 14:41:29  ncq
 # - use ShowModal in RequestAcquire()
 #
 # Revision 1.24  2007/01/18 13:27:16  ncq
