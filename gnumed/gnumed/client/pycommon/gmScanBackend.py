@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.33 2007-01-19 13:37:39 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmScanBackend.py,v 1.34 2007-01-19 14:06:17 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -155,21 +155,20 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def _twain_handle_transfer_in_memory(self):
 
+		# FIXME: handle more images
+
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
 		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
 		_log.Log(gmLog.lData, 'image layout: %s' % str(self.__scanner.GetImageLayout()))
 
-		more_images_pending = True
-
-		while more_images_pending:
-			# get image from source
-			(external_data_handle, more_images_pending) = self.__scanner.XferImageNatively()
-			try:
-				# convert DIB to standard bitmap file (always .bmp)
-				_twain_module.DIBToBMFile(external_data_handle, self.__filename)
-			finally:
-				_twain_module.GlobalHandleFree(external_data_handle)
-			_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
+		# get image from source
+		(external_data_handle, more_images_pending) = self.__scanner.XferImageNatively()
+		try:
+			# convert DIB to standard bitmap file (always .bmp)
+			_twain_module.DIBToBMFile(external_data_handle, self.__filename)
+		finally:
+			_twain_module.GlobalHandleFree(external_data_handle)
+		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
 
 		# hide the scanner user interface again
 #		self.__scanner.HideUI()						# needed ?
@@ -471,7 +470,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.33  2007-01-19 13:37:39  ncq
+# Revision 1.34  2007-01-19 14:06:17  ncq
+# - do not attempt to handle several scans at once
+#
+# Revision 1.33  2007/01/19 13:37:39  ncq
 # - cannot wait on semaphore as it blocks the TWAIN GUI
 #
 # Revision 1.32  2007/01/19 13:29:35  ncq
