@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.29 2007-01-18 19:33:09 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmScanBackend.py,v 1.30 2007-01-19 10:55:56 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -57,22 +57,19 @@ class cTwainScanner:
 		if self.__scanner is None:
 			return False
 
-#		self._done_acquiring = False
-		print "before RequestAcquire()"
 		self.__scanner.RequestAcquire(True)
-		print "after RequestAcquire()"
-
-#		print "waiting for TWAIN to finish acquiring page(s)"
-#		idx = 0
-#		while not self._done_acquiring or (idx > 20):
-#			print "."
-#			time.sleep(0.5)
-#			idx += 1
-#		print "TWAIN seems done"
 
 		return [self.__filename]
 	#---------------------------------------------------
 	def close(self):
+		# close() is called after acquire_pages*() so if we destroy the source
+		# before TWAIN is done we hang it, an RequestAcquire() only *requests*
+		# a scan, we would have to wait for process_xfer to finisch before
+		# destroying the source, and even then it might destroy state in the
+		# non-Python TWAIN subsystem
+		#**********************************
+		# if we do this TWAIN does not work
+		#**********************************
 #		if self.__scanner is not None:
 #			self.__scanner.destroy()
 
@@ -100,7 +97,7 @@ class cTwainScanner:
 		# FIXME: set source by string
 		self.__scanner = self.__src_manager.OpenSource()
 		if self.__scanner is None:
-			_log.Log(gmLog.lErr, "user cancelled scan source selection dialog")
+			_log.Log(gmLog.lErr, "user canceled scan source selection dialog")
 			return False
 
 		_log.Log(gmLog.lInfo, "TWAIN data source: %s" % self.__scanner.GetSourceName())
@@ -115,9 +112,9 @@ class cTwainScanner:
 
 		# clean up scanner driver since we will initialize the source manager
 #		if self.__scanner is not None:
-#			self.__scanner.destroy()
-#			del self.__scanner
-#			self.__scanner = None
+#			self.__scanner.destroy()			# this probably should not be done here
+#			del self.__scanner					# try to sneak this back in later
+#			self.__scanner = None				# this really should work
 
 		# TWAIN talks to us via MS-Windows message queues so
 		# we need to pass it a handle to ourselves
@@ -173,27 +170,22 @@ class cTwainScanner:
 		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
 
 		try:
-			# convert DIB to standard bitmap file
+			# convert DIB to standard bitmap file (always .bmp !)
 			_twain_module.DIBToBMFile(external_data_handle, self.__filename)
-#		except:
-#			_log.LogException('DIBToBMFile() failed, unable to convert image in global heap handle into file [%s]' % self.__filename, sys.exc_info(), verbose=1)
-			# free external image memory
 		finally:
 			_twain_module.GlobalHandleFree(external_data_handle)
-			# hide the scanner user interface again
-#			self.__scanner.HideUI()
-#			return False
+#			self.__scanner.HideUI()					# needed ?
 
 		# free external image memory
-#		_twain_module.GlobalHandleFree(external_data_handle)
+		_twain_module.GlobalHandleFree(external_data_handle)
 		# hide the scanner user interface again
-#		self.__scanner.HideUI()
+#		self.__scanner.HideUI()						# needed ?
 #		self.__scanner = None		# not sure why this is needed
-
-#		self._done_acquiring = True
-		print "handling transfer ended"
 	#---------------------------------------------------
 	def _twain_handle_transfer_by_file(self):
+
+		# UNTESTED !!!!
+
 		_log.Log(gmLog.lData, 'receiving image from TWAIN source')
 		_log.Log(gmLog.lData, 'image info: %s' % self.__scanner.GetImageInfo())
 		_log.Log(gmLog.lData, 'image layout: %s' % self.__scanner.GetImageLayout())
@@ -208,50 +200,6 @@ class cTwainScanner:
 #		self.__scanner = None
 
 		return 
-	#---------------------------------------------------
-#	def dummy(self):
-#
-#		# make tmp file name
-#		tempfile.tempdir = self.scan_tmp_dir
-#		tempfile.template = 'obj-'
-#		bmp_name = tempfile.mktemp('.bmp')
-#		fname = bmp_name
-#
-#		# convert to JPEG ?
-#		do_jpeg = _cfg.get("scanning", "convert to JPEG")
-#		if do_jpeg in ["yes", "on"]:
-#			jpg_name = tempfile.mktemp('.jpg')
-#			fname = jpg_name
-#			# get JPEG quality factor
-#			quality_value = _cfg.get("scanning", "JPEG quality level")
-#			if quality_value is None:
-#				_log.Log(gmLog.lWarn, "JPEG quality level not specified in config file, using default level of 75")
-#				quality_value = 75
-#			else:
-#				if quality_value.isdigit():
-#					quality_value = int(quality_value, 10)
-#				else:
-#					_log.Log(gmLog.lWarn, "JPEG quality level [%s] not a number, using default level of 75" % quality_value)
-#					quality_value = 75
-#			# do we want progression ?
-#			progression_flag = _cfg.get("scanning", "progressive JPEG")
-#			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_value, progression_flag))
-#			kwds = {}
-#			kwds['quality'] = quality_value
-#			if progression_flag in ["yes", "on"]:
-#				kwds['optimize'] = 1
-#				kwds['progressive'] = 1
-#			# actually convert to JPEG
-#			try:
-#				Image.open(bmp_name).convert('RGB').save(jpg_name, **kwds)
-#			except:
-#				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
-#				Image.open(bmp_name).convert('RGB').save(jpg_name)
-#			# remove bitmap (except Windows can't do that sometimes :-(
-#			try:
-#				os.remove(bmp_name)
-#			except:
-#				_log.LogException("Can't remove bitmap.", sys.exc_info(), fatal=0)
 #=======================================================
 class cSaneScanner:
 
@@ -485,11 +433,8 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 				return None
 
 	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
-	print "before scanner.acquire()"
 	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
-	print "after scanner.acquire()"
 	scanner.close()
-	print "after closing scanner"
 	_log.Log(gmLog.lData, 'acquired pages into files: %s' % str(fnames))
 
 	return fnames
@@ -523,7 +468,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.29  2007-01-18 19:33:09  ncq
+# Revision 1.30  2007-01-19 10:55:56  ncq
+# - clean up
+#
+# Revision 1.29  2007/01/18 19:33:09  ncq
 # - fix typo
 #
 # Revision 1.28  2007/01/18 18:43:07  ncq
