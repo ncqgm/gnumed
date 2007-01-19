@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.32 2007-01-19 13:29:35 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmScanBackend.py,v 1.33 2007-01-19 13:37:39 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -175,7 +175,6 @@ class cTwainScanner:
 #		self.__scanner.HideUI()						# needed ?
 #		self.__scanner = None		# not sure why this should be needed, simple_wx does it, though
 
-		print "image transfer done in callback handler"
 		self.__done_transferring_image = True
 	#---------------------------------------------------
 	def _twain_handle_transfer_by_file(self):
@@ -438,13 +437,6 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 
 	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
 	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
-	print "pages have been requested"
-	print "waiting for scanner to finish"
-	idx = 0			# 30 seconds max
-	while (idx < 60) and (not scanner.image_transfer_done()):
-		time.sleep(0.5)
-		idx += 1
-	print "timeout or done scanning"
 	scanner.close()
 	_log.Log(gmLog.lData, 'acquired pages into files: %s' % str(fnames))
 
@@ -479,7 +471,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.32  2007-01-19 13:29:35  ncq
+# Revision 1.33  2007-01-19 13:37:39  ncq
+# - cannot wait on semaphore as it blocks the TWAIN GUI
+#
+# Revision 1.32  2007/01/19 13:29:35  ncq
 # - try semaphore on TWAIN scanning to detect finish
 #
 # Revision 1.31  2007/01/19 12:43:39  ncq
