@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.301 2007-01-17 13:39:10 ncq Exp $
-__version__ = "$Revision: 1.301 $"
+# $Id: gmGuiMain.py,v 1.302 2007-01-20 22:04:50 ncq Exp $
+__version__ = "$Revision: 1.302 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -49,7 +49,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
@@ -487,20 +487,18 @@ class gmTopLevelFrame(wx.Frame):
 
 		# intra-client signals
 		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self.on_post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
 	#-----------------------------------------------
-	def on_post_patient_selection(self, **kwargs):
+	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
-		pat = gmPerson.gmCurrentPatient()
-		try:
-			pat.get_emr()
-			pat.get_identity()
-		except:
-			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=1)
-			return False
 		self.updateTitle()
+		try:
+			self.__run_script_on_patient_activated()
+		except:
+			gmGuiHelpers.gm_statustext(_('Cannot run script after patient activation.'))
+			raise
 	#----------------------------------------------
 	def _on_pre_patient_selection(self, **kwargs):
 		pat = gmPerson.gmCurrentPatient()
@@ -514,8 +512,6 @@ class gmTopLevelFrame(wx.Frame):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
-
-		#pat.get_identity().get_description()
 
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
@@ -877,6 +873,47 @@ Search results:
 		#_log.Log(gmLog.lInfo,'OnMaximize')
 		event.Skip()
 	#----------------------------------------------
+	# internal API
+	#----------------------------------------------
+	def __run_script_on_patient_activated(self):
+
+		# NOTE: this *might* be a huge security hole
+
+		dbcfg = gmCfg.cCfgSQL()
+		script_name = dbcfg.get2 (
+			option = 'patient_activation.script_to_run_after_activation',
+			workplace = _provider.get_workplace(),
+			bias = 'user',
+			default = ''			# no script
+		).strip()
+
+		if script_name == '':
+			return
+
+		script_path = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
+		full_script = os.path.join(script_path, script_name)
+
+		_log.Log(gmLog.lData, 'trying to run [%s] after activating patient' % full_script)
+
+		if os.path.islink(full_script):
+			gmGuiHelpers.gm_statustext(_('Script to run after activating patient may not be a link: [%s].') % full_script)
+			return
+
+		stat_val = os.stat(full_script)
+#		if stat_val.st_mode != 384:				# octal 0600
+		if stat_val.st_mode != 33152:			# octal 100600
+			gmGuiHelpers.gm_statustext(_('Script to run after activating patient must have permissions "0600": [%s].') % full_script)
+			return
+
+		if not os.access(full_script, os.R_OK):
+			gmGuiHelpers.gm_statustext(_('Script to run after activating patient must be owned by the calling user: [%s].') % full_script)
+			return
+
+		module = gmTools.import_module_from_directory(script_path, script_name)
+		module.run_script()
+
+		_log.Log(gmLog.lData, 'ran [%s] after activating patient')
+		return
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None):
 		"""Update title of main window based on template.
@@ -1207,7 +1244,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.301  2007-01-17 13:39:10  ncq
+# Revision 1.302  2007-01-20 22:04:50  ncq
+# - run user script after patient activation
+#
+# Revision 1.301  2007/01/17 13:39:10  ncq
 # - show encounter summary editor before patient change
 #   only if actually entered any data
 #
