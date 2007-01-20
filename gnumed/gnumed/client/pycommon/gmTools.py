@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.11 2007-01-18 12:46:30 ncq Exp $
+# $Id: gmTools.py,v 1.12 2007-01-20 22:04:01 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -31,6 +31,9 @@ def import_module_from_directory(module_path=None, module_name=None):
 	else:
 		remove_path = False
 
+	if module_name.endswith('.py'):
+		module_name = module_name[:-3]
+
 	try:
 		module = __import__(module_name)
 		_log.Log(gmLog.lInfo, 'imported module [%s] as [%s]' % (module_name, module))
@@ -39,13 +42,6 @@ def import_module_from_directory(module_path=None, module_name=None):
 		if remove_path:
 			sys.path.remove(module_path)
 		raise
-
-	# I am not sure *why* we need this. But the docs
-	# and Google say so. It's got something to do with
-	# package imports returning the toplevel package name.
-#	components = module_name.split('.')
-#	for component in components[1:]:
-#		mod = getattr(mod, component)
 
 	if remove_path:
 		sys.path.remove(module_path)
@@ -277,7 +273,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.11  2007-01-18 12:46:30  ncq
+# Revision 1.12  2007-01-20 22:04:01  ncq
+# - strip ".py" from script name if it is there
+#
+# Revision 1.11  2007/01/18 12:46:30  ncq
 # - add reasonably safe import_module_from_directory() and test
 #
 # Revision 1.10  2007/01/15 20:20:39  ncq
