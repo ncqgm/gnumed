@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.47 2007-01-16 13:59:51 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmGuiHelpers.py,v 1.48 2007-01-20 22:52:27 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -474,7 +474,7 @@ class cTextWidgetValidator(wx.PyValidator):
 		@param event - The event object containing context information
 		@type event - wx.Event
 		"""
-		key = event.KeyCode()
+		key = event.GetKeyCode()
 		if key < wx.WXK_SPACE or key == wx.WXK_DELETE or key > 255:
 			event.Skip()
 			return
@@ -491,7 +491,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.47  2007-01-16 13:59:51  ncq
+# Revision 1.48  2007-01-20 22:52:27  ncq
+# - .KeyCode -> GetKeyCode()
+#
+# Revision 1.47  2007/01/16 13:59:51  ncq
 # - protect against empty trees in expansion history mixin
 #
 # Revision 1.46  2007/01/15 13:04:25  ncq

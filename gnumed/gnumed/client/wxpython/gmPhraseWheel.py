@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.90 2007-01-18 22:07:52 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmPhraseWheel.py,v 1.91 2007-01-20 22:52:27 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -434,7 +434,7 @@ class cPhraseWheel(wx.TextCtrl):
 	def _on_key_down(self, event):
 		"""Is called when a key is pressed."""
 
-		keycode = event.KeyCode
+		keycode = event.GetKeyCode()
 
 		if keycode == wx.WXK_DOWN:
 			self.__on_cursor_down()
@@ -655,7 +655,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.90  2007-01-18 22:07:52  ncq
+# Revision 1.91  2007-01-20 22:52:27  ncq
+# - .KeyCode -> GetKeyCode()
+#
+# Revision 1.90  2007/01/18 22:07:52  ncq
 # - (Get)KeyCode() -> KeyCode so 2.8 can do
 #
 # Revision 1.89  2007/01/06 23:44:19  ncq

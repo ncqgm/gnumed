@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.12 2007-01-18 22:05:25 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmBMIWidgets.py,v 1.13 2007-01-20 22:52:27 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -386,31 +386,31 @@ class BMICalc_Panel(wx.Panel):
 	#-----------------------------------------
 	# Moving between fields with the 'Enter' key
 	def EvtChar_height(self, event):
-                if(event.KeyCode==13):		# height -> mass
+                if(event.GetKeyCode()==13):		# height -> mass
 			self.txtmass.SetFocus()
                 else:
                          event.Skip()
 	#-----------------------------------------
 	def EvtChar_mass(self, event):
-                if(event.KeyCode==13):		# mass -> slider
+                if(event.GetKeyCode()==13):		# mass -> slider
 			self.slider.SetFocus()
                 else:
                          event.Skip()
 	#-----------------------------------------
 	def EvtChar_slider(self, event):
-                if(event.KeyCode==13):		# slider -> goal
+                if(event.GetKeyCode()==13):		# slider -> goal
 			self.txtgoal.SetFocus()
                 else:
                          event.Skip()
 	#-----------------------------------------
 	def EvtChar_goal(self, event):
-                if(event.KeyCode==13):		# goal -> loss
+                if(event.GetKeyCode()==13):		# goal -> loss
 			self.txtloss.SetFocus()
                 else:
                          event.Skip()
 	#-----------------------------------------
 	def EvtChar_loss(self, event):
-		if(event.KeyCode==13):		# loss -> height
+		if(event.GetKeyCode()==13):		# loss -> height
 			self.txtheight.SetFocus()
 		else:
 			event.Skip()
@@ -552,7 +552,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.12  2007-01-18 22:05:25  ncq
+# Revision 1.13  2007-01-20 22:52:27  ncq
+# - .KeyCode -> GetKeyCode()
+#
+# Revision 1.12  2007/01/18 22:05:25  ncq
 # - wx2.8 needs properties !
 #
 # Revision 1.11  2005/10/24 10:47:09  ihaywood

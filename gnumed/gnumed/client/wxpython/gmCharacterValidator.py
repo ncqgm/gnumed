@@ -52,11 +52,11 @@ class CharValidator:
 		"""
 		textCtrl = keyEvent.GetEventObject()
 		#allow tab to be processed , for navigation
-		if keyEvent.KeyCode == WXK_TAB:
+		if keyEvent.GetKeyCode() == WXK_TAB:
 			keyEvent.Skip(1)
 			return 1
 
-		if keyEvent.KeyCode == WXK_SPACE and ( 
+		if keyEvent.GetKeyCode() == WXK_SPACE and ( 
 				textCtrl.GetInsertionPoint() == 0
 				or textCtrl.GetValue()[textCtrl.GetInsertionPoint()-1] == ' '
 				):
@@ -69,7 +69,7 @@ class CharValidator:
 		"""wrapper for converting to upper case and single spaces
 		converts intercepts lowercase input and puts in uppercase.
 		"""
-		#print "keyCode=", keyEvent.KeyCode
+		#print "keyCode=", keyEvent.GetKeyCode()
 		if not self._allow_case_only(keyEvent, string.lowercase, string.uppercase, exclusiveof = self.print_other + self.digits):
 			keyEvent.Skip()	
 
@@ -84,7 +84,7 @@ class CharValidator:
 		if self._allow_single_spaces(keyEvent):
 			return 
 
-		k = keyEvent.KeyCode
+		k = keyEvent.GetKeyCode()
 		
 		if chr(k) in string.letters  or k in self.print_other or k in  self.name_punctuation:
 			keyEvent.Skip(0)
@@ -102,7 +102,7 @@ class CharValidator:
 
 		c = keyEvent.GetEventObject()
 		
-		if chr(keyEvent.KeyCode) in case:
+		if chr(keyEvent.GetKeyCode()) in case:
 			#print "in range"
 			keyEvent.Skip(0)
 			
@@ -110,7 +110,7 @@ class CharValidator:
 			
 			#print "insertion point =", p, " length of text=", len(c.GetValue())	
 			t = c.GetValue()
-			u = toCase[case.index(chr(keyEvent.KeyCode))] 	
+			u = toCase[case.index(chr(keyEvent.GetKeyCode()))] 	
 			#print len(t),len(u)
 			#wxwidget's initial value bug.
 			#t = self._remove_init_whitespace_bug(t)
@@ -120,14 +120,14 @@ class CharValidator:
 			c.SetInsertionPoint(p+1)
 			return 1
 		
-		if exclusiveof <>[] and keyEvent.KeyCode  in exclusiveof:
+		if exclusiveof <>[] and keyEvent.GetKeyCode()  in exclusiveof:
 			keyEvent.Skip(0)
 			return 1
 		return 0
 
 	def capitalize_exclusive(self, keyEvent):
 		if not self._capitalize(keyEvent):
-			if  keyEvent.KeyCode  in self.print_other + self.digits :
+			if  keyEvent.GetKeyCode()  in self.print_other + self.digits :
 				keyEvent.Skip(0)
 				return
 				
@@ -141,7 +141,7 @@ class CharValidator:
 	def _capitalize(self, keyEvent):
 		if self._allow_single_spaces(keyEvent):
 			return 1
-		k = keyEvent.KeyCode
+		k = keyEvent.GetKeyCode()
 		if chr(k) in string.lowercase:
 			keyEvent.Skip(0)
 			c = keyEvent.GetEventObject()
