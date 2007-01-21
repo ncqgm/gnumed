@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.36 2007-01-06 23:04:06 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmXdtMappings.py,v 1.37 2007-01-21 15:13:46 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -585,6 +585,8 @@ xdt_id_map = {
 
 	'8311': 'UNBEKANNT Integer lang',## nicht in GDT 2.1 Specs (KS)
 	'8312': 'UNBEKANNT Integer kurz',## nicht in GDT 2.1 Specs (KS)
+	'8315': 'GDT-ID Empfänger',
+	'8316': 'GDT-ID Sender',
 
 	'8320': 'Labor Bezeichnung',     ## nicht in GDT 2.1 Specs (KS)
 	'8321': 'Labor Strasse',         ## nicht in GDT 2.1 Specs (KS)
@@ -673,9 +675,10 @@ xdt_id_map = {
 	'9204':'Abrechnungsquartal',
 	'9206': 'Zeichensatz (encoding)',
 	#ADT-version
-	'9210':'Version ADT-Satzbeschreibung',
-	'9212':'Version der Satzbeschreibung',
-	'9213':'Version BDT',
+	'9210': 'Version ADT-Satzbeschreibung',
+	'9212': 'Version der Satzbeschreibung',
+	'9213': 'Version BDT',
+	'9218': 'Version GDT',
 	'9233':'GO-Stammdatei-Version',
 	#way data is archived
 	'9600':'Archivierungsart',
@@ -703,6 +706,7 @@ xdt_packet_type_map = {
 	'0199': "========<< Fall: unstrukturiert >>========",
 	'6100': "========<< Patientenstamm >>========",
 	'6200': "========<< Behandlungsdaten >>========",
+	'6302': "========>> GDT: Anforderung einer neuen Untersuchung >>========",
 	'adt0': "========<< ADT-Datenpaket-Header >>========",
 	'adt9': "========<< ADT-Datenpaket-Abschluss >>========",
 	'con0': "========<< Container-Header >>========",
@@ -1387,7 +1391,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.36  2007-01-06 23:04:06  ncq
+# Revision 1.37  2007-01-21 15:13:46  ncq
+# - add a few more codes
+#
+# Revision 1.36  2007/01/06 23:04:06  ncq
 # - missing ","
 #
 # Revision 1.35  2007/01/04 22:50:35  ncq
