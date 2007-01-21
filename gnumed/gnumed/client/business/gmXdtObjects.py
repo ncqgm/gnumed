@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.24 2007-01-16 17:57:54 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmXdtObjects.py,v 1.25 2007-01-21 12:20:45 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -22,6 +22,23 @@ from Gnumed.business import gmXdtMappings
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+#==============================================================
+def determine_xdt_encoding(filename=None, default_encoding=None):
+
+	encoding = default_encoding
+
+	f = codecs.open(filename=filename, mode='rU', encoding='utf8', errors='ignore')
+
+	for line in f:
+		field = line[3:7]
+		if field in gmXdtMappings._charset_fields:
+			val = line[7:8]
+			encoding = gmXdtMappings._map_field2charset[field][val]
+			break
+
+	f.close()
+
+	return encoding
 #==============================================================
 def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
@@ -52,13 +69,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	# try to find encoding if not given
 	if encoding is None:
-		f = codecs.open(filename=filename, mode='rU', encoding='utf8', errors='ignore')
-		for line in f:
-			field = line[3:7]
-			if field in gmXdtMappings._charset_fields:
-				val = line[7:8]
-				encoding = gmXdtMappings._map_field2charset[field][val]
-		f.close()
+		encoding = determine_xdt_encoding(filename=filename)
 
 	xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding)
 
@@ -288,7 +299,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.24  2007-01-16 17:57:54  ncq
+# Revision 1.25  2007-01-21 12:20:45  ncq
+# - add determine_xdt_encoding()
+#
+# Revision 1.24  2007/01/16 17:57:54  ncq
 # - improve test suite
 #
 # Revision 1.23  2007/01/16 13:43:10  ncq
