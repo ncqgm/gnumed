@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.77 $
+# $Revision: 1.78 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-01-20 23:54+CET\n"
-"PO-Revision-Date: 2007-01-21 00:00+0100\n"
+"POT-Creation-Date: 2007-01-21 19:30+CET\n"
+"PO-Revision-Date: 2007-01-21 19:54+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -337,57 +337,57 @@ msgstr "vacc -> ind Fehler: %s"
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
 
-#: ../business/gmXdtMappings.py:747
+#: ../business/gmXdtMappings.py:751
 msgid "unknown gender"
 msgstr "unbekanntes Geschlecht"
 
-#: ../business/gmXdtMappings.py:748
+#: ../business/gmXdtMappings.py:752
 msgid "male"
 msgstr "männlich"
 
-#: ../business/gmXdtMappings.py:749
+#: ../business/gmXdtMappings.py:753
 msgid "female"
 msgstr "weiblich"
 
-#: ../business/gmXdtMappings.py:750
+#: ../business/gmXdtMappings.py:754
 msgid "child"
 msgstr "Kind"
 
-#: ../business/gmXdtMappings.py:751
+#: ../business/gmXdtMappings.py:755
 msgid "boy"
 msgstr "Junge"
 
-#: ../business/gmXdtMappings.py:752
+#: ../business/gmXdtMappings.py:756
 msgid "girl"
 msgstr "Mädchen"
 
-#: ../business/gmXdtMappings.py:753
+#: ../business/gmXdtMappings.py:757
 msgid "animal"
 msgstr "Tier"
 
-#: ../business/gmXdtMappings.py:983
-#: ../business/gmXdtMappings.py:986
 #: ../business/gmXdtMappings.py:987
+#: ../business/gmXdtMappings.py:990
+#: ../business/gmXdtMappings.py:991
 msgid "final"
 msgstr "endgültig"
 
-#: ../business/gmXdtMappings.py:984
+#: ../business/gmXdtMappings.py:988
 msgid "partial"
 msgstr "teilweise"
 
-#: ../business/gmXdtMappings.py:985
+#: ../business/gmXdtMappings.py:989
 msgid "preliminary"
 msgstr "vorläufig"
 
-#: ../business/gmXdtMappings.py:992
+#: ../business/gmXdtMappings.py:996
 msgid "already reported"
 msgstr "bereits berichtet"
 
-#: ../business/gmXdtMappings.py:993
+#: ../business/gmXdtMappings.py:997
 msgid "corrected result"
 msgstr "berichtigtes Ergebnis"
 
-#: ../business/gmXdtMappings.py:994
+#: ../business/gmXdtMappings.py:998
 msgid "missing, reported later"
 msgstr "fehlt/folgt"
 
@@ -1704,7 +1704,7 @@ msgstr "Einen neuen Nutzer zu GNUmed hinzufügen."
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:59
 msgid "Required: The database account assigned to this staff member. Must exist in the database."
-msgstr ""
+msgstr "Pflichtfeld: Das Datenbankkonto für diesen Mitarbeiter. Muß in der Datenbank existieren."
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:62
 #: ../wxpython/gmStaffWidgets.py:32
@@ -1713,7 +1713,7 @@ msgstr "Rolle"
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:63
 msgid "Required: The organisation role for this staff member. Currently the only supported role is \"doctor\"."
-msgstr ""
+msgstr "Pflichtfeld: Die Rolle dieses Mitarbeiters. Die gegenwärtig einzige unterstützte Rolle ist \"Arzt\"."
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:66
 msgid "Sign"
@@ -1721,7 +1721,7 @@ msgstr "Kürzel"
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:67
 msgid "Required: A short signature for this staff member such as the concatenated initials. Preferably not more than 5 characters."
-msgstr ""
+msgstr "Pflichtfeld: Ein kurzer Alias für diesen Mitarbeiter, z.B. die Initialen. Möglichst bis höchstens 5 Buchstaben."
 
 #: ../wxGladeWidgets/wxgStaffManagerPnl.py:71
 msgid "Optional: A free-text comment on this staff member."
@@ -6067,7 +6067,7 @@ msgid "xDT files"
 msgstr "xDT-Dateien"
 
 #: ../wxpython/gui/gmXdtViewer.py:84
-#: ../wxpython/gui/gmXdtViewer.py:108
+#: ../wxpython/gui/gmXdtViewer.py:102
 msgid ""
 "Cannot access xDT file\n"
 "\n"
@@ -6078,40 +6078,40 @@ msgstr ""
 " [%s]"
 
 #: ../wxpython/gui/gmXdtViewer.py:86
-#: ../wxpython/gui/gmXdtViewer.py:110
+#: ../wxpython/gui/gmXdtViewer.py:104
 msgid "loading xDT file"
 msgstr "öffne xDT-Datei"
 
-#: ../wxpython/gui/gmXdtViewer.py:102
-msgid "Encoding missing in xDT file. Assuming ISO-8859-1."
-msgstr "\"Encoding\" (Zeichensatz) nicht in der xDT-Datei vermerkt. Benutze ISO-8859-1."
+#: ../wxpython/gui/gmXdtViewer.py:95
+msgid "Encoding missing in xDT file. Assuming [%s]."
+msgstr "\"Encoding\" (Zeichensatz) nicht in der xDT-Datei vermerkt. Verwende [%s]."
 
-#: ../wxpython/gui/gmXdtViewer.py:118
+#: ../wxpython/gui/gmXdtViewer.py:112
 msgid "name of xDT file"
 msgstr "Name der xDT-Datei"
 
-#: ../wxpython/gui/gmXdtViewer.py:178
+#: ../wxpython/gui/gmXdtViewer.py:172
 msgid "XDT field"
 msgstr "XDT-Feld"
 
-#: ../wxpython/gui/gmXdtViewer.py:179
+#: ../wxpython/gui/gmXdtViewer.py:173
 msgid "XDT field content"
 msgstr "XDT-Feld: Inhalt"
 
-#: ../wxpython/gui/gmXdtViewer.py:364
+#: ../wxpython/gui/gmXdtViewer.py:358
 msgid "xDT Viewer"
 msgstr "xDT-Betrachter"
 
-#: ../wxpython/gui/gmXdtViewer.py:374
+#: ../wxpython/gui/gmXdtViewer.py:368
 msgid "xDT viewer"
 msgstr "xDT-Betrachter"
 
+#: ../wxpython/gui/gmXdtViewer.py:389
 #: ../wxpython/gui/gmXdtViewer.py:395
-#: ../wxpython/gui/gmXdtViewer.py:401
 msgid "Opening xDT file"
 msgstr "xDT-Datei öffnen"
 
-#: ../wxpython/gui/gmXdtViewer.py:396
+#: ../wxpython/gui/gmXdtViewer.py:390
 msgid ""
 "Cannot open xDT file.\n"
 "[%s]"
@@ -6119,13 +6119,13 @@ msgstr ""
 "Kann xDT-Datei nicht öffnen:\n"
 "[%s]"
 
-#: ../wxpython/gui/gmXdtViewer.py:402
+#: ../wxpython/gui/gmXdtViewer.py:396
 msgid ""
 "You must provide an xDT file on the command line.\n"
 "Format: --xdt-file=<file>"
 msgstr ""
 
-#: ../wxpython/gui/gmXdtViewer.py:410
+#: ../wxpython/gui/gmXdtViewer.py:404
 msgid "XDT Viewer"
 msgstr "XDT-Betrachter"
 
