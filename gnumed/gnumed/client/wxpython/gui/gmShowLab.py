@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -59,6 +59,7 @@ if __name__ == '__main__':
 			# find matching patient IDs
 			searcher = gmPerson.cPatientSearcher_SQL()
 			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
+			print "must use dto, not search_dict"
 			if patient_ids is None or len(patient_ids)== 0:
 				gmGuiHelpers.gm_show_error(
 					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
@@ -230,7 +231,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.20  2006-10-25 07:23:30  ncq
+# Revision 1.21  2007-01-21 12:22:02  ncq
+# - comment on search_dict -> dto
+#
+# Revision 1.20  2006/10/25 07:23:30  ncq
 # - no gmPG no more
 #
 # Revision 1.19  2006/07/24 14:19:36  ncq

@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -73,7 +73,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.27 $" % self.__class__.__name__
+		return "%s $Revision: 1.28 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -161,6 +161,8 @@ class cMacroPrimitives:
 		searcher = gmPerson.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
 			idents = searcher.get_identities(search_dict=search_params)
+			print "must use dto, not search_dict"
+			print xxxxxxxxxxxxxxxxx
 		else:
 			idents = searcher.get_identities(search_term=search_params)
 		if idents is None:
@@ -283,7 +285,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.27  2006-12-25 22:54:44  ncq
+# Revision 1.28  2007-01-21 12:21:38  ncq
+# - comment on search_dict -> dto
+#
+# Revision 1.27  2006/12/25 22:54:44  ncq
 # - comment fix
 #
 # Revision 1.26  2006/07/22 12:15:08  ncq
