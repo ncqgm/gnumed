@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.24 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmXdtViewer.py,v 1.25 2007-01-21 12:22:44 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -21,7 +21,7 @@ import wx
 
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business import gmXdtMappings
+from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
 _log = gmLog.gmDefLog
@@ -87,19 +87,13 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 				gmLog.lErr
 			)
 			return False
-
-		encoding_found = False
-		for line in f:
-			field = line[3:7]
-			if field in gmXdtMappings._charset_fields:
-				val = line[7:8]
-				encoding = gmXdtMappings._map_field2charset[field][val]
-				encoding_found = True
-				break
 		f.close()
-		if not encoding_found:
-			encoding = 'iso8859-1'
-			gmGuiHelpers.gm_statustext(_('Encoding missing in xDT file. Assuming ISO-8859-1.'))
+
+		encoding = gmXdtObjects.determine_xdt_encoding(filename = filename)
+		if encoding is None:
+			encoding = 'utf8'
+			gmGuiHelpers.gm_statustext(_('Encoding missing in xDT file. Assuming [%s].') % encoding)
+			_log.Log(gmLog.lWarn, 'xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
 
 		try:
 			xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding, errors='replace')
@@ -424,7 +418,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.24  2006-11-24 10:01:31  ncq
+# Revision 1.25  2007-01-21 12:22:44  ncq
+# - use determine_xdt_encoding()
+#
+# Revision 1.24  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.23  2006/10/31 16:05:40  ncq
