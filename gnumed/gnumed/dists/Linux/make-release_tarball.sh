@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.20.2.2 2007-01-21 20:35:35 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.20.2.3 2007-01-23 15:46:42 ncq Exp $
 # license: GPL
 #====================================================
-REV="0.2.4.rc1"
+REV="0.2.4.rc2"
 CLIENTARCH="GNUmed-client.$REV.tgz"
 SRVARCH="GNUmed-server.$REV.tgz"
 
@@ -102,8 +102,9 @@ echo "============"
 # client
 mkdir -p ./GNUmed-$REV/client/
 cp -R ../../client/__init__.py ./GNUmed-$REV/client/
-cp -R ../../client/gm-0_2.conf ./GNUmed-$REV/client/
-cp -R ../../client/gm-0_2-from-cvs.sh ./GNUmed-$REV/client/
+cp -R ../../client/gm-from-cvs.conf ./GNUmed-$REV/client/
+cp -R ../../client/gm-from-cvs.sh ./GNUmed-$REV/client/
+cp -R ../../client/gm-from-cvs.bat ./GNUmed-$REV/client/
 cp -R ./gnumed ./GNUmed-$REV/client/
 cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$REV/client/
@@ -262,7 +263,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.20.2.2  2007-01-21 20:35:35  ncq
+# Revision 1.20.2.3  2007-01-23 15:46:42  ncq
+# - include gm-from-cvs.sh/conf/bat
+#
+# Revision 1.20.2.2  2007/01/21 20:35:35  ncq
 # - rev is 0.2.4.rc1
 #
 # Revision 1.20.2.1  2007/01/21 20:30:41  ncq
