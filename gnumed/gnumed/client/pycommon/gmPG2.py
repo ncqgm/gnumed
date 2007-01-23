@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.31.2.1 $"
+__version__ = "$Revision: 1.31.2.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -244,6 +244,8 @@ def make_psycopg2_dsn(database=None, host=None, port=5432, user=None, password=N
 
 	if (password is not None) and (password.strip() != ''):
 		dsn_parts.append('password=%s' % password)
+
+	dsn_parts.append('sslmode=prefer')
 
 	return ' '.join(dsn_parts)
 # ------------------------------------------------------
@@ -944,7 +946,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.31.2.1  2007-01-23 13:59:22  ncq
+# Revision 1.31.2.2  2007-01-23 22:22:18  ncq
+# - set sslmode to "prefer"
+#
+# Revision 1.31.2.1  2007/01/23 13:59:22  ncq
 # - add v4 schema hash as known
 #
 # Revision 1.31  2007/01/17 13:26:02  ncq
