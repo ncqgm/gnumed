@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.302 2007-01-20 22:04:50 ncq Exp $
-__version__ = "$Revision: 1.302 $"
+# $Id: gmGuiMain.py,v 1.302.2.1 2007-01-23 14:50:21 ncq Exp $
+__version__ = "$Revision: 1.302.2.1 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -78,7 +78,7 @@ timezone = _cfg.get('backend', 'client timezone')
 if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
-expected_db_ver = u'v3'
+expected_db_ver = u'v4'
 
 #==============================================================================
 
@@ -1244,7 +1244,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.302  2007-01-20 22:04:50  ncq
+# Revision 1.302.2.1  2007-01-23 14:50:21  ncq
+# - expect v4 database at startup
+#
+# Revision 1.302  2007/01/20 22:04:50  ncq
 # - run user script after patient activation
 #
 # Revision 1.301  2007/01/17 13:39:10  ncq
