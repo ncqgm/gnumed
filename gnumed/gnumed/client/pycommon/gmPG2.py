@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -90,12 +90,14 @@ known_schema_hashes = {
 	'devel': 'not released, testing only',
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
 	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
-	'v4': 'v4 not released'
+	'v4': '4428ccf2e54c289136819e701bb095ea',
+	'v5': 'v5 not released'
 }
 
 map_schema_hash2version = {
 	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
-	'e73718eaf230d8f1d2d01afa8462e176': 'v3'
+	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
+	'4428ccf2e54c289136819e701bb095ea': 'v4'
 }
 
 # get columns and data types for a given table
@@ -942,7 +944,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.31  2007-01-17 13:26:02  ncq
+# Revision 1.32  2007-01-23 14:03:14  ncq
+# - add known v4 schema hash - backport from 0.2.4
+#
+# Revision 1.31  2007/01/17 13:26:02  ncq
 # - note on MDY/DMY handling
 # - slightly easier python datetime adaptation
 #
