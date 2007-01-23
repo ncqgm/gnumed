@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
-$Id: README,v 1.2 2005-12-04 09:29:12 ncq Exp $
+$Id: README,v 1.3 2007-01-23 21:34:58 ncq Exp $
 --------------------------------------------------------------------------
 
 The files and scripts in this directory are intended for
@@ -13,7 +13,7 @@ importing the schema definition files.
 The redo-* shell scripts set up a new GNUmed database. Any
 existing database of the same name WILL BE DROPPED.
 
-The update-* scripts upgrade an existing GNUmed database.
+The upgrade-db.sh script upgrades an existing GNUmed database.
 The original database WILL NOT BE CHANGED in any way.
 
 Bootstrapping is a rather complicated affair. Here are some
