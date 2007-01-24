@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB=gnumed_v2
+DB=gnumed_v4
 
 export PGUSER="gm-dbo"
 postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t html
@@ -19,7 +19,10 @@ dot -Tpng -o ~/gm-schemadocs/gnumed-schema.png ~/gm-schemadocs/gnumed-schema-no_
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.11  2006-01-07 09:06:24  ncq
+# Revision 1.12  2007-01-24 11:01:18  ncq
+# - document v4 schema for now
+#
+# Revision 1.11  2006/01/07 09:06:24  ncq
 # - remove audit tables from schema ER diagram
 #
 # Revision 1.10  2005/12/23 16:24:18  ncq
