@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.302 2007-01-20 22:04:50 ncq Exp $
-__version__ = "$Revision: 1.302 $"
+# $Id: gmGuiMain.py,v 1.303 2007-01-24 11:04:53 ncq Exp $
+__version__ = "$Revision: 1.303 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -78,7 +78,7 @@ timezone = _cfg.get('backend', 'client timezone')
 if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
-expected_db_ver = u'v3'
+expected_db_ver = u'v5'
 
 #==============================================================================
 
@@ -1032,7 +1032,7 @@ class gmApp(wx.App):
 
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
-		if not gmLogin.connect_to_database(expected_version = 'v3', require_version = not gmCLI.has_arg('--override-schema-check')):
+		if not gmLogin.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
@@ -1244,7 +1244,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.302  2007-01-20 22:04:50  ncq
+# Revision 1.303  2007-01-24 11:04:53  ncq
+# - use global expected_db_ver and set it to "v5"
+#
+# Revision 1.302  2007/01/20 22:04:50  ncq
 # - run user script after patient activation
 #
 # Revision 1.301  2007/01/17 13:39:10  ncq
