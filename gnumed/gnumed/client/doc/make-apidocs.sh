@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-apidocs.sh,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-BASE=~/gm-cvs-head/gnumed/gnumed/Gnumed
+BASE=~/gm-cvs-branches/HEAD/gnumed/gnumed/Gnumed
 #MODULES=" $BASE/pycommon/ $BASE/business/ $BASE/connectors/ $BASE/exporters/ $BASE/importers/ $BASE/wxpython/"
 LOG=~/gm-apidocs/epydoc-errors.txt
 
@@ -16,7 +16,10 @@ cat $LOG
 
 #============================================
 # $Log: make-apidocs.sh,v $
-# Revision 1.11  2005-12-27 17:55:01  ncq
+# Revision 1.12  2007-01-25 08:32:30  ncq
+# - fix path for salaam
+#
+# Revision 1.11  2005/12/27 17:55:01  ncq
 # - various tweaks regarding $BASE
 #
 # Revision 1.10  2005/12/23 22:52:52  ncq
