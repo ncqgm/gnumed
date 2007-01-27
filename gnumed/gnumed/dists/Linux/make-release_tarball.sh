@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.20.2.3 2007-01-23 15:46:42 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.20.2.4 2007-01-27 17:51:31 ncq Exp $
 # license: GPL
 #====================================================
-REV="0.2.4.rc2"
+REV="0.2.4.1"
 CLIENTARCH="GNUmed-client.$REV.tgz"
 SRVARCH="GNUmed-server.$REV.tgz"
 
@@ -263,7 +263,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.20.2.3  2007-01-23 15:46:42  ncq
+# Revision 1.20.2.4  2007-01-27 17:51:31  ncq
+# - bump version to 0.2.4.1
+#
+# Revision 1.20.2.3  2007/01/23 15:46:42  ncq
 # - include gm-from-cvs.sh/conf/bat
 #
 # Revision 1.20.2.2  2007/01/21 20:35:35  ncq
