@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 import sys
 
@@ -79,14 +79,14 @@ except ImportError:
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
 
-print "=> checking for Python module 'sane' ..."
-try:
-	import sane
-	print "=> found"
-except ImportError:
-	print "ERROR: sane not installed"
-	print "INFO : this is needed to access scanners on Linux"
-	print "INFO : GNUmed will work but you will be unable to scan"
+#print "=> checking for Python module 'sane' ..."
+#try:
+#	import sane
+#	print "=> found"
+#except ImportError:
+#	print "ERROR: sane not installed"
+#	print "INFO : this is needed to access scanners on Linux"
+#	print "INFO : GNUmed will work but you will be unable to scan"
 
 print "=> checking for Python module 'twain' ..."
 try:
@@ -96,14 +96,17 @@ except ImportError:
 	print "ERROR: twain not installed"
 	print "INFO : this is needed to access scanners on Windows"
 	print "INFO : GNUmed will work but you will be unable to scan"
+	print "INFO : if you are on a Windows machine"
 
 print "=> checking for GNUmed's own Python modules ..."
 try:
 	from Gnumed.pycommon import gmNull
 	print "=> found"
 except ImportError:
-	print "ERROR: GNUmed's own Python modules not found"
+	print "ERROR: GNUmed's own Python modules not installed site-wide"
 	print "ERROR: these handle most of the work in GNUmed"
+	print "INFO : it may still be possible to run GNUmed locally"
+	print "INFO : from a directory containing a CVS tree"
 	print "INFO : sys.path is set as follows:"
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
@@ -115,7 +118,11 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.13  2006-12-18 16:17:42  ncq
+# Revision 1.14  2007-01-29 11:55:05  ncq
+# - drop check for SANE python module
+# - more precise output
+#
+# Revision 1.13  2006/12/18 16:17:42  ncq
 # - do not check for pyPgSQL anymore
 #
 # Revision 1.12  2006/11/05 18:00:06  ncq
