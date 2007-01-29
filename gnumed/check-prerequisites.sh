@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 echo "-------------------------------------------------------------"
 echo "Please make sure to also read the INSTALL and README files."
@@ -44,6 +44,10 @@ echo    "-------------------------------"
 ${PYBIN} check-prerequisites.py
 
 echo ""
+echo "-------------------------------------------------"
+echo "I will now check for a few utilities which"
+echo "make working with GNUmed more productive but"
+echo "are not strictly required for standard operation."
 read -p "Press <RETURN> key to continue."
 echo    "-------------------------------"
 
@@ -65,10 +69,32 @@ else
 	echo "=> found"
 fi
 
+echo "=> checking for XMedCon DICOM viewer ..."
+BIN=`which xmedcon`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'xmedcon' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "=> found"
+fi
+
+echo "=> checking for XSane scanner frontend ..."
+BIN=`which xsane`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'xsane' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "=> found"
+fi
+
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.7  2006-08-09 14:06:27  ncq
+# Revision 1.8  2007-01-29 11:55:31  ncq
+# - improved output
+# - check for XSane and XMedCon
+#
+# Revision 1.7  2006/08/09 14:06:27  ncq
 # - make more sure output doesn't scroll off the screen
 # - add checks for file/extract commands
 #
