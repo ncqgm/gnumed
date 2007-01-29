@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -525,7 +525,8 @@ class database:
 		self.owner = _dbowner
 
 		# connect as owner to template
-		if not self.__connect_owner_to_template():
+#		if not self.__connect_owner_to_template():
+		if not self.__connect_superuser_to_template():
 			_log.Log(gmLog.lErr, "Cannot connect to template database.")
 			return None
 
@@ -552,6 +553,14 @@ class database:
 
 		return True
 	#--------------------------------------------------------------
+	def __connect_superuser_to_template(self):
+		srv = self.server
+		if self.conn is not None:
+			self.conn.close()
+
+		self.conn = connect(srv.name, srv.port, self.template_db, srv.superuser.name, srv.superuser.password)
+		return self.conn and 1
+	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
 		srv = self.server
 		if self.conn is not None:
@@ -560,20 +569,31 @@ class database:
 		self.conn = connect (srv.name, srv.port, self.name, srv.superuser.name, srv.superuser.password)
 		return self.conn and 1
 	#--------------------------------------------------------------
-	def __connect_owner_to_template(self):
-		srv = self.server
-		if self.conn is not None:
-			self.conn.close()
-
-		self.conn = connect (srv.name, srv.port, self.template_db, self.owner.name, self.owner.password)
-		return self.conn and 1
+#	def __connect_owner_to_template(self):
+#		srv = self.server
+#		if self.conn is not None:
+#			self.conn.close()
+#
+#		self.conn = connect (srv.name, srv.port, self.template_db, self.owner.name, self.owner.password)
+#		return self.conn and 1
 	#--------------------------------------------------------------
 	def __connect_owner_to_db(self):
-		srv = self.server
-		if self.conn is not None:
-			self.conn.close()
 
-		self.conn = connect (srv.name, srv.port, self.name, self.owner.name, self.owner.password) 
+		# reconnect as superuser to db
+		if not self.__connect_superuser_to_db():
+			_log.Log(gmLog.lErr, "Cannot connect to database.")
+			return False
+
+#		if self.conn is not None:
+#			self.conn.close()
+#		srv = self.server
+#		self.conn = connect (srv.name, srv.port, self.name, self.owner.name, self.owner.password)
+
+		curs = self.conn.cursor()
+		cmd = "set session authorization %(usr)s"
+		curs.execute(cmd, {'usr': self.owner.name})
+		curs.close()
+
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
@@ -603,7 +623,9 @@ class database:
 
 		# verify template database hash
 		template_version = _cfg.get(self.section, 'template version')
-		if template_version is not None:
+		if template_version is None:
+			_log.Log(gmLog.lWarn, 'cannot check template database identity hash, no version specified')
+		else:
 			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
 				_log.Log(gmLog.lErr, 'invalid template database')
 				return False
@@ -1077,7 +1099,13 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.43  2007-01-04 22:53:42  ncq
+# Revision 1.44  2007-01-29 13:02:36  ncq
+# - avoid the need for gm-dbo to be able to connect to the
+#   template and the newly created database so we don't need
+#   *pre*-installation changes to pg_hba.conf anymore
+# - log the fact when the template database version is not specified
+#
+# Revision 1.43  2007/01/04 22:53:42  ncq
 # - support verifying result hash
 #
 # Revision 1.42  2007/01/03 11:54:58  ncq
