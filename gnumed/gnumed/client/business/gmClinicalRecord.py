@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.228 2007-01-09 18:01:12 ncq Exp $
-__version__ = "$Revision: 1.228 $"
+# $Id: gmClinicalRecord.py,v 1.229 2007-01-29 11:58:53 ncq Exp $
+__version__ = "$Revision: 1.229 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1194,9 +1194,6 @@ where
 			False: no "fairly recent" encounter, create new one
 	    	True: success
 		"""
-		# if we find one will we even be able to ask the user ?
-		if _func_ask_user is None:
-			return False
 		cfg_db = gmCfg.cCfgSQL()
 		min_ttl = cfg_db.get2 (
 			option = u'encounter.minimum_ttl',
@@ -1260,7 +1257,7 @@ where
 		try:
 			attach = _func_ask_user(msg, title)
 		except:
-			_log.LogException('cannot ask user for guidance', sys.exc_info(), verbose=0)
+			_log.LogException('cannot ask user for guidance')
 			return False
 		if not attach:
 			return False
@@ -1588,7 +1585,11 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.228  2007-01-09 18:01:12  ncq
+# Revision 1.229  2007-01-29 11:58:53  ncq
+# - cleanup
+# - let _ask_user_func fail so programmers knows early
+#
+# Revision 1.228  2007/01/09 18:01:12  ncq
 # - error policy is now exceptions
 #
 # Revision 1.227  2007/01/09 12:55:29  ncq
