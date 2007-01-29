@@ -1,0 +1,90 @@
+.TH GNUMED 1 "2007 January 28" "Manual for gm_ctl_client"
+
+.SH NAME
+.B gm_ctl_client
+- GNUmed XML-RPC connector for legacy applications
+
+.SH SYNOPSIS
+.B gm_ctl_client
+.RB [--log-file=FILE]
+.RB [--conf-file=FILE]
+.RB [--text-domain=TEXTDOMAIN]
+.RB [--lang-gettext=LANGUAGE]
+
+.SH DESCRIPTION
+.B gm_ctl_client
+is a small helper program acting as a client for the XML-RPC
+API of the GNUmed client.
+
+This API can be used by 3rd-Party software to remote control
+a GNUmed client.
+
+.SH OPTIONS
+.PP
+.TP
+.B \--text-domain=TEXTDOMAIN
+Set this to change the name of the language file to be loaded.
+Note, this does not change the directory the file is searched in,
+only the name of the file where messages are loaded from. The
+standard textdomain is, of course, "gnumed.mo". You need only
+specify the base name of the file without the .mo extension.
+.TP
+.B \--log-file=FILE
+Use this to change the name of the log file. The default
+log file would be <~/.gnumed/gnumed.log>.
+.TP
+.B \--conf-file=FILE
+Use configuration file FILE instead of searching for it in
+standard locations.
+.TP
+.B \--lang-gettext=LANGUAGE
+Explicitely set the language to use in gettext translation. The very
+same effect can be achieved by setting the environment variable $LANG
+from a launcher script.
+
+
+.SH ENVIRONMENT
+.TP
+.B LANG, LC_MESSAGES, etc.
+See gettext(1) for how the various locale related environment
+variables work.
+
+
+.SH FILES
+.PP
+.TP
+.B ~/.gm_ctl_client/gm_ctl_client.log
+The default log file.
+.TP
+.B ~/.gm_ctl_client/gm_ctl_client.conf
+The default configuration file.
+
+.SH SEE ALSO
+.PP
+.TP
+.B gettext(1)
+.TP
+.B gnumed(1)
+.TP
+.B http://www.gnumed.org
+Users' website
+.TP
+.B http://www.gnumed.de
+German website
+.TP
+.B http://savannah.gnu.org/projects/gnumed
+source code repository (CVS)
+.TP
+.B http://wiki.gnumed.de
+detailed Wiki-style documentation
+
+.SH BUGS
+
+A lot of functionality is still missing. However, to make up for
+that, we deliver a plethora of bugs for your amusement :-)
+
+.SH REVISION
+
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gm_ctl_client.1,v $
+
+$Id: gm_ctl_client.1,v 1.1 2007-01-29 11:52:23 ncq Exp $
