@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.21 2007-01-24 11:05:59 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.22 2007-01-29 13:00:01 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -128,13 +128,14 @@ cp -R ../../client/business/*.py ./GNUmed-$CLIENTREV/client/business/
 
 # connectors
 mkdir -p ./GNUmed-$CLIENTREV/client/connectors/
-cp -R ../../client/connectors/xdt2gnumed.* ./GNUmed-$CLIENTREV/client/connectors/
+cp -R ../../client/connectors/gm_ctl_client.* ./GNUmed-$CLIENTREV/client/connectors/
 
 
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
+cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
 
 
 # exporters
@@ -266,7 +267,10 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.21  2007-01-24 11:05:59  ncq
+# Revision 1.22  2007-01-29 13:00:01  ncq
+# - include man page for gm_ctl_client.py
+#
+# Revision 1.21  2007/01/24 11:05:59  ncq
 # - bump client rev to 0.2.next
 # - bump server rev to v5
 # - better name for server tgz
