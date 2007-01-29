@@ -53,7 +53,11 @@ echo "   You may need to type in the password for gm-dbo."
 pg_dump -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
 echo ""
 echo "2) dropping target database if it exists ..."
-dropdb -U gm-dbo -i ${GM_CORE_DB}
+# may need to either SU to postgres or else move this into
+# the bootstrapper itself either as a failure on exist or
+# an option to drop
+dropdb -U postgres -i ${GM_CORE_DB}
+#dropdb -h 127.0.0.1 -U gm-dbo -i ${GM_CORE_DB}
 rm -rf ${LOG}
 echo ""
 echo "3) upgrading to new database ..."
