@@ -3,9 +3,10 @@
 # gnumed.py - launcher for the main GNUmed GUI client module
 #===========================================================
 
-__doc__ = """
-<gnumed.py> is the launcher for the main GNUmed GUI client. It
-is intended to be used as a standalone program.
+__doc__ = """GNUmed client launcher.
+
+This is the launcher for the GNUmed GUI client. It takes
+care of all the pre- and post-GUI runtime environment setup.
 
 --quiet
  Be extra quiet and show only _real_ errors in the log.
@@ -42,8 +43,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.106 2007-01-30 17:41:03 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gnumed.py,v 1.107 2007-01-30 17:50:14 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -473,7 +474,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.106  2007-01-30 17:41:03  ncq
+# Revision 1.107  2007-01-30 17:50:14  ncq
+# - improved doc string
+#
+# Revision 1.106  2007/01/30 17:41:03  ncq
 # - setup needed pathes in home dir of user at startup
 #
 # Revision 1.105  2006/12/21 17:54:43  ncq
