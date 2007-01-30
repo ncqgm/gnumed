@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -67,6 +67,7 @@ gmCLI_ = None
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
+# FIXME: make this cfg_HONOR_CMD_LINE and make IGNORE the default
 cfg_IGNORE_CMD_LINE = 2
 
 # don't change this without knowing what you do as
@@ -370,7 +371,7 @@ delete from cfg.cfg_item where
 	#----------------------------
 	def __make_alias(self, workplace, user, cookie, option):
 		return '%s-%s-%s-%s' % (workplace, user, cookie, option)
-#================================
+#===================================================================
 class cCfgFile:
 	"""Handle common INI-style config files.
 
@@ -675,7 +676,7 @@ class cCfgFile:
 			base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
 		else:
 			# - from given file name/dir
-			# don't try to expand give file name if
+			# don't try to expand give filen name if
 			# explicitely asked to search in standard dirs
 			if (flags & cfg_SEARCH_STD_DIRS):
 				base_name = aName
@@ -683,7 +684,7 @@ class cCfgFile:
 			else:
 				if aDir is None:
 					absName = os.path.abspath(aName)
-				else :
+				else:
 					absName = os.path.abspath(os.path.join(aDir, aName))
 				# this candidate will stay the only one
 				candidate_files.append(absName)
@@ -1113,7 +1114,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.51  2006-12-22 15:20:12  ncq
+# Revision 1.52  2007-01-30 17:38:06  ncq
+# - cleanup and a comment
+#
+# Revision 1.51  2006/12/22 15:20:12  ncq
 # - do not fail hard if config file not found, after all, user
 #   may want to set it later, but still do not hide exceptions
 #
