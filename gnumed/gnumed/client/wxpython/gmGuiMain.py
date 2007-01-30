@@ -1,8 +1,10 @@
 # -*- coding: iso-8859-1 -*-
-"""GNUmed GUI client
+"""GNUmed GUI client.
 
-The application framework and main window of the
-all signing all dancing GNUmed reference client.
+This contains the GUI application framework and main window
+of the all signing all dancing GNUmed Python Reference
+client. It relies on the <gnumed.py> launcher having set up
+the non-GUI-related runtime environment.
 
 This source code is protected by the GPL licensing scheme.
 Details regarding the GPL are available at http://www.gnu.org
@@ -13,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.303 2007-01-24 11:04:53 ncq Exp $
-__version__ = "$Revision: 1.303 $"
+# $Id: gmGuiMain.py,v 1.304 2007-01-30 17:53:29 ncq Exp $
+__version__ = "$Revision: 1.304 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,7 +53,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmClinicalRecord
 from Gnumed.exporters import gmPatientExporter
 
 try:
@@ -201,11 +203,9 @@ class gmTopLevelFrame(wx.Frame):
 		else:
 			self.__title_template = 'GNUmed [%s%s.%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
-		self.__setup_platform()
 		#  let others have access, too
 		self.__gb['main.SetWindowTitle'] = self.updateTitle
 		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
-#		self.LayoutMgr = gmRichardSpace.cLayoutMgr(self, -1)
 		# set window icon
 		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
 		icon = wx.EmptyIcon()
@@ -252,20 +252,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (width, height))
  		self.SetClientSize(wx.Size(width, height))
-	#----------------------------------------------
-	def __setup_platform(self):
-		#do the platform dependent stuff
-		if wx.Platform == '__WXMSW__':
-			#windoze specific stuff here
-			_log.Log(gmLog.lInfo,'running on MS Windows')
-		elif wx.Platform == '__WXGTK__':
-			#GTK (Linux etc.) specific stuff here
-			_log.Log(gmLog.lInfo,'running on GTK (probably Linux)')
-		elif wx.Platform == '__WXMAC__':
-			#Mac OS specific stuff here
-			_log.Log(gmLog.lInfo,'running on Mac OS')
-		else:
-			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------
 	def __setup_accelerators(self):
 		self.acctbl.append ((wx.ACCEL_ALT | wx.ACCEL_CTRL, ord('X'), wx.ID_EXIT))
@@ -1007,6 +993,8 @@ class gmApp(wx.App):
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
+		self.user_preferences_file = os.path.join('~', '.gnumed', 'user-preferences.conf')
+
 		self.__setup_platform()
 
 		# check for slave mode
@@ -1087,10 +1075,12 @@ class gmApp(wx.App):
 		return True
 	#----------------------------------------------
 	def _do_after_init(self):
-		# 1) raise default plugin
-		# 2) load external patients
+		# - setup GUI callback in clinical record
+		gmClinicalRecord.set_func_ask_user(a_func = gmGuiHelpers.gm_show_question)
+		# - raise startup-default plugin (done in cTopLevelFrame)
+		# - load external patients
 		gmPatSearchWidgets.load_patient_from_external_sources(self.GetTopWindow())
-		# 3) set focus to patient search widget
+		# - set focus to patient search widget
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -1112,12 +1102,18 @@ class gmApp(wx.App):
 	# internal helpers
 	#----------------------------------------------
 	def __setup_platform(self):
-#		if wx.Platform == '__WXMSW__':
-			# windoze specific stuff here
-#			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
-			# need to explicitely init image handlers on windows
-#			wx.InitAllImageHandlers()
-		pass
+		#do the platform dependent stuff
+		if wx.Platform == '__WXMSW__':
+			#windoze specific stuff here
+			_log.Log(gmLog.lInfo,'running on MS Windows')
+		elif wx.Platform == '__WXGTK__':
+			#GTK (Linux etc.) specific stuff here
+			_log.Log(gmLog.lInfo,'running on GTK (probably Linux)')
+		elif wx.Platform == '__WXMAC__':
+			#Mac OS specific stuff here
+			_log.Log(gmLog.lInfo,'running on Mac OS')
+		else:
+			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
@@ -1180,8 +1176,12 @@ class gmApp(wx.App):
 				"with the database locale will be ignored.",
 				"Remove this option if you want to stop ignoring mismatches.",
 			]
-			_cfg.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
-			_cfg.store()
+			prefs = gmCfg.cCfgFile (
+				aFile = self.user_preferences_file,
+				flags = gmCfg.cfg_IGNORE_CMD_LINE
+			)
+			prefs.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
+			prefs.store()
 			return True
 
 		# try setting database language (only possible if translation exists)
@@ -1244,7 +1244,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.303  2007-01-24 11:04:53  ncq
+# Revision 1.304  2007-01-30 17:53:29  ncq
+# - improved doc string
+# - cleanup
+# - use user preferences file for saving locale mismatch ignoring
+#
+# Revision 1.303  2007/01/24 11:04:53  ncq
 # - use global expected_db_ver and set it to "v5"
 #
 # Revision 1.302  2007/01/20 22:04:50  ncq
