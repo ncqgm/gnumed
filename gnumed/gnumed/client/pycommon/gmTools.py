@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.12 2007-01-20 22:04:01 ncq Exp $
+# $Id: gmTools.py,v 1.13 2007-01-30 17:38:28 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,6 +21,14 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
+#===========================================================================
+def mkdir(directory=None):
+	try:
+		os.makedirs(directory)
+	except OSError, e:
+		if (e.errno == 17) and not os.path.isdir(directory):
+			raise
+	return True
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None):
 	"""Import a module from any location."""
@@ -263,17 +271,25 @@ if __name__ == '__main__':
 		print dir(mod)
 		return True
 	#-----------------------------------------------------------------------
+	def test_mkdir():
+		print "testing mkdir()"
+		mkdir(sys.argv[1])
+	#-----------------------------------------------------------------------
 	print __doc__
 
 	#test_str2interval()
 	#test_coalesce()
 	#test_capitalize()
 	#test_open_uri_in_ooo()
-	test_import_module()
+	#test_import_module()
+	test_mkdir()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.12  2007-01-20 22:04:01  ncq
+# Revision 1.13  2007-01-30 17:38:28  ncq
+# - add mkdir() and a test for it
+#
+# Revision 1.12  2007/01/20 22:04:01  ncq
 # - strip ".py" from script name if it is there
 #
 # Revision 1.11  2007/01/18 12:46:30  ncq
