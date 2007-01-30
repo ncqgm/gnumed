@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.73 2006-12-21 16:54:32 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmLoginDialog.py,v 1.74 2007-01-30 17:40:22 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,7 +16,7 @@ import os.path, time, cPickle, zlib, types
 
 import wx
 
-from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull
+from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull, gmTools
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.business import gmPerson
 
@@ -33,7 +33,7 @@ class cLoginParamChoices:
 		self.password = ''
 		self.profilelist = [_('default fallback: public GNUmed database')]
 		self.profiles = {
-			_('default fallback: public GNUmed database'): {'host': 'salaam.homeunix.com', 'port': 5432, 'database': 'gnumed_v2'}
+			_('default fallback: public GNUmed database'): {'host': 'salaam.homeunix.com', 'port': 5432, 'database': 'gnumed_v5'}
 		}
 
 #====================================================
@@ -93,27 +93,15 @@ class LoginPanel(wx.Panel):
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wx.StaticBoxSizer( self.paramsbox, wx.VERTICAL )
 		self.paramsbox.SetForegroundColour(wx.Colour(35, 35, 142))
-		# FIXME: can we get around this ugly IFDEF ?
-		if wx.Platform == '__WXMAC__':
-			# on wxMac there seems to be no faceName option so don't use it
-			self.paramsbox.SetFont(wx.Font(
-				pointSize = 12,
-				family = wx.SWISS,
-				style = wx.NORMAL,
-				weight = wx.BOLD,
-				underline = False
-			))
-		else:
-			self.paramsbox.SetFont(wx.Font(
-				pointSize = 12,
-				family = wx.SWISS,
-				style = wx.NORMAL,
-				weight = wx.BOLD,
-				underline = False,
-				faceName = ''
-			))
+		self.paramsbox.SetFont(wx.Font(
+			pointSize = 12,
+			family = wx.SWISS,
+			style = wx.NORMAL,
+			weight = wx.BOLD,
+			underline = False
+		))
 		self.pboxgrid = wx.FlexGridSizer( 4, 2, 5, 5 )
-		self.pboxgrid.AddGrowableCol( 1 )
+		self.pboxgrid.AddGrowableCol(1)
 
 		# PROFILE COMBO
 		label = wx.StaticText( self, -1, _("Profile"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -128,7 +116,7 @@ class LoginPanel(wx.Panel):
 			self.loginparams.profilelist,
 			wx.CB_READONLY
 		)
-		self.pboxgrid.Add (self.profilecombo, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.pboxgrid.Add (self.profilecombo, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
 		# USER NAME COMBO
 		label = wx.StaticText( self, -1, _("Username"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -199,6 +187,9 @@ class LoginPanel(wx.Panel):
 		self.topsizer.Add(self.paramsboxsizer, 1, wx.GROW|wx.ALL, 10)
 		self.topsizer.Add( self.button_gridsizer, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
+		self.user_preferences_file = os.path.expanduser(os.path.join('~', '.gnumed', 'user-preferences.conf'))
+		self.__load_settings()
+
 		self.SetAutoLayout(True)
 		self.SetSizer( self.topsizer)
 		self.topsizer.Fit( self )
@@ -209,9 +200,9 @@ class LoginPanel(wx.Panel):
 		wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.OnLogin)
 		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
 
-	#----------------------------
+	#----------------------------------------------------------
 	# internal helper methods
-	#----------------------------
+	#----------------------------------------------------------
 	def __load_login_param_choices(self):
 		"""Load parameter settings from standard configuration file"""
 		# initialize login parameters
@@ -310,14 +301,44 @@ class LoginPanel(wx.Panel):
 			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
 
 		return self.loginparams
-	#----------------------------
+	#----------------------------------------------------
+	def __load_settings(self):
+
+		prefs = gmCfg.cCfgFile (
+			aFile = self.user_preferences_file,
+			flags = gmCfg.cfg_IGNORE_CMD_LINE
+		)
+
+		self.usercombo.SetValue (
+			gmTools.coalesce (
+				prefs.get('preferences', 'login'),
+				self.loginparams.userlist[0]
+			)
+		)
+
+		self.profilecombo.SetValue (
+			gmTools.coalesce (
+				prefs.get('preferences', 'profile'),
+				self.loginparams.profilelist[0]
+			)
+		)
+	#----------------------------------------------------
 	def save_settings(self):
 		"""Save parameter settings to standard configuration file"""
 
-		_cfg.set('backend', 'logins', self.__cbox_to_list(self.usercombo))
-		_cfg.set('backend', 'profiles', self.__cbox_to_list(self.profilecombo))
+		print "*** saving settings ******"
 
-		_cfg.store()
+		prefs = gmCfg.cCfgFile (
+			aFile = self.user_preferences_file,
+			flags = gmCfg.cfg_IGNORE_CMD_LINE
+		)
+		prefs.set('preferences', 'login', self.usercombo.GetValue())
+		prefs.set('preferences', 'profile', self.profilecombo.GetValue())
+		prefs.store()
+
+#		_cfg.set('backend', 'logins', self.__cbox_to_list(self.usercombo))
+#		_cfg.set('backend', 'profiles', self.__cbox_to_list(self.profilecombo))
+#		_cfg.store()
 	#----------------------------
 	def __cbox_to_list(self, aComboBox):
 		"""returns all items in a combo box as list; the value of the text box as first item."""
@@ -468,7 +489,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.73  2006-12-21 16:54:32  ncq
+# Revision 1.74  2007-01-30 17:40:22  ncq
+# - cleanup, get rid of wxMAC IFDEF
+# - use user preferences file for storing login preferences
+#
+# Revision 1.73  2006/12/21 16:54:32  ncq
 # - inage handlers already inited
 #
 # Revision 1.72  2006/12/15 15:27:28  ncq
