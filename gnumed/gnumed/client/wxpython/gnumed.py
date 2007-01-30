@@ -42,8 +42,8 @@ is intended to be used as a standalone program.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.105 2006-12-21 17:54:43 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gnumed.py,v 1.106 2007-01-30 17:41:03 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -177,12 +177,27 @@ def setup_locale():
 
 	return True
 #==========================================================
+def setup_pathes():
+	"""Create needed pathes in user home directory."""
+
+	from Gnumed.pycommon import gmTools
+
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'docs')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
+
+	user_preferences_file = os.path.expanduser(os.path.join('~', '.gnumed', 'user-preferences.conf'))
+	open(user_preferences_file, 'a+b').close()
+#==========================================================
 def setup_date_time():
 	from Gnumed.pycommon import gmDateTime
+
 	gmDateTime.init()
 #==========================================================
 def setup_cfg_file():
 	from Gnumed.pycommon import gmCfg, gmNull
+
 	if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
 		if gmCfg.create_default_cfg_file():
 			# now that we got the file we can reopen it as a config file :-)
@@ -197,6 +212,7 @@ def setup_cfg_file():
 		else:
 			print "GNUmed startup: Cannot open or create config file by any means.\nPlease see the log for details."
 			sys.exit(0)
+
 	global _cfg
 	_cfg = gmCfg.gmDefCfgFile
 #==========================================================
@@ -382,6 +398,7 @@ _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
 
+setup_pathes()
 setup_date_time()
 setup_cfg_file()
 
@@ -456,7 +473,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.105  2006-12-21 17:54:43  ncq
+# Revision 1.106  2007-01-30 17:41:03  ncq
+# - setup needed pathes in home dir of user at startup
+#
+# Revision 1.105  2006/12/21 17:54:43  ncq
 # - init date/time handling early on
 #
 # Revision 1.104  2006/11/15 00:40:35  ncq
