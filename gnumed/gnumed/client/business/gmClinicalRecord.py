@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.229 2007-01-29 11:58:53 ncq Exp $
-__version__ = "$Revision: 1.229 $"
+# $Id: gmClinicalRecord.py,v 1.230 2007-01-31 23:30:33 ncq Exp $
+__version__ = "$Revision: 1.230 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -33,7 +33,7 @@ import sys, string, time, copy
 # 3rd party
 import mx.DateTime as mxDT
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N, gmCfg
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
 _log = gmLog.gmDefLog
@@ -1174,12 +1174,13 @@ where
 			select pk_encounter
 			from clin.v_most_recent_encounters
 			where
-				pk_patient=%s
+				pk_patient = %s
 					and
 				last_affirmed > (now() - %s::interval)"""
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
+			_log.Log(gmLog.lData, 'no <very recent> encounter (younger than [%s]) found' % min_ttl)
 			return False
 		# attach to existing
 		self.__encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
@@ -1214,43 +1215,42 @@ where
 				pk_patient=%s
 					and
 				last_affirmed between (now() - %s::interval) and (now() - %s::interval)"""
-		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl, max_ttl]}])
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
+			_log.Log(gmLog.lData, 'no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
 			return False
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		# ask user whether to attach or not
 		cmd = u"""
 			select title, firstnames, lastnames, gender, dob
-			from clin.v_basic_person where pk_identity=%s"""
+			from dem.v_basic_person where pk_identity=%s"""
 		pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
-		if len(pats) == 0:
-			return False
 		pat_str = '%s %s %s (%s), %s, #%s' % (
-			pat[0][0][:5],
-			pat[0][1][:12],
-			pat[0][2][:12],
-			pat[0][3],
-			pat[0][4].strftime('%Y-%m-%d'),
+			pats[0][0][:5],
+			pats[0][1][:15],
+			pats[0][2][:15],
+			pats[0][3],
+			pats[0][4].strftime('%Y-%m-%d'),
 			self.pk_patient
 		)
 		msg = _(
 			'A fairly recent encounter exists for patient:\n'
 			' %s\n'
-			'started  : %s\n'
-			'type     : %s\n'
-			'RFE      : %s\n'
-			'affirmed : %s\n'
-			'AOE      : %s\n\n'
-			'Do you want to reactivate this encounter ?\n'
+			'started: %s\n'
+			'affirmed: %s\n'
+			'type: %s\n'
+			'RFE: %s\n'
+			'AOE: %s\n\n'
+			'Do you want to reactivate this encounter ?\n\n'
 			'Hitting "No" will start a new one.'
 		) % (
 			pat_str,
-			encounter['started'],
+			encounter['started'].strftime('%x %X'),
+			encounter['last_affirmed'].strftime('%x %X'),
 			encounter['l10n_type'],
-			encounter['reason_for_encounter'],
-			encounter['last_affirmed'],
-			encounter['assessment_of_encounter']
+			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
+			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
 		)
 		title = _('recording patient encounter')
 		attach = False
@@ -1585,7 +1585,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.229  2007-01-29 11:58:53  ncq
+# Revision 1.230  2007-01-31 23:30:33  ncq
+# - fix __activate_fairly_recent_encounter()
+#
+# Revision 1.229  2007/01/29 11:58:53  ncq
 # - cleanup
 # - let _ask_user_func fail so programmers knows early
 #
