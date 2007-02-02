@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.20.2.5 2007-02-02 11:22:12 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.20.2.6 2007-02-02 11:52:28 ncq Exp $
 # license: GPL
 #====================================================
-REV="0.2.4.1"
+REV="0.2.4.2"
 CLIENTARCH="GNUmed-client.$REV.tgz"
 SRVARCH="GNUmed-server.$REV.tgz"
 
@@ -273,7 +273,10 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.20.2.5  2007-02-02 11:22:12  ncq
+# Revision 1.20.2.6  2007-02-02 11:52:28  ncq
+# - bump to 0.2.4.2
+#
+# Revision 1.20.2.5  2007/02/02 11:22:12  ncq
 # - include __init__.py under /server/ so we can actually import from there
 # - it helps to include the SQL scripts which actually convert v3 to v4
 #
