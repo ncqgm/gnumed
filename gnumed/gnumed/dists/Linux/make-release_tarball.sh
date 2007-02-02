@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.20.2.4 2007-01-27 17:51:31 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.20.2.5 2007-02-02 11:22:12 ncq Exp $
 # license: GPL
 #====================================================
 REV="0.2.4.1"
@@ -204,6 +204,7 @@ echo "============"
 mkdir -p ./GNUmed-$REV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/server/
 cp -R ../../server/backup-gnumed-database.sh ./GNUmed-$REV/server/
+cp -R ../../client/__init__.py ./GNUmed-$REV/server/
 
 
 # pycommon
@@ -230,6 +231,7 @@ mkdir -p ./GNUmed-$REV/server/sql/country.specific/es
 cp -R ../../server/sql/country.specific/es/*.sql ./GNUmed-$REV/server/sql/country.specific/es
 mkdir -p ./GNUmed-$REV/server/sql/test-data
 cp -R ../../server/sql/test-data/*.sql ./GNUmed-$REV/server/sql/test-data
+
 mkdir -p ./GNUmed-$REV/server/sql/v2-v3
 mkdir -p ./GNUmed-$REV/server/sql/v2-v3/dynamic
 cp -R ../../server/sql/v2-v3/dynamic/*.sql ./GNUmed-$REV/server/sql/v2-v3/dynamic
@@ -237,6 +239,14 @@ mkdir -p ./GNUmed-$REV/server/sql/v2-v3/static
 cp -R ../../server/sql/v2-v3/static/*.sql ./GNUmed-$REV/server/sql/v2-v3/static
 mkdir -p ./GNUmed-$REV/server/sql/v2-v3/superuser
 cp -R ../../server/sql/v2-v3/superuser/*.sql ./GNUmed-$REV/server/sql/v2-v3/superuser
+
+mkdir -p ./GNUmed-$REV/server/sql/v3-v4
+mkdir -p ./GNUmed-$REV/server/sql/v3-v4/dynamic
+cp -R ../../server/sql/v3-v4/dynamic/*.sql ./GNUmed-$REV/server/sql/v3-v4/dynamic
+mkdir -p ./GNUmed-$REV/server/sql/v3-v4/static
+cp -R ../../server/sql/v3-v4/static/*.sql ./GNUmed-$REV/server/sql/v3-v4/static
+mkdir -p ./GNUmed-$REV/server/sql/v3-v4/superuser
+cp -R ../../server/sql/v3-v4/superuser/*.sql ./GNUmed-$REV/server/sql/v3-v4/superuser
 
 
 #----------------------------------
@@ -263,7 +273,11 @@ rm -R ./GNUmed-$REV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.20.2.4  2007-01-27 17:51:31  ncq
+# Revision 1.20.2.5  2007-02-02 11:22:12  ncq
+# - include __init__.py under /server/ so we can actually import from there
+# - it helps to include the SQL scripts which actually convert v3 to v4
+#
+# Revision 1.20.2.4  2007/01/27 17:51:31  ncq
 # - bump version to 0.2.4.1
 #
 # Revision 1.20.2.3  2007/01/23 15:46:42  ncq
