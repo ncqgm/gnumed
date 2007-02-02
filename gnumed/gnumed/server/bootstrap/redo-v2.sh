@@ -1,9 +1,9 @@
 #!/bin/sh
 
 cd ../../
-ln -vfsn client Gnumed
+ln -vfsn server Gnumed
 cd -
-export PYTHONPATH="${PYTHONPATH}:../../"
+export PYTHONPATH="../../:${PYTHONPATH}"
 
 VER="2"
 LOG="redo-v${VER}.log"

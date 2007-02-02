@@ -15,9 +15,9 @@
 # ========================================================
 
 cd ../../
-ln -vfsn client Gnumed
+ln -vfsn server Gnumed
 cd -
-export PYTHONPATH="${PYTHONPATH}:../../"
+export PYTHONPATH="../../:${PYTHONPATH}"
 
 PREV_VER="$1"
 VER="$2"
