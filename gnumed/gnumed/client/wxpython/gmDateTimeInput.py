@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.49 2006-12-21 10:54:18 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmDateTimeInput.py,v 1.50 2007-02-04 15:51:00 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -107,9 +107,9 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		kwargs['aMatchProvider'] = cMatchProvider_FuzzyTimestamp()
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.allow_multiple_phrases(False)
+		self.phrase_separators = None
 		self.selection_only = False
-		self.set_snap_to_first_match(True)
+#		self.set_snap_to_first_match(True)
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -160,9 +160,9 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	def SetData(self, data=None):
 		self.data = data
 		if data is not None:
-			gmPhraseWheel.cPhraseWheel.SetValue(self, self.data.format_accurately())
+			gmPhraseWheel.cPhraseWheel.SetText(self, value = self.data.format_accurately(), data=data)
 		else:
-			gmPhraseWheel.cPhraseWheel.SetValue(self, '')
+			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
 	#--------------------------------------------------------
 	def SetValue(self, val, data=None):
 		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
@@ -221,7 +221,12 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.49  2006-12-21 10:54:18  ncq
+# Revision 1.50  2007-02-04 15:51:00  ncq
+# - no more snap_to_first_match
+# - use SetText()
+# - explicetly unset phrase separators
+#
+# Revision 1.49  2006/12/21 10:54:18  ncq
 # - add SetData
 #
 # Revision 1.48  2006/11/27 23:14:33  ncq
