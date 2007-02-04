@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.14 2007-02-04 15:33:28 ncq Exp $
+# $Id: gmTools.py,v 1.15 2007-02-04 16:29:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -305,8 +305,8 @@ if __name__ == '__main__':
 			print word, capitalize(word)
 
 		pairs = [
-			['fahrner-Kampe', 'Fahrner-Kampe', CAPS_NAMES],
-			['häkkönen', 'Häkkönen', CAPS_NAMES]
+			[u'fahrner-Kampe', u'Fahrner-Kampe', CAPS_NAMES],
+			[u'häkkönen', u'Häkkönen', CAPS_NAMES]
 		]
 		for pair in pairs:
 			result = capitalize(pair[0], pair[2])
@@ -344,7 +344,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.14  2007-02-04 15:33:28  ncq
+# Revision 1.15  2007-02-04 16:29:51  ncq
+# - make umlauts u''
+#
+# Revision 1.14  2007/02/04 15:33:28  ncq
 # - enhance capitalize() and add mode CONSTS for it
 #   - however, CAPS_NAMES for now maps to CAPS_FIRST until fixed for Heller-Brunner
 # - slightly improved test suite for it
