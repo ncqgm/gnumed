@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.88 2007-01-15 20:22:46 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmSOAPWidgets.py,v 1.89 2007-02-04 16:14:23 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -115,7 +115,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			id = id,
 			pos = pos,
 			size = size,
-			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER | wx.VSCROLL | wx.HSCROLL,
+			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER,
 			name = self.__class__.__name__
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -1064,7 +1064,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.88  2007-01-15 20:22:46  ncq
+# Revision 1.89  2007-02-04 16:14:23  ncq
+# - remove VSCROLL/HSCROLL for Mac
+#
+# Revision 1.88  2007/01/15 20:22:46  ncq
 # - move_episode_to_issue() is in gmEMRStructWidgets
 #
 # Revision 1.87  2007/01/15 13:05:38  ncq
