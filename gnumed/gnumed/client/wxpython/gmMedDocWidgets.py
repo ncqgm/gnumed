@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.110 2007-01-18 22:13:37 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmMedDocWidgets.py,v 1.111 2007-02-04 15:55:14 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -218,15 +218,15 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		# associated episode (add " " to avoid popping up pick list)
-		self._PhWheel_episode.SetValue('%s ' % self.__part['episode'], self.__part['pk_episode'])
-		self._PhWheel_doc_type.SetValue(value = self.__part['l10n_type'], data = self.__part['pk_type'])
+		self._PhWheel_episode.SetText('%s ' % self.__part['episode'], self.__part['pk_episode'])
+		self._PhWheel_doc_type.SetText(value = self.__part['l10n_type'], data = self.__part['pk_type'])
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
-		self._PRW_doc_comment.SetValue(self.__part['doc_comment'])
+		self._PRW_doc_comment.SetText(self.__part['doc_comment'])
 		self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
-		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
+		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		if self.__part['ext_ref'] is not None:
 			self._TCTRL_reference.SetValue(self.__part['ext_ref'])
 
@@ -450,17 +450,17 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		# -----------------------------
-		self._PhWheel_episode.SetValue('')
-		self._PhWheel_doc_type.SetValue('')
+		self._PhWheel_episode.SetText('')
+		self._PhWheel_doc_type.SetText('')
 		# -----------------------------
 		# FIXME: make this configurable: either now() or last_date()
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
-		self._PhWheel_doc_date.SetValue(fts.strftime('%Y-%m-%d'), fts)
-		self._PRW_doc_comment.SetValue('')
+		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
+		self._PRW_doc_comment.SetText('')
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
 		me = gmPerson.gmCurrentProvider()
-		self._PhWheel_reviewer.SetValue (
+		self._PhWheel_reviewer.SetText (
 			value = u'%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
 		)
@@ -1369,7 +1369,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.110  2007-01-18 22:13:37  ncq
+# Revision 1.111  2007-02-04 15:55:14  ncq
+# - use SetText()
+#
+# Revision 1.110  2007/01/18 22:13:37  ncq
 # - tell user when we expand a folder to extract files
 #
 # Revision 1.109  2007/01/17 14:01:56  ncq

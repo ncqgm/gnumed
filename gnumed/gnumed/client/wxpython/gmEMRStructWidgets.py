@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.46 2007-01-15 20:22:09 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmEMRStructWidgets.py,v 1.47 2007-02-04 15:53:58 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -134,19 +134,19 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._LCTRL_problems.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
 			self._LCTRL_problems.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)		# wx.LIST_AUTOSIZE_USEHEADER
 
-		self._PRW_encounter_type.SetValue(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
+		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
 			timestamp = self.__encounter['started'],
 			accuracy = gmFuzzyTimestamp.acc_minutes
 		)
-		self._PRW_start.SetValue(fts.format_accurately(), data=fts)
+		self._PRW_start.SetText(fts.format_accurately(), data=fts)
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
 			timestamp = self.__encounter['last_affirmed'],
 			accuracy = gmFuzzyTimestamp.acc_minutes
 		)
-		self._PRW_end.SetValue(fts.format_accurately(), data=fts)
+		self._PRW_end.SetText(fts.format_accurately(), data=fts)
 
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(self.__encounter['reason_for_encounter'], ''))
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
@@ -469,9 +469,9 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 		self._TCTRL_patient.SetValue(ident.get_description())
 
 		if self.__episode['pk_health_issue'] is not None:
-			self._PRW_issue.SetValue(self.__episode['health_issue'], data=self.__episode['pk_health_issue'])
+			self._PRW_issue.SetText(self.__episode['health_issue'], data=self.__episode['pk_health_issue'])
 
-		self._PRW_description.SetValue(self.__episode['description'], data=self.__episode['description'])
+		self._PRW_description.SetText(self.__episode['description'], data=self.__episode['description'])
 
 		self._CHBOX_closed.SetValue(not self.__episode['episode_open'])
 	#------------------------------------------------------------
@@ -691,7 +691,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		str_age = self._PRW_age_noted.GetValue().strip()
 
 		if str_age == '':
-			wx.CallAfter(self._PRW_year_noted.SetValue, '')
+			wx.CallAfter(self._PRW_year_noted.SetText, '')
 			return True
 
 		age = gmTools.str2interval(str_interval = str_age)
@@ -707,7 +707,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
 			self._PRW_age_noted.Refresh()
-			wx.CallAfter(self._PRW_year_noted.SetValue, '')
+			wx.CallAfter(self._PRW_year_noted.SetText, '')
 			return True
 
 		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
@@ -718,7 +718,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			timestamp = ident['dob'] + age,
 			accuracy = gmFuzzyTimestamp.acc_months
 		)
-		wx.CallAfter(self._PRW_year_noted.SetValue, str(fts), fts)
+		wx.CallAfter(self._PRW_year_noted.SetText, str(fts), fts)
 		# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
 		#wx.CallAfter(self._ChBOX_active.SetFocus)
 		# if we do the following instead it will take us to the save/update button ...
@@ -732,7 +732,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		if year_noted is None:
 			if self._PRW_year_noted.GetValue().strip() == '':
-				wx.CallAfter(self._PRW_age_noted.SetValue, '')
+				wx.CallAfter(self._PRW_age_noted.SetText, '')
 				return True
 
 		year_noted = year_noted.get_pydt()
@@ -741,7 +741,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			gmGuiHelpers.gm_statustext(_('Condition diagnosed in the future.'))
 			self._PRW_year_noted.SetBackgroundColour('pink')
 			self._PRW_year_noted.Refresh()
-			wx.CallAfter(self._PRW_age_noted.SetValue, '')
+			wx.CallAfter(self._PRW_age_noted.SetText, '')
 			return True
 
 		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
@@ -751,20 +751,20 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		ident = pat.get_identity()
 		age = year_noted - ident['dob']
 		str_age = gmPerson.format_age_medically(age)
-		wx.CallAfter(self._PRW_age_noted.SetValue, str_age, age)
+		wx.CallAfter(self._PRW_age_noted.SetText, str_age, age)
 
 		return True
 	#--------------------------------------------------------
 	def _on_modified_age_noted(self, *args, **kwargs):
 		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		#self._PRW_year_noted.Refresh()
-		wx.CallAfter(self._PRW_year_noted.SetValue, '', None)
+		wx.CallAfter(self._PRW_year_noted.SetText, '', None)
 		return True
 	#--------------------------------------------------------
 	def _on_modified_year_noted(self, *args, **kwargs):
 		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		#self._PRW_age_noted.Refresh()
-		wx.CallAfter(self._PRW_age_noted.SetValue, '', None)
+		wx.CallAfter(self._PRW_age_noted.SetText, '', None)
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -785,12 +785,12 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_age_noted.Refresh()
 
 		if self.__issue is None:
-			self._PRW_condition.SetValue('')
+			self._PRW_condition.SetText('')
 			self._ChBOX_left.SetValue(0)
 			self._ChBOX_right.SetValue(0)
 			self._TCTRL_notes.SetValue('')
-			self._PRW_age_noted.SetValue('')
-			self._PRW_year_noted.SetValue('')
+			self._PRW_age_noted.SetText('')
+			self._PRW_year_noted.SetText('')
 			self._ChBOX_active.SetValue(0)
 			self._ChBOX_relevant.SetValue(1)
 			self._ChBOX_is_operation.SetValue(0)
@@ -801,7 +801,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if not isinstance(self.__issue, gmEMRStructItems.cHealthIssue):
 			raise ValueError('[%s].refresh(): expected gmEMRStructItems.cHealthIssue instance, got [%s] instead' % (self.__class__.__name__, self.__issue))
 
-		self._PRW_condition.SetValue(self.__issue['description'])
+		self._PRW_condition.SetText(self.__issue['description'])
 		lat = gmTools.coalesce(self.__issue['laterality'], '')
 		if lat.find('s') == -1:
 			self._ChBOX_left.SetValue(0)
@@ -813,9 +813,9 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			self._ChBOX_right.SetValue(1)
 		self._TCTRL_notes.SetValue('')
 		if self.__issue['age_noted'] is None:
-			self._PRW_age_noted.SetValue('')
+			self._PRW_age_noted.SetText('')
 		else:
-			self._PRW_age_noted.SetValue (
+			self._PRW_age_noted.SetText (
 				value = '%sd' % self.__issue['age_noted'].days,
 				data = self.__issue['age_noted']
 			)
@@ -1432,7 +1432,7 @@ class cEpisodeEditor(wx.Panel):
 		sel_idx = self.__LST_episodes.GetItemData(event.m_itemIndex)
 		self.__selected_episode = self.__episodes[sel_idx]
 		print 'Selected episode: ', self.__selected_episode
-		self.__PRW_description.SetValue(self.__selected_episode['description'])
+		self.__PRW_description.SetText(self.__selected_episode['description'])
 		self.__BTN_add.SetLabel(_('Update'))
 		self.__BTN_clear.SetLabel(_('Cancel'))
 		event.Skip()
@@ -1696,7 +1696,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.46  2007-01-15 20:22:09  ncq
+# Revision 1.47  2007-02-04 15:53:58  ncq
+# - use SetText()
+#
+# Revision 1.46  2007/01/15 20:22:09  ncq
 # - fix several bugs in move_episode_to_issue()
 #
 # Revision 1.45  2007/01/15 13:02:26  ncq
