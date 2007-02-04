@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -178,7 +178,7 @@ class gmAllergyEditArea(gmEditArea.cEditArea):
 		"""
 		if allergy is None:
 			self.data = None
-			self.fld_date_noted.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
+			self.fld_date_noted.SetText((value=time.strftime('%Y-%m-%d', data=time.localtime())))
 			self.fld_substance.SetValue('')
 			self.fld_generic.SetValue('')
 			self.fld_generic_specific.SetValue(0)
@@ -352,7 +352,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.17  2006-10-25 07:46:44  ncq
+# Revision 1.18  2007-02-04 15:49:31  ncq
+# - use SetText() on phrasewheel
+#
+# Revision 1.17  2006/10/25 07:46:44  ncq
 # - Format() -> strftime() since datetime.datetime does not have .Format()
 #
 # Revision 1.16  2006/10/24 13:20:57  ncq
