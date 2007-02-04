@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.304 2007-01-30 17:53:29 ncq Exp $
-__version__ = "$Revision: 1.304 $"
+# $Id: gmGuiMain.py,v 1.305 2007-02-04 17:30:08 ncq Exp $
+__version__ = "$Revision: 1.305 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -993,7 +993,7 @@ class gmApp(wx.App):
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
-		self.user_preferences_file = os.path.join('~', '.gnumed', 'user-preferences.conf')
+		self.user_preferences_file = os.path.expanduser(os.path.join('~', '.gnumed', 'user-preferences.conf'))
 
 		self.__setup_platform()
 
@@ -1244,7 +1244,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.304  2007-01-30 17:53:29  ncq
+# Revision 1.305  2007-02-04 17:30:08  ncq
+# - need to expand ~/ appropriately
+#
+# Revision 1.304  2007/01/30 17:53:29  ncq
 # - improved doc string
 # - cleanup
 # - use user preferences file for saving locale mismatch ignoring
