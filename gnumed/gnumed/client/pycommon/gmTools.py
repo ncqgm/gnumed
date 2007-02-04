@@ -1,9 +1,10 @@
+# -*- coding: latin1 -*-
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.15 2007-02-04 16:29:51 ncq Exp $
+# $Id: gmTools.py,v 1.16 2007-02-04 16:43:01 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -301,10 +302,15 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_capitalize():
 		print 'testing capitalize()'
-		for word in ['Boot', 'boot', 'booT', 'boots-Schau', 'boot camp']:
-			print word, capitalize(word)
-
+		print '--------------------'
 		pairs = [
+			[u'Boot', u'Boot', CAPS_FIRST_ONLY],
+			[u'boot', u'Boot', CAPS_FIRST_ONLY],
+			[u'booT', u'Boot', CAPS_FIRST_ONLY],
+			[u'BoOt', u'Boot', CAPS_FIRST_ONLY],
+			[u'boots-Schau', u'Boots-Schau', CAPS_WORDS],
+			[u'boots-sChau', u'Boots-Schau', CAPS_WORDS],
+			[u'boot camp', u'Boot Camp', CAPS_WORDS],
 			[u'fahrner-Kampe', u'Fahrner-Kampe', CAPS_NAMES],
 			[u'häkkönen', u'Häkkönen', CAPS_NAMES]
 		]
@@ -344,7 +350,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.15  2007-02-04 16:29:51  ncq
+# Revision 1.16  2007-02-04 16:43:01  ncq
+# - improve capitalize() test suite
+# - set coding
+#
+# Revision 1.15  2007/02/04 16:29:51  ncq
 # - make umlauts u''
 #
 # Revision 1.14  2007/02/04 15:33:28  ncq
