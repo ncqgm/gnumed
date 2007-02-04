@@ -10,11 +10,11 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.91 2007-01-20 22:52:27 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmPhraseWheel.py,v 1.92 2007-02-04 16:04:03 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
-import string, types, time, sys, re
+import string, types, time, sys, re as regex
 
 import wx
 import wx.lib.mixins.listctrl as listmixins
@@ -23,13 +23,20 @@ import wx.lib.mixins.listctrl as listmixins
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmMatchProvider, gmGuiBroker, gmNull
+from Gnumed.pycommon import gmLog, gmExceptions, gmMatchProvider, gmTools
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 _log.Log(gmLog.lInfo, __version__)
+#============================================================
+# those can be used by the <accepted_chars> phrasewheel parameter
+NUMERIC = '0-9'
+ALPHANUMERIC = 'a-zA-Z0-9'
+EMAIL_CHARS = "a-zA-Z0-9\-_@\."
+WEB_CHARS = "a-zA-Z0-9\.\-_/:"
+
 #============================================================
 # FIXME: merge with gmListWidgets
 class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
@@ -53,34 +60,49 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def get_selected_item_label(self):
 		return self.__data[self.GetFirstSelected()]['label']
 #============================================================
+# FIXME: cols in pick list, spelling, error strings (regex, selection_only, etc), snap_to_basename/first match on tab+set selection
 class cPhraseWheel(wx.TextCtrl):
-	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
+	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
-	default_phrase_separators = re.compile('[;/|]+')
-
+	VB implementation by Richard Terry
+	Python port by Ian Haywood for GNUmed
+	enhanced by Karsten Hilbert for GNUmed
+	enhanced by Ian Haywood for aumed
+	enhanced by Karsten Hilbert for GNUmed
+	"""
 	def __init__ (
-		self, parent=None, id=-1, value='',
-		aMatchProvider = None,
-		aDelay = 150,
-		selection_only = False,
+		self,
+		parent=None,
+		id=-1,
+		value='',
+		aMatchProvider=None,
+		aDelay=150,
+		selection_only=False,
 		*args,
-		**kwargs):
+		**kwargs
+	):
 
 		self.__matcher = aMatchProvider
-		self.__currMatches = []
+		self.__current_matches = []
 
-		self.phrase_separators = cPhraseWheel.default_phrase_separators
-		self.allow_multiple_phrases()
-
+		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
 		self.input2match = ''
 		self.left_part = ''
 		self.right_part = ''
 		self.data = None
 
+		# behaviour
 		self.selection_only = selection_only
-		self.snap_to_first_match = (False or self.selection_only)
+#		self.snap_to_first_match = (False or self.selection_only)
+		self.capitalisation_mode = gmTools.CAPS_NONE
+		self.accepted_chars = None
+		self.final_regex = '.*'
+		self.phrase_separators = '[;/|]+'
+		self.spellcheck = True
+
+		# state tracking
 		self._has_focus = False
-		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
+		self.suppress_text_update_smarts = False
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
@@ -91,13 +113,13 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
-			self.__dropdown = wx.PopupWindow(parent)
+			self.__picklist = wx.PopupWindow(parent)
 			add_picklist_to_sizer = False
 		except NotImplementedError:
 			# on MacOSX wx.PopupWindow does not exist
-			self.__dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
+			self.__picklist = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
-			self.__dropdown.SetSizer(szr_scroll)
+			self.__picklist.SetSizer(szr_scroll)
 			add_picklist_to_sizer = True
 
 		# FIXME: support optional headers
@@ -106,7 +128,7 @@ class cPhraseWheel(wx.TextCtrl):
 #		else:
 #			flags = wx.LC_NO_HEADER
 		self._picklist = cPhraseWheelListCtrl (
-			self.__dropdown,
+			self.__picklist,
 			style = wx.LC_NO_HEADER
 		)
 		self._picklist.InsertColumn(0, '')
@@ -114,30 +136,22 @@ class cPhraseWheel(wx.TextCtrl):
 		if add_picklist_to_sizer:
 			szr_scroll.Add(self._picklist, 1, wx.EXPAND)
 
-		self.__dropdown.Hide()
+		self.__picklist.Hide()
 
 		# set event handlers
 		self.__register_events()
 
-		self.__gb = gmGuiBroker.GuiBroker()
-		if self.__gb.has_key('main.slave_mode') and self.__gb['main.slave_mode']:
-			_log.Log(gmLog.lWarn, 'disabling gmTimer in slave mode')
-			self.__timer = gmNull.cNull()
-		else:
-			self.__timer = gmTimer.cTimer (
-				callback = self._on_timer_fired,
-				delay = aDelay
-			)
-			# initially stopped
-			self.__timer.Stop()
+		self.__timer = gmTimer.cTimer (
+			callback = self._on_timer_fired,
+			delay = aDelay
+		)
+		# initially stopped
+		self.__timer.Stop()
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def set_snap_to_first_match(self, state = False):
-		self.snap_to_first_match = (state or self.selection_only)
-	#--------------------------------------------------------
-	def allow_multiple_phrases(self, state = True):
-		self.__handle_multiple_phrases = state
+#	def set_snap_to_first_match(self, state = False):
+#		self.snap_to_first_match = (state or self.selection_only)
 	#--------------------------------------------------------
 	def setMatchProvider (self, mp=None):
 		self.__matcher = mp
@@ -191,12 +205,12 @@ class cPhraseWheel(wx.TextCtrl):
 
 		if self.selection_only:
 			if not matched or (len(matches) == 0):
-				self.SetBackgroundColour('pink')
 				return False
 
 		for match in matches:
 			if match['data'] == data:
 				self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+				self.suppress_text_update_smarts = True
 				wx.TextCtrl.SetValue(self, match['label'])
 				self.data = data
 				return True
@@ -206,6 +220,7 @@ class cPhraseWheel(wx.TextCtrl):
 			self.SetBackgroundColour('pink')
 			return False
 
+		self.data = data
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		return True
 	#---------------------------------------------------------
@@ -215,14 +230,21 @@ class cPhraseWheel(wx.TextCtrl):
 		"""
 		return self.data
 	#---------------------------------------------------------
-	def SetValue (self, value, data=None):
+#	def SetValue (self, value, data=None):
+	#---------------------------------------------------------
+	def SetText (self, value=u'', data=None):
 
+		if data is not None:
+			self.suppress_text_update_smarts = True
+			self.data = data
 		wx.TextCtrl.SetValue(self, value)
-		self.data = data
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 
 		# if data already available
 		if self.data is not None:
+			return True
+
+		if value == u'' and not self.selection_only:
 			return True
 
 		# or try to find data from matches
@@ -254,48 +276,13 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__matcher.unset_context(context=context)
 		else:
 			_log.Log(gmLog.lWarn, "aMatchProvider must be set to unset context")
-	#---------------------------------------------------------
-	def _updateMatches(self, val=None):
-		"""Get the matches for the currently typed input fragment."""
-
-		if val is None:
-			# get current(ly relevant part of) input
-			if self.__handle_multiple_phrases:
-				entire_input = self.GetValue()
-				cursor_pos = self.GetInsertionPoint()
-				left_of_cursor = entire_input[:cursor_pos]
-				right_of_cursor = entire_input[cursor_pos:]
-				left_boundary = self.phrase_separators.search(left_of_cursor)
-				if left_boundary is not None:
-					phrase_start = left_boundary.end()
-				else:
-					phrase_start = 0
-				self.left_part = entire_input[:phrase_start]
-				# find next phrase separator after cursor position
-				right_boundary = self.phrase_separators.search(right_of_cursor)
-				if right_boundary is not None:
-					phrase_end = cursor_pos + (right_boundary.start() - 1)
-				else:
-					phrase_end = len(entire_input) - 1
-				self.right_part = entire_input[phrase_end+1:]
-				self.input2match = entire_input[phrase_start:phrase_end+1]
-			else:
-				self.input2match = self.GetValue()
-		else:
-			# find matches for given value
-			self.input2match = val
-
-		# get all currently matching items
-		if self.__matcher is not None:
-			matched, self.__currMatches = self.__matcher.getMatches(self.input2match)
-			self._picklist.SetItems(self.__currMatches)
-		else:
-			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
 	#--------------------------------------------------------
-	def _show_dropdown(self):
+	# picklist handling
+	#--------------------------------------------------------
+	def _show_picklist(self):
 		"""Display the pick list."""
 
-		self._hide_dropdown()
+		self._hide_picklist()
 
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
@@ -305,22 +292,22 @@ class cPhraseWheel(wx.TextCtrl):
 		if not self._has_focus:
 			return 1
 
-		if len(self.__currMatches) == 0:
+		if len(self.__current_matches) == 0:
 			return 1
 
 		# if only one match and text == match
-		if len(self.__currMatches) == 1:
-			if self.__currMatches[0]['label'] == self.input2match:
-				self.data = self.__currMatches[0]['data']
+		if len(self.__current_matches) == 1:
+			if self.__current_matches[0]['label'] == self.input2match:
+				self.data = self.__current_matches[0]['data']
 				return 1
 
 		# recalculate size
-		rows = len(self.__currMatches)
+		rows = len(self.__current_matches)
 		if rows < 2:
 			rows = 2
 		if rows > 20:
 			rows = 20
-		dropdown_size = self.__dropdown.GetSize()
+		dropdown_size = self.__picklist.GetSize()
 		pw_size = self.GetSize()
 		dropdown_size.SetWidth(pw_size.width)
 		dropdown_size.SetHeight((pw_size.height * rows) + 4)	# adjust for border width
@@ -336,66 +323,83 @@ class cPhraseWheel(wx.TextCtrl):
 				dropdown_size.SetHeight(max_height)
 
 		# now set dimensions
-		self.__dropdown.SetSize(dropdown_size)
-		self._picklist.SetSize(self.__dropdown.GetClientSize())
-		self.__dropdown.MoveXY(new_x, new_y)
+		self.__picklist.SetSize(dropdown_size)
+		self._picklist.SetSize(self.__picklist.GetClientSize())
+		self.__picklist.MoveXY(new_x, new_y)
 
 		# select first value
 		self._picklist.Select(0)
 
 		# and show it
-		self.__dropdown.Show(True)
+		self.__picklist.Show(True)
 	#--------------------------------------------------------
-	def _hide_dropdown(self):
+	def _hide_picklist(self):
 		"""Hide the pick list."""
-		if self.__dropdown.IsShown():
-			self.__dropdown.Hide()		# dismiss the dropdown list window
+		if self.__picklist.IsShown():
+			self.__picklist.Hide()		# dismiss the dropdown list window
+	#--------------------------------------------------------
+	def __select_picklist_row(self, new_row_idx=None, old_row_idx=None):
+		if old_row_idx is not None:
+			pass			# FIXME: do we need unselect here ? Select() should do it for us
+		self._picklist.Select(new_row_idx)
+		self._picklist.EnsureVisible(new_row_idx)
+	#---------------------------------------------------------
+	def __update_matches_in_picklist(self, val=None):
+		"""Get the matches for the currently typed input fragment."""
+
+		if val is None:
+			# get current(ly relevant part of) input
+			if self.__phrase_separators is not None:
+				entire_input = self.GetValue()
+				cursor_pos = self.GetInsertionPoint()
+				left_of_cursor = entire_input[:cursor_pos]
+				right_of_cursor = entire_input[cursor_pos:]
+				left_boundary = self.__phrase_separators.search(left_of_cursor)
+				if left_boundary is not None:
+					phrase_start = left_boundary.end()
+				else:
+					phrase_start = 0
+				self.left_part = entire_input[:phrase_start]
+				# find next phrase separator after cursor position
+				right_boundary = self.__phrase_separators.search(right_of_cursor)
+				if right_boundary is not None:
+					phrase_end = cursor_pos + (right_boundary.start() - 1)
+				else:
+					phrase_end = len(entire_input) - 1
+				self.right_part = entire_input[phrase_end+1:]
+				self.input2match = entire_input[phrase_start:phrase_end+1]
+			else:
+				self.input2match = self.GetValue().strip()
+		else:
+			# find matches for given value
+			self.input2match = val
+
+		# get all currently matching items
+		if self.__matcher is not None:
+			matched, self.__current_matches = self.__matcher.getMatches(self.input2match)
+			self._picklist.SetItems(self.__current_matches)
+		else:
+			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
+	#--------------------------------------------------------
+	# internal helpers: GUI
 	#--------------------------------------------------------
 	def _calc_display_string(self):
 		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
-	# specific event handlers
-	#--------------------------------------------------------
-	def _on_list_item_selected(self, *args, **kwargs):
-		"""Gets called when user selected a list item."""
-
-		self._hide_dropdown()
-		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-
-		self.data = self._picklist.GetSelectedItemData()	# just so that _calc_display_string could use it
-
-		# update our display
-		if self.__handle_multiple_phrases:
-			wx.TextCtrl.SetValue (self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
-		else:
-			wx.TextCtrl.SetValue (self, self._calc_display_string())
-
-		self.data = self._picklist.GetSelectedItemData()
-		self.MarkDirty()
-
-		# and tell the listeners about the user's selection
-		for call_listener in self._on_selection_callbacks:
-			call_listener(self.data)
-
-		self.Navigate()
-		return
-	#--------------------------------------------------------
-	# individual key handlers
-	#--------------------------------------------------------
 	def _on_enter(self):
 		"""Called when the user pressed <ENTER>."""
-		if self.__dropdown.IsShown():
+		if self.__picklist.IsShown():
 			self._on_list_item_selected()
 		else:
+			# FIXME: check for errors before navigation
 			self.Navigate()
 	#--------------------------------------------------------
 	def __on_cursor_down(self):
 
-		if self.__dropdown.IsShown():
+		if self.__picklist.IsShown():
 			selected = self._picklist.GetFirstSelected()
-			if selected < (len(self.__currMatches) - 1):
-				self._picklist.Select(selected+1)
-				self._picklist.EnsureVisible(selected+1)
+			if selected < (len(self.__current_matches) - 1):
+				self.__select_picklist_row(selected+1, selected)
 
 		# if we don't yet have a pick list
 		# - open new pick list
@@ -405,20 +409,79 @@ class cPhraseWheel(wx.TextCtrl):
 		else:
 			self.__timer.Stop()
 			if self.GetValue().strip() == '':
-				self._updateMatches(val='*')
+				self.__update_matches_in_picklist(val='*')
 			else:
-				self._updateMatches()
-			self._show_dropdown()
+				self.__update_matches_in_picklist()
+			self._show_picklist()
 	#--------------------------------------------------------
 	def __on_cursor_up(self):
-		if self.__dropdown.IsShown():
+		if self.__picklist.IsShown():
 			selected = self._picklist.GetFirstSelected()
 			if selected > 0:
-				self._picklist.Select(selected-1)
-				self._picklist.EnsureVisible(selected-1)
+				self.__select_picklist_row(selected-1, selected)
 		else:
 			# FIXME: input history ?
 			pass
+	#--------------------------------------------------------
+	# internal helpers: logic
+	#--------------------------------------------------------
+	def __char_is_allowed(self, char=None):
+		# if undefined accept all chars
+		if self.accepted_chars is None:
+			return True
+		return (self.__accepted_chars.match(char) is not None)
+	#--------------------------------------------------------
+	def _set_accepted_chars(self, accepted_chars=None):
+		if accepted_chars is None:
+			self.__accepted_chars = None
+		else:
+			self.__accepted_chars = regex.compile(accepted_chars)
+	#------------
+	def _get_accepted_chars(self):
+		if self.__accepted_chars is None:
+			return None
+		return self.__accepted_chars.pattern
+	#------------
+	accepted_chars = property(_get_accepted_chars, _set_accepted_chars)
+	#--------------------------------------------------------
+	def _set_final_regex(self, final_regex='.*'):
+		self.__final_regex = regex.compile(final_regex)
+	#------------
+	def _get_final_regex(self):
+		return self.__final_regex.pattern
+	#------------
+	final_regex = property(_get_final_regex, _set_final_regex)
+	#--------------------------------------------------------
+	def _set_phrase_separators(self, phrase_separators):
+		if phrase_separators is None:
+			self.__phrase_separators = None
+		else:
+			self.__phrase_separators = regex.compile(phrase_separators)
+	#------------
+	def _get_phrase_separators(self):
+		if self.__phrase_separators is None:
+			return None
+		return self.__phrase_separators.pattern
+	#------------
+	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
+	#--------------------------------------------------------
+	def _on_timer_fired(self, cookie):
+		"""Callback for delayed match retrieval timer.
+
+		if we end up here:
+		 - delay has passed without user input
+		 - the value in the input field has not changed since the timer started
+		"""
+		# update matches according to current input
+		self.__update_matches_in_picklist()
+
+		# we now have either:
+		# - all possible items (within reasonable limits) if input was '*'
+		# - all matching items
+		# - an empty match list if no matches were found
+		# also, our picklist is refilled and sorted according to weight
+
+		wx.CallAfter(self._show_picklist)
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -429,7 +492,33 @@ class cPhraseWheel(wx.TextCtrl):
 		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
 		self._picklist.Bind(wx.EVT_LEFT_DCLICK, self._on_list_item_selected)
 	#--------------------------------------------------------
-	# event handlers
+	def _on_list_item_selected(self, *args, **kwargs):
+		"""Gets called when user selected a list item."""
+
+		self._hide_picklist()
+		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		self.data = self._picklist.GetSelectedItemData()	# just so that _calc_display_string could use it
+
+		# update our display
+		if self.__phrase_separators is not None:
+			wx.TextCtrl.SetValue (self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
+		else:
+			wx.TextCtrl.SetValue (self, self._calc_display_string())
+
+		self.data = self._picklist.GetSelectedItemData()
+		self.MarkDirty()
+
+		# and tell the listeners about the user's selection
+		for callback in self._on_selection_callbacks:
+			callback(self.data)
+
+#		if self.selection_only:
+		self.Navigate()
+#		else:
+#			self.SetInsertionPoint(self.GetLastPosition())
+
+		return
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 		"""Is called when a key is pressed."""
@@ -449,7 +538,17 @@ class cPhraseWheel(wx.TextCtrl):
 			self._on_enter()
 			return
 
-		# FIXME: need PAGE UP/DOWN//POS1/END here
+		# FIXME: need PAGE UP/DOWN//POS1/END here to move in picklist
+		if keycode in [wx.WXK_SHIFT, wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_LEFT, wx.WXK_RIGHT]:
+			pass
+
+		# need to handle all non-character key presses *before* this check
+		elif not self.__char_is_allowed(char = unichr(event.GetUnicodeKey())):
+			# FIXME: configure ?
+			wx.Bell()
+			# FIXME: display status message ?  Richard doesn't ...
+			return
+
 		event.Skip()
 		return
 	#--------------------------------------------------------
@@ -458,42 +557,40 @@ class cPhraseWheel(wx.TextCtrl):
 
 		Called when text was changed by user or SetValue().
 		"""
+		if self.suppress_text_update_smarts:
+			self.suppress_text_update_smarts = False
+			return
+
 		self.data = None
+		self.__current_matches = []
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
-		if self.GetValue().strip() == u'':
-			self._hide_dropdown()
+		val = self.GetValue().strip()
+		ins_point = self.GetInsertionPoint()
+		if val == u'':
+			self._hide_picklist()
 			self.__timer.Stop()
 		else:
+			new_val = gmTools.capitalize(text = val, mode = self.capitalisation_mode)
+			if new_val != val:
+				self.suppress_text_update_smarts = True
+				wx.TextCtrl.SetValue(self, new_val)
+				if ins_point > len(new_val):
+					self.SetInsertionPointEnd()
+				else:
+					self.SetInsertionPoint(ins_point)
+					# FIXME: SetSelection() ?
+
 			# start timer for delayed match retrieval
 			# milliseconds needed for Windows bug
 			self.__timer.Start(oneShot = True)
 
 		# notify interested parties
 		for callback in self._on_modified_callbacks:
-			if not callback():
-				print "[%s:_on_text_update]: %s returned False" % (self.__class__.__name__, str(callback))
+			callback()
 
 		return
-	#--------------------------------------------------------
-	def _on_timer_fired(self, cookie):
-		"""Callback for delayed match retrieval timer.
-
-		if we end up here:
-		 - delay has passed without user input
-		 - the value in the input field has not changed since the timer started
-		"""
-		# update matches according to current input
-		self._updateMatches()
-
-		# we now have either:
-		# - all possible items (within reasonable limits) if input was '*'
-		# - all matching items
-		# - an empty match list if no matches were found
-		# also, our picklist is refilled and sorted according to weight
-
-		wx.CallAfter(self._show_dropdown)
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
 
@@ -502,67 +599,97 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# notify interested parties
 		for callback in self._on_set_focus_callbacks:
-			if not callback():
-				print "[%s:_on_set_focus]: %s returned False" % (self.__class__.__name__, str(callback))
+			callback()
 
-		if self.snap_to_first_match:
-			if self.GetValue().strip() == u'':
-				# programmers better make sure the turnaround time is limited
-				self._updateMatches(val='*')
-				if len(self.__currMatches) > 0:
-					wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
-					self.data = self.__currMatches[0]['data']
-					self.MarkDirty()
-
+#		if self.snap_to_first_match:
+#			if self.GetValue().strip() == u'':
+#				# programmers better make sure the turnaround time is limited
+#				self.__update_matches_in_picklist(val='*')
+#				if len(self.__current_matches) > 0:
+#					wx.TextCtrl.SetValue(self, self.__current_matches[0]['label'])
+#					self.data = self.__current_matches[0]['data']
+#					self.MarkDirty()
+#
 		self.__timer.Start(oneShot = True)
 
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
+		"""Do stuff when leaving the control.
 
+		The user has had her say, so don't second guess
+		intentions but do report error conditions.
+		"""
 		self._has_focus = False
-		event.Skip()
 
 		# don't need timer and pick list anymore
 		self.__timer.Stop()
-		self._hide_dropdown()
+		self._hide_picklist()
 
+		# unset selection
 		self.SetSelection(1,1)
 
-		# can/must we auto-set the value from the match list ?
-		if self.snap_to_first_match:
-			if self.data is None:
-				val = self.GetValue().strip()
-				if val != u'':
-					self._updateMatches()
-					no_matches = len(self.__currMatches)
-					if no_matches == 1:
-						wx.TextCtrl.SetValue(self, self.__currMatches[0]['label'])
-						self.data = self.__currMatches[0]['data']
+		# the user may have typed a phrase that is an exact match,
+		# however, just typing it won't associate data from the
+		# picklist, so do that now
+		if self.data is None:
+			val = self.GetValue().strip()
+			if val != u'':
+				self.__update_matches_in_picklist()
+#				no_of_matches = len(self.__current_matches)
+				for match in self.__current_matches:
+					if match['label'] == val:
+						self.data = match['data']
 						self.MarkDirty()
-					elif no_matches > 1:
-						gmGuiHelpers.gm_statustext(_('Cannot auto-select from list. There are several matches for the input [%s].') % val)
-						if self.selection_only:
-							self.SetBackgroundColour('pink')
-						return True
-					else:
-						gmGuiHelpers.gm_statustext(_('There are no matches for this input.'))
-						if self.selection_only:
-							self.SetBackgroundColour('pink')
-							self.Clear()
-						return True
+						self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+						break
+
+		# no exact match found
+		if self.data is None:
+			if self.selection_only:
+				gmGuiHelpers.gm_statustext(_('You must select a value from the picklist or type an exact match.'))
+				self.SetBackgroundColour('pink')
+
+		# can/must we auto-set the value from the match list ?
+#		if self.snap_to_first_match:
+#			if self.data is None:
+#				val = self.GetValue().strip()
+#				if val != u'':
+#					self.__update_matches_in_picklist()
+#					no_matches = len(self.__current_matches)
+#					if no_matches == 1:
+#						wx.TextCtrl.SetValue(self, self.__current_matches[0]['label'])
+#						self.data = self.__current_matches[0]['data']
+#						self.MarkDirty()
+#					elif no_matches > 1:
+#						gmGuiHelpers.gm_statustext(_('Cannot auto-select from list. There are several matches for the input [%s].') % val)
+#						if self.selection_only:
+#							self.SetBackgroundColour('pink')
+#						return True
+#					else:
+#						gmGuiHelpers.gm_statustext(_('There are no matches for this input.'))
+#						if self.selection_only:
+#							self.SetBackgroundColour('pink')
+#							self.Clear()
+#						return True
+
+		# if user can enter free text check value against
+		# final_regex if any given
+		if not self.__final_regex.match(self.GetValue().strip()):
+			gmGuiHelpers.gm_statustext(_('The content is invalid. It must match this pattern: [%s]') % self.__final_regex.pattern)
+			self.SetBackgroundColour('pink')
 
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
-			if not callback():
-				print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
+			callback()
 
+		event.Skip()
 		return True
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmI18N
+	from Gnumed.pycommon import gmI18N, gmPG2
 	gmI18N.activate_locale()
 	gmI18N.install_domain(text_domain='gnumed')
 
@@ -610,7 +737,8 @@ if __name__ == '__main__':
 		prw = cPhraseWheel(
 			parent = app.frame,
 			id = -1,
-			aMatchProvider = mp
+			aMatchProvider = mp,
+			capitalisation_mode = gmTools.CAPS_NAMES
 		)
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
 		prw.add_callback_on_modified(callback=display_values_modified)
@@ -655,7 +783,24 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.91  2007-01-20 22:52:27  ncq
+# Revision 1.92  2007-02-04 16:04:03  ncq
+# - reduce imports
+# - add accepted_chars constants
+# - enhance phrasewheel:
+#   - better credits
+#   - cleaner __init__ signature
+#   - user properties
+#   - code layout/naming cleanup
+#   - no more snap_to_first_match for now
+#   - add capitalisation mode
+#   - add accepted chars checking
+#   - add final regex matching
+#   - allow suppressing recursive _on_text_update()
+#   - always use time, even in slave mode
+#   - lots of logic consolidation
+#   - add SetText() and favour it over SetValue()
+#
+# Revision 1.91  2007/01/20 22:52:27  ncq
 # - .KeyCode -> GetKeyCode()
 #
 # Revision 1.90  2007/01/18 22:07:52  ncq
