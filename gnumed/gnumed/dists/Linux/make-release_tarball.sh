@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.22 2007-01-29 13:00:01 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.23 2007-02-04 16:18:36 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -206,6 +206,7 @@ echo "============"
 mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/backup-gnumed-database.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
 
 
 # pycommon
@@ -232,6 +233,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/country.specific/es
 cp -R ../../server/sql/country.specific/es/*.sql ./GNUmed-$CLIENTREV/server/sql/country.specific/es
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/test-data
 cp -R ../../server/sql/test-data/*.sql ./GNUmed-$CLIENTREV/server/sql/test-data
+
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3/dynamic
 cp -R ../../server/sql/v2-v3/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v2-v3/dynamic
@@ -240,6 +242,21 @@ cp -R ../../server/sql/v2-v3/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v2-v3/s
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v2-v3/superuser
 cp -R ../../server/sql/v2-v3/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v2-v3/superuser
 
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4/dynamic
+cp -R ../../server/sql/v3-v4/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v3-v4/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4/static
+cp -R ../../server/sql/v3-v4/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v3-v4/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v3-v4/superuser
+cp -R ../../server/sql/v3-v4/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v3-v4/superuser
+
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/dynamic
+cp -R ../../server/sql/v4-v5/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/static
+cp -R ../../server/sql/v4-v5/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/superuser
+cp -R ../../server/sql/v4-v5/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/superuser
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -267,7 +284,11 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.22  2007-01-29 13:00:01  ncq
+# Revision 1.23  2007-02-04 16:18:36  ncq
+# - include __init__.py in server/
+# - include SQL for 3-4 und 4-5
+#
+# Revision 1.22  2007/01/29 13:00:01  ncq
 # - include man page for gm_ctl_client.py
 #
 # Revision 1.21  2007/01/24 11:05:59  ncq
