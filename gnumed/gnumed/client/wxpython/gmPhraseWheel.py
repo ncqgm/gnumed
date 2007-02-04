@@ -10,8 +10,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.92 2007-02-04 16:04:03 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmPhraseWheel.py,v 1.93 2007-02-04 18:50:12 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re as regex
@@ -98,6 +98,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.accepted_chars = None
 		self.final_regex = '.*'
 		self.phrase_separators = '[;/|]+'
+		self.navigate_after_selection = False
 		self.spellcheck = True
 
 		# state tracking
@@ -113,13 +114,13 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# multiple matches dropdown list
 		try:
-			self.__picklist = wx.PopupWindow(parent)
+			self.__picklist_dropdown = wx.PopupWindow(parent)
 			add_picklist_to_sizer = False
 		except NotImplementedError:
-			# on MacOSX wx.PopupWindow does not exist
-			self.__picklist = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
+			# on MacOSX wx.PopupWindow is not implemented
+			self.__picklist_dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
-			self.__picklist.SetSizer(szr_scroll)
+			self.__picklist_dropdown.SetSizer(szr_scroll)
 			add_picklist_to_sizer = True
 
 		# FIXME: support optional headers
@@ -128,7 +129,7 @@ class cPhraseWheel(wx.TextCtrl):
 #		else:
 #			flags = wx.LC_NO_HEADER
 		self._picklist = cPhraseWheelListCtrl (
-			self.__picklist,
+			self.__picklist_dropdown,
 			style = wx.LC_NO_HEADER
 		)
 		self._picklist.InsertColumn(0, '')
@@ -136,7 +137,7 @@ class cPhraseWheel(wx.TextCtrl):
 		if add_picklist_to_sizer:
 			szr_scroll.Add(self._picklist, 1, wx.EXPAND)
 
-		self.__picklist.Hide()
+		self.__picklist_dropdown.Hide()
 
 		# set event handlers
 		self.__register_events()
@@ -307,7 +308,7 @@ class cPhraseWheel(wx.TextCtrl):
 			rows = 2
 		if rows > 20:
 			rows = 20
-		dropdown_size = self.__picklist.GetSize()
+		dropdown_size = self.__picklist_dropdown.GetSize()
 		pw_size = self.GetSize()
 		dropdown_size.SetWidth(pw_size.width)
 		dropdown_size.SetHeight((pw_size.height * rows) + 4)	# adjust for border width
@@ -323,20 +324,20 @@ class cPhraseWheel(wx.TextCtrl):
 				dropdown_size.SetHeight(max_height)
 
 		# now set dimensions
-		self.__picklist.SetSize(dropdown_size)
-		self._picklist.SetSize(self.__picklist.GetClientSize())
-		self.__picklist.MoveXY(new_x, new_y)
+		self.__picklist_dropdown.SetSize(dropdown_size)
+		self._picklist.SetSize(self.__picklist_dropdown.GetClientSize())
+		self.__picklist_dropdown.MoveXY(new_x, new_y)
 
 		# select first value
 		self._picklist.Select(0)
 
 		# and show it
-		self.__picklist.Show(True)
+		self.__picklist_dropdown.Show(True)
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
-		if self.__picklist.IsShown():
-			self.__picklist.Hide()		# dismiss the dropdown list window
+		if self.__picklist_dropdown.IsShown():
+			self.__picklist_dropdown.Hide()		# dismiss the dropdown list window
 	#--------------------------------------------------------
 	def __select_picklist_row(self, new_row_idx=None, old_row_idx=None):
 		if old_row_idx is not None:
@@ -388,7 +389,7 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _on_enter(self):
 		"""Called when the user pressed <ENTER>."""
-		if self.__picklist.IsShown():
+		if self.__picklist_dropdown.IsShown():
 			self._on_list_item_selected()
 		else:
 			# FIXME: check for errors before navigation
@@ -396,7 +397,7 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	def __on_cursor_down(self):
 
-		if self.__picklist.IsShown():
+		if self.__picklist_dropdown.IsShown():
 			selected = self._picklist.GetFirstSelected()
 			if selected < (len(self.__current_matches) - 1):
 				self.__select_picklist_row(selected+1, selected)
@@ -415,7 +416,7 @@ class cPhraseWheel(wx.TextCtrl):
 			self._show_picklist()
 	#--------------------------------------------------------
 	def __on_cursor_up(self):
-		if self.__picklist.IsShown():
+		if self.__picklist_dropdown.IsShown():
 			selected = self._picklist.GetFirstSelected()
 			if selected > 0:
 				self.__select_picklist_row(selected-1, selected)
@@ -513,10 +514,10 @@ class cPhraseWheel(wx.TextCtrl):
 		for callback in self._on_selection_callbacks:
 			callback(self.data)
 
-#		if self.selection_only:
-		self.Navigate()
-#		else:
-#			self.SetInsertionPoint(self.GetLastPosition())
+		if self.navigate_after_selection:
+			self.Navigate()
+		else:
+			self.SetInsertionPoint(self.GetLastPosition())
 
 		return
 	#--------------------------------------------------------
@@ -734,12 +735,13 @@ if __name__ == '__main__':
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 		mp.setWordSeparators(separators = '[ \t=+&:@]+')
 		global prw
-		prw = cPhraseWheel(
+		prw = cPhraseWheel (
 			parent = app.frame,
 			id = -1,
-			aMatchProvider = mp,
-			capitalisation_mode = gmTools.CAPS_NAMES
+			aMatchProvider = mp
 		)
+		prw.capitalisation_mode = gmTools.CAPS_NAMES
+		prw.spellcheck = False
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
 		prw.add_callback_on_modified(callback=display_values_modified)
 		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
@@ -783,7 +785,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.92  2007-02-04 16:04:03  ncq
+# Revision 1.93  2007-02-04 18:50:12  ncq
+# - capitalisation_mode is now instance variable
+#
+# Revision 1.92  2007/02/04 16:04:03  ncq
 # - reduce imports
 # - add accepted_chars constants
 # - enhance phrasewheel:
