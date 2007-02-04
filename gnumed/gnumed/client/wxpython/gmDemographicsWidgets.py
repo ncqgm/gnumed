@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.111 2006-11-28 20:43:26 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmDemographicsWidgets.py,v 1.112 2007-02-04 15:52:10 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -148,6 +148,7 @@ select code, name from (
 		self.unset_context(context = u'country_name')
 
 		self.SetToolTipString(_("Select a state/region/province/territory."))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
 #============================================================
 class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -207,6 +208,7 @@ select s1, s2 from (
 		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a street.'))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
 #============================================================
 class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -248,6 +250,7 @@ select u1, u2 from (
 		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
 #============================================================
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -313,6 +316,7 @@ select code, name from (
 		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a country.'))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
 #============================================================
 # identity phrasewheels
 #============================================================
@@ -329,6 +333,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select a lastname (family name)."))
+		self.capitalisation_mode = gmTools.CAPS_NAMES
 #============================================================
 class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -346,6 +351,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select a firstname (surname/given name)."))
+		self.capitalisation_mode = gmTools.CAPS_NAMES
 #============================================================
 class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -365,6 +371,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select an alias (nick name, preferred name, call name, warrior name, artist name)."))
+		self.capitalisation_mode = gmTools.CAPS_NAMES
 #============================================================
 class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -426,6 +433,7 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select an occupation."))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
 #============================================================
 # new patient wizard classes
 #============================================================
@@ -780,16 +788,16 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		_pnl_form = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
 		_pnl_form.PRW_gender.SetData(self.form_DTD['gender'])
-		_pnl_form.PRW_dob.SetValue(self.form_DTD['dob'])
-		_pnl_form.PRW_lastname.SetValue(self.form_DTD['lastnames'])
-		_pnl_form.PRW_firstname.SetValue(self.form_DTD['firstnames'])
-		_pnl_form.PRW_title.SetValue(self.form_DTD['title'])
-		_pnl_form.PRW_nick.SetValue(self.form_DTD['nick'])
-		_pnl_form.PRW_occupation.SetValue(self.form_DTD['occupation'])
+		_pnl_form.PRW_dob.SetText(self.form_DTD['dob'])
+		_pnl_form.PRW_lastname.SetText(self.form_DTD['lastnames'])
+		_pnl_form.PRW_firstname.SetText(self.form_DTD['firstnames'])
+		_pnl_form.PRW_title.SetText(self.form_DTD['title'])
+		_pnl_form.PRW_nick.SetText(self.form_DTD['nick'])
+		_pnl_form.PRW_occupation.SetText(self.form_DTD['occupation'])
 		_pnl_form.TTC_address_number.SetValue(self.form_DTD['address_number'])
-		_pnl_form.PRW_street.SetValue(self.form_DTD['street'])
-		_pnl_form.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
-		_pnl_form.PRW_town.SetValue(self.form_DTD['town'])
+		_pnl_form.PRW_street.SetText(self.form_DTD['street'])
+		_pnl_form.PRW_zip_code.SetText(self.form_DTD['zip_code'])
+		_pnl_form.PRW_town.SetText(self.form_DTD['town'])
 		_pnl_form.PRW_state.SetData(self.form_DTD['state'])
 		_pnl_form.PRW_country.SetData(self.form_DTD['country'])
 		_pnl_form.TTC_phone.SetValue(self.form_DTD['phone'])
@@ -894,9 +902,10 @@ class cPatEditionNotebook(wx.Notebook):
 			id = id,
 			pos = pos,
 			size = size,
-			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER | wx.VSCROLL | wx.HSCROLL,
+			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER,
 			name = self.__class__.__name__
 		)
+# | wx.VSCROLL | wx.HSCROLL
 #		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -1111,11 +1120,11 @@ class cPatIdentityPanel(wx.Panel):
 		active_name = self.__ident.get_active_name()
 
 		self.PRW_gender.SetData(self.__ident['gender'])
-		self.PRW_dob.SetValue(val = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
-		self.PRW_lastname.SetValue(active_name['last'])
-		self.PRW_firstname.SetValue(active_name['first'])
-		self.PRW_title.SetValue(gmTools.coalesce(self.__ident['title'], ''))
-		self.PRW_nick.SetValue(gmTools.coalesce(active_name['preferred'], ''))
+		self.PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
+		self.PRW_lastname.SetText(active_name['last'])
+		self.PRW_firstname.SetText(active_name['first'])
+		self.PRW_title.SetText(gmTools.coalesce(self.__ident['title'], ''))
+		self.PRW_nick.SetText(gmTools.coalesce(active_name['preferred'], ''))
 		return True
 	#--------------------------------------------------------
 	def save(self):
@@ -1296,9 +1305,9 @@ class cPatContactsPanel(wx.Panel):
 		"""
 		zip, state_id, state, country_id, country = gmDemographicRecord.get_town_data (self.PRW_town.GetValue ())
 		if zip:
-			self.PRW_state.SetValue (state, state_id)
-			self.PRW_zip_code.SetValue (zip)
-			self.PRW_country.SetValue (country, country_id)
+			self.PRW_state.SetText (state, state_id)
+			self.PRW_zip_code.SetText (zip)
+			self.PRW_country.SetText (country, country_id)
 			self.TTC_phone.SetFocus ()
 	#--------------------------------------------------------
 	# internal helpers
@@ -1347,9 +1356,9 @@ class cPatContactsPanel(wx.Panel):
 		if len(adrs) != 0:
 			home = adrs[0]
 			self.TTC_address_number.SetValue(home['number'])
-			self.PRW_street.SetValue(home['street'])
-			self.PRW_zip_code.SetValue(home['postcode'])
-			self.PRW_town.SetValue(home['urb'])
+			self.PRW_street.SetText(home['street'])
+			self.PRW_zip_code.SetText(home['postcode'])
+			self.PRW_town.SetText(home['urb'])
 			self.PRW_country.SetData(data = home['code_country'])
 			self.PRW_state.SetData(data = home['code_state'])
 
@@ -1439,7 +1448,7 @@ class cPatOccupationsPanel(wx.Panel):
 			self.__ident = identity
 		jobs = self.__ident.get_occupations()
 		if len(jobs) > 0:
-			self.PRW_occupation.SetValue(jobs[0]['l10n_occupation'])
+			self.PRW_occupation.SetText(jobs[0]['l10n_occupation'])
 			self.TTC_occupation_updated.SetValue(jobs[0]['modified_when'].strftime('%m/%Y'))
 		return True
 	#--------------------------------------------------------
@@ -1731,7 +1740,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.111  2006-11-28 20:43:26  ncq
+# Revision 1.112  2007-02-04 15:52:10  ncq
+# - set proper CAPS modes on phrasewheels
+# - use SetText()
+# - remove HSCROLL/VSCROLL so we run on Mac
+#
+# Revision 1.111  2006/11/28 20:43:26  ncq
 # - remove lots of debugging prints
 #
 # Revision 1.110  2006/11/26 14:23:09  ncq
