@@ -26,7 +26,8 @@ locations:
 2) /var/log/<base_name>/<base_name>.log
 3) /var/log/<base_name>.log
 4) ~/.<base_name>/<base_name>.log
-5) /dir/of/binary/<base_name>.log	- mainly for DOS/Windows
+5) /tmp/<base_name>.log
+6) /dir/of/binary/<base_name>.log	- mainly for DOS/Windows
 
 where <base_name> is derived from the name
 of the main application.
@@ -53,7 +54,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -641,7 +642,7 @@ def __open_default_logfile():
 
 	# config file given on command line ?
 	for option in sys.argv[1:]:
-		if option.find('--log-file=') == 0:
+		if option.startswith('--log-file='):
 			(tmp1,tmp2) = option.split('=')
 			(ldir, lname) = os.path.split(tmp2)
 			if ldir == '':
@@ -702,6 +703,15 @@ def __open_default_logfile():
 			return loghandle
 		except:
 			pass
+
+	# /tmp/base_name.log
+	logName = os.path.join('tmp', base_name)
+	try:
+		loghandle = cLogTargetFile(lInfo, logName, "wb")
+		print "log file is [%s]" % logName
+		return loghandle
+	except:
+		pass
 
 	# ./base_name.log
 	# last resort for inferior operating systems such as DOS/Windows
@@ -844,7 +854,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.26  2006-11-15 00:38:58  ncq
+# Revision 1.27  2007-02-04 22:03:11  ncq
+# - add /tmp/<base_name>.log as second to last location
+#
+# Revision 1.26  2006/11/15 00:38:58  ncq
 # - only use sys.exc_info() if exception is not None
 #
 # Revision 1.25  2006/11/05 14:24:53  ncq
