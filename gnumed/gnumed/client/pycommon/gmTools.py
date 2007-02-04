@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.13 2007-01-30 17:38:28 ncq Exp $
+# $Id: gmTools.py,v 1.14 2007-02-04 15:33:28 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -20,7 +20,20 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
+
+#===========================================================================
 ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
+
+# CAPitalization modes:
+(
+	CAPS_NONE,					# don't touch it
+	CAPS_FIRST,					# CAP first char, leave rest as is
+	CAPS_ALLCAPS,				# CAP all chars
+	CAPS_WORDS,					# CAP first char of every word
+	CAPS_NAMES,					# CAP in a way suitable for names (tries to be smart)
+	CAPS_FIRST_ONLY				# CAP first char, lowercase the rest
+) = range(6)
+
 #===========================================================================
 def mkdir(directory=None):
 	try:
@@ -182,9 +195,44 @@ def coalesce(initial=None, instead=None, template=None):
 		return initial
 	return template % initial
 #---------------------------------------------------------------------------
-def capitalize(text=None):
-	"""Capitalize the first character but leave the rest alone."""
-	return text[0].capitalize() + text[1:]
+def __cap_name(match_obj=None):
+	val = match_obj.group(0).lower()
+	if val in ['von', 'van', 'de', 'la', 'l', 'der', 'den']:			# FIXME: this needs to expand, configurable ?
+		return val
+	buf = list(val)
+	buf[0] = buf[0].upper()
+	for part in ['mac', 'mc', 'de', 'la']:
+		if len(val) > len(part) and val[:len(part)] == part:
+			buf[len(part)] = buf[len(part)].upper()
+	return ''.join(buf)
+#---------------------------------------------------------------------------
+def capitalize(text=None, mode=CAPS_NAMES):
+	"""Capitalize the first character but leave the rest alone.
+
+	Note that we must be careful about the locale, this may
+	have issues ! However, for UTF strings it should just work.
+	"""
+	if (mode is None) or (mode == CAPS_NONE):
+		return text
+
+	if mode == CAPS_FIRST:
+		return text[0].upper() + text[1:]
+
+	if mode == CAPS_ALLCAPS:
+		return text.upper()
+
+	if mode == CAPS_FIRST_ONLY:
+		return text[0].upper() + text[1:].lower()
+
+	if mode == CAPS_WORDS:
+		return regex.sub(r'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
+
+	if mode == CAPS_NAMES:
+		#return regex.sub(r'\w+', __cap_name, text)
+		return capitalize(text=text, mode=CAPS_FIRST)		# until fixed
+
+	print "ERROR: invalid capitalize() mode: [%s], leaving input as is", mode
+	return text
 #---------------------------------------------------------------------------
 def wrap(text, width):
 	"""
@@ -255,6 +303,16 @@ if __name__ == '__main__':
 		print 'testing capitalize()'
 		for word in ['Boot', 'boot', 'booT', 'boots-Schau', 'boot camp']:
 			print word, capitalize(word)
+
+		pairs = [
+			['fahrner-Kampe', 'Fahrner-Kampe', CAPS_NAMES],
+			['häkkönen', 'Häkkönen', CAPS_NAMES]
+		]
+		for pair in pairs:
+			result = capitalize(pair[0], pair[2])
+			if result != pair[1]:
+				print 'ERROR (caps mode %s): "%s" -> "%s", expected "%s"' % (pair[2], pair[0], result, pair[1])
+
 		return True
 	#-----------------------------------------------------------------------
 	def test_import_module():
@@ -279,14 +337,19 @@ if __name__ == '__main__':
 
 	#test_str2interval()
 	#test_coalesce()
-	#test_capitalize()
+	test_capitalize()
 	#test_open_uri_in_ooo()
 	#test_import_module()
-	test_mkdir()
+	#test_mkdir()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.13  2007-01-30 17:38:28  ncq
+# Revision 1.14  2007-02-04 15:33:28  ncq
+# - enhance capitalize() and add mode CONSTS for it
+#   - however, CAPS_NAMES for now maps to CAPS_FIRST until fixed for Heller-Brunner
+# - slightly improved test suite for it
+#
+# Revision 1.13  2007/01/30 17:38:28  ncq
 # - add mkdir() and a test for it
 #
 # Revision 1.12  2007/01/20 22:04:01  ncq
