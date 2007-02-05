@@ -4,23 +4,14 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.10 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmTimer.py,v 1.11 2007-02-05 12:11:58 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
 # 3rd party
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython.wx import wxTimer
+import wx
 
-# GnuMed
-from Gnumed.pycommon import gmLog
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 #===========================================================================
 class cTimer(wx.Timer):
 	"""wx.Timer proxy.
@@ -37,9 +28,8 @@ class cTimer(wx.Timer):
 		- <cookie> is passed to <callback> when <delay> is up
 		"""
 		# sanity check
-		if callback is None:
-			_log.Log(gmLog.lErr, "no use setting up a timer without a callback function")
-			raise ValueError, "No use setting up a timer without a callback function."
+		if not callable(callback):
+			raise ValueError("[%s]: <callback> %s is not a callable()" % (self.__class__.__name__, callback))
 
 		if cookie is None:
 			self.__cookie = id(self)
@@ -67,33 +57,30 @@ class cTimer(wx.Timer):
 if __name__ == '__main__':
 	import time
 
-	try:
-		import wxversion
-		import wx
-	except ImportError:
-		from wxPython.wx import wxApp
-
 	#-----------------------------------------------------------------------
 	def cb_timer(cookie):
 		print "timer <%s> fired" % cookie
-		return 1
 	#-----------------------------------------------------------------------
 	class cApp(wx.App):
 		def OnInit(self):
 			print "setting up timer"
 			timer = cTimer(callback = cb_timer)
 			print "starting timer"
-			timer.Start(oneShot=True)
-			print "waiting for timer to trigger"
-			time.sleep(2)
+			timer.Start()
 			return True
 	#-----------------------------------------------------------------------
 	app = cApp(0)
 	# and enter the main event loop
 	app.MainLoop()
+	print "waiting 10 seconds for timer to trigger"
+	time.sleep(10)
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.10  2005-09-28 21:27:30  ncq
+# Revision 1.11  2007-02-05 12:11:58  ncq
+# - imports cleanup
+# - remove gmLog
+#
+# Revision 1.10  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.9  2005/09/28 19:47:01  ncq
