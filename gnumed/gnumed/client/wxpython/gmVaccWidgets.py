@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.30 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmVaccWidgets.py,v 1.31 2007-02-05 12:15:23 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -66,9 +66,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self.fld_vaccine = gmPhraseWheel.cPhraseWheel(
 			parent = parent
 			, id = -1
-			, aMatchProvider = mp
 			, style = wx.SIMPLE_BORDER
 		)
+		self.fld_vaccine.matcher = mp
 		gmEditArea._decorate_editarea_field(self.fld_vaccine)
 		self._add_field(
 			line = 1,
@@ -113,9 +113,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self.fld_site_given = gmPhraseWheel.cPhraseWheel(
 			parent = parent
 			, id = -1
-			, aMatchProvider = mp
 			, style = wx.SIMPLE_BORDER
 		)
+		self.fld_site_given.matcher = mp
 		gmEditArea._decorate_editarea_field(self.fld_site_given)
 		self._add_field(
 			line = 4,
@@ -138,9 +138,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self.fld_progress_note = gmPhraseWheel.cPhraseWheel(
 			parent = parent
 			, id = -1
-			, aMatchProvider = mp
 			, style = wx.SIMPLE_BORDER
 		)
+		self.fld_progress_note = mp
 		gmEditArea._decorate_editarea_field(self.fld_progress_note)
 		self._add_field(
 			line = 5,
@@ -551,7 +551,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.30  2006-11-24 10:01:31  ncq
+# Revision 1.31  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.30  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.29  2006/10/25 07:46:44  ncq

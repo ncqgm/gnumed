@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
@@ -176,7 +176,7 @@ class cContactsPanel(wx.wx.Panel):
 		self.txt_org_type = TextBox_RedBold(self,-1)       #head office, branch or department
 		#self.txt_org_number = TextBox_RedBold(self, -1)
 #		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize )
-		self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
+#		self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
 #		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1)
 #		self.txt_org_suburb.add_callback_on_selection(self.__urb_selected)
 #		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
@@ -1043,7 +1043,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.47  2007-01-20 22:53:32  ncq
+# Revision 1.48  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.47  2007/01/20 22:53:32  ncq
 # - .KeyCode -> .GetKeyCode()
 #
 # Revision 1.46  2007/01/18 22:09:18  ncq

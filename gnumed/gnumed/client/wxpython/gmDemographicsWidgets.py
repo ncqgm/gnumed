@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.112 2007-02-04 15:52:10 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmDemographicsWidgets.py,v 1.113 2007-02-05 12:15:23 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -138,7 +138,6 @@ select code, name from (
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 6)
 		mp.setWordSeparators(separators=u'[ \t]+')
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -147,8 +146,10 @@ select code, name from (
 		self.unset_context(context = u'zip')
 		self.unset_context(context = u'country_name')
 
+		self.matcher = mp
 		self.SetToolTipString(_("Select a state/region/province/territory."))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.selection_only = True
 #============================================================
 class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -160,13 +161,13 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			(select distinct postcode, postcode from dem.urb where postcode %(fragment_condition)s limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 3, 15)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select a zip code (postcode)."))
+		self.matcher = mp
 #============================================================
 class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -199,7 +200,6 @@ select s1, s2 from (
 ) as q1 order by rank, s2 limit 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(3, 5, 8)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -209,6 +209,7 @@ select s1, s2 from (
 
 		self.SetToolTipString(_('Type or select a street.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.matcher = mp
 #============================================================
 class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -241,7 +242,6 @@ select u1, u2 from (
 ) as q1 order by rank, u2 limit 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(3, 5, 7)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -251,6 +251,7 @@ select u1, u2 from (
 
 		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.matcher = mp
 #============================================================
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -307,7 +308,6 @@ select code, name from (
 ) as q1 order by rank, name limit 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
 		mp.setThresholds(2, 5, 9)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -317,6 +317,8 @@ select code, name from (
 
 		self.SetToolTipString(_('Type or select a country.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.selection_only = True
+		self.matcher = mp
 #============================================================
 # identity phrasewheels
 #============================================================
@@ -326,7 +328,6 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		query = u"select distinct lastnames, lastnames from dem.names where lastnames %(fragment_condition)s order by lastnames limit 25"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -334,6 +335,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		self.SetToolTipString(_("Type or select a lastname (family name)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
+		self.matcher = mp
 #============================================================
 class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -344,7 +346,6 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -352,6 +353,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		self.SetToolTipString(_("Type or select a firstname (surname/given name)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
+		self.matcher = mp
 #============================================================
 class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -364,7 +366,6 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			(select distinct name, name from dem.name_gender_map where name %(fragment_condition)s order by name limit 20)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(3, 5, 9)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -372,6 +373,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		self.SetToolTipString(_("Type or select an alias (nick name, preferred name, call name, warrior name, artist name)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
+		self.matcher = mp
 #============================================================
 class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -379,13 +381,13 @@ class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		query = u"select distinct title, title from dem.identity where title %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 9)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select a title."))
+		self.matcher = mp
 #============================================================
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a gender."""
@@ -411,14 +413,14 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = cGenderSelectionPhraseWheel._gender_map.values())
 		mp.setThresholds(1, 1, 3)
 
-		kwargs['aMatchProvider'] = mp
 		kwargs['aDelay'] = 50
-		kwargs['selection_only'] = True
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
+		self.selection_only = True
+		self.matcher = mp
 #============================================================
 class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -426,7 +428,6 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		query = u"select distinct name, _(name) from dem.occupation where _(name) %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
@@ -434,6 +435,7 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		self.SetToolTipString(_("Type or select an occupation."))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.matcher = mp
 #============================================================
 # new patient wizard classes
 #============================================================
@@ -517,12 +519,12 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 
 		# state
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1, selection_only = True)
+		self.PRW_state = cStateSelectionPhraseWheel(parent=PNL_form, id=-1)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1, selection_only = True)
+		self.PRW_country = cCountryPhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
@@ -540,9 +542,9 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 #		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
 #			parent = PNL_form,
 #			id = -1,
-#			aMatchProvider = mp
 #		)
 #		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+#		self.PRW_occupation.matcher = mp
 
 		# form main validator
 		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
@@ -1740,7 +1742,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.112  2007-02-04 15:52:10  ncq
+# Revision 1.113  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.112  2007/02/04 15:52:10  ncq
 # - set proper CAPS modes on phrasewheels
 # - use SetText()
 # - remove HSCROLL/VSCROLL so we run on Mac

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.108 2006-11-24 10:01:31 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmEditArea.py,v 1.109 2007-02-05 12:15:23 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -1437,7 +1437,6 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_specialty = gmPhraseWheel.cPhraseWheel (
 			parent = parent,
 			id = -1,
-#			aMatchProvider = gmDemographicRecord.OccupationMP (),
 			style = wx.SIMPLE_BORDER
 			)
 		#_decorate_editarea_field (self.fld_specialty)
@@ -1450,7 +1449,6 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_name = gmPhraseWheel.cPhraseWheel (
 			parent = parent,
 			id = -1,
-#			aMatchProvider = gmDemographicRecord.NameMP (),
 			style = wx.SIMPLE_BORDER
 			)
 		#_decorate_editarea_field (self.fld_name)
@@ -2340,7 +2338,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.108  2006-11-24 10:01:31  ncq
+# Revision 1.109  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.108  2006/11/24 10:01:31  ncq
 # - gm_beep_statustext() -> gm_statustext()
 #
 # Revision 1.107  2006/10/24 13:23:03  ncq

@@ -99,8 +99,8 @@ class cActiveRequestsPanel (RequestsPanel):
     """
     def __init__ (self, parent, id):
         RequestsPanel.__init__ (self, parent, id)
-        self.wheel_type.setMatchProvider (gmForms.FormTypeMP ())
-        self.wheel_form.setMatchProvider (gmForms.FormMP ())
+        self.wheel_type.matcher = gmForms.FormTypeMP()
+        self.wheel_form.matcher = gmForms.FormMP()
         wx.EVT_BUTTON (self.button_OK, self.button_OK.GetId (), self._ok_pressed)
 
     def _ok_pressed (self, event):

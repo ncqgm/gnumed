@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.47 2007-02-04 15:53:58 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmEMRStructWidgets.py,v 1.48 2007-02-05 12:15:23 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -50,6 +50,9 @@ class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
+		kwargs['aDelay'] = 50
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""
@@ -79,13 +82,10 @@ select pk, l10n_description from (
 ) as q_ordered order by rank, l10n_description
 """			]
 		)
-
 		mp.setThresholds(2, 4, 6)
-		kwargs['aMatchProvider'] = mp
-		kwargs['aDelay'] = 50
-		kwargs['selection_only'] = True
 
-		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+		self.matcher = mp
+		self.selection_only = True
 #----------------------------------------------------------------
 class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
@@ -339,12 +339,8 @@ class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				limit 30"""
 			]
 		)
-		kwargs['aMatchProvider'] = mp
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.matcher = mp
 #----------------------------------------------------------------
 class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select an episode.
@@ -394,12 +390,12 @@ u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes
 
 		del kwargs['patient_id']
 
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
+		self.matcher = mp
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -582,12 +578,12 @@ union
 
 		del kwargs['patient_id']
 
-		kwargs['aMatchProvider'] = mp
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
+		self.matcher = mp
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -674,7 +670,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			queries = [u"select distinct on (description) description, description from clin.health_issue where description %(fragment_condition)s limit 50"]
 		)
 		mp.setThresholds(1, 3, 5)
-		self._PRW_condition.setMatchProvider(mp = mp)
+		self._PRW_condition.matcher = mp
 
 		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
 		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
@@ -1696,7 +1692,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.47  2007-02-04 15:53:58  ncq
+# Revision 1.48  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.47  2007/02/04 15:53:58  ncq
 # - use SetText()
 #
 # Revision 1.46  2007/01/15 20:22:09  ncq

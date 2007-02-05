@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.111 2007-02-04 15:55:14 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmMedDocWidgets.py,v 1.112 2007-02-05 12:15:23 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -57,14 +57,13 @@ limit 25"""],
 		mp.setThresholds(3, 5, 7)
 		mp.unset_context(u'pk_doc_type')
 
-		kwargs['aMatchProvider'] = mp
 		kwargs['aDelay'] = 50
-		kwargs['selection_only'] = False
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
+		self.matcher = mp
 #============================================================
 class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 	"""A dialog showing a cEditDocumentTypesPnl."""
@@ -192,14 +191,13 @@ u"""select * from ((
 			)
 		mp.setThresholds(2, 4, 6)
 
-		kwargs['aMatchProvider'] = mp
 		kwargs['aDelay'] = 50
-		kwargs['selection_only'] = False
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,
 			**kwargs
 		)
+		self.matcher = mp
 	#--------------------------------------------------------
 	def GetData(self, can_create=False):
 		if self.data is None:
@@ -395,7 +393,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
 		gmPlugin.cPatientChange_PluginMixin.__init__(self)
 
-		self._PhWheel_reviewer.setMatchProvider(mp = gmPerson.cMatchProvider_Provider())
+		self._PhWheel_reviewer.matcher = gmPerson.cMatchProvider_Provider()
 
 		self.__init_ui_data()
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
@@ -1369,7 +1367,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.111  2007-02-04 15:55:14  ncq
+# Revision 1.112  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.111  2007/02/04 15:55:14  ncq
 # - use SetText()
 #
 # Revision 1.110  2007/01/18 22:13:37  ncq

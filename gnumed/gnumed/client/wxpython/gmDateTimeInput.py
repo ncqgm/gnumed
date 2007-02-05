@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.50 2007-02-04 15:51:00 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmDateTimeInput.py,v 1.51 2007-02-05 12:15:23 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -103,10 +103,8 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
-		# setup custom match provider
-		kwargs['aMatchProvider'] = cMatchProvider_FuzzyTimestamp()
-
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.matcher = cMatchProvider_FuzzyTimestamp()
 		self.phrase_separators = None
 		self.selection_only = False
 #		self.set_snap_to_first_match(True)
@@ -221,7 +219,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.50  2007-02-04 15:51:00  ncq
+# Revision 1.51  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.50  2007/02/04 15:51:00  ncq
 # - no more snap_to_first_match
 # - use SetText()
 # - explicetly unset phrase separators

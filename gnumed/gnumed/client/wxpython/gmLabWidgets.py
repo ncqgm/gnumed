@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -126,18 +126,18 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			select pk, internal_name
 			from test_org
 			"""
-		self.mp = gmMatchProvider.cMatchProvider_SQL2([query])
-		self.mp.setThresholds(aWord=2, aSubstring=4)
+		mp = gmMatchProvider.cMatchProvider_SQL2([query])
+		mp.setThresholds(aWord=2, aSubstring=4)
 
 		gmPhraseWheel.cPhraseWheel.__init__(
 			self,
 			parent = parent,
 			id = -1,
-			aMatchProvider = self.mp,
 			size = wx.DefaultSize,
 			pos = wx.DefaultPosition
 		)
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
+		self.matcher = mp
 #=========================================================
 # FIXME: is this really lab specific ?
 class cLabIDListCtrl(wx.ListCtrl, wx.ListCtrlAutoWidthMixin):
@@ -863,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.25  2007-01-20 22:52:27  ncq
+# Revision 1.26  2007-02-05 12:15:23  ncq
+# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
+#
+# Revision 1.25  2007/01/20 22:52:27  ncq
 # - .KeyCode -> GetKeyCode()
 #
 # Revision 1.24  2007/01/18 22:07:52  ncq
