@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.100 2007-01-16 17:58:11 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmPerson.py,v 1.101 2007-02-05 16:09:44 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -44,7 +44,7 @@ class cDTO_person(object):
 	#--------------------------------------------------------
 	def __setattr__(self, attr, val):
 		"""Do some sanity checks on self.* access."""
-		if attr in ['firstname', 'lastname']:
+		if attr in ['firstnames', 'lastnames']:
 			object.__setattr__(self, attr, str(val))
 			return
 
@@ -65,7 +65,7 @@ class cDTO_person(object):
 			object.__setattr__(self, attr, val)
 			return
 
-		object.__setattr__(self, attr, str(val))
+		object.__setattr__(self, attr, val)
 		return
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
@@ -1943,7 +1943,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.100  2007-01-16 17:58:11  ncq
+# Revision 1.101  2007-02-05 16:09:44  ncq
+# - fix person dto
+#
+# Revision 1.100  2007/01/16 17:58:11  ncq
 #  -cleanup
 #
 # Revision 1.99  2007/01/16 14:23:24  ncq
