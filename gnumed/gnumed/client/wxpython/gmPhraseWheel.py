@@ -6,30 +6,28 @@ interface of Richard Terry's Visual Basic client
 
 This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
-#@copyright: GPL
-
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.93 2007-02-04 18:50:12 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmPhraseWheel.py,v 1.94 2007-02-05 12:11:17 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
+__license__ = "GPL"
 
+# stdlib
 import string, types, time, sys, re as regex
 
+
+# 3rd party
 import wx
 import wx.lib.mixins.listctrl as listmixins
+
 
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
-from Gnumed.pycommon import gmLog, gmExceptions, gmMatchProvider, gmTools
+from Gnumed.pycommon import gmTools
 
-_log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-
-_log.Log(gmLog.lInfo, __version__)
 #============================================================
 # those can be used by the <accepted_chars> phrasewheel parameter
 NUMERIC = '0-9'
@@ -60,7 +58,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def get_selected_item_label(self):
 		return self.__data[self.GetFirstSelected()]['label']
 #============================================================
-# FIXME: cols in pick list, spelling, error strings (regex, selection_only, etc), snap_to_basename/first match on tab+set selection
+# FIXME: cols in pick list, snap_to_basename/first match on tab+set selection
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
@@ -70,40 +68,30 @@ class cPhraseWheel(wx.TextCtrl):
 	enhanced by Ian Haywood for aumed
 	enhanced by Karsten Hilbert for GNUmed
 	"""
-	def __init__ (
-		self,
-		parent=None,
-		id=-1,
-		value='',
-		aMatchProvider=None,
-		aDelay=150,
-		selection_only=False,
-		*args,
-		**kwargs
-	):
+	def __init__ (self, parent=None, id=-1, value='', aDelay=150, *args, **kwargs):
 
-		self.__matcher = aMatchProvider
+		# behaviour
+		self.matcher = None
+		self.selection_only = False
+		self.selection_only_error_msg = _('You must select a value from the picklist or type an exact match.')
+#		self.snap_to_first_match = (False or self.selection_only)
+		self.capitalisation_mode = gmTools.CAPS_NONE
+		self.accepted_chars = None
+		self.final_regex = '.*'
+		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]') % self.__final_regex.pattern
+		self.phrase_separators = '[;/|]+'
+		self.navigate_after_selection = False
+		self.speller = None
+
+		# state tracking
+		self._has_focus = False
+		self.suppress_text_update_smarts = False
 		self.__current_matches = []
-
 		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
 		self.input2match = ''
 		self.left_part = ''
 		self.right_part = ''
 		self.data = None
-
-		# behaviour
-		self.selection_only = selection_only
-#		self.snap_to_first_match = (False or self.selection_only)
-		self.capitalisation_mode = gmTools.CAPS_NONE
-		self.accepted_chars = None
-		self.final_regex = '.*'
-		self.phrase_separators = '[;/|]+'
-		self.navigate_after_selection = False
-		self.spellcheck = True
-
-		# state tracking
-		self._has_focus = False
-		self.suppress_text_update_smarts = False
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
@@ -154,9 +142,6 @@ class cPhraseWheel(wx.TextCtrl):
 #	def set_snap_to_first_match(self, state = False):
 #		self.snap_to_first_match = (state or self.selection_only)
 	#--------------------------------------------------------
-	def setMatchProvider (self, mp=None):
-		self.__matcher = mp
-	#--------------------------------------------------------
 	def add_callback_on_selection(self, callback=None):
 		"""Add a callback for a listener.
 
@@ -199,10 +184,10 @@ class cPhraseWheel(wx.TextCtrl):
 		The whole thing will only work if data is found
 		in the match space anyways.
 		"""
-		if self.__matcher is None:
+		if self.matcher is None:
 			matched, matches = (False, [])
 		else:
-			matched, matches = self.__matcher.getMatches('*')
+			matched, matches = self.matcher.getMatches('*')
 
 		if self.selection_only:
 			if not matched or (len(matches) == 0):
@@ -231,8 +216,6 @@ class cPhraseWheel(wx.TextCtrl):
 		"""
 		return self.data
 	#---------------------------------------------------------
-#	def SetValue (self, value, data=None):
-	#---------------------------------------------------------
 	def SetText (self, value=u'', data=None):
 
 		if data is not None:
@@ -249,10 +232,10 @@ class cPhraseWheel(wx.TextCtrl):
 			return True
 
 		# or try to find data from matches
-		if self.__matcher is None:
+		if self.matcher is None:
 			stat, matches = (False, [])
 		else:
-			stat, matches = self.__matcher.getMatches(aFragment = value)
+			stat, matches = self.matcher.getMatches(aFragment = value)
 
 		for match in matches:
 			if match['label'] == value:
@@ -267,16 +250,14 @@ class cPhraseWheel(wx.TextCtrl):
 		return True
 	#--------------------------------------------------------
 	def set_context (self, context=None, val=None):
-		if self.__matcher is not None:
-			self.__matcher.set_context(context=context, val=val)
-		else:
-			_log.Log(gmLog.lWarn, "aMatchProvider must be set to set context")
+		if self.matcher is not None:
+			self.matcher.set_context(context=context, val=val)
 	#---------------------------------------------------------
 	def unset_context(self, context=None):
-		if self.__matcher is not None:
-			self.__matcher.unset_context(context=context)
-		else:
-			_log.Log(gmLog.lWarn, "aMatchProvider must be set to unset context")
+		if self.matcher is not None:
+			self.matcher.unset_context(context=context)
+	#--------------------------------------------------------
+	# internal API
 	#--------------------------------------------------------
 	# picklist handling
 	#--------------------------------------------------------
@@ -304,9 +285,9 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# recalculate size
 		rows = len(self.__current_matches)
-		if rows < 2:
+		if rows < 2:				# 2 rows minimum
 			rows = 2
-		if rows > 20:
+		if rows > 20:				# 20 rows maximum
 			rows = 20
 		dropdown_size = self.__picklist_dropdown.GetSize()
 		pw_size = self.GetSize()
@@ -376,11 +357,19 @@ class cPhraseWheel(wx.TextCtrl):
 			self.input2match = val
 
 		# get all currently matching items
-		if self.__matcher is not None:
-			matched, self.__current_matches = self.__matcher.getMatches(self.input2match)
+		if self.matcher is not None:
+			matched, self.__current_matches = self.matcher.getMatches(self.input2match)
 			self._picklist.SetItems(self.__current_matches)
-		else:
-			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
+
+		# no matches found: might simply be due to a typo, so spellcheck
+		if len(self.__current_matches) == 0:
+			if self.speller is not None:
+				if not self.speller.check(self.input2match):
+					spells = self.speller.suggest(self.input2match)
+					for spell in spells:
+						self.__current_matches.append({'label': spell, 'data': None})
+					self._picklist.SetItems(self.__current_matches)
+
 	#--------------------------------------------------------
 	# internal helpers: GUI
 	#--------------------------------------------------------
@@ -547,7 +536,7 @@ class cPhraseWheel(wx.TextCtrl):
 		elif not self.__char_is_allowed(char = unichr(event.GetUnicodeKey())):
 			# FIXME: configure ?
 			wx.Bell()
-			# FIXME: display status message ?  Richard doesn't ...
+			# FIXME: display error message ?  Richard doesn't ...
 			return
 
 		event.Skip()
@@ -637,7 +626,6 @@ class cPhraseWheel(wx.TextCtrl):
 			val = self.GetValue().strip()
 			if val != u'':
 				self.__update_matches_in_picklist()
-#				no_of_matches = len(self.__current_matches)
 				for match in self.__current_matches:
 					if match['label'] == val:
 						self.data = match['data']
@@ -648,36 +636,12 @@ class cPhraseWheel(wx.TextCtrl):
 		# no exact match found
 		if self.data is None:
 			if self.selection_only:
-				gmGuiHelpers.gm_statustext(_('You must select a value from the picklist or type an exact match.'))
+				gmGuiHelpers.gm_statustext(self.selection_only_error_msg)
 				self.SetBackgroundColour('pink')
 
-		# can/must we auto-set the value from the match list ?
-#		if self.snap_to_first_match:
-#			if self.data is None:
-#				val = self.GetValue().strip()
-#				if val != u'':
-#					self.__update_matches_in_picklist()
-#					no_matches = len(self.__current_matches)
-#					if no_matches == 1:
-#						wx.TextCtrl.SetValue(self, self.__current_matches[0]['label'])
-#						self.data = self.__current_matches[0]['data']
-#						self.MarkDirty()
-#					elif no_matches > 1:
-#						gmGuiHelpers.gm_statustext(_('Cannot auto-select from list. There are several matches for the input [%s].') % val)
-#						if self.selection_only:
-#							self.SetBackgroundColour('pink')
-#						return True
-#					else:
-#						gmGuiHelpers.gm_statustext(_('There are no matches for this input.'))
-#						if self.selection_only:
-#							self.SetBackgroundColour('pink')
-#							self.Clear()
-#						return True
-
-		# if user can enter free text check value against
-		# final_regex if any given
+		# check value against final_regex if any given
 		if not self.__final_regex.match(self.GetValue().strip()):
-			gmGuiHelpers.gm_statustext(_('The content is invalid. It must match this pattern: [%s]') % self.__final_regex.pattern)
+			gmGuiHelpers.gm_statustext(self.final_regex_error_msg)
 			self.SetBackgroundColour('pink')
 
 		# notify interested parties
@@ -690,9 +654,13 @@ class cPhraseWheel(wx.TextCtrl):
 # MAIN
 #--------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmI18N, gmPG2
+	import os.path
+
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain(text_domain='gnumed')
+
+	from Gnumed.pycommon import gmPG2, gmMatchProvider
 
 	prw = None
 	#--------------------------------------------------------
@@ -723,25 +691,21 @@ if __name__ == '__main__':
 	def test_prw_fixed_list():
 		app = wx.PyWidgetTester(size = (200, 50))
 
-		items = [	{'data':1, 'label':"Bloggs", 	'weight':5},
-					{'data':2, 'label':"Baker",  	'weight':4},
-					{'data':3, 'label':"Jones",  	'weight':3},
-					{'data':4, 'label':"Judson", 	'weight':2},
-					{'data':5, 'label':"Jacobs", 	'weight':1},
-					{'data':6, 'label':"Judson-Jacobs",'weight':5}
+		items = [	{'data':1, 'label':"Bloggs"},
+					{'data':2, 'label':"Baker"},
+					{'data':3, 'label':"Jones"},
+					{'data':4, 'label':"Judson"},
+					{'data':5, 'label':"Jacobs"},
+					{'data':6, 'label':"Judson-Jacobs"}
 				]
 
 		mp = gmMatchProvider.cMatchProvider_FixedList(items)
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 		mp.setWordSeparators(separators = '[ \t=+&:@]+')
 		global prw
-		prw = cPhraseWheel (
-			parent = app.frame,
-			id = -1,
-			aMatchProvider = mp
-		)
+		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw.matcher = mp
 		prw.capitalisation_mode = gmTools.CAPS_NAMES
-		prw.spellcheck = False
 		prw.add_callback_on_set_focus(callback=display_values_set_focus)
 		prw.add_callback_on_modified(callback=display_values_modified)
 		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
@@ -765,27 +729,51 @@ if __name__ == '__main__':
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
 		app = wx.PyWidgetTester(size = (200, 50))
 		global prw
-		prw = cPhraseWheel (
-			parent = app.frame,
-			id = -1,
-			aMatchProvider = mp
-		)
+		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw.matcher = mp
 
 		app.frame.Show(True)
 		app.MainLoop()
 
 		return True
 	#--------------------------------------------------------
-	try:
-		test_prw_fixed_list()
-		test_prw_sql2()
-	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-		raise
+	def test_spell_checking_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+
+		global prw
+		prw = cPhraseWheel(parent = app.frame, id = -1)
+
+		prw.add_callback_on_set_focus(callback=display_values_set_focus)
+		prw.add_callback_on_modified(callback=display_values_modified)
+		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
+		prw.add_callback_on_selection(callback=display_values_selected)
+
+		import enchant
+		prw.speller = enchant.DictWithPWL(None, os.path.expanduser('~/phrasewheel-test.pwl'))
+
+		app.frame.Show(True)
+		app.MainLoop()
+
+		return True
+	#--------------------------------------------------------
+#	test_prw_fixed_list()
+#	test_prw_sql2()
+	test_spell_checking_prw()
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.93  2007-02-04 18:50:12  ncq
+# Revision 1.94  2007-02-05 12:11:17  ncq
+# - put GPL into __license__
+# - code and layout cleanup
+# - remove dependancy on gmLog
+# - cleanup __init__ interface:
+# 	- remove selection_only
+# 	- remove aMatchProvider
+# 	- set both directly on instance members now
+# - implement spell checking plus test case for it
+# - implement configurable error messages
+#
+# Revision 1.93  2007/02/04 18:50:12  ncq
 # - capitalisation_mode is now instance variable
 #
 # Revision 1.92  2007/02/04 16:04:03  ncq
@@ -1133,23 +1121,13 @@ if __name__ == '__main__':
 #- display possible completion but highlighted for deletion
 #(- cycle through possible completions)
 #- pre-fill selection with SELECT ... LIMIT 25
-#- weighing by incrementing counter - if rollover, reset all counters to percentage of self.value()
-#- ageing of item weight
 #- async threads for match retrieval instead of timer
 #  - on truncated results return item "..." -> selection forcefully retrieves all matches
-
-#- plugin for pattern matching/validation of input
 
 #- generators/yield()
 #- OnChar() - process a char event
 
 # split input into words and match components against known phrases
-# -> accumulate weights into total item weight
-
-# - case insensitive by default but
-# - make case sensitive matching possible
-#   - if no matches found revert to case _insensitive_ matching
-# - maybe _sensitive_ by default + auto-revert if too few matches ?
 
 # make special list window:
 # - deletion of items
