@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.94 2007-02-05 12:11:17 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmPhraseWheel.py,v 1.95 2007-02-06 13:45:39 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -58,17 +58,47 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def get_selected_item_label(self):
 		return self.__data[self.GetFirstSelected()]['label']
 #============================================================
-# FIXME: cols in pick list, snap_to_basename/first match on tab+set selection
+# FIXME: cols in pick list, snap_to_basename/first match on tab+set selection, learn() -> PWL
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
-	VB implementation by Richard Terry
-	Python port by Ian Haywood for GNUmed
-	enhanced by Karsten Hilbert for GNUmed
-	enhanced by Ian Haywood for aumed
-	enhanced by Karsten Hilbert for GNUmed
+	- VB implementation by Richard Terry
+	- Python port by Ian Haywood for GNUmed
+	- enhanced by Karsten Hilbert for GNUmed
+	- enhanced by Ian Haywood for aumed
+	- enhanced by Karsten Hilbert for GNUmed
+
+	@param matcher: a class used to find matches for the current input
+	@type matcher: a L{match provider<Gnumed.pycommon.gmMatchProvider.cMatchProvider>}
+		instance or C{None}
+	@param selection_only: whether free-text can be entered without associated data
+	@type selection_only: boolean
+	@param capitalisation_mode: how to auto-capitalize input, valid values
+		are found in L{capitalize()<Gnumed.pycommon.gmTools.capitalize>}
+	@type capitalisation_mode: integer
+	@param accepted_chars: a regex pattern defining the characters
+		acceptable in the input string, if None no checking is performed
+	@type accepted_chars: None or a string holding a valid regex pattern
+	@param final_regex: when the control loses focus the input is
+		checked against this regular expression
+	@type final_regex: a string holding a valid regex pattern
+	@param phrase_separators: if not None, input is split into phrases
+		at boundaries defined by this regex and matching/spellchecking
+		is performed on the phrase the cursor is in only
+	@type phrase_separators: None or a string holding a valid regex pattern
+	@param navigate_after_selection: whether or not to immediately
+		navigate to the widget next-in-tab-order after selecting an
+		item from the dropdown picklist
+	@type navigate_after_selection: boolean
+	@param speller: if not None used to spellcheck the current input
+		and to retrieve suggested replacements/completions
+	@type speller: None or a L{enchant Dict<enchant>} descendant
+	@param picklist_delay: this much time of user inactivity must have
+		passed before the input related smarts kick in and the drop
+		down pick list is shown
+	@type picklist_delay: integer (milliseconds)
 	"""
-	def __init__ (self, parent=None, id=-1, value='', aDelay=150, *args, **kwargs):
+	def __init__ (self, parent=None, id=-1, value='', *args, **kwargs):
 
 		# behaviour
 		self.matcher = None
@@ -82,6 +112,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.phrase_separators = '[;/|]+'
 		self.navigate_after_selection = False
 		self.speller = None
+		self.picklist_delay = 150		# milliseconds
 
 		# state tracking
 		self._has_focus = False
@@ -132,7 +163,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		self.__timer = gmTimer.cTimer (
 			callback = self._on_timer_fired,
-			delay = aDelay
+			delay = self.picklist_delay
 		)
 		# initially stopped
 		self.__timer.Stop()
@@ -143,7 +174,8 @@ class cPhraseWheel(wx.TextCtrl):
 #		self.snap_to_first_match = (state or self.selection_only)
 	#--------------------------------------------------------
 	def add_callback_on_selection(self, callback=None):
-		"""Add a callback for a listener.
+		"""
+		Add a callback for invocation when a picklist item is selected.
 
 		The callback will be invoked whenever an item is selected
 		from the picklist. The associated data is passed in as
@@ -157,29 +189,38 @@ class cPhraseWheel(wx.TextCtrl):
 		self._on_selection_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_set_focus(self, callback=None):
+		"""
+		Add a callback for invocation when getting focus.
+		"""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_set_focus]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_set_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
+		"""
+		Add a callback for invocation when losing focus.
+		"""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_lose_focus]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_lose_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_modified(self, callback=None):
+		"""
+		Add a callback for invocation when the content is modified.
+		"""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_modified]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_modified_callbacks.append(callback)
 	#---------------------------------------------------------
 	def SetData(self, data=None):
-		"""Set the data and thereby set the value, too.
+		"""
+		Set the data and thereby set the value, too.
 
-		If you call SetData() when self.selection_only is
-		false you better be prepared doing a scan of the
-		entire potential match space.
+		If you call SetData() you better be prepared
+		doing a scan of the entire potential match space.
 
 		The whole thing will only work if data is found
 		in the match space anyways.
@@ -203,7 +244,6 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# no match found ...
 		if self.selection_only:
-			self.SetBackgroundColour('pink')
 			return False
 
 		self.data = data
@@ -269,19 +309,19 @@ class cPhraseWheel(wx.TextCtrl):
 		# this helps if the current input was already selected from the
 		# list but still is the substring of another pick list item
 		if self.data is not None:
-			return 1
+			return
 
 		if not self._has_focus:
-			return 1
+			return
 
 		if len(self.__current_matches) == 0:
-			return 1
+			return
 
 		# if only one match and text == match
 		if len(self.__current_matches) == 1:
 			if self.__current_matches[0]['label'] == self.input2match:
 				self.data = self.__current_matches[0]['data']
-				return 1
+				return
 
 		# recalculate size
 		rows = len(self.__current_matches)
@@ -329,7 +369,8 @@ class cPhraseWheel(wx.TextCtrl):
 	def __update_matches_in_picklist(self, val=None):
 		"""Get the matches for the currently typed input fragment."""
 
-		if val is None:
+		self.input2match = val
+		if self.input2match is None:
 			# get current(ly relevant part of) input
 			if self.__phrase_separators is not None:
 				entire_input = self.GetValue()
@@ -352,9 +393,6 @@ class cPhraseWheel(wx.TextCtrl):
 				self.input2match = entire_input[phrase_start:phrase_end+1]
 			else:
 				self.input2match = self.GetValue().strip()
-		else:
-			# find matches for given value
-			self.input2match = val
 
 		# get all currently matching items
 		if self.matcher is not None:
@@ -391,11 +429,10 @@ class cPhraseWheel(wx.TextCtrl):
 			if selected < (len(self.__current_matches) - 1):
 				self.__select_picklist_row(selected+1, selected)
 
-		# if we don't yet have a pick list
-		# - open new pick list
+		# if we don't yet have a pick list: open new pick list
 		# (this can happen when we TAB into a field pre-filled
-		#  with the top-weighted contextual data but want to
-		#  select another contextual item)
+		# with the top-weighted contextual data but want to
+		# select another contextual item)
 		else:
 			self.__timer.Stop()
 			if self.GetValue().strip() == '':
@@ -491,10 +528,11 @@ class cPhraseWheel(wx.TextCtrl):
 		self.data = self._picklist.GetSelectedItemData()	# just so that _calc_display_string could use it
 
 		# update our display
+		self.suppress_text_update_smarts = True
 		if self.__phrase_separators is not None:
-			wx.TextCtrl.SetValue (self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
+			wx.TextCtrl.SetValue(self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
 		else:
-			wx.TextCtrl.SetValue (self, self._calc_display_string())
+			wx.TextCtrl.SetValue(self, self._calc_display_string())
 
 		self.data = self._picklist.GetSelectedItemData()
 		self.MarkDirty()
@@ -573,8 +611,7 @@ class cPhraseWheel(wx.TextCtrl):
 					# FIXME: SetSelection() ?
 
 			# start timer for delayed match retrieval
-			# milliseconds needed for Windows bug
-			self.__timer.Start(oneShot = True)
+			self.__timer.Start(oneShot = True, milliseconds = self.picklist_delay)
 
 		# notify interested parties
 		for callback in self._on_modified_callbacks:
@@ -600,7 +637,7 @@ class cPhraseWheel(wx.TextCtrl):
 #					self.data = self.__current_matches[0]['data']
 #					self.MarkDirty()
 #
-		self.__timer.Start(oneShot = True)
+		self.__timer.Start(oneShot = True, milliseconds = self.picklist_delay)
 
 		return True
 	#--------------------------------------------------------
@@ -737,6 +774,21 @@ if __name__ == '__main__':
 
 		return True
 	#--------------------------------------------------------
+	def test_prw_patients():
+		gmPG2.get_connection()
+		query = u"select pk_identity, firstnames || ' ' || lastnames || ' ' || dob::text as pat_name from dem.v_basic_person where firstnames || lastnames %(fragment_condition)s"
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
+		app = wx.PyWidgetTester(size = (200, 50))
+		global prw
+		prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw.matcher = mp
+
+		app.frame.Show(True)
+		app.MainLoop()
+
+		return True
+	#--------------------------------------------------------
 	def test_spell_checking_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 
@@ -759,10 +811,17 @@ if __name__ == '__main__':
 #	test_prw_fixed_list()
 #	test_prw_sql2()
 	test_spell_checking_prw()
+#	test_prw_patients()
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.94  2007-02-05 12:11:17  ncq
+# Revision 1.95  2007-02-06 13:45:39  ncq
+# - much improved docs
+# - remove aDelay from __init__ and make it a class variable
+# - thereby we can now dynamically adjust it at runtime :-)
+# - add patient searcher phrasewheel example
+#
+# Revision 1.94  2007/02/05 12:11:17  ncq
 # - put GPL into __license__
 # - code and layout cleanup
 # - remove dependancy on gmLog
