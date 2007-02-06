@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.112 2007-02-05 12:15:23 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmMedDocWidgets.py,v 1.113 2007-02-06 13:43:40 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -22,6 +22,8 @@ _log.Log(gmLog.lInfo, __version__)
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
 	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
 		context = {
 			u'ctxt_doc_type': {
@@ -57,13 +59,8 @@ limit 25"""],
 		mp.setThresholds(3, 5, 7)
 		mp.unset_context(u'pk_doc_type')
 
-		kwargs['aDelay'] = 50
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
 		self.matcher = mp
+		self.picklist_delay = 50
 #============================================================
 class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 	"""A dialog showing a cEditDocumentTypesPnl."""
@@ -176,6 +173,8 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document type."""
 	def __init__(self, *args, **kwargs):
 
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""select * from ((
@@ -191,13 +190,8 @@ u"""select * from ((
 			)
 		mp.setThresholds(2, 4, 6)
 
-		kwargs['aDelay'] = 50
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
 		self.matcher = mp
+		self.picklist_delay = 50
 	#--------------------------------------------------------
 	def GetData(self, can_create=False):
 		if self.data is None:
@@ -1367,7 +1361,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.112  2007-02-05 12:15:23  ncq
+# Revision 1.113  2007-02-06 13:43:40  ncq
+# - no more aDelay in __init__()
+#
+# Revision 1.112  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.111  2007/02/04 15:55:14  ncq

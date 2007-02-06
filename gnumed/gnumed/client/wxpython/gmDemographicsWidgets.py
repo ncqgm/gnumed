@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.113 2007-02-05 12:15:23 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmDemographicsWidgets.py,v 1.114 2007-02-06 13:43:40 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -413,14 +413,10 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = cGenderSelectionPhraseWheel._gender_map.values())
 		mp.setThresholds(1, 1, 3)
 
-		kwargs['aDelay'] = 50
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.selection_only = True
 		self.matcher = mp
+		self.picklist_delay = 50
 #============================================================
 class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1742,7 +1738,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.113  2007-02-05 12:15:23  ncq
+# Revision 1.114  2007-02-06 13:43:40  ncq
+# - no more aDelay in __init__()
+#
+# Revision 1.113  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.112  2007/02/04 15:52:10  ncq

@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.48 2007-02-05 12:15:23 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmEMRStructWidgets.py,v 1.49 2007-02-06 13:43:40 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -50,7 +50,6 @@ class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""
 	def __init__(self, *args, **kwargs):
 
-		kwargs['aDelay'] = 50
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -86,6 +85,7 @@ select pk, l10n_description from (
 
 		self.matcher = mp
 		self.selection_only = True
+		self.picklist_delay = 50
 #----------------------------------------------------------------
 class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
@@ -1692,7 +1692,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.48  2007-02-05 12:15:23  ncq
+# Revision 1.49  2007-02-06 13:43:40  ncq
+# - no more aDelay in __init__()
+#
+# Revision 1.48  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.47  2007/02/04 15:53:58  ncq
