@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1360,7 +1360,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.84 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.85 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1423,7 +1423,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		database = __prompted_input("database [gnumed_v3]: ", 'gnumed_v3')
+		database = __prompted_input("database [gnumed_v5]: ", 'gnumed_v5')
 		user = __prompted_input("user name: ", '')
 		password = getpass.getpass("password (not shown): ")
 		port = __prompted_input("port [5432]: ", 5432)
@@ -1597,7 +1597,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.84  2006-12-06 16:04:48  ncq
+# Revision 1.85  2007-02-06 12:11:25  ncq
+# - gnumed_v5
+#
+# Revision 1.84  2006/12/06 16:04:48  ncq
 # - cleanup
 #
 # Revision 1.83  2006/10/23 13:22:26  ncq
