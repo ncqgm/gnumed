@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.8 2006-10-08 15:10:51 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmLoginInfo.py,v 1.9 2007-02-06 12:08:39 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -32,13 +32,13 @@ class LoginInfo:
 	password = ''
 	host = ''
 	port = 5432
-	database = 'gnumed_v3'
+	database = 'gnumed_v5'
 	__profile = 'default'
 	#------------------------------------------
-	def __init__(self, user, passwd, host, port=5432, database='gnumed_v3', profile='default'):
+	def __init__(self, user, passwd, host, port=5432, database='gnumed_v5', profile='default'):
 		self.SetInfo(user, passwd, host, port, database, profile)
 	#------------------------------------------
-	def SetInfo(self, user, passwd, host='', port=5432, dbname='gnumed_v3', profile='default'):
+	def SetInfo(self, user, passwd, host='', port=5432, dbname='gnumed_v5', profile='default'):
 		self.SetUser(user)
 		self.SetPassword(passwd)
 		self.SetHost(host)
@@ -172,7 +172,7 @@ class LoginInfo:
 		self.password = ""
 		self.host = ''
 		self.port = 5432
-		self.database = "gnumed_v3"
+		self.database = "gnumed_v5"
 		self.__profile = 'default'
 
 #====================================================================
@@ -181,7 +181,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.8  2006-10-08 15:10:51  ncq
+# Revision 1.9  2007-02-06 12:08:39  ncq
+# - upgrade to gnumed_v5
+#
+# Revision 1.8  2006/10/08 15:10:51  ncq
 # - add comment on cBorg
 #
 # Revision 1.7  2006/09/21 19:46:38  ncq
