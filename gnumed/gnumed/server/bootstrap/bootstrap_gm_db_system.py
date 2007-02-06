@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -56,7 +56,7 @@ _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 _cfg = gmCfg.gmDefCfgFile
 
-_interactive = 0
+_interactive = False
 _bootstrapped_servers = {}
 _bootstrapped_dbs = {}
 _dbowner = None
@@ -1016,9 +1016,11 @@ def handle_cfg():
 	become_pg_demon_user()
 
 	tmp = _cfg.get("installation", "interactive")
+	global _interactive
 	if tmp == "yes":
-		global _interactive
-		_interactive = 1
+		_interactive = True
+	elif tmp == "no":
+		_interactive = False
 
 	tmp = _cfg.get('installation', 'keep temp files')
 	if tmp == "yes":
@@ -1068,7 +1070,7 @@ if __name__ == "__main__":
 		exit_with_msg("Bootstrapping failed: wrong result hash")
 
 	_log.Log(gmLog.lInfo, "shutdown")
-	print "Done bootstrapping: We probably succeeded."
+	print "Done bootstrapping: We likely succeeded."
 else:
 	print "This currently is not intended to be used as a module."
 
@@ -1099,7 +1101,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.44  2007-01-29 13:02:36  ncq
+# Revision 1.45  2007-02-06 12:13:16  ncq
+# - properly set _interactive if handling more than one conf
+# - show a little more confidence in our result now that we use hashes
+#
+# Revision 1.44  2007/01/29 13:02:36  ncq
 # - avoid the need for gm-dbo to be able to connect to the
 #   template and the newly created database so we don't need
 #   *pre*-installation changes to pg_hba.conf anymore
