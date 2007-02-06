@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd ../../
-ln -vfsn server Gnumed
+ln -vfsn client Gnumed
 cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
