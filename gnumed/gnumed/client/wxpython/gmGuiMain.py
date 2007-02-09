@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.305 2007-02-04 17:30:08 ncq Exp $
-__version__ = "$Revision: 1.305 $"
+# $Id: gmGuiMain.py,v 1.306 2007-02-09 15:01:14 ncq Exp $
+__version__ = "$Revision: 1.306 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,7 +51,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord
 from Gnumed.exporters import gmPatientExporter
@@ -499,20 +499,30 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.is_connected():
 			return True
 
+		# did we add anything to the EMR ?
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
-		# did we add anything to the EMR ?
 		if enc.has_clinical_data():
-			if enc['assessment_of_encounter'] is None:
-				# - work out suitable default
-				epis = emr.get_episodes_by_encounter()
-				if len(epis) > 0:
-					enc_summary = ''
-					for epi in epis:
-						enc_summary += '%s; ' % epi['description']
-					enc['assessment_of_encounter'] = enc_summary
-			dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
-			dlg.ShowModal()
+
+			empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == '')
+			zero_duration = (enc['last_affirmed'] == enc['started'])
+
+			if empty_aoe or zero_duration:
+
+				if empty_aoe:
+					# - work out suitable default
+					epis = emr.get_episodes_by_encounter()
+					if len(epis) > 0:
+						enc_summary = ''
+						for epi in epis:
+							enc_summary += '%s; ' % epi['description']
+						enc['assessment_of_encounter'] = enc_summary
+
+				if zero_duration:
+					enc['last_affirmed'] = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
+
+				dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
+				dlg.ShowModal()
 
 		return True
 	#----------------------------------------------
@@ -1244,7 +1254,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.305  2007-02-04 17:30:08  ncq
+# Revision 1.306  2007-02-09 15:01:14  ncq
+# - show consultation editor just before patient change if
+#   either assessment of encounter is empty or the duration is zero
+# - if the duration is zero, then set last_affirmed to now()
+#
+# Revision 1.305  2007/02/04 17:30:08  ncq
 # - need to expand ~/ appropriately
 #
 # Revision 1.304  2007/01/30 17:53:29  ncq
