@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.230 2007-01-31 23:30:33 ncq Exp $
-__version__ = "$Revision: 1.230 $"
+# $Id: gmClinicalRecord.py,v 1.231 2007-02-09 14:58:43 ncq Exp $
+__version__ = "$Revision: 1.231 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -184,7 +184,7 @@ select fk_encounter from
 	#--------------------------------------------------------
 	# Narrative API
 	#--------------------------------------------------------
-	def add_clin_narrative(self, note = '', soap_cat='s', episode=None):
+	def add_clin_narrative(self, note='', soap_cat='s', episode=None):
 		if note.strip() == '':
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return None
@@ -701,7 +701,10 @@ where
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
 				'cmd': cmd,
-				'args': {'enc': self.__encounter['pk_encounter'], 'pat': self.pk_patient}
+				'args': {
+					'enc': gmTools.coalesce(pk_encounter, self.__encounter['pk_encounter']),
+					'pat': self.pk_patient
+				}
 			}]
 		)
 		if len(rows) == 0:
@@ -709,6 +712,7 @@ where
 		epis = []
 		for row in rows:
 			epis.append(row[0])
+		print "get_episodes_by_encounter(): epis=", epis
 		return self.get_episodes(id_list=epis)
 	#------------------------------------------------------------------
 	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False):
@@ -1585,7 +1589,11 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.230  2007-01-31 23:30:33  ncq
+# Revision 1.231  2007-02-09 14:58:43  ncq
+# - honor <pk_encounter> in get_episodes_by_encounter
+#   instead of always assuming the current encounter
+#
+# Revision 1.230  2007/01/31 23:30:33  ncq
 # - fix __activate_fairly_recent_encounter()
 #
 # Revision 1.229  2007/01/29 11:58:53  ncq
