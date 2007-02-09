@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.49 2007-02-06 13:43:40 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmEMRStructWidgets.py,v 1.50 2007-02-09 14:59:39 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -122,9 +122,6 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		emr = pat.get_emr()
 		episodes = emr.get_episodes_by_encounter(pk_encounter = self.__encounter['pk_encounter'])
 		pos = len(episodes) + 1
-
-		print "epis:", episodes
-		print "FIXME: episodes empty"
 
 		self._LCTRL_problems.DeleteAllItems()
 		for episode in episodes:
@@ -481,7 +478,7 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			self.__episode['pk_health_issue'] = self._PRW_issue.GetData(can_create=True)
 			issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
 			if not move_episode_to_issue(episode = self.__episode, target_issue = issue, save_to_backend = False):
-				gmGuiHelpers.gm_statustext(
+				gmGuiHelpers.gm_statustext (
 					_('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
 						self.__episode['description'],
 						issue['description']
@@ -1692,7 +1689,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.49  2007-02-06 13:43:40  ncq
+# Revision 1.50  2007-02-09 14:59:39  ncq
+# - cleanup
+#
+# Revision 1.49  2007/02/06 13:43:40  ncq
 # - no more aDelay in __init__()
 #
 # Revision 1.48  2007/02/05 12:15:23  ncq
