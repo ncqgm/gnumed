@@ -10,15 +10,18 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.96 2007-01-18 22:03:58 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmPatientExporter.py,v 1.97 2007-02-10 23:41:38 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import os.path, sys, traceback, string, types, time, codecs
+import os.path, sys, traceback, string, types, time, codecs, datetime as pyDT
 
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull, gmPG2, gmTools
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
@@ -964,14 +967,7 @@ class cEMRJournalExporter:
 
 	Note that this export will emit u'' strings only.
 	"""
-	def __init__(self, patient=None):
-		if patient is None:
-			self.__pat = gmPerson.gmCurrentPatient()
-		else:
-			if not isinstance(patient, gmPerson.cPerson):
-				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(gmPerson.cPerson)
-			self.__pat = patient
-
+	def __init__(self):
 		self.__part_len = 72
 		self.__tx_soap = {
 			u's': _('S'),
@@ -982,11 +978,20 @@ class cEMRJournalExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None):
-		if not self.__pat.is_connected():
-			return (False, u'no active patient')
+	def export_to_file(self, filename=None, patient=None):
+		"""
+		Export medical record into a file.
+
+		@type filename: None (creates filename by itself) or string
+		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
+		"""
+		if patient is None:
+			patient = gmPerson.gmCurrentPatient().patient
+			if not patient.is_connected():
+				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
+
 		if filename is None:
-			ident = self.__pat.get_identity()
+			ident = patient.get_identity()
 			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export'))
 			filename = u'%s-%s-%s-%s.txt' % (
 				os.path.join(path, _('emr-journal')),
@@ -994,26 +999,34 @@ class cEMRJournalExporter:
 				ident['firstnames'].replace(u' ', u'_'),
 				ident['dob'].strftime('%Y-%m-%d')
 			)
+
 		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
-		status = self.__export(target = f)
+		self.export(target = f, patient = patient)
 		f.close()
-		return (status, filename)
+
+		return filename
 	#--------------------------------------------------------
-	def export(self, target):
-		return self.__export(target)
+	# internal API
 	#--------------------------------------------------------
-	# interal API
-	#--------------------------------------------------------
-	def __export(self, target = None):
-		if not self.__pat.is_connected():
-			return False
-		ident = self.__pat.get_identity()
+	def export(self, target=None, patient=None):
+		"""
+		Export medical record into a Python object.
+
+		@type target: a python object supporting the write() API
+		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
+		"""
+		if patient is None:
+			patient = gmPerson.gmCurrentPatient().patient
+			if not patient.is_connected():
+				raise ValueError('[%s].export(): no active patient' % self.__class__.__name__)
+
+		ident = patient.get_identity()
 		# write header
 		txt = _('Chronological EMR Journal\n')
 		target.write(txt)
 		target.write(u'=' * (len(txt)-1))
 		target.write('\n')
-		target.write(_('Patient: %s (%s), No: %s\n') % (ident['description'], ident['gender'], self.__pat['ID']))
+		target.write(_('Patient: %s (%s), No: %s\n') % (ident['description'], ident['gender'], patient['ID']))
 		target.write(_('Born   : %s, age: %s\n\n') % (ident['dob'].strftime('%Y-%m-%d'), ident.get_medical_age()))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(u'| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
@@ -1026,7 +1039,7 @@ select
 	(select rank from clin.soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
 from clin.v_emr_journal vemrj
 where pk_patient=%s order by date, pk_episode, scr"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__pat['ID']]}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['ID']]}], get_col_idx = True)
 		# write data
 		prev_date = u''
 		prev_doc = u''
@@ -1067,8 +1080,9 @@ where pk_patient=%s order by date, pk_episode, scr"""
 				target.write(line)
 		# write footer
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(_('Exported: %s\n') % time.asctime())
-		return True
+		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c'))
+
+		return
 #============================================================
 class cMedistarSOAPExporter:
 	"""Export SOAP data per encounter into Medistar import format."""
@@ -1197,9 +1211,9 @@ def run():
         if patient is None:
             break
         # FIXME: needed ?
-        gmPerson.set_active_patient(patient=patient)
+#        gmPerson.set_active_patient(patient=patient)
         exporter = cEMRJournalExporter()
-        exporter.export_to_file()
+        exporter.export_to_file(patient=patient)
 #        export_tool.set_patient(patient)
         # Dump patient EMR sections
 #        export_tool.dump_constraints()
@@ -1215,33 +1229,54 @@ def run():
             patient.cleanup()
         except:
             print "error cleaning up patient"
+#============================================================
+# main
 #------------------------------------------------------------
 if __name__ == "__main__":
-    gmI18N.activate_locale()
-    gmI18N.install_domain()
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
-    gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 
-    print "\n\nGNUmed ASCII EMR Export"
-    print     "======================="
+	#--------------------------------------------------------
+	def export_journal():
 
-    if gmCLI.has_arg('--help'):
-        usage()
+		print "Exporting EMR journal(s) ..."
+		pat_searcher = gmPerson.cPatientSearcher_SQL()
+		while True:
+			patient = gmPerson.ask_for_patient()
+			if patient is None:
+				break
 
-    # run main loop
-    try:
-        run()
-    except StandardError:
-        traceback.print_exc(file=sys.stdout)
-        _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-    try:
-        pool.StopListeners()
-    except:
-        traceback.print_exc(file=sys.stdout)
-        _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+			exporter = cEMRJournalExporter()
+			print "exported into file:", exporter.export_to_file(patient=patient)
+
+			if patient is not None:
+				try:
+					patient.cleanup()
+				except:
+					print "error cleaning up patient"
+		print "Done."
+	#--------------------------------------------------------
+	print "\n\nGNUmed ASCII EMR Export"
+	print     "======================="
+
+	if gmCLI.has_arg('--help'):
+		usage()
+
+	# run main loop
+	export_journal()
+
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.96  2007-01-18 22:03:58  ncq
+# Revision 1.97  2007-02-10 23:41:38  ncq
+# - fix loading of GNUmed python modules
+# - cleaned up journal exporter
+# - fixed bug in journal exporter where it expected is_connected()
+#   in non-gmCurrentPatient-using context, too
+# - when run standalone: export journal
+#
+# Revision 1.96  2007/01/18 22:03:58  ncq
 # - a bit of cleanup
 #
 # Revision 1.95  2007/01/15 20:20:03  ncq
