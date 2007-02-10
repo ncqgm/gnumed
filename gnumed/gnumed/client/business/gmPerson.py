@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.101 2007-02-05 16:09:44 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmPerson.py,v 1.102 2007-02-10 00:07:47 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1265,14 +1265,9 @@ SELECT DISTINCT ON (pk_identity) * from (
 			cmd = u"""
 SELECT DISTINCT ON (pk_identity) * from (
 	select * from ((
-		-- last name
-		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames ~ %s
-	) union all (
 		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.lastnames  ~* %s
 	) union all (
 		-- first name
-		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s
-	) union all (
 		select vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~* %s
 	) union all (
 		-- anywhere in name
@@ -1280,11 +1275,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 	)) as super_list order by lastnames, firstnames, dob
 ) as sorted_list"""
 			args.append(_('last name'))
-			args.append('^' + self._make_sane_caps(tmp))
-			args.append(_('last name'))
 			args.append('^' + tmp)
-			args.append(_('first name'))
-			args.append('^' + self._make_sane_caps(tmp))
 			args.append(_('first name'))
 			args.append('^' + tmp)
 			args.append(_('any name part'))
@@ -1943,7 +1934,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.101  2007-02-05 16:09:44  ncq
+# Revision 1.102  2007-02-10 00:07:47  ncq
+# - ween out duplicate queries on getting patients
+#
+# Revision 1.101  2007/02/05 16:09:44  ncq
 # - fix person dto
 #
 # Revision 1.100  2007/01/16 17:58:11  ncq
