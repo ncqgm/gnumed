@@ -12,9 +12,9 @@ This implementation is in the sole responsibility of the authors.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPracSoftAU.py,v $
-# $Id: gmPracSoftAU.py,v 1.1 2007-02-05 14:29:04 ncq Exp $
+# $Id: gmPracSoftAU.py,v 1.2 2007-02-13 17:05:22 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools, gmDateTime
 from Gnumed.business import gmPerson
 
-PATIENTS_IN_len = 223
+PATIENTS_IN_line_len = 223
 PATIENTS_IN_dob_format = '%d/%m/%Y'
 
 #============================================================
@@ -38,7 +38,7 @@ def read_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 	dtos = []
 
 	for line in pats_file:
-		if len(line) < PATIENTS_IN_len:
+		if len(line) < PATIENTS_IN_line_len:
 			continue			# perhaps raise Exception ?
 
 		dto = gmPerson.cDTO_person()
@@ -96,7 +96,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmPracSoftAU.py,v $
-# Revision 1.1  2007-02-05 14:29:04  ncq
+# Revision 1.2  2007-02-13 17:05:22  ncq
+# - slightly better CONST name
+#
+# Revision 1.1  2007/02/05 14:29:04  ncq
 # - read PracSoft PATIENTS.IN file
 #
 #
