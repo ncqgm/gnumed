@@ -2,14 +2,14 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/backup-gnumed-database.sh,v $
-# $Id: backup-gnumed-database.sh,v 1.5 2007-01-24 22:56:05 ncq Exp $
+# $Id: backup-gnumed-database.sh,v 1.6 2007-02-13 17:10:03 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
 #==============================================================
 
 PGDATABASE="gnumed_v5"
-PGPASSWORD="need to set this"
+PGPASSWORD="need to set this to password of gm-dbo if gm-dbo needs a password"
 
 # where to eventually put the backups
 BACKUP_DIR="/root/"
@@ -50,16 +50,19 @@ GNOTARY_TAN="free"
 
 TS=`date +%Y-%m-%d-%H-%M-%S`
 HOST=`hostname`
-BACKUP_FILE="$BACKUP_DIR/backup-$PGDATABASE-$INSTANCE_OWNER-$HOST-$TS.sql"
+BACKUP_BASE="$BACKUP_DIR/backup-$PGDATABASE-$INSTANCE_OWNER-$HOST"
+BACKUP_FILE="$BACKUPBASE-$TS.sql"
 
 # create dump
 PGUSER="gm-dbo"
 PGPORT="5432"
 pg_dump -f $BACKUP_FILE
+bzip2 -zq9 $BACKUP_FILE
+bzip2 -tq $BACKUP_FILE.bz2
 
 # give to admin owner
-chmod $BACKUP_MASK $BACKUP_FILE
-chown $BACKUP_OWNER $BACKUP_FILE
+chmod $BACKUP_MASK $BACKUP_FILE.bz2
+chown $BACKUP_OWNER $BACKUP_FILE.bz2
 
 # GNotary support
 LOCAL_MAILER=`which mail`
@@ -87,12 +90,19 @@ export REPLYTO=$SIG_RECEIVER
 	echo " "
 ) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
 
+# zip up any leftover backups
+bzip2 -zq9 $BACKUP_BASE-*.sql
+bzip2 -tq $BACKUP_BASE-*.sql
 
 exit 0
 
 #==============================================================
 # $Log: backup-gnumed-database.sh,v $
-# Revision 1.5  2007-01-24 22:56:05  ncq
+# Revision 1.6  2007-02-13 17:10:03  ncq
+# - better docs
+# - bzip up leftover dumps from when bzipping got interrupted by, say, shutdown
+#
+# Revision 1.5  2007/01/24 22:56:05  ncq
 # - support gnotarization
 #
 # Revision 1.4  2007/01/07 23:10:24  ncq
