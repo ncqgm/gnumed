@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.102 2007-02-10 00:07:47 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmPerson.py,v 1.103 2007-02-13 17:05:07 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1745,6 +1745,10 @@ def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	from Gnumed.business import gmXdtObjects
 	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding, dob_format=dob_format)
 #============================================================
+def get_persons_from_pracsoft_file(filename=None, encoding='ascii'):
+	from Gnumed.business import gmPracSoftAU
+	return gmPracSoftAU.read_persons_from_pracsoft_file(filename=filename, encoding=encoding)
+#============================================================
 # main/testing
 #============================================================
 if __name__ == '__main__':
@@ -1934,7 +1938,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.102  2007-02-10 00:07:47  ncq
+# Revision 1.103  2007-02-13 17:05:07  ncq
+# - add get_persons_from_pracsoft_file()
+#
+# Revision 1.102  2007/02/10 00:07:47  ncq
 # - ween out duplicate queries on getting patients
 #
 # Revision 1.101  2007/02/05 16:09:44  ncq
