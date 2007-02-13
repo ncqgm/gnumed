@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.59 2007-01-20 22:52:27 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPatSearchWidgets.py,v 1.60 2007-02-13 17:07:38 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -249,22 +249,53 @@ def load_persons_from_xdt():
 
 	return dtos
 #============================================================
+def load_persons_from_pracsoft_au():
+
+	pracsoft_files = []
+
+	# try detecting PATIENTS.IN files
+	candidates = []
+	drives = 'cdefghijklmnopqrstuvwxyz'
+	for drive in drives:
+		candidate = drive + ':\MDW2\PATIENTS.IN'
+		candidates.extend(glob.glob(candidate))
+	for candidate in candidates:
+		drive, filename = os.path.splitdrive(candidate)
+		pracsoft_files.append({'file': candidate, 'source': 'PracSoft (AU): drive %s' % drive})
+
+	# add configured one
+	fname = _cfg.get('AU PracSoft PATIENTS.IN', 'filename')
+	source = _cfg.get('AU PracSoft PATIENTS.IN', 'source')
+	if fname is not None and source is not None:
+		pracsoft_files.append({'file': os.path.expanduser(fname), 'source': source})
+
+	# and parse them
+	dtos = []
+	for pracsoft_file in pracsoft_files:
+		try:
+			tmp = gmPerson.get_persons_from_pracsoft_file(filename = pracsoft_file['file'])
+		except:
+			_log.LogException('cannot parse PracSoft file [%s]' % pracsoft_file['file'])
+			continue
+		for dto in tmp:
+			dtos.append({'dto': dto, 'source': pracsoft_file['source']})
+
+	return dtos
+#============================================================
 def load_patient_from_external_sources(parent=None):
 
 	dtos = []
 
 	# xDT
 	dtos.extend(load_persons_from_xdt())
+	dtos.extend(load_persons_from_pracsoft_au())
 
 	# more types: KVK files, other interfaces, ...
 
 	if len(dtos) == 0:
 		gmGuiHelpers.gm_statustext(_('No patients found in external sources.'))
 		return True
-	if len(dtos) == 1:
-		gmGuiHelpers.gm_statustext(_('Only one patient found in external sources. Using that patient.'))
-		dto = dtos[0]['dto']
-	if len(dtos) > 1:
+	else:
 		if parent is None:
 			parent = wx.GetApp().GetTopWindow()
 		dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
@@ -771,7 +802,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.59  2007-01-20 22:52:27  ncq
+# Revision 1.60  2007-02-13 17:07:38  ncq
+# - tie PracSoft PATIENTS.IN file into external patients framework
+# - *always* let user decide on whether to activate an external patient
+#   even if only a single source provides a patient
+#
+# Revision 1.59  2007/01/20 22:52:27  ncq
 # - .KeyCode -> GetKeyCode()
 #
 # Revision 1.58  2007/01/18 22:07:52  ncq
