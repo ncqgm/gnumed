@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.35 2006-12-17 20:44:52 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmHorstSpace.py,v 1.36 2007-02-15 14:57:49 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -29,8 +29,9 @@ from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-		  
+
 #==============================================================================
+# finding the visible page from a notebook page: self.GetParent.GetCurrentPage == self
 class cHorstSpaceLayoutMgr(wx.Panel):
 	"""GnuMed inner-frame layout manager.
 
@@ -310,7 +311,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.35  2006-12-17 20:44:52  ncq
+# Revision 1.36  2007-02-15 14:57:49  ncq
+# - cleanup
+#
+# Revision 1.35  2006/12/17 20:44:52  ncq
 # - cleanup
 #
 # Revision 1.34  2006/11/24 10:01:31  ncq
