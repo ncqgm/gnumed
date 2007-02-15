@@ -7,55 +7,116 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.9 2006-01-01 20:37:22 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmKVK.py,v 1.10 2007-02-15 14:54:47 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, fileinput, re, string
+import sys, os.path, fileinput, codecs, time, datetime as pyDT, glob
 
 # our modules
-from Gnumed.pycommon import gmLog, gmExceptions
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+
+from Gnumed.business import gmPerson
+from Gnumed.pycommon import gmLog, gmExceptions, gmDateTime, gmTools
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
+
+true_kvk_fields = [
+	'insurance_company',
+	'insurance_number',
+	'kvk_number',
+	'insuree_number',
+	'insuree_status',
+	'insuree_status_detail',
+	'title',
+	'firstnames',
+	'name_affix',
+	'lastnames',
+	'dob',
+	'street',
+	'region_code',
+	'zip',
+	'urb',
+	'valid_until'
+]
+
+
+map_kvkd_tags2dto = {
+	'Version': 'version',
+	'Datum': 'last_read_date',
+	'Zeit': 'last_read_time',
+	'KK-Name': 'insurance_company',
+	'KK-Nummer': 'insurance_number',
+	'KVK-Nummer': 'kvk_number',
+	'V-Nummer': 'insuree_number',
+	'V-Status': 'insuree_status',
+	'V-Statusergaenzung': 'insuree_status_detail',
+	'Titel': 'title',
+	'Vorname': 'firstnames',
+	'Namenszusatz': 'name_affix',
+	'Familienname': 'lastnames',
+	'Geburtsdatum': 'dob',
+	'Strasse': 'street',
+	'Laendercode': 'region_code',
+	'PLZ': 'zip',
+	'Ort': 'urb',
+	'gueltig-bis': 'valid_until',
+	'Pruefsumme-gueltig': 'crc_valid',
+	'Kommentar': 'comment'
+}
+
+#============================================================
+class cDTO_KVK(gmPerson.cDTO_person):
+
+	def __init__(self, filename=None):
+		self.dto_type = 'KVK'
+		self.dob_format = '%d%m%Y'
+		self.last_read_time_format = '%H:%M:%S'
+		self.last_read_date_format = '%d.%m.%Y'
+		self.filename = filename
+		self.parse_kvk_file()
+	#--------------------------------------------------------
+	def parse_kvk_file(self):
+
+		kvk_file = codecs.open(filename = self.filename, mode = 'rU', encoding = 'utf8')
+
+		for line in kvk_file:
+			line = line.replace('\n', '').replace('\r', '')
+			tag, content = line.split(':', 1)
+			content = content.strip()
+
+			if tag == 'Geburtsdatum':
+				tmp = time.strptime(content, self.dob_format)
+				content = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
+			setattr(self, map_kvkd_tags2dto[tag], content)
+
+		# last_read_date and last_read_time -> last_read_timestamp
+		ts = time.strptime (
+			'%s %s' % (self.last_read_date, self.last_read_time),
+			'%s %s' % (self.last_read_date_format, self.last_read_time_format)
+		)
+		self.last_read_timestamp = pyDT.datetime(ts.tm_year, ts.tm_mon, ts.tm_mday, ts.tm_hour, ts.tm_min, ts.tm_sec, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
+		# guess gender from firstname
+		self.gender = gmTools.coalesce(gmPerson.map_firstnames2gender(firstnames=self.firstnames), 'f')
 #============================================================
 class cKVK_data:
 	"""Abstract KVK data class.
 
 	"""
-	_lst_KVK_fields = [
-		'kk_name',
-		'kk_number',
-		'kvk_number',
-		'v_number',
-		'v_status',
-		'v_status_aux',
-		'title',
-		'fname',
-		'name_affix',
-		'lname',
-		'dob',
-		'street',
-		'state_code',
-		'zip_code',
-		'town',
-		'valid_until'
-	]
 	#--------------------------------------------------------
 	def __init__(self):
-		for field in self._lst_KVK_fields:
+		for field in true_kvk_fields:
 			self.__dict__[field] = None
 	#--------------------------------------------------------
 	def __setitem__(self, key, value):
 		# this will kick us out on KeyError
-		try:
-			tmp = self.__dict__[key]
-		except KeyError:
-			_log.LogException('invalid KVK field', sys.exc_info())
-			raise
-
+		tmp = self.__dict__[key]
 		self.__dict__[key] = value
 	#--------------------------------------------------------
 	def __getitem__(self, key):
@@ -94,12 +155,7 @@ class cKVKd_file:
 	]
 	#--------------------------------------------------------
 	def __init__(self, aFile = None):
-		if aFile is None:
-			raise gmExceptions.ConstructorError, "need file name to read KVK data from kvkd"
-
 		self.filename = os.path.abspath(os.path.expanduser(aFile))
-		if not os.path.exists(self.filename):
-			raise gmExceptions.ConstructorError, "kvkd file [%s] does not exist" % self.filename
 
 		if not self.__parse_file():
 			raise gmExceptions.ConstructorError, "cannot parse kvkd file [%s]" % self.filename
@@ -162,6 +218,20 @@ class cKVKd_file:
 			return None
 		return 1
 #============================================================
+def get_available_kvks_as_dtos(spool_dir = None):
+
+	kvk_files = glob.glob(os.path.join(spool_dir, 'KVK-*.dat'))
+	dtos = []
+	for kvk_file in kvk_files:
+		try:
+			dto = cDTO_KVK(filename = kvk_file)
+		except:
+			_log.LogException('probably not a KVKd file: [%s]' % kvk_file)
+			continue
+		dtos.append(dto)
+
+	return dtos
+#============================================================
 def get_available_kvks (aDir = None):
 	# sanity checks
 	if aDir is None:
@@ -177,6 +247,7 @@ def get_available_kvks (aDir = None):
 	files = os.listdir(basedir)
 	kvk_files = []
 	for file in files:
+		# FIXME: use glob.glob()
 		if re.match('^KVK-\d+\.dat$', file):
 			kvk_files.append(os.path.join(basedir, file))
 
@@ -207,7 +278,7 @@ def kvks_extract_picklist(aList = None):
 			idx += 1
 			item.append(kvk['Datum'])
 			item.append(kvk['Zeit'])
-			lname = "%s" % string.join([ kvk['title'], kvk['name_affix'],  kvk['lname'] ], ' ')
+			lname = "%s" % u' '.join([ kvk['title'], kvk['name_affix'],  kvk['lname'] ])
 			item.append(lname)
 			item.append(kvk['fname'])
 			item.append(kvk['dob'])
@@ -246,12 +317,14 @@ if __name__ == "__main__":
 	# test cKVKd_file object
 	kvkd_file = sys.argv[1]
 	print "reading KVK data from KVKd file", kvkd_file
-	tmp = cKVKd_file(aFile = kvkd_file)
+	dto = cDTO_KVK(filename = kvkd_file)
+	print dto
+#	tmp = cKVKd_file(aFile = kvkd_file)
 
 	# test get_available_kvks()
-	path = os.path.dirname(kvkd_file)
-	kvks = get_available_kvks(aDir = path)
-	print kvks
+#	path = os.path.dirname(kvkd_file)
+#	kvks = get_available_kvks(aDir = path)
+#	print kvks
 #============================================================
 # docs
 #------------------------------------------------------------
@@ -276,7 +349,14 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.9  2006-01-01 20:37:22  ncq
+# Revision 1.10  2007-02-15 14:54:47  ncq
+# - fix test suite
+# - true_kvk_fields list
+# - map_kvkd_tags2dto
+# - cDTO_KVK()
+# - get_available_kvks_as_dtos()
+#
+# Revision 1.9  2006/01/01 20:37:22  ncq
 # - cleanup
 #
 # Revision 1.8  2005/11/01 08:49:49  ncq
