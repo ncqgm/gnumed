@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.60 2007-02-13 17:07:38 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPatSearchWidgets.py,v 1.61 2007-02-15 14:58:08 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -282,15 +282,28 @@ def load_persons_from_pracsoft_au():
 
 	return dtos
 #============================================================
+def load_persons_from_kvks():
+
+	db_cfg = gmCfg.cCfgSQL()
+	kvk_dir = os.path.abspath(os.path.expanduser(db_cfg.get2 (
+		option = 'DE.KVK.spool_dir',
+		workplace = gmPerson.gmCurrentProvider().get_workplace(),
+		bias = 'workplace',
+		default = u'/var/spool/kvkd/'
+	)))
+	dtos = []
+	for dto in gmKVK.get_available_kvks_as_dtos(spool_dir = kvk_dir):
+		dtos.append({'dto': dto, 'source': 'KVK'})
+
+	return dtos
+#============================================================
 def load_patient_from_external_sources(parent=None):
 
+	# get DTOs from interfaces
 	dtos = []
-
-	# xDT
 	dtos.extend(load_persons_from_xdt())
 	dtos.extend(load_persons_from_pracsoft_au())
-
-	# more types: KVK files, other interfaces, ...
+	dtos.extend(load_persons_from_kvks())
 
 	if len(dtos) == 0:
 		gmGuiHelpers.gm_statustext(_('No patients found in external sources.'))
@@ -802,7 +815,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.60  2007-02-13 17:07:38  ncq
+# Revision 1.61  2007-02-15 14:58:08  ncq
+# - tie KVKs intoi external patient sources framework
+#
+# Revision 1.60  2007/02/13 17:07:38  ncq
 # - tie PracSoft PATIENTS.IN file into external patients framework
 # - *always* let user decide on whether to activate an external patient
 #   even if only a single source provides a patient
