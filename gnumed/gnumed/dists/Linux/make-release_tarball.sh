@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.23 2007-02-04 16:18:36 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.24 2007-02-15 14:58:37 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -17,7 +17,7 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/business/gmXmlDocDesc.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmDrugObject.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmDrugView.py "\
-"./GNUmed-$CLIENTREV/client/pycommon/gmSchemaCLIENTREVisionCheck.py "\
+"./GNUmed-$CLIENTREV/client/pycommon/gmSchemaRevisionCheck.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmSerialTools.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmTrace.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmdbf.py "\
@@ -284,7 +284,10 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.23  2007-02-04 16:18:36  ncq
+# Revision 1.24  2007-02-15 14:58:37  ncq
+# - fix caps typo
+#
+# Revision 1.23  2007/02/04 16:18:36  ncq
 # - include __init__.py in server/
 # - include SQL for 3-4 und 4-5
 #
