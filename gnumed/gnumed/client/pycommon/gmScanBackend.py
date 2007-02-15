@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.35 2007-01-29 11:59:34 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmScanBackend.py,v 1.36 2007-02-15 12:03:27 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -307,7 +307,7 @@ class cXSaneScanner:
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		"""Call XSane.
 
-		<filename name part must have format name-xxx.ext>
+		<filename name part must have format name-###.ext>
 		"""
 		if filename is None:
 			if tmpdir is None:
@@ -316,8 +316,7 @@ class cXSaneScanner:
 				(handle, filename) = tempfile.mkstemp(suffix=cXSaneScanner._filetype, prefix='gmScannedObj-', dir=tmpdir)
 		else:
 			tmp, ext = os.path.splitext(filename)
-			if ext != cXSaneScanner._filetype:
-				filename = filename + cXSaneScanner._filetype
+			filename = '%s-###.%s' % (tmp, cXSaneScanner._filetype)
 
 		filename = os.path.abspath(os.path.expanduser(filename))
 		path, name = os.path.split(filename)
@@ -350,7 +349,9 @@ class cXSaneScanner:
 		val_dict = {
 			'filetype': cXSaneScanner._filetype,
 			'tmp-path': tmpdir,
-			'working-directory': tmpdir
+			'working-directory': tmpdir,
+			'filename-counter-step': '1',
+			'filename-counter-len': '3'
 		}
 
 		for idx, line in enumerate(fread):
@@ -470,7 +471,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.35  2007-01-29 11:59:34  ncq
+# Revision 1.36  2007-02-15 12:03:27  ncq
+# - really support numbered multi-file scans with XSane
+#
+# Revision 1.35  2007/01/29 11:59:34  ncq
 # - improve comment
 #
 # Revision 1.34  2007/01/19 14:06:17  ncq
