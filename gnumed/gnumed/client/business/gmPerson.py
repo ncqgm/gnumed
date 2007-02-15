@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.103 2007-02-13 17:05:07 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmPerson.py,v 1.104 2007-02-15 14:56:53 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -55,15 +55,13 @@ class cDTO_person(object):
 					val = gender[idx['tag']]
 					object.__setattr__(self, attr, str(val))
 					return
-			raise ValueError(_('invalid gender: [%s]') % str(val))
+			raise ValueError('invalid gender: [%s]' % str(val))
 
 		if attr == 'dob':
 			if not isinstance(val, pyDT.datetime):
 				raise TypeError(_('invalid type for DOB (must be datetime.datetime): %s [%s]') % (type(val), str(val)))
 			if val.tzinfo is None:
 				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % val.isoformat())
-			object.__setattr__(self, attr, val)
-			return
 
 		object.__setattr__(self, attr, val)
 		return
@@ -643,6 +641,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 	def get_staff(self):
 		return self._provider
 	#--------------------------------------------------------
+	# FIXME: turn into property
 	def get_workplace(self):
 		workplace = 'xxxDEFAULTxxx'
 		if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
@@ -1714,6 +1713,18 @@ def map_gender2salutation(gender=None):
 			__gender2salutation_map[g[idx['l10n_label']]] = __gender2salutation_map[g[idx['tag']]]
 
 	return __gender2salutation_map[gender]
+#------------------------------------------------------------
+def map_firstnames2gender(firstnames=None):
+	"""
+	Try getting the gender for the given first name.
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{
+		'cmd': u"select gender from dem.name_gender_map where name ilike %(fn)s limit 1",
+		'args': {'fn': firstnames}
+	}])
+	if len(rows) == 0:
+		return None
+	return rows[0][0]
 #============================================================
 def get_comm_list():	
 	global __comm_list
@@ -1938,7 +1949,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.103  2007-02-13 17:05:07  ncq
+# Revision 1.104  2007-02-15 14:56:53  ncq
+# - remove _() from ValueError() call
+# - map_firstnames2gender()
+#
+# Revision 1.103  2007/02/13 17:05:07  ncq
 # - add get_persons_from_pracsoft_file()
 #
 # Revision 1.102  2007/02/10 00:07:47  ncq
