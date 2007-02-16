@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -630,8 +630,8 @@ class database:
 				_log.Log(gmLog.lErr, 'invalid template database')
 				return False
 
-		tmp = _cfg.get(self.section, 'alternate location')
-		if tmp is None:
+		tablespace = _cfg.get(self.section, 'tablespace')
+		if tablespace is None:
 			cmd = """
 				create database \"%s\" with
 					owner = \"%s\"
@@ -644,8 +644,8 @@ class database:
 					owner = \"%s\"
 					template = \"%s\"
 					encoding = 'unicode'
-					location = '%s'
-				;""" % (self.name, self.owner.name, self.template_db, tmp)
+					tablespace = '%s'
+				;""" % (self.name, self.owner.name, self.template_db, tablespace)
 
 		# create database
 		self.conn.set_isolation_level(0)
@@ -1101,7 +1101,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.45  2007-02-06 12:13:16  ncq
+# Revision 1.46  2007-02-16 11:08:18  ncq
+# - re-implement 7.4 "alternate location" as 8.1+ "tablespace" as
+#   it doesn't make sense to support 7.4 on this
+#
+# Revision 1.45  2007/02/06 12:13:16  ncq
 # - properly set _interactive if handling more than one conf
 # - show a little more confidence in our result now that we use hashes
 #
