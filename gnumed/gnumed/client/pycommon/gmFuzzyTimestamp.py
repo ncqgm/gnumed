@@ -10,9 +10,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.8 2007-02-16 10:15:27 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.9 2007-02-16 10:20:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -570,7 +570,17 @@ def __single_dot(str_timestamp):
 	return matches
 #---------------------------------------------------------------------------
 def str2fuzzy_timestamp_matches(str_timestamp=None, default_time=None):
+	"""
+	Turn a string into candidate fuzzy timestamps and auto-completions the user is likely to type.
 
+	You MUST have called locale.setlocale(locale.LC_ALL, '')
+	somewhere in your code previously.
+
+	@param default_time: if you want to force the time part of the time
+		stamp to a given value and the user doesn't type and time part
+		this value will be used
+	@type default_time: an mx.DateTime.DateTimeDelta instance
+	"""
 	matches = __single_dot(str_timestamp)
 	matches.extend(__numbers_only(str_timestamp))
 	matches.extend(__single_slash(str_timestamp))
@@ -781,7 +791,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.8  2007-02-16 10:15:27  ncq
+# Revision 1.9  2007-02-16 10:20:39  ncq
+# - improved doc strings
+#
+# Revision 1.8  2007/02/16 10:15:27  ncq
 # - strftime() returns str() but encoded, so we need
 #   locale.getlocale()[1] to properly decode that to
 #   unicode, which needs the locale system to have been
