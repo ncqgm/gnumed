@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.95 2007-02-06 13:45:39 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmPhraseWheel.py,v 1.96 2007-02-16 10:22:09 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -411,7 +411,7 @@ class cPhraseWheel(wx.TextCtrl):
 	#--------------------------------------------------------
 	# internal helpers: GUI
 	#--------------------------------------------------------
-	def _calc_display_string(self):
+	def _picklist_selection2display_string(self):
 		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
 	#--------------------------------------------------------
 	def _on_enter(self):
@@ -525,14 +525,14 @@ class cPhraseWheel(wx.TextCtrl):
 		self._hide_picklist()
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 
-		self.data = self._picklist.GetSelectedItemData()	# just so that _calc_display_string could use it
+		self.data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string could use it
 
 		# update our display
 		self.suppress_text_update_smarts = True
 		if self.__phrase_separators is not None:
-			wx.TextCtrl.SetValue(self, u'%s%s%s' % (self.left_part, self._calc_display_string(), self.right_part))
+			wx.TextCtrl.SetValue(self, u'%s%s%s' % (self.left_part, self._picklist_selection2display_string(), self.right_part))
 		else:
-			wx.TextCtrl.SetValue(self, self._calc_display_string())
+			wx.TextCtrl.SetValue(self, self._picklist_selection2display_string())
 
 		self.data = self._picklist.GetSelectedItemData()
 		self.MarkDirty()
@@ -815,7 +815,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.95  2007-02-06 13:45:39  ncq
+# Revision 1.96  2007-02-16 10:22:09  ncq
+# - _calc_display_string -> _picklist_selection2display_string to better reflect its use
+#
+# Revision 1.95  2007/02/06 13:45:39  ncq
 # - much improved docs
 # - remove aDelay from __init__ and make it a class variable
 # - thereby we can now dynamically adjust it at runtime :-)
