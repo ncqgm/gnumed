@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.66 2007-01-16 18:00:59 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmEMRBrowser.py,v 1.67 2007-02-16 12:51:46 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -300,43 +300,20 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		ea.ShowModal()
 		self.SetItemText(self.__curr_node, self.__curr_node_data['description'])
 		self.Refresh()
-		#self.Update()
+		self.Update()
 		return
 	#--------------------------------------------------------
 	# root
 	def __handle_root_context(self, pos=wx.DefaultPosition):
-		self.PopupMenu(self.__root_context_popup, pos)		
+		self.PopupMenu(self.__root_context_popup, pos)
 	#--------------------------------------------------------
 	def __create_issue(self, event):
-
-		return True
-
-		# FIXME: refactor this code, present in three places
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'), gmLog.lErr)
-			return False
-		ea = gmEMRStructWidgets.cHealthIssueEditArea (
-			self,
-			-1,
-			wx.DefaultPosition,
-			wx.DefaultSize,
-			wx.NO_BORDER | wx.TAB_TRAVERSAL
-		)
-			
-		popup = gmEditArea.cEditAreaPopup (
-			parent = None,
-			id = -1,
-			title = _('Add health issue (pHx item)'),
-			size = (200,200),
-			pos = wx.DefaultPosition,
-			style = wx.CENTRE | wx.STAY_ON_TOP | wx.CAPTION | wx.SUNKEN_BORDER,
-			name ='',
-			edit_area = ea
-		)
-		result = popup.ShowModal()
-		if ea._health_issue :
-			self.__exporter._add_health_issue_branch (self, ea._health_issue)
+		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
+		ea.ShowModal()
+		self.Refresh()
+		self.Update()
+		# need to self.refresh() tree itself
+		return
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -394,6 +371,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		 0: 1 = 2
 		 1: 1 > 2
 		"""
+		# FIXME: implement sort modes, chron, reverse cron, by regex, etc
+
 		item1 = self.GetPyData(node1)
 		item2 = self.GetPyData(node2)
 
@@ -571,7 +550,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.66  2007-01-16 18:00:59  ncq
+# Revision 1.67  2007-02-16 12:51:46  ncq
+# - fix add issue popup on root node as requested by user :-)
+#
+# Revision 1.66  2007/01/16 18:00:59  ncq
 # - cleanup
 # - explicitely sort episodes and encounters by when they were started
 #
