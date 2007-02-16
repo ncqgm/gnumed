@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.24 2007-02-15 14:58:37 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.25 2007-02-16 15:34:53 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -205,7 +205,8 @@ echo "============"
 # client
 mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
-cp -R ../../server/backup-gnumed-database.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
 
 
@@ -284,7 +285,10 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.24  2007-02-15 14:58:37  ncq
+# Revision 1.25  2007-02-16 15:34:53  ncq
+# - include backup and offsite moving script with proper name
+#
+# Revision 1.24  2007/02/15 14:58:37  ncq
 # - fix caps typo
 #
 # Revision 1.23  2007/02/04 16:18:36  ncq
