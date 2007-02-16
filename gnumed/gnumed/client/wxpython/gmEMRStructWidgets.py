@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.50 2007-02-09 14:59:39 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmEMRStructWidgets.py,v 1.51 2007-02-16 12:53:19 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -672,8 +672,8 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
 		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
 
-#		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
-#		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
+		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
+		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
 
 		self.refresh()
 	#--------------------------------------------------------
@@ -751,13 +751,15 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 	def _on_modified_age_noted(self, *args, **kwargs):
 		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		#self._PRW_year_noted.Refresh()
-		wx.CallAfter(self._PRW_year_noted.SetText, '', None)
+		self._PRW_year_noted.suppress_text_update_smarts = True
+		wx.CallAfter(self._PRW_year_noted.SetText)
 		return True
 	#--------------------------------------------------------
 	def _on_modified_year_noted(self, *args, **kwargs):
 		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		#self._PRW_age_noted.Refresh()
-		wx.CallAfter(self._PRW_age_noted.SetText, '', None)
+		self._PRW_age_noted.suppress_text_update_smarts = True
+		wx.CallAfter(self._PRW_age_noted.SetText)
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -778,12 +780,12 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_age_noted.Refresh()
 
 		if self.__issue is None:
-			self._PRW_condition.SetText('')
+			self._PRW_condition.SetText()
 			self._ChBOX_left.SetValue(0)
 			self._ChBOX_right.SetValue(0)
 			self._TCTRL_notes.SetValue('')
-			self._PRW_age_noted.SetText('')
-			self._PRW_year_noted.SetText('')
+			self._PRW_age_noted.SetText()
+			self._PRW_year_noted.SetText()
 			self._ChBOX_active.SetValue(0)
 			self._ChBOX_relevant.SetValue(1)
 			self._ChBOX_is_operation.SetValue(0)
@@ -806,7 +808,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 			self._ChBOX_right.SetValue(1)
 		self._TCTRL_notes.SetValue('')
 		if self.__issue['age_noted'] is None:
-			self._PRW_age_noted.SetText('')
+			self._PRW_age_noted.SetText()
 		else:
 			self._PRW_age_noted.SetText (
 				value = '%sd' % self.__issue['age_noted'].days,
@@ -1689,7 +1691,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.50  2007-02-09 14:59:39  ncq
+# Revision 1.51  2007-02-16 12:53:19  ncq
+# - now that we have cPhraseWheel.suppress_text_update_smarts we
+#   can avoid infinite looping due to circular on_modified callbacks
+#
+# Revision 1.50  2007/02/09 14:59:39  ncq
 # - cleanup
 #
 # Revision 1.49  2007/02/06 13:43:40  ncq
