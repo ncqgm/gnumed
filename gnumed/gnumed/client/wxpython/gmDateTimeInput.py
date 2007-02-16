@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.51 2007-02-05 12:15:23 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmDateTimeInput.py,v 1.52 2007-02-16 10:23:44 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,7 +22,7 @@ import mx.DateTime as mxDT, wx
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N, gmFuzzyTimestamp
+from Gnumed.pycommon import gmLog, gmMatchProvider, gmFuzzyTimestamp
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -104,70 +104,68 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
 		self.matcher = cMatchProvider_FuzzyTimestamp()
 		self.phrase_separators = None
-		self.selection_only = False
-#		self.set_snap_to_first_match(True)
-
+		self.selection_only = True
+		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __text2timestamp(self, val=None):
 
-		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-
 		if val is None:
 			val = self.GetValue().strip()
 
 		# skip empty value
-		if val == '':
+		if val == u'':
 			return None
 
 		matches = gmFuzzyTimestamp.str2fuzzy_timestamp_matches(str_timestamp=val)
-		if len(matches) == 0:
-			self.SetBackgroundColour('pink')
-			msg = _('Cannot parse <%s> into proper timestamp.') % val
-			wx.CallAfter(gmGuiHelpers.gm_statustext, msg)
-			return None
+		if len(matches) == 1:
+			return matches[0]['data']
 
-		if len(matches) > 1:
-			msg = _('Warning ! More than one timestamp possible for [%s]. Choosing first one.') % val
-			wx.CallAfter(gmGuiHelpers.gm_statustext, msg)
-
-		return matches[0]
+		return None
 	#--------------------------------------------------------
 	# phrasewheel internal API
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-		match = self.__text2timestamp()
-		if match is None:
-			self.data = None
-		else:
-			wx.TextCtrl.SetValue(self, match['label'])
-			self.data = match['data']
+		# are we valid ?
+		if self.data is None:
+			# no, so try
+			self.data = self.__text2timestamp()
+
+#		# now valid ?
+#		if self.data is not None:
+#			# yes, so set text from the data (to make sure we can re-parse it later if need be)
+#			gmPhraseWheel.cPhraseWheel.SetText(self, value=self.data.format_accurately(), data=self.data)
+
+		# let the base class do its thing
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#--------------------------------------------------------
-	def _calc_display_string(self):
+	def _picklist_selection2display_string(self):
 		data = self._picklist.GetSelectedItemData()
-		if data is None:
-			return self.GetValue()
-		return data.format_accurately()
+		if data is not None:
+			return data.format_accurately()
+		return self._picklist.get_selected_item_label()
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def SetData(self, data=None):
-		self.data = data
+	def SetText(self, value=u'', data=None):
+#		if data is None:
+#			data = self.__text2timestamp(val=value)
+
 		if data is not None:
-			gmPhraseWheel.cPhraseWheel.SetText(self, value = self.data.format_accurately(), data=data)
+			if value.strip() == u'':
+				value = data.format_accurately()
+
+		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data)
+	#--------------------------------------------------------
+	def SetData(self, data=None):
+		if data is not None:
+			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(), data = data)
 		else:
 			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
-	#--------------------------------------------------------
-	def SetValue(self, val, data=None):
-		gmPhraseWheel.cPhraseWheel.SetValue(self, val, data=data)
-		if data is None:
-			match = self.__text2timestamp()
-			if match is not None:
-				self.data = match['data']
 	#--------------------------------------------------------
 	def is_valid_timestamp(self):
 		if self.__text2timestamp() is None:
@@ -185,11 +183,15 @@ class cTimeInput(wx.TextCtrl):
 			*args,
 			**kwargs
 		)
-	#----------------------------------------------
 #==================================================
 # main
 #--------------------------------------------------
 if __name__ == '__main__':
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(text_domain='gnumed')
+
 	#----------------------------------------------------
 	def test_cli():
 		mp = cMatchProvider_FuzzyTimestamp()
@@ -210,8 +212,7 @@ if __name__ == '__main__':
 		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
 		app.MainLoop()
 	#--------------------------------------------------------
-	gmI18N.activate_locale()
-	gmI18N.install_domain(text_domain='gnumed')
+
 #	test_cli()
 	test_gui()
 
@@ -219,7 +220,15 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.51  2007-02-05 12:15:23  ncq
+# Revision 1.52  2007-02-16 10:23:44  ncq
+# - make it selection_only and set error message
+# - u''ify more
+# - delegate more work to standard phrasewheel code
+# - add SetText()
+# - fix _picklist_selection2display_string()
+# - need to activate locale in test suite
+#
+# Revision 1.51  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.50  2007/02/04 15:51:00  ncq
