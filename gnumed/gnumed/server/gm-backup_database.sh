@@ -1,8 +1,8 @@
 #!/bin/sh
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/backup-gnumed-database.sh,v $
-# $Id: backup-gnumed-database.sh,v 1.6 2007-02-13 17:10:03 ncq Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
+# $Id: gm-backup_database.sh,v 1.1 2007-02-16 15:33:37 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -97,8 +97,11 @@ bzip2 -tq $BACKUP_BASE-*.sql
 exit 0
 
 #==============================================================
-# $Log: backup-gnumed-database.sh,v $
-# Revision 1.6  2007-02-13 17:10:03  ncq
+# $Log: gm-backup_database.sh,v $
+# Revision 1.1  2007-02-16 15:33:37  ncq
+# - renamed for smoother compliance into target systems
+#
+# Revision 1.6  2007/02/13 17:10:03  ncq
 # - better docs
 # - bzip up leftover dumps from when bzipping got interrupted by, say, shutdown
 #

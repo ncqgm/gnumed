@@ -1,8 +1,8 @@
 #!/bin/sh
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/move-backups-offsite.sh,v $
-# $Id: move-backups-offsite.sh,v 1.1 2007-02-16 15:26:21 ncq Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-move_backups_offsite.sh,v $
+# $Id: gm-move_backups_offsite.sh,v 1.1 2007-02-16 15:33:37 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -41,8 +41,11 @@ else
 fi;
 
 #==============================================================
-# $Log: move-backups-offsite.sh,v $
-# Revision 1.1  2007-02-16 15:26:21  ncq
+# $Log: gm-move_backups_offsite.sh,v $
+# Revision 1.1  2007-02-16 15:33:37  ncq
+# - renamed for smoother compliance into target systems
+#
+# Revision 1.1  2007/02/16 15:26:21  ncq
 # - first version
 #
 #
