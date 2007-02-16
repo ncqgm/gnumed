@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.52 2007-02-16 10:23:44 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmDateTimeInput.py,v 1.53 2007-02-16 12:51:07 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -117,10 +117,6 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if val is None:
 			val = self.GetValue().strip()
 
-		# skip empty value
-		if val == u'':
-			return None
-
 		matches = gmFuzzyTimestamp.str2fuzzy_timestamp_matches(str_timestamp=val)
 		if len(matches) == 1:
 			return matches[0]['data']
@@ -168,8 +164,17 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
 	#--------------------------------------------------------
 	def is_valid_timestamp(self):
-		if self.__text2timestamp() is None:
+		if self.data is not None:
+			return True
+
+		# skip empty value
+		if self.GetValue().strip() == u'':
+			return True
+
+		self.data = self.__text2timestamp()
+		if self.data is None:
 			return False
+
 		return True
 #==================================================
 class cTimeInput(wx.TextCtrl):
@@ -220,7 +225,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.52  2007-02-16 10:23:44  ncq
+# Revision 1.53  2007-02-16 12:51:07  ncq
+# - fix is_valid_timestamp()
+#
+# Revision 1.52  2007/02/16 10:23:44  ncq
 # - make it selection_only and set error message
 # - u''ify more
 # - delegate more work to standard phrasewheel code
