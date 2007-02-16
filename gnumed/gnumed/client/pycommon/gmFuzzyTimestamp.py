@@ -10,14 +10,14 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.7 2007-01-10 22:43:39 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.8 2007-02-16 10:15:27 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # stdlib
-import sys, datetime as pyDT, re as regex
+import sys, datetime as pyDT, re as regex, locale
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -308,10 +308,14 @@ def __numbers_only(str_timestamp):
 	"""
 	if not regex.match("^(\s|\t)*\d{1,4}(\s|\t)*$", str_timestamp):
 		return []
+
+	# strftime() returns str but in the localized encoding,
+	# so we may need to decode that to unicode
+	enc = locale.getlocale()[1]
+	now = mxDT.now()
 	val = int(regex.findall('\d{1,4}', str_timestamp)[0])
 
 	matches = []
-	now = mxDT.now()
 
 	# that year
 	if (1850 < val) and (val < 2100):
@@ -335,7 +339,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%d. of %s (this month) - a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
+			'label': _('%d. of %s (this month) - a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -348,7 +352,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%d. of %s (next month) - a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
+			'label': _('%d. of %s (next month) - a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -361,7 +365,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%d. of %s (last month) - a %s') % (val, ts.strftime('%B'), ts.strftime('%A'))
+			'label': _('%d. of %s (last month) - a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -373,7 +377,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('in %d day(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
+			'label': _('in %d day(s) - %s') % (val, target_date.timestamp.strftime('%A, %x').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -385,7 +389,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('in %d week(s) - %s') % (val, target_date.timestamp.strftime('%A, %x'))
+			'label': _('in %d week(s) - %s') % (val, target_date.timestamp.strftime('%A, %x').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -399,7 +403,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%s (%s this year)') % (target_date, ts.strftime('%B'))
+			'label': _('%s (%s this year)') % (target_date, ts.strftime('%B').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -411,7 +415,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%s (%s next year)') % (target_date, ts.strftime('%B'))
+			'label': _('%s (%s next year)') % (target_date, ts.strftime('%B').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -423,7 +427,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%s (%s last year)') % (target_date, ts.strftime('%B'))
+			'label': _('%s (%s last year)') % (target_date, ts.strftime('%B').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -455,7 +459,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%s this week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
+			'label': _('%s this week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -467,7 +471,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%s next week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
+			'label': _('%s next week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -479,7 +483,7 @@ def __numbers_only(str_timestamp):
 		)
 		tmp = {
 			'data': target_date,
-			'label': _('%s last week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
+			'label': _('%s last week (%s of %s)') % (ts.strftime('%A').decode(enc), ts.day, ts.strftime('%B').decode(enc))
 		}
 		matches.append(tmp)
 
@@ -532,17 +536,19 @@ def __single_dot(str_timestamp):
 	"""
 	if not regex.match("^(\s|\t)*\d{1,2}\.{1}(\s|\t)*$", str_timestamp):
 		return []
+
 	val = int(regex.findall('\d+', str_timestamp)[0])
+	now = mxDT.now()
+	enc = locale.getlocale()[1]
 
 	matches = []
-	now = mxDT.now()
 
 	# day X of this month
 	ts = now + mxDT.RelativeDateTime(day = val)
 	if val > 0 and val <= month_length[ts.month]:
 		matches.append ({
 			'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_days),
-			'label': '%s.%s.%s - a %s this month' % (ts.day, ts.month, ts.year, ts.strftime('%A'))
+			'label': '%s.%s.%s - a %s this month' % (ts.day, ts.month, ts.year, ts.strftime('%A').decode(enc))
 		})
 
 	# day X of next month
@@ -550,7 +556,7 @@ def __single_dot(str_timestamp):
 	if val > 0 and val <= month_length[ts.month]:
 		matches.append ({
 			'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_days),
-			'label': '%s.%s.%s - a %s next month' % (ts.day, ts.month, ts.year, ts.strftime('%A'))
+			'label': '%s.%s.%s - a %s next month' % (ts.day, ts.month, ts.year, ts.strftime('%A').decode(enc))
 		})
 
 	# day X of last month
@@ -558,7 +564,7 @@ def __single_dot(str_timestamp):
 	if val > 0 and val <= month_length[ts.month]:
 		matches.append ({
 			'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_days),
-			'label': '%s.%s.%s - a %s last month' % (ts.day, ts.month, ts.year, ts.strftime('%A'))
+			'label': '%s.%s.%s - a %s last month' % (ts.day, ts.month, ts.year, ts.strftime('%A').decode(enc))
 		})
 
 	return matches
@@ -708,7 +714,6 @@ class cFuzzyTimestamp:
 		return self.timestamp
 	#-----------------------------------------------------------------------
 	def get_pydt(self):
-#		tz = gmPG2.FixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
 		tz = gmDateTime.cFixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
 		secs, msecs = divmod(self.timestamp.second, 1)
 		ts = pyDT.datetime (
@@ -725,34 +730,65 @@ class cFuzzyTimestamp:
 #===========================================================================
 if __name__ == '__main__':
 
+	from Gnumed.pycommon import gmI18N, gmLog
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 	gmDateTime.init()
 
-	print "testing fuzzy timestamp class"
-	print "-----------------------------"
+	#-------------------------------------------------
+	def test_str2fuzzy_timestamp_matches():
+		print "testing function str2fuzzy_timestamp_matches"
+		print "--------------------------------------------"
 
-	ts = mxDT.now()
-	print "mx.DateTime timestamp", type(ts)
-	print "  print ...       :", ts
-	print "  print '%%s' %% ...: %s" % ts
-	print "  str()           :", str(ts)
-	print "  repr()          :", repr(ts)
+		val = None
+		while val != 'exit':
+			val = raw_input('Enter date fragment: ')
+			matches = str2fuzzy_timestamp_matches(str_timestamp = val)
+			for match in matches:
+				print match['label']
+				print match['data']
+				print "---------------"
 
-	fts = cFuzzyTimestamp()
-	print "\nfuzzy timestamp <%s '%s'>" % ('class', fts.__class__.__name__)
-	for accuracy in range(1,8):
-		fts.accuracy = accuracy
-		print "  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy])
-		print "  format_accurately:", fts.format_accurately()
-		print "  strftime()       :", fts.strftime('%c')
-		print "  print ...        :", fts
-		print "  print '%%s' %% ... : %s" % fts
-		print "  str()            :", str(fts)
-		print "  repr()           :", repr(fts)
-		raw_input('press ENTER to continue')
+	#-------------------------------------------------
+	def test_cFuzzyTimeStamp():
+		print "testing fuzzy timestamp class"
+		print "-----------------------------"
+
+		ts = mxDT.now()
+		print "mx.DateTime timestamp", type(ts)
+		print "  print ...       :", ts
+		print "  print '%%s' %% ...: %s" % ts
+		print "  str()           :", str(ts)
+		print "  repr()          :", repr(ts)
+
+		fts = cFuzzyTimestamp()
+		print "\nfuzzy timestamp <%s '%s'>" % ('class', fts.__class__.__name__)
+		for accuracy in range(1,8):
+			fts.accuracy = accuracy
+			print "  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy])
+			print "  format_accurately:", fts.format_accurately()
+			print "  strftime()       :", fts.strftime('%c')
+			print "  print ...        :", fts
+			print "  print '%%s' %% ... : %s" % fts
+			print "  str()            :", str(fts)
+			print "  repr()           :", repr(fts)
+			raw_input('press ENTER to continue')
+	#-------------------------------------------------
+
+	test_str2fuzzy_timestamp_matches()
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.7  2007-01-10 22:43:39  ncq
+# Revision 1.8  2007-02-16 10:15:27  ncq
+# - strftime() returns str() but encoded, so we need
+#   locale.getlocale()[1] to properly decode that to
+#   unicode, which needs the locale system to have been
+#   initialized
+# - improved test suite
+#
+# Revision 1.7  2007/01/10 22:43:39  ncq
 # - depend on gmDateTime, not gmPG2
 #
 # Revision 1.6  2006/11/27 23:00:45  ncq
