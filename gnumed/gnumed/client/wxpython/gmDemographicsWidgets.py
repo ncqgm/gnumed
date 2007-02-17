@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.114 2007-02-06 13:43:40 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmDemographicsWidgets.py,v 1.115 2007-02-17 13:59:20 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1663,7 +1663,7 @@ def link_occupation_from_dtd(identity, dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
-
+	identity.link_occupation(occupation = dtd['occupation'])
 
 	return True
 #============================================================
@@ -1738,7 +1738,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.114  2007-02-06 13:43:40  ncq
+# Revision 1.115  2007-02-17 13:59:20  ncq
+# - honor entered occupation in new patient wizard
+#
+# Revision 1.114  2007/02/06 13:43:40  ncq
 # - no more aDelay in __init__()
 #
 # Revision 1.113  2007/02/05 12:15:23  ncq
