@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.36 2007-02-15 12:03:27 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmScanBackend.py,v 1.37 2007-02-17 18:18:09 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -15,7 +15,7 @@ import sys, os.path, os, Image, string, time, shutil, tempfile, codecs, glob, lo
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmExceptions, gmShellAPI
+from Gnumed.pycommon import gmLog, gmExceptions, gmShellAPI, gmTools
 
 
 _log = gmLog.gmDefLog
@@ -300,6 +300,9 @@ class cXSaneScanner:
 		# this will tell us fairly safely whether XSane is properly installed
 		if not os.access(cXSaneScanner._xsanerc, os.W_OK):
 			raise IOError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
+
+		self.device_settings_file = None
+		self.default_device = None
 	#----------------------------------------------
 	def close(self):
 		pass
@@ -324,7 +327,11 @@ class cXSaneScanner:
 		self.__prepare_xsanerc(tmpdir=path)
 
 		gmShellAPI.run_command_in_shell (
-			command = 'xsane --no-mode-selection --save --force-filename "%s"' % filename, 
+			command = 'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
+				filename,
+				gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
+				gmTools.coalesce(self.default_device, '')
+			),
 			blocking = True
 		)
 
@@ -416,7 +423,7 @@ def get_devices():
 		return _sane_module.get_devices()
 	return False
 #-----------------------------------------------------
-def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None, calling_window=None):
+def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None, calling_window=None, xsane_device_settings=None):
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
 	except gmExceptions.ConstructorError:
@@ -424,6 +431,8 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 			_log.Log(gmLog.lData, 'using XSane')
 			try:
 				scanner = cXSaneScanner()
+				scanner.device_settings_file = xsane_device_settings
+				scanner.default_device = device
 			except IOError:
 				_log.LogException('Cannot load any scanner driver (XSANE or TWAIN).', verbose=False)
 				return None
@@ -471,7 +480,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.36  2007-02-15 12:03:27  ncq
+# Revision 1.37  2007-02-17 18:18:09  ncq
+# - support pre-setting device and device-settings-file with XSane
+#
+# Revision 1.36  2007/02/15 12:03:27  ncq
 # - really support numbered multi-file scans with XSane
 #
 # Revision 1.35  2007/01/29 11:59:34  ncq
