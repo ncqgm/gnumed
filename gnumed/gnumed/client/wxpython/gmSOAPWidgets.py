@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.89 2007-02-04 16:14:23 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmSOAPWidgets.py,v 1.90 2007-02-17 14:02:11 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -365,7 +365,12 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 					last = epi['episode_modified_when'].strftime('%m/%Y')
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				label = u'%s: %s "%s"%s' % (last, problem['l10n_type'], problem['problem'], gmTools.coalesce(epi['health_issue'], '', ' (%s)'))
+				label = u'%s: %s "%s"%s' % (
+					last,
+					problem['l10n_type'],
+					problem['problem'],
+					gmTools.coalesce(initial = epi['health_issue'], instead = '', template_initial = ' (%s)')
+				)
 			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
@@ -1064,7 +1069,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.89  2007-02-04 16:14:23  ncq
+# Revision 1.90  2007-02-17 14:02:11  ncq
+# - use improved coalesce()
+#
+# Revision 1.89  2007/02/04 16:14:23  ncq
 # - remove VSCROLL/HSCROLL for Mac
 #
 # Revision 1.88  2007/01/15 20:22:46  ncq
