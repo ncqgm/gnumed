@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.231 2007-02-09 14:58:43 ncq Exp $
-__version__ = "$Revision: 1.231 $"
+# $Id: gmClinicalRecord.py,v 1.232 2007-02-17 14:08:52 ncq Exp $
+__version__ = "$Revision: 1.232 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1170,7 +1170,7 @@ where
 		cfg_db = gmCfg.cCfgSQL()
 		min_ttl = cfg_db.get2 (
 			option = u'encounter.minimum_ttl',
-			workplace = _me.get_workplace(),
+			workplace = _me.workplace,
 			bias = u'user',
 			default = u'1 hour 30 minutes'
 		)
@@ -1202,13 +1202,13 @@ where
 		cfg_db = gmCfg.cCfgSQL()
 		min_ttl = cfg_db.get2 (
 			option = u'encounter.minimum_ttl',
-			workplace = _me.get_workplace(),
+			workplace = _me.workplace,
 			bias = u'user',
 			default = u'1 hour 30 minutes'
 		)
 		max_ttl = cfg_db.get2 (
 			option = u'encounter.maximum_ttl',
-			workplace = _me.get_workplace(),
+			workplace = _me.workplace,
 			bias = u'user',
 			default = u'6 hours'
 		)
@@ -1589,7 +1589,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.231  2007-02-09 14:58:43  ncq
+# Revision 1.232  2007-02-17 14:08:52  ncq
+# - gmPerson.gmCurrentProvider.workplace now a property
+#
+# Revision 1.231  2007/02/09 14:58:43  ncq
 # - honor <pk_encounter> in get_episodes_by_encounter
 #   instead of always assuming the current encounter
 #

@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.38 2006-12-23 15:23:11 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmForms.py,v 1.39 2007-02-17 14:08:52 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
 
 # standard library 
@@ -36,7 +36,7 @@ class gmFormEngine:
 	def __init__ (self, pk_def=None, template=None):
 		self.template = template
 		self.patient = gmPerson.gmCurrentPatient ()
-		self.workplace = gmPerson.gmCurrentProvider().get_workplace()
+		self.workplace = gmPerson.gmCurrentProvider().workplace
 
 	def process (self):
 		"""Merge values into the form template.
@@ -393,7 +393,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.38  2006-12-23 15:23:11  ncq
+# Revision 1.39  2007-02-17 14:08:52  ncq
+# - gmPerson.gmCurrentProvider.workplace now a property
+#
+# Revision 1.38  2006/12/23 15:23:11  ncq
 # - use gmShellAPI
 #
 # Revision 1.37  2006/10/25 07:17:40  ncq
