@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.25 2007-02-16 15:34:53 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.26 2007-02-17 14:02:36 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -66,7 +66,6 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmShowLab.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmSnellen.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmSQL.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmStikoBrowser.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmVaccinationsPlugin.py "\
 "./GNUmed-$CLIENTREV/server/bootstrap/amis-config.set "\
 "./GNUmed-$CLIENTREV/server/bootstrap/bootstrap-amis.conf "\
@@ -285,7 +284,10 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.25  2007-02-16 15:34:53  ncq
+# Revision 1.26  2007-02-17 14:02:36  ncq
+# - no more STIKO browser plugin
+#
+# Revision 1.25  2007/02/16 15:34:53  ncq
 # - include backup and offsite moving script with proper name
 #
 # Revision 1.24  2007/02/15 14:58:37  ncq
