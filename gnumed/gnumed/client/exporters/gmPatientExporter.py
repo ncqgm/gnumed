@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.97 2007-02-10 23:41:38 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmPatientExporter.py,v 1.98 2007-02-17 14:10:03 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -331,7 +331,7 @@ class cEmrExport:
         for a_field in field_list:
             if type(a_field) is not types.UnicodeType:
                 a_field = unicode(a_field, encoding='latin1', errors='replace')
-            txt += u'%s%s%s' % ((offset * u' '), a_field, gmTools.coalesce(item[a_field], u'', template = u': %s\n'))
+            txt += u'%s%s%s' % ((offset * u' '), a_field, gmTools.coalesce(item[a_field], u'\n', template_initial = u': %s\n'))
         return txt
     #--------------------------------------------------------
     def get_allergy_output(self, allergy, left_margin = 0):
@@ -1269,7 +1269,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.97  2007-02-10 23:41:38  ncq
+# Revision 1.98  2007-02-17 14:10:03  ncq
+# - use improved gmTools.coalesce()
+#
+# Revision 1.97  2007/02/10 23:41:38  ncq
 # - fix loading of GNUmed python modules
 # - cleaned up journal exporter
 # - fixed bug in journal exporter where it expected is_connected()
