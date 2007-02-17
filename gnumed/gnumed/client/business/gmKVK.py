@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.10 2007-02-15 14:54:47 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmKVK.py,v 1.11 2007-02-17 13:55:26 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -127,24 +127,6 @@ class cKVKd_file:
 
 	Encapsulates logic around libchipcard kvkd files.
 	"""
-	_map_kvkd_cKVK = {
-		'KK-Name': 'kk_name',
-		'KK-Nummer': 'kk_number',
-		'KVK-Nummer': 'kvk_number',
-		'V-Nummer': 'v_number',
-		'V-Status': 'v_status',
-		'V-Statusergaenzung': 'v_status_aux',
-		'Titel': 'title',
-		'Vorname': 'fname',
-		'Namenszusatz': 'name_affix',
-		'Familienname': 'lname',
-		'Geburtsdatum': 'dob',
-		'Strasse': 'street',
-		'Laendercode': 'state_code',
-		'PLZ': 'zip_code',
-		'Ort': 'town',
-		'gueltig-bis': 'valid_until'
-	}
 	#--------------------------------------------------------
 	_lst_kvkd_file_fields = [
 		'Version',
@@ -174,7 +156,7 @@ class cKVKd_file:
 				name, content = tmp.split(':', 1)
 				# now, either it's a true KVK field
 				try:
-					self.kvk[self._map_kvkd_cKVK[name]] = content
+					self.kvk[self.map_kvkd_tags2dto[name]] = content
 				# or an auxiliary field from libchipcard's kvkd :-)
 				except KeyError:
 					# or maybe not, after all ?
@@ -232,81 +214,6 @@ def get_available_kvks_as_dtos(spool_dir = None):
 
 	return dtos
 #============================================================
-def get_available_kvks (aDir = None):
-	# sanity checks
-	if aDir is None:
-		_log.Log(gmLog.lErr, 'must specify kvkd repository directory')
-		return None
-
-	basedir = os.path.abspath(os.path.expanduser(aDir))
-	if not os.path.exists(basedir):
-		_log.Log(gmLog.lErr, 'kvkd repository directory [%s] is not valid' % basedir)
-		return None
-
-	# filter out our files
-	files = os.listdir(basedir)
-	kvk_files = []
-	for file in files:
-		# FIXME: use glob.glob()
-		if re.match('^KVK-\d+\.dat$', file):
-			kvk_files.append(os.path.join(basedir, file))
-
-	# and set up list of objects
-	kvks = []
-	for file in kvk_files:
-		try:
-			kvk = cKVKd_file(file)
-			kvks.append(kvk)
-		except:
-			_log.LogException('[%s] probably not a KVKd file' % file, sys.exc_info())
-
-	return kvks
-#------------------------------------------------------------
-def kvks_extract_picklist(aList = None):
-	# sanity checks
-	if aList is None:
-		_log.Log(gmLog.lErr, 'must specify kvk object list')
-		return ([], [])
-
-	# extract data list
-	data = []
-	idx = 0
-	for kvk in aList:
-		try:
-			item = []
-			item.append(idx)
-			idx += 1
-			item.append(kvk['Datum'])
-			item.append(kvk['Zeit'])
-			lname = "%s" % u' '.join([ kvk['title'], kvk['name_affix'],  kvk['lname'] ])
-			item.append(lname)
-			item.append(kvk['fname'])
-			item.append(kvk['dob'])
-			item.append(kvk['town'])
-			item.append(kvk['street'])
-			item.append("%11s" % kvk['kk_name'])
-			# FIXME: make display of valid_until smarter !
-			valid = kvk['valid_until']
-			item.append(valid)
-			item.append(kvk['filename'])
-		except KeyError:
-			_log.LogException('error extracting pick list from KVKd file object, obtained: %s' % item, sys.exc_info())
-			# skip that one
-			continue
-		data.append(item)
-
-	# set up column order for pick list
-	col_order = [
-		{'label': _('last name'),		'field name': 3},
-		{'label': _('first name'),		'field name': 4},
-		{'label': _('dob'),				'field name': 5},
-		{'label': _('town'),			'field name': 6},
-		{'label': _('street'),			'field name': 7},
-		{'label': _('insurance company'), 'field name': 8},
-		{'label': _('valid until'),		'field name': 9}
-	]
-	return data, col_order
-#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
@@ -319,12 +226,9 @@ if __name__ == "__main__":
 	print "reading KVK data from KVKd file", kvkd_file
 	dto = cDTO_KVK(filename = kvkd_file)
 	print dto
+
 #	tmp = cKVKd_file(aFile = kvkd_file)
 
-	# test get_available_kvks()
-#	path = os.path.dirname(kvkd_file)
-#	kvks = get_available_kvks(aDir = path)
-#	print kvks
 #============================================================
 # docs
 #------------------------------------------------------------
@@ -349,7 +253,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.10  2007-02-15 14:54:47  ncq
+# Revision 1.11  2007-02-17 13:55:26  ncq
+# - consolidate, remove bitrot
+#
+# Revision 1.10  2007/02/15 14:54:47  ncq
 # - fix test suite
 # - true_kvk_fields list
 # - map_kvkd_tags2dto
