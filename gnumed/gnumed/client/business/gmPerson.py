@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.104 2007-02-15 14:56:53 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmPerson.py,v 1.105 2007-02-17 13:57:07 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -439,12 +439,25 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	def delete_relative(self, relation):
 		# unlink only, don't delete relative itself
 		self.set_relative(None, relation)
+
+	#----------------------------------------------------------------------
+	# age/dob related
 	#----------------------------------------------------------------------
 	def get_medical_age(self):
 		dob = self['dob']
 		if dob is None:
 			return '??'
 		return dob2medical_age(dob)
+	#----------------------------------------------------------------------
+	def dob_in_range(self, min_distance=u'1 week', max_distance=u'1 week'):
+		cmd = u'select (%(dob)s - now()) between (-1 * %(min)s::interval) and %(max)s::interval'
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': {'dob': self['dob'], 'min': min_distance, 'max': max_distance}
+			}]
+		)
+		return rows[0][0]
 #============================================================
 # may get preloaded by the waiting list
 class cPerson:
@@ -614,9 +627,10 @@ class gmCurrentProvider(gmBorg.cBorg):
 
 		# make sure we do have a provider pointer
 		try:
-			tmp = self._provider
+			tmp = self.__provider
 		except AttributeError:
-			self._provider = gmNull.cNull()
+			self.__provider = gmNull.cNull()
+			self.__workplace = None
 
 		# user wants copy of currently logged on provider
 		if provider is None:
@@ -627,23 +641,32 @@ class gmCurrentProvider(gmBorg.cBorg):
 			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
 
 		# same ID, no change needed
-		if self._provider['pk_staff'] == provider['pk_staff']:
+		if self.__provider['pk_staff'] == provider['pk_staff']:
 			return None
 
 		# first invocation
-		if isinstance(self._provider, gmNull.cNull):
-			self._provider = provider
+		if isinstance(self.__provider, gmNull.cNull):
+			self.__provider = provider
 			return None
 
-		# user wants different patient
-		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self._provider['pk_staff'], provider['pk_staff'])
+		# user wants different provider
+		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.__provider['pk_staff'], provider['pk_staff'])
+
 	#--------------------------------------------------------
 	def get_staff(self):
-		return self._provider
+		return self.__provider
 	#--------------------------------------------------------
-	# FIXME: turn into property
-	def get_workplace(self):
-		workplace = 'xxxDEFAULTxxx'
+	# workplace property
+	#--------------------------------------------------------
+	def _set_workplace(self, workplace):
+		# do nothing
+		return True
+	#--------------------------------------------------------
+	def _get_workplace(self):
+		if self.__workplace is not None:
+			return self.__workplace
+
+		self.__workplace = 'xxxDEFAULTxxx'
 		if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
 			print _('No config file to read workplace name from !')
 		else:
@@ -651,19 +674,18 @@ class gmCurrentProvider(gmBorg.cBorg):
 			if tmp is None:
 				print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
 			else:
-				# if gmCfg.gmDefCfgFile returned a list type, use only first element
-				if type(tmp) == type([]):
-					workplace = tmp[0]
-				else:
-					workplace = tmp
-		return workplace
+				self.__workplace = tmp
+
+		return self.__workplace
+	#--------------------------------------------------------
+	workplace = property(_get_workplace, _set_workplace)
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self._provider[aVar]
+		return self.__provider[aVar]
 #============================================================
 class cPatient(cPerson):
 	"""Represents a patient which is a person.
@@ -1921,6 +1943,7 @@ if __name__ == '__main__':
 			print "identity  ", identity
 			print "names     ", identity.get_all_names()
 			print "addresses:", identity.get_addresses(address_type='home')
+			print "recent birthday:", identity.dob_in_range()
 #		docs = myPatient.get_document_folder()
 #		print "docs     ", docs
 #		emr = myPatient.get_emr()
@@ -1949,7 +1972,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.104  2007-02-15 14:56:53  ncq
+# Revision 1.105  2007-02-17 13:57:07  ncq
+# - cIdentity.dob_in_range() plus test
+# - make gmCurrentProvider.workplace an efficient property
+#
+# Revision 1.104  2007/02/15 14:56:53  ncq
 # - remove _() from ValueError() call
 # - map_firstnames2gender()
 #
