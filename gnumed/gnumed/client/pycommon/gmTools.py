@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.16 2007-02-04 16:43:01 ncq Exp $
+# $Id: gmTools.py,v 1.17 2007-02-17 13:58:11 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -175,7 +175,7 @@ def str2interval(str_interval=None):
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
-def coalesce(initial=None, instead=None, template=None):
+def coalesce(initial=None, instead=None, template_initial=None, template_instead=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
@@ -186,15 +186,22 @@ def coalesce(initial=None, instead=None, template=None):
 			real_value = some_template_with_%s_formatter % value
 		print real_value
 
-	<initial>: the string to be tested for None
-	<instead>: the string to be returned if <initial> is None
-	<template>: the template into which to insert <initial> if <initial> is NOT None, must contain one %s or similar
+	@param initial: the value to be tested for <None>
+	@type initial: any Python type, must have a __str__ method if template_initial is not None
+	@param instead: the value to be returned if <initial> is None
+	@type instead: any Python type, must have a __str__ method if template_instead is not None
+	@param template_initial: if <initial> is returned replace the value into this template, must contain one <%s> 
+	@type template_initial: string or None
+	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s> 
+	@type template_instead: string or None
 	"""
 	if initial is None:
-		return instead
-	if template is None:
+		if template_instead is None:
+			return instead
+		return template_instead % instead
+	if template_initial is None:
 		return initial
-	return template % initial
+	return template_initial % initial
 #---------------------------------------------------------------------------
 def __cap_name(match_obj=None):
 	val = match_obj.group(0).lower()
@@ -295,10 +302,29 @@ if __name__ == '__main__':
 	def test_coalesce():
 		print 'testing coalesce()'
 		print "------------------"
-		val = None
-		print 'value          : %s (%s)' % (val, type(val))
-		print 'coalesce(value): %s (%s)' % (coalesce(val, 'something other than <None>'), type(coalesce(val, 'something other than <None>')))
-		return True
+		tests = [
+			[None, 'something other than <None>', None, None, 'something other than <None>']
+		]
+		passed = True
+		for test in tests:
+			result = coalesce (
+				initial = test[0],
+				instead = test[1],
+				template_initial = test[2],
+				template_instead = test[3]
+			)
+			if result != test[4]:
+				print "ERROR"
+				print "coalesce: (%s, %s, %s, %s)" % (test[0], test[1], test[2], test[3])
+				print "expected:", test[4]
+				print "received:", result
+				passed = False
+
+		if passed:
+			print "passed"
+		else:
+			print "failed"
+		return passed
 	#-----------------------------------------------------------------------
 	def test_capitalize():
 		print 'testing capitalize()'
@@ -342,15 +368,18 @@ if __name__ == '__main__':
 	print __doc__
 
 	#test_str2interval()
-	#test_coalesce()
-	test_capitalize()
+	test_coalesce()
+#	test_capitalize()
 	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.16  2007-02-04 16:43:01  ncq
+# Revision 1.17  2007-02-17 13:58:11  ncq
+# - improved coalesce()
+#
+# Revision 1.16  2007/02/04 16:43:01  ncq
 # - improve capitalize() test suite
 # - set coding
 #
