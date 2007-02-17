@@ -10,16 +10,16 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.61 2007-02-15 14:58:08 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPatSearchWidgets.py,v 1.62 2007-02-17 14:01:26 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, string, re, glob
+import sys, os.path, time, glob, locale, datetime as pyDT
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
@@ -287,7 +287,7 @@ def load_persons_from_kvks():
 	db_cfg = gmCfg.cCfgSQL()
 	kvk_dir = os.path.abspath(os.path.expanduser(db_cfg.get2 (
 		option = 'DE.KVK.spool_dir',
-		workplace = gmPerson.gmCurrentProvider().get_workplace(),
+		workplace = gmPerson.gmCurrentProvider().workplace,
 		bias = 'workplace',
 		default = u'/var/spool/kvkd/'
 	)))
@@ -422,7 +422,7 @@ class cPatientSelector(wx.TextCtrl):
 		self.__always_dismiss_after_search = bool ( 
 			cfg.get2 (
 				option = 'patient_search.always_dismiss_previous_patient',
-				workplace = gmPerson.gmCurrentProvider().get_workplace(),
+				workplace = gmPerson.gmCurrentProvider().workplace,
 				bias = 'user',
 				default = 0
 			)
@@ -431,7 +431,7 @@ class cPatientSelector(wx.TextCtrl):
 		self.__always_reload_after_search = bool (
 			cfg.get2 (
 				option = 'patient_search.always_reload_new_patient',
-				workplace = gmPerson.gmCurrentProvider().get_workplace(),
+				workplace = gmPerson.gmCurrentProvider().workplace,
 				bias = 'user',
 				default = 0
 			)
@@ -444,7 +444,31 @@ class cPatientSelector(wx.TextCtrl):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 
-		self.__remember_ident(self.curr_pat.get_identity())
+		ident = pat.get_identity()
+		self.__remember_ident(ident)
+
+		dbcfg = gmCfg.cCfgSQL()
+		dob_distance = dbcfg.get2 (
+			option = u'',
+			workplace = gmPerson.gmCurrentProvider().workplace,
+			bias = u'user',
+			default = u'1 week'
+		)
+
+		if ident.dob_in_range(dob_distance, dob_distance):
+			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+			enc = locale.getlocale()[1]
+			gmGuiHelpers.gm_statustext (
+				_('%(pat)s was born on %(dow)s, %(month)s %(day)s ! (today is %(dow_now)s, %(month_now)s %(day_now)s)') % {
+					'pat': ident.get_description(),
+					'dow': ident['dob'].strftime('%A').decode(enc),
+					'month': ident['dob'].strftime('%B').decode(enc),
+					'day': ident['dob'].strftime('%d'),
+					'dow_now': now.strftime('%A').decode(enc),
+					'month_now': now.strftime('%B').decode(enc),
+					'day_now': now.strftime('%d')
+				}
+			)
 
 		return True
 	#--------------------------------------------------------
@@ -590,29 +614,6 @@ class cPatientSelector(wx.TextCtrl):
 		# FIXME: invoke add new patient
 		# FIXME: add popup menu apart from system one
 
-		if evt.AltDown():
-
-			# ALT-K - access chipcards
-#			if keycode in [ord('k'), ord('c')]:
-				# FIXME: make configurable !!
-#				kvks = gmKVK.get_available_kvks('~/gnumed/kvk/incoming/')
-#				if kvks is None:
-#					print "No KVKs available !"
-					# show some message here ...
-#					return True
-#				picklist, col_order = gmKVK.kvks_extract_picklist(kvks)
-				# show list
-#				dlg = cPatientPickList(parent = self, title = _("please select a KVK"))
-#				dlg.SetItems(picklist, col_order)
-#				result = dlg.ShowModal()
-#				item = dlg.selected_item
-#				dlg.Destroy()
-				# and process selection
-#				if result > 0:
-#					print "user selected kvkd file %s" % picklist[result][10]
-#					print picklist[result]
-				return True
-		
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
@@ -733,13 +734,6 @@ if __name__ == "__main__":
 #   - ESC cancels selection
 #   - number selects patient
 #
-# - hitting cursor-up (alt-K = KVK, alt-C = Chipkarte ?)
-#   - signal chipcard demon to read card
-#   - AND display list of available cards read
-#   - scrolling in list
-#   - ENTER selects patient and imports card data
-#   - ESC cancels selection
-#
 # - hitting ALT-N
 #   - immediately goes to entry of new patient
 #
@@ -815,7 +809,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.61  2007-02-15 14:58:08  ncq
+# Revision 1.62  2007-02-17 14:01:26  ncq
+# - gmCurrentProvider.workplace now property
+# - notify about birthday after activating patient
+# - remove crufty code/docs
+#
+# Revision 1.61  2007/02/15 14:58:08  ncq
 # - tie KVKs intoi external patient sources framework
 #
 # Revision 1.60  2007/02/13 17:07:38  ncq
