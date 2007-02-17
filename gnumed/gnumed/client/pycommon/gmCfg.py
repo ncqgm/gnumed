@@ -53,14 +53,14 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
 import os.path, fileinput, string, sys, shutil, types, cPickle, decimal
 
 # gnumed modules
-import gmLog, gmNull, gmPG2
+import gmLog, gmNull, gmPG2, gmTools
 
 _log = gmLog.gmDefLog
 gmCLI_ = None
@@ -84,38 +84,48 @@ class cCfgSQL:
 	#-----------------------------------------------
 	# external API
 	#-----------------------------------------------
-	def get2(self, option=None, workplace=None, cookie=None, bias=None, default=None):
+	def get2(self, option=None, workplace=None, cookie=None, bias=None, default=None, return_type=None):
 		"""Retrieve configuration option from backend.
 
-		- bias 'user'
-			When no value is found for "current_user/workplace" look for a value
-			for "current_user" regardless of workspace. The corresponding concept is:
-			"Did *I* set this option anywhere on this site ? If so, reuse the value."
+		@param bias: Determine the direction into which to look for config options.
 
-		- bias 'workplace'
-			When no value is found for "current_user/workplace" look for a value
-			for "workplace" regardless of user. The corresponding concept is:
-			"Did anyone set this option for *this workplace* ? If so, reuse that value."
+			'user': When no value is found for "current_user/workplace" look for a value
+				for "current_user" regardless of workspace. The corresponding concept is:
+
+				"Did *I* set this option anywhere on this site ? If so, reuse the value."
+
+			'workplace': When no value is found for "current_user/workplace" look for a value
+				for "workplace" regardless of user. The corresponding concept is:
+
+				"Did anyone set this option for *this workplace* ? If so, reuse that value."
+		@param default: if no value is found for the option this value is returned
+			instead, also the option is set to this value in the backend, if <None>
+			a missing option will NOT be created in the backend
+		@param return_type: a PostgreSQL type the value of the option is to be
+			cast to before returning, if None no cast will be applied, you will
+			want to make sure that return_type and type(default) are compatible
 		"""
 
-		# this is the one to use (Di 12 Sep 2006 17:20:22 CEST)
+		# this is the one to use (Sa 17 Feb 2007 12:16:56 CET)
 
 		if None in [option, workplace]:
 			raise ValueError, 'neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace)
-		if str(bias).lower() not in ['user', 'workplace']:
-			raise ValueError, '<bias> must be in ["user", "workplace"]'
-		bias = str(bias).lower()
+		if bias not in ['user', 'workplace']:
+			raise ValueError, '<bias> must be "user" or "workplace"'
 
 		# does this option exist ?
-		cmd = u"select type from cfg.cfg_template where name=%s"
-		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': [option]}])
+		cmd = u"select type from cfg.cfg_template where name=%(opt)s"
+		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': {'opt': option}}])
 		if len(rows) == 0:
+			# not found ...
 			if default is None:
+				# ... and no default either
 				return None
 			_log.Log(gmLog.lInfo, 'creating option [%s] with default [%s]' % (option, default))
 			success = self.set(workplace = workplace, cookie = cookie, option = option, value = default)
 			if not success:
-				return None
+				# ... but cannot create option with default value either
+				_log.Log(gmLog.lErr, 'creating option failed')
 			return default
 
 		cfg_type = rows[0][0]
@@ -127,6 +137,11 @@ class cCfgSQL:
 		}
 
 		# 1) search value with explicit workplace and current user
+		return_type = gmTools.coalesce (
+			initial = return_type,
+			instead = '',
+			template_initial = '::%s'
+		).strip(':::')
 		where_parts = [
 			'vco.owner = CURRENT_USER',
 			'vco.workplace = %(wp)s',
@@ -136,7 +151,7 @@ class cCfgSQL:
 			where_parts.append('vco.cookie = %(cookie)s')
 		else:
 			where_parts.append('vco.cookie is Null')
-		cmd = u"select vco.value from cfg.v_cfg_opts_%s vco where %s limit 1" % (cfg_type, ' and '.join(where_parts))
+		cmd = u"select vco.value%s from cfg.v_cfg_opts_%s vco where %s limit 1" % (return_type, cfg_type, ' and '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
@@ -160,7 +175,7 @@ class cCfgSQL:
 			where_parts.append('vco.cookie = %(cookie)s')
 		else:
 			where_parts.append('vco.cookie is Null')
-		cmd = u"select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
+		cmd = u"select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (return_type, cfg_type, ' and '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
@@ -180,7 +195,7 @@ class cCfgSQL:
 			'vco.workplace = %(def)s',
 			'vco.option = %(opt)s'
 		]
-		cmd = u"select vco.value from cfg.v_cfg_opts_%s vco where %s" % (cfg_type, ' and '.join(where_parts))
+		cmd = u"select vco.value%s from cfg.v_cfg_opts_%s vco where %s" % (return_type, cfg_type, ' and '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		# found
 		if len(rows) > 0:
@@ -286,11 +301,10 @@ limit 1""" % where_clause
 				val_type = '::bytea'
 			except cPickle.PicklingError:
 				_log.Log(gmLog.lErr, "cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
-				return False
+				raise
 			except:
-				msg = "don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value))
-				_log.LogException(msg, sys.exc_info(), verbose=0)
-				return False
+				_log.Log(gmLog.lErr, "don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
+				raise
 
 		cmd = u'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % val_type
 		args = {
@@ -301,13 +315,12 @@ limit 1""" % where_clause
 		}
 		rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
 		success = rows[0][0]
-		if success:
-			rw_conn.commit()
-			rw_conn.close()
-			return True
 
-		rw_conn.rollback()
+		rw_conn.commit()		# will rollback if transaction failed
 		rw_conn.close()
+
+		if success:
+			return True
 
 		return False
 	#-------------------------------------------
@@ -1114,7 +1127,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.52  2007-01-30 17:38:06  ncq
+# Revision 1.53  2007-02-17 14:11:56  ncq
+# - better get2 docs
+# - allow custom cast on get2() return value
+#
+# Revision 1.52  2007/01/30 17:38:06  ncq
 # - cleanup and a comment
 #
 # Revision 1.51  2006/12/22 15:20:12  ncq
