@@ -30,7 +30,7 @@ class DrugView:
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		
-		currWorkplace = gmPerson.gmCurrentProvider().get_workplace()
+		currWorkplace = gmPerson.gmCurrentProvider().workplace
 		if currWorkplace is None:
 			# assume we are outside gnumed
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
@@ -394,7 +394,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.9  2006-10-25 07:19:03  ncq
+# Revision 1.10  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.9  2006/10/25 07:19:03  ncq
 # - no more gmPG
 #
 # Revision 1.8  2006/05/14 21:44:22  ncq

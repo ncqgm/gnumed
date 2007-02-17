@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.306 2007-02-09 15:01:14 ncq Exp $
-__version__ = "$Revision: 1.306 $"
+# $Id: gmGuiMain.py,v 1.307 2007-02-17 14:13:11 ncq Exp $
+__version__ = "$Revision: 1.307 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -102,7 +102,7 @@ def jump_to_ifap(import_drugs=False):
 	if import_drugs:
 		transfer_file = os.path.expanduser(dbcfg.get2 (
 			option = 'external.ifap-win.transfer_file',
-			workplace = _provider.get_workplace(),
+			workplace = _provider.workplace,
 			bias = 'workplace',
 			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
 		))
@@ -114,7 +114,7 @@ def jump_to_ifap(import_drugs=False):
 	# FIXME: (windows, linux, mac) until one succeeds or all fail
 	ifap_cmd = dbcfg.get2 (
 		option = 'external.ifap-win.shell_command',
-		workplace = _provider.get_workplace(),
+		workplace = _provider.workplace,
 		bias = 'workplace',
 		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
 	)
@@ -185,7 +185,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['EmergencyExit'] = self._clean_exit
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _provider.get_workplace())
+		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _provider.workplace)
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -237,7 +237,7 @@ class gmTopLevelFrame(wx.Frame):
 		# width
 		width = int(cfg.get2 (
 			option = 'main.window.width',
-			workplace = _provider.get_workplace(),
+			workplace = _provider.workplace,
 			bias = 'workplace',
 			default = 800
 		))
@@ -245,7 +245,7 @@ class gmTopLevelFrame(wx.Frame):
 		# height
 		height = int(cfg.get2 (
 			option = 'main.window.height',
-			workplace = _provider.get_workplace(),
+			workplace = _provider.workplace,
 			bias = 'workplace',
 			default = 600
 		))
@@ -508,7 +508,6 @@ class gmTopLevelFrame(wx.Frame):
 			zero_duration = (enc['last_affirmed'] == enc['started'])
 
 			if empty_aoe or zero_duration:
-
 				if empty_aoe:
 					# - work out suitable default
 					epis = emr.get_episodes_by_encounter()
@@ -517,7 +516,6 @@ class gmTopLevelFrame(wx.Frame):
 						for epi in epis:
 							enc_summary += '%s; ' % epi['description']
 						enc['assessment_of_encounter'] = enc_summary
-
 				if zero_duration:
 					enc['last_affirmed'] = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
 
@@ -836,12 +834,12 @@ Search results:
 		dbcfg.set (
 			option = 'main.window.width',
 			value = curr_width,
-			workplace = _provider.get_workplace()
+			workplace = _provider.workplace
 		)
 		dbcfg.set (
 			option = 'main.window.height',
 			value = curr_height,
-			workplace = _provider.get_workplace()
+			workplace = _provider.workplace
 		)
 		# handle our own stuff
 		try:
@@ -878,7 +876,7 @@ Search results:
 		dbcfg = gmCfg.cCfgSQL()
 		script_name = dbcfg.get2 (
 			option = 'patient_activation.script_to_run_after_activation',
-			workplace = _provider.get_workplace(),
+			workplace = _provider.workplace,
 			bias = 'user',
 			default = ''			# no script
 		).strip()
@@ -938,7 +936,7 @@ Search results:
 			_provider['title'],
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
-			_provider.get_workplace(),
+			_provider.workplace,
 			self.title_activity,
 			pat_str
 		)
@@ -1254,7 +1252,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.306  2007-02-09 15:01:14  ncq
+# Revision 1.307  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.306  2007/02/09 15:01:14  ncq
 # - show consultation editor just before patient change if
 #   either assessment of encounter is empty or the duration is zero
 # - if the duration is zero, then set last_affirmed to now()

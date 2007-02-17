@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.65 2006-11-07 00:34:52 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPlugin.py,v 1.66 2007-02-17 14:13:11 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,7 +24,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 	def __init__(self, nr_plugins):
 		wx.ProgressDialog.__init__(
 			self,
-			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPerson.gmCurrentProvider().get_workplace(), nr_plugins),
+			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPerson.gmCurrentProvider().workplace, nr_plugins),
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
@@ -351,7 +351,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	FIXME: look at gmRichardSpace to see how to load plugins
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
-	curr_workplace = gmPerson.gmCurrentProvider().get_workplace()
+	curr_workplace = gmPerson.gmCurrentProvider().workplace
 
 	dbcfg = gmCfg.cCfgSQL()
 	p_list = dbcfg.get2 (
@@ -433,7 +433,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.65  2006-11-07 00:34:52  ncq
+# Revision 1.66  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.65  2006/11/07 00:34:52  ncq
 # - fix logic error in _on_raise_by_signal()
 #
 # Revision 1.64  2006/10/08 11:07:01  ncq

@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.36 2007-02-15 14:57:49 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmHorstSpace.py,v 1.37 2007-02-17 14:13:11 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -147,7 +147,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		me = gmPerson.gmCurrentProvider()
 		default_plugin = db_cfg.get2 (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = me.get_workplace(),
+			workplace = me.workplace,
 			bias = u'user',
 			default = u'gmEMRBrowserPlugin'
 		)
@@ -311,7 +311,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.36  2007-02-15 14:57:49  ncq
+# Revision 1.37  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.36  2007/02/15 14:57:49  ncq
 # - cleanup
 #
 # Revision 1.35  2006/12/17 20:44:52  ncq

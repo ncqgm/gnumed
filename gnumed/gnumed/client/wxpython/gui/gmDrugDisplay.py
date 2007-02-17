@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 try:
@@ -97,7 +97,7 @@ class DrugDisplay(wx.Panel):
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		# this is necessary to enable stand alone use of the drug browser
-		currworkplace = gmPerson.gmCurrentProvider().get_workplace()
+		currworkplace = gmPerson.gmCurrentProvider().workplace
 		if currworkplace is None:
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
@@ -644,7 +644,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.31  2006-10-25 07:23:30  ncq
+# Revision 1.32  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.31  2006/10/25 07:23:30  ncq
 # - no gmPG no more
 #
 # Revision 1.30  2006/05/14 21:44:22  ncq

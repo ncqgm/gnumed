@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.74 2007-01-30 17:40:22 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmLoginDialog.py,v 1.75 2007-02-17 14:13:11 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -85,9 +85,9 @@ class LoginPanel(wx.Panel):
 			self.topsizer.Add(wx.StaticText (self, -1, _("Cannot find image") + bitmap, style=wx.ALIGN_CENTRE), 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
 
 		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
-			paramsbox_caption = _("Slave Login - %s" % gmPerson.gmCurrentProvider().get_workplace())
+			paramsbox_caption = _("Slave Login - %s" % gmPerson.gmCurrentProvider().workplace)
 		else:
-			paramsbox_caption = _("Login - %s" % gmPerson.gmCurrentProvider().get_workplace())
+			paramsbox_caption = _("Login - %s" % gmPerson.gmCurrentProvider().workplace)
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -489,7 +489,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.74  2007-01-30 17:40:22  ncq
+# Revision 1.75  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.74  2007/01/30 17:40:22  ncq
 # - cleanup, get rid of wxMAC IFDEF
 # - use user preferences file for storing login preferences
 #

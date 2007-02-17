@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.51 2007-02-16 12:53:19 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmEMRStructWidgets.py,v 1.52 2007-02-17 14:13:11 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -242,7 +242,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	db_cfg = gmCfg.cCfgSQL()
 	epi_ttl = int(db_cfg.get2 (
 		option = u'episode.ttl',
-		workplace = gmPerson.gmCurrentProvider().get_workplace(),
+		workplace = gmPerson.gmCurrentProvider().workplace,
 		bias = 'user',
 		default = 60				# 2 months
 	))
@@ -1691,7 +1691,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.51  2007-02-16 12:53:19  ncq
+# Revision 1.52  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.51  2007/02/16 12:53:19  ncq
 # - now that we have cPhraseWheel.suppress_text_update_smarts we
 #   can avoid infinite looping due to circular on_modified callbacks
 #

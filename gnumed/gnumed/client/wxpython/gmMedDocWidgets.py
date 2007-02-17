@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.113 2007-02-06 13:43:40 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmMedDocWidgets.py,v 1.114 2007-02-17 14:13:11 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -752,7 +752,7 @@ from your computer.""") % page_fname,
 		show_id = bool (
 			cfg.get2 (
 				option = 'horstspace.scan_index.show_doc_id',
-				workplace = gmPerson.gmCurrentProvider().get_workplace(),
+				workplace = gmPerson.gmCurrentProvider().workplace,
 				bias = 'user'
 			)
 		)
@@ -1233,7 +1233,7 @@ class cDocTree(wx.TreeCtrl):
 		cfg = gmCfg.cCfgSQL()
 		tmp_dir = cfg.get2 (
 			option = "horstspace.tmp_dir",
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = 'workplace',
 			default = def_tmp_dir
 		)
@@ -1247,7 +1247,7 @@ class cDocTree(wx.TreeCtrl):
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = 'workplace',
 			default = 1 * 1024 * 1024		# 1 MB
 		))
@@ -1265,7 +1265,7 @@ class cDocTree(wx.TreeCtrl):
 		# display it
 		block_during_view = bool( cfg.get2 (
 			option = 'horstspace.document_viewer.block_during_view',
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = 'user',
 			default = None
 		))
@@ -1280,7 +1280,7 @@ class cDocTree(wx.TreeCtrl):
 		# handle review after display
 		review_after_display = cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
-			workplace = gmPerson.gmCurrentProvider().get_workplace(),
+			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = 'user',
 			default = 2
 		)
@@ -1361,7 +1361,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.113  2007-02-06 13:43:40  ncq
+# Revision 1.114  2007-02-17 14:13:11  ncq
+# - gmPerson.gmCurrentProvider().workplace now property
+#
+# Revision 1.113  2007/02/06 13:43:40  ncq
 # - no more aDelay in __init__()
 #
 # Revision 1.112  2007/02/05 12:15:23  ncq
