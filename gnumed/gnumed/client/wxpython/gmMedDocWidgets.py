@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.114 2007-02-17 14:13:11 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmMedDocWidgets.py,v 1.115 2007-02-17 18:28:33 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -518,11 +518,19 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		return True
 	#--------------------------------------------------------
-	# event handling API
-	#--------------------------------------------------------
-	def _scan_btn_pressed(self, evt):
-		devices = self.scan_module.get_devices()
+	def get_device_to_use(self, reconfigure=False):
 
+		if not reconfigure:
+			dbcfg = gmCfg.cCfgSQL()
+			device = dbcfg.get2 (
+				option =  '',
+				workplace = gmPerson.gmCurrentProvider().workplace,
+				bias = 'workplace'
+			)
+			if device is not None:
+				return device
+
+		devices = self.scan_module.get_devices()
 		if devices is False:
 			gmGuiHelpers.gm_statustext (
 				_('There is no scanner support installed on this machine.'),
@@ -530,53 +538,67 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return None
 
-		# TWAIN doesn't have get_devices() :-(
 		if devices is None:
-			chosen_device = None
-		else:
-			if len(devices) == 0:
-				gmGuiHelpers.gm_statustext (
-					_('Cannot find an active scanner.'),
-					gmLog.lWarn
-				)
-				return None
-			device_names = []
-			for device in devices:
-				device_names.append('%s (%s)' % (device[2], device[0]))
-			# wxpython does not support client data in wxSingleChoiceDialog
-			device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
-				aMessage = _('Select an image capture device'),
-				aTitle = _('device selection'),
-				choices = device_names
+			# get_devices() not implemented for TWAIN yet
+			# XSane has its own chooser (so does TWAIN)
+			return None
+
+		if len(devices) == 0:
+			gmGuiHelpers.gm_statustext (
+				_('Cannot find an active scanner.'),
+				gmLog.lWarn
 			)
-			if device_idx is False:
-				return None
-			chosen_device = devices[device_idx][0]
+			return None
+
+		device_names = []
+		for device in devices:
+			device_names.append('%s (%s)' % (device[2], device[0]))
+		# wxPython does not support client data in wxSingleChoiceDialog
+		device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
+			aMessage = _('Select an image capture device'),
+			aTitle = _('device selection'),
+			choices = device_names
+		)
+		if device_idx is False:
+			return None
+
+		# FIXME: add support for actually reconfiguring
+		return devices[device_idx][0]
+	#--------------------------------------------------------
+	# event handling API
+	#--------------------------------------------------------
+	def _scan_btn_pressed(self, evt):
+
+		chosen_device = get_device_to_use()
 
 		tmpdir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp'))
-		if not os.path.isdir(tmpdir):
-			try:
-				os.makedirs(tmpdir)
-			except:
-				tmpdir = None
+		try:
+			gmTools.mkdir(tmpdir)
+		except:
+			tmpdir = None
+
+		# FIXME: configure whether to use XSane or sane directly
+		# FIXME: add support for xsane_device_settings argument
 		fnames = self.scan_module.acquire_pages_into_files (
 			device = chosen_device,
 			delay = 5,
 			tmpdir = tmpdir,
 			calling_window = self
 		)
+
 		if fnames is False:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Page could not be acquired from source.'),
 				aTitle = _('acquiring page')
 			)
 			return None
+
 		if len(fnames) == 0:		# no pages scanned
 			return True
-		# FIXME: configure whether to use XSane or sane directly
+
 		self.acquired_pages.extend(fnames)
-		# update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
+
 		return True
 	#--------------------------------------------------------
 	def _load_btn_pressed(self, evt):
@@ -1361,7 +1383,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.114  2007-02-17 14:13:11  ncq
+# Revision 1.115  2007-02-17 18:28:33  ncq
+# - factor out get_device_to_use() and use it in _scan_btn_pressed()
+# - support pre-setting device, only directly supported by XSane so far
+#
+# Revision 1.114  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.113  2007/02/06 13:43:40  ncq
