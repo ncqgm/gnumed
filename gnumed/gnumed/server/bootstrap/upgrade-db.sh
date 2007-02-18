@@ -53,13 +53,6 @@ echo "   Note that this may take a substantial amount of time and disk space!"
 echo "   You may need to type in the password for gm-dbo."
 pg_dump -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
 echo ""
-echo "2) dropping target database if it exists ..."
-# may need to either SU to postgres or else move this into
-# the bootstrapper itself either as a failure on exist or
-# an option to drop
-dropdb -U postgres -i ${GM_CORE_DB}
-#dropdb -h 127.0.0.1 -U gm-dbo -i ${GM_CORE_DB}
+echo "2) upgrading to new database ..."
 rm -rf ${LOG}
-echo ""
-echo "3) upgrading to new database ..."
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}

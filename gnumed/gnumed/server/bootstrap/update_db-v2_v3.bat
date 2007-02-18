@@ -18,7 +18,6 @@ echo The name of the new database will be %GM_CORE_DB% .
 echo ===========================================================
 echo Dropping target database if there is any.
 
-dropdb -U gm-dbo -i %GM_CORE_DB%
 del %LOG%
 echo =======================
 echo bootstrapping database
