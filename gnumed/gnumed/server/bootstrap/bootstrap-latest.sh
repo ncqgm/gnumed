@@ -18,11 +18,8 @@ echo "localizations for countries you don't live in. This does"
 echo "not disturb the operation of the GNUmed client in your"
 echo "country in any way."
 echo "==========================================================="
-echo "1) Dropping old databases if there are any."
+echo "1) Dropping old baseline gnumed_v2 database if there is any."
 dropdb -U gm-dbo -i gnumed_v2
-dropdb -U gm-dbo -i gnumed_v3
-dropdb -U gm-dbo -i gnumed_v4
-dropdb -U gm-dbo -i gnumed_v5
 rm -rf ${LOG}
 
 echo "=========================="
@@ -37,14 +34,14 @@ unset GM_CORE_DB
 LOG="bootstrap-latest-v3.log"
 CONF="update_db-v2_v3.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-dropdb -U gm-dbo -i gnumed_v2
+dropdb -U gm-dbo gnumed_v2
 
 LOG="bootstrap-latest-v4.log"
 CONF="update_db-v3_v4.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-dropdb -U gm-dbo -i gnumed_v3
+dropdb -U gm-dbo gnumed_v3
 
 LOG="bootstrap-latest-v5.log"
 CONF="update_db-v4_v5.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-dropdb -U gm-dbo -i gnumed_v4
+dropdb -U gm-dbo gnumed_v4
