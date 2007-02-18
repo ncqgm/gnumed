@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -619,7 +619,22 @@ class database:
 	def __create_db(self):
 		if self.__db_exists():
 			# FIXME: verify that database is owned by "gm-dbo"
-			return True
+			drop_existing = bool(_cfg.get(self.section, 'drop target database'))
+			if drop_existing:
+				cmd = 'drop database "%s"' % self.name
+				self.conn.set_isolation_level(0)
+				cursor = self.conn.cursor()
+				try:
+					cursor.execute(cmd)
+				except:
+					_log.LogException(">>>[%s]<<< failed" % cmd, verbose=1)
+					cursor.close()
+					return False
+				cursor.close()
+				self.conn.commit()
+				print "Dropped pre-existing *target* database [%s]." % self.name
+			else:
+				return False
 
 		# verify template database hash
 		template_version = _cfg.get(self.section, 'template version')
@@ -655,7 +670,7 @@ class database:
 		except:
 			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
 			cursor.close()
-			return None
+			return False
 		cursor.close()
 		self.conn.commit()
 
@@ -1101,7 +1116,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.46  2007-02-16 11:08:18  ncq
+# Revision 1.47  2007-02-18 12:19:52  ncq
+# - support dropping target database if so configured
+#
+# Revision 1.46  2007/02/16 11:08:18  ncq
 # - re-implement 7.4 "alternate location" as 8.1+ "tablespace" as
 #   it doesn't make sense to support 7.4 on this
 #
