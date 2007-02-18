@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -23,7 +23,8 @@ import time, locale, sys, re, os, codecs, types, datetime
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmLoginInfo, gmExceptions, gmDateTime
+from Gnumed.pycommon import gmLog, gmLoginInfo, gmExceptions, gmDateTime, gmBorg
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -60,6 +61,7 @@ except ValueError:
 
 import psycopg2.extras
 import psycopg2.extensions
+import psycopg2.pool
 
 # =======================================================================
 #_default_client_encoding = 'UNICODE'
@@ -81,6 +83,8 @@ _default_login = None
 
 postgresql_version_string = None
 postgresql_version = None			# accuracy: major.minor
+
+__ro_conn_pool = None
 
 # =======================================================================
 # global data
@@ -413,8 +417,6 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			args = query['args']
 		except KeyError:
 			args = (None,)
-#		if verbose:		# mogrify does not support unicode queries, yet
-#			_log.Log(gmLog.lData, 'running: %s' % curs.mogrify(query['cmd'], args))
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
@@ -548,6 +550,29 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	return (data, col_idx)
 # =======================================================================
+# connection handling API
+# -----------------------------------------------------------------------
+class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
+	"""
+	GNUmed database connection pool.
+
+	Extends psycopg2's PersistentConnectionPool with
+	a custom _connect() function. Supports one connection
+	per thread - which also ties it to one particular DSN.
+	"""
+	#--------------------------------------------------
+	def _connect(self, key=None):
+
+		conn = get_raw_connection(dsn = self._kwargs['dsn'], verbose = self._kwargs['verbose'])
+
+		if key is not None:
+			self._used[key] = conn
+			self._rused[id(conn)] = key
+		else:
+			self._pool.append(conn)
+
+		return conn
+# -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False):
 	"""Get a raw, unadorned connection.
 
@@ -557,7 +582,6 @@ def get_raw_connection(dsn=None, verbose=False):
 	  for verifying encodings etc
 	"""
 	# FIXME: support verbose
-
 	if dsn is None:
 		dsn = get_default_dsn()
 
@@ -587,6 +611,8 @@ def get_raw_connection(dsn=None, verbose=False):
 		conn.commit()
 		_log.Log(gmLog.lInfo, 'PostgreSQL version (numeric): %s' % postgresql_version)
 
+	conn.is_decorated = False
+
 	return conn
 # =======================================================================
 def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
@@ -595,9 +621,23 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	This assumes the locale system has been initialzied
 	unless an encoding is specified.
 	"""
-	# FIXME: support pooled, verbose
+	# FIXME: support pooled on RW, too
+	if pooled and readonly:
+		global __ro_conn_pool
+		if __ro_conn_pool is None:
+			__ro_conn_pool = cConnectionPool (
+				minconn = 1,
+				maxconn = 2,
+				dsn = dsn,
+				verbose = verbose
+			)
+		conn = __ro_conn_pool.getconn()
+		conn.close = __noop					# do not close pooled ro connections
+	else:
+		conn = get_raw_connection(dsn=dsn, verbose=verbose)
 
-	conn = get_raw_connection(dsn=dsn, verbose=verbose)
+	if conn.is_decorated:
+		return conn
 
 	if encoding is None:
 		encoding = _default_client_encoding
@@ -658,6 +698,9 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	curs.close()
 	conn.commit()
+
+	conn.is_decorated = True
+
 	return conn
 # =======================================================================
 # internal helpers
@@ -936,17 +979,30 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 	#--------------------------------------------------------------------
+	def test_connection_pool():
+		dsn = get_default_dsn()
+		pool = cConnectionPool(minconn=1, maxconn=2, dsn=None, verbose=False)
+		print pool
+		print pool.getconn()
+		print pool.getconn()
+		print pool.getconn()
+		print type(pool.getconn())
+	#--------------------------------------------------------------------
 	# run tests
-	test_get_connection()
-	test_exceptions()
-	test_ro_queries()
-	test_request_dsn()
-	test_set_encoding()
+#	test_get_connection()
+#	test_exceptions()
+#	test_ro_queries()
+#	test_request_dsn()
+#	test_set_encoding()
+	test_connection_pool()
 	print "tests ran successfully"
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.34  2007-02-06 12:11:25  ncq
+# Revision 1.35  2007-02-18 16:56:21  ncq
+# - add connection pool for read-only connections ...
+#
+# Revision 1.34  2007/02/06 12:11:25  ncq
 # - gnumed_v5
 #
 # Revision 1.33  2007/01/24 11:03:55  ncq
