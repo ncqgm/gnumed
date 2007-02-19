@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.26 2007-02-17 14:02:36 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.27 2007-02-19 16:45:45 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -133,6 +133,7 @@ cp -R ../../client/connectors/gm_ctl_client.* ./GNUmed-$CLIENTREV/client/connect
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$CLIENTREV/client/doc/
+cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
 
@@ -284,7 +285,10 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.26  2007-02-17 14:02:36  ncq
+# Revision 1.27  2007-02-19 16:45:45  ncq
+# - include hook_script_example.py
+#
+# Revision 1.26  2007/02/17 14:02:36  ncq
 # - no more STIKO browser plugin
 #
 # Revision 1.25  2007/02/16 15:34:53  ncq
