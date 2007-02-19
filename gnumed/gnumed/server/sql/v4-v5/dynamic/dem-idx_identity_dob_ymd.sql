@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-idx_identity_dob_ymd.sql,v 1.1 2007-02-10 23:42:47 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-idx_identity_dob_ymd.sql,v 1.2 2007-02-19 11:10:02 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -22,19 +22,23 @@ drop index dem.idx_identity_dob_ymd cascade;
 \set ON_ERROR_STOP 1
 
 
-create index idx_identity_dob_ymd on dem.identity(date_trunc('day', dob));
+create index idx_identity_dob_ymd on dem.identity(date_trunc('day', dob at time zone 'UTC'));
 
 
 comment on index dem.idx_identity_dob_ymd is
-	'When searching for patient per DOB this will usually
-	 happen with no more precision than "day".';
+	'When searching for patients per DOB this will usually
+	 happen with no more precision than "day". Need to
+	 normalize to UTC zone, however.';
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-idx_identity_dob_ymd.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: dem-idx_identity_dob_ymd.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-idx_identity_dob_ymd.sql,v $
--- Revision 1.1  2007-02-10 23:42:47  ncq
+-- Revision 1.2  2007-02-19 11:10:02  ncq
+-- - fix index creation - function needs to be immutable
+--
+-- Revision 1.1  2007/02/10 23:42:47  ncq
 -- - fix return type on rule function
 -- - add date_trunc('day', dob) index
 --
