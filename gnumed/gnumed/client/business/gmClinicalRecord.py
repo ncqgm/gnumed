@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.232 2007-02-17 14:08:52 ncq Exp $
-__version__ = "$Revision: 1.232 $"
+# $Id: gmClinicalRecord.py,v 1.233 2007-02-19 14:06:56 ncq Exp $
+__version__ = "$Revision: 1.233 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -881,10 +881,10 @@ where
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
 		# FIXME: use constraints to get*
-		issues = self.get_health_issues()
-		for issue in issues:
-			if issue['description'] == issue_name:
-				return False
+#		issues = self.get_health_issues()
+#		for issue in issues:
+#			if issue['description'] == issue_name:
+#				return issue
 		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=issue_name)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
@@ -1589,7 +1589,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.232  2007-02-17 14:08:52  ncq
+# Revision 1.233  2007-02-19 14:06:56  ncq
+# - add_health_issue() should return True if health_issue already exists
+#
+# Revision 1.232  2007/02/17 14:08:52  ncq
 # - gmPerson.gmCurrentProvider.workplace now a property
 #
 # Revision 1.231  2007/02/09 14:58:43  ncq
