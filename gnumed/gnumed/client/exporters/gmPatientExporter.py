@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.98 2007-02-17 14:10:03 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmPatientExporter.py,v 1.99 2007-02-19 14:07:31 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -683,7 +683,7 @@ class cEmrExport:
         last_encounter = emr.get_last_encounter(issue_id = issue['pk'])
         if first_encounter is None or last_encounter is None:
             txt += _('%s%s episode(s)\n\n%sNo encounters found for this health issue.\n') % (
-                left_margin * ' ' +
+                left_margin * ' ',
                 str(no_epis),
                 left_margin * ' ')
             return txt
@@ -1269,7 +1269,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.98  2007-02-17 14:10:03  ncq
+# Revision 1.99  2007-02-19 14:07:31  ncq
+# - fix format string parameters
+#
+# Revision 1.98  2007/02/17 14:10:03  ncq
 # - use improved gmTools.coalesce()
 #
 # Revision 1.97  2007/02/10 23:41:38  ncq
