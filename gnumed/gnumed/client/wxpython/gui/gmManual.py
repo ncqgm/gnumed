@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.36 2006-11-26 17:46:42 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmManual.py,v 1.37 2007-02-19 17:21:18 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -58,7 +58,7 @@ class ManualHtmlPanel(wx.Panel):
 		# try standard location
 		# FIXME: this should be a) configurable, b) not hardcoded here (?)
 		if os.name == 'posix':
-			self.docdir = '/usr/share/doc/gnumed-client/user-manual/'
+			self.docdir = '/usr/share/doc/gnumed/user-manual/'
 		else:
 			self.docdir = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'doc', 'user-manual')
 
@@ -242,7 +242,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.36  2006-11-26 17:46:42  ncq
+# Revision 1.37  2007-02-19 17:21:18  ncq
+# - docs are in /usr/share/doc/gnumed/
+#
+# Revision 1.36  2006/11/26 17:46:42  ncq
 # - if loading from the web use template viewprint for better results
 #
 # Revision 1.35  2006/07/24 14:58:07  ncq
