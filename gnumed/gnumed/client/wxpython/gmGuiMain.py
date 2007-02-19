@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.307 2007-02-17 14:13:11 ncq Exp $
-__version__ = "$Revision: 1.307 $"
+# $Id: gmGuiMain.py,v 1.308 2007-02-19 16:14:06 ncq Exp $
+__version__ = "$Revision: 1.308 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -870,43 +870,17 @@ Search results:
 	# internal API
 	#----------------------------------------------
 	def __run_script_on_patient_activated(self):
-
-		# NOTE: this *might* be a huge security hole
-
 		dbcfg = gmCfg.cCfgSQL()
-		script_name = dbcfg.get2 (
-			option = 'patient_activation.script_to_run_after_activation',
-			workplace = _provider.workplace,
-			bias = 'user',
-			default = ''			# no script
-		).strip()
-
-		if script_name == '':
-			return
-
-		script_path = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
-		full_script = os.path.join(script_path, script_name)
-
-		_log.Log(gmLog.lData, 'trying to run [%s] after activating patient' % full_script)
-
-		if os.path.islink(full_script):
-			gmGuiHelpers.gm_statustext(_('Script to run after activating patient may not be a link: [%s].') % full_script)
-			return
-
-		stat_val = os.stat(full_script)
-#		if stat_val.st_mode != 384:				# octal 0600
-		if stat_val.st_mode != 33152:			# octal 100600
-			gmGuiHelpers.gm_statustext(_('Script to run after activating patient must have permissions "0600": [%s].') % full_script)
-			return
-
-		if not os.access(full_script, os.R_OK):
-			gmGuiHelpers.gm_statustext(_('Script to run after activating patient must be owned by the calling user: [%s].') % full_script)
-			return
-
-		module = gmTools.import_module_from_directory(script_path, script_name)
-		module.run_script()
-
-		_log.Log(gmLog.lData, 'ran [%s] after activating patient')
+		script_name = gmTools.coalesce (
+			dbcfg.get2 (
+				option = 'horstspace.hook_script',
+				workplace = _provider.workplace,
+				bias = 'user',
+				default = ''			# no script
+			), 
+			''
+		)
+		gmGuiHelpers.run_hook_script(hook = u'post_patient_activation', script = script_name)
 		return
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None):
@@ -1252,7 +1226,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.307  2007-02-17 14:13:11  ncq
+# Revision 1.308  2007-02-19 16:14:06  ncq
+# - use gmGuiHelpers.run_hook_script()
+#
+# Revision 1.307  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.306  2007/02/09 15:01:14  ncq
