@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.100 2007-02-19 16:56:05 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmPatientExporter.py,v 1.101 2007-02-19 17:54:06 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -1082,7 +1082,7 @@ where pk_patient=%s order by date, pk_episode, scr"""
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c'))
 
-		return
+		return True
 #============================================================
 class cMedistarSOAPExporter:
 	"""Export SOAP data per encounter into Medistar import format."""
@@ -1269,7 +1269,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.100  2007-02-19 16:56:05  ncq
+# Revision 1.101  2007-02-19 17:54:06  ncq
+# - need to return True when successful
+#
+# Revision 1.100  2007/02/19 16:56:05  ncq
 # - properly check for is_connected()
 #
 # Revision 1.99  2007/02/19 14:07:31  ncq
