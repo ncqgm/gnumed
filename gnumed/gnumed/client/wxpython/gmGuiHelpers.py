@@ -11,12 +11,12 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.49 2007-02-18 16:57:38 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmGuiHelpers.py,v 1.50 2007-02-19 16:13:36 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, string, os
+import sys, os
 
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
@@ -30,6 +30,49 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
 _set_status_text = None
+# ========================================================================
+def run_hook_script(hook=None, script=None):
+
+	# NOTE: this just *might* be a huge security hole
+
+	if hook is None:
+		raise ValueError('run_hook_script(): <hook> cannot be <None>')
+
+	if script is None:
+		raise ValueError('run_hook_script(): <script> cannot be <None>')
+
+	if script.strip() == u'':
+		return True
+
+	script_path = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
+	full_script = os.path.join(script_path, script_name)
+
+	_log.Log(gmLog.lData, 'trying to run script [%s] off hook [%s]' % (full_script, hook))
+
+	if os.path.islink(full_script):
+		gm_statustext(_('Script to run after activating patient must not be a link: [%s].') % full_script)
+		return False
+
+	stat_val = os.stat(full_script)
+#	if stat_val.st_mode != 384:				# octal 0600
+	if stat_val.st_mode != 33152:			# octal 100600
+		gm_statustext(_('Script to run after activating patient must have permissions "0600": [%s].') % full_script)
+		return False
+
+	if not os.access(full_script, os.R_OK):
+		gm_statustext(_('Script to run after activating patient must be owned by the calling user: [%s].') % full_script)
+		return False
+
+	module = gmTools.import_module_from_directory(script_path, script_name)
+	try:
+		module.run_script(hook = hook)
+	except:
+		_log.LogException('running script [%s] hooked to [%s] failed' % (full_script, hook))
+		return False
+
+	_log.Log(gmLog.lData, 'ran [%s] off hook [%s]' % (full_script, hook))
+
+	return True
 # ========================================================================
 class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
@@ -180,8 +223,7 @@ def gm_SingleChoiceDialog(aMessage = None, aTitle = None, aLogLevel = None, choi
         aMessage = _('programmer forgot to specify info message')
 
     if aLogLevel is not None:
-        log_msg = string.replace(aMessage, '\015', ' ')
-        log_msg = string.replace(log_msg, '\012', ' ')
+        log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
         _log.Log(aLogLevel, log_msg)
 
     if aTitle is None:
@@ -207,8 +249,7 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		aMessage = _('programmer forgot to specify error message')
 
 	if aLogLevel is not None:
-		log_msg = string.replace(aMessage, '\015', ' ')
-		log_msg = string.replace(log_msg, '\012', ' ')
+		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
 	aMessage += _("\n\nPlease consult the error log for all the gory details !")
@@ -236,8 +277,7 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 		aMessage = _('programmer forgot to specify info message')
 
 	if aLogLevel is not None:
-		log_msg = string.replace(aMessage, '\015', ' ')
-		log_msg = string.replace(log_msg, '\012', ' ')
+		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
 	if aTitle is None:
@@ -258,8 +298,7 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 		aMessage = _('programmer forgot to specify warning')
 
 	if aLogLevel is not None:
-		log_msg = string.replace(aMessage, '\015', ' ')
-		log_msg = string.replace(log_msg, '\012', ' ')
+		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
 	if aTitle is None:
@@ -384,6 +423,8 @@ def makePageTitle(wizPg, title):
 	sizer.Add(wx.StaticLine(wizPg, -1), 0, wx.EXPAND|wx.ALL, 2)
 	return sizer	
 #============================================================
+import string			# remove !
+
 class cTextWidgetValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered any value
@@ -491,7 +532,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.49  2007-02-18 16:57:38  ncq
+# Revision 1.50  2007-02-19 16:13:36  ncq
+# - add run_hook_script()
+#
+# Revision 1.49  2007/02/18 16:57:38  ncq
 # - make sure gm-dbo connections aren't returned from the pool
 #
 # Revision 1.48  2007/01/20 22:52:27  ncq
