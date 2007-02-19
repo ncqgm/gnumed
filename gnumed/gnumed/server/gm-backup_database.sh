@@ -2,10 +2,18 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.1 2007-02-16 15:33:37 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.2 2007-02-19 10:35:14 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
+#
+#
+# The following line could be added to a system's
+# /etc/anacrontab to make sure it creates daily
+# database backups for GNUmed:
+#
+# 1       15      backup-gnumed-<your-company>    /usr/bin/gm-backup_database.sh
+#
 #==============================================================
 
 PGDATABASE="gnumed_v5"
@@ -98,7 +106,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.1  2007-02-16 15:33:37  ncq
+# Revision 1.2  2007-02-19 10:35:14  ncq
+# - add some (ana)crontab lines and a few lines of documentation
+#
+# Revision 1.1  2007/02/16 15:33:37  ncq
 # - renamed for smoother compliance into target systems
 #
 # Revision 1.6  2007/02/13 17:10:03  ncq
