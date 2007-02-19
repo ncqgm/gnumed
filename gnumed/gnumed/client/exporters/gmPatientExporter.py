@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.99 2007-02-19 14:07:31 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmPatientExporter.py,v 1.100 2007-02-19 16:56:05 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -986,7 +986,7 @@ class cEMRJournalExporter:
 		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
 		"""
 		if patient is None:
-			patient = gmPerson.gmCurrentPatient().patient
+			patient = gmPerson.gmCurrentPatient()
 			if not patient.is_connected():
 				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
 
@@ -1016,7 +1016,7 @@ class cEMRJournalExporter:
 		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
 		"""
 		if patient is None:
-			patient = gmPerson.gmCurrentPatient().patient
+			patient = gmPerson.gmCurrentPatient()
 			if not patient.is_connected():
 				raise ValueError('[%s].export(): no active patient' % self.__class__.__name__)
 
@@ -1269,7 +1269,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.99  2007-02-19 14:07:31  ncq
+# Revision 1.100  2007-02-19 16:56:05  ncq
+# - properly check for is_connected()
+#
+# Revision 1.99  2007/02/19 14:07:31  ncq
 # - fix format string parameters
 #
 # Revision 1.98  2007/02/17 14:10:03  ncq
