@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -622,7 +622,8 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	unless an encoding is specified.
 	"""
 	# FIXME: support pooled on RW, too
-	if pooled and readonly:
+	# FIXME: for now, support the default DSN only
+	if pooled and readonly and (dsn is None):
 		global __ro_conn_pool
 		if __ro_conn_pool is None:
 			__ro_conn_pool = cConnectionPool (
@@ -999,7 +1000,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.35  2007-02-18 16:56:21  ncq
+# Revision 1.36  2007-02-19 15:00:53  ncq
+# - restrict pooling to the default DSN, too
+#
+# Revision 1.35  2007/02/18 16:56:21  ncq
 # - add connection pool for read-only connections ...
 #
 # Revision 1.34  2007/02/06 12:11:25  ncq
