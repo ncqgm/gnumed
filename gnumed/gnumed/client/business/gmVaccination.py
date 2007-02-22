@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.33 2006-11-24 14:15:36 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmVaccination.py,v 1.34 2007-02-22 17:27:44 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -370,7 +370,7 @@ def put_patient_on_schedule(patient_id=None, course=None):
 		* patient_id = Patient's PK
 		* course = course object or Vaccination course's PK
 	"""
-	# FIXME: add method schedule_vaccination_course() to gmPerson.cPerson
+	# FIXME: add method schedule_vaccination_course() to gmPerson.cPatient
 	if isinstance(course, cVaccinationCourse):
 		course_id = course['pk_course']
 	else:
@@ -392,7 +392,7 @@ def remove_patient_from_schedule(patient_id=None, course=None):
 		* patient_id = Patient's PK
 		* course = course object or Vaccination course's PK
 	"""
-	# FIXME: add method schedule_vaccination_course() to gmPerson.cPerson
+	# FIXME: add method schedule_vaccination_course() to gmPerson.cPatient
 	if isinstance(course, cVaccinationCourse):
 		course_id = course['pk_course']
 	else:
@@ -544,7 +544,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.33  2006-11-24 14:15:36  ncq
+# Revision 1.34  2007-02-22 17:27:44  ncq
+# - no more cPerson
+#
+# Revision 1.33  2006/11/24 14:15:36  ncq
 # - u'' one query
 #
 # Revision 1.32  2006/10/25 07:17:40  ncq
