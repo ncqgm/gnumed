@@ -24,8 +24,9 @@ class wxgEpisodeEditAreaDlg(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: wxgEpisodeEditAreaDlg.__set_properties
-        self.SetTitle(_("Edit episode details"))
-        self._BTN_save.SetToolTipString(_("Save the episode details."))
+        self.SetTitle(_("edit encounter details"))
+        self.SetSize(wx.DLG_SZE(self, (300, 200)))
+        self._BTN_save.SetToolTipString(_("Save the encounter details."))
         self._BTN_close.SetToolTipString(_("Close this dialog."))
         self._BTN_close.SetDefault()
         # end wxGlade
@@ -41,8 +42,6 @@ class wxgEpisodeEditAreaDlg(wx.Dialog):
         __szr_main.Add(__szr_buttons, 0, wx.EXPAND, 0)
         self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
-        __szr_main.Fit(self)
-        __szr_main.SetSizeHints(self)
         self.Layout()
         self.Centre()
         # end wxGlade
