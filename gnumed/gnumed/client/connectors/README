@@ -1,6 +1,6 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/README,v $
-# $Id: README,v 1.7 2007-02-05 16:10:03 ncq Exp $
-# $Revision: 1.7 $
+# $Id: README,v 1.8 2007-02-22 17:29:07 ncq Exp $
+# $Revision: 1.8 $
 
 This directory stores connectors specific to this client.
 
@@ -159,5 +159,11 @@ Linking with Medical Director Version 1
      6. Click MDW GENERIC ASCII v2. In the "Link File Name" field, type the
         "Patients files directory" (taken from step 2), plus "PATIENTS.IN"
         (e.g. C:\MDW2\PATIENTS.IN).
+
+-----------------------------------------------------------
+APW:
+
+- uses GDT 2.10 (Mo 19 Feb 2007 23:00:01 CET)
+- uses cp850
 
 -----------------------------------------------------------
