@@ -43,8 +43,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.107 2007-01-30 17:50:14 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gnumed.py,v 1.108 2007-02-22 17:38:09 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -185,6 +185,7 @@ def setup_pathes():
 
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
 
@@ -196,7 +197,7 @@ def setup_date_time():
 
 	gmDateTime.init()
 #==========================================================
-def setup_cfg_file():
+def setup_cfg_files():
 	from Gnumed.pycommon import gmCfg, gmNull
 
 	if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
@@ -401,7 +402,7 @@ _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.na
 
 setup_pathes()
 setup_date_time()
-setup_cfg_file()
+setup_cfg_files()
 
 appPath = get_base_dir()
 if appPath is None:
@@ -474,7 +475,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.107  2007-01-30 17:50:14  ncq
+# Revision 1.108  2007-02-22 17:38:09  ncq
+# - add gnumed/export/xDT/
+#
+# Revision 1.107  2007/01/30 17:50:14  ncq
 # - improved doc string
 #
 # Revision 1.106  2007/01/30 17:41:03  ncq
