@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.25 2007-01-21 12:20:45 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmXdtObjects.py,v 1.26 2007-02-22 17:28:45 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -284,9 +284,10 @@ if __name__ == "__main__":
 
 	patfile = sys.argv[1]
 	dobformat = sys.argv[2]
+	encoding = sys.argv[3]
 	print "reading patient data from xDT file [%s]" % patfile
 
-	dto = read_person_from_xdt(patfile, dob_format=dobformat)
+	dto = read_person_from_xdt(patfile, dob_format=dobformat, encoding=encoding)
 	print "DTO:", dto
 	print "dto.dob:", dto.dob, type(dto.dob)
 	print "dto.dob.tz:", dto.dob.tzinfo
@@ -295,11 +296,14 @@ if __name__ == "__main__":
 	searcher = gmPerson.cPatientSearcher_SQL()
 	ident = searcher.get_identities(dto=dto)[0]
 	print ident
-	print ident.get_medical_age()
+#	print ident.get_medical_age()
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.25  2007-01-21 12:20:45  ncq
+# Revision 1.26  2007-02-22 17:28:45  ncq
+# - improve test suite
+#
+# Revision 1.25  2007/01/21 12:20:45  ncq
 # - add determine_xdt_encoding()
 #
 # Revision 1.24  2007/01/16 17:57:54  ncq
