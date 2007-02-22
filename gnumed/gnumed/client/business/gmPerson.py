@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.107 2007-02-22 16:31:38 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmPerson.py,v 1.108 2007-02-22 22:38:56 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -247,9 +247,9 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		file.write(template % (u'8000', u'6301'))
 		file.write(template % (u'9218', version))
 #		file.write(template % (u'3000', nummer))			# APW-Nummer
-		file.write(template % (u'3001', self._payload[self._idx['lastnames']]))
-		file.write(template % (u'3002', self._payload[self._idx['firstnames']]))
-		file.write(template % (u'3003', self._payload[self._idx['dob']].strftime('%d%m%Y')))
+		file.write(template % (u'3101', self._payload[self._idx['lastnames']]))
+		file.write(template % (u'3102', self._payload[self._idx['firstnames']]))
+		file.write(template % (u'3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
 		file.write(template % (u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
 
 		file.close()
@@ -1825,12 +1825,12 @@ if __name__ == '__main__':
 	def test_dob2medical_age():
 		pass
 	#--------------------------------------------------------
-	test_patient_search_queries()
+#	test_patient_search_queries()
 	test_ask_for_patient()
-	test_dto_person()
-	test_staff()
-	test_identity()
-	test_set_active_pat()
+#	test_dto_person()
+#	test_staff()
+#	test_identity()
+#	test_set_active_pat()
 
 #	map_gender2salutation('m')
 
@@ -1845,7 +1845,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.107  2007-02-22 16:31:38  ncq
+# Revision 1.108  2007-02-22 22:38:56  ncq
+# - fix gdt field "names"
+#
+# Revision 1.107  2007/02/22 16:31:38  ncq
 # - u''ification
 # - massive cleanup/simplification
 #   - cPatient/cStaff now cIdentity child
