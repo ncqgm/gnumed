@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.101 2007-02-19 17:54:06 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmPatientExporter.py,v 1.102 2007-02-22 17:30:48 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -122,8 +122,7 @@ class cEmrExport:
         emr = self.__patient.get_emr()
         # patient dob
         
-        #patient_dob = mxParser.DateFromString(self.__patient.get_identity().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
-        patient_dob = self.__patient.get_identity()['dob']
+        patient_dob = self.__patient['dob']
         date_length = len(patient_dob.strftime('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
 
         # dictionary of pairs indication : scheduled vaccination
@@ -898,8 +897,7 @@ class cEmrExport:
         """
             Dumps in ASCII format some basic patient's demographic data
         """
-        ident = self.__patient.get_identity()
-        if ident is None:
+        if self.__patient is None:
             _log.Log(gmLog.lErr, 'cannot get Demographic export')
             print(_(
                 'An error occurred while Demographic record export\n'
@@ -909,18 +907,18 @@ class cEmrExport:
 
         self.__target.write('\n\n\nDemographics')
         self.__target.write('\n------------\n')
-        self.__target.write('    Id: %s \n' % ident.getId())
+        self.__target.write('    Id: %s \n' % self.__patient['pk_identity'])
         cont = 0
-        for name in ident.get_all_names():
+        for name in self.__patient.get_all_names():
             if cont == 0:
                 self.__target.write('    Name (Active): %s, %s\n' % (name['first'], name['last']) )
             else:
                 self.__target.write('    Name %s: %s, %s\n' % (cont, name['first'], name['last']))
             cont += 1
-        self.__target.write('    Gender: %s\n' % ident['gender'])
-        self.__target.write('    Title: %s\n' % ident['title'])
-        self.__target.write('    Dob: %s\n' % ident['dob'].strftime('%Y-%m-%d'))
-        self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(ident['dob']))
+        self.__target.write('    Gender: %s\n' % self.__patient['gender'])
+        self.__target.write('    Title: %s\n' % self.__patient['title'])
+        self.__target.write('    Dob: %s\n' % self.__patient['dob'].strftime('%Y-%m-%d'))
+        self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(self.__patient['dob']))
     #--------------------------------------------------------
     def dump_constraints(self):
         """
@@ -983,7 +981,7 @@ class cEMRJournalExporter:
 		Export medical record into a file.
 
 		@type filename: None (creates filename by itself) or string
-		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
+		@type patient: None (use currently active patient) or <gmPerson.cIdentity> instance
 		"""
 		if patient is None:
 			patient = gmPerson.gmCurrentPatient()
@@ -991,19 +989,17 @@ class cEMRJournalExporter:
 				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
 
 		if filename is None:
-			ident = patient.get_identity()
 			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export'))
 			filename = u'%s-%s-%s-%s.txt' % (
 				os.path.join(path, _('emr-journal')),
-				ident['lastnames'].replace(u' ', u'-'),
-				ident['firstnames'].replace(u' ', u'_'),
-				ident['dob'].strftime('%Y-%m-%d')
+				patient['lastnames'].replace(u' ', u'-'),
+				patient['firstnames'].replace(u' ', u'_'),
+				patient['dob'].strftime('%Y-%m-%d')
 			)
 
 		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
 		self.export(target = f, patient = patient)
 		f.close()
-
 		return filename
 	#--------------------------------------------------------
 	# internal API
@@ -1013,21 +1009,20 @@ class cEMRJournalExporter:
 		Export medical record into a Python object.
 
 		@type target: a python object supporting the write() API
-		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
+		@type patient: None (use currently active patient) or <gmPerson.cIdentity> instance
 		"""
 		if patient is None:
 			patient = gmPerson.gmCurrentPatient()
 			if not patient.is_connected():
 				raise ValueError('[%s].export(): no active patient' % self.__class__.__name__)
 
-		ident = patient.get_identity()
 		# write header
 		txt = _('Chronological EMR Journal\n')
 		target.write(txt)
 		target.write(u'=' * (len(txt)-1))
 		target.write('\n')
-		target.write(_('Patient: %s (%s), No: %s\n') % (ident['description'], ident['gender'], patient['ID']))
-		target.write(_('Born   : %s, age: %s\n\n') % (ident['dob'].strftime('%Y-%m-%d'), ident.get_medical_age()))
+		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
+		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%Y-%m-%d'), patient.get_medical_age()))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(u'| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
@@ -1039,7 +1034,7 @@ select
 	(select rank from clin.soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
 from clin.v_emr_journal vemrj
 where pk_patient=%s order by date, pk_episode, scr"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['ID']]}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}], get_col_idx = True)
 		# write data
 		prev_date = u''
 		prev_doc = u''
@@ -1082,7 +1077,7 @@ where pk_patient=%s order by date, pk_episode, scr"""
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c'))
 
-		return True
+		return
 #============================================================
 class cMedistarSOAPExporter:
 	"""Export SOAP data per encounter into Medistar import format."""
@@ -1090,8 +1085,8 @@ class cMedistarSOAPExporter:
 		if patient is None:
 			self.__pat = gmPerson.gmCurrentPatient()
 		else:
-			if not isinstance(patient, gmPerson.cPerson):
-				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(gmPerson.cPerson)
+			if not isinstance(patient, gmPerson.cIdentity):
+				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cIdentity>, but is: %s' % type(patient)
 			self.__pat = patient
 		self.__tx_soap = {
 			's': 'A',
@@ -1106,14 +1101,13 @@ class cMedistarSOAPExporter:
 		if not self.__pat.is_connected():
 			return (False, 'no active patient')
 		if filename is None:
-			ident = self.__pat.get_identity()
 			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
 			filename = '%s-%s-%s-%s-%s.txt' % (
 				os.path.join(path, 'Medistar-MD'),
 				time.strftime('%Y-%m-%d',time.localtime()),
-				ident['lastnames'].replace(' ', '-'),
-				ident['firstnames'].replace(' ', '_'),
-				ident['dob'].strftime('%Y-%m-%d')
+				self.__pat['lastnames'].replace(' ', '-'),
+				self.__pat['firstnames'].replace(' ', '_'),
+				self.__pat['dob'].strftime('%Y-%m-%d')
 			)
 		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
 		status = self.__export(target = f)
@@ -1134,7 +1128,7 @@ class cMedistarSOAPExporter:
 		# get data
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in 'soap':
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['ID'], encounter['pk_encounter'], soap_cat)}])
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
 			target.write('*MD%s*\n' % self.__tx_soap[soap_cat])
 			for row in rows:
 				text = row[0]
@@ -1269,7 +1263,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.101  2007-02-19 17:54:06  ncq
+# Revision 1.102  2007-02-22 17:30:48  ncq
+# - no more get_identity()
+# - patient now cIdentity() child
+#
+# Revision 1.101  2007/02/19 17:54:06  ncq
 # - need to return True when successful
 #
 # Revision 1.100  2007/02/19 16:56:05  ncq
