@@ -6,23 +6,21 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.106 2007-02-19 16:45:21 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmPerson.py,v 1.107 2007-02-22 16:31:38 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re, string, types, datetime as pyDT
+import sys, os.path, time, re, string, types, datetime as pyDT, codecs
 
-# 3rd party
-import mx.DateTime as mxDT
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
-from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox
+from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -36,30 +34,27 @@ __gender2salutation_map = None
 #============================================================
 class cDTO_person(object):
 
-	# FIXME: make this function as a mapping type
+	# FIXME: make this work as a mapping type, too
 
 	#--------------------------------------------------------
 	def __str__(self):
-		return '<%s @ %s: %s %s (%s) %s>' % (self.__class__.__name__, id(self), self.firstnames, self.lastnames, self.gender, self.dob)
+		return u'<%s @ %s: %s %s (%s) %s>' % (self.__class__.__name__, id(self), self.firstnames, self.lastnames, self.gender, self.dob)
 	#--------------------------------------------------------
 	def __setattr__(self, attr, val):
 		"""Do some sanity checks on self.* access."""
-		if attr in ['firstnames', 'lastnames']:
-			object.__setattr__(self, attr, str(val))
-			return
 
 		if attr == 'gender':
 			glist, idx = get_gender_list()
 			for gender in glist:
 				if str(val) in [gender[0], gender[1], gender[2], gender[3]]:
 					val = gender[idx['tag']]
-					object.__setattr__(self, attr, str(val))
+					object.__setattr__(self, attr, val)
 					return
-			raise ValueError('invalid gender: [%s]' % str(val))
+			raise ValueError('invalid gender: [%s]' % val)
 
 		if attr == 'dob':
 			if not isinstance(val, pyDT.datetime):
-				raise TypeError(_('invalid type for DOB (must be datetime.datetime): %s [%s]') % (type(val), str(val)))
+				raise TypeError(_('invalid type for DOB (must be datetime.datetime): %s [%s]') % (type(val), val))
 			if val.tzinfo is None:
 				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % val.isoformat())
 
@@ -108,6 +103,12 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		}
 	}
 	#--------------------------------------------------------
+	def _get_ID(self):
+		return self._payload[self._idx['pk_identity']]
+	def _set_ID(self, value):
+		raise AttributeError('setting ID of identity is not allowed')
+	ID = property(_get_ID, _set_ID)
+	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'dob':
 			if not isinstance(value, pyDT.datetime):
@@ -119,8 +120,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	def cleanup(self):
 		pass
 	#--------------------------------------------------------
-	def getId(self):
-		return self['pk_identity']
+	# identity API
 	#--------------------------------------------------------
 	def get_active_name(self):
 		"""
@@ -205,10 +205,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		queries = []
 		active = (active and 't') or 'f'
 		queries.append (
-			{'cmd': u"select dem.add_name(%s, %s, %s, %s)", 'args': [self.getId(), firstnames, lastnames, active]}
+			{'cmd': u"select dem.add_name(%s, %s, %s, %s)", 'args': [self.ID, firstnames, lastnames, active]}
 		)
 		if nickname is not None:
-			queries.append({'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.getId(), nickname]})
+			queries.append({'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]})
 		rows, idx = gmPG2.run_rw_queries(queries=queries)
 		try:			
 			del self._ext_cache['names']
@@ -222,12 +222,37 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		active name.
 		@param nickname The preferred/nick/warrior name to set.
 		"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.getId(), nickname]}])
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
 		try:
 			del self._ext_cache['names']
 		except: pass
 		self.refetch_payload()
 		return True
+	#--------------------------------------------------------
+	def get_external_ids(self, id_type=None):
+#		cmd = 
+		pass
+	#--------------------------------------------------------
+	def export_as_gdt(self, filename=None, version=u'2.10', encoding='iso-8859-15'):
+
+		template = u'000%s%s\r\n'
+
+		file = codecs.open (
+			filename = filename,
+			mode = 'wb',
+			encoding = encoding,
+			errors = 'strict'
+		)
+
+		file.write(template % (u'8000', u'6301'))
+		file.write(template % (u'9218', version))
+#		file.write(template % (u'3000', nummer))			# APW-Nummer
+		file.write(template % (u'3001', self._payload[self._idx['lastnames']]))
+		file.write(template % (u'3002', self._payload[self._idx['firstnames']]))
+		file.write(template % (u'3003', self._payload[self._idx['dob']].strftime('%d%m%Y')))
+		file.write(template % (u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
+
+		file.close()
 	#--------------------------------------------------------
 	# occupations API
 	#--------------------------------------------------------
@@ -419,11 +444,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	def link_new_relative(self, rel_type = 'parent'):
 		# create new relative
 		id_new_relative = create_dummy_identity()
-		relative = gmPerson(id_new_relative)
+		relative = cIdentity(aPK_obj=id_new_relative)
 		# pre-fill with data from ourselves
-		relative_ident = relative.get_identity()
-#		relative_ident.copy_addresses(self)
-		relative_ident.add_name( '**?**', self.get_names()['last'])
+#		relative.copy_addresses(self)
+		relative.add_name( '**?**', self.get_names()['last'])
 		# and link the two
 		if self._ext_cache.has_key('relatives'):
 			del self._ext_cache['relatives']
@@ -433,13 +457,12 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			) values (
 				%s, %s, (select id from dem.relation_types where description = %s)
 			)"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.getId(), id_new_relative, rel_type  ]}])
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.ID, id_new_relative, rel_type  ]}])
 		return True
 	#----------------------------------------------------------------------
 	def delete_relative(self, relation):
 		# unlink only, don't delete relative itself
 		self.set_relative(None, relation)
-
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
@@ -458,116 +481,28 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			}]
 		)
 		return rows[0][0]
-#============================================================
-# may get preloaded by the waiting list
-class cPerson:
-	"""Represents a person that DOES EXIST in the database.
-
-	Accepting this as a hard-and-fast rule WILL simplify
-	internal logic and remove some corner cases, I believe.
-
-	- searching and creation is done OUTSIDE this object
-	"""
-	# handlers for __getitem__
-	_get_handler = {}
-
-	def __init__(self, identity = None):
-		if not isinstance (identity, cIdentity):
-			# assume to be an identity.pk then
-			identity = cIdentity (aPK_obj = int(identity))
-
-		self._ID = identity['pk_identity']  	# = identity.pk = v_basic_person.pk_identity = primary key
-		self.__db_cache = {'identity': identity}
-
-		# register backend notification interests ...
-		if not self._register_interests():
-			raise gmExceptions.ConstructorError, "Cannot register person modification interests."
-
-		_log.Log(gmLog.lData, 'Instantiated person [%s].' % self._ID)
-	#--------------------------------------------------------
-	def cleanup(self):
-		"""Do cleanups before dying.
-
-		- note that this may be called in a thread
-		"""
-		_log.Log(gmLog.lData, 'cleaning up after person [%s]' % self._ID)
-		if self.__db_cache.has_key('identity'):
-			self.__db_cache['identity'].cleanup()
-			del self.__db_cache['identity']
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def _register_interests(self):
-		return True
-	#--------------------------------------------------------
-	# __getitem__ handling
-	#--------------------------------------------------------
-	def __getitem__(self, aVar = None):
-		"""Return any attribute if known how to retrieve it.
-		"""
-		try:
-			return cPerson._get_handler[aVar](self)
-		except KeyError:
-			try:
-				return self.__db_cache['identity'][aVar]
-			except KeyError:
-				_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
-				return None
-	#--------------------------------------------------------
-	def getID(self):
-		return self._ID
-	#--------------------------------------------------------
-	def get_identity(self):
-		# because we are instantiated with it, it always exists
-		return self.__db_cache['identity']
-	#--------------------------------------------------------
-	def export_data(self):
-		data = {}
-		emr = self.get_emr()
-		if emr is None:
+	#----------------------------------------------------------------------
+	# practice related
+	#----------------------------------------------------------------------
+	def get_last_encounter(self):
+		cmd = u'select * from clin.v_most_recent_encounters where pk_patient=%s'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['pk_identity']]]}])
+		if len(rows) > 0:
+			return rows[0]
+		else:
 			return None
-		data['clinical'] = emr.get_text_dump()
-		return data
-	#--------------------------------------------------------
-	def _get_API(self):
-		API = []
-		for handler in gmPerson._get_handler.keys():
-			data = {}
-			# FIXME: how do I get an unbound method object ?
-			func = self._get_handler[handler]
-			data['API call name'] = handler
-			data['internal name'] = func.__name__
-#			data['reported by'] = method.im_self
-#			data['defined by'] = method.im_class
-			data['description'] = func.__doc__
-			API.append(data)
-		return API
-	#--------------------------------------------------------
-	# set up handler map
-	_get_handler['API'] = _get_API
-	_get_handler['ID'] = getID
-	_get_handler['id'] = getID
-	_get_handler['pk'] = getID
-	_get_handler['pk_identity'] = getID
 #============================================================
-class cStaffMember(cPerson):
+class cStaffMember(cIdentity):
 	"""Represents a staff member which is a person.
 
-	- a specializing subclass of cPerson turning it into a staff member
+	- a specializing subclass of cIdentity turning it into a staff member
 	"""
 	def __init__(self, identity = None):
-		cPerson.__init__(self, identity=identity)
+		cIdentity.__init__(self, identity=identity)
 		self.__db_cache = {}
 	#--------------------------------------------------------
-	def cleanup(self):
-		"""Do cleanups before dying.
-
-		- note that this may be called in a thread
-		"""
-		cPerson.cleanup()
-	#--------------------------------------------------------
 	def get_inbox(self):
-		return gmProviderInbox.cProviderInbox(provider_id = self._ID)
+		return gmProviderInbox.cProviderInbox(provider_id = self.ID)
 #============================================================
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_staff where pk_staff=%s"
@@ -687,13 +622,14 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""
 		return self.__provider[aVar]
 #============================================================
-class cPatient(cPerson):
-	"""Represents a patient which is a person.
+class cPatient(cIdentity):
+	"""Represents a person which is a patient.
 
-	- a specializing subclass of cPerson turning it into a patient
+	- a specializing subclass of cIdentity turning it into a patient
+	- its use is to cache subobjects like EMR and document folder
 	"""
-	def __init__(self, identity = None):
-		cPerson.__init__(self, identity=identity)
+	def __init__(self, aPK_obj=None, row=None):
+		cIdentity.__init__(self, aPK_obj=aPK_obj, row=row)
 		self.__db_cache = {}
 	#--------------------------------------------------------
 	def cleanup(self):
@@ -701,61 +637,29 @@ class cPatient(cPerson):
 
 		- note that this may be called in a thread
 		"""
-		cPerson.cleanup(self)
 		if self.__db_cache.has_key('clinical record'):
 			self.__db_cache['clinical record'].cleanup()
 			del self.__db_cache['clinical record']
 		if self.__db_cache.has_key('document folder'):
 			self.__db_cache['document folder'].cleanup()
 			del self.__db_cache['document folder']
+		cIdentity.cleanup(self)
 	#----------------------------------------------------------
 	def get_emr(self):
 		try:
 			return self.__db_cache['clinical record']
 		except KeyError:
 			pass
-		try:
-			from Gnumed.business import gmClinicalRecord
-			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._ID)
-		except StandardError:
-			_log.LogException('cannot instantiate clinical record for person [%s]' % self._ID, sys.exc_info())
-			return None
+		self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['clinical record']
-	#--------------------------------------------------------
-	def get_last_encounter(self):
-		cmd = u'select * from clin.v_most_recent_encounters where pk_patient=%s'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._ID]}])
-		if len(rows) > 0:
-			return rows[0]
-		else:
-			return None
 	#--------------------------------------------------------
 	def get_document_folder(self):
 		try:
 			return self.__db_cache['document folder']
 		except KeyError:
 			pass
-		try:
-			# FIXME: we need some way of setting the type of backend such that
-			# to instantiate the correct type of document folder class
-			self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self._ID)
-		except StandardError:
-			_log.LogException('cannot instantiate document folder for person [%s]' % self._ID, sys.exc_info())
-			return None
+		self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['document folder']
-	#--------------------------------------------------------
-	def _getMedDocsList(self):
-		"""Build a complete list of metadata for all documents of this person.
-		"""
-		cmd = u"SELECT pk from blobs.doc_med WHERE patient_id=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._ID]}])
-		docs = []
-		for row in rows:
-			docs.append(row[0])
-		if len(docs) == 0:
-			_log.Log(gmLog.lInfo, "No documents found for person (ID [%s])." % self._ID)
-			return None
-		return docs
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
 	"""Patient Borg to hold currently active patient.
@@ -825,31 +729,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		return None
 	#--------------------------------------------------------
-	def cleanup(self):
-		self.patient.cleanup()
-	#--------------------------------------------------------
-	def get_emr(self):
-		return self.patient.get_emr()
-	#--------------------------------------------------------
-	def get_clinical_record(self):
-		print "get_clinical_record() deprecated"
-		return self.patient.get_emr()
-	#--------------------------------------------------------
-	def get_identity(self):
-		return self.patient.get_identity()
-	#--------------------------------------------------------
-	def get_document_folder(self):
-		return self.patient.get_document_folder()
-	#--------------------------------------------------------
-	def getID(self):
-		return self.patient.getID()
-	#--------------------------------------------------------
-	def get_id(self):
-		return self.patient.getID()
-	#--------------------------------------------------------
-	def export_data(self):
-		return self.patient.export_data()
-	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
 #	def init_lock(self):
@@ -906,6 +785,14 @@ class gmCurrentPatient(gmBorg.cBorg):
 		else:
 			return True
 	#--------------------------------------------------------
+	# __getattr__ handling
+	#--------------------------------------------------------
+	def __getattr__(self, attribute):
+		if attribute == 'patient':
+			raise AttributeError
+		if not isinstance(self.patient, gmNull.cNull):
+			return getattr(self.patient, attribute)
+	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
@@ -931,17 +818,11 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def get_persons(self, search_term = None, a_locale = None, dto = None):
-		identities = self.get_identities(search_term, a_locale, dto)
-		if identities is None:
-			return None
-		return [cPerson(identity = ident) for ident in identities]
-	#--------------------------------------------------------
 	def get_patients(self, search_term = None, a_locale = None, dto = None):
 		identities = self.get_identities(search_term, a_locale, dto)
 		if identities is None:
 			return None
-		return [cPatient(identity = ident) for ident in identities]
+		return [cPatient(aPK_obj=ident['pk_identity']) for ident in identities]
 	#--------------------------------------------------------
 	def get_identities(self, search_term = None, a_locale = None, dto = None):
 		"""Get patient identity objects for given parameters.
@@ -1654,21 +1535,19 @@ def set_active_patient(patient = None, forced_reload=False):
 	if isinstance(patient, cPatient):
 		pat = patient
 	elif isinstance(patient, cIdentity):
-		pat = cPatient(identity = patient)
-	elif isinstance(patient, cPerson):
-		pat = cPatient(identity = patient.get_identity())
+		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, cStaff):
-		pat = cPatient(identity = cIdentity(patient['pk_identity']))
+		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cPerson, cStaff or cIdentity instance, is: %s' % str(patient))
+		raise ValueError('<patient> must be either -1, cPatient, cStaff or cIdentity instance, is: %s' % patient)
 
 	# attempt to switch
 	try:
 		pat = gmCurrentPatient(patient=pat, forced_reload=forced_reload)
 	except:
-		_log.LogException('error changing active patient to [%s]' % str(patient), sys.exc_info())
+		_log.LogException('error changing active patient to [%s]' % patient)
 		return False
 	return True
 #------------------------------------------------------------
@@ -1798,14 +1677,9 @@ if __name__ == '__main__':
 		print "setting active patient with", ident
 		set_active_patient(patient=ident)
 
-
-		patient = cPatient(ident)
+		patient = cPatient(12)
 		print "setting active patient with", patient
 		set_active_patient(patient=patient)
-
-		person = cPerson(ident)
-		print "setting active patient with", person
-		set_active_patient(patient=person)
 
 		staff = cStaff()
 		print "setting active patient with", staff
@@ -1819,7 +1693,7 @@ if __name__ == '__main__':
 		dto.firstnames = 'Sepp'
 		dto.lastnames = 'Herberger'
 		dto.gender = 'male'
-		dto.dob = mxDT.now()
+		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
 		print dto
 
 		print dto['firstnames']
@@ -1866,19 +1740,19 @@ if __name__ == '__main__':
 		print 'Creating identity address...'
 		# make sure the state exists in the backend
 		new_identity.link_address (
-			'test 1234',
-			'test street',
-			'test postcode',
-			'test urb',
-			'Sachsen',
-			'Germany'
+			number = 'test 1234',
+			street = 'test street',
+			postcode = 'test postcode',
+			urb = 'test urb',
+			state = 'SN',
+			country = 'DE'
 		)
 		print 'Identity addresses: %s' % new_identity.get_addresses()
 		
-		print '\nIdentity communications: %s' % new_identity['comms']
+		print '\nIdentity communications: %s' % new_identity.get_comm_channels()
 		print 'Creating identity communication...'
 		new_identity.link_communication('homephone', '1234566')
-		print 'Identity communications: %s' % new_identity['comms']
+		print 'Identity communications: %s' % new_identity.get_comm_channels()
 	#--------------------------------------------------------
 	def test_patient_search_queries():
 		searcher = cPatientSearcher_SQL()
@@ -1912,10 +1786,10 @@ if __name__ == '__main__':
 		dto.gender = 'm'
 		dto.lastnames = 'Kirk'
 		dto.firstnames = 'James'
-		dto.dob = mxDT.now()
+		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
 		q = searcher._generate_queries_from_dto(dto)[0]
 		print "dto:", dto
-		print " match on:", q['args']['mt']
+		print " match on:", q['args'][0]
 		print " query:", q['cmd']
 
 		print "testing _generate_queries_de()"
@@ -1938,12 +1812,11 @@ if __name__ == '__main__':
 			myPatient = ask_for_patient()
 			if myPatient is None:
 				break
-			print "ID       ", myPatient['id']
-			identity = myPatient.get_identity()
-			print "identity  ", identity
-			print "names     ", identity.get_all_names()
-			print "addresses:", identity.get_addresses(address_type='home')
-			print "recent birthday:", identity.dob_in_range()
+			print "ID       ", myPatient.ID
+			print "names     ", myPatient.get_all_names()
+			print "addresses:", myPatient.get_addresses(address_type='home')
+			print "recent birthday:", myPatient.dob_in_range()
+			myPatient.export_as_gdt(filename='apw.gdt', encoding = 'cp850')
 #		docs = myPatient.get_document_folder()
 #		print "docs     ", docs
 #		emr = myPatient.get_emr()
@@ -1952,12 +1825,12 @@ if __name__ == '__main__':
 	def test_dob2medical_age():
 		pass
 	#--------------------------------------------------------
-#	test_patient_search_queries()
+	test_patient_search_queries()
 	test_ask_for_patient()
-#	test_dto_person()
-#	test_staff()
-#	test_identity()
-#	test_set_active_pat()
+	test_dto_person()
+	test_staff()
+	test_identity()
+	test_set_active_pat()
 
 #	map_gender2salutation('m')
 
@@ -1972,7 +1845,18 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.106  2007-02-19 16:45:21  ncq
+# Revision 1.107  2007-02-22 16:31:38  ncq
+# - u''ification
+# - massive cleanup/simplification
+#   - cPatient/cStaff now cIdentity child
+#   - remove cPerson
+#   - make ID a property of cIdentity
+#     - shadowing self._payload[self._idx['pk_identity']]
+# 	- so, no setting, only getting it, setting will raise Exception
+# - cIdentity.export_as_gdt()
+# - fix test suite so all tests pass again
+#
+# Revision 1.106  2007/02/19 16:45:21  ncq
 # - make DOB queries use dem.date_trunc_utc()
 #
 # Revision 1.105  2007/02/17 13:57:07  ncq
