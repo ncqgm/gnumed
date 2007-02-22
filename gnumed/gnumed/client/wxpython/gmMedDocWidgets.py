@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.115 2007-02-17 18:28:33 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmMedDocWidgets.py,v 1.116 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -941,7 +941,7 @@ class cDocTree(wx.TreeCtrl):
 		docs_folder = self.__pat.get_document_folder()
 		docs = docs_folder.get_documents()
 		if docs is None:
-			name = self.__pat.get_identity().get_names()
+			name = self.__pat.get_names()
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
@@ -1345,10 +1345,8 @@ class cDocTree(wx.TreeCtrl):
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		ident = pat.get_identity()
 		# FIXME: make configurable
-		dname = '%s_%s-%s' % (ident['lastnames'], ident['firstnames'], ident['dob'].strftime('%Y-%m-%d'))
-		# FIXME: make configurable
+		dname = '%s_%s-%s' % (pat['lastnames'], pat['firstnames'], pat['dob'].strftime('%Y-%m-%d'))
 		def_dir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname)))
 		if not os.access(def_dir, os.F_OK):
 			os.makedirs(def_dir)
@@ -1383,7 +1381,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.115  2007-02-17 18:28:33  ncq
+# Revision 1.116  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.115  2007/02/17 18:28:33  ncq
 # - factor out get_device_to_use() and use it in _scan_btn_pressed()
 # - support pre-setting device, only directly supported by XSane so far
 #

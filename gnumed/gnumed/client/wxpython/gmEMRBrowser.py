@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.67 2007-02-16 12:51:46 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmEMRBrowser.py,v 1.68 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -44,8 +44,7 @@ def export_emr_to_ascii(parent=None):
 	# get file name
 	aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
 	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
-	ident = pat.get_identity()
-	fname = '%s-%s_%s.txt' % (_('emr-export'), ident['lastnames'], ident['firstnames'])
+	fname = '%s-%s_%s.txt' % (_('emr-export'), pat['lastnames'], pat['firstnames'])
 	dlg = wx.FileDialog (
 		parent = parent,
 		message = _("Save patient's EMR as..."),
@@ -129,8 +128,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.DeleteAllItems()
 
 		# init new tree
-		ident = self.__pat.get_identity()
-		root_item = self.AddRoot(_('%s EMR') % ident['description'])
+		root_item = self.AddRoot(_('%s EMR') % self.__pat['description'])
 		self.SetPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
@@ -550,7 +548,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.67  2007-02-16 12:51:46  ncq
+# Revision 1.68  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.67  2007/02/16 12:51:46  ncq
 # - fix add issue popup on root node as requested by user :-)
 #
 # Revision 1.66  2007/01/16 18:00:59  ncq

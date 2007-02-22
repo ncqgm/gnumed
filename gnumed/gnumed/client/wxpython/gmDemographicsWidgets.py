@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.115 2007-02-17 13:59:20 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmDemographicsWidgets.py,v 1.116 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -919,12 +919,10 @@ class cPatEditionNotebook(wx.Notebook):
 	def refresh(self):
 		"""Populate fields in pages with data from model.
 		"""
-		identity = self.__pat.get_identity()
-
 		# refresh identity reference in pages
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
-			page.set_identity(identity)
+			page.set_identity(self.__pat)
 
 		return True
 	#--------------------------------------------------------
@@ -934,12 +932,11 @@ class cPatEditionNotebook(wx.Notebook):
 		"""
 		Build patient edition notebook pages.
 		"""
-		ident = self.__pat.get_identity()
 		# identity page
 		new_page = cPatIdentityPanel (
 			parent = self,
 			id = -1,
-			ident = ident
+			ident = self.__pat
 		)
 		self.AddPage (
 			page = new_page,
@@ -951,7 +948,7 @@ class cPatEditionNotebook(wx.Notebook):
 		new_page = cPatContactsPanel (
 			parent = self,
 			id = -1,
-			ident = ident
+			ident = self.__pat
 		)
 		self.AddPage (
 			page = new_page,
@@ -963,7 +960,7 @@ class cPatEditionNotebook(wx.Notebook):
 		new_page = cPatOccupationsPanel (
 			parent = self,
 			id = -1,
-			ident = ident
+			ident = self.__pat
 		)
 		self.AddPage (
 			page = new_page,
@@ -1738,7 +1735,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.115  2007-02-17 13:59:20  ncq
+# Revision 1.116  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.115  2007/02/17 13:59:20  ncq
 # - honor entered occupation in new patient wizard
 #
 # Revision 1.114  2007/02/06 13:43:40  ncq

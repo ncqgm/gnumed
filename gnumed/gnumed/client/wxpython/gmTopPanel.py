@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.76 2006-11-05 16:04:45 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmTopPanel.py,v 1.77 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -287,12 +287,11 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__update_allergies, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
-		ident = self.curr_pat.get_identity()
-		age = ident['medical_age']
+		age = self.curr_pat['medical_age']
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		self.txt_age.SetValue(age)
-		self.patient_selector.SetValue(ident['description'])
+		self.patient_selector.SetValue(self.curr_pat['description'])
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -407,7 +406,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.76  2006-11-05 16:04:45  ncq
+# Revision 1.77  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.76  2006/11/05 16:04:45  ncq
 # - some cleanup
 #
 # Revision 1.75  2006/10/25 07:21:57  ncq

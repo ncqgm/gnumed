@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.13 2006-12-31 16:25:43 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmStaffWidgets.py,v 1.14 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -189,8 +189,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		pat = gmPerson.gmCurrentPatient()
-		ident = pat.get_identity()
-		name = ident.get_active_name()
+		name = pat.get_active_name()
 		txt = _("""
   %s "%s" %s
   born: %s""") % (name['first'], name['preferred'], name['last'], ident['dob'].strftime('%Y-%m-%d'))
@@ -226,7 +225,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			# database account
 			{'cmd': u'select gm_create_user(%s, %s)', 'args': [self._TXT_account.GetValue(), self._TXT_password.GetValue()]},
 			# staff entry
-			{'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)", 'args': [pat.getID(), self._TXT_account.GetValue(), self._TXT_short_alias.GetValue()]}
+			{'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)", 'args': [pat.ID, self._TXT_account.GetValue(), self._TXT_short_alias.GetValue()]}
 		]
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		if self.IsModal():
@@ -235,7 +234,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.13  2006-12-31 16:25:43  ncq
+# Revision 1.14  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.13  2006/12/31 16:25:43  ncq
 # - strftime() does not take unicode
 #
 # Revision 1.12  2006/11/24 14:23:41  ncq

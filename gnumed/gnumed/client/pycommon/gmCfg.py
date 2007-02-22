@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -78,6 +78,7 @@ _log.Log(gmLog.lInfo, __version__)
 
 gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
 #================================
+# FIXME: make a cBorg around this
 class cCfgSQL:
 	def __init__(self):
 		self.ro_conn = gmPG2.get_connection()
@@ -1127,7 +1128,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.53  2007-02-17 14:11:56  ncq
+# Revision 1.54  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.53  2007/02/17 14:11:56  ncq
 # - better get2 docs
 # - allow custom cast on get2() return value
 #

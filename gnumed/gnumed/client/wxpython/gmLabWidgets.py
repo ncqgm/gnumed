@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -756,7 +756,7 @@ class cLabDataGrid(wx.Grid):
 		# FIXME: there might be too many results to handle in memory
 		results = emr.get_lab_results()
 		if results is None:
-			name = self.__pat.get_identity().get_names()
+			name = self.__pat.get_names()
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error loading lab data for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading lab data')
@@ -863,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.26  2007-02-05 12:15:23  ncq
+# Revision 1.27  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.26  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.25  2007/01/20 22:52:27  ncq

@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.109 2007-02-05 12:15:23 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmEditArea.py,v 1.110 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -1362,7 +1362,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getBirthYear(self):
 		try:
-			birthyear = int(str(self._patient.get_identity().getDOB()).split('-')[0]) 
+			birthyear = int(str(self._patient['dob']).split('-')[0]) 
 		except:
 			birthyear = time.localtime()[0]
 		
@@ -1395,7 +1395,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getDefaultAge(self):
 		try:
-			return	time.localtime()[0] - self._patient.get_identity().getBirthYear()
+			return	time.localtime()[0] - self._patient.getBirthYear()
 		except:
 			return 0
 
@@ -2338,7 +2338,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.109  2007-02-05 12:15:23  ncq
+# Revision 1.110  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.109  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.108  2006/11/24 10:01:31  ncq

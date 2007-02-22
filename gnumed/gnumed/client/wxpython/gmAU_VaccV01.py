@@ -525,7 +525,7 @@ class cAU_VaccV01Panel(wx.Panel):
     def _populate_vacc_regime_tree(self):
 	# populate vacc regime choice tree
 	p = gmPerson.gmCurrentPatient()	
-	self._vreg, self._active_recs = gmVaccination.get_vacc_regimes_by_recommender_ordered( int ( p.getID() ) )
+	self._vreg, self._active_recs = gmVaccination.get_vacc_regimes_by_recommender_ordered( int ( p.ID ) )
 	vreg = self._vreg
 	t = self.tree_ctrl_1
 	t.DeleteAllItems()
@@ -563,7 +563,7 @@ class cAU_VaccV01Panel(wx.Panel):
 	t.DeleteAllItems()
     	p = gmPerson.gmCurrentPatient()	
 	emr = p.get_emr()
-	mv = gmVaccination.get_missing_vaccinations_ordered_min_due( p.getID() )
+	mv = gmVaccination.get_missing_vaccinations_ordered_min_due( p.ID )
 	lmv = [ dict( [ (field, v[i] ) for field, i  in zip(
 		['indication', 'regime', 
 		'pk_regime', 
@@ -623,7 +623,7 @@ class cAU_VaccV01Panel(wx.Panel):
 		if answ == wx.ID_OK and not active:
 			for v in self._vreg[0][recommender]:
 				result = False
-				id = gmPerson.gmCurrentPatient().getID()
+				id = gmPerson.gmCurrentPatient().ID
 				if v['pk_regime'] in success:
 					continue
 				if id:
@@ -638,7 +638,7 @@ class cAU_VaccV01Panel(wx.Panel):
 		if answ == wx.ID_OK and active:
 			for v in self._vreg[0][recommender]:
 				result = False
-				id = gmPerson.gmCurrentPatient().getID()
+				id = gmPerson.gmCurrentPatient().ID
 				if v['pk_regime'] in success:
 					continue
 				if id:

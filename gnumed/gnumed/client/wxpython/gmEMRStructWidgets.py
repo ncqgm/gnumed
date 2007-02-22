@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.52 2007-02-17 14:13:11 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmEMRStructWidgets.py,v 1.53 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -379,11 +379,10 @@ u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
 			if pat.is_connected():
-				mp.set_context('pat', pat.getID())
+				mp.set_context('pat', pat.ID)
 		else:
 			self.use_current_patient = False
-			self.__patient_id = int(kwargs['patient_id'])
-			mp.set_context('pat', self.__patient_id)
+			mp.set_context('pat', int(kwargs['patient_id']))
 
 		del kwargs['patient_id']
 
@@ -435,7 +434,7 @@ u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes
 	def _post_patient_selection(self):
 		if self.use_current_patient:
 			patient = gmPerson.gmCurrentPatient()
-			self.set_context('pat', patient.getID())
+			self.set_context('pat', patient.ID)
 		return True
 #----------------------------------------------------------------
 class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
@@ -567,7 +566,7 @@ union
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
 			if pat.is_connected():
-				mp.set_context('pat', pat.getID())
+				mp.set_context('pat', pat.ID)
 		else:
 			self.use_current_patient = False
 			self.__patient_id = int(kwargs['patient_id'])
@@ -623,7 +622,7 @@ union
 	def _post_patient_selection(self):
 		if self.use_current_patient:
 			patient = gmPerson.gmCurrentPatient()
-			self.set_context('pat', patient.getID())
+			self.set_context('pat', patient.ID)
 		return True
 #------------------------------------------------------------
 class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
@@ -689,8 +688,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		age = gmTools.str2interval(str_interval = str_age)
 		pat = gmPerson.gmCurrentPatient()
-		ident = pat.get_identity()
-		max_age =  pydt.datetime.now(tz=ident['dob'].tzinfo) - ident['dob']
+		max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
 
 		if age is None:
 			gmGuiHelpers.gm_statustext(_('Cannot parse [%s] into valid interval.') % str_age)
@@ -741,8 +739,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_year_noted.Refresh()
 
 		pat = gmPerson.gmCurrentPatient()
-		ident = pat.get_identity()
-		age = year_noted - ident['dob']
+		age = year_noted - pat['dob']
 		str_age = gmPerson.format_age_medically(age)
 		wx.CallAfter(self._PRW_age_noted.SetText, str_age, age)
 
@@ -1691,7 +1688,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.52  2007-02-17 14:13:11  ncq
+# Revision 1.53  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.52  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.51  2007/02/16 12:53:19  ncq

@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.62 2007-02-17 14:01:26 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPatSearchWidgets.py,v 1.63 2007-02-22 17:41:13 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -62,16 +62,13 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			return False
 
 		for person in persons:
-			ident = person.get_identity()
-
-			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(ident['title'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = ident['lastnames'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = ident['firstnames'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(ident['preferred'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = ident['dob'].strftime('%x'))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(ident['l10n_gender'], '?'))
-			pat = gmPerson.cPatient(identity=ident)
-			enc = pat.get_last_encounter()
+			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(person['title'], ''))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['lastnames'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person['firstnames'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['preferred'], ''))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person['dob'].strftime('%x'))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(person['l10n_gender'], '?'))
+			enc = person.get_last_encounter()
 			if enc is None:
 				label = u''
 			else:
@@ -323,9 +320,10 @@ def load_patient_from_external_sources(parent=None):
 
 	# search
 	searcher = gmPerson.cPatientSearcher_SQL()
-	persons = searcher.get_persons (dto = dto)
+	idents = searcher.get_identities(dto = dto)
 
-	if len(persons) == 0:
+	ident = None
+	if len(idents) == 0:
 		ident = gmPerson.create_identity (
 			firstnames = dto.firstnames,
 			lastnames = dto.lastnames,
@@ -341,12 +339,11 @@ def load_patient_from_external_sources(parent=None):
 				_('Activating xDT patient')
 			)
 			return False
-		person = gmPerson.cPerson(identity=ident)
 
-	if len(persons) == 1:
-		person = persons[0]
+	if len(idents) == 1:
+		ident = idents[0]
 
-	if len(persons) > 1:
+	if len(idents) > 1:
 		if parent is None:
 			parent = wx.GetApp().GetTopWindow()
 		dlg = cSelectPersonFromListDlg(parent=parent, id=-1)
@@ -354,10 +351,10 @@ def load_patient_from_external_sources(parent=None):
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
 			return True
-		person = dlg.get_selected_person()
+		ident = dlg.get_selected_person()
 		dlg.Destroy()
 
-	if not gmPerson.set_active_patient(patient = person.get_identity()):
+	if not gmPerson.set_active_patient(patient = ident):
 		gmGuiHelpers.gm_show_info (
 			_(
 			'Cannot activate patient:\n\n'
@@ -412,8 +409,6 @@ class cPatientSelector(wx.TextCtrl):
 
 		self.__prev_search_term = None
 		self.__prev_idents = []
-		self.__pat_picklist_col_defs = []
-
 		self._lclick_count = 0
 
 		# get configuration
@@ -444,8 +439,9 @@ class cPatientSelector(wx.TextCtrl):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 
-		ident = pat.get_identity()
-		self.__remember_ident(ident)
+#		ident = gmPerson.cIdentity(aPK_obj=pat['pk_identity'])
+#		self.__remember_ident(ident)
+		self.__remember_ident(pat)
 
 		dbcfg = gmCfg.cCfgSQL()
 		dob_distance = dbcfg.get2 (
@@ -455,15 +451,15 @@ class cPatientSelector(wx.TextCtrl):
 			default = u'1 week'
 		)
 
-		if ident.dob_in_range(dob_distance, dob_distance):
+		if pat.dob_in_range(dob_distance, dob_distance):
 			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
 			enc = locale.getlocale()[1]
 			gmGuiHelpers.gm_statustext (
 				_('%(pat)s was born on %(dow)s, %(month)s %(day)s ! (today is %(dow_now)s, %(month_now)s %(day_now)s)') % {
-					'pat': ident.get_description(),
-					'dow': ident['dob'].strftime('%A').decode(enc),
-					'month': ident['dob'].strftime('%B').decode(enc),
-					'day': ident['dob'].strftime('%d'),
+					'pat': pat.get_description(),
+					'dow': pat['dob'].strftime('%A').decode(enc),
+					'month': pat['dob'].strftime('%B').decode(enc),
+					'day': pat['dob'].strftime('%d'),
 					'dow_now': now.strftime('%A').decode(enc),
 					'month_now': now.strftime('%B').decode(enc),
 					'day_now': now.strftime('%d')
@@ -476,8 +472,7 @@ class cPatientSelector(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _display_name(self):
 		if self.curr_pat.is_connected():
-			ident = self.curr_pat.get_identity()
-			self.SetValue(ident['description'])
+			self.SetValue(self.curr_pat['description'])
 		else:
 			self.SetValue('')
 	#--------------------------------------------------------
@@ -581,12 +576,9 @@ class cPatientSelector(wx.TextCtrl):
 			evt.Skip()
 			if len(self.__prev_idents) == 0:
 				return True
-			persons = []
-			for ident in self.__prev_idents:
-				persons.append(gmPerson.cPerson(identity=ident))
 
 			dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
-			dlg.set_persons(persons=persons)
+			dlg.set_persons(persons=self.__prev_idents)
 			result = dlg.ShowModal()
 			if result == wx.ID_OK:
 				wx.BeginBusyCursor()
@@ -623,8 +615,7 @@ class cPatientSelector(wx.TextCtrl):
 			return None
 
 		if self.curr_pat.is_connected():
-			ident = self.curr_pat.get_identity()
-			if curr_search_term == ident['description']:
+			if curr_search_term == self.curr_pat['description']:
 				return None
 
 		wx.BeginBusyCursor()
@@ -639,10 +630,10 @@ class cPatientSelector(wx.TextCtrl):
 
 		# get list of matching ids
 		start = time.time()
-		persons = self.__pat_searcher.get_persons(curr_search_term)
+		idents = self.__pat_searcher.get_identities(curr_search_term)
 		duration = time.time() - start
 
-		if persons is None:
+		if idents is None:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_info (
 				_('Error searching for matching patients.\n\n'
@@ -652,9 +643,9 @@ class cPatientSelector(wx.TextCtrl):
 			)
 			return None
 
-		_log.Log (gmLog.lInfo, "%s person objects(s) fetched in %3.3f seconds" % (len(persons), duration))
+		_log.Log (gmLog.lInfo, "%s person objects(s) fetched in %3.3f seconds" % (len(idents), duration))
 
-		if len(persons) == 0:
+		if len(idents) == 0:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_info (
 				_('Cannot find any matching patients.\n'
@@ -669,14 +660,14 @@ class cPatientSelector(wx.TextCtrl):
 			return None
 
 		# only one matching identity
-		if len(persons) == 1:
-			self.SetActivePatient(persons[0])
+		if len(idents) == 1:
+			self.SetActivePatient(idents[0])
 			wx.EndBusyCursor()
 			return None
 
 		# more than one matching identity: let user select from pick list
 		dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
-		dlg.set_persons(persons=persons)
+		dlg.set_persons(persons=idents)
 		wx.EndBusyCursor()
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
@@ -684,9 +675,9 @@ class cPatientSelector(wx.TextCtrl):
 			return None
 
 		wx.BeginBusyCursor()
-		person = dlg.get_selected_person()
+		ident = dlg.get_selected_person()
 		dlg.Destroy()
-		self.SetActivePatient(person)
+		self.SetActivePatient(ident)
 		wx.EndBusyCursor()
 
 		return None
@@ -809,7 +800,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.62  2007-02-17 14:01:26  ncq
+# Revision 1.63  2007-02-22 17:41:13  ncq
+# - adjust to gmPerson changes
+#
+# Revision 1.62  2007/02/17 14:01:26  ncq
 # - gmCurrentProvider.workplace now property
 # - notify about birthday after activating patient
 # - remove crufty code/docs
