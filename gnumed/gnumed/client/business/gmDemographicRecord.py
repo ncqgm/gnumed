@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.86 2006-11-26 15:44:03 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmDemographicRecord.py,v 1.87 2007-02-22 16:26:54 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -394,7 +394,7 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 
 	if suburb is not None:
 		queries = [{
-			'cmd': u"insert into dem.street (suburb) values (%(suburb)s) where id=%(pk_street)s",
+			'cmd': u"update dem.street set suburb = %(suburb)s where id=%(pk_street)s",
 			'args': {'suburb': suburb, 'pk_street': adr['pk_street']}
 		}]
 
@@ -502,7 +502,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.86  2006-11-26 15:44:03  ncq
+# Revision 1.87  2007-02-22 16:26:54  ncq
+# - fix create_address()
+#
+# Revision 1.86  2006/11/26 15:44:03  ncq
 # - do not use es-zet in test suite
 #
 # Revision 1.85  2006/11/19 10:58:52  ncq
