@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.308 2007-02-19 16:14:06 ncq Exp $
-__version__ = "$Revision: 1.308 $"
+# $Id: gmGuiMain.py,v 1.309 2007-02-22 17:35:22 ncq Exp $
+__version__ = "$Revision: 1.309 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -309,6 +309,11 @@ class gmTopLevelFrame(wx.Frame):
 		ID_LOAD_EXT_PAT = wx.NewId()
 		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external patient'), _('Load patient from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
+
+		# FIXME: temporary until external program framework is active
+		ID = wx.NewId()
+		menu_patient.Append(ID, _('GDT export'), _('Export demographics of current patient into GDT file.'))
+		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
 
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
@@ -689,9 +694,8 @@ Search results:
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
 		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export')))
-		ident = pat.get_identity()
 		# FIXME: make configurable
-		fname = '%s-%s_%s.txt' % (_('emr-journal'), ident['lastnames'], ident['firstnames'])
+		fname = '%s-%s_%s.txt' % (_('emr-journal'), pat['lastnames'], pat['firstnames'])
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _("Save patient's EMR journal as..."),
@@ -709,16 +713,19 @@ Search results:
 		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
 		# instantiate exporter
 		exporter = gmPatientExporter.cEMRJournalExporter()
+
 		wx.BeginBusyCursor()
-		successful, fname = exporter.export_to_file(filename = fname)
-		wx.EndBusyCursor()
-		if not successful:
+		try:
+			fname = exporter.export_to_file(filename = fname)
+		except:
+			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Error exporting patient EMR as chronological journal.'),
 				_('EMR journal export'),
 				gmLog.lErr
 			)
-			return False
+			raise
+		wx.EndBusyCursor()
 
 		gmGuiHelpers.gm_statustext(_('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
 
@@ -734,14 +741,13 @@ Search results:
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
 		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed','export')))
-		ident = pat.get_identity()		
 		# FIXME: make configurable
 		fname = '%s-%s-%s-%s-%s.txt' % (
 			'Medistar-MD',
 			time.strftime('%Y-%m-%d',time.localtime()),
-			ident['lastnames'].replace(' ', '-'),
-			ident['firstnames'].replace(' ', '_'),
-			ident['dob'].strftime('%Y-%m-%d')
+			pat['lastnames'].replace(' ', '-'),
+			pat['firstnames'].replace(' ', '_'),
+			pat['dob'].strftime('%Y-%m-%d')
 		)
 		dlg = wx.FileDialog (
 			parent = self,
@@ -778,6 +784,14 @@ Search results:
 	def __on_load_external_patient(self, event):
 		gmPatSearchWidgets.load_patient_from_external_sources(parent=self)
 	#----------------------------------------------
+	def __on_export_as_gdt(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		# FIXME: configurable
+		enc = 'cp850'
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient-%s.gdt' % enc))
+		curr_pat.export_as_gdt(filename = fname, encoding = enc)
+		gmGuiHelpers.gm_statustext(_('Exported demographics to GDT file [%s].') % fname)
+	#----------------------------------------------
 	def __on_create_patient(self, event):
 		"""Launch create patient wizard.
 		"""
@@ -797,7 +811,7 @@ Search results:
 		if not pat.is_connected():
 			gmGuiHelpers.gm_statustext(_('Cannot delete patient. No patient active.'))
 			return False
-		gmDemographicsWidgets.disable_identity(identity=pat.get_identity())
+		gmDemographicsWidgets.disable_identity(identity=pat)
 		return True
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
@@ -896,13 +910,12 @@ Search results:
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat.is_connected():
-			ident = pat.get_identity()
-			title = ident['title']
+			title = pat['title']
 			if title is None:
 				title = ''
 			else:
 				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, ident['firstnames'], ident['lastnames'], ident['dob'].strftime ('%x'), ident['pk_identity'])
+			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat['dob'].strftime ('%x'), pat['pk_identity'])
 		else:
 			pat_str = _('no patient')
 
@@ -1226,7 +1239,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.308  2007-02-19 16:14:06  ncq
+# Revision 1.309  2007-02-22 17:35:22  ncq
+# - add export as GDT
+#
+# Revision 1.308  2007/02/19 16:14:06  ncq
 # - use gmGuiHelpers.run_hook_script()
 #
 # Revision 1.307  2007/02/17 14:13:11  ncq
