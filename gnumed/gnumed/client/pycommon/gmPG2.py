@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -394,15 +394,18 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		curs = link_obj
 		curs_close = __noop
 		conn_close = __noop
+		tx_rollback = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		curs = link_obj.cursor()
 		curs_close = curs.close
 		conn_close = __noop
+		tx_rollback = link_obj.rollback
 	elif link_obj is None:
 		conn = get_connection(readonly=True, verbose=verbose)
-		conn_close = conn.close
 		curs = conn.cursor()
 		curs_close = curs.close
+		conn_close = conn.close
+		tx_rollback = conn.rollback
 	else:
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
@@ -424,10 +427,11 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				_log.Log(gmLog.lData, 'PG status message: %s' % curs.statusmessage)
 				_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
 		except:
+			curs_close()
+			tx_rollback()
+			conn_close()
 			_log.Log(gmLog.lErr, 'query failed: [%s]' % curs.query)
 			_log.Log(gmLog.lErr, 'PG status message: %s' % curs.statusmessage)
-			curs_close()
-			conn_close()
 			raise
 
 	data = None
@@ -1000,7 +1004,13 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.36  2007-02-19 15:00:53  ncq
+# Revision 1.37  2007-03-01 14:03:53  ncq
+# - in run_ro_queries() we now need to rollback failed transactions due to
+#   the connections being pooled - or else abort state could carry over into
+#   the next use of that connection - since transactions aren't really
+#   in need of ending
+#
+# Revision 1.36  2007/02/19 15:00:53  ncq
 # - restrict pooling to the default DSN, too
 #
 # Revision 1.35  2007/02/18 16:56:21  ncq
