@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -428,7 +428,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
 		except:
 			curs_close()
-			tx_rollback()
+			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			conn_close()
 			_log.Log(gmLog.lErr, 'query failed: [%s]' % curs.query)
 			_log.Log(gmLog.lErr, 'PG status message: %s' % curs.statusmessage)
@@ -445,6 +445,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
 
 	curs_close()
+	tx_rollback()		# rollback just so that we don't stay IDLE IN TRANSACTION forever
 	conn_close()
 	return (data, col_idx)
 #------------------------------------------------------------------------
@@ -1004,7 +1005,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.37  2007-03-01 14:03:53  ncq
+# Revision 1.38  2007-03-01 14:05:53  ncq
+# - rollback in run_ro_queries() even if no error occurred such that
+#   we don't stay IDLE IN TRANSACTION
+#
+# Revision 1.37  2007/03/01 14:03:53  ncq
 # - in run_ro_queries() we now need to rollback failed transactions due to
 #   the connections being pooled - or else abort state could carry over into
 #   the next use of that connection - since transactions aren't really
