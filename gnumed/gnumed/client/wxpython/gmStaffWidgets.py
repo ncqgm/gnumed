@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.14 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmStaffWidgets.py,v 1.15 2007-03-01 16:35:01 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -192,7 +192,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		name = pat.get_active_name()
 		txt = _("""
   %s "%s" %s
-  born: %s""") % (name['first'], name['preferred'], name['last'], ident['dob'].strftime('%Y-%m-%d'))
+  born: %s""") % (name['first'], name['preferred'], name['last'], pat['dob'].strftime('%Y-%m-%d'))
 		self._TXT_person.SetValue(txt)
 		txt = name['first'][:2] + name['last'][:2]
 		self._TXT_short_alias.SetValue(txt)
@@ -234,7 +234,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.14  2007-02-22 17:41:13  ncq
+# Revision 1.15  2007-03-01 16:35:01  ncq
+# - no more idents
+#
+# Revision 1.14  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.13  2006/12/31 16:25:43  ncq
