@@ -5,9 +5,9 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.8 2006-10-08 15:10:01 ncq Exp $
+# $Id: gmProviderInbox.py,v 1.9 2007-03-01 13:51:13 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmPG2
@@ -39,7 +39,6 @@ order by importance desc"""
 		try:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__provider_id]}])
 		except:
-			_log.LogException('cannot retrieve provider inbox messages')
 			return [[
 				1,
 				_('error'),
@@ -64,7 +63,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInbox.py,v $
-# Revision 1.8  2006-10-08 15:10:01  ncq
+# Revision 1.9  2007-03-01 13:51:13  ncq
+# - remove call to _log
+#
+# Revision 1.8  2006/10/08 15:10:01  ncq
 # - convert to gmPG2
 # - return all the fields needed for inbox on error
 #
