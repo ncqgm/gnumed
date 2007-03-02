@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.90 2007-02-17 14:02:11 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmSOAPWidgets.py,v 1.91 2007-03-02 15:39:13 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -227,7 +227,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #		print "- ask user about unsaved data"
 		pass
 #============================================================
-class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
+class cNotebookedProgressNoteInputPanel(wx.Panel):
 	"""A progress note input panel.
 
 	Left hand side:
@@ -235,6 +235,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 
 	Right hand side:
 	- progress note editors notebook
+
+	Expects to live in a notebook.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
@@ -252,8 +254,6 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 			size = wx.DefaultSize,
 			style = wx.NO_BORDER
 		)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-
 		self.__pat = gmPerson.gmCurrentPatient()
 
 		# ui contruction and event handling set up
@@ -397,12 +397,12 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Patient changed."""
-		self._schedule_data_reget()
+		if self.GetParent().GetCurrentPage() == self:
+			self.reset_ui_content()
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
-		# FIXME: this should rather *schedule* a reget which would
-		# FIXME: then happen immediately in visible widgets
-		self._schedule_data_reget()
+		if self.GetParent().GetCurrentPage() == self:
+			self.__refresh_problem_list()
 	#--------------------------------------------------------
 	def __on_clear(self, event):
 		"""Clear raised SOAP input widget.
@@ -461,16 +461,10 @@ class cNotebookedProgressNoteInputPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixi
 		self.__refresh_problem_list()
 		return True
 	#--------------------------------------------------------
-	# reget mixin API
+	# notebook plugin API
 	#--------------------------------------------------------
-	def _populate_with_data(self):
-		"""
-		Fills UI with data.
-		"""
-#		self.reset_ui_content()
-		if self.__refresh_problem_list():
-			return True
-		return False
+	def repopulate_ui(self):
+		self.__refresh_problem_list()
 #============================================================
 class cSOAPLineDef:
 	def __init__(self):
@@ -1069,7 +1063,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.90  2007-02-17 14:02:11  ncq
+# Revision 1.91  2007-03-02 15:39:13  ncq
+# - properly refresh widgets
+#
+# Revision 1.90  2007/02/17 14:02:11  ncq
 # - use improved coalesce()
 #
 # Revision 1.89  2007/02/04 16:14:23  ncq
