@@ -10,9 +10,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.9 2007-02-16 10:20:39 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.10 2007-03-02 15:30:24 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -81,6 +81,7 @@ def __explicit_offset(str_timestamp, offset_chars='hdwmy'):
 	offset_char = regex.findall('[%s]' % offset_chars, str_timestamp)[0].lower()
 
 	now = mxDT.now()
+	enc = locale.getlocale()[1]
 
 	# allow past ?
 	is_future = True
@@ -101,37 +102,37 @@ def __explicit_offset(str_timestamp, offset_chars='hdwmy'):
 	elif offset_char == offset_chars[1]:
 		if is_future:
 			ts = now + mxDT.RelativeDateTime(days = val)
-			label = _('in %d day(s) - %s') % (val, ts.strftime('%A, %x'))
+			label = _('in %d day(s) - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		else:
 			ts = now - mxDT.RelativeDateTime(days = val)
-			label = _('%d day(s) ago - %s') % (val, ts.strftime('%A, %x'))
+			label = _('%d day(s) ago - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		accuracy = acc_days
 	# weeks
 	elif offset_char == offset_chars[2]:
 		if is_future:
 			ts = now + mxDT.RelativeDateTime(weeks = val)
-			label = _('in %d week(s) - %s') % (val, ts.strftime('%A, %x'))
+			label = _('in %d week(s) - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		else:
 			ts = now - mxDT.RelativeDateTime(weeks = val)
-			label = _('%d week(s) ago - %s)') % (val, ts.strftime('%A, %x'))
+			label = _('%d week(s) ago - %s)') % (val, ts.strftime('%A, %x').decode(enc))
 		accuracy = acc_days
 	# months
 	elif offset_char == offset_chars[3]:
 		if is_future:
 			ts = now + mxDT.RelativeDateTime(months = val)
-			label = _('in %d month(s) - %s') % (val, ts.strftime('%A, %x'))
+			label = _('in %d month(s) - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		else:
 			ts = now - mxDT.RelativeDateTime(months = val)
-			label = _('%d month(s) ago - %s') % (val, ts.strftime('%A, %x'))
+			label = _('%d month(s) ago - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		accuracy = acc_days
 	# years
 	elif offset_char == offset_chars[4]:
 		if is_future:
 			ts = now + mxDT.RelativeDateTime(years = val)
-			label = _('in %d year(s) - %s') % (val, ts.strftime('%A, %x'))
+			label = _('in %d year(s) - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		else:
 			ts = now - mxDT.RelativeDateTime(years = val)
-			label = _('%d year(s) ago - %s') % (val, ts.strftime('%A, %x'))
+			label = _('%d year(s) ago - %s') % (val, ts.strftime('%A, %x').decode(enc))
 		accuracy = acc_months
 
 	if ts is None:
@@ -161,6 +162,7 @@ def __single_char(str_timestamp, trigger_chars='ndmy'):
 	val = str_timestamp.strip().lower()
 
 	now = mxDT.now()
+	enc = locale.getlocale()[1]
 
 	# FIXME: handle uebermorgen/vorgestern ?
 
@@ -172,7 +174,7 @@ def __single_char(str_timestamp, trigger_chars='ndmy'):
 				timestamp = ts,
 				accuracy = acc_subseconds
 			),
-			'label': _('right now (%s, %s)') % (ts.strftime('%A'), ts)
+			'label': _('right now (%s, %s)') % (ts.strftime('%A').decode(enc), ts)
 		}]
 
 	# today
@@ -182,7 +184,7 @@ def __single_char(str_timestamp, trigger_chars='ndmy'):
 				timestamp = now,
 				accuracy = acc_days
 			),
-			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d')
+			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
 		}]
 
 	# tomorrow
@@ -193,7 +195,7 @@ def __single_char(str_timestamp, trigger_chars='ndmy'):
 				timestamp = ts,
 				accuracy = acc_days
 			),
-			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d')
+			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
 		}]
 
 	# yesterday
@@ -204,7 +206,7 @@ def __single_char(str_timestamp, trigger_chars='ndmy'):
 				timestamp = ts,
 				accuracy = acc_days
 			),
-			'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d')
+			'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
 		}]
 
 	return []
@@ -791,7 +793,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.9  2007-02-16 10:20:39  ncq
+# Revision 1.10  2007-03-02 15:30:24  ncq
+# - must decode() strftime() output
+#
+# Revision 1.9  2007/02/16 10:20:39  ncq
 # - improved doc strings
 #
 # Revision 1.8  2007/02/16 10:15:27  ncq
