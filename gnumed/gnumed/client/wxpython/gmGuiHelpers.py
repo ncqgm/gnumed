@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.50 2007-02-19 16:13:36 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmGuiHelpers.py,v 1.51 2007-03-02 15:32:56 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,13 +23,12 @@ if __name__ == '__main__':
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
-_set_status_text = None
 # ========================================================================
 def run_hook_script(hook=None, script=None):
 
@@ -50,17 +49,26 @@ def run_hook_script(hook=None, script=None):
 	_log.Log(gmLog.lData, 'trying to run script [%s] off hook [%s]' % (full_script, hook))
 
 	if os.path.islink(full_script):
-		gm_statustext(_('Script to run after activating patient must not be a link: [%s].') % full_script)
+		gmDispatcher.send (
+			gmSignals.statustext(),
+			msg = _('Script to run after activating patient must not be a link: [%s].') % full_script
+		)
 		return False
 
 	stat_val = os.stat(full_script)
 #	if stat_val.st_mode != 384:				# octal 0600
 	if stat_val.st_mode != 33152:			# octal 100600
-		gm_statustext(_('Script to run after activating patient must have permissions "0600": [%s].') % full_script)
+		gmDispatcher.send (
+			gmSignals.statustext(),
+			msg = _('Script to run after activating patient must have permissions "0600": [%s].') % full_script
+		)
 		return False
 
 	if not os.access(full_script, os.R_OK):
-		gm_statustext(_('Script to run after activating patient must be owned by the calling user: [%s].') % full_script)
+		gmDispatcher.send (
+			gmSignals.statustext(),
+			msg = _('Script to run after activating patient must be owned by the calling user: [%s].') % full_script
+		)
 		return False
 
 	module = gmTools.import_module_from_directory(script_path, script_name)
@@ -336,32 +344,11 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 	else:
 		return None
 #-------------------------------------------------------------------------
-# FIXME: actually make this use a signal !
 def gm_statustext(aMessage=None, aLogLevel=None, beep=True):
-	if aMessage is None:
-		aMessage = _('programmer forgot to specify alert message')
 
-	if aLogLevel is not None:
-		log_msg = aMessage.replace('\015', ' ')
-		log_msg = log_msg.replace('\012', ' ')
-		_log.Log(aLogLevel, log_msg)
-
-	if beep:
-		wx.Bell()
-
-	# only now and here can we assume that wxWindows
-	# is sufficiently initialized
-	global _set_status_text
-	if _set_status_text is None:
-		try:
-			_set_status_text = gmGuiBroker.GuiBroker()['main.statustext']
-		except KeyError:
-			_log.LogException('called too early, cannot set status text', sys.exc_info(), verbose=0)
-			print "Status message:", aMessage
-			return 1
-
-	_set_status_text(aMessage)
-	return 1
+	print "***** gm_statustext deprecated *****"
+	gmDispatcher.send(gmSignals.statustext(), msg=aMessage, loglevel=aLogLevel, beep=beep)
+	return True
 #-------------------------------------------------------------------------
 def get_dbowner_connection(procedure=None):
 	if procedure is None:
@@ -471,7 +458,6 @@ class cTextWidgetValidator(wx.PyValidator):
 
 		if self.__non_empty and val.strip() == '':
 			print self.__msg
-#			gm_statustext(self.__msg)
 			ctrl.SetBackgroundColour('pink')
 			ctrl.SetFocus()
 			ctrl.Refresh()
@@ -480,7 +466,6 @@ class cTextWidgetValidator(wx.PyValidator):
 			for char in val:
 				if not char in string.digits:
 					print self.__msg
-#					gm_statustext(self.__msg)
 					ctrl.SetBackgroundColour('pink')
 					ctrl.SetFocus()
 					ctrl.Refresh()					
@@ -532,7 +517,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.50  2007-02-19 16:13:36  ncq
+# Revision 1.51  2007-03-02 15:32:56  ncq
+# - turn gm_statustext() into signal sender with depreciation
+#   warning (should used gmDispatcher.send() now)
+#
+# Revision 1.50  2007/02/19 16:13:36  ncq
 # - add run_hook_script()
 #
 # Revision 1.49  2007/02/18 16:57:38  ncq
