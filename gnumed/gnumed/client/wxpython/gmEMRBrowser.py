@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.68 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmEMRBrowser.py,v 1.69 2007-03-02 15:31:45 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -295,10 +295,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __edit_issue(self, event):
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1, issue=self.__curr_node_data)
-		ea.ShowModal()
-		self.SetItemText(self.__curr_node, self.__curr_node_data['description'])
-		self.Refresh()
-		self.Update()
+		if ea.ShowModal() == wx.ID_OK:
+			self.__populate_tree()
 		return
 	#--------------------------------------------------------
 	# root
@@ -307,10 +305,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __create_issue(self, event):
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
-		ea.ShowModal()
-		self.Refresh()
-		self.Update()
-		# need to self.refresh() tree itself
+		if ea.ShowModal() == wx.ID_OK:
+			self.__populate_tree()
 		return
 	#--------------------------------------------------------
 	# event handlers
@@ -392,29 +388,22 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		return 0
 #================================================================
-class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl, gmRegetMixin.cRegetOnPaintMixin):
+class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 	"""A scrollable panel holding an EMR tree.
 
 	Lacks a widget to display details for selected items. The
-	tree data will be refetched - if necessary - when the widget
-	is repainted. Refetching can also be initiated (given it is
-	necessary) by calling repopulate_ui().
+	tree data will be refetched - if necessary - whenever
+	repopulate_ui() is called, e.g., when then patient is changed.
 	"""
 	def __init__(self, *args, **kwds):
 		wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl.__init__(self, *args, **kwds)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__register_interests()
+#		self.__register_interests()
 	#--------------------------------------------------------
-	# reget mixin API
+#	def __register_interests(self):
+#		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self.repopulate_ui)
 	#--------------------------------------------------------
-	def __register_interests(self):
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
-	#--------------------------------------------------------
-	def _populate_with_data(self):
-		"""Fills UI with data."""
-		if not self._emr_tree.refresh():
-			_log.Log(gmLog.lErr, "cannot update EMR tree")
-			return False
+	def repopulate_ui(self):
+		self._emr_tree.refresh()
 		return True
 #============================================================
 class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTreeBrowserPnl):
@@ -422,24 +411,32 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 
 	The left hand side displays a scrollable EMR tree while
 	on the right details for selected items are displayed.
+
+	Expects to be put into a Notebook.
 	"""
 	def __init__(self, *args, **kwds):
 		wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTreeBrowserPnl.__init__(self, *args, **kwds)
 		self._pnl_emr_tree._emr_tree.set_narrative_display(narrative_display = self._TCTRL_item_details)
+		self.__register_events()
+	#--------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
+		return True
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		if self.GetParent().GetCurrentPage() == self:
+			self.repopulate_ui()
+		return True
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		"""Fills UI with data."""
-		if not self._pnl_emr_tree._populate_with_data():
-			_log.Log(gmLog.lErr, "cannot update EMR tree")
-			return False
+		self._pnl_emr_tree.repopulate_ui()
 		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
 		return True
 #================================================================
-#class cEMRJournalPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 class cEMRJournalPanel(wx.Panel):
 	def __init__(self, *args, **kwargs):
 		wx.Panel.__init__(self, *args, **kwargs)
-#		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__do_layout()
 
@@ -465,43 +462,34 @@ class cEMRJournalPanel(wx.Panel):
 		self.Layout()
 	#--------------------------------------------------------
 	def __register_events(self):
-		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
-		return 1
+		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		# FIXME: check for visibility
-		self.__journal.SetValue(u'')
+		"""Expects to be in a Notebook."""
+		if self.GetParent().GetCurrentPage() == self:
+			self.repopulate_ui()
 		return True
 	#--------------------------------------------------------
 	# notebook plugin API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
-		# get data from backend
 		txt = StringIO.StringIO()
 		exporter = gmPatientExporter.cEMRJournalExporter()
 		# FIXME: if journal is large this will error out, use generator/yield etc
-		successful = exporter.export(txt)
-		if not successful:
-			_log.Log(gmLog.lErr, 'cannot get EMR journal')
+		# FIXME: turn into proper list
+		try:
+			exporter.export(txt)
+			self.__journal.SetValue(txt.getvalue())
+			txt.close()
+		except ValueError:
+			_log.LogException('cannot get EMR journal')
 			self.__journal.SetValue (_(
 				'An error occurred while retrieving the EMR\n'
 				'in journal form for the active patient.\n\n'
 				'Please check the log file for details.'
 			))
-			return False
-		self.__journal.SetValue(txt.getvalue())
-		txt.close()
 		return True
-	#--------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-#	def _populate_with_data(self):
-#		"""Fills UI with data.
-#		"""
-#		if self.refresh_journal():
-#			return True
-#		return False
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -548,7 +536,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.68  2007-02-22 17:41:13  ncq
+# Revision 1.69  2007-03-02 15:31:45  ncq
+# - properly repopulation EMR tree and problem list :-)
+#
+# Revision 1.68  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.67  2007/02/16 12:51:46  ncq
