@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.66 2007-02-17 14:13:11 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmPlugin.py,v 1.67 2007-03-02 15:40:58 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -184,14 +184,8 @@ class cNotebookPlugin:
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional red backgound here
-			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
-			wx.Bell()
+			gmDispatcher.send(gmSignals.statustext(), msg = _('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
-		return 1
-	#-----------------------------------------------------
-	def _set_status_txt(self, txt):
-		set_statustext = self.gb['main.statustext']
-		set_statustext(txt)
 		return 1
 	#-----------------------------------------------------
 	def Raise(self):
@@ -433,7 +427,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.66  2007-02-17 14:13:11  ncq
+# Revision 1.67  2007-03-02 15:40:58  ncq
+# - status text now set by signal
+#
+# Revision 1.66  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.65  2006/11/07 00:34:52  ncq
