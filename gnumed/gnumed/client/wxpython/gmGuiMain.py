@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.309 2007-02-22 17:35:22 ncq Exp $
-__version__ = "$Revision: 1.309 $"
+# $Id: gmGuiMain.py,v 1.310 2007-03-02 15:40:42 ncq Exp $
+__version__ = "$Revision: 1.310 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -195,7 +195,6 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['short_alias'],
 			_provider['db_user']
 		))
-		self.__gb['main.statustext'] = self.SetStatusText
 
 		# set window title via template
 		if self.__gb['main.slave_mode']:
@@ -479,6 +478,23 @@ class gmTopLevelFrame(wx.Frame):
 		# intra-client signals
 		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
 		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
+
+		gmDispatcher.connect(self._on_set_statustext, gmSignals.statustext())
+	#-----------------------------------------------
+	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
+
+		if msg is None:
+			msg = _('programmer forgot to specify status message')
+
+		if loglevel is not None:
+			_log.Log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
+
+		if beep:
+			wx.Bell()
+
+		wx.CallAfter(self.SetStatusText, msg)
+
+		return True
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
@@ -915,7 +931,7 @@ Search results:
 				title = ''
 			else:
 				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat['dob'].strftime ('%x'), pat['pk_identity'])
+			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat['dob'].strftime('%x').decode(locale.getlocale()[1]), pat['pk_identity'])
 		else:
 			pat_str = _('no patient')
 
@@ -942,7 +958,7 @@ Search results:
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime('%c', t)
+		st = time.strftime('%c', t).decode(locale.getlocale()[1])
 		self.SetStatusText(st,1)
 	#----------------------------------------------
 #	def on_user_error (self, signal, message):
@@ -1239,7 +1255,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.309  2007-02-22 17:35:22  ncq
+# Revision 1.310  2007-03-02 15:40:42  ncq
+# - make ourselves a listener for gmSignals.statustext()
+# - decode() strftime() output to u''
+#
+# Revision 1.309  2007/02/22 17:35:22  ncq
 # - add export as GDT
 #
 # Revision 1.308  2007/02/19 16:14:06  ncq
