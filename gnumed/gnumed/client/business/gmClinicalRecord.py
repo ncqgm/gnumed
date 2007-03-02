@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.233 2007-02-19 14:06:56 ncq Exp $
-__version__ = "$Revision: 1.233 $"
+# $Id: gmClinicalRecord.py,v 1.234 2007-03-02 15:29:33 ncq Exp $
+__version__ = "$Revision: 1.234 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -28,7 +28,7 @@ __license__ = "GPL"
 #===================================================
 
 # standard libs
-import sys, string, time, copy
+import sys, string, time, copy, locale
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -1238,6 +1238,7 @@ where
 			pats[0][4].strftime('%Y-%m-%d'),
 			self.pk_patient
 		)
+		enc = locale.getlocale()[1]
 		msg = _(
 			'A fairly recent encounter exists for patient:\n'
 			' %s\n'
@@ -1250,8 +1251,8 @@ where
 			'Hitting "No" will start a new one.'
 		) % (
 			pat_str,
-			encounter['started'].strftime('%x %X'),
-			encounter['last_affirmed'].strftime('%x %X'),
+			encounter['started'].strftime('%x %X').decode(enc),
+			encounter['last_affirmed'].strftime('%x %X').decode(enc),
 			encounter['l10n_type'],
 			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
 			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
@@ -1589,7 +1590,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.233  2007-02-19 14:06:56  ncq
+# Revision 1.234  2007-03-02 15:29:33  ncq
+# - need to decode() strftime() output to u''
+#
+# Revision 1.233  2007/02/19 14:06:56  ncq
 # - add_health_issue() should return True if health_issue already exists
 #
 # Revision 1.232  2007/02/17 14:08:52  ncq
