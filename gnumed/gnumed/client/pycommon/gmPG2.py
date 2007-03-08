@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -169,21 +169,20 @@ def __prompted_input(prompt, default=None):
 def __request_login_params_tui():
 	"""Text mode request of database login parameters"""
 	import getpass
-	login = gmLoginInfo.LoginInfo('', '', '')
+	login = gmLoginInfo.LoginInfo()
 
 	print "\nPlease enter the required login parameters:"
 	try:
-		host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		database = __prompted_input("database [gnumed_v5]: ", 'gnumed_v5')
-		user = __prompted_input("user name: ", '')
-		password = getpass.getpass("password (not shown): ")
-		port = __prompted_input("port [5432]: ", 5432)
+		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
+		login.database = __prompted_input("database [gnumed_v5]: ", 'gnumed_v5')
+		login.user = __prompted_input("user name: ", '')
+		login.password = getpass.getpass("password (not shown): ")
+		login.port = __prompted_input("port [5432]: ", 5432)
 	except KeyboardInterrupt:
 		_log.Log(gmLog.lWarn, "user cancelled text mode login dialog")
 		print "user cancelled text mode login dialog"
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
 
-	login.SetInfo(user, password, dbname=database, host=host, port=port)
 	return login
 #---------------------------------------------------
 def __request_login_params_gui_wx():
@@ -612,10 +611,12 @@ def get_raw_connection(dsn=None, verbose=False):
 			where name='server_version'"""
 		)
 		postgresql_version = curs.fetchone()['version']
+		_log.Log(gmLog.lInfo, 'PostgreSQL version (numeric): %s' % postgresql_version)
+		if verbose:
+			__log_PG_settings(curs=curs)
 		curs.close()
 		conn.commit()
-		_log.Log(gmLog.lInfo, 'PostgreSQL version (numeric): %s' % postgresql_version)
-
+		
 	conn.is_decorated = False
 
 	return conn
@@ -1005,7 +1006,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.38  2007-03-01 14:05:53  ncq
+# Revision 1.39  2007-03-08 11:37:24  ncq
+# - simplified gmLogin
+# - log PG settings on first connection if verbose
+#
+# Revision 1.38  2007/03/01 14:05:53  ncq
 # - rollback in run_ro_queries() even if no error occurred such that
 #   we don't stay IDLE IN TRANSACTION
 #
