@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.76 2007-03-08 11:46:23 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmLoginDialog.py,v 1.77 2007-03-08 16:20:50 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -314,16 +314,20 @@ class LoginPanel(wx.Panel):
 	#----------------------------------------------------------
 	def __load_state(self):
 
+		prefs = gmCfg.cCfgFile (
+			aFile = self.user_preferences_file,
+			flags = gmCfg.cfg_IGNORE_CMD_LINE
+		)
 		self._CBOX_user.SetValue (
 			gmTools.coalesce (
-				cfg_file.get('preferences', 'login'),
+				prefs.get('preferences', 'login'),
 				self.__previously_used_accounts[0]
 			)
 		)
 
 		self._CBOX_profile.SetValue (
 			gmTools.coalesce (
-				cfg_file.get('preferences', 'profile'),
+				prefs.get('preferences', 'profile'),
 				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
 			)
 		)
@@ -446,7 +450,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.76  2007-03-08 11:46:23  ncq
+# Revision 1.77  2007-03-08 16:20:50  ncq
+# - need to reference proper cfg file
+#
+# Revision 1.76  2007/03/08 11:46:23  ncq
 # - restructured
 #   - cleanup
 #   - no more cLoginParamChoices
