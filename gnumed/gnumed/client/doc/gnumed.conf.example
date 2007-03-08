@@ -7,7 +7,7 @@
 # this file should live in ~/.gnumed/gnumed.conf
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 
 [backend]
@@ -50,29 +50,26 @@ $profiles$
 #
 #client timezone = CETDST
 
-# If GNUmed cannot properly detect the encoding to use for
-# sending Python strings to the database you can force
-# the encoding to use with the following option.
-#
-#encoding = utf8
-
 
 [profile GNUmed - v5 database on this machine (Linux)]
 host = 
 port = 5432
 database = gnumed_v5
+#encoding = UTF8
 
 
 [profile GNUmed - v5 database on this machine (Windows)]
 host = 127.0.0.1
 port = 5432
 database = gnumed_v5
+#encoding = cp1252
 
 
 [profile GNUmed - v5 database on public server]
 host = salaam.homeunix.com
 port = 5432
 database = gnumed_v5
+#encoding = UTF8
 
 
 [workplace]
@@ -112,7 +109,10 @@ filename = patient.xdt
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.4  2007-01-24 11:38:07  ncq
+# Revision 1.5  2007-03-08 11:32:39  ncq
+# - encoding now per backend profile
+#
+# Revision 1.4  2007/01/24 11:38:07  ncq
 # - improved docs
 #
 # Revision 1.3  2006/07/19 12:22:21  ncq
