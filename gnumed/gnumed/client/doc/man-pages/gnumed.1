@@ -26,7 +26,7 @@ records on a patient's health. It primarily focuses on GP
 offices. It is released under the GPL.
 
 GNUmed is written in Python with wxPython/wxWindows. Data is
-stored in PostgreSQL databases. Multiple clients can work
+stored in a PostgreSQL database. Multiple clients can work
 with the same database at the same time.
 
 .SH OPTIONS
@@ -87,16 +87,19 @@ variables work.
 .SH FILES
 .PP
 .TP
-.B ~/.gnumed/gnumed.log
-The default log file.
-.TP
 .B ~/.gnumed/gnumed.conf
 The default configuration file.
+.TP
+.B ~/.gnumed/gnumed.log
+The default log file.
 
 .SH SEE ALSO
 .PP
 .TP
 .B gettext(1)
+.TP
+.B http://wiki.gnumed.de
+Detailed Wiki-style documentation
 .TP
 .B http://www.gnumed.org
 Users' website
@@ -105,13 +108,10 @@ Users' website
 German website
 .TP
 .B http://savannah.gnu.org/projects/gnumed
-source code repository (CVS)
-.TP
-.B http://wiki.gnumed.de
-detailed Wiki-style documentation
+Source code repository (CVS)
 .TP
 .B /usr/share/doc/gnumed/
-detailed local documentation
+Local documentation
 
 .SH BUGS
 
@@ -124,4 +124,4 @@ Use at your own risk. You have been warned. Take proper backups !
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.13 2007-01-24 11:14:30 ncq Exp $
+$Id: gnumed.1,v 1.14 2007-03-08 11:35:26 ncq Exp $
