@@ -965,7 +965,7 @@ the module level global dictionary _cli_args{}.
 Your module should import gmCLI and query for existence of
 one-letter arguments like this:
 
-if gmGLI.has_arg("-v"):
+if gmCLI.has_arg("-v"):
 	do_something_verbosely()
 else:
 	be_rather_quiet()
