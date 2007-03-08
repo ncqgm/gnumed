@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.75 2007-02-17 14:13:11 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmLoginDialog.py,v 1.76 2007-03-08 11:46:23 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,7 +16,7 @@ import os.path, time, cPickle, zlib, types
 
 import wx
 
-from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull, gmTools
+from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull, gmTools, gmCLI
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.business import gmPerson
 
@@ -24,18 +24,11 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 _cfg = gmCfg.gmDefCfgFile
 
-#====================================================
-class cLoginParamChoices:
-	"""dummy class, structure for login parameters"""
-	def __init__(self):
-		"""init parmeters with reasonable defaults"""
-		self.userlist = ['any-doc']
-		self.password = ''
-		self.profilelist = [_('default fallback: public GNUmed database')]
-		self.profiles = {
-			_('default fallback: public GNUmed database'): {'host': 'salaam.homeunix.com', 'port': 5432, 'database': 'gnumed_v5'}
-		}
+curr_db = 'gnumed_v5'
 
+#====================================================
+class cBackendProfile:
+	pass
 #====================================================
 class LoginPanel(wx.Panel):
 	"""GUI panel class that interactively gets Postgres login parameters"""
@@ -44,19 +37,33 @@ class LoginPanel(wx.Panel):
 		pos = wx.DefaultPosition,
 		size = wx.DefaultSize,
 		style = wx.TAB_TRAVERSAL,
-		loginparams = None,
 		isDialog = 0
 		):
 		"""Create login panel.
 
-		loginparams:	to override default login parameters and configuration file.
-						see class "LoginParameters" in this module
 		isDialog:	if this panel is the main panel of a dialog, the panel will
 					resize the dialog automatically to display everything neatly
 					if isDialog is set to True
 		"""
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
+
+		self.user_preferences_file = None
+		if gmCLI.has_arg('--conf-file'):
+			fnames = [gmCLI.arg['--conf-file']]
+		else:
+			std_pathes = wx.StandardPaths.Get()
+			fnames = [
+				os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
+				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+			]
+		for fname in fnames:
+			try:
+				open(fname, 'r+b')
+				self.user_preferences_file = fname
+				break
+			except IOError:
+				continue
 
 		self.gb = gmGuiBroker.GuiBroker()
 
@@ -67,17 +74,10 @@ class LoginPanel(wx.Panel):
 		# True if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
 
-		# if no login params supplied get default ones or from config file
-		if loginparams is None:
-			self.__load_login_param_choices()
-		else:
-			self.loginparams = loginparams
-
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
 		bitmap = os.path.join (self.gb['resource dir'], 'bitmaps', 'gnumedlogo.png')
 		try:
-#			wx.Image_AddHandler(wx.PNGHandler())
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
 			bmp = wx.StaticBitmap(self, -1, png, wx.Point(10, 10), wx.Size(png.GetWidth(), png.GetHeight()))
 			self.topsizer.Add(bmp, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
@@ -104,34 +104,36 @@ class LoginPanel(wx.Panel):
 		self.pboxgrid.AddGrowableCol(1)
 
 		# PROFILE COMBO
-		label = wx.StaticText( self, -1, _("Profile"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		label = wx.StaticText( self, -1, _('Backend'), wx.DefaultPosition, wx.DefaultSize, 0)
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-		self.profilecombo = wx.ComboBox(
+		self.__backend_profiles = self.__get_backend_profiles()
+		self._CBOX_profile = wx.ComboBox (
 			self,
 			-1,
-			self.loginparams.profilelist[0],
+			self.__backend_profiles.keys()[0],
 			wx.DefaultPosition,
-			wx.Size(150,-1),
-			self.loginparams.profilelist,
-			wx.CB_READONLY
+			size = wx.Size(150,-1),
+			choices = self.__backend_profiles.keys(),
+			style = wx.CB_READONLY
 		)
-		self.pboxgrid.Add (self.profilecombo, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+		self.pboxgrid.Add (self._CBOX_profile, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
 		# USER NAME COMBO
 		label = wx.StaticText( self, -1, _("Username"), wx.DefaultPosition, wx.DefaultSize, 0 )
 		label.SetForegroundColour(wx.Colour(35, 35, 142))
-		self.pboxgrid.Add( label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-		self.usercombo = wx.ComboBox(
+		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.__previously_used_accounts = self.__get_previously_used_accounts()
+		self._CBOX_user = wx.ComboBox (
 			self,
 			-1,
-			self.loginparams.userlist[0],
+			self.__previously_used_accounts[0],
 			wx.DefaultPosition,
 			wx.Size(150,-1),
-			self.loginparams.userlist,
+			self.__previously_used_accounts,
 			wx.CB_DROPDOWN
 		)
-		self.pboxgrid.Add( self.usercombo, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		self.pboxgrid.Add( self._CBOX_user, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
 		#PASSWORD TEXT ENTRY
 		label = wx.StaticText( self, -1, _("Password"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -175,7 +177,7 @@ class LoginPanel(wx.Panel):
 		#---------------------
 		ID_BUTTON_HELP = wx.NewId()
 		button_help = wx.Button(self, ID_BUTTON_HELP, _("&Help"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		button_help.SetToolTip(wx.ToolTip(_("Help for login screen")) )
+		button_help.SetToolTip(wx.ToolTip(_("Help for login screen")))
 		#----------------------------
 		#Add buttons to the gridsizer
 		#----------------------------
@@ -187,8 +189,7 @@ class LoginPanel(wx.Panel):
 		self.topsizer.Add(self.paramsboxsizer, 1, wx.GROW|wx.ALL, 10)
 		self.topsizer.Add( self.button_gridsizer, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
-		self.user_preferences_file = os.path.expanduser(os.path.join('~', '.gnumed', 'user-preferences.conf'))
-		self.__load_settings()
+		self.__load_state()
 
 		self.SetAutoLayout(True)
 		self.SetSizer( self.topsizer)
@@ -197,206 +198,164 @@ class LoginPanel(wx.Panel):
 			self.topsizer.SetSizeHints(parent)
 
 		wx.EVT_BUTTON(self, ID_BUTTON_HELP, self.OnHelp)
-		wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.OnLogin)
+		wx.EVT_BUTTON(self, ID_BUTTON_LOGIN, self.__on_login_button_pressed)
 		wx.EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
 
 	#----------------------------------------------------------
 	# internal helper methods
 	#----------------------------------------------------------
-	def __load_login_param_choices(self):
-		"""Load parameter settings from standard configuration file"""
-		# initialize login parameters
-		self.loginparams = cLoginParamChoices()
+	def __get_previously_used_accounts(self):
 
-		# check if there is a non-empty config file
-		if isinstance(_cfg, gmNull.cNull):
-			# this will probably never happen as gmCfg creates a
-			# default config-file when none was found, nevertheless
-			# fall back to default values
-			msg = _(
-				"Cannot find the configuration file:\n\n"
-				"%s"
-				"Your setup procedure may not have completed or your\n"
-				"configuration file may be damaged.\n\n"
-				"You can find an example configuration file included with\n"
-				"the GNUmed documentation which you may use to fix things.\n\n"
-				"Falling back to default profile using public server."
-			) % _cfg.cfgName
-			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
-			return self.loginparams
+		accounts = []
 
-		# read login options from config file
-		# - database account names
-		tmp = _cfg.get('backend', 'logins')
-		if type(tmp) is types.ListType and len(tmp) > 0:
-			self.loginparams.userlist = tmp
+		if gmCLI.has_arg('--conf-file'):
+			fnames = [gmCLI.arg['--conf-file']]
 		else:
-			_log.Log(gmLog.lWarn, 'malformed/missing "logins" list in config file, using defaults')
+			std_pathes = wx.StandardPaths.Get()
+			fnames = [
+				os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
+				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+			]
 
-		# - profile names
-		tmp = _cfg.get('backend', 'profiles')
-		if type(tmp) is types.ListType and len(tmp) > 0:
-			self.loginparams.profilelist = tmp
-		else:
-			_log.Log(gmLog.lErr, 'malformed/missing "profiles" list in config file, using defaults')
-			# fall back to default values
-			msg = _(
-				"Cannot find server profiles in the configuration file.\n"
-				"Your setup procedure may not have completed or your\n"
-				"configuration file may be damaged.\n\n"
-				"You can find an example configuration file included with\n"
-				"the GNUmed documentation which you may use to fix\n"
-				"[%s].\n\n"
-				"Falling back to default profile using public server."
-			) % _cfg.cfgName
-			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
-			_log.Log(gmLog.lData, str(tmp))
-			return self.loginparams
-
-		# - details for each profile
-		for profile in self.loginparams.profilelist:
-			database = None
-			host = None
-			port = None
-
-			# profile sections are denoted by leading "profile "
-			profile_label = "profile %s" % profile
-			if profile_label not in _cfg.getGroups():
-				_log.Log(gmLog.lWarn, _("section [%s] not found in config file") % profile_label)
-				del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
-				continue
-			# database name, errors will show up visually and in failing connections
-			database = str(_cfg.get(profile_label, 'database'))
-			# host
-			host = str(_cfg.get(profile_label, 'host'))
-			# port
-			tmp = _cfg.get(profile_label, 'port')
+		for fname in fnames:
 			try:
-				port = int(tmp)
-				if port < 1024:
-					raise ValueError
-			except TypeError, ValueError:
-				_log.Log(gmLog.lWarn, _("port definition [%s] invalid in profile [%s]") % (str(tmp), profile_label))
-				del self.loginparams.profilelist[self.loginparams.profilelist.index(profile)]
+				cfg_file = gmCfg.cCfgFile (
+					aFile = fname,
+					flags = gmCfg.cfg_IGNORE_CMD_LINE
+				)
+			except IOError:
 				continue
-			# set profile details
-			self.loginparams.profiles[profile] = {
-				'host': host,
-				'database': database,
-				'port': port
-			}
 
-		# any profiles left ?
-		if self.loginparams.profilelist == []:
-			_log.Log(gmLog.lErr, 'no valid profile information in config file, using builtin defaults')
-			# fallback to default, ignores all login information in the config file
-			self.loginparams = cLoginParamChoices()
-			msg = _(
-				"No valid profile information found in configuration file.\n\n"
-				"Please refer to the example configuration file (included\n"
-				"with the GNUmed documentation) for information on how\n"
-				"profiles are to be specified.\n\n"
-				"Falling back to default profile using local server."
+			accounts = gmTools.coalesce (
+				cfg_file.get('backend', 'logins'),
+				[]
 			)
-			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
 
-		return self.loginparams
+			if len(accounts) > 0:
+				return accounts
+
+		if len(accounts) == 0:
+			return ['any-doc']
+
+		return accounts
 	#----------------------------------------------------
-	def __load_settings(self):
+	def __get_backend_profiles(self):
+		"""Get server profiles from the configuration files.
 
-		prefs = gmCfg.cCfgFile (
-			aFile = self.user_preferences_file,
-			flags = gmCfg.cfg_IGNORE_CMD_LINE
-		)
+		1) from system-wide file
+		2) from user file
 
-		self.usercombo.SetValue (
+		Profiles in the user file which have the same name
+		as a profile in the system file will override the
+		system file.
+		"""
+		profiles = {}
+
+		if gmCLI.has_arg('--conf-file'):
+			fnames = [gmCLI.arg['--conf-file']]
+		else:
+			std_pathes = wx.StandardPaths.Get()
+			fnames = [
+				os.path.join(std_pathes.GetConfigDir(), 'gnumed', 'gnumed-client.conf'),
+				os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
+				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+			]
+
+		for fname in fnames:
+			try:
+				cfg_file = gmCfg.cCfgFile (
+					aFile = fname,
+					flags = gmCfg.cfg_IGNORE_CMD_LINE
+				)
+			except IOError:
+				continue
+
+			profile_names = gmTools.coalesce (
+				cfg_file.get('backend', 'profiles'),
+				[]
+			)
+
+			for profile_name in profile_names:
+				profile = cBackendProfile()
+				profile.name = profile_name
+				profile_section = 'profile %s' % profile_name
+				profile.host = gmTools.coalesce(cfg_file.get(profile_section, 'host'), '').strip()
+				try:
+					profile.port = int (gmTools.coalesce (
+						cfg_file.get(profile_section, 'port'),
+						5432
+					))
+					if profile.port < 1024:
+						raise ValueError('refusing to use priviledged port (< 1024)')
+				except ValueError:
+					_log.LogException('invalid port definition: [%s], skipping profile [%s] in [%s]' % (cfg_file.get(profile_section, 'port'), profile_name, fname))
+					continue
+				profile.database = gmTools.coalesce(cfg_file.get(profile_section, 'database'), '').strip()
+				if profile.database == '':
+					_log.Log(gmLog.lErr, 'database name not specified, skipping profile [%s] in [%s]' % (profile_name, fname))
+					continue
+				profile.encoding = gmTools.coalesce (
+					cfg_file.get(profile_section, 'encoding'),
+					'UTF8'
+				)
+				profiles[profile_name] = profile
+
+		if len(profiles) == 0:
+			host = 'salaam.homeunix.com'
+			label = 'public GNUmed database (%s@%s)' % (curr_db, host)
+			profiles[label] = cBackendProfile()
+			profiles[label].name = label
+			profiles[label].host = host
+			profiles[label].port = 5432
+			profiles[label].database = curr_db
+			profiles[label].encoding = 'UTF8'
+			
+		return profiles
+	#----------------------------------------------------------
+	def __load_state(self):
+
+		self._CBOX_user.SetValue (
 			gmTools.coalesce (
-				prefs.get('preferences', 'login'),
-				self.loginparams.userlist[0]
+				cfg_file.get('preferences', 'login'),
+				self.__previously_used_accounts[0]
 			)
 		)
 
-		self.profilecombo.SetValue (
+		self._CBOX_profile.SetValue (
 			gmTools.coalesce (
-				prefs.get('preferences', 'profile'),
-				self.loginparams.profilelist[0]
+				cfg_file.get('preferences', 'profile'),
+				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
 			)
 		)
 	#----------------------------------------------------
-	def save_settings(self):
+	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
 
-		print "*** saving settings ******"
-
 		prefs = gmCfg.cCfgFile (
 			aFile = self.user_preferences_file,
 			flags = gmCfg.cfg_IGNORE_CMD_LINE
 		)
-		prefs.set('preferences', 'login', self.usercombo.GetValue())
-		prefs.set('preferences', 'profile', self.profilecombo.GetValue())
+		prefs.set('preferences', 'login', self._CBOX_user.GetValue())
+		prefs.set('preferences', 'profile', self._CBOX_profile.GetValue())
 		prefs.store()
-
-#		_cfg.set('backend', 'logins', self.__cbox_to_list(self.usercombo))
-#		_cfg.set('backend', 'profiles', self.__cbox_to_list(self.profilecombo))
-#		_cfg.store()
-	#----------------------------
-	def __cbox_to_list(self, aComboBox):
-		"""returns all items in a combo box as list; the value of the text box as first item."""
-
-		# get the current items in the text box first
-		tmp = [ aComboBox.GetValue() ]
-		for idx in range(aComboBox.GetCount()):
-			s = aComboBox.GetString(idx)
-			# weed out duplicates and empty strings
-			if s not in [None, ''] and s not in tmp:
-				tmp.append(s)
-		return tmp
-
-#############################################################################
-# Retrieve current settings from user interface widgets
-#############################################################################
-
+	#############################################################################
+	# Retrieve current settings from user interface widgets
+	#############################################################################
 	def GetLoginInfo(self):
 		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
 		if not self.cancelled:
-			login = gmLoginInfo.LoginInfo(user=self.GetUser(), passwd=self.GetPassword(), host=self.GetHost())
-			login.SetDatabase(self.GetDatabase())
-			login.SetPort(self.GetPort())
+			# FIXME: do not assume conf file is latin1 !
+			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
+			login = gmLoginInfo.LoginInfo (
+				user = self._CBOX_user.GetValue(),
+				password = self.pwdentry.GetValue(),
+				host = profile.host,
+				database = profile.database,
+				port = profile.port
+			)
 			return login
-		else:
-			return None
 
-#############################################################################
-# Functions to get and set values in user interface widgets
-#############################################################################
-
-	def GetUser(self):
-		"""Get the selected user name from the text entry section of the user combo box"""
-		return self.usercombo.GetValue()
-
-	def SetUser(self, user):
-		"Set the selected user name from the text entry section of the user combo box"
-		self.usercombo.SetValue(user)
-
-	def GetPassword(self):
-		return self.pwdentry.GetValue()
-
-	def SetPassword(self, pwd):
-		self.pwdentry.SetValue(pwd)
-
-	def GetDatabase(self):
-		return self.loginparams.profiles[self.GetProfile()]['database']
-
-	def GetHost(self):
-		return self.loginparams.profiles[self.GetProfile()]['host']
-
-	def GetPort(self):
-		return self.loginparams.profiles[self.GetProfile()]['port']
-
-	def GetProfile(self):
-		# FIXME: do not assume conf file is latin1 !
-		return self.loginparams.profilelist[0].encode('latin1')
-		
+		return None
 	#----------------------------
 	# event handlers
 	#----------------------------
@@ -426,11 +385,11 @@ button HELP:
 For assistance on using GnuMed please contact:
  %s""") % tmp)
 
-	#----------------------------		
-	def OnLogin(self, event):
-		self.loginparams.profilelist=self.__cbox_to_list(self.profilecombo)
-		self.loginparams.userlist = self.__cbox_to_list(self.usercombo)
-		self.loginparams.password = self.GetPassword()
+	#----------------------------
+	def __on_login_button_pressed(self, event):
+		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
+#		self.user = self._CBOX_user.GetValue().strip()
+#		self.password = self.GetPassword()
 		self.cancelled = False
 		self.parent.Close()
 	#----------------------------
@@ -462,8 +421,6 @@ class LoginDialog(wx.Dialog):
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 
-
-
 #====================================================
 # main
 #----------------------------------------------------
@@ -489,7 +446,16 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.75  2007-02-17 14:13:11  ncq
+# Revision 1.76  2007-03-08 11:46:23  ncq
+# - restructured
+#   - cleanup
+#   - no more cLoginParamChoices
+#   - no more loginparams keyword
+#   - properly set user preferences file
+#   - backend profile now can contain per-profile default encoding
+#   - support system-wide profile pre-defs in /etc/gnumed/gnumed-client.conf
+#
+# Revision 1.75  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.74  2007/01/30 17:40:22  ncq
