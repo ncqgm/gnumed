@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.53 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmEMRStructWidgets.py,v 1.54 2007-03-08 11:39:13 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -360,19 +360,46 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""select pk_episode, description, 1 from clin.v_pat_episodes where
+u"""
+select * from (
+	(select
+		pk_episode,
+		case when health_issue is Null
+			then description
+			else description || ' - ' || health_issue
+		end as description,
+		1 as weight
+	 from
+	  	clin.v_pat_episodes
+	 where
 		episode_open is true and
 		description %(fragment_condition)s and
-		%(ctxt_pat)s""",
-u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes where
+		%(ctxt_pat)s
+	) union all (
+	 select
+		pk_episode,
+		case when health_issue is Null
+			then description || _(' (closed)')
+			else description || _(' (closed)') || ' - ' || health_issue
+		end as description,
+		1 as weight
+	 from
+		clin.v_pat_episodes
+	 where
 		description %(fragment_condition)s and
-		%(ctxt_pat)s"""
-			],
+		episode_open is false and
+		%(ctxt_pat)s
+	)) as union_result
+order by weight, description
+limit 30"""
+],
 			context = ctxt
 		)
 
-		try: kwargs['patient_id']
-		except KeyError: kwargs['patient_id'] = None
+		try:
+			kwargs['patient_id']
+		except KeyError:
+			kwargs['patient_id'] = None
 
 		if kwargs['patient_id'] is None:
 			self.use_current_patient = True
@@ -382,7 +409,8 @@ u"""select pk_episode, description || _(' (closed)'), 1 from clin.v_pat_episodes
 				mp.set_context('pat', pat.ID)
 		else:
 			self.use_current_patient = False
-			mp.set_context('pat', int(kwargs['patient_id']))
+			self.__patient_id = int(kwargs['patient_id'])
+			mp.set_context('pat', self.__patient_id)
 
 		del kwargs['patient_id']
 
@@ -858,7 +886,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 				return False
 			pat = gmPerson.gmCurrentPatient()
 			success, self.__issue = gmEMRStructItems.create_health_issue (
-				patient_id = pat.get_id(),
+				patient_id = pat.ID,
 				description = desc
 			)
 		else:
@@ -1629,17 +1657,18 @@ if __name__ == '__main__':
 		dlg = cEpisodeEditAreaDlg(parent=app.frame, id=-1, size = (400,400), episode=epi)
 		dlg.ShowModal()
 		return
+	#----------------------------------------------------------------
+	def test_episode_episode_selection_prw():
+		app = wx.PyWidgetTester(size = (400, 40))
+		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+#		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(350,20), pos=(10,20), patient_id=pat.ID)
+		app.MainLoop()
+		return
 	#================================================================
 #	import sys
 
-#	_cfg = gmCfg.gmDefCfgFile	 
-#	if _cfg is None:
-#		_log.Log(gmLog.lErr, "Cannot run without config file.")
-#		sys.exit("Cannot run without config file.")
-
 #	try:
 #		# make sure we have a db connection
-#		gmPG2.set_default_client_encoding('UNICODE')
 
 #		# obtain patient
 #		patient = gmPerson.ask_for_patient()
@@ -1663,7 +1692,6 @@ if __name__ == '__main__':
 #		# but re-raise them
 #		raise
 
-#	_log.Log (gmLog.lInfo, "closing notes input...")
 
 	# obtain patient
 	pat = gmPerson.ask_for_patient()
@@ -1675,7 +1703,9 @@ if __name__ == '__main__':
 	#test_encounter_edit_area_panel()
 	#test_encounter_edit_area_dialog()
 	#test_epsiode_edit_area_pnl()
-	test_episode_edit_area_dialog()
+	#test_episode_edit_area_dialog()
+	test_episode_episode_selection_prw()
+
 
 #	app = wx.PyWidgetTester(size = (200, 300))
 #	dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
@@ -1683,12 +1713,19 @@ if __name__ == '__main__':
 
 #	app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
 #	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
-#	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20), patient_id=pat.getID())
 #	app.MainLoop()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.53  2007-02-22 17:41:13  ncq
+# Revision 1.54  2007-03-08 11:39:13  ncq
+# - cEpisodeSelectionPhraseWheel
+# 	- limit 30
+# 	- order by weight, description
+# 	- show both open and closed
+# 	- include health issue string
+# 	- test suite
+#
+# Revision 1.53  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.52  2007/02/17 14:13:11  ncq
