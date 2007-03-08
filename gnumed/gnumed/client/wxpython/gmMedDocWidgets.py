@@ -2,15 +2,15 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.116 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmMedDocWidgets.py,v 1.117 2007-03-08 16:21:11 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp, gmTools
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
@@ -209,18 +209,19 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui_data(self):
+		# FIXME: fix this
 		# associated episode (add " " to avoid popping up pick list)
 		self._PhWheel_episode.SetText('%s ' % self.__part['episode'], self.__part['pk_episode'])
 		self._PhWheel_doc_type.SetText(value = self.__part['l10n_type'], data = self.__part['pk_type'])
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
-		self._PRW_doc_comment.SetText(self.__part['doc_comment'])
+		self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
 		self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
-		if self.__part['ext_ref'] is not None:
-			self._TCTRL_reference.SetValue(self.__part['ext_ref'])
+		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__part['ext_ref'], ''))
+		self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
 
 		self._LCTRL_existing_reviews.InsertColumn(0, _('who'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
@@ -353,6 +354,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 					self.__part['pk_intended_reviewer'] = provider['pk_staff']
 
 			# FIXME: if msg is not None
+
+		self.__part['filename'] = self._TCTRL_filename.GetValue().strip()
 
 		success, data = self.__part.save_payload()
 		if not success:
@@ -917,12 +920,6 @@ class cDocTree(wx.TreeCtrl):
 		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
 
-#		 wx.EVT_TREE_ITEM_EXPANDED	 (self, tID, self.OnItemExpanded)
-#		 wx.EVT_TREE_ITEM_COLLAPSED (self, tID, self.OnItemCollapsed)
-#		 wx.EVT_TREE_SEL_CHANGED	 (self, tID, self.OnSelChanged)
-#		 wx.EVT_TREE_BEGIN_LABEL_EDIT(self, tID, self.OnBeginEdit)
-#		 wx.EVT_TREE_END_LABEL_EDIT (self, tID, self.OnEndEdit)
-
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 	#--------------------------------------------------------
 	def __populate_tree(self):
@@ -1012,10 +1009,7 @@ class cDocTree(wx.TreeCtrl):
 
 				pg = _('page %2s') % part['seq_idx']
 
-				if part['obj_comment'] is None:
-					cmt = _("no comment available")
-				else:
-					cmt = part['obj_comment']
+				cmt = gmTools.coalesce(part['obj_comment'], _("no comment available"))
 
 				if part['size'] == 0:
 					sz = _('0 bytes - data missing ?')
@@ -1381,7 +1375,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.116  2007-02-22 17:41:13  ncq
+# Revision 1.117  2007-03-08 16:21:11  ncq
+# - support blobs.doc_obj.filename
+#
+# Revision 1.116  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.115  2007/02/17 18:28:33  ncq

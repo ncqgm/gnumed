@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.89 2007-01-10 22:27:53 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmMedDoc.py,v 1.90 2007-03-08 16:17:47 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -142,7 +142,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		u"""update blobs.doc_obj set
 				seq_idx=%(seq_idx)s,
 				comment=%(obj_comment)s,
-				fk_intended_reviewer=%(pk_intended_reviewer)s
+				fk_intended_reviewer=%(pk_intended_reviewer)s,
+				filename=%(filename)s
 			where
 				pk=%(pk_obj)s and
 				xmin=%(xmin_doc_obj)s""",
@@ -151,7 +152,8 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'seq_idx',
 		'obj_comment',
-		'pk_intended_reviewer'
+		'pk_intended_reviewer',
+		'filename'
 	]
 	#--------------------------------------------------------
 	def __del__(self):
@@ -478,10 +480,9 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 				return (False, msg, filename)
 			new_parts.append(new_part)
 
-			if reviewer is None:
-				continue
+			new_part['filename'] = filename
+			new_part['pk_intended_reviewer'] = reviewer			# None == Null
 
-			new_part['pk_intended_reviewer'] = reviewer
 			success, data = new_part.save_payload()
 			if not success:
 				msg = 'cannot set reviewer to [%s]' % reviewer
@@ -495,8 +496,10 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		fnames = []
 		for part in self.get_parts():
 			# FIXME: add guess_extension_from_mimetype
-			# FIXME: use original_filename from archive
-			fname = u'%s%s%s_%s' % (part['l10n_type'], gmTools.coalesce(part['ext_ref'], '-', '-%s-'), _('part'), part['seq_idx'])
+			fname = gmTools.coalesce (
+				part['filename'],
+				u'%s%s%s_%s' % (part['l10n_type'], gmTools.coalesce(part['ext_ref'], '-', '-%s-'), _('part'), part['seq_idx'])
+			)
 			if export_dir is not None:
 				fname = os.path.join(export_dir, fname)
 			fnames.append(part.export_to_file(aChunkSize = chunksize, filename = fname))
@@ -726,7 +729,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.89  2007-01-10 22:27:53  ncq
+# Revision 1.90  2007-03-08 16:17:47  ncq
+# - support blobs.doc_obj.filename
+#
+# Revision 1.89  2007/01/10 22:27:53  ncq
 # - return a list of filenames from export_parts_to_files()
 #
 # Revision 1.88  2007/01/07 23:01:26  ncq
