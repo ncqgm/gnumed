@@ -6,13 +6,13 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.30 2006-12-15 15:27:01 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmLogin.py,v 1.31 2007-03-08 11:41:55 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "H.Herb"
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2
+from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2, gmCLI
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
 
 try:
@@ -86,12 +86,15 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			user = login.user,
 			password = login.password
 		)
-		try:
-			gmPG2.get_connection(dsn=dsn, verbose=True)
-			gmPG2.set_default_login(login=login)
 
-			if gmPG2.database_schema_compatible(version = expected_version):
-				dlg.panel.save_settings()
+		try:
+			# try getting a connection to verify the DSN works
+			gmPG2.get_raw_connection(dsn = dsn, verbose = True)
+			gmPG2.set_default_login(login = login)
+			gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
+
+			if (gmPG2.database_schema_compatible(version = expected_version)) or gmCLI.has_arg('--override-schema-check'):
+				dlg.panel.save_state()
 			else:
 				connected_db_version = gmPG2.get_schema_version()
 				msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
@@ -132,7 +135,11 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.30  2006-12-15 15:27:01  ncq
+# Revision 1.31  2007-03-08 11:41:55  ncq
+# - set default client encoding from here
+# - save state when --override-schema-check == True, too
+#
+# Revision 1.30  2006/12/15 15:27:01  ncq
 # - move database schema version check here
 #
 # Revision 1.29  2006/10/25 07:46:44  ncq
