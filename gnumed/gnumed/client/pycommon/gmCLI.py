@@ -13,7 +13,7 @@ the module level global dictionary _cli_args{}.
 Your module should import gmCLI and query for existence of
 one-letter arguments like this:
 
-if gmGLI.has_arg("-v"):
+if gmCLI.has_arg("-v"):
 	do_something_verbosely()
 else:
 	be_rather_quiet()
@@ -43,7 +43,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string, re
@@ -166,7 +166,10 @@ else:
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.2  2004-05-11 08:09:19  ncq
+# Revision 1.3  2007-03-08 16:19:30  ncq
+# - typo and cleanup
+#
+# Revision 1.2  2004/05/11 08:09:19  ncq
 # - alias _cli_args.has_key() to gmCLI.hasarg(), too
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq

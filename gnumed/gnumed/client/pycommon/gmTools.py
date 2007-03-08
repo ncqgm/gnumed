@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.17 2007-02-17 13:58:11 ncq Exp $
+# $Id: gmTools.py,v 1.18 2007-03-08 16:19:30 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -34,7 +34,6 @@ ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 	CAPS_NAMES,					# CAP in a way suitable for names (tries to be smart)
 	CAPS_FIRST_ONLY				# CAP first char, lowercase the rest
 ) = range(6)
-
 #===========================================================================
 def mkdir(directory=None):
 	try:
@@ -369,14 +368,17 @@ if __name__ == '__main__':
 
 	#test_str2interval()
 	test_coalesce()
-#	test_capitalize()
+	#test_capitalize()
 	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.17  2007-02-17 13:58:11  ncq
+# Revision 1.18  2007-03-08 16:19:30  ncq
+# - typo and cleanup
+#
+# Revision 1.17  2007/02/17 13:58:11  ncq
 # - improved coalesce()
 #
 # Revision 1.16  2007/02/04 16:43:01  ncq
