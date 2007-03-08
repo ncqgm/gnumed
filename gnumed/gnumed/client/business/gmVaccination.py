@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.34 2007-02-22 17:27:44 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmVaccination.py,v 1.35 2007-03-08 11:31:08 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -535,7 +535,6 @@ if __name__ == '__main__':
 		print '\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg)
 	#--------------------------------------------------------
 
-	gmPG.set_default_client_encoding('latin1')
 	test_vaccination_course()
 	#test_put_patient_on_schedule()
 	test_scheduled_vacc()
@@ -544,7 +543,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.34  2007-02-22 17:27:44  ncq
+# Revision 1.35  2007-03-08 11:31:08  ncq
+# - just cleanup
+#
+# Revision 1.34  2007/02/22 17:27:44  ncq
 # - no more cPerson
 #
 # Revision 1.33  2006/11/24 14:15:36  ncq

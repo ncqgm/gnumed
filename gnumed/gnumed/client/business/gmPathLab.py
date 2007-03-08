@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.54 2007-01-09 12:56:18 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmPathLab.py,v 1.55 2007-03-08 11:31:08 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -346,7 +346,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.54 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.55 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -433,7 +433,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.54 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.55 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -678,7 +678,6 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
-	gmPG.set_default_client_encoding('latin1')
 
 	test_result()
 	test_request()
@@ -689,7 +688,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.54  2007-01-09 12:56:18  ncq
+# Revision 1.55  2007-03-08 11:31:08  ncq
+# - just cleanup
+#
+# Revision 1.54  2007/01/09 12:56:18  ncq
 # - comment
 #
 # Revision 1.53  2006/10/25 07:17:40  ncq
