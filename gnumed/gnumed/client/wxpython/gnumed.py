@@ -43,8 +43,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.108 2007-02-22 17:38:09 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gnumed.py,v 1.109 2007-03-08 11:54:18 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -188,9 +188,6 @@ def setup_pathes():
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
-
-	user_preferences_file = os.path.expanduser(os.path.join('~', '.gnumed', 'user-preferences.conf'))
-	open(user_preferences_file, 'a+b').close()
 #==========================================================
 def setup_date_time():
 	from Gnumed.pycommon import gmDateTime
@@ -475,7 +472,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.108  2007-02-22 17:38:09  ncq
+# Revision 1.109  2007-03-08 11:54:18  ncq
+# - no more ~/.gnumed/user-preferences.conf
+#
+# Revision 1.108  2007/02/22 17:38:09  ncq
 # - add gnumed/export/xDT/
 #
 # Revision 1.107  2007/01/30 17:50:14  ncq
