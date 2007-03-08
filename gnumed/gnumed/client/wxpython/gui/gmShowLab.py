@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 			# set up database connectivity
 			auth_data = gmLoginInfo.LoginInfo(
 				user = _cfg.get('database', 'user'),
-				passwd = _cfg.get('database', 'password'),
+				password = _cfg.get('database', 'password'),
 				host = _cfg.get('database', 'host'),
 				port = _cfg.get('database', 'port'),
 				database = _cfg.get('database', 'database')
@@ -231,7 +231,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.21  2007-01-21 12:22:02  ncq
+# Revision 1.22  2007-03-08 11:54:44  ncq
+# - cleanup
+#
+# Revision 1.21  2007/01/21 12:22:02  ncq
 # - comment on search_dict -> dto
 #
 # Revision 1.20  2006/10/25 07:23:30  ncq

@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.91 2007-03-02 15:39:13 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmSOAPWidgets.py,v 1.92 2007-03-08 11:53:59 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -908,7 +908,6 @@ if __name__ == "__main__":
 	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG2
-	gmPG2.set_default_client_encoding('UNICODE')
 	#--------------------------------------------------------
 	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
 		"""
@@ -1063,7 +1062,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.91  2007-03-02 15:39:13  ncq
+# Revision 1.92  2007-03-08 11:53:59  ncq
+# - cleanup
+#
+# Revision 1.91  2007/03/02 15:39:13  ncq
 # - properly refresh widgets
 #
 # Revision 1.90  2007/02/17 14:02:11  ncq

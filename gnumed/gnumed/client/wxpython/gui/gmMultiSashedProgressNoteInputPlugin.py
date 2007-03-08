@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -65,7 +65,6 @@ if __name__ == "__main__":
 
     try:
         # make sure we have a db connection
-        gmPG.set_default_client_encoding('latin1')
         pool = gmPG.ConnectionPool()
         
         # obtain patient
@@ -102,7 +101,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.9  2006-10-25 07:23:30  ncq
+# Revision 1.10  2007-03-08 11:54:44  ncq
+# - cleanup
+#
+# Revision 1.9  2006/10/25 07:23:30  ncq
 # - no gmPG no more
 #
 # Revision 1.8  2006/05/04 09:49:20  ncq
