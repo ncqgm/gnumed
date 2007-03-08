@@ -15,37 +15,37 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.9 2007-02-06 12:08:39 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmLoginInfo.py,v 1.10 2007-03-08 11:36:45 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
-
-# FIXME: convert to use cBorg
 
 #====================================================================
 class LoginInfo:
 	"""a class to encapsulate Postgres login information to default database"""
 
 	# private variables
-	user = 'gm-dbo'
-	password = ''
-	host = ''
-	port = 5432
-	database = 'gnumed_v5'
-	__profile = 'default'
+#	user = ''
+#	password = ''
+#	host = ''
+#	port = 5432
+#	database = ''
 	#------------------------------------------
-	def __init__(self, user, passwd, host, port=5432, database='gnumed_v5', profile='default'):
-		self.SetInfo(user, passwd, host, port, database, profile)
+	def __init__(self, user=None, password=None, host=None, port=5432, database=None):
+		self.user = user
+		self.password = password
+		self.host = host
+		self.port = port
+		self.database = database
 	#------------------------------------------
-	def SetInfo(self, user, passwd, host='', port=5432, dbname='gnumed_v5', profile='default'):
-		self.SetUser(user)
-		self.SetPassword(passwd)
-		self.SetHost(host)
-		self.SetPort(port)
-		self.SetDatabase(dbname)
-		# user profile to allow for different connection configurations
-		self.SetProfile(profile)
+	def _get_port(self):
+		return self.__port
+
+	def _set_port(self, value):
+		self.__port = int(value)
+
+	port = property(_get_port, _set_port)
 	#------------------------------------------
 	def GetInfo(self):
 		return (
@@ -127,15 +127,6 @@ class LoginInfo:
 	def GetUser(self):
 		return self.user
 	#------------------------------------------
-	def SetPassword(self, passwd):
-		self.password = passwd
-	#------------------------------------------
-	def GetPassword(self):
-		return self.password
-	#------------------------------------------
-	def GetPasswordHash(self):
-		return sha.new(self.password).digest()
-	#------------------------------------------
 	def SetDatabase(self, dbname):
 		self.database = dbname
 	#------------------------------------------
@@ -181,7 +172,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.9  2007-02-06 12:08:39  ncq
+# Revision 1.10  2007-03-08 11:36:45  ncq
+# - starting to simplify
+#
+# Revision 1.9  2007/02/06 12:08:39  ncq
 # - upgrade to gnumed_v5
 #
 # Revision 1.8  2006/10/08 15:10:51  ncq
