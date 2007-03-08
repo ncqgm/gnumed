@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.310 2007-03-02 15:40:42 ncq Exp $
-__version__ = "$Revision: 1.310 $"
+# $Id: gmGuiMain.py,v 1.311 2007-03-08 11:40:38 ncq Exp $
+__version__ = "$Revision: 1.311 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -67,12 +67,6 @@ email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
-
-
-# set up database connection encoding
-encoding = _cfg.get('backend', 'encoding')
-if encoding is not None:
-	gmPG2.set_default_client_encoding(encoding)
 
 
 # set up database connection timezone
@@ -1004,7 +998,19 @@ class gmApp(wx.App):
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
-		self.user_preferences_file = os.path.expanduser(os.path.join('~', '.gnumed', 'user-preferences.conf'))
+
+		if gmCLI.has_arg('--conf-file'):
+			fname = gmGLI.arg['--conf-file']
+		else:
+			std_pathes = wx.StandardPaths.Get()
+			try:
+				fname = os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf')
+				open(fname)
+			except IOError:
+				fname = os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+				open(fname)
+
+		self.user_preferences_file = fname
 
 		self.__setup_platform()
 
@@ -1255,7 +1261,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.310  2007-03-02 15:40:42  ncq
+# Revision 1.311  2007-03-08 11:40:38  ncq
+# - setting client encoding now done directly from login function
+# - user preferences file now gnumed.conf again
+#
+# Revision 1.310  2007/03/02 15:40:42  ncq
 # - make ourselves a listener for gmSignals.statustext()
 # - decode() strftime() output to u''
 #
