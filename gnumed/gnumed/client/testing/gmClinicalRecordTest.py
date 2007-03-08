@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.12 2006-10-25 07:19:29 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmClinicalRecordTest.py,v 1.13 2007-03-08 11:37:52 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -278,8 +278,6 @@ def suite():
 #------------------------------------------------------------
 # Make this test module runnable from the command prompt
 def main():
-	gmPG.set_default_client_encoding('latin1')
-
 	runner = unittest.TextTestRunner()
 	runner.run(suite())
 
@@ -295,7 +293,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.12  2006-10-25 07:19:29  ncq
+# Revision 1.13  2007-03-08 11:37:52  ncq
+# - cleanup
+#
+# Revision 1.12  2006/10/25 07:19:29  ncq
 # - no more gmPG
 #
 # Revision 1.11  2006/07/19 20:27:03  ncq
