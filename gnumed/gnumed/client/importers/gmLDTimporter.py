@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.30 2007-01-21 12:21:16 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmLDTimporter.py,v 1.31 2007-03-08 11:36:15 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -777,7 +777,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.30 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.31 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -932,7 +932,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.30 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.31 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -947,7 +947,7 @@ if __name__ == '__main__':
 	# setup login defs
 	auth_data = gmLoginInfo.LoginInfo(
 		user = _cfg.get('database', 'user'),
-		passwd = _cfg.get('database', 'password'),
+		password = _cfg.get('database', 'password'),
 		host = _cfg.get('database', 'host'),
 		port = _cfg.get('database', 'port'),
 		database = _cfg.get('database', 'database')
@@ -966,7 +966,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.30  2007-01-21 12:21:16  ncq
+# Revision 1.31  2007-03-08 11:36:15  ncq
+# - adjust to gmLoginInfo
+#
+# Revision 1.30  2007/01/21 12:21:16  ncq
 # - comment on search_dict -> dto
 #
 # Revision 1.29  2006/11/20 15:57:32  ncq
