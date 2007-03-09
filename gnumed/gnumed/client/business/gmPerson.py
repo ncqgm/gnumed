@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.109 2007-03-01 14:02:09 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmPerson.py,v 1.110 2007-03-09 16:57:12 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -229,11 +229,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
-	def get_external_ids(self, id_type=None):
-#		cmd = 
-		pass
+	def get_external_ids(self, id_type=None, issuer=None):
+		return []
 	#--------------------------------------------------------
-	def export_as_gdt(self, filename=None, version=u'2.10', encoding='iso-8859-15'):
+	def export_as_gdt(self, filename=None, encoding='iso-8859-15'):
 
 		template = u'%s%s%s\r\n'
 
@@ -245,12 +244,17 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		file.write(template % (u'013', u'8000', u'6301'))
-		file.write(template % (u'%03d' % (9 + len(version)), u'9218', version))
-#		file.write(template % (u'%03d' % (9 + len()), u'3000', nummer))			# APW-Nummer
+		file.write(template % (u'013', u'9218', u'2.10'))
+		APW_ids = self.get_external_ids(id_type='APW Patient ID', issuer='this practice')
+		if len(APW_ids) > 0:
+			APW_id = APW_ids[0]['value']
+			file.write(template % (u'%03d' % (9 + len(APW_id)), u'3000', APW_id))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['lastnames']])), u'3101', self._payload[self._idx['lastnames']]))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['firstnames']])), u'3102', self._payload[self._idx['firstnames']]))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), u'3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
 		file.write(template % (u'010', u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
+		file.write(template % (u'025', u'6330', 'GNUmed::encoding'))
+		file.write(template % (u'%03d' % (9 + len(encoding)), u'6331', encoding))
 
 		file.close()
 	#--------------------------------------------------------
@@ -1845,7 +1849,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.109  2007-03-01 14:02:09  ncq
+# Revision 1.110  2007-03-09 16:57:12  ncq
+# - prepare export_as_gdt() for use of pending-completion get_external_ids()
+#
+# Revision 1.109  2007/03/01 14:02:09  ncq
 # - support line length in export_as_gdt()  :-(
 #
 # Revision 1.108  2007/02/22 22:38:56  ncq
