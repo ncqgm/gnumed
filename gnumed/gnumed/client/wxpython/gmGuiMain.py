@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.312 2007-03-08 16:20:28 ncq Exp $
-__version__ = "$Revision: 1.312 $"
+# $Id: gmGuiMain.py,v 1.313 2007-03-09 16:58:13 ncq Exp $
+__version__ = "$Revision: 1.313 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -798,7 +798,7 @@ Search results:
 		curr_pat = gmPerson.gmCurrentPatient()
 		# FIXME: configurable
 		enc = 'cp850'
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient-%s.gdt' % enc))
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmGuiHelpers.gm_statustext(_('Exported demographics to GDT file [%s].') % fname)
 	#----------------------------------------------
@@ -1261,7 +1261,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.312  2007-03-08 16:20:28  ncq
+# Revision 1.313  2007-03-09 16:58:13  ncq
+# - do not include encoding in GDT file name anymore, we now put it into the file itself
+#
+# Revision 1.312  2007/03/08 16:20:28  ncq
 # - typo fix
 #
 # Revision 1.311  2007/03/08 11:40:38  ncq
