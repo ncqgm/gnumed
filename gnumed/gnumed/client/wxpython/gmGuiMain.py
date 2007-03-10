@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.313 2007-03-09 16:58:13 ncq Exp $
-__version__ = "$Revision: 1.313 $"
+# $Id: gmGuiMain.py,v 1.314 2007-03-10 15:15:18 ncq Exp $
+__version__ = "$Revision: 1.314 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -571,16 +571,19 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_dicom_viewer(self, evt):
 		# FIXME: scan CD for *.dcm files, put them into list and let
 		# FIXME: user call viewer for each
+		# FIXME: parse DICOMDIR file
 		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
-		webbrowser.open(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks', new = False, autoraise = True)
-#		gmShellAPI.run_command_in_shell('firefox http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks')
+		webbrowser.open (
+			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'],
+			new = False,
+			autoraise = True
+		)
 	#----------------------------------------------
 	def __on_ifap(self, evt):
 		jump_to_ifap()
-		evt.Skip()
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
@@ -1261,7 +1264,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.313  2007-03-09 16:58:13  ncq
+# Revision 1.314  2007-03-10 15:15:18  ncq
+# - anchor medical content links based on locale
+#
+# Revision 1.313  2007/03/09 16:58:13  ncq
 # - do not include encoding in GDT file name anymore, we now put it into the file itself
 #
 # Revision 1.312  2007/03/08 16:20:28  ncq
