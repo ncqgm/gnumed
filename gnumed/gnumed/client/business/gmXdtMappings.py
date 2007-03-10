@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.38 2007-02-21 10:29:43 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmXdtMappings.py,v 1.39 2007-03-10 15:13:05 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -181,12 +181,10 @@ xdt_id_map = {
 	'3209':'Wohnort des Hauptversicherten',
 	#Geschlecht des Hauptversicherten -- nur bei header 0190 --
 	'3210':'Geschlecht des Hauptversicherten',
-	#Röntgennummer -- nur bei header 6100 --
-	'3601':'Röntgennummer',
-	#Archivnummer -- nur bei header 6100 --
-	 '3602':'Archivnummer',
-	#BG-Nummer -- nur bei header 6100 --
-	'3603':'BG-Nummer',
+	'3600': 'Patientennummer (alter BDT ?, beobachtet bei Medistar)',
+	'3601': 'Röntgennummer',
+	'3602': 'Archivnummer',
+	'3603': 'BG-Nummer',
 	#Datum Patient seit -- nur bei header 6100 --
 	'3610':'Datum Patient seit',
 	#Datum Versichertenbeginn bei Kassenwechsel -- nur bei header 6100 --
@@ -552,25 +550,19 @@ xdt_id_map = {
 	'6315':'Schlusssatz',
 	#Telefonnummer -- nur bei header 6200 --
 	'6316':'Telefonnummer',
-	#Telefax -- nur bei header 6200 --
-	'6317':'Telefax',
-	#Arztnummer/Arztident -- nur bei header 6200 --
-	'6319':'Arztnummer/Arztident',
-	#Briefinhalt -- nur bei header 6200 --
-	'6320':'Briefinhalt',
-	#Bild-Archivierungsnummer -- nur bei header 6200 --
-	'6325':'Bild-Archivierungsnummer',
-	#Graphikformat -- nur bei header 6200 --
-	'6326':'Graphikformat',
-	#Bildinhalt -- nur bei header 6200 --
-	'6327':'Bildinhalt',
-	#Name der ersten freien Kategorie -- nur bei header 6200 --
-	'6330':'Name der ersten freien Kategorie',
-	#Inhalt der ersten freien Kategorie -- nur bei header 6200 --
-	'6331':'Inhalt der ersten freien Kategorie',
+	'6317': 'Telefax',
+	'6319': 'Arztnummer/Arztident',
+	'6320': 'Briefinhalt',
+
+	'6325': 'Bild-Archivierungsnummer',
+	'6326': 'Graphikformat',
+	'6327': 'Bildinhalt',
+
+	# 63xx und 63xx+1 each belong together in pairs up to 6398/99
+	'6330': 'freie Kategorie 1: Name',
+	'6331': 'freie Kategorie 1: Inhalt',
 
 	#--------------------------------------------------------
-	# more free categories
 	# Satzidentifikation
 	'8000':'Satzidentifikation >>===============',
 	# Satzlänge
@@ -1399,7 +1391,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.38  2007-02-21 10:29:43  ncq
+# Revision 1.39  2007-03-10 15:13:05  ncq
+# - improved mappings, added code 3600
+#
+# Revision 1.38  2007/02/21 10:29:43  ncq
 # - map_gender_gm2xdt
 #
 # Revision 1.37  2007/01/21 15:13:46  ncq
