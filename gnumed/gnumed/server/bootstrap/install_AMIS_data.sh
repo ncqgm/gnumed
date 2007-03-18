@@ -6,8 +6,8 @@
 # the database. The result will be piped through psql. 
 
 SQL_DIR=../sql
-MODULES_DIR=../../client/python-common/
-GNUMED_DB=gnumed
+MODULES_DIR=../../client/pycommon/
+GNUMED_DB=gnumed_v5
 
 read -p "Please enter path to amis-data:" AMIS_DIR;
 echo "You may have to type in the password for gm-dbo."
@@ -24,7 +24,10 @@ echo "You will have to login to the GnuMed database to write these data."
 env PYTHONPATH=$MODULES_DIR $MODULES_DIR/tools/transferDBset.py -i ./amis-config.set
 
 # $Log: install_AMIS_data.sh,v $
-# Revision 1.5  2005-01-12 14:47:49  ncq
+# Revision 1.6  2007-03-18 23:50:13  ncq
+# - some fixes by Ruthard Baudach
+#
+# Revision 1.5  2005/01/12 14:47:49  ncq
 # - in DB speak the database owner is customarily called dbo, hence use that
 #
 # Revision 1.4  2004/07/19 11:50:43  ncq
