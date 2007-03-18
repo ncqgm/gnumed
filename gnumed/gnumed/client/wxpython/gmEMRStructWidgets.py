@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.54 2007-03-08 11:39:13 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmEMRStructWidgets.py,v 1.55 2007-03-18 14:05:31 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -882,7 +882,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		if self.__issue is None:
 			if not can_create:
-				gmGuiHelpers.gm_statustext(_('Creating new health issue not allowed.'))
+				gmDispatcher.send(signal=gmSignals.statustext, msg=_('Creating new health issue not allowed.'))
 				return False
 			pat = gmPerson.gmCurrentPatient()
 			success, self.__issue = gmEMRStructItems.create_health_issue (
@@ -943,8 +943,6 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 			self._BTN_clear.SetLabel(_('Restore'))
 
 		self._PNL_edit_area.refresh(issue = issue)
-
-		self.Refresh()		# needed ?
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_edit_area.save():
@@ -955,573 +953,12 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
 		self._PNL_edit_area.refresh()
-#============================================================
-# unchecked older widgtets
-#============================================================
-class cEpisodeSelectorDlg(wx.Dialog):
-	"""
-	Pop up a episode picker dialog. Returns dialog_OK if an episode was
-	selected, dialog_CANCELLED else.
-	With get_selected_episode() the selected episode can be requested.
-	"""
-	def __init__(
-					self,
-					parent,
-					id,
-					caption = _('Episode selector'),					
-					msg = '',
-					action_txt = _('UNDEFINED action'),					
-					pk_health_issue = None,
-				 	pos = wx.DefaultPosition,
-				 	size = wx.DefaultSize,
-				 	style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
-				 ):
-		"""
-		Instantiate a new episode selector dialog.
-		
-		@param title Selector dialog descritive title
-		@type title string
-	
-		@param action_txt Bottom action button display text
-		@type action_txt string	
-		 
-		@param pk_health_issue Id of the health issue to select the episode for
-		@type pk_health_issue integer
-		"""
-		# build ui
-		wx.Dialog.__init__(self, parent, id, caption, pos, size, style)
-		self.__episode_picker = cEpisodePicker(self, -1, msg, action_txt, pk_health_issue)
-		self.Fit()
-		# event handling
-		wx.EVT_CLOSE(self, self.__on_close)
-	#--------------------------------------------------------
-	def get_selected_episode(self):
-		"""
-		Retrieve the selected episode
-		"""
-		return self.__episode_picker.get_selected_episode()
-	#--------------------------------------------------------
-	def __on_close(self, evt):
-		"""
-		Configure appropiate *dialog* return value when the user clicks the
-		window system's closer (usually X)
-		"""
-		self.EndModal(dialog_CANCELLED)
-#============================================================
-class cEpisodePicker(wx.Panel):
-	"""
-	This widget allows the selection and addition of episodes.
-	
-	On top: there is an adequate editor for each of the fields of
-	the edited episodes, along action buttons.
-	Below: a table displays the existing episodes (date, description, open).	
-	On bottom: close button
-
-	At startup, the table is populated with existing episodes. By pressing
-	the add button, sanity checks are performed, the new episode is created,
-	is set as selected episode and the dialog is closed.
-	An episode in the list can be selected (and the dialog closes) by either:
-	double clicking the episode; or selecting the episode and pressing the 
-	bottom button.	
-	
-	With get_selected_episode() the selected episode can be requested.
-	"""
-	def __init__(self, parent, id, msg, action_txt, pk_health_issue):
-		"""
-		Instantiate a new episode selector widget.
-		
-		@param action_txt Bottom action button display text
-		@type action_txt string	
-		 
-		@param pk_health_issue Id of the health issue to select the episode for
-		@type pk_health_issue integer		
-		"""
-		# parent class initialization
-		wx.Panel.__init__ (
-			self,
-			parent = parent,
-			id = id,
-			pos = wx.DefaultPosition,
-			size = wx.DefaultSize,
-			style = wx.NO_BORDER
-		)
-
-		# edited episodes' issue's PK
-		self.__pk_health_issue = pk_health_issue
-		self.__pat = gmPerson.gmCurrentPatient()
-		# patient episodes
-		self.__episodes = None
-		# selected episode
-		self.__selected_episode = None
-		
-		# ui contruction and event handling set up
-		self.__do_layout(msg, action_txt)
-		self.__register_interests()
-		
-		self.__refresh_episode_list()
-
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __do_layout(self, msg, action_txt):
-		"""
-		Arrange widgets.
-
-		@param action_txt Bottom action button display text
-		@type action_txt string			
-		"""
-		# instantiate and initialize widgets
-	
-		# status info
-		self.__STT_status = wx.StaticText(self, -1, msg)
-		
-		# - episode editor
-		self.__STT_description = wx.StaticText(self, -1, _('Description'))
-		
-		# FIXME: configure, attach matcher (Karsten)
-		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-
-		# - buttons
-		action_msg = _('Create a new episode and %s') % action_txt
-		self.__BTN_add = wx.Button(self, -1, action_msg)
-		self.__BTN_cancel = wx.Button(self, -1, _('Cancel'))
-
-		# layout input
-		szr_actions = wx.BoxSizer(wx.HORIZONTAL)
-		szr_actions.Add(self.__BTN_add, 0, wx.SHAPED)
-		szr_actions.Add(self.__BTN_cancel, 0, wx.SHAPED | wx.ALIGN_RIGHT)
-		
-		szr_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
-		szr_input.AddGrowableCol(1)		
-		szr_input.Add(self.__STT_description, 0, wx.SHAPED)
-		szr_input.Add(self.__PRW_description, 1, wx.EXPAND)
-#		szr_input.AddSpacer(0,0)
-		szr_input.Add(szr_actions, 0, wx.ALIGN_CENTER | wx.TOP, border = 4)
-		# - episodes list and new note for selected episode button
-		self.__LST_episodes = wx.ListCtrl(
-			self,
-			-1,
-			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_SINGLE_SEL
-		)
-		self.__LST_episodes.InsertColumn(0, _('Last renamed'))
-		self.__LST_episodes.InsertColumn(1, _('Description'), wx.LIST_FORMAT_RIGHT)
-		self.__LST_episodes.InsertColumn(2, _('Is open'))
-		# FIXME: dynamic calculation
-		self.__LST_episodes.SetColumnWidth(0, 100)
-		self.__LST_episodes.SetColumnWidth(1, 230)
-		self.__LST_episodes.SetColumnWidth(2, 70)
-		action_msg = _('Select and episode and %s') % action_txt
-		self.__BTN_action = wx.Button(self, -1, action_msg)
-		szr_list = wx.StaticBoxSizer (
-			wx.StaticBox(self, -1, _('Episode list')),
-			wx.VERTICAL
-		)
-		szr_list.Add(self.__LST_episodes, 1, wx.EXPAND | wx.TOP, border=4)
-		szr_list.Add(self.__BTN_action, 0, wx.SHAPED | wx.ALIGN_CENTER, border=4)
-		szr_list.SetItemMinSize(self.__LST_episodes, 1, 100)
-		
-		# layout sizers
-		szr_main = wx.BoxSizer(wx.VERTICAL)
-		szr_main.Add(self.__STT_status, 0, flag=wx.SHAPED | wx.ALIGN_LEFT | wx.TOP, border=4)
-		szr_main.Add(szr_input, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, border=4)
-		szr_main.Add(szr_list, 2, wx.EXPAND)		
-
-		self.SetSizerAndFit(szr_main)
-	#--------------------------------------------------------
-	def __refresh_episode_list(self):
-		"""Update the table of episodes.
-		"""
-		self.__selected_episode = None
-		self.__LST_episodes.DeleteAllItems()
-		self.__BTN_action.Enable(False)
-
-		# populate table and cache episode list
-
-		
-		emr = self.__pat.get_emr()
-		
-
-	        issues = emr.get_health_issues()
-	        issue_map = {}
-		for issue in issues:
-			issue_map[issue['pk']] = issue['description']
-
-		
-		episodes = emr.get_episodes()
-		self.__episodes = {}
-
-		for idx in range(len(episodes)):
-			epi = episodes[idx]
-			# FIXME: this is NOT the proper date to show !
-			self.__LST_episodes.InsertStringItem(idx,  str(epi['episode_modified_when']))
-			self.__LST_episodes.SetStringItem(idx, 1, issue_map.get(epi['pk_health_issue'],'')+ ':' + epi['description'])
-			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
-			self.__episodes[idx] = epi
-			self.__LST_episodes.SetItemData(idx, idx)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		"""Configure enabled event signals.
-		"""
-		# wxPython events
-		wx.EVT_LIST_ITEM_ACTIVATED(self, self.__LST_episodes.GetId(), self.__on_episode_activated)
-		wx.EVT_LIST_ITEM_SELECTED(self, self.__LST_episodes.GetId(), self.__on_episode_selected)
-		wx.EVT_BUTTON(self.__BTN_cancel, self.__BTN_cancel.GetId(), self.__on_cancel)
-		wx.EVT_BUTTON(self.__BTN_add, self.__BTN_add.GetId(), self.__on_add)
-		wx.EVT_BUTTON(self.__BTN_action, self.__BTN_action.GetId(), self.__on_action)
-		
-	#--------------------------------------------------------
-	def __on_action(self, event):
-		"""
-		When the user press bottom action button for a selected episode.
-		Close the dialog returning OK.
-		"""
-		self.GetParent().EndModal(dialog_OK)
-		event.Skip()
-				
-	#--------------------------------------------------------
-	def __on_episode_selected(self, event):
-		"""
-		When the user selects an episode on the table (by single clicking over one row).
-		Update selected episode and if necessary, enable bottom action button.
-		"""
-		sel_idx = self.__LST_episodes.GetItemData(event.m_itemIndex)
-		self.__selected_episode = self.__episodes[sel_idx]
-		print 'Selected episode ID [%s]' % self.__selected_episode['pk_episode']
-		if not self.__BTN_action.IsEnabled():
-			self.__BTN_action.Enable(True)
-		event.Skip()
-				
-	#--------------------------------------------------------
-	def __on_episode_activated(self, event):
-		"""
-		When the user activates an episode on the table (by double clicking or
-		pressing enter).
-		Update selected episode and close the dialog returning OK.
-		"""
-		sel_idx = self.__LST_episodes.GetItemData(event.m_itemIndex)
-		self.__selected_episode = self.__episodes[sel_idx]
-		self.GetParent().EndModal(dialog_OK)
-		event.Skip()
-		
-	#--------------------------------------------------------
-	def __on_cancel(self, event):
-		"""
-		Cancel episode picking.
-		Set selected episode to None and close the dialog returning CANCELLED
-		"""
-		self.__selected_episode = None
-		self.GetParent().EndModal(dialog_CANCELLED)
-		event.Skip()
-		
-	#--------------------------------------------------------
-	def __on_add(self, event):
-		"""
-		Add a new episode to backend and return OK
-		"""
-		description = self.__PRW_description.GetValue()
-
-		if (description is None or description.strip() == ''):
-			msg = _('Cannot create episode.\nAll required fields must be filled.')
-			gmGuiHelpers.gm_show_error(msg, _('episode picker'), gmLog.lErr)
-			_log.Log(gmLog.lErr, 'invalid description [%s]' % description)
-			return False
-
-		print 'Creating episode: %s' % self.__PRW_description.GetValue()
-		self.__selected_episode = self.__pat.get_emr().add_episode (
-			episode_name = self.__PRW_description.GetValue(),
-			pk_health_issue = self.__pk_health_issue
-		)
-		print self.__selected_episode
-		self.GetParent().EndModal(dialog_OK)
-		event.Skip()
-	#--------------------------------------------------------
-	# Public API
-	#--------------------------------------------------------	
-	def get_selected_episode(self):
-		"""
-		Retrieve the selected episode.
-		"""
-		return self.__selected_episode
-
-#============================================================
-class cEpisodeEditorDlg(wx.Dialog):
-	"""
-	Pop up an episode editor dialog.
-	Return CANCELLED by pressing close button or window closer (X).
-	"""
-	def __init__(
-					self,
-					parent,
-					id,
-					title = _('Episode editor'),
-					pk_health_issue=None,
-				 	pos = wx.DefaultPosition,
-				 	size = wx.DefaultSize,
-				 	style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
-				 ):
-		"""
-		Instantiate a new episode editor dialog.
-		
-		@param title Selector dialog descritive title
-		@type title string
-			 
-		@param pk_health_issue Id of the health issue to select the episode for
-		@type pk_health_issue integer
-		"""
-		# build ui
-		wx.Dialog.__init__(self, parent, id, title, pos, size, style)
-		self.__episode_picker = cEpisodeEditor(self, -1, pk_health_issue)
-		self.Fit()
-		# event handling
-		wx.EVT_CLOSE(self, self.__on_close)					
-			
-	#--------------------------------------------------------	
-	def __on_close(self, evt):
-		"""
-		Return appropiate value when the user clicks the
-		window system's closer (usually X)
-		"""
-		self.EndModal(dialog_CANCELLED)
-		
-#============================================================
-class cEpisodeEditor(wx.Panel):
-	"""
-	This widget allows the creation and addition of episodes.
-	
-	On top: there is an adequate editor for each of the fields of
-	the edited episodes.
-	On below: a table displays the existing episodes (date, description, open).	
-	On bottom: close button
-
-	At startup, the table is populated with existing episodes. Clear and add buttons
-	are displayed. By pressing the add button, after passing sanity checks, the
-	new episode is created and the list is refreshed from backend.
-	Editing an episode: by double clicking over an episode row in the table, 
-	the episode is set in the editor fields for the user to modify them.
-	Action buttons show 'Restore' and 'Update'  actions. On update, the editing
-	fields are cleaned and the contents of the table, refresed from backend.
-	"""
-	def __init__(self, parent, id, pk_health_issue):
-		"""
-		Instantiate a new episode editor widget.
-		
-		@param pk_health_issue Id of the health issue to create/edit the episodes for
-		@type pk_health_issue integer
-		"""
-		# parent class initialization
-		wx.Panel.__init__ (
-			self,
-			parent = parent,
-			id = id,
-			pos = wx.DefaultPosition,
-			size = wx.DefaultSize,
-			style = wx.NO_BORDER
-		)
-
-		# edited episodes' issue's PK
-		self.__pk_health_issue = pk_health_issue
-		self.__pat = gmPerson.gmCurrentPatient()
-		# patient episodes
-		self.__episodes = None
-		# selected episode
-		self.__selected_episode = None
-		
-		# ui contruction and event handling set up
-		self.__do_layout()
-		self.__register_interests()
-		
-		self.__refresh_episode_list()
-
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __do_layout(self):
-		"""Arrange widgets.
-		"""
-
-		# - episode editor
-		self.__STT_description = wx.StaticText(self, -1, _('Description'))
-		# FIXME: configure, attach matcher (Karsten)
-		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-		szr_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
-		szr_input.AddGrowableCol(1)
-		szr_input.Add(self.__STT_description, 0, wx.SHAPED | wx.ALIGN_CENTER)
-		# FIXME: avoid phrasewheel to grow vertically
-		szr_input.Add(self.__PRW_description, 1, wx.EXPAND)
-
-		# - buttons		
-		self.__BTN_add = wx.Button(self, -1, _('Add episode'))
-		self.__BTN_clear = wx.Button(self, -1, _('Clear'))		
-		szr_actions = wx.BoxSizer(wx.HORIZONTAL)
-		szr_actions.Add(self.__BTN_add, 0, wx.SHAPED)
-		szr_actions.Add(self.__BTN_clear, 0, wx.SHAPED | wx.ALIGN_RIGHT)
-
-		# instantiate and initialize widgets
-		# - episodes list
-		self.__LST_episodes = wx.ListCtrl(
-			self,
-			-1,
-			style = wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_SINGLE_SEL
-		)
-		self.__LST_episodes.InsertColumn(0, _('Start date'))
-		self.__LST_episodes.InsertColumn(1, _('Description'), wx.LIST_FORMAT_RIGHT)
-#		self.__LST_episodes.InsertColumn(2, _('Category'))
-		self.__LST_episodes.InsertColumn(2, _('Is open'))
-#		self.__LST_episodes.InsertColumn(3, _('Is open'))
-		self.__LST_episodes.SetColumnWidth(0, 100)
-		self.__LST_episodes.SetColumnWidth(1, 230)
-		self.__LST_episodes.SetColumnWidth(2, 70)
-#		self.__LST_episodes.SetColumnWidth(3, 70)
-		self.__BTN_close = wx.Button(self, -1, _('Close'))
-		szr_list = wx.StaticBoxSizer (
-			wx.StaticBox(self, -1, _('Episode list')),
-			wx.VERTICAL
-		)
-		szr_list.Add(self.__LST_episodes, 1, wx.EXPAND | wx.TOP, border=4)
-		szr_list.Add(self.__BTN_close, 0, wx.SHAPED | wx.ALIGN_CENTER)
-		
-		# arrange widgets
-#		# FIXME: can we not simply merge szr_editor and szr_main ?
-#		szr_editor = wx.StaticBoxSizer (
-#			wx.StaticBox(self, -1, _('Episode editor')),
-#			wx.VERTICAL
-#		)
-#		szr_editor.Add(szr_input, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, border=4)
-#		szr_editor.Add(szr_actions, 1, wx.ALIGN_CENTER | wx.TOP, border = 10)
-
-		szr_main = wx.BoxSizer(wx.VERTICAL)
-		szr_main.Add(szr_input, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, border=4)
-		szr_main.Add(szr_actions, 1, wx.ALIGN_CENTER | wx.TOP, border = 10)
-		szr_main.Add(szr_list, 2, wx.EXPAND)
-		
-#		szr_main.Add(szr_editor, 1, wx.EXPAND | wx.TOP, border=4)
-
-		self.SetSizerAndFit(szr_main)
-	#--------------------------------------------------------
-	def __refresh_episode_list(self):
-		"""Update the table of episodes.
-		"""
-		self.__selected_episode = None
-		self.__LST_episodes.DeleteAllItems()
-
-		# populate table and cache episode list
-		episodes = self.__pat.get_emr().get_episodes()
-		self.__episodes = {}
-		for idx in range(len(episodes)):
-			epi = episodes[idx]
-			# FIXME: this is NOT the proper date to show !
-			self.__LST_episodes.InsertStringItem(idx,  str(epi['episode_modified_when']))
-#			self.__LST_episodes.SetStringItem(idx, 0, str(epi['episode_modified_when']))
-			self.__LST_episodes.SetStringItem(idx, 1, epi['description'])
-			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
-			self.__episodes[idx] = epi
-			self.__LST_episodes.SetItemData(idx, idx)
-
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		"""Configure enabled event signals.
-		"""
-		# wxPython events
-		wx.EVT_LIST_ITEM_ACTIVATED(self, self.__LST_episodes.GetId(), self.__on_episode_activated)
-		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-		wx.EVT_BUTTON(self.__BTN_add, self.__BTN_add.GetId(), self.__on_add)
-		wx.EVT_BUTTON(self.__BTN_close, self.__BTN_close.GetId(), self.__on_close)
-		
-	#--------------------------------------------------------
-	def __on_close(self, event):
-		"""
-		Close episode editor, making the dialog returning CANCELLED
-		Set selected episode to None and close the dialog returning CANCELLED
-		"""
-		self.__selected_episode = None
-		self.GetParent().EndModal(dialog_CANCELLED)
-		event.Skip()
-				
-	#--------------------------------------------------------
-	def __on_episode_activated(self, event):
-		"""
-		When the user activates an episode on the table (by double clicking or
-		pressing enter).
-		The episode is selected. Editor fields are set with its values. Action
-		buttons display update/cancel options.
-		"""
-		sel_idx = self.__LST_episodes.GetItemData(event.m_itemIndex)
-		self.__selected_episode = self.__episodes[sel_idx]
-		print 'Selected episode: ', self.__selected_episode
-		self.__PRW_description.SetText(self.__selected_episode['description'])
-		self.__BTN_add.SetLabel(_('Update'))
-		self.__BTN_clear.SetLabel(_('Cancel'))
-		event.Skip()
-		
-	#--------------------------------------------------------
-	def __on_clear(self, event):
-		"""
-		On new episode: clear input fields
-		On episode edition: clear input fields and restores actions
-		buttons for a new episode.
-		"""
-		self.__PRW_description.Clear()
-		if not self.__selected_episode is None:
-			# on episode edition
-			self.__BTN_add.SetLabel(_('Add episode'))
-			self.__BTN_clear.SetLabel(_('Clear'))
-			self.__selected_episode = None
-		event.Skip()
-
-	#--------------------------------------------------------
-	def __on_add(self, event):
-		"""
-		On new episode: add episode to backend, clear input fields, refresh list
-		On episode edition: update episode in backend, clear input fields,
-		restore buttons for a new episode, refresh list
-		"""
-		description = self.__PRW_description.GetValue()
-
-		# sanity check
-		if self.__selected_episode is None:
-			action = 'create'
-		else:
-			action = 'update'
-		if (description is None or description.strip() == ''):
-			msg = _('Cannot %s episode.\nAll required fields must be filled.') % action
-			gmGuiHelpers.gm_show_error(msg, _('episode editor'), gmLog.lErr)
-			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s]' % description)
-			return False
-
-		if self.__selected_episode is None:
-			# on new episode
-			#self.__pat.get_emr().add_episode(episode_name= , pk_health_issue=self.__pk_health_issue)
-			print 'Creating episode: %s' % self.__PRW_description.GetValue()
-			# FIXME 
-			self.__selected_episode = self.__pat.get_emr().add_episode (
-				episode_name = self.__PRW_description.GetValue(),
-				pk_health_issue = self.__pk_health_issue
-			)			
-		else:
-			# on episode edition
-			#self.__selected_episode['description'] = self.__PRW_description.GetValue()
-			#self.__selected_episode.save_payload()
-			print 'Renaming episode: %s' % self.__selected_episode
-
-		# do clear stuff
-		self.__on_clear(event)
-		# refresh episode table
-		self.__refresh_episode_list()
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
 	_log.SetAllLogLevels(gmLog.lData)
-#	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
-
-#	ID_EPISODE_SELECTOR = wx.NewId()
-#	ID_EPISODE_EDITOR = wx.NewId()
-#	ID_EXIT = wx.NewId()
 	
 	#================================================================	
 	class testapp (wx.App):
@@ -1533,7 +970,7 @@ if __name__ == '__main__':
 				"""
 				Create test application UI
 				"""
-				frame = wx.Frame(
+				frame = wx.Frame (
 							None,
 							-4,
 							'Testing EMR struct widgets',
@@ -1541,23 +978,19 @@ if __name__ == '__main__':
 							style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE
 						)
 				filemenu= wx.Menu()
-				filemenu.Append(ID_EPISODE_SELECTOR, "&Test episode selector","Testing episode selector")
-				filemenu.Append(ID_EPISODE_EDITOR, "&Test episode editor","Testing episode editor")				
 				filemenu.AppendSeparator()
 				filemenu.Append(ID_EXIT,"E&xit"," Terminate test application")
-				# Creating the menubar.
-	
+
+				# Creating the menubar.	
 				menuBar = wx.MenuBar()
-				menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBa
+				menuBar.Append(filemenu,"&File")
 	
-				frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
+				frame.SetMenuBar(menuBar)
 	
 				txt = wx.StaticText( frame, -1, _("Select desired test option from the 'File' menu"),
 				wx.DefaultPosition, wx.DefaultSize, 0 )
 
 				# event handlers
-				wx.EVT_MENU(frame, ID_EPISODE_SELECTOR, self.OnEpisodeSelector)
-				wx.EVT_MENU(frame, ID_EPISODE_EDITOR, self.OnEpisodeEditor)
 				wx.EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
 
 				# patient EMR
@@ -1565,51 +998,6 @@ if __name__ == '__main__':
 
 				frame.Show(1)
 				return 1					
-				
-			#--------------------------------------------------------			
-			def OnEpisodeSelector(self,evt):
-				"""
-				Test episode selector dialog
-				"""
-				pk_issue = self.__pat.get_emr().get_health_issues()[0]['pk']
-				episode_selector = cEpisodeSelectorDlg(
-					None,
-					-1,
-					'Episode selector test',
-					'Info about current status of things',
-					_('start progress note'),
-					pk_health_issue = pk_issue
-				)
-				retval = episode_selector.ShowModal() # Shows it
-				
-				if retval == dialog_OK:
-					selected_episode = episode_selector.get_selected_episode()
-					print 'Creating progress note for episode: %s' % selected_episode
-				elif retval == dialog_CANCELLED:
-					print 'User canceled'
-				else:
-					raise Exception('Invalid dialog return code [%s]' % retval)
-				episode_selector.Destroy() # finally destroy it when finished.	
-				
-			#--------------------------------------------------------			
-			def OnEpisodeEditor(self,evt):
-				"""
-				Test episode editor dialog
-				"""
-				pk_issue = self.__pat.get_emr().get_health_issues()[0]['pk']
-				episode_selector = cEpisodeEditorDlg(None, -1,
-				'Episode editor test', pk_health_issue = pk_issue)
-				retval = episode_selector.ShowModal() # Shows it
-				
-				#if retval == dialog_OK:
-					#selected_episode = episode_selector.get_selected_episode()
-					#print 'Creating progress note for episode: %s' % selected_episode
-				if retval == dialog_CANCELLED:
-					print 'User closed episode editor'
-				else:
-					raise Exception('Invalid dialog return code [%s]' % retval)
-				episode_selector.Destroy() # finally destroy it when finished.
-				
 			#--------------------------------------------------------
 			def OnCloseWindow (self, e):
 				"""
@@ -1639,7 +1027,6 @@ if __name__ == '__main__':
 #		pnl = cEncounterEditAreaDlg(app.frame, -1, encounter=enc)
 #		app.frame.Show(True)
 #		app.MainLoop()
-		return
 	#----------------------------------------------------------------
 	def test_epsiode_edit_area_pnl():
 		app = wx.PyWidgetTester(size = (200, 300))
@@ -1648,7 +1035,6 @@ if __name__ == '__main__':
 		pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
 		app.frame.Show(True)
 		app.MainLoop()
-		return
 	#----------------------------------------------------------------
 	def test_episode_edit_area_dialog():
 		app = wx.PyWidgetTester(size = (200, 300))
@@ -1656,42 +1042,23 @@ if __name__ == '__main__':
 		epi = emr.get_episodes()[0]
 		dlg = cEpisodeEditAreaDlg(parent=app.frame, id=-1, size = (400,400), episode=epi)
 		dlg.ShowModal()
-		return
 	#----------------------------------------------------------------
-	def test_episode_episode_selection_prw():
+	def test_episode_selection_prw():
 		app = wx.PyWidgetTester(size = (400, 40))
 		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
 #		app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(350,20), pos=(10,20), patient_id=pat.ID)
 		app.MainLoop()
-		return
+	#----------------------------------------------------------------
+	def test_health_issue_edit_area_dlg():
+		app = wx.PyWidgetTester(size = (200, 300))
+		dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
+		dlg.ShowModal()
+	#----------------------------------------------------------------
+	def test_health_issue_edit_area_pnl():
+		app = wx.PyWidgetTester(size = (200, 300))
+		app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
+		app.MainLoop()
 	#================================================================
-#	import sys
-
-#	try:
-#		# make sure we have a db connection
-
-#		# obtain patient
-#		patient = gmPerson.ask_for_patient()
-#		if patient is None:
-#			print "No patient. Exiting gracefully..."
-#			sys.exit(0)
-#		gmPerson.set_active_patient(patient=patient)
-
-		# lauch emr dialogs test application
-#		app = testapp(0)
-#		app.MainLoop()
-				
-		# clean up
-#		if patient is not None:
-#			try:
-#				patient.cleanup()
-#			except:
-#				print "error cleaning up patient"
-#	except StandardError:
-#		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-#		# but re-raise them
-#		raise
-
 
 	# obtain patient
 	pat = gmPerson.ask_for_patient()
@@ -1700,24 +1067,31 @@ if __name__ == '__main__':
 		sys.exit(0)
 	gmPerson.set_active_patient(patient=pat)
 
+#	try:
+		# lauch emr dialogs test application
+#		app = testapp(0)
+#		app.MainLoop()
+#	except StandardError:
+#		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
+		# but re-raise them
+#		raise
+
 	#test_encounter_edit_area_panel()
 	#test_encounter_edit_area_dialog()
 	#test_epsiode_edit_area_pnl()
 	#test_episode_edit_area_dialog()
-	test_episode_episode_selection_prw()
-
-
-#	app = wx.PyWidgetTester(size = (200, 300))
-#	dlg = cHealthIssueEditAreaDlg(parent=None, id=-1, size = (400,400))
-#	dlg.ShowModal()
-
-#	app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
-#	app.SetWidget(cEpisodeSelectionPhraseWheel, id=-1, size=(180,20), pos=(10,20))
-#	app.MainLoop()
+	#test_health_issue_edit_area_dlg()
+	test_episode_selection_prw()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.54  2007-03-08 11:39:13  ncq
+# Revision 1.55  2007-03-18 14:05:31  ncq
+# - re-add lost 1.55
+#
+# Revision 1.55  2007/03/12 12:27:13  ncq
+# - convert some statustext calls to use signal handler
+#
+# Revision 1.54  2007/03/08 11:39:13  ncq
 # - cEpisodeSelectionPhraseWheel
 # 	- limit 30
 # 	- order by weight, description
