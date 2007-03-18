@@ -43,47 +43,43 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.109 2007-03-08 11:54:18 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gnumed.py,v 1.110 2007-03-18 14:11:34 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # standard library
-import sys, os, os.path, signal
+import sys, os, os.path, signal, warnings
 
-#==========================================================
-# don't run as module
+
+# 1) don't run as module
 if __name__ != "__main__":
 	print "GNUmed startup: This should not be imported as a module !"
 	print "---------------------------------------------------------"
 	print __doc__
 	sys.exit(0)
 
-#==========================================================
-# advise not to run as root
+
+# 2) advise not to run as root
 if os.name in ['posix'] and os.geteuid() == 0:
 	print """
 GNUmed startup: GNUmed should not be run as root.
 -------------------------------------------------
 
-Running GNUmed as root can potentially put all
+Running GNUmed as <root> can potentially put all
 your medical data at risk. It is strongly advised
 against. Please run GNUmed as a non-root user.
 """
 	sys.exit(1)
 
-#==========================================================
+
 # Python 2.3 on Mandrake turns True/False deprecation warnings
 # into exceptions, so revert them to warnings again
-try:
-	import warnings
-	warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
-	warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
-except:
-	pass
+warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
+warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
 
-#==========================================================
+
 _log = None
 _cfg = None
 _email_logger = None
@@ -91,6 +87,8 @@ gmLog = None
 _old_sig_hup = None
 _old_sig_term = None
 
+#==========================================================
+# convenience functions
 #==========================================================
 def handle_uncaught_exception(t, v, tb):
 
@@ -125,6 +123,7 @@ did run gnumed/check-prerequisites.sh with good results.
 If you still encounter errors after checking the above
 requirements please ask on the mailing list.
 """ % '\n '.join(sys.path)
+
 	try:
 		from Gnumed.pycommon import gmLog as _gmLog
 		from Gnumed.pycommon import gmCLI as _gmCLI
@@ -154,7 +153,7 @@ requirements please ask on the mailing list.
 	else:
 		_log.SetAllLogLevels(gmLog.lInfo)
 
-	# Console Is Good(tm)
+	# Console Is Good(tm) ...
 	# ... but only for Panics and important messages
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
 	_log.AddTarget(aLogTarget)
@@ -371,6 +370,32 @@ def get_base_dir():
 	print 'GNUmed startup: cases where setting GNUMED_DIR might help.'
 
 	return None
+#==========================================================
+def log_object_refcounts():
+	if not gmCLI.has_arg('--debug'):
+		return
+
+	import types
+
+	def get_refcounts():
+		refcount = {}
+		# collect all classes
+		for module in sys.modules.values():
+			for sym in dir(module):
+				obj = getattr(module, sym)
+				if type(obj) is types.ClassType:
+					refcount[obj] = sys.getrefcount(obj)
+		# sort by refcount
+		pairs = map(lambda x: (x[1],x[0]), refcount.items())
+		pairs.sort()
+		pairs.reverse()
+		return pairs
+
+	rcfile = open('./gm-refcount.lst', 'wb')
+#	for refcount, class_ in get_refcounts():
+#		if not class_.__name__.startswith('wx'):
+#			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
+	rcfile.close()
 
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
@@ -412,11 +437,13 @@ if resPath is None:
 _log.Log(gmLog.lData, "new-style resource path: %s" % resPath)
 
 # import more of our stuff
-from Gnumed.pycommon import gmI18N, gmGuiBroker
+from Gnumed.pycommon import gmI18N, gmGuiBroker, gmHooks
 
 gb = gmGuiBroker.GuiBroker()
 gb['gnumed_dir'] = appPath
 gb['resource dir'] = resPath
+
+gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
 # now actually run GNUmed
 try:
@@ -429,39 +456,18 @@ try:
 		profile.run('gmGuiMain.main()', profile_file)
 	else:
 		gmGuiMain.main()
-# and intercept almost all exceptions
+
 except StandardError:
-	exc = sys.exc_info()
-	_log.LogException ("Exception: Unhandled exception encountered.", exc, verbose=1)
+
+	_log.LogException ("Exception: Unhandled exception encountered.", verbose=1)
 	if gmCLI.has_arg('--talkback'):
 		import gmTalkback
 		gmTalkback.run(_email_logger)
-	# but reraise them ...
 	raise
 
-# do object refcounting
-if gmCLI.has_arg('--debug'):
-	import types
+gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
-	def get_refcounts():
-		refcount = {}
-		# collect all classes
-		for module in sys.modules.values():
-			for sym in dir(module):
-				obj = getattr(module, sym)
-				if type(obj) is types.ClassType:
-					refcount[obj] = sys.getrefcount(obj)
-		# sort by refcount
-		pairs = map(lambda x: (x[1],x[0]), refcount.items())
-		pairs.sort()
-		pairs.reverse()
-		return pairs
-
-	rcfile = open('./gm-refcount.lst', 'wb')
-#	for refcount, class_ in get_refcounts():
-#		if not class_.__name__.startswith('wx'):
-#			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
-	rcfile.close()
+log_object_refcounts()
 
 # do we do talkback ?
 if gmCLI.has_arg('--talkback'):
@@ -472,7 +478,11 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.109  2007-03-08 11:54:18  ncq
+# Revision 1.110  2007-03-18 14:11:34  ncq
+# - a bit of clenaup/refactoring
+# - add hooks before/after GUI
+#
+# Revision 1.109  2007/03/08 11:54:18  ncq
 # - no more ~/.gnumed/user-preferences.conf
 #
 # Revision 1.108  2007/02/22 17:38:09  ncq
