@@ -35,11 +35,11 @@ class wxgEpisodeEditAreaDlg(wx.Dialog):
         # begin wxGlade: wxgEpisodeEditAreaDlg.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._PNL_edit_area, 1, wx.ALL|wx.EXPAND, 2)
+        __szr_main.Add(self._PNL_edit_area, 1, wx.ALL|wx.EXPAND, 3)
         __szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_close, 0, wx.EXPAND, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.EXPAND, 0)
+        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 15)
         self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
         self.Layout()
