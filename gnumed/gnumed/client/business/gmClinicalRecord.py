@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.234 2007-03-02 15:29:33 ncq Exp $
-__version__ = "$Revision: 1.234 $"
+# $Id: gmClinicalRecord.py,v 1.235 2007-03-18 13:01:16 ncq Exp $
+__version__ = "$Revision: 1.235 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -31,7 +31,7 @@ __license__ = "GPL"
 import sys, string, time, copy, locale
 
 # 3rd party
-import mx.DateTime as mxDT
+import mx.DateTime as mxDT, psycopg2
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
@@ -86,6 +86,8 @@ select fk_encounter from
 		# FIXME: this should be configurable (for explanation see the method source)
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
+
+		self.ensure_has_allergic_state()
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -609,20 +611,15 @@ where
 			issues
 				- list of health issues whose allergies are to be retrieved
         """
-		try:
-			self.__db_cache['allergies']
-		except KeyError:
-			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
-			cmd = u"select * from clin.v_pat_allergies where pk_patient=%s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-			# Instantiate allergy items and keep cache
-			self.__db_cache['allergies'] = []
-			for r in rows:
-				self.__db_cache['allergies'].append(gmAllergy.cAllergy(row = {'data': r, 'idx': idx, 'pk_field': 'pk_allergy'}))
+		cmd = u"select * from clin.v_pat_allergies where pk_patient=%s order by descriptor"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
+		allergies = []
+		for r in rows:
+			allergies.append(gmAllergy.cAllergy(row = {'data': r, 'idx': idx, 'pk_field': 'pk_allergy'}))
 
 		# ok, let's constrain our list
 		filtered_allergies = []
-		filtered_allergies.extend(self.__db_cache['allergies'])
+		filtered_allergies.extend(allergies)
 		if ID_list is not None:
 			filtered_allergies = filter(lambda allg: allg['pk_allergy'] in ID_list, filtered_allergies)
 			if len(filtered_allergies) == 0:
@@ -649,19 +646,42 @@ where
 	def add_allergy(self, substance=None, allg_type=None, encounter_id=None, episode_id=None):
 		if encounter_id is None:
 			encounter_id = self.__encounter['pk_encounter']
-		status, data = gmAllergy.create_allergy(
-			substance=substance,
-			allg_type=allg_type,
-			encounter_id=encounter_id,
-			episode_id=episode_id
+
+		if episode_id is None:
+			issue = self.add_health_issue(issue_name = _('immune system disorder'))
+			epi = self.add_episode(episode_name = _('allergies'), pk_health_issue = issue['pk'])
+			episode_id = epi['pk_episode']
+
+		return gmAllergy.create_allergy (
+			substance = substance,
+			allg_type = allg_type,
+			encounter_id = encounter_id,
+			episode_id = episode_id
 		)
-		if not status:
-			_log.Log(gmLog.lErr, str(data))
-			return None
-		return data
 	#--------------------------------------------------------
-	def set_allergic_state(self, status=None):
-		pass
+	def delete_allergy(self, pk_allergy=None):
+		cmd = u'delete from clin.allergy where id=%(pk_allg)s'
+		args = {'pk_allg': pk_allergy}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def ensure_has_allergic_state(self):
+		cmd = u'insert into clin.allergy_state (fk_patient, has_allergy) values (%(pat)s, %(state)s)'
+		args = {'pat': self.pk_patient, 'state': None}
+		try:
+			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		except psycopg2.IntegrityError:
+			pass		# ignore, row seems to exist already
+		return True
+	#--------------------------------------------------------
+	def set_allergic_state(self, state='must define allergy state'):
+		if state not in [None, -1, 0, 1]:
+			raise ValueError('[%s].set_allergic_state(): <state> must be one of [None, -1, 0, 1]')
+
+		args = {'pat': self.pk_patient, 'state': state}
+		cmd = u'update clin.allergy_state set has_allergy = %(state)s where fk_patient = %(pat)s'
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		return True
 	#--------------------------------------------------------
 	# episodes API
 	#--------------------------------------------------------
@@ -880,11 +900,6 @@ where
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
-		# FIXME: use constraints to get*
-#		issues = self.get_health_issues()
-#		for issue in issues:
-#			if issue['description'] == issue_name:
-#				return issue
 		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=issue_name)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
@@ -1590,7 +1605,16 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.234  2007-03-02 15:29:33  ncq
+# Revision 1.235  2007-03-18 13:01:16  ncq
+# - re-add lost 1.235
+# - add ensure_has_allergic_state()
+# - remove allergies cache
+# - add delete_allergy()
+#
+# Revision 1.235  2007/03/12 12:23:54  ncq
+# - create_allergy() now throws exceptions so deal with that
+#
+# Revision 1.234  2007/03/02 15:29:33  ncq
 # - need to decode() strftime() output to u''
 #
 # Revision 1.233  2007/02/19 14:06:56  ncq
