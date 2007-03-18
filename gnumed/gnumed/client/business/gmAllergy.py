@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.23 2006-10-28 15:02:24 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmAllergy.py,v 1.24 2007-03-18 12:54:39 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -51,6 +51,15 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		'definite',
 		'reaction'
 	]
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if attribute == 'pk_type':
+			if value in ['allergy', 'sensitivity']:
+				cmd = u'select id from clin._enum_allergy_type where value=%s'
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [value]}])
+				value = rows[0][0]
+
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -68,17 +77,27 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	cmd = u"""
 		select pk_patient from clin.v_pat_episodes where pk_episode=%s
 			union
-		select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
+		select fk_patient from clin.encounter where pk=%s"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [episode_id, encounter_id]}])
+
 	if len(rows) == 0:
-		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
-		return (None, _('internal error, check log'))
+		raise ValueError('error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
+
 	if len(rows) > 1:
-		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
-		return (None, _('consistency error, check log'))
+		raise ValueError('episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
+
 	pat_id = rows[0][0]
+
+	cmd = u'select pk_allergy from clin.v_pat_allergies where pk_patient=%(pat)s and substance=%(substance)s'
+	args = {'pat': pat_id, 'substance': substance}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if len(rows) > 0:
+		# don't implicitely change existing data
+		return cAllergy(aPK_obj = rows[0][0])
+
 	# insert new allergy
 	queries = []
+
 	if type(allg_type) == types.IntType:
 		cmd = u"""
 			insert into clin.allergy (id_type, fk_encounter, fk_episode, substance)
@@ -87,19 +106,15 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 		cmd = u"""
 			insert into clin.allergy (id_type, fk_encounter, fk_episode,  substance)
 			values ((select id from clin._enum_allergy_type where value=%s), %s, %s, %s)"""
-		allg_type = str(allg_type)
 	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, substance]})
-	# set patient has_allergy status
-	cmd = u"delete from clin.allergy_state where fk_patient=%s"
-	queries.append({'cmd': cmd, 'args': [pat_id]})
-	cmd = u"insert into clin.allergy_state (fk_patient, has_allergy) values (%s, 1)"
-	queries.append({'cmd': cmd, 'args': [pat_id]})
-	# get PK of inserted row
+
 	cmd = u"select currval('clin.allergy_id_seq')"
 	queries.append({'cmd': cmd})
+
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
 	allergy = cAllergy(aPK_obj = rows[0][0])
-	return (True, allergy)
+
+	return allergy
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -128,7 +143,13 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.23  2006-10-28 15:02:24  ncq
+# Revision 1.24  2007-03-18 12:54:39  ncq
+# - allow string and integer for setting pk_type on allergy
+#
+# Revision 1.24  2007/03/12 12:23:23  ncq
+# - error handling now more exception centric
+#
+# Revision 1.23  2006/10/28 15:02:24  ncq
 # - remove superfluous xmin_allergy
 #
 # Revision 1.22  2006/10/08 14:27:52  ncq
