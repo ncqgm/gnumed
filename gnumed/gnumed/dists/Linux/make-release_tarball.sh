@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.27 2007-02-19 16:45:45 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.28 2007-03-18 14:12:40 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="0.2.next"
@@ -27,8 +27,9 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffMgrPanel.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffV01.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgRequest.py "\
+"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgDoubleListSplitterPnl.py "\
+"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgDataMiningPnl.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmAU_VaccV01.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gmAllergyWidgets.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmBMIWidgets.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmCharacterValidator.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmCryptoText.py "\
@@ -285,7 +286,10 @@ rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.27  2007-02-19 16:45:45  ncq
+# Revision 1.28  2007-03-18 14:12:40  ncq
+# - exclude some as-yet unused wxGlade widgets
+#
+# Revision 1.27  2007/02/19 16:45:45  ncq
 # - include hook_script_example.py
 #
 # Revision 1.26  2007/02/17 14:02:36  ncq
