@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.51 2007-03-02 15:32:56 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmGuiHelpers.py,v 1.52 2007-03-18 14:07:14 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -29,58 +29,6 @@ from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
-# ========================================================================
-def run_hook_script(hook=None, script=None):
-
-	# NOTE: this just *might* be a huge security hole
-
-	if hook is None:
-		raise ValueError('run_hook_script(): <hook> cannot be <None>')
-
-	if script is None:
-		raise ValueError('run_hook_script(): <script> cannot be <None>')
-
-	if script.strip() == u'':
-		return True
-
-	script_path = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
-	full_script = os.path.join(script_path, script_name)
-
-	_log.Log(gmLog.lData, 'trying to run script [%s] off hook [%s]' % (full_script, hook))
-
-	if os.path.islink(full_script):
-		gmDispatcher.send (
-			gmSignals.statustext(),
-			msg = _('Script to run after activating patient must not be a link: [%s].') % full_script
-		)
-		return False
-
-	stat_val = os.stat(full_script)
-#	if stat_val.st_mode != 384:				# octal 0600
-	if stat_val.st_mode != 33152:			# octal 100600
-		gmDispatcher.send (
-			gmSignals.statustext(),
-			msg = _('Script to run after activating patient must have permissions "0600": [%s].') % full_script
-		)
-		return False
-
-	if not os.access(full_script, os.R_OK):
-		gmDispatcher.send (
-			gmSignals.statustext(),
-			msg = _('Script to run after activating patient must be owned by the calling user: [%s].') % full_script
-		)
-		return False
-
-	module = gmTools.import_module_from_directory(script_path, script_name)
-	try:
-		module.run_script(hook = hook)
-	except:
-		_log.LogException('running script [%s] hooked to [%s] failed' % (full_script, hook))
-		return False
-
-	_log.Log(gmLog.lData, 'ran [%s] off hook [%s]' % (full_script, hook))
-
-	return True
 # ========================================================================
 class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
@@ -517,7 +465,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.51  2007-03-02 15:32:56  ncq
+# Revision 1.52  2007-03-18 14:07:14  ncq
+# - factor out hook script running
+#
+# Revision 1.51  2007/03/02 15:32:56  ncq
 # - turn gm_statustext() into signal sender with depreciation
 #   warning (should used gmDispatcher.send() now)
 #
