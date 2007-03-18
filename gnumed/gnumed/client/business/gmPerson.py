@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.111 2007-03-10 15:12:06 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmPerson.py,v 1.112 2007-03-18 13:04:42 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -232,7 +232,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	def get_external_ids(self, id_type=None, issuer=None):
 		return []
 	#--------------------------------------------------------
-	def export_as_gdt(self, filename=None, encoding='iso-8859-15'):
+	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
 		template = u'%s%s%s\r\n'
 
@@ -245,17 +245,27 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 
 		file.write(template % (u'013', u'8000', u'6301'))
 		file.write(template % (u'013', u'9218', u'2.10'))
-		APW_ids = self.get_external_ids(id_type='APW Patient ID', issuer='this practice')
-		APW_ids = [{'value': '101071445'}]
-		if len(APW_ids) > 0:
-			APW_id = u'APW-ID::%s' % APW_ids[0]['value']
-			file.write(template % (u'%03d' % (9 + len(APW_id)), u'3000', APW_id))
+		external_id_type = 'APW Patient ID'
+		if external_id_type is None:
+			file.write(template % (u'%03d' % (9 + len(str(self.ID))), u'3000', self.ID))
+		else:
+			ext_ids = self.get_external_ids(id_type=external_id_type, issuer='this practice')
+			ext_ids = [{'value': u'101071445'}]
+			if len(ext_ids) > 0:
+				file.write(template % (u'%03d' % (9 + len(ext_ids[0]['value'])), u'3000', ext_ids[0]['value']))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['lastnames']])), u'3101', self._payload[self._idx['lastnames']]))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['firstnames']])), u'3102', self._payload[self._idx['firstnames']]))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), u'3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
 		file.write(template % (u'010', u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
 		file.write(template % (u'025', u'6330', 'GNUmed::encoding'))
 		file.write(template % (u'%03d' % (9 + len(encoding)), u'6331', encoding))
+		if external_id_type is None:
+			file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
+			file.write(template % (u'017', u'6333', u'internal'))
+		else:
+			if len(ext_ids) > 0:
+				file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
+				file.write(template % (u'%03d' % (9 + len(external_id_type)), u'6333', external_id_type))
 
 		file.close()
 	#--------------------------------------------------------
@@ -1850,7 +1860,13 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.111  2007-03-10 15:12:06  ncq
+# Revision 1.112  2007-03-18 13:04:42  ncq
+# - re-add lost 1.112
+#
+# Revision 1.112  2007/03/12 13:29:17  ncq
+# - add patient ID source in a smarter way
+#
+# Revision 1.111  2007/03/10 15:12:06  ncq
 # - export a dummy APW ID into the GDT file for demonstration
 #
 # Revision 1.110  2007/03/09 16:57:12  ncq
