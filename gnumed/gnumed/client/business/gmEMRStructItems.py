@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.94 $"
+__version__ = "$Revision: 1.95 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -368,21 +368,22 @@ def create_health_issue(patient_id=None, description=None):
 	patient_id - given patient PK
 	description - health issue name
 	"""
-	# already there ?
 	try:
 		h_issue = cHealthIssue(patient_id=patient_id, name=description)
 		return (True, h_issue)
 	except gmExceptions.ConstructorError:
-		_log.Log(gmLog.lData, 'health issue does not yet exist')
-	# insert new health issue
+		pass
+
 	queries = []
 	cmd = u"insert into clin.health_issue (fk_patient, description) values (%s, %s)"
 	queries.append({'cmd': cmd, 'args': [patient_id, description]})
-	# get PK of inserted row
+
 	cmd = u"select currval('clin.health_issue_pk_seq')"
 	queries.append({'cmd': cmd})
+
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
 	h_issue = cHealthIssue(aPK_obj = rows[0][0])
+
 	return (True, h_issue)
 #-----------------------------------------------------------
 def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False):
@@ -543,7 +544,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.94  2007-01-09 18:01:32  ncq
+# Revision 1.95  2007-03-18 13:01:55  ncq
+# - a bit of cleanup
+#
+# Revision 1.94  2007/01/09 18:01:32  ncq
 # - let exceptions report errors
 #
 # Revision 1.93  2007/01/09 12:56:02  ncq
