@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.69 2007-03-02 15:31:45 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmEMRBrowser.py,v 1.70 2007-03-18 14:04:00 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmEditArea
+from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets
 from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl, wxgSplittedEMRTreeBrowserPnl
 
 _log = gmLog.gmDefLog
@@ -184,9 +184,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		
 		# - root node
 		self.__root_context_popup = wx.Menu()
+		# add health issue
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('create health issue')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
+		# add allergy
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('manage allergies')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
 		# print " attach issue to another patient"
 		# print " move all episodes to another issue"
 	#--------------------------------------------------------
@@ -225,6 +230,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		node_parent = self.GetItemParent(self.__curr_node)
 		owning_episode = self.GetPyData(node_parent)
 
+		# FIXME: use PRW
 		episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
 			None,
 			-1,
@@ -306,6 +312,12 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __create_issue(self, event):
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
 		if ea.ShowModal() == wx.ID_OK:
+			self.__populate_tree()
+		return
+	#--------------------------------------------------------
+	def __document_allergy(self, event):
+		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
+		if dlg.ShowModal() == wx.ID_OK:
 			self.__populate_tree()
 		return
 	#--------------------------------------------------------
@@ -536,7 +548,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.69  2007-03-02 15:31:45  ncq
+# Revision 1.70  2007-03-18 14:04:00  ncq
+# - add allergy handling to menu and root node of tree
+#
+# Revision 1.69  2007/03/02 15:31:45  ncq
 # - properly repopulation EMR tree and problem list :-)
 #
 # Revision 1.68  2007/02/22 17:41:13  ncq
