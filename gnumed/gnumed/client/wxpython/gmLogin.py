@@ -6,13 +6,13 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.31 2007-03-08 11:41:55 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmLogin.py,v 1.32 2007-03-18 14:10:07 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "H.Herb"
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2, gmCLI
+from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
 
 try:
@@ -93,9 +93,12 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			gmPG2.set_default_login(login = login)
 			gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
-			if (gmPG2.database_schema_compatible(version = expected_version)) or gmCLI.has_arg('--override-schema-check'):
+			compatible = gmPG2.database_schema_compatible(version = expected_version)
+
+			if compatible or not require_version:
 				dlg.panel.save_state()
-			else:
+
+			if not compatible:
 				connected_db_version = gmPG2.get_schema_version()
 				msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
 				if require_version:
@@ -135,7 +138,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.31  2007-03-08 11:41:55  ncq
+# Revision 1.32  2007-03-18 14:10:07  ncq
+# - do show schema mismatch warning even if --override-schema-check
+#
+# Revision 1.31  2007/03/08 11:41:55  ncq
 # - set default client encoding from here
 # - save state when --override-schema-check == True, too
 #
