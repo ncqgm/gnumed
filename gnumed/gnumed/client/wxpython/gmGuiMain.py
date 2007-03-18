@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.314 2007-03-10 15:15:18 ncq Exp $
-__version__ = "$Revision: 1.314 $"
+# $Id: gmGuiMain.py,v 1.315 2007-03-18 14:08:39 ncq Exp $
+__version__ = "$Revision: 1.315 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,8 +51,8 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord
 from Gnumed.exporters import gmPatientExporter
 
@@ -392,6 +392,14 @@ class gmTopLevelFrame(wx.Frame):
 			_('Select current medication from drug database and save into progress notes.')
 		)
 		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
+		# - add allergy
+		ID = wx.NewId()
+		menu_emr.Append (
+			ID,
+			_('manage &allergies'),
+			_('Manage documentation of allergies for the current patient.')
+		)
+		wx.EVT_MENU(self, ID, self.__on_manage_allergies)
 		# - draw a line
 		menu_emr.AppendSeparator()
 
@@ -496,9 +504,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_post_patient_selection(self, **kwargs):
 		self.updateTitle()
 		try:
-			self.__run_script_on_patient_activated()
+			gmHooks.run_hook_script(hook = u'post_patient_activation')
 		except:
-			gmGuiHelpers.gm_statustext(_('Cannot run script after patient activation.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot run script after patient activation.'))
 			raise
 	#----------------------------------------------
 	def _on_pre_patient_selection(self, **kwargs):
@@ -636,6 +644,15 @@ class gmTopLevelFrame(wx.Frame):
 		jump_to_ifap(import_drugs = True)
 
 		evt.Skip()
+	#----------------------------------------------
+	def __on_manage_allergies(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_statustext(_('Cannot add medication. No active patient.'))
+			return False
+		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
+#		dlg = gmAllergyWidgets.cAllergyEditAreaDlg(parent=self, id=-1)
+		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -852,6 +869,7 @@ Search results:
 		  regular shutdown should go in here
 		- framework still functional
 		"""
+		gmDispatcher.disconnect(self._on_set_statustext, gmSignals.statustext())
 		# signal imminent demise to plugins
 		gmDispatcher.send(gmSignals.application_closing())
 		# remember GUI size
@@ -895,20 +913,6 @@ Search results:
 		event.Skip()
 	#----------------------------------------------
 	# internal API
-	#----------------------------------------------
-	def __run_script_on_patient_activated(self):
-		dbcfg = gmCfg.cCfgSQL()
-		script_name = gmTools.coalesce (
-			dbcfg.get2 (
-				option = 'horstspace.hook_script',
-				workplace = _provider.workplace,
-				bias = 'user',
-				default = ''			# no script
-			), 
-			''
-		)
-		gmGuiHelpers.run_hook_script(hook = u'post_patient_activation', script = script_name)
-		return
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None):
 		"""Update title of main window based on template.
@@ -1264,7 +1268,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.314  2007-03-10 15:15:18  ncq
+# Revision 1.315  2007-03-18 14:08:39  ncq
+# - add allergy handling
+# - disconnect statustext handler on shutdown
+# - run_hook_script() now in gmHooks.py
+#
+# Revision 1.314  2007/03/10 15:15:18  ncq
 # - anchor medical content links based on locale
 #
 # Revision 1.313  2007/03/09 16:58:13  ncq
