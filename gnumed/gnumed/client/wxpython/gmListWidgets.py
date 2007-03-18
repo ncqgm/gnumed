@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.2 2006-12-11 20:50:45 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmListWidgets.py,v 1.3 2007-03-18 14:09:31 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -24,6 +24,23 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+	#------------------------------------------------------------
+	def set_columns(self, columns=None):
+		"""(Re)define the columns.
+
+		Note that this will (have to) delete the items.
+		"""
+		self.DeleteAllItems()
+		for idx in range(self.GetColumnCount()):
+			self.DeleteColumn(idx)
+		if columns is None:
+			return
+		for idx in range(len(columns)):
+			self.InsertColumn(idx, columns[idx])
+	#------------------------------------------------------------
+	def set_column_widths(self, widths=None):
+		for idx in range(len(widths)):
+			self.SetColumnWidth(col = idx, width = widths[idx])
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		"""<data must be a list corresponding to the item indices>"""
@@ -48,7 +65,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.2  2006-12-11 20:50:45  ncq
+# Revision 1.3  2007-03-18 14:09:31  ncq
+# - add set_columns() and set_column_widths()
+#
+# Revision 1.2  2006/12/11 20:50:45  ncq
 # - get_selected_item_data()
 # - deselect_selected_item()
 #
