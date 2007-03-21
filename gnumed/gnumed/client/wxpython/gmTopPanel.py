@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.77 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmTopPanel.py,v 1.78 2007-03-21 08:14:32 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -12,7 +12,7 @@ import sys, os.path
 import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI
-from Gnumed.business import gmPerson, gmEMRStructItems
+from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets
 
 _log = gmLog.gmDefLog
@@ -300,17 +300,16 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__update_allergies)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
-		epr = self.curr_pat.get_emr()
-		allergies = epr.get_allergies(remove_sensitivities=1)
-		if allergies is None:
-			self.txt_allergies.SetValue(_('error getting allergies'))
-			return False
+		emr = self.curr_pat.get_emr()
+		allergies = emr.get_allergies(remove_sensitivities=1)
 		if len(allergies) == 0:
-			self.txt_allergies.SetValue(_('no allergies recorded'))
+			self.txt_allergies.SetValue (
+				gmAllergy.allergic_state2str(state = emr.allergic_state)
+			)
 			return True
 		tmp = []
 		for allergy in allergies:
-			tmp.append(allergy['descriptor'])
+			tmp.append(allergy['descriptor'][:6])
 		data = ','.join(tmp)
 		self.txt_allergies.SetValue(data)
 	#-------------------------------------------------------
@@ -406,7 +405,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.77  2007-02-22 17:41:13  ncq
+# Revision 1.78  2007-03-21 08:14:32  ncq
+# - use proper no-allergies string
+#
+# Revision 1.77  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.76  2006/11/05 16:04:45  ncq
