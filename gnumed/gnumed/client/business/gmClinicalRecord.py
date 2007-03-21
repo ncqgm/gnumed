@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.235 2007-03-18 13:01:16 ncq Exp $
-__version__ = "$Revision: 1.235 $"
+# $Id: gmClinicalRecord.py,v 1.236 2007-03-21 08:12:14 ncq Exp $
+__version__ = "$Revision: 1.236 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -30,9 +30,13 @@ __license__ = "GPL"
 # standard libs
 import sys, string, time, copy, locale
 
+
 # 3rd party
 import mx.DateTime as mxDT, psycopg2
 
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N, gmCfg, gmTools
 from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
@@ -43,10 +47,8 @@ _me = None
 
 _func_ask_user = None
 #============================================================
-class cClinicalRecord:
+class cClinicalRecord(object):
 
-	# handlers for __getitem__()
-	_get_handler = {}
 	_clin_root_item_children_union_query = None
 
 	def __init__(self, aPKey = None):
@@ -268,17 +270,6 @@ where
 	vn4s.narrative ~ %s"""		# case sensitive
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, search_term]}])
 		return rows
-	#--------------------------------------------------------
-	# __getitem__ handling
-	#--------------------------------------------------------
-	def __getitem__(self, aVar = None):
-		"""Return any attribute if known how to retrieve it.
-		"""
-		try:
-			return cClinicalRecord._get_handler[aVar](self)
-		except KeyError:
-			_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
-			return None
 	#--------------------------------------------------------
 	def get_text_dump_old(self):
 		# don't know how to invalidate this by means of
@@ -652,17 +643,22 @@ where
 			epi = self.add_episode(episode_name = _('allergies'), pk_health_issue = issue['pk'])
 			episode_id = epi['pk_episode']
 
-		return gmAllergy.create_allergy (
+		new_allergy = gmAllergy.create_allergy (
 			substance = substance,
 			allg_type = allg_type,
 			encounter_id = encounter_id,
 			episode_id = episode_id
 		)
+
+		gmDispatcher.send(signal = gmSignals.allergy_updated())
+
+		return new_allergy
 	#--------------------------------------------------------
 	def delete_allergy(self, pk_allergy=None):
-		cmd = u'delete from clin.allergy where id=%(pk_allg)s'
+		cmd = u'delete from clin.allergy where pk=%(pk_allg)s'
 		args = {'pk_allg': pk_allergy}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmDispatcher.send(signal = gmSignals.allergy_updated())
 	#--------------------------------------------------------
 	def ensure_has_allergic_state(self):
 		cmd = u'insert into clin.allergy_state (fk_patient, has_allergy) values (%(pat)s, %(state)s)'
@@ -673,15 +669,22 @@ where
 			pass		# ignore, row seems to exist already
 		return True
 	#--------------------------------------------------------
-	def set_allergic_state(self, state='must define allergy state'):
-		if state not in [None, -1, 0, 1]:
-			raise ValueError('[%s].set_allergic_state(): <state> must be one of [None, -1, 0, 1]')
-
-		args = {'pat': self.pk_patient, 'state': state}
+	def _set_allergic_state(self, state):
+		if state not in gmAllergy.allergic_states:
+			raise ValueError('[%s].__set_allergic_state(): <state> must be one of %s' % (self.__class__.__name__, gmAllergy.allergic_states))
 		cmd = u'update clin.allergy_state set has_allergy = %(state)s where fk_patient = %(pat)s'
+		args = {'pat': self.pk_patient, 'state': state}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-
+		gmDispatcher.send(signal = gmSignals.allergy_updated())
 		return True
+
+	def _get_allergic_state(self):
+		cmd = u'select has_allergy from clin.allergy_state where fk_patient = %(pat)s'
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows[0][0]
+
+	allergic_state = property(_get_allergic_state, _set_allergic_state)
 	#--------------------------------------------------------
 	# episodes API
 	#--------------------------------------------------------
@@ -1245,12 +1248,13 @@ where
 			select title, firstnames, lastnames, gender, dob
 			from dem.v_basic_person where pk_identity=%s"""
 		pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
-		pat_str = '%s %s %s (%s), %s, #%s' % (
-			pats[0][0][:5],
-			pats[0][1][:15],
-			pats[0][2][:15],
-			pats[0][3],
-			pats[0][4].strftime('%Y-%m-%d'),
+		pat = pats[0]
+		pat_str = u'%s %s %s (%s), %s, #%s' % (
+			gmTools.coalesce(pat[0], u'')[:5],
+			pat[1][:15],
+			pat[2][:15],
+			pat[3],
+			pat[4].strftime('%Y-%m-%d'),
 			self.pk_patient
 		)
 		enc = locale.getlocale()[1]
@@ -1515,6 +1519,20 @@ def set_func_ask_user(a_func = None):
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+	def test_allergic_state():
+		emr = cClinicalRecord(aPKey=1)
+		state = emr.allergic_state
+		print "allergic state is:", state
+		print "setting state to -1"
+		emr.allergic_state = 'abc'
+
+	test_allergic_state()
+	sys.exit(1)
+
 	import traceback
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	try:
@@ -1605,7 +1623,12 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.235  2007-03-18 13:01:16  ncq
+# Revision 1.236  2007-03-21 08:12:14  ncq
+# - allergic_state property
+# - send allergy_modified() signal
+# - make cClinicalRecord a new-style class
+#
+# Revision 1.235  2007/03/18 13:01:16  ncq
 # - re-add lost 1.235
 # - add ensure_has_allergic_state()
 # - remove allergies cache
