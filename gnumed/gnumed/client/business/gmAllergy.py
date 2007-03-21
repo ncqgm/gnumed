@@ -1,10 +1,9 @@
 """GnuMed allergy related business object.
-
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.24 2007-03-18 12:54:39 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmAllergy.py,v 1.25 2007-03-21 08:09:07 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -13,10 +12,13 @@ import types, sys
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmI18N, gmBusinessDBObject
+from Gnumed.pycommon import gmLog, gmPG2, gmI18N, gmBusinessDBObject
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+
+allergic_states = [None, -1, 0, 1]
 #============================================================
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one allergy event.
@@ -35,7 +37,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
 			where
-				id=%(pk_allergy)s and
+				pk=%(pk_allergy)s and
 				xmin=%(xmin_allergy)s""",
 		u"""select xmin_allergy from clin.v_pat_allergies where pk_allergy=%(pk_allergy)s"""
 	]
@@ -116,6 +118,17 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 
 	return allergy
 #============================================================
+def allergic_state2str(state=None):
+	if state is None:
+		return _('unknown allergic state')
+	if state == -1:
+		return _('undisclosed allergic state')
+	if state == 0:
+		return _('no known allergies')
+	if state == 1:
+		return _('does have allergies')
+
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -143,7 +156,11 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.24  2007-03-18 12:54:39  ncq
+# Revision 1.25  2007-03-21 08:09:07  ncq
+# - add allergic_states
+# - add allergic_state2str()
+#
+# Revision 1.24  2007/03/18 12:54:39  ncq
 # - allow string and integer for setting pk_type on allergy
 #
 # Revision 1.24  2007/03/12 12:23:23  ncq
