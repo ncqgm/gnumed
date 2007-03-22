@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -14,7 +14,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmI18N, gmDateTime, gmFuzzyTimestamp, gmTools
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmI18N, gmDateTime, gmFuzzyTimestamp, gmTools, gmMatchProvider
 from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPerson, gmAllergy
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
@@ -33,13 +33,44 @@ class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
 		except KeyError:
 			self.__allergy = None
 
-#		mp = gmMatchProvider.cMatchProvider_SQL2 (
-#			queries = [u"""
-#select substance, substance
-#"""
-#			]
-#		)
-#		mp.setThresholds(1, 3, 5)
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"""
+select substance, substance
+from clin.allergy
+where substance %(fragment_condition)s
+
+	union
+
+select generics, generics
+from clin.allergy
+where generics %(fragment_condition)s
+
+	union
+
+select allergene, allergene
+from clin.allergy
+where allergene %(fragment_condition)s
+
+	union
+
+select atc_code, atc_code
+from clin.allergy
+where atc_code %(fragment_condition)s
+"""
+			]
+		)
+		mp.setThresholds(2, 3, 5)
+		self._PRW_trigger.matcher = mp
+
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u"""
+select narrative, narrative
+from clin.allergy
+where narrative %(fragment_condition)s
+"""]
+		)
+		mp.setThresholds(2, 3, 5)
+		self._PRW_reaction.matcher = mp
 
 		self.refresh()
 	#--------------------------------------------------------
@@ -430,7 +461,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.20  2007-03-21 08:14:01  ncq
+# Revision 1.21  2007-03-22 11:04:15  ncq
+# - activate prw match providers
+#
+# Revision 1.20  2007/03/21 08:14:01  ncq
 # - improved allergy manager
 # - cleanup
 #
