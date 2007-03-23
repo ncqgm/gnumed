@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.236 2007-03-21 08:12:14 ncq Exp $
-__version__ = "$Revision: 1.236 $"
+# $Id: gmClinicalRecord.py,v 1.237 2007-03-23 15:01:14 ncq Exp $
+__version__ = "$Revision: 1.237 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -586,7 +586,7 @@ where
 	#--------------------------------------------------------
 	# allergy API
 	#--------------------------------------------------------
- 	def get_allergies(self, remove_sensitivities=None, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
+ 	def get_allergies(self, remove_sensitivities=False, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
 		"""Retrieves patient allergy items.
 
 			remove_sensitivities
@@ -611,6 +611,7 @@ where
 		# ok, let's constrain our list
 		filtered_allergies = []
 		filtered_allergies.extend(allergies)
+
 		if ID_list is not None:
 			filtered_allergies = filter(lambda allg: allg['pk_allergy'] in ID_list, filtered_allergies)
 			if len(filtered_allergies) == 0:
@@ -619,7 +620,8 @@ where
 				return None
 			else:
 				return filtered_allergies
-		if remove_sensitivities is not None:
+
+		if remove_sensitivities:
 			filtered_allergies = filter(lambda allg: allg['type'] == 'allergy', filtered_allergies)
 		if since is not None:
 			filtered_allergies = filter(lambda allg: allg['date'] >= since, filtered_allergies)
@@ -1623,7 +1625,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.236  2007-03-21 08:12:14  ncq
+# Revision 1.237  2007-03-23 15:01:14  ncq
+# - cleanup get_allergies() API
+#
+# Revision 1.236  2007/03/21 08:12:14  ncq
 # - allergic_state property
 # - send allergy_modified() signal
 # - make cClinicalRecord a new-style class
