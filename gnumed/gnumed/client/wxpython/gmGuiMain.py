@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.315 2007-03-18 14:08:39 ncq Exp $
-__version__ = "$Revision: 1.315 $"
+# $Id: gmGuiMain.py,v 1.316 2007-03-23 16:42:46 ncq Exp $
+__version__ = "$Revision: 1.316 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1105,6 +1105,7 @@ class gmApp(wx.App):
 		# - load external patients
 		gmPatSearchWidgets.load_patient_from_external_sources(self.GetTopWindow())
 		# - set focus to patient search widget
+		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -1268,7 +1269,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.315  2007-03-18 14:08:39  ncq
+# Revision 1.316  2007-03-23 16:42:46  ncq
+# - upon initial startup set focus to patient selector as requested by user ;-)
+#
+# Revision 1.315  2007/03/18 14:08:39  ncq
 # - add allergy handling
 # - disconnect statustext handler on shutdown
 # - run_hook_script() now in gmHooks.py
