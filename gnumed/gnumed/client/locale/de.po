@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.82 $
+# $Revision: 1.83 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-03-17 02:56+CET\n"
-"PO-Revision-Date: 2007-03-17 03:08+0100\n"
+"POT-Creation-Date: 2007-03-23 16:38+CET\n"
+"PO-Revision-Date: 2007-03-23 16:42+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -16,6 +16,22 @@ msgstr ""
 "Generated-By: pygettext.py 1.3\n"
 "X-Generator: KBabel 0.9.6\n"
 "X-Poedit-Country: GERMANY\n"
+
+#: ../business/gmAllergy.py:123
+msgid "unknown allergic state"
+msgstr "Allergiestatus: unbekannt"
+
+#: ../business/gmAllergy.py:125
+msgid "undisclosed allergic state"
+msgstr "Allergiestatus: Auskunft verweigert"
+
+#: ../business/gmAllergy.py:127
+msgid "no known allergies"
+msgstr "Allergiestatus: keine Allergien bekannt"
+
+#: ../business/gmAllergy.py:129
+msgid "does have allergies"
+msgstr "ist allergisch"
 
 #: ../business/gmClinNarrative.py:143
 #: ../business/gmVaccination.py:204
@@ -28,48 +44,48 @@ msgstr "interner Fehler, Log kontrollieren"
 msgid "consistency error, check log"
 msgstr "Konsistenzfehler, siehe Log"
 
-#: ../business/gmClinicalRecord.py:299
-#: ../business/gmClinicalRecord.py:429
+#: ../business/gmClinicalRecord.py:290
+#: ../business/gmClinicalRecord.py:420
 msgid "modified entry"
 msgstr "revidierter Eintrag"
 
-#: ../business/gmClinicalRecord.py:299
-#: ../business/gmClinicalRecord.py:429
+#: ../business/gmClinicalRecord.py:290
+#: ../business/gmClinicalRecord.py:420
 msgid "original entry"
 msgstr "Originaleintrag"
 
-#: ../business/gmClinicalRecord.py:377
-#: ../business/gmClinicalRecord.py:546
+#: ../business/gmClinicalRecord.py:368
+#: ../business/gmClinicalRecord.py:537
 msgid "%s: encounter (%s)"
 msgstr "%s: Arztkontakt (%s)"
 
-#: ../business/gmClinicalRecord.py:382
-#: ../business/gmClinicalRecord.py:551
+#: ../business/gmClinicalRecord.py:373
+#: ../business/gmClinicalRecord.py:542
 msgid "health issue: %s"
 msgstr "Grunderkrankung: %s"
 
-#: ../business/gmClinicalRecord.py:383
-#: ../business/gmClinicalRecord.py:552
+#: ../business/gmClinicalRecord.py:374
+#: ../business/gmClinicalRecord.py:543
 msgid "episode     : %s"
 msgstr "Episode    : %s"
 
-#: ../business/gmClinicalRecord.py:651
+#: ../business/gmClinicalRecord.py:644
 msgid "immune system disorder"
 msgstr "Immundefekt"
 
-#: ../business/gmClinicalRecord.py:652
+#: ../business/gmClinicalRecord.py:645
 msgid "allergies"
 msgstr "Allergien"
 
-#: ../business/gmClinicalRecord.py:969
+#: ../business/gmClinicalRecord.py:974
 msgid "ERROR: cannot retrieve vaccinated indications"
 msgstr "ERROR: kann beimpfte Indikationen nicht laden"
 
-#: ../business/gmClinicalRecord.py:971
+#: ../business/gmClinicalRecord.py:976
 msgid "no vaccinations recorded"
 msgstr "keine Impfungen vermerkt"
 
-#: ../business/gmClinicalRecord.py:1257
+#: ../business/gmClinicalRecord.py:1263
 msgid ""
 "A fairly recent encounter exists for patient:\n"
 " %s\n"
@@ -95,12 +111,12 @@ msgstr ""
 "\n"
 "Mit \"Nein\" beginnen Sie einen neuen Kontakt."
 
-#: ../business/gmClinicalRecord.py:1272
-#: ../business/gmClinicalRecord.py:1273
+#: ../business/gmClinicalRecord.py:1278
+#: ../business/gmClinicalRecord.py:1279
 msgid "none given"
 msgstr "nicht angegeben"
 
-#: ../business/gmClinicalRecord.py:1275
+#: ../business/gmClinicalRecord.py:1281
 msgid "recording patient encounter"
 msgstr "vermerke Arzt-Patienten-Kontakt"
 
@@ -397,7 +413,6 @@ msgstr ""
 #: ../exporters/gmPatientExporter.py:343
 #: ../exporters/gmPatientExporter.py:425
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:22
-#: ../wxpython/gmAllergyWidgets.py:321
 msgid "Allergy"
 msgstr "Allergie"
 
@@ -964,12 +979,10 @@ msgid "Generic Specific"
 msgstr "Medik.-spezifisch"
 
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:23
-#: ../wxpython/gmAllergyWidgets.py:328
 msgid "Sensitivity"
 msgstr "Überempfindlichkeit"
 
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:24
-#: ../wxpython/gmAllergyWidgets.py:338
 msgid "Definite"
 msgstr "sicher"
 
@@ -1028,12 +1041,11 @@ msgid "Check this if this allergy/intolerance is known to exist for sure as oppo
 msgstr "Hier ankreuzen, wenn die Allergie/Unverträglichkeit definitiv vorhanden ist und nicht nur vermutet wird."
 
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:55
-#: ../wxpython/gmAllergyWidgets.py:355
 msgid "Date Noted"
 msgstr "festgestellt"
 
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:58
-#: ../wxpython/gmAllergyWidgets.py:189
+#: ../wxpython/gmAllergyWidgets.py:220
 msgid "Trigger"
 msgstr "Auslöser"
 
@@ -1042,8 +1054,7 @@ msgid "Brand Name"
 msgstr "Handelsname"
 
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:64
-#: ../wxpython/gmAllergyWidgets.py:357
-#: ../wxpython/gmAllergyWidgets.py:495
+#: ../wxpython/gmAllergyWidgets.py:350
 msgid "Generics"
 msgstr "Generika"
 
@@ -1052,9 +1063,8 @@ msgid "Drug Classes"
 msgstr "ATC/Klasse"
 
 #: ../wxGladeWidgets/wxgAllergyEditAreaPnl.py:72
-#: ../wxpython/gmAllergyWidgets.py:190
-#: ../wxpython/gmAllergyWidgets.py:359
-#: ../wxpython/gmAllergyWidgets.py:496
+#: ../wxpython/gmAllergyWidgets.py:221
+#: ../wxpython/gmAllergyWidgets.py:351
 msgid "Reaction"
 msgstr "Reaktion"
 
@@ -1068,7 +1078,7 @@ msgstr "Reaktionstyp"
 #: ../wxGladeWidgets/wxgEpisodeEditAreaDlg.py:16
 #: ../wxGladeWidgets/wxgReviewDocPartDlg.py:30
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:33
-#: ../wxpython/gmAllergyWidgets.py:156
+#: ../wxpython/gmAllergyWidgets.py:187
 #: ../wxpython/gmDermTool.py:38
 #: ../wxpython/gmEMRStructWidgets.py:939
 #: ../wxpython/gmEditArea.py:287
@@ -1076,17 +1086,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #: ../wxGladeWidgets/wxgAllergyManagerDlg.py:18
-#: ../wxGladeWidgets/wxgEditDocumentTypesPnl.py:20
-#: ../wxGladeWidgets/wxgEditStaffListDlg.py:20
-msgid "Delete"
-msgstr "Löschen"
-
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:19
-msgid "Undisclosed !"
-msgstr "Auskunft verweigert !"
-
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:20
-#: ../wxpython/gmAllergyWidgets.py:157
+#: ../wxpython/gmAllergyWidgets.py:188
 #: ../wxpython/gmEMRStructWidgets.py:940
 #: ../wxpython/gmEditArea.py:579
 #: ../wxpython/gmEditArea.py:792
@@ -1094,37 +1094,63 @@ msgstr "Auskunft verweigert !"
 msgid "Clear"
 msgstr "Leeren"
 
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:19
+#: ../wxGladeWidgets/wxgEditDocumentTypesPnl.py:20
+#: ../wxGladeWidgets/wxgEditStaffListDlg.py:20
+msgid "Delete"
+msgstr "Löschen"
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:20
+msgid "Undisclosed"
+msgstr "Auskunft verweigert"
+
 #: ../wxGladeWidgets/wxgAllergyManagerDlg.py:21
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:22
+msgid "None"
+msgstr "Keine"
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:23
 #: ../wxGladeWidgets/wxgEditDocumentTypesPnl.py:21
 #: ../wxGladeWidgets/wxgIssueSelectionDlg.py:18
 msgid "Dismiss"
 msgstr "Schließen"
 
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:35
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:39
 msgid "Allergy Manager"
 msgstr "Allergie-Manager"
 
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:37
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:41
 msgid "Lists the allergies known for this patient if any."
 msgstr "Zeigt die Allergien dieses Patienten."
 
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:38
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:42
 msgid "Save as a new allergy or update the allergy that is selected above."
 msgstr "Die neue Allergie bzw. die Änderungen an der oben gewählten Allergie abspeichern."
-
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:39
-msgid "Delete the allergy selected in the list from the database."
-msgstr "Die in der Liste markierte Allergie löschen."
-
-#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:41
-msgid "Use this button to document that the patient does not disclose whether or not an allergy exists."
-msgstr "Drücken Sie hier um zu dokumentieren, daß der Patient die Auskunft über seine Allergien verweigert."
 
 #: ../wxGladeWidgets/wxgAllergyManagerDlg.py:43
 msgid "Clear the fields of the edit area. Will discard unsaved data."
 msgstr "Die Felder der Eingabemaske leeren. Ungespeicherte Daten gehen verloren !"
 
 #: ../wxGladeWidgets/wxgAllergyManagerDlg.py:44
+msgid "Delete the allergy selected in the list from the database."
+msgstr "Die in der Liste markierte Allergie löschen."
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:46
+msgid "Undisclosed: The patient does not disclose whether or not an allergy exists."
+msgstr "Drücken Sie hier um zu dokumentieren, daß der Patient die Auskunft über seine Allergien verweigert."
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:48
+msgid "Unknown: It is not known whether any allergies exist in this patient."
+msgstr "Unbekannt: Es ist nicht bekannt, ob der Patient Allergien hat."
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:50
+msgid "None: It is believed the patient does not currently suffer from any allergies."
+msgstr "Keine: Es wird angenommen, daß der Patient momentan keine Allergien hat."
+
+#: ../wxGladeWidgets/wxgAllergyManagerDlg.py:52
 msgid "Dismiss the dialag. Will discard unsaved data."
 msgstr "Die Maske schließen. Ungespeicherte Daten gehen verloren."
 
@@ -1348,8 +1374,8 @@ msgstr "Patient"
 
 #: ../wxGladeWidgets/wxgEncounterEditAreaPnl.py:46
 #: ../wxGladeWidgets/wxgReviewDocPartDlg.py:72
-#: ../wxpython/gmAllergyWidgets.py:187
-#: ../wxpython/gmAllergyWidgets.py:491
+#: ../wxpython/gmAllergyWidgets.py:218
+#: ../wxpython/gmAllergyWidgets.py:346
 #: ../wxpython/gmEditArea.py:195
 #: ../wxpython/gmEditArea.py:237
 #: ../wxpython/gui/gmRequest.py:45
@@ -1405,7 +1431,7 @@ msgid "Description"
 msgstr "Beschreibung"
 
 #: ../wxGladeWidgets/wxgEpisodeEditAreaPnl.py:47
-#: ../wxpython/gmAllergyWidgets.py:492
+#: ../wxpython/gmAllergyWidgets.py:347
 #: ../wxpython/gmEditArea.py:1229
 #: ../wxpython/gmStaffWidgets.py:35
 #: ../wxpython/patient/gmGP_Recalls.py:95
@@ -2017,75 +2043,56 @@ msgstr ""
 "unter dem ersten Buchstaben des Nutzernamens eingeordnet.\n"
 "%s"
 
-#: ../wxpython/gmAllergyWidgets.py:112
+#: ../wxpython/gmAllergyWidgets.py:143
 msgid "Creating new allergy not allowed."
 msgstr "Anlegen einer neuen Allergie nicht vorgesehen."
 
-#: ../wxpython/gmAllergyWidgets.py:159
+#: ../wxpython/gmAllergyWidgets.py:190
 #: ../wxpython/gmEMRStructWidgets.py:942
 msgid "Update"
 msgstr "Update"
 
-#: ../wxpython/gmAllergyWidgets.py:160
+#: ../wxpython/gmAllergyWidgets.py:191
 #: ../wxpython/gmEMRStructWidgets.py:943
 msgid "Restore"
 msgstr "Zurücksetzen"
 
-#: ../wxpython/gmAllergyWidgets.py:188
+#: ../wxpython/gmAllergyWidgets.py:219
 msgid "Certainty"
 msgstr "Gewißheit"
 
-#: ../wxpython/gmAllergyWidgets.py:203
-#: ../wxpython/gmAllergyWidgets.py:551
+#: ../wxpython/gmAllergyWidgets.py:237
+#: ../wxpython/gmAllergyWidgets.py:406
+#: ../wxpython/gmTopPanel.py:328
 msgid "definite"
 msgstr "sicher"
 
-#: ../wxpython/gmAllergyWidgets.py:294
-msgid "generics specific"
-msgstr "Medik.-spezifisch"
+#: ../wxpython/gmAllergyWidgets.py:245
+msgid "allergic state"
+msgstr "Allergiestatus"
 
-#: ../wxpython/gmAllergyWidgets.py:356
-msgid "Brand/Substance"
-msgstr "Medik./Stoff"
-
-#: ../wxpython/gmAllergyWidgets.py:358
-msgid "ATC/Drug Class"
-msgstr "ATC/Klasse"
-
-#: ../wxpython/gmAllergyWidgets.py:366
-#: ../wxpython/gmAllergyWidgets.py:379
-msgid "Cannot create allergy: %s"
-msgstr "Kann Allergie nicht speichern: %s"
-
-#: ../wxpython/gmAllergyWidgets.py:392
-msgid "Cannot update allergy: %s"
-msgstr "Kann Allergie nicht speichern: %s"
-
-#: ../wxpython/gmAllergyWidgets.py:394
-msgid "Allergy saved."
-msgstr "Allergie abgespeichert."
-
-#: ../wxpython/gmAllergyWidgets.py:475
+#: ../wxpython/gmAllergyWidgets.py:330
 msgid "ALLERGIES"
 msgstr "ALLERGIEN"
 
-#: ../wxpython/gmAllergyWidgets.py:480
+#: ../wxpython/gmAllergyWidgets.py:335
 msgid "Allergy and Sensitivity - Summary"
 msgstr "Allergien/Überempfindlichkeiten - Zusammenfassung"
 
-#: ../wxpython/gmAllergyWidgets.py:493
+#: ../wxpython/gmAllergyWidgets.py:348
 msgid "ATC/Class"
 msgstr "ATC/Klasse"
 
-#: ../wxpython/gmAllergyWidgets.py:494
+#: ../wxpython/gmAllergyWidgets.py:349
 msgid "Substance"
 msgstr "Stoff"
 
-#: ../wxpython/gmAllergyWidgets.py:499
+#: ../wxpython/gmAllergyWidgets.py:354
 msgid "Class notes"
 msgstr "Notiz zur Stoffklasse"
 
-#: ../wxpython/gmAllergyWidgets.py:553
+#: ../wxpython/gmAllergyWidgets.py:408
+#: ../wxpython/gmTopPanel.py:330
 msgid "likely"
 msgstr "wahrscheinlich"
 
@@ -3234,20 +3241,20 @@ msgstr "Druckerkonfiguration"
 msgid "Calibration"
 msgstr "Kalibrierung"
 
-#: ../wxpython/gmGuiHelpers.py:181
-#: ../wxpython/gmGuiHelpers.py:235
+#: ../wxpython/gmGuiHelpers.py:179
+#: ../wxpython/gmGuiHelpers.py:233
 msgid "programmer forgot to specify info message"
 msgstr "Programmierer hat vergessen, Information anzugeben."
 
-#: ../wxpython/gmGuiHelpers.py:188
+#: ../wxpython/gmGuiHelpers.py:186
 msgid "generic single choice dialog"
 msgstr "allgemeine Nutzerauswahl"
 
-#: ../wxpython/gmGuiHelpers.py:207
+#: ../wxpython/gmGuiHelpers.py:205
 msgid "programmer forgot to specify error message"
 msgstr "Programmierer hat vergessen, Fehler genau anzugeben."
 
-#: ../wxpython/gmGuiHelpers.py:213
+#: ../wxpython/gmGuiHelpers.py:211
 msgid ""
 "\n"
 "\n"
@@ -3257,27 +3264,27 @@ msgstr ""
 "\n"
 "Die Logdatei enthält genauere Angaben !"
 
-#: ../wxpython/gmGuiHelpers.py:216
+#: ../wxpython/gmGuiHelpers.py:214
 msgid "generic error message"
 msgstr "allgemeine Fehlermeldung"
 
-#: ../wxpython/gmGuiHelpers.py:242
+#: ../wxpython/gmGuiHelpers.py:240
 msgid "generic info message"
 msgstr "allgemeine Information"
 
-#: ../wxpython/gmGuiHelpers.py:256
+#: ../wxpython/gmGuiHelpers.py:254
 msgid "programmer forgot to specify warning"
 msgstr "Programmierer hat vergessen, Warnung anzugeben."
 
-#: ../wxpython/gmGuiHelpers.py:263
+#: ../wxpython/gmGuiHelpers.py:261
 msgid "generic warning message"
 msgstr "allgemeine Warnmeldung"
 
-#: ../wxpython/gmGuiHelpers.py:305
+#: ../wxpython/gmGuiHelpers.py:303
 msgid "<restricted procedure>"
 msgstr "<zugangsbeschränkte Funktion>"
 
-#: ../wxpython/gmGuiHelpers.py:309
+#: ../wxpython/gmGuiHelpers.py:307
 msgid ""
 "\n"
 " [%s]\n"
@@ -3294,15 +3301,15 @@ msgstr ""
 "\n"
 "Bitte geben Sie das Passwort für <gm-dbo> ein:"
 
-#: ../wxpython/gmGuiHelpers.py:329
+#: ../wxpython/gmGuiHelpers.py:327
 msgid "Cannot connect as the GNUmed database owner <gm-dbo>."
 msgstr "Verbindung als Besitzer <gm-dbo> der GNUmed-Datenbank fehlgeschlagen."
 
-#: ../wxpython/gmGuiHelpers.py:388
+#: ../wxpython/gmGuiHelpers.py:386
 msgid "This field can only contain digits."
 msgstr "Dieses Feld darf nur Ziffern enthalten."
 
-#: ../wxpython/gmGuiHelpers.py:390
+#: ../wxpython/gmGuiHelpers.py:388
 msgid "This field cannot be empty."
 msgstr "Dieses Feld darf nicht leer sein."
 
@@ -5265,13 +5272,9 @@ msgstr "GnuMed sperren"
 msgid "locks client and hides data"
 msgstr "sperrt GnuMed und verbirgt Daten"
 
-#: ../wxpython/gmTopPanel.py:306
-msgid "error getting allergies"
-msgstr "Fehler beim Laden der Allergien"
-
-#: ../wxpython/gmTopPanel.py:309
-msgid "no allergies recorded"
-msgstr "keine Allergien bekannt"
+#: ../wxpython/gmTopPanel.py:263
+msgid "Cannot activate Allergy Manager. No active patient."
+msgstr "Kann Allergiemanager nicht aufrufen. Kein Patient aktiv."
 
 #: ../wxpython/gmVaccWidgets.py:155
 msgid "Date given"
@@ -6385,6 +6388,22 @@ msgstr "&Verschrieben fuer"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "error getting allergies"
+#~ msgstr "Fehler beim Laden der Allergien"
+#~ msgid "no allergies recorded"
+#~ msgstr "keine Allergien bekannt"
+#~ msgid "generics specific"
+#~ msgstr "Medik.-spezifisch"
+#~ msgid "Brand/Substance"
+#~ msgstr "Medik./Stoff"
+#~ msgid "ATC/Drug Class"
+#~ msgstr "ATC/Klasse"
+#~ msgid "Cannot create allergy: %s"
+#~ msgstr "Kann Allergie nicht speichern: %s"
+#~ msgid "Cannot update allergy: %s"
+#~ msgstr "Kann Allergie nicht speichern: %s"
+#~ msgid "Allergy saved."
+#~ msgstr "Allergie abgespeichert."
 #~ msgid "Episode selector"
 #~ msgstr "Episodenwahl"
 #~ msgid "Create a new episode and %s"
