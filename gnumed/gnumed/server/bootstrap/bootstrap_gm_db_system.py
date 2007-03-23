@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -152,7 +152,6 @@ def connect (host, port, db, user, passwd, superuser=0):
 			host, port = cached_host
 		else:
 			host = ''
-			port = '' # to allow local connections
 	if passwd == 'blank' or passwd is None or len(passwd) == 0:
 		if cached_passwd.has_key (user):
 			passwd = cached_passwd[user]
@@ -980,30 +979,36 @@ def become_pg_demon_user():
 		return None
 
 	try:
-		_log.Log(gmLog.lInfo, 'running as user [%s]' % pwd.getpwuid(os.getuid())[0])
-	except: pass
+		running_as = pwd.getpwuid(os.getuid())[0])
+		_log.Log(gmLog.lInfo, 'running as user [%s]' % running_as
+	except:
+		running_as = None
 
 	pg_demon_user_passwd_line = None
-	if os.getuid() == 0: # we are the super-user
+	try:
+		pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
+		# make sure we actually use this name to log in
+		_cfg.set('user postgres', 'name', 'postgres')
+	except KeyError:
 		try:
-			pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
-			# make sure we actually use this name to log in
-			_cfg.set('user postgres', 'name', 'postgres')
+			pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
+			_cfg.set('user postgres', 'name', 'pgsql')
 		except KeyError:
-			try:
-				pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
-				_cfg.set('user postgres', 'name', 'pgsql')
-			except KeyError:
-				_log.Log (gmLog.lWarn, 'cannot find postgres user')
-				return None
+			_log.Log (gmLog.lWarn, 'cannot find postgres user')
+			return None
+
+	if os.getuid() == 0: # we are the super-user
 		_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
 		os.setuid(pg_demon_user_passwd_line[2])
+
+	elif running_as == pg_demon_user_passwd_line[0]: # we are the postgres user already
+		_log.Log (gmLog.lInfo, 'I am already the UNIX user [%s]' % pg_demon_user_passwd_line[0])
+
 	else:
-		_log.Log(gmLog.lWarn, 'not running as root, cannot become postmaster demon user')
+		_log.Log(gmLog.lWarn, 'not running as root or postgres, cannot become postmaster demon user')
 		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbo if IDENT auth is forced upon us')
 		if _interactive:
 			print "WARNING: This script may not work if not running as the system administrator."
-
 #==============================================================================
 def get_cfg_in_nice_mode():
 	print welcome_sermon
@@ -1116,7 +1121,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.47  2007-02-18 12:19:52  ncq
+# Revision 1.48  2007-03-23 12:43:02  ncq
+# - don't blank out port on UNIX domain socket conns as it is
+#   needed for building the proper socket file name (at least on Debian)
+# - don't warn on not running as root if we already are postgres
+#
+# Revision 1.47  2007/02/18 12:19:52  ncq
 # - support dropping target database if so configured
 #
 # Revision 1.46  2007/02/16 11:08:18  ncq
