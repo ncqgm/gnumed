@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.87 2007-02-22 16:26:54 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmDemographicRecord.py,v 1.88 2007-03-23 15:01:36 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -167,7 +167,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	#------------------------------------------------------------
 	def unlink_person (self, person):
 		cmd = "delete from dem.lnk_person_org_address where id_org = %s and id_identity = %s"
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), person['id']])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), person.ID])])
 	#----------------------------------------------------------------------
 	def getId (self):
 		"""
@@ -492,7 +492,7 @@ if __name__ == "__main__":
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
 			continue
-		print "ID       ", myPatient['id']
+		print "ID       ", myPatient.ID
 		print "name     ", myPatient['description']
 		print "title    ", myPatient['title']
 		print "dob      ", myPatient['dob']
@@ -502,7 +502,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.87  2007-02-22 16:26:54  ncq
+# Revision 1.88  2007-03-23 15:01:36  ncq
+# - no more person['id']
+#
+# Revision 1.87  2007/02/22 16:26:54  ncq
 # - fix create_address()
 #
 # Revision 1.86  2006/11/26 15:44:03  ncq
