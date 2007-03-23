@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.78 2007-03-21 08:14:32 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmTopPanel.py,v 1.79 2007-03-23 15:03:02 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -11,7 +11,7 @@ import sys, os.path
 
 import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI, gmTools
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets
 
@@ -110,8 +110,8 @@ class cMainTopPanel(wx.Panel):
 		self.szr_top_row.Add (lbl_pat, 0, wx.ALL, 3)
 		self.szr_top_row.Add (self.patient_selector, 5, wx.BOTTOM, 3)
 		#  - age
-		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY)
-		self.txt_age.SetFont (wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY | wx.ALIGN_CENTER_VERTICAL)
+		self.txt_age.SetFont (wx.Font(11, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
 		self.szr_top_row.Add (self.txt_age, 0, wx.BOTTOM | wx.LEFT | wx.RIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
@@ -119,8 +119,8 @@ class cMainTopPanel(wx.Panel):
 		self.lbl_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
-		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY)
-		self.txt_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
+		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY | wx.ALIGN_CENTER_VERTICAL)
+		self.txt_allergies.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
 		self.szr_top_row.Add (self.lbl_allergies, 0, wx.ALL, 3)
@@ -301,17 +301,35 @@ class cMainTopPanel(wx.Panel):
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 		emr = self.curr_pat.get_emr()
-		allergies = emr.get_allergies(remove_sensitivities=1)
+		allergies = emr.get_allergies()
+
 		if len(allergies) == 0:
-			self.txt_allergies.SetValue (
-				gmAllergy.allergic_state2str(state = emr.allergic_state)
-			)
+			self.txt_allergies.SetValue('')
+			self.txt_allergies.SetToolTipString(gmAllergy.allergic_state2str(state = emr.allergic_state))
 			return True
+
 		tmp = []
+		tt = u'Allergies:\n\n'
 		for allergy in allergies:
-			tmp.append(allergy['descriptor'][:6])
+			if allergy['type'] == 'allergy':
+				tmp.append(allergy['descriptor'][:10])
+			if allergy['definite']:
+				certainty = _('definite')
+			else:
+				certainty = _('likely')
+			reaction = gmTools.coalesce(allergy['reaction'], u'')
+			if len(reaction) > 50:
+				reaction = reaction[:50] + u'...'
+			tt += u'%s - %s (%s): %s\n' % (
+				allergy['descriptor'],
+				allergy['l10n_type'],
+				certainty,
+				reaction
+			)
+
 		data = ','.join(tmp)
 		self.txt_allergies.SetValue(data)
+		self.txt_allergies.SetToolTipString(tt)
 	#-------------------------------------------------------
 	# remote layout handling
 	#-------------------------------------------------------
@@ -405,7 +423,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.78  2007-03-21 08:14:32  ncq
+# Revision 1.79  2007-03-23 15:03:02  ncq
+# - improved allergies display
+#   - smaller font
+#   - 10 char truncation
+#   - align properly
+#   - patient dependant tooltip listing allergy details including sensitivities
+#
+# Revision 1.78  2007/03/21 08:14:32  ncq
 # - use proper no-allergies string
 #
 # Revision 1.77  2007/02/22 17:41:13  ncq
