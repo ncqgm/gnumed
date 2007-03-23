@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.79 2007-03-23 15:03:02 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmTopPanel.py,v 1.80 2007-03-23 15:39:02 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -13,7 +13,7 @@ import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI, gmTools
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
-from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets, gmAllergyWidgets
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -110,7 +110,7 @@ class cMainTopPanel(wx.Panel):
 		self.szr_top_row.Add (lbl_pat, 0, wx.ALL, 3)
 		self.szr_top_row.Add (self.patient_selector, 5, wx.BOTTOM, 3)
 		#  - age
-		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY | wx.ALIGN_CENTER_VERTICAL)
+		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY)
 		self.txt_age.SetFont (wx.Font(11, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
 		self.szr_top_row.Add (self.txt_age, 0, wx.BOTTOM | wx.LEFT | wx.RIGHT, 3)
@@ -119,7 +119,7 @@ class cMainTopPanel(wx.Panel):
 		self.lbl_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
-		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY | wx.ALIGN_CENTER_VERTICAL)
+		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY)
 		self.txt_allergies.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
@@ -246,6 +246,8 @@ class cMainTopPanel(wx.Panel):
 		tools_menu.Append(ID_LOCKMENU, _("lock client"), _("locks client and hides data"))
 		wx.EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
 
+		wx.EVT_LEFT_DCLICK(self.txt_allergies, self._on_allergies_dclicked)
+
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
@@ -254,6 +256,15 @@ class cMainTopPanel(wx.Panel):
 		print "should be locking client now by obscuring data"
 		print "and popping up a modal dialog box asking for a"
 		print "password to reactivate"
+	#----------------------------------------------
+	def _on_allergies_dclicked(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmDispatcher.send(gmSignals.statustext(), msg = _('Cannot activate Allergy Manager. No active patient.'))
+			return
+		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
+		dlg.ShowModal()
+		return
 	#----------------------------------------------
 #	def _on_show_BMI(self, evt):
 		# FIXME: update patient ID ?
@@ -309,7 +320,7 @@ class cMainTopPanel(wx.Panel):
 			return True
 
 		tmp = []
-		tt = u'Allergies:\n\n'
+		tt = u'%70s\n\n' % u'Allergies:'
 		for allergy in allergies:
 			if allergy['type'] == 'allergy':
 				tmp.append(allergy['descriptor'][:10])
@@ -423,7 +434,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.79  2007-03-23 15:03:02  ncq
+# Revision 1.80  2007-03-23 15:39:02  ncq
+# - show allergy manager on double-clicking allergies field
+#
+# Revision 1.79  2007/03/23 15:03:02  ncq
 # - improved allergies display
 #   - smaller font
 #   - 10 char truncation
