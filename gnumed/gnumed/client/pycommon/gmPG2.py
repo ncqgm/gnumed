@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -95,13 +95,15 @@ known_schema_hashes = {
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
 	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
 	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': 'v5 not released'
+	'v5': '7e7b093af57aea48c288e76632a382e5',
+	'v6': 'v6 not released'
 }
 
 map_schema_hash2version = {
 	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
 	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
-	'4428ccf2e54c289136819e701bb095ea': 'v4'
+	'4428ccf2e54c289136819e701bb095ea': 'v4',
+	'7e7b093af57aea48c288e76632a382e5': 'v5'
 }
 
 # get columns and data types for a given table
@@ -1006,7 +1008,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.39  2007-03-08 11:37:24  ncq
+# Revision 1.40  2007-03-26 16:08:06  ncq
+# - added v5 hash
+#
+# Revision 1.39  2007/03/08 11:37:24  ncq
 # - simplified gmLogin
 # - log PG settings on first connection if verbose
 #
