@@ -8,28 +8,18 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-allergy.sql,v 1.2 2007-03-21 08:14:55 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: clin-allergy.sql,v 1.3 2007-03-26 16:51:13 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-alter table clin._enum_allergy_type
-	rename column id to pk;
-
-
-alter table clin.allergy
-	rename column id to pk;
-
-alter table clin.allergy
-	rename column id_type to fk_type;
-
-
 -- remember to handle dependant objects possibly dropped by CASCADE
 \unset ON_ERROR_STOP
 drop function clin.trf_sync_allergic_state_on_allergies_modified() cascade;
 \set ON_ERROR_STOP 1
+
 
 create function clin.trf_sync_allergic_state_on_allergies_modified()
 	returns trigger
@@ -84,11 +74,14 @@ create trigger tr_sync_allergic_state_on_allergies_modified
 --grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-allergy.sql,v $', '$Revision: 1.2 $');
+select public.log_script_insertion('$RCSfile: clin-allergy.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: clin-allergy.sql,v $
--- Revision 1.2  2007-03-21 08:14:55  ncq
+-- Revision 1.3  2007-03-26 16:51:13  ncq
+-- - static stuff needs to go into static section
+--
+-- Revision 1.2  2007/03/21 08:14:55  ncq
 -- - rename columns
 --
 -- Revision 1.1  2007/03/18 13:37:47  ncq
