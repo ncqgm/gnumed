@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.80 2007-03-23 15:39:02 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmTopPanel.py,v 1.81 2007-03-26 14:44:36 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -320,7 +320,7 @@ class cMainTopPanel(wx.Panel):
 			return True
 
 		tmp = []
-		tt = u'%70s\n\n' % u'Allergies:'
+		tt = u'%-70s\n\n' % u'Allergies:'
 		for allergy in allergies:
 			if allergy['type'] == 'allergy':
 				tmp.append(allergy['descriptor'][:10])
@@ -434,7 +434,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.80  2007-03-23 15:39:02  ncq
+# Revision 1.81  2007-03-26 14:44:36  ncq
+# - left align first line of allergies list tooltip
+#
+# Revision 1.80  2007/03/23 15:39:02  ncq
 # - show allergy manager on double-clicking allergies field
 #
 # Revision 1.79  2007/03/23 15:03:02  ncq
