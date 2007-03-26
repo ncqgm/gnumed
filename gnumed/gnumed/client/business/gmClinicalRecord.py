@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.237 2007-03-23 15:01:14 ncq Exp $
-__version__ = "$Revision: 1.237 $"
+# $Id: gmClinicalRecord.py,v 1.238 2007-03-26 16:49:26 ncq Exp $
+__version__ = "$Revision: 1.238 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -641,8 +641,8 @@ where
 			encounter_id = self.__encounter['pk_encounter']
 
 		if episode_id is None:
-			issue = self.add_health_issue(issue_name = _('immune system disorder'))
-			epi = self.add_episode(episode_name = _('allergies'), pk_health_issue = issue['pk'])
+			issue = self.add_health_issue(issue_name = _('allergies/intolerances'))
+			epi = self.add_episode(episode_name = substance, pk_health_issue = issue['pk'])
 			episode_id = epi['pk_episode']
 
 		new_allergy = gmAllergy.create_allergy (
@@ -1625,7 +1625,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.237  2007-03-23 15:01:14  ncq
+# Revision 1.238  2007-03-26 16:49:26  ncq
+# - settle on health issue/episode naming for newly added allergies
+#
+# Revision 1.237  2007/03/23 15:01:14  ncq
 # - cleanup get_allergies() API
 #
 # Revision 1.236  2007/03/21 08:12:14  ncq
