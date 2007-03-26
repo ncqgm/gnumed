@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.25 2007-03-21 08:09:07 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmAllergy.py,v 1.26 2007-03-26 16:48:34 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -32,7 +32,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 				generics=%(generics)s,
 				allergene=%(allergene)s,
 				atc_code=%(atc_code)s,
-				id_type=%(pk_type)s,
+				fk_type=%(pk_type)s,
 				generic_specific=%(generic_specific)s::boolean,
 				definite=%(definite)s::boolean,
 				narrative=%(reaction)s
@@ -57,7 +57,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	def __setitem__(self, attribute, value):
 		if attribute == 'pk_type':
 			if value in ['allergy', 'sensitivity']:
-				cmd = u'select id from clin._enum_allergy_type where value=%s'
+				cmd = u'select pk from clin._enum_allergy_type where value=%s'
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [value]}])
 				value = rows[0][0]
 
@@ -102,12 +102,12 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 
 	if type(allg_type) == types.IntType:
 		cmd = u"""
-			insert into clin.allergy (id_type, fk_encounter, fk_episode, substance)
+			insert into clin.allergy (fk_type, fk_encounter, fk_episode, substance)
 			values (%s, %s, %s, %s)"""
 	else:
 		cmd = u"""
-			insert into clin.allergy (id_type, fk_encounter, fk_episode,  substance)
-			values ((select id from clin._enum_allergy_type where value=%s), %s, %s, %s)"""
+			insert into clin.allergy (fk_type, fk_encounter, fk_episode,  substance)
+			values ((select pk from clin._enum_allergy_type where value = %s), %s, %s, %s)"""
 	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, substance]})
 
 	cmd = u"select currval('clin.allergy_id_seq')"
@@ -156,7 +156,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.25  2007-03-21 08:09:07  ncq
+# Revision 1.26  2007-03-26 16:48:34  ncq
+# - various id -> pk/fk type fixes
+#
+# Revision 1.25  2007/03/21 08:09:07  ncq
 # - add allergic_states
 # - add allergic_state2str()
 #
