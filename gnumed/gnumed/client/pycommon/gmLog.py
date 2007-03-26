@@ -54,7 +54,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -287,6 +287,9 @@ class cLogger:
 		for key in self.__targets.keys():
 			self.__targets[key].flush()
 	#---------------------------
+	def get_targets(self):
+		return self.__targets.values()
+	#---------------------------
 	# internal methods
 	#---------------------------
 	def __char2AsciiName(self, aChar):
@@ -425,6 +428,9 @@ class cLogTargetFile(cLogTarget):
 			self.__handle.write(' '.join(msg))
 		except:
 			print "*** cannot write to log file [%s] ***" % self.ID
+	#---------------------------
+	def flush(self):
+		self.__handle.flush()
 #---------------------------------------------------------------
 class cLogTargetConsole(cLogTarget):
 	def __init__ (self, aLogLevel = lErr):
@@ -854,7 +860,11 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.27  2007-02-04 22:03:11  ncq
+# Revision 1.28  2007-03-26 14:43:08  ncq
+# - support flush() in file targets
+# - add get_targets() to external API
+#
+# Revision 1.27  2007/02/04 22:03:11  ncq
 # - add /tmp/<base_name>.log as second to last location
 #
 # Revision 1.26  2006/11/15 00:38:58  ncq
