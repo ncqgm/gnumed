@@ -1,0 +1,46 @@
+# GNUmed system-wide configuration file
+# -------------------------------------------------------------
+#
+# For this file to take effect copy it to /etc/gnumed/gnumed-client.conf.
+#
+# -------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
+# $Id: gnumed-client.conf.example,v 1.1 2007-03-26 15:01:50 ncq Exp $
+
+
+[backend]
+profiles = $profiles$
+GNUmed v5 database on public server
+$profiles$
+
+
+
+[profile GNUmed v5 database on public server]
+host = salaam.homeunix.com
+port = 5432
+database = gnumed_v5
+#encoding = UTF8
+
+
+
+[profile GNUmed v5 database on this machine (Linux)]
+host = 
+port = 5432
+database = gnumed_v5
+#encoding = UTF8
+
+
+
+[profile GNUmed v5 database on this machine (Windows)]
+host = 127.0.0.1
+port = 5432
+database = gnumed_v5
+#encoding = cp1252
+
+
+# -------------------------------------------------------------
+# $Log: gnumed-client.conf.example,v $
+# Revision 1.1  2007-03-26 15:01:50  ncq
+# - added as example for /etc/gnumed/gnumed-client.conf
+#
+#
