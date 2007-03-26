@@ -6,14 +6,14 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.4 2005-07-11 16:55:27 ncq Exp $
+# $Id: gnumed,v 1.5 2007-03-26 17:18:04 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert
 #--------------------------------------------------
 
 # set -x
 
-CONFSOURCE="/etc/gnumed/gnumed.conf"
+CONFSOURCE="/etc/gnumed/gnumed-client.conf"
 
 echo "GNUmed startup"
 
@@ -22,8 +22,6 @@ echo "GNUmed startup"
 if [ ! -s ${HOME}/.gnumed/gnumed.conf ] ; then
 	if [ ! -e ${CONFSOURCE} ] ; then
 		echo "Global config file ${CONFSOURCE} missing."
-	else
-		cp -Rv ${CONFSOURCE} ${HOME}/.gnumed/gnumed.conf
 	fi
 fi
 
@@ -43,14 +41,17 @@ fi
 
 # now run a client
 python /usr/lib/python/site-packages/Gnumed/wxpython/gnumed.py $@
-#--unicode-gettext=0
 #--log-file=somewhere.log
 #--conf-file=somewhere.conf
 #--debug
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.4  2005-07-11 16:55:27  ncq
+# Revision 1.5  2007-03-26 17:18:04  ncq
+# - no more --unicode-gettext
+# - no more copying /etc/gnumed/gnumed.conf
+#
+# Revision 1.4  2005/07/11 16:55:27  ncq
 # - allow systemwide startup extension shell script, too
 #
 # Revision 1.3  2005/07/11 16:53:03  ncq
