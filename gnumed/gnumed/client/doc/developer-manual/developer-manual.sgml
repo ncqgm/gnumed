@@ -1941,10 +1941,6 @@ Command line arguments:
 --debug
  Be extra verbose and report nearly everything that's going
  on. Useful for, well, debugging :-)
---talkback
- Run the client and upon exiting run a talkback client where
- you can enter a comment and send the log off to the bug hunters.
- Very useful when used in conjunction with --debug.
 --text-domain=<&lt a_text_domain &gt
  Set this to change the name of the language file to be loaded.
  Note, this does not change the directory the file is searched in,
@@ -2260,10 +2256,6 @@ should be del()ed after use, actually
 <sect2><title>gmShadow.py</title><screen>
 - encapsulates custom widget shadow object to be used on all
   Richard-Terry-Style widgets (possibly more)
-
-</screen></sect2>
-<sect2><title>gmTalkback.py</title><screen>
-- encapsulates talkback app
 
 </screen></sect2>
 <sect2><title>gmUserAdmin.py</title><screen>
