@@ -15,15 +15,15 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.316 2007-03-23 16:42:46 ncq Exp $
-__version__ = "$Revision: 1.316 $"
+# $Id: gmGuiMain.py,v 1.317 2007-03-26 14:44:20 ncq Exp $
+__version__ = "$Revision: 1.317 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil
 
 
 # 3rd party libs
@@ -449,13 +449,23 @@ class gmTopLevelFrame(wx.Frame):
 
 		# menu "Help" -------------------------
 		help_menu = wx.Menu()
+
 		# - about
 		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
 		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
+
 		# - contributors
 		ID_CONTRIBUTORS = wx.NewId()
 		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
-		wx.EVT_MENU (self, ID_CONTRIBUTORS, self.__on_show_contributors)
+		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
+
+		help_menu.AppendSeparator()
+
+		# - save log file
+		ID = wx.NewId()
+		help_menu.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
+		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
+
 		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
 		self.__gb['main.helpmenu'] = help_menu
@@ -547,6 +557,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		return True
 	#----------------------------------------------
+	# help menu
+	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
 		gmAbout = gmAbout.AboutFrame(self, -1, _("About GNUmed"), size=wx.Size(350, 300), style = wx.MAXIMIZE_BOX)
@@ -567,6 +579,33 @@ class gmTopLevelFrame(wx.Frame):
 		contribs.ShowModal()
 		del contribs
 		del gmAbout
+	#----------------------------------------------
+	def __on_backup_log_file(self, evt):
+		for target in _log.get_targets():
+			if isinstance(target, gmLog.cLogTargetFile):
+				name = os.path.basename(target.ID)
+				name, ext = os.path.splitext(name)
+				new_name = '%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+				new_path = os.path.expanduser(os.path.join('~', 'gnumed', 'logs'))
+				dlg = wx.FileDialog (
+					parent = self,
+					message = _("Save current log as..."),
+					defaultDir = new_path,
+					defaultFile = new_name,
+					wildcard = "%s (*.log)|*.log" % _("log files"),
+					style = wx.SAVE
+				)
+				choice = dlg.ShowModal()
+				new_name = dlg.GetPath()
+				dlg.Destroy()
+				if choice != wx.ID_OK:
+					return True
+				_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
+				_log.flush()
+				shutil.copy2(target.ID, new_name)
+				gmDispatcher.send(gmSignals.statustext(), msg = _('Log file backed up as [%s].') % new_name)
+	#----------------------------------------------
+	# GNUmed menu
 	#----------------------------------------------
 	def OnFileExit(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
@@ -651,7 +690,6 @@ class gmTopLevelFrame(wx.Frame):
 			gmGuiHelpers.gm_statustext(_('Cannot add medication. No active patient.'))
 			return False
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
-#		dlg = gmAllergyWidgets.cAllergyEditAreaDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
@@ -1101,11 +1139,14 @@ class gmApp(wx.App):
 	def _do_after_init(self):
 		# - setup GUI callback in clinical record
 		gmClinicalRecord.set_func_ask_user(a_func = gmGuiHelpers.gm_show_question)
+
 		# - raise startup-default plugin (done in cTopLevelFrame)
-		# - load external patients
+
 		gmPatSearchWidgets.load_patient_from_external_sources(self.GetTopWindow())
-		# - set focus to patient search widget
+
 		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
+
+		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called:
@@ -1269,7 +1310,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.316  2007-03-23 16:42:46  ncq
+# Revision 1.317  2007-03-26 14:44:20  ncq
+# - eventually support flushing/backing up the log file
+# - add hook startup-after-GUI-init
+#
+# Revision 1.316  2007/03/23 16:42:46  ncq
 # - upon initial startup set focus to patient selector as requested by user ;-)
 #
 # Revision 1.315  2007/03/18 14:08:39  ncq
