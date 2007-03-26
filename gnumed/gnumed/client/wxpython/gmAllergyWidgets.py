@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -160,7 +160,7 @@ where narrative %(fragment_condition)s
 		self.__allergy['substance'] = self._PRW_trigger.GetValue().strip()
 		# FIXME: determine brandname/generic/etc from substance (trigger field)
 		self.__allergy['generic_specific'] = (True and self._ChBOX_generic_specific.GetValue())
-		self.__allergy['reaction'] = self._PRW_reaction.GetValue()
+		self.__allergy['reaction'] = self._PRW_reaction.GetValue().strip()
 		self.__allergy['definite'] = (True and self._ChBOX_definite.GetValue())
 		if self._RBTN_type_allergy.GetValue():
 			 self.__allergy['pk_type'] = 'allergy'
@@ -239,7 +239,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 					label = u''
 				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 1, label = label)
 				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 2, label = allergy['descriptor'])
-				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 3, label = allergy['reaction'])
+				self._LCTRL_allergies.SetStringItem(index = row_idx, col = 3, label = gmTools.coalesce(allergy['reaction'], u''))
 			self._LCTRL_allergies.set_data(data=allergies)
 		else:
 			row_idx = self._LCTRL_allergies.InsertStringItem(no_of_allergies, label = _('allergic state'))
@@ -294,7 +294,6 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	def _on_undisclosed_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-		print "setting state on", emr
 		emr.allergic_state = -1
 		self.__refresh_ui()
 	#--------------------------------------------------------
@@ -461,7 +460,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.21  2007-03-22 11:04:15  ncq
+# Revision 1.22  2007-03-26 16:49:50  ncq
+# - "reaction" can be empty
+#
+# Revision 1.21  2007/03/22 11:04:15  ncq
 # - activate prw match providers
 #
 # Revision 1.20  2007/03/21 08:14:01  ncq
