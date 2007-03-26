@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.317 2007-03-26 14:44:20 ncq Exp $
-__version__ = "$Revision: 1.317 $"
+# $Id: gmGuiMain.py,v 1.318 2007-03-26 16:09:50 ncq Exp $
+__version__ = "$Revision: 1.318 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -643,7 +643,7 @@ class gmTopLevelFrame(wx.Frame):
 		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
-		gmGuiHelpers.gm_statustext(_('Saved screenshot to file [%s].') % fname)
+		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Saved screenshot to file [%s].') % fname)
 		evt.Skip()
 	#----------------------------------------------
 	def OnClose(self, event):
@@ -669,7 +669,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot add health issue. No active patient.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot add health issue. No active patient.'))
 			return False
 		ea = gmEMRStructWidgets.cHealthIssueEditAreaDlg(parent=self, id=-1)
 		ea.ShowModal()
@@ -677,7 +677,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_add_medication(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot add medication. No active patient.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot add medication. No active patient.'))
 			return False
 
 		jump_to_ifap(import_drugs = True)
@@ -687,16 +687,18 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_allergies(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot add medication. No active patient.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot add allergy. No active patient.'))
 			return False
+
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot show EMR summary. No active patient.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot show EMR summary. No active patient.'))
 			return False
+
 		emr = pat.get_emr()
 		msg = _("""Medical problems: %(problems)s
 Total visits: %(visits)s
@@ -717,8 +719,9 @@ Stored documents: %(documents)s
 	def __on_search_emr(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot search EMR. No active patient.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot search EMR. No active patient.'))
 			return False
+
 		searcher = wx.TextEntryDialog (
 			parent = self,
 			message = _('Enter search term:'),
@@ -756,7 +759,7 @@ Search results:
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot export EMR journal. No active patient.'), gmLog.lErr)
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot export EMR journal. No active patient.'))
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
@@ -795,7 +798,7 @@ Search results:
 			raise
 		wx.EndBusyCursor()
 
-		gmGuiHelpers.gm_statustext(_('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
+		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
 
 		return True
 	#----------------------------------------------
@@ -803,7 +806,7 @@ Search results:
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot export EMR for Medistar. No active patient.'), gmLog.lErr)
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot export EMR for Medistar. No active patient.'))
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
@@ -845,7 +848,7 @@ Search results:
 			)
 			return False
 
-		gmGuiHelpers.gm_statustext(_('Successfully exported todays progress notes into file [%s] for Medistar import.') % fname, beep=False)
+		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Successfully exported todays progress notes into file [%s] for Medistar import.') % fname, beep=False)
 
 		return True
 	#----------------------------------------------
@@ -858,7 +861,7 @@ Search results:
 		enc = 'cp850'
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
-		gmGuiHelpers.gm_statustext(_('Exported demographics to GDT file [%s].') % fname)
+		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Exported demographics to GDT file [%s].') % fname)
 	#----------------------------------------------
 	def __on_create_patient(self, event):
 		"""Launch create patient wizard.
@@ -869,7 +872,7 @@ Search results:
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot add staff member. No active patient.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot add staff member. No active patient.'))
 			return False
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
@@ -877,7 +880,7 @@ Search results:
 	def __on_delete_patient(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot delete patient. No patient active.'))
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot delete patient. No patient active.'))
 			return False
 		gmDemographicsWidgets.disable_identity(identity=pat)
 		return True
@@ -999,11 +1002,6 @@ Search results:
 		t = time.localtime(time.time())
 		st = time.strftime('%c', t).decode(locale.getlocale()[1])
 		self.SetStatusText(st,1)
-	#----------------------------------------------
-#	def on_user_error (self, signal, message):
-#		"response to user_error event"
-#		self.SetStatusText (message, 0)
-#		wx.Bell()
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
@@ -1310,7 +1308,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.317  2007-03-26 14:44:20  ncq
+# Revision 1.318  2007-03-26 16:09:50  ncq
+# - lots of statustext signal fixes
+#
+# Revision 1.317  2007/03/26 14:44:20  ncq
 # - eventually support flushing/backing up the log file
 # - add hook startup-after-GUI-init
 #
