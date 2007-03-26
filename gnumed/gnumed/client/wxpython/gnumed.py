@@ -15,10 +15,6 @@ care of all the pre- and post-GUI runtime environment setup.
  on. Useful for, well, debugging :-)
 --profile=<file>
  Activate profiling and write profile data to <file>.
---talkback
- Run the client and upon exiting run a talkback client where
- you can enter a comment and send the log off to the bug hunters.
- Very useful when used in conjunction with --debug.
 --text-domain=<text domain>
  Set this to change the name of the language file to be loaded.
  Note, this does not change the directory the file is searched in,
@@ -43,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.110 2007-03-18 14:11:34 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gnumed.py,v 1.111 2007-03-26 14:45:36 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -137,13 +133,6 @@ requirements please ask on the mailing list.
 	global gmCLI
 	gmCLI = _gmCLI
 
-	# talkback mode ?
-	if gmCLI.has_arg('--talkback'):
-		# email logger as a loop device
-		global _email_logger
-		_email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GNUmed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
-		_log.AddTarget (_email_logger)
-
 	# debug level logging ?
 	if gmCLI.has_arg("--debug"):
 		print "GNUmed startup: Activating verbose log level for debugging."
@@ -187,6 +176,7 @@ def setup_pathes():
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
 #==========================================================
 def setup_date_time():
 	from Gnumed.pycommon import gmDateTime
@@ -398,24 +388,24 @@ def log_object_refcounts():
 	rcfile.close()
 
 #==========================================================
+def check_help_request():
+	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
+		print _(
+			'Help requested\n'
+			'--------------'
+		)
+		print __doc__
+		sys.exit(0)
+
+#==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
 # set up top level exception handler
 sys.excepthook = handle_uncaught_exception
 
 setup_logging()
-
 setup_locale()
-
-# help requested ?
-if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
-	print _(
-		'Help requested\n'
-		'--------------'
-	)
-	print __doc__
-	sys.exit(0)
-
+check_help_request()
 #setup_signal_handlers()
 
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
@@ -446,39 +436,30 @@ gb['resource dir'] = resPath
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
 # now actually run GNUmed
-try:
-	from Gnumed.wxpython import gmGuiMain
-	# do we do profiling ?
-	if gmCLI.has_arg('--profile'):
-		profile_file = gmCLI.arg['--profile']
-		_log.Log(gmLog.lInfo, 'writing profiling data into %s' % profile_file)
-		import profile
-		profile.run('gmGuiMain.main()', profile_file)
-	else:
-		gmGuiMain.main()
-
-except StandardError:
-
-	_log.LogException ("Exception: Unhandled exception encountered.", verbose=1)
-	if gmCLI.has_arg('--talkback'):
-		import gmTalkback
-		gmTalkback.run(_email_logger)
-	raise
+from Gnumed.wxpython import gmGuiMain
+# do we do profiling ?
+if gmCLI.has_arg('--profile'):
+	profile_file = gmCLI.arg['--profile']
+	_log.Log(gmLog.lInfo, 'writing profiling data into %s' % profile_file)
+	import profile
+	profile.run('gmGuiMain.main()', profile_file)
+else:
+	gmGuiMain.main()
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
 log_object_refcounts()
 
-# do we do talkback ?
-if gmCLI.has_arg('--talkback'):
-	import gmTalkback
-	gmTalkback.run(_email_logger)
-
 _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.110  2007-03-18 14:11:34  ncq
+# Revision 1.111  2007-03-26 14:45:36  ncq
+# - cleanup
+# - remove --talkback handling (it will be better supported next version)
+# - create path gnumed/logs/ at startup
+#
+# Revision 1.110  2007/03/18 14:11:34  ncq
 # - a bit of clenaup/refactoring
 # - add hooks before/after GUI
 #
