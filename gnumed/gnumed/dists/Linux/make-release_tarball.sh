@@ -2,12 +2,12 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.28 2007-03-18 14:12:40 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.29 2007-03-26 17:18:39 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.2.next"
+CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
-SRVREV="5"
+SRVREV="CVS-HEAD"
 SRVARCH="GNUmed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -134,6 +134,7 @@ cp -R ../../client/connectors/gm_ctl_client.* ./GNUmed-$CLIENTREV/client/connect
 # doc
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$CLIENTREV/client/doc/
+cp -R ../../client/doc/gnumed-client.conf.example ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
@@ -275,18 +276,28 @@ find ./GNUmed-$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 
 
 # now make tarballs
-tar -cvhzf $CLIENTARCH ./GNUmed-$CLIENTREV/client/
-ln -s ./GNUmed-$CLIENTREV ./GNUmed-$SRVREV
-tar -cvhzf $SRVARCH ./GNUmed-$SRVREV/server/
+cd GNUmed-$CLIENTREV
+ln -s client Gnumed
+cd ..
+tar -cvzf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/Gnumed
+
+cd GNUmed-$CLIENTREV
+rm Gnumed
+ln -s server Gnumed
+cd ..
+tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$CLIENTREV/Gnumed
 
 
 # cleanup
-rm -vf ./GNUmed-$SRVREV
-rm -R ./GNUmed-$CLIENTREV/
+#rm -R ./GNUmed-$SRVREV/
+#rm -R ./GNUmed-$CLIENTREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.28  2007-03-18 14:12:40  ncq
+# Revision 1.29  2007-03-26 17:18:39  ncq
+# - set CVS HEAD revision to CVS-HEAD
+#
+# Revision 1.28  2007/03/18 14:12:40  ncq
 # - exclude some as-yet unused wxGlade widgets
 #
 # Revision 1.27  2007/02/19 16:45:45  ncq
