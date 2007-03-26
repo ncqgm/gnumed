@@ -22,8 +22,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.1 2007-03-18 13:19:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmHooks.py,v 1.2 2007-03-26 14:42:27 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -41,6 +41,7 @@ from Gnumed.pycommon import gmSignals, gmDispatcher, gmTools
 hooks_registry = [
 	u'post_patient_activation',
 	u'shutdown-post-GUI',
+	u'startup-after-GUI-init',
 	u'startup-before-GUI'
 ]
 
@@ -104,7 +105,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.1  2007-03-18 13:19:13  ncq
+# Revision 1.2  2007-03-26 14:42:27  ncq
+# - register startup-after-GUI-init
+#
+# Revision 1.1  2007/03/18 13:19:13  ncq
 # - factor out hooks framework
 #
 #
