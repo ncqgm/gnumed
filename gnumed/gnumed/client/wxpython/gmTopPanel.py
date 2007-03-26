@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.81 2007-03-26 14:44:36 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmTopPanel.py,v 1.82 2007-03-26 16:50:14 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -328,7 +328,7 @@ class cMainTopPanel(wx.Panel):
 				certainty = _('definite')
 			else:
 				certainty = _('likely')
-			reaction = gmTools.coalesce(allergy['reaction'], u'')
+			reaction = gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			if len(reaction) > 50:
 				reaction = reaction[:50] + u'...'
 			tt += u'%s - %s (%s): %s\n' % (
@@ -434,7 +434,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.81  2007-03-26 14:44:36  ncq
+# Revision 1.82  2007-03-26 16:50:14  ncq
+# - allergy['reaction'] can be empty
+#
+# Revision 1.81  2007/03/26 14:44:36  ncq
 # - left align first line of allergies list tooltip
 #
 # Revision 1.80  2007/03/23 15:39:02  ncq
