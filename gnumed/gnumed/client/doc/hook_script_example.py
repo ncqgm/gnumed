@@ -1,3 +1,4 @@
+#===========================================================================
 #
 # Example script to be run off GNUmed hooks.
 #
@@ -5,10 +6,12 @@
 # hook is invoked and will wait for user
 # interaction before proceeding.
 #
+# Copy this file to ~/.gnumed/scripts/hook_script.py and modify as needed.
+#
 #===========================================================================
-# $Id: hook_script_example.py,v 1.1 2007-02-19 16:23:08 ncq Exp $
+# $Id: hook_script_example.py,v 1.2 2007-03-26 15:04:24 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/hook_script_example.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -30,7 +33,10 @@ def run_script(hook=None):
 
 #===========================================================================
 # $Log: hook_script_example.py,v $
-# Revision 1.1  2007-02-19 16:23:08  ncq
+# Revision 1.2  2007-03-26 15:04:24  ncq
+# - better docs
+#
+# Revision 1.1  2007/02/19 16:23:08  ncq
 # - better name
 #
 # Revision 1.1  2007/02/19 16:21:07  ncq
