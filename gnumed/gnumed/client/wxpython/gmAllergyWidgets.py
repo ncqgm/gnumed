@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -71,6 +71,7 @@ where narrative %(fragment_condition)s
 		)
 		mp.setThresholds(2, 3, 5)
 		self._PRW_reaction.matcher = mp
+		self._PRW_reaction.enable_default_spellchecker()
 
 		self.refresh()
 	#--------------------------------------------------------
@@ -460,7 +461,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.22  2007-03-26 16:49:50  ncq
+# Revision 1.23  2007-03-27 09:59:47  ncq
+# - enable spell checker on allergy.reaction
+#
+# Revision 1.22  2007/03/26 16:49:50  ncq
 # - "reaction" can be empty
 #
 # Revision 1.21  2007/03/22 11:04:15  ncq
