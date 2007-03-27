@@ -8,18 +8,19 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.96 2007-02-16 10:22:09 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmPhraseWheel.py,v 1.97 2007-03-27 09:59:26 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
 # stdlib
-import string, types, time, sys, re as regex
+import string, types, time, sys, re as regex, os.path
 
 
 # 3rd party
 import wx
 import wx.lib.mixins.listctrl as listmixins
+import enchant
 
 
 # GNUmed specific
@@ -296,6 +297,9 @@ class cPhraseWheel(wx.TextCtrl):
 	def unset_context(self, context=None):
 		if self.matcher is not None:
 			self.matcher.unset_context(context=context)
+	#--------------------------------------------------------
+	def enable_default_spellchecker(self):
+		self.speller = enchant.DictWithPWL(None, os.path.expanduser('~/phrasewheel-test.pwl'))
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -691,8 +695,6 @@ class cPhraseWheel(wx.TextCtrl):
 # MAIN
 #--------------------------------------------------------
 if __name__ == '__main__':
-	import os.path
-
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain(text_domain='gnumed')
@@ -800,8 +802,8 @@ if __name__ == '__main__':
 		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
 		prw.add_callback_on_selection(callback=display_values_selected)
 
-		import enchant
-		prw.speller = enchant.DictWithPWL(None, os.path.expanduser('~/phrasewheel-test.pwl'))
+		prw.enable_default_spellchecker()
+#		prw.speller = enchant.DictWithPWL(None, os.path.expanduser('~/phrasewheel-test.pwl'))
 
 		app.frame.Show(True)
 		app.MainLoop()
@@ -815,7 +817,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.96  2007-02-16 10:22:09  ncq
+# Revision 1.97  2007-03-27 09:59:26  ncq
+# - enable_default_spellchecker()
+#
+# Revision 1.96  2007/02/16 10:22:09  ncq
 # - _calc_display_string -> _picklist_selection2display_string to better reflect its use
 #
 # Revision 1.95  2007/02/06 13:45:39  ncq
