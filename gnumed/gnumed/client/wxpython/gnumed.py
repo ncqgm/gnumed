@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.111 2007-03-26 14:45:36 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gnumed.py,v 1.112 2007-03-27 10:29:49 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -172,6 +172,7 @@ def setup_pathes():
 	from Gnumed.pycommon import gmTools
 
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'docs')))
@@ -454,7 +455,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.111  2007-03-26 14:45:36  ncq
+# Revision 1.112  2007-03-27 10:29:49  ncq
+# - better placement for default word list
+#
+# Revision 1.111  2007/03/26 14:45:36  ncq
 # - cleanup
 # - remove --talkback handling (it will be better supported next version)
 # - create path gnumed/logs/ at startup
