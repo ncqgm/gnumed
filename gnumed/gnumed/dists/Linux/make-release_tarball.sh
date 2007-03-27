@@ -2,12 +2,12 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.29 2007-03-26 17:18:39 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.29.2.1 2007-03-27 20:00:47 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="CVS-HEAD"
+CLIENTREV="0.2.5-rc1"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
-SRVREV="CVS-HEAD"
+SRVREV="5"
 SRVARCH="GNUmed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -285,7 +285,8 @@ cd GNUmed-$CLIENTREV
 rm Gnumed
 ln -s server Gnumed
 cd ..
-tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$CLIENTREV/Gnumed
+mv GNUmed-$CLIENTREV GNUmed-$SRVREV
+tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$SRVREV/Gnumed
 
 
 # cleanup
@@ -294,7 +295,10 @@ tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$CLIENTREV/Gnumed
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.29  2007-03-26 17:18:39  ncq
+# Revision 1.29.2.1  2007-03-27 20:00:47  ncq
+# - switch to proper release name
+#
+# Revision 1.29  2007/03/26 17:18:39  ncq
 # - set CVS HEAD revision to CVS-HEAD
 #
 # Revision 1.28  2007/03/18 14:12:40  ncq
