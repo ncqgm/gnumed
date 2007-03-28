@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.1 2006-12-23 13:17:32 ncq Exp $
+# $Id: gmShellAPI.py,v 1.1.4.1 2007-03-28 14:50:42 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.1.4.1 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -27,6 +27,7 @@ def run_command_in_shell(command=None, blocking=False):
 
 	<command>
 		The shell command to run including command line options.
+		Must be Unicode.
 	<blocking>
 		This will make the code *block* until the shell command exits.
 		It will likely only work on UNIX shells where "cmd &" makes sense.
@@ -64,7 +65,7 @@ def run_command_in_shell(command=None, blocking=False):
 			command += ' &'
 
 	_log.Log(gmLog.lData, 'running shell command >>>%s<<<' % command)
-	ret_val = os.system(command)
+	ret_val = os.system(command.encode(sys.getfilesystemencoding()))
 	_log.Log(gmLog.lData, 'os.system() returned: [%s]' % ret_val)
 
 	exited_normally = False
@@ -94,6 +95,9 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.1  2006-12-23 13:17:32  ncq
+# Revision 1.1.4.1  2007-03-28 14:50:42  ncq
+# - need to encode command passed to os.system()
+#
+# Revision 1.1  2006/12/23 13:17:32  ncq
 # - new API
 #
