@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.39 2007-02-17 14:08:52 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmForms.py,v 1.39.2.1 2007-03-28 14:48:11 ncq Exp $
+__version__ = "$Revision: 1.39.2.1 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
 
 # standard library 
@@ -175,7 +175,7 @@ class LaTeXForm (gmFormEngine):
 			stdin.write (str (latex)) #send text. LaTeX spits it's output into stdout
 			# FIXME: send LaTeX output to the logger
 			stdin.close ()
-			if not gmShellAPI.run_command_in_shell("dvips texput.dvi -o texput.ps", blocking=True):
+			if not gmShellAPI.run_command_in_shell(u"dvips texput.dvi -o texput.ps", blocking=True):
 				raise FormError ('DVIPS returned error')
 		except EnvironmentError, e:
 			_log.Log (gmLog.lErr, e.strerror)
@@ -187,13 +187,13 @@ class LaTeXForm (gmFormEngine):
 		For testing purposes, runs Xdvi on the intermediate TeX output
 		WARNING: don't try this on Windows
 		"""
-		gmShellAPI.run_command_in_shell("xdvi texput.dvi", blocking=True)
+		gmShellAPI.run_command_in_shell(u"xdvi texput.dvi", blocking=True)
 
 	def exe (self, command):
 		if "%F" in command:
 			command.replace ("%F", "texput.ps")
 		else:
-			command	 = "%s < texput.ps" % command
+			command	 = u"%s < texput.ps" % command
 		try:
 			if not gmShellAPI.run_command_in_shell(command, blocking=True):
 				_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
@@ -393,7 +393,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.39  2007-02-17 14:08:52  ncq
+# Revision 1.39.2.1  2007-03-28 14:48:11  ncq
+# - run_command_in_shell() wants u''
+#
+# Revision 1.39  2007/02/17 14:08:52  ncq
 # - gmPerson.gmCurrentProvider.workplace now a property
 #
 # Revision 1.38  2006/12/23 15:23:11  ncq
