@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.37 2007-02-17 18:18:09 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmScanBackend.py,v 1.37.2.1 2007-03-28 14:50:14 ncq Exp $
+__version__ = "$Revision: 1.37.2.1 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -327,7 +327,7 @@ class cXSaneScanner:
 		self.__prepare_xsanerc(tmpdir=path)
 
 		gmShellAPI.run_command_in_shell (
-			command = 'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
+			command = u'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
 				filename,
 				gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
 				gmTools.coalesce(self.default_device, '')
@@ -480,7 +480,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.37  2007-02-17 18:18:09  ncq
+# Revision 1.37.2.1  2007-03-28 14:50:14  ncq
+# - run_command_in_shell() wants u'' command
+#
+# Revision 1.37  2007/02/17 18:18:09  ncq
 # - support pre-setting device and device-settings-file with XSane
 #
 # Revision 1.36  2007/02/15 12:03:27  ncq
