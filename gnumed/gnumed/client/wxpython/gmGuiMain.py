@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.318 2007-03-26 16:09:50 ncq Exp $
-__version__ = "$Revision: 1.318 $"
+# $Id: gmGuiMain.py,v 1.318.2.1 2007-03-28 14:51:33 ncq Exp $
+__version__ = "$Revision: 1.318.2.1 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -619,7 +619,7 @@ class gmTopLevelFrame(wx.Frame):
 		# FIXME: scan CD for *.dcm files, put them into list and let
 		# FIXME: user call viewer for each
 		# FIXME: parse DICOMDIR file
-		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+		gmShellAPI.run_command_in_shell(u'xmedcon', blocking=False)
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
@@ -1308,7 +1308,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.318  2007-03-26 16:09:50  ncq
+# Revision 1.318.2.1  2007-03-28 14:51:33  ncq
+# - run_command_in_shell() requires u'' command
+#
+# Revision 1.318  2007/03/26 16:09:50  ncq
 # - lots of statustext signal fixes
 #
 # Revision 1.317  2007/03/26 14:44:20  ncq
