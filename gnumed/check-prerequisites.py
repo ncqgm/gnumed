@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 import sys
 
@@ -13,6 +13,18 @@ except ImportError:
 	print "ERROR: mxDateTime not installed"
 	print "ERROR: this is needed to handle dates and times"
 	print "ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
+	print "INFO : sys.path is set as follows:"
+	print "INFO :", "\nINFO : ".join(sys.path)
+	sys.exit(-1)
+
+print "=> checking for Python module 'enchant' ..."
+try:
+	import enchant
+	print "=> found"
+except ImportError:
+	print "ERROR: 'enchant' not installed"
+	print "ERROR: this is needed to handle spellchecking"
+#	print "ERROR: mxDateTime is available from http://www.egenix.com/files/python/"
 	print "INFO : sys.path is set as follows:"
 	print "INFO :", "\nINFO : ".join(sys.path)
 	sys.exit(-1)
@@ -118,7 +130,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.14  2007-01-29 11:55:05  ncq
+# Revision 1.15  2007-03-31 20:10:13  ncq
+# - check for enchant Python module
+#
+# Revision 1.14  2007/01/29 11:55:05  ncq
 # - drop check for SANE python module
 # - more precise output
 #
