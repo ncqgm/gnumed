@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.29 2007-03-26 17:18:39 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.30 2007-03-31 21:52:04 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -285,16 +285,20 @@ cd GNUmed-$CLIENTREV
 rm Gnumed
 ln -s server Gnumed
 cd ..
+mv GNUmed-$CLIENTREV GNUmed-$SRVREV
 tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$CLIENTREV/Gnumed
 
 
 # cleanup
-#rm -R ./GNUmed-$SRVREV/
-#rm -R ./GNUmed-$CLIENTREV/
+rm -R ./GNUmed-$SRVREV/
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.29  2007-03-26 17:18:39  ncq
+# Revision 1.30  2007-03-31 21:52:04  ncq
+# - rename client to server directory when packing tarballs
+# - add cleanup
+#
+# Revision 1.29  2007/03/26 17:18:39  ncq
 # - set CVS HEAD revision to CVS-HEAD
 #
 # Revision 1.28  2007/03/18 14:12:40  ncq
