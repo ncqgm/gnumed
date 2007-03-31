@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.98 2007-03-27 10:29:49 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmPhraseWheel.py,v 1.99 2007-03-31 20:09:06 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -20,7 +20,6 @@ import string, types, time, sys, re as regex, os.path
 # 3rd party
 import wx
 import wx.lib.mixins.listctrl as listmixins
-import enchant
 
 
 # GNUmed specific
@@ -299,7 +298,11 @@ class cPhraseWheel(wx.TextCtrl):
 			self.matcher.unset_context(context=context)
 	#--------------------------------------------------------
 	def enable_default_spellchecker(self):
-		self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
+		try:
+			import enchant
+			self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
+		except ImportError:
+			self.speller = None
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -803,7 +806,6 @@ if __name__ == '__main__':
 		prw.add_callback_on_selection(callback=display_values_selected)
 
 		prw.enable_default_spellchecker()
-#		prw.speller = enchant.DictWithPWL(None, os.path.expanduser('~/phrasewheel-test.pwl'))
 
 		app.frame.Show(True)
 		app.MainLoop()
@@ -817,7 +819,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.98  2007-03-27 10:29:49  ncq
+# Revision 1.99  2007-03-31 20:09:06  ncq
+# - make enchant optional
+#
+# Revision 1.98  2007/03/27 10:29:49  ncq
 # - better placement for default word list
 #
 # Revision 1.97  2007/03/27 09:59:26  ncq
