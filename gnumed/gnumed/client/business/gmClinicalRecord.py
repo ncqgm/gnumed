@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.238 2007-03-26 16:49:26 ncq Exp $
-__version__ = "$Revision: 1.238 $"
+# $Id: gmClinicalRecord.py,v 1.239 2007-03-31 21:18:13 ncq Exp $
+__version__ = "$Revision: 1.239 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -723,21 +723,16 @@ where
 		cmd = u"""select distinct pk_episode
 					from clin.v_pat_items
 					where pk_encounter=%(enc)s and pk_patient=%(pat)s"""
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': cmd,
-				'args': {
-					'enc': gmTools.coalesce(pk_encounter, self.__encounter['pk_encounter']),
-					'pat': self.pk_patient
-				}
-			}]
-		)
+		args = {
+			'enc': gmTools.coalesce(pk_encounter, self.__encounter['pk_encounter']),
+			'pat': self.pk_patient
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			return []
 		epis = []
 		for row in rows:
 			epis.append(row[0])
-		print "get_episodes_by_encounter(): epis=", epis
 		return self.get_episodes(id_list=epis)
 	#------------------------------------------------------------------
 	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False):
@@ -1625,7 +1620,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.238  2007-03-26 16:49:26  ncq
+# Revision 1.239  2007-03-31 21:18:13  ncq
+# - fix get_episodes_by_encounter()
+#
+# Revision 1.238  2007/03/26 16:49:26  ncq
 # - settle on health issue/episode naming for newly added allergies
 #
 # Revision 1.237  2007/03/23 15:01:14  ncq
