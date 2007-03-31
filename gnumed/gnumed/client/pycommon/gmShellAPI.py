@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.1 2006-12-23 13:17:32 ncq Exp $
+# $Id: gmShellAPI.py,v 1.2 2007-03-31 21:20:34 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -64,7 +64,7 @@ def run_command_in_shell(command=None, blocking=False):
 			command += ' &'
 
 	_log.Log(gmLog.lData, 'running shell command >>>%s<<<' % command)
-	ret_val = os.system(command)
+	ret_val = os.system(command.encode(sys.getfilesystemencoding()))
 	_log.Log(gmLog.lData, 'os.system() returned: [%s]' % ret_val)
 
 	exited_normally = False
@@ -94,6 +94,9 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.1  2006-12-23 13:17:32  ncq
+# Revision 1.2  2007-03-31 21:20:34  ncq
+# - os.system() needs encoded commands
+#
+# Revision 1.1  2006/12/23 13:17:32  ncq
 # - new API
 #
