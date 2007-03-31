@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 echo "-------------------------------------------------------------"
 echo "Please make sure to also read the INSTALL and README files."
@@ -87,10 +87,22 @@ else
 	echo "=> found"
 fi
 
+echo "=> checking for aspell spell checker ..."
+BIN=`which aspell`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'aspell' command installed."
+	echo "INFO : It is available with your OS."
+else
+	echo "=> found"
+fi
+
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.8  2007-01-29 11:55:31  ncq
+# Revision 1.9  2007-03-31 20:11:52  ncq
+# - check for aspeller
+#
+# Revision 1.8  2007/01/29 11:55:31  ncq
 # - improved output
 # - check for XSane and XMedCon
 #
