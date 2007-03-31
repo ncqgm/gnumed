@@ -15,7 +15,7 @@
 # ========================================================
 
 cd ../../
-ln -vfsn client Gnumed
+ln -vsn client Gnumed
 cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
