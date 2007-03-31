@@ -1,20 +1,30 @@
+# -*- coding: latin-1 -*-
+
 """This module encapsulates mime operations.
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.8 2006-12-23 15:24:28 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMimeLib.py,v 1.9 2007-03-31 21:20:14 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import os, mailcap, string, sys, mimetypes, shutil
 
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 import gmLog, gmShellAPI
+
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #=======================================================================================
 def guess_mimetype(aFileName = None):
-	"""Guess mime type of arbitrary file."""
+	"""Guess mime type of arbitrary file.
+
+	filenames are supposed to be in Unicode
+	"""
 	# sanity check
 	if not os.path.exists(aFileName):
 		_log.Log(gmLog.lErr, "Cannot guess mimetypes if I don't have any file to guess on.")
@@ -30,10 +40,10 @@ def guess_mimetype(aFileName = None):
 	# 2) use "file" system command
 	#    -i get mime type
 	#    -b don't display a header
-	mime_guesser_cmd = ('file -i -b "%s"' % aFileName)
+	mime_guesser_cmd = u'file -i -b "%s"' % aFileName
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work on Cygwin installations
-	aPipe = os.popen(mime_guesser_cmd, "r")
+	aPipe = os.popen(mime_guesser_cmd.encode(sys.getfilesystemencoding()), "r")
 	if aPipe is None:
 		_log.Log(gmLog.lData, "Cannot open pipe to [%s]." % mime_guesser_cmd)
 	else:
@@ -47,8 +57,8 @@ def guess_mimetype(aFileName = None):
 		_log.Log(gmLog.lErr, '%s (%s): exit(%s) -> <%s>' % (os.name, sys.platform, ret_code, tmp))
 
 	# 3) use "extract" shell level libextractor wrapper
-	mime_guesser_cmd = ('extract -p mimetype "%s"' % aFileName)
-	aPipe = os.popen(mime_guesser_cmd, "r")
+	mime_guesser_cmd = 'extract -p mimetype "%s"' % aFileName
+	aPipe = os.popen(mime_guesser_cmd.encode(sys.getfilesystemencoding()), "r")
 	if aPipe is None:
 		_log.Log(gmLog.lData, "Cannot open pipe to [%s]." % mime_guesser_cmd)
 	else:
@@ -206,11 +216,15 @@ def call_viewer_on_file(aFile = None, block=None):
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	filename = sys.argv[1]
-	print str(guess_mimetype(filename))
-	print str(get_viewer_cmd(guess_mimetype(filename), filename))
+	print guess_mimetype(filename)
+	print get_viewer_cmd(guess_mimetype(filename), filename)
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.8  2006-12-23 15:24:28  ncq
+# Revision 1.9  2007-03-31 21:20:14  ncq
+# - os.popen() needs encoded command strings
+# - fix test suite
+#
+# Revision 1.8  2006/12/23 15:24:28  ncq
 # - use gmShellAPI
 #
 # Revision 1.7  2006/10/31 17:19:26  ncq
