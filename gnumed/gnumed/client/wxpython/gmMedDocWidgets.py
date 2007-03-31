@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.117 2007-03-08 16:21:11 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmMedDocWidgets.py,v 1.118 2007-03-31 21:51:05 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -526,7 +526,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if not reconfigure:
 			dbcfg = gmCfg.cCfgSQL()
 			device = dbcfg.get2 (
-				option =  '',
+				option =  'external.xsane.default_device',
 				workplace = gmPerson.gmCurrentProvider().workplace,
 				bias = 'workplace'
 			)
@@ -572,7 +572,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def _scan_btn_pressed(self, evt):
 
-		chosen_device = get_device_to_use()
+		chosen_device = self.get_device_to_use()
 
 		tmpdir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp'))
 		try:
@@ -1339,9 +1339,8 @@ class cDocTree(wx.TreeCtrl):
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		# FIXME: make configurable
 		dname = '%s_%s-%s' % (pat['lastnames'], pat['firstnames'], pat['dob'].strftime('%Y-%m-%d'))
-		def_dir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname)))
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname))
 		if not os.access(def_dir, os.F_OK):
 			os.makedirs(def_dir)
 		
@@ -1375,7 +1374,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.117  2007-03-08 16:21:11  ncq
+# Revision 1.118  2007-03-31 21:51:05  ncq
+# - add xsane default device option
+#
+# Revision 1.117  2007/03/08 16:21:11  ncq
 # - support blobs.doc_obj.filename
 #
 # Revision 1.116  2007/02/22 17:41:13  ncq
