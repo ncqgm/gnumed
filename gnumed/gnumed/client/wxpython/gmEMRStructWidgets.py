@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.55 2007-03-18 14:05:31 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmEMRStructWidgets.py,v 1.56 2007-03-31 21:50:15 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -116,9 +116,8 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self.__encounter = encounter
 
 		# getting the patient via the encounter allows us to act
-		# on any encounter regardless of the currently active encounter
-		ident = gmPerson.cIdentity(aPK_obj = self.__encounter['pk_patient'])
-		pat = gmPerson.cPatient(identity = ident)
+		# on any encounter regardless of the currently active patient
+		pat = gmPerson.cPatient(aPK_obj = self.__encounter['pk_patient'])
 		emr = pat.get_emr()
 		episodes = emr.get_episodes_by_encounter(pk_encounter = self.__encounter['pk_encounter'])
 		pos = len(episodes) + 1
@@ -153,7 +152,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		else:
 			self._TCTRL_aoe.SetFocus()
 
-		self._LBL_patient.SetLabel(ident.get_description())
+		self._LBL_patient.SetLabel(pat.get_description())
 
 		return True
 	#--------------------------------------------------------
@@ -438,8 +437,7 @@ limit 30"""
 				if self.use_current_patient:
 					pat = gmPerson.gmCurrentPatient()
 				else:
-					ident = gmPerson.cIdentity(aPK_obj=self.__patient_id)
-					pat = gmPerson.cPatient(identity=ident)
+					pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
 				emr = pat.get_emr()
 
 				epi = emr.add_episode(episode_name=epi_name, is_open=is_open)
@@ -626,8 +624,7 @@ union
 				if self.use_current_patient:
 					pat = gmPerson.gmCurrentPatient()
 				else:
-					ident = gmPerson.cIdentity(aPK_obj=self.__patient_id)
-					pat = gmPerson.cPatient(identity=ident)
+					pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
 				emr = pat.get_emr()
 
 				issue = emr.add_health_issue(issue_name = issue_name)
@@ -721,7 +718,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		if age is None:
 			gmGuiHelpers.gm_statustext(_('Cannot parse [%s] into valid interval.') % str_age)
 		if age >= max_age:
-			gmGuiHelpers.gm_statustext(_('Patient is only %s old. Cannot accept age [%s].') % (ident.get_medical_age(), age))
+			gmGuiHelpers.gm_statustext(_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
 
 		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
@@ -734,7 +731,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_age_noted.SetData(data=age)
 
 		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
-			timestamp = ident['dob'] + age,
+			timestamp = pat['dob'] + age,
 			accuracy = gmFuzzyTimestamp.acc_months
 		)
 		wx.CallAfter(self._PRW_year_noted.SetText, str(fts), fts)
@@ -1085,7 +1082,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.55  2007-03-18 14:05:31  ncq
+# Revision 1.56  2007-03-31 21:50:15  ncq
+# - cPatient now cIdentity child
+#
+# Revision 1.55  2007/03/18 14:05:31  ncq
 # - re-add lost 1.55
 #
 # Revision 1.55  2007/03/12 12:27:13  ncq
