@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.116 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmDemographicsWidgets.py,v 1.117 2007-03-31 21:34:11 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -663,8 +663,7 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
-			pat = gmPerson.cPatient(identity = ident)
-			gmPerson.gmCurrentPatient(patient = pat)
+			gmPerson.set_active_patient(patient = ident)
 
 		return ident
 	#--------------------------------------------------------
@@ -1735,7 +1734,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.116  2007-02-22 17:41:13  ncq
+# Revision 1.117  2007-03-31 21:34:11  ncq
+# - use gmPerson.set_active_patient()
+#
+# Revision 1.116  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.115  2007/02/17 13:59:20  ncq
