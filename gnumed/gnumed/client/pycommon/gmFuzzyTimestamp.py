@@ -10,9 +10,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """)
 #===========================================================================
-# $Id: gmFuzzyTimestamp.py,v 1.10 2007-03-02 15:30:24 ncq Exp $
+# $Id: gmFuzzyTimestamp.py,v 1.11 2007-04-01 15:27:09 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmFuzzyTimestamp.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -81,7 +81,7 @@ def __explicit_offset(str_timestamp, offset_chars='hdwmy'):
 	offset_char = regex.findall('[%s]' % offset_chars, str_timestamp)[0].lower()
 
 	now = mxDT.now()
-	enc = locale.getlocale()[1]
+	enc = gmI18N.get_encoding()
 
 	# allow past ?
 	is_future = True
@@ -162,7 +162,7 @@ def __single_char(str_timestamp, trigger_chars='ndmy'):
 	val = str_timestamp.strip().lower()
 
 	now = mxDT.now()
-	enc = locale.getlocale()[1]
+	enc = gmI18N.get_encoding()
 
 	# FIXME: handle uebermorgen/vorgestern ?
 
@@ -313,7 +313,7 @@ def __numbers_only(str_timestamp):
 
 	# strftime() returns str but in the localized encoding,
 	# so we may need to decode that to unicode
-	enc = locale.getlocale()[1]
+	enc = gmI18N.get_encoding()
 	now = mxDT.now()
 	val = int(regex.findall('\d{1,4}', str_timestamp)[0])
 
@@ -541,7 +541,7 @@ def __single_dot(str_timestamp):
 
 	val = int(regex.findall('\d+', str_timestamp)[0])
 	now = mxDT.now()
-	enc = locale.getlocale()[1]
+	enc = gmI18N.get_encoding()
 
 	matches = []
 
@@ -793,7 +793,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmFuzzyTimestamp.py,v $
-# Revision 1.10  2007-03-02 15:30:24  ncq
+# Revision 1.11  2007-04-01 15:27:09  ncq
+# - safely get_encoding()
+#
+# Revision 1.10  2007/03/02 15:30:24  ncq
 # - must decode() strftime() output
 #
 # Revision 1.9  2007/02/16 10:20:39  ncq

@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.318 2007-03-26 16:09:50 ncq Exp $
-__version__ = "$Revision: 1.318 $"
+# $Id: gmGuiMain.py,v 1.319 2007-04-01 15:28:14 ncq Exp $
+__version__ = "$Revision: 1.319 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -973,7 +973,7 @@ Search results:
 				title = ''
 			else:
 				title = title[:4] + '.'
-			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat['dob'].strftime('%x').decode(locale.getlocale()[1]), pat['pk_identity'])
+			pat_str = "%s%s %s (%s) #%d" % (title, pat['firstnames'], pat['lastnames'], pat['dob'].strftime('%x').decode(gmI18N.get_encoding()), pat['pk_identity'])
 		else:
 			pat_str = _('no patient')
 
@@ -1000,7 +1000,7 @@ Search results:
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime('%c', t).decode(locale.getlocale()[1])
+		st = time.strftime('%c', t).decode(gmI18N.get_encoding())
 		self.SetStatusText(st,1)
 	#------------------------------------------------
 	def Lock(self):
@@ -1308,7 +1308,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.318  2007-03-26 16:09:50  ncq
+# Revision 1.319  2007-04-01 15:28:14  ncq
+# - safely get_encoding()
+#
+# Revision 1.318  2007/03/26 16:09:50  ncq
 # - lots of statustext signal fixes
 #
 # Revision 1.317  2007/03/26 14:44:20  ncq

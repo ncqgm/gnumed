@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -651,7 +651,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	if encoding is None:
 		encoding = _default_client_encoding
 	if encoding is None:
-		encoding = locale.getlocale()[1]
+		encoding = gmI18N.get_encoding()
 		_log.Log(gmLog.lWarn, 'client encoding not specified')
 		_log.Log(gmLog.lWarn, 'the string encoding currently set in the active locale is used: [%s]' % encoding)
 		_log.Log(gmLog.lWarn, 'for this to work the application MUST have called locale.setlocale() before')
@@ -1008,7 +1008,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.40  2007-03-26 16:08:06  ncq
+# Revision 1.41  2007-04-01 15:27:09  ncq
+# - safely get_encoding()
+#
+# Revision 1.40  2007/03/26 16:08:06  ncq
 # - added v5 hash
 #
 # Revision 1.39  2007/03/08 11:37:24  ncq

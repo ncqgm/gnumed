@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.64 2007-03-02 15:38:47 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPatSearchWidgets.py,v 1.65 2007-04-01 15:29:51 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -66,13 +66,13 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['lastnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person['firstnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['preferred'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person['dob'].strftime('%x').decode(locale.getlocale()[1]))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person['dob'].strftime('%x').decode(gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(person['l10n_gender'], '?'))
 			enc = person.get_last_encounter()
 			if enc is None:
 				label = u''
 			else:
-				label = u'%s (%s)' % (enc['started'].strftime('%x').decode(locale.getlocale()[1]), enc['l10n_type'])
+				label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
 			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = ident['match_type'])
 			except: pass
@@ -131,7 +131,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			dto = rec['dto']
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x').decode(locale.getlocale()[1]))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x').decode(gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
@@ -335,7 +335,7 @@ def load_patient_from_external_sources(parent=None):
 				_(
 				'Cannot create new patient:\n\n'
 				' [%s %s (%s), %s]'
-				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(locale.getlocale()[1])),
+				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
 				_('Activating xDT patient')
 			)
 			return False
@@ -360,7 +360,7 @@ def load_patient_from_external_sources(parent=None):
 			'Cannot activate patient:\n\n'
 			'%s %s (%s)\n'
 			'%s'
-			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(locale.getlocale()[1])),
+			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
 			_('Activating xDT patient')
 		)
 		return False
@@ -453,7 +453,7 @@ class cPatientSelector(wx.TextCtrl):
 
 		if pat.dob_in_range(dob_distance, dob_distance):
 			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-			enc = locale.getlocale()[1]
+			enc = gmI18N.get_encoding()
 			gmGuiHelpers.gm_statustext (
 				_('%(pat)s was born on %(dow)s, %(month)s %(day)s ! (today is %(dow_now)s, %(month_now)s %(day_now)s)') % {
 					'pat': pat.get_description(),
@@ -800,7 +800,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.64  2007-03-02 15:38:47  ncq
+# Revision 1.65  2007-04-01 15:29:51  ncq
+# - safely get_encoding()
+#
+# Revision 1.64  2007/03/02 15:38:47  ncq
 # - decode() strftime() to u''
 #
 # Revision 1.63  2007/02/22 17:41:13  ncq

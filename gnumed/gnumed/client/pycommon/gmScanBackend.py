@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.37 2007-02-17 18:18:09 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmScanBackend.py,v 1.38 2007-04-01 15:27:09 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -15,7 +15,7 @@ import sys, os.path, os, Image, string, time, shutil, tempfile, codecs, glob, lo
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmExceptions, gmShellAPI, gmTools
+from Gnumed.pycommon import gmLog, gmExceptions, gmShellAPI, gmTools, gmI18N
 
 
 _log = gmLog.gmDefLog
@@ -349,7 +349,7 @@ class cXSaneScanner:
 		shutil.copy2(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_backup)
 
 		# our closest bet, might contain umalauts
-		enc = locale.getlocale()[1]
+		enc = gmI18N.get_encoding()
 		fread = codecs.open(cXSaneScanner._xsanerc_backup, mode = "rU", encoding = enc)
 		fwrite = codecs.open(cXSaneScanner._xsanerc, mode = "w", encoding = enc)
 
@@ -480,7 +480,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.37  2007-02-17 18:18:09  ncq
+# Revision 1.38  2007-04-01 15:27:09  ncq
+# - safely get_encoding()
+#
+# Revision 1.37  2007/02/17 18:18:09  ncq
 # - support pre-setting device and device-settings-file with XSane
 #
 # Revision 1.36  2007/02/15 12:03:27  ncq
