@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.99 2007-03-31 20:09:06 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmPhraseWheel.py,v 1.100 2007-04-01 16:33:47 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -137,7 +137,8 @@ class cPhraseWheel(wx.TextCtrl):
 			add_picklist_to_sizer = False
 		except NotImplementedError:
 			# on MacOSX wx.PopupWindow is not implemented
-			self.__picklist_dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
+#			self.__picklist_dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
+			self.__picklist_dropdown = wx.Window(parent=self, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
 			self.__picklist_dropdown.SetSizer(szr_scroll)
 			add_picklist_to_sizer = True
@@ -819,7 +820,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.99  2007-03-31 20:09:06  ncq
+# Revision 1.100  2007-04-01 16:33:47  ncq
+# - try another parent for the MacOSX popup window
+#
+# Revision 1.99  2007/03/31 20:09:06  ncq
 # - make enchant optional
 #
 # Revision 1.98  2007/03/27 10:29:49  ncq
