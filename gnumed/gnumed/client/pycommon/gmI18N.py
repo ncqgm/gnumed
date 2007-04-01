@@ -37,19 +37,24 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.31 2006-09-01 14:41:22 ncq Exp $
+# $Id: gmI18N.py,v 1.32 2007-04-01 15:20:52 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os.path, os, re, locale, gettext
-import gmLog
+#stdlib
+import sys, os.path, os, re as regex, locale, gettext
+
+
+# GNUmed libs
+if __name__ == "__main__":
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmTools
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
 
 system_locale = ''
 system_locale_level = {}
@@ -79,7 +84,7 @@ def __split_locale_into_levels():
 	global system_locale_level
 	system_locale_level['full'] = system_locale
 	# trim '@<variant>' part
-	system_locale_level['country'] = re.split('@|:|\.', system_locale, 1)[0]
+	system_locale_level['country'] = regex.split('@|:|\.', system_locale, 1)[0]
 	# trim '_<COUNTRY>@<variant>' part
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 
@@ -281,9 +286,24 @@ def install_domain(text_domain=None, language=None):
 	dummy.install()
 	return True
 #===========================================================================
+def get_encoding():
+	"""Try to get a sane encoding.
+
+	On MaxOSX locale.setlocale(locale.LC_ALL, '') does not
+	have the desired effect. locale.getlocale()[1] still
+	returns None. So in that case try to fallback to
+	locale.getpreferredencoding().
+	"""
+	return gmTools.coalesce (
+		locale.getlocale()[1],
+		locale.getpreferredencoding()
+	)
+#===========================================================================
 # Main
 #---------------------------------------------------------------------------
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
 	print "======================================================================"
 	print __doc__
 	print "======================================================================"
@@ -298,7 +318,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.31  2006-09-01 14:41:22  ncq
+# Revision 1.32  2007-04-01 15:20:52  ncq
+# - add get_encoding()
+# - fix test suite
+#
+# Revision 1.31  2006/09/01 14:41:22  ncq
 # - always use UNICODE gettext
 #
 # Revision 1.30  2006/07/10 21:44:23  ncq
