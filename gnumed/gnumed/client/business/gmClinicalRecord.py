@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.239 2007-03-31 21:18:13 ncq Exp $
-__version__ = "$Revision: 1.239 $"
+# $Id: gmClinicalRecord.py,v 1.240 2007-04-01 15:25:25 ncq Exp $
+__version__ = "$Revision: 1.240 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1254,7 +1254,7 @@ where
 			pat[4].strftime('%Y-%m-%d'),
 			self.pk_patient
 		)
-		enc = locale.getlocale()[1]
+		enc = gmI18N.get_encoding()
 		msg = _(
 			'A fairly recent encounter exists for patient:\n'
 			' %s\n'
@@ -1620,7 +1620,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.239  2007-03-31 21:18:13  ncq
+# Revision 1.240  2007-04-01 15:25:25  ncq
+# - safely get encoding
+#
+# Revision 1.239  2007/03/31 21:18:13  ncq
 # - fix get_episodes_by_encounter()
 #
 # Revision 1.238  2007/03/26 16:49:26  ncq

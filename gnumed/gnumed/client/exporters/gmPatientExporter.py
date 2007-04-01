@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.103 2007-03-02 15:30:00 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmPatientExporter.py,v 1.104 2007-04-01 15:25:55 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -1075,7 +1075,7 @@ where pk_patient=%s order by date, pk_episode, scr"""
 				target.write(line)
 		# write footer
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c').decode(locale.getlocale()[1]))
+		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c').decode(gmI18N.get_encoding()))
 
 		return
 #============================================================
@@ -1263,7 +1263,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.103  2007-03-02 15:30:00  ncq
+# Revision 1.104  2007-04-01 15:25:55  ncq
+# - safely get encoding
+#
+# Revision 1.103  2007/03/02 15:30:00  ncq
 # - decode() strftime() output
 #
 # Revision 1.102  2007/02/22 17:30:48  ncq
