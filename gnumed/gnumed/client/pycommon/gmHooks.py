@@ -22,8 +22,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.2 2007-03-26 14:42:27 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmHooks.py,v 1.3 2007-04-01 15:29:22 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -63,7 +63,14 @@ def run_hook_script(hook=None):
 	script_path = os.path.expanduser(os.path.join('~', '.gnumed', 'scripts'))
 	full_script = os.path.join(script_path, script_name)
 
-#	_log.Log(gmLog.lData, 'trying to run script [%s] off hook [%s]' % (full_script, hook))
+	if not os.access(full_script, os.F_OK):
+		f = open(full_script, 'w')
+		f.write("""
+def run_script(hook=None):
+	pass
+""")
+		f.close()
+		os.chmod(full_script, 33152)
 
 	if os.path.islink(full_script):
 		gmDispatcher.send (
@@ -89,23 +96,22 @@ def run_hook_script(hook=None):
 		return False
 
 	module = gmTools.import_module_from_directory(script_path, script_name)
-#	try:
 	module.run_script(hook = hook)
-#	except:
-#		_log.LogException('running script [%s] hooked to [%s] failed' % (full_script, hook))
-#		return False
-
-#	_log.Log(gmLog.lData, 'ran [%s] off hook [%s]' % (full_script, hook))
 
 	return True
 # ========================================================================
 if __name__ == '__main__':
 
+	run_hook_script(hook = 'shutdown-post-GUI')
 	run_hook_script(hook = 'invalid hook')
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.2  2007-03-26 14:42:27  ncq
+# Revision 1.3  2007-04-01 15:29:22  ncq
+# - create hook script on first use if not existant
+# - improve test
+#
+# Revision 1.2  2007/03/26 14:42:27  ncq
 # - register startup-after-GUI-init
 #
 # Revision 1.1  2007/03/18 13:19:13  ncq
