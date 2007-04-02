@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -761,18 +761,24 @@ class database:
 		return False
 	#--------------------------------------------------------------
 	def tranfer_users(self):
+		print "==> transferring users ..."
 		transfer_users = _cfg.get(self.section, 'transfer users')
 		if transfer_users is None:
+			_log.Log(gmLog.lInfo, 'user transfer not defined')
+			print "Skipped (unconfigured)."
 			return True
-		transfer_users = bool(int(transfer_users))
+		transfer_users = int(transfer_users)
 		if not transfer_users:
+			_log.Log(gmLog.lInfo, 'configured to not transfer users')
+			print "Skipped (switched off)."
 			return True
 		cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
-		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], return_data = True)
+		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
 		if rows[0][0]:
 			_log.Log(gmLog.lInfo, 'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
 		_log.Log(gmLog.lErr, 'error transferring user from [%s] to [%s]' % (self.template_db, self.name))
+		print "Failed."
 		return False
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
@@ -1206,7 +1212,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.50  2007-04-02 15:18:21  ncq
+# Revision 1.51  2007-04-02 18:42:14  ncq
+# - better console output
+#
+# Revision 1.50  2007/04/02 15:18:21  ncq
 # - transfer users
 # - cleanup
 # - run plausibility checks on data after upgrade
