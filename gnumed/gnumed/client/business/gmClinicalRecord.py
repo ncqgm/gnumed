@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.240 2007-04-01 15:25:25 ncq Exp $
-__version__ = "$Revision: 1.240 $"
+# $Id: gmClinicalRecord.py,v 1.241 2007-04-02 18:32:51 ncq Exp $
+__version__ = "$Revision: 1.241 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -86,6 +86,7 @@ select fk_encounter from
 
 		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
+		self.__encounter = None
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
@@ -1166,13 +1167,7 @@ where
 		# 2) "fairly recent" encounter recorded ?
 		if self.__activate_fairly_recent_encounter():
 			return True
-		# 3) no encounter yet or too old, create new one
-		successful, enc = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient)
-		if not successful:
-			return False
-		self.__encounter = enc
-		_log.Log(gmLog.lData, 'new encounter [%s] initiated' % enc['pk_encounter'])
-		_log.Log(gmLog.lData, str(enc))
+		self.start_new_encounter()
 		return True
 	#------------------------------------------------------------------
 	def __activate_very_recent_encounter(self):
@@ -1287,6 +1282,11 @@ where
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
 		_log.Log(gmLog.lData, '"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
+	#------------------------------------------------------------------
+	def start_new_encounter(self):
+		self.__encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient)
+		self.__encounter.set_active(staff_id = _me['pk_staff'])
+		_log.Log(gmLog.lData, 'new encounter [%s] initiated' % self.__encounter['pk_encounter'])
 	#------------------------------------------------------------------
 	def get_active_encounter(self):
 		return self.__encounter
@@ -1620,7 +1620,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.240  2007-04-01 15:25:25  ncq
+# Revision 1.241  2007-04-02 18:32:51  ncq
+# - start_new_encounter()
+#
+# Revision 1.240  2007/04/01 15:25:25  ncq
 # - safely get encoding
 #
 # Revision 1.239  2007/03/31 21:18:13  ncq
