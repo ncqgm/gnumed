@@ -7,13 +7,13 @@
 # this file should live in ~/.gnumed/gnumed.conf
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 
 [backend]
 
 # "any-doc" is the standard account installed with
-# any stock installation, it must be disabled when
+# any stock installation, it should be disabled when
 # going into production because the password is known
 # to all (it is "any-doc" as well)
 #
@@ -54,21 +54,21 @@ $profiles$
 [profile GNUmed - v5 database on this machine (Linux)]
 host = 
 port = 5432
-database = gnumed_v5
+database = gnumed_v6
 #encoding = UTF8
 
 
-[profile GNUmed - v5 database on this machine (Windows)]
+[profile GNUmed - v6 database on this machine (Windows)]
 host = 127.0.0.1
 port = 5432
-database = gnumed_v5
+database = gnumed_v6
 #encoding = cp1252
 
 
-[profile GNUmed - v5 database on public server]
+[profile GNUmed - v6 database on public server]
 host = salaam.homeunix.com
 port = 5432
-database = gnumed_v5
+database = gnumed_v6
 #encoding = UTF8
 
 
@@ -109,7 +109,10 @@ filename = patient.xdt
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.5  2007-03-08 11:32:39  ncq
+# Revision 1.6  2007-04-02 14:28:59  ncq
+# - switch to v6 database
+#
+# Revision 1.5  2007/03/08 11:32:39  ncq
 # - encoding now per backend profile
 #
 # Revision 1.4  2007/01/24 11:38:07  ncq
