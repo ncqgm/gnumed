@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -524,7 +524,6 @@ class database:
 		self.owner = _dbowner
 
 		# connect as owner to template
-#		if not self.__connect_owner_to_template():
 		if not self.__connect_superuser_to_template():
 			_log.Log(gmLog.lErr, "Cannot connect to template database.")
 			return None
@@ -542,6 +541,11 @@ class database:
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
 			return None
 
+		# transfer users
+		if not self.tranfer_users():
+			_log.Log(gmLog.lErr, "Cannot transfer users from old to new database.")
+			return None
+
 		# reconnect as owner to db
 		if not self.__connect_owner_to_db():
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
@@ -553,28 +557,32 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def __connect_superuser_to_template(self):
-		srv = self.server
 		if self.conn is not None:
 			self.conn.close()
 
-		self.conn = connect(srv.name, srv.port, self.template_db, srv.superuser.name, srv.superuser.password)
+		self.conn = connect (
+			self.server.name,
+			self.server.port,
+			self.template_db,
+			self.server.superuser.name,
+			self.server.superuser.password
+		)
+
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
-		srv = self.server
 		if self.conn is not None:
 			self.conn.close()
 
-		self.conn = connect (srv.name, srv.port, self.name, srv.superuser.name, srv.superuser.password)
+		self.conn = connect (
+			self.server.name,
+			self.server.port,
+			self.name,
+			self.server.superuser.name,
+			self.server.superuser.password
+		)
+
 		return self.conn and 1
-	#--------------------------------------------------------------
-#	def __connect_owner_to_template(self):
-#		srv = self.server
-#		if self.conn is not None:
-#			self.conn.close()
-#
-#		self.conn = connect (srv.name, srv.port, self.template_db, self.owner.name, self.owner.password)
-#		return self.conn and 1
 	#--------------------------------------------------------------
 	def __connect_owner_to_db(self):
 
@@ -582,11 +590,6 @@ class database:
 		if not self.__connect_superuser_to_db():
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return False
-
-#		if self.conn is not None:
-#			self.conn.close()
-#		srv = self.server
-#		self.conn = connect (srv.name, srv.port, self.name, self.owner.name, self.owner.password)
 
 		curs = self.conn.cursor()
 		cmd = "set session authorization %(usr)s"
@@ -678,8 +681,72 @@ class database:
 		_log.Log(gmLog.lInfo, "Successfully created GNUmed database [%s]." % self.name)
 		return True
 	#--------------------------------------------------------------
+	def check_data_plausibility(self):
+
+		print "==> checking transferred data for plausibility ..."
+
+		plausibility_queries = _cfg.get(self.section, 'upgrade plausibility checks')
+		if plausibility_queries is None:
+			_log.Log(gmLog.lWarn, 'no plausibility checks defined')
+			print "Skipped."
+			return True
+
+		no_of_queries, remainder = divmod(len(plausibility_queries), 2)
+		if remainder != 0:
+			_log.Log(gmLog.lErr, 'odd number of plausibility queries defined, aborting')
+			print "Failed (configuration error)."
+			return False
+
+		template_conn = connect (
+			self.server.name,
+			self.server.port,
+			self.template_db,
+			self.server.superuser.name,
+			self.server.superuser.password
+		)
+		target_conn = connect (
+			self.server.name,
+			self.server.port,
+			self.name,
+			self.server.superuser.name,
+			self.server.superuser.password
+		)
+
+		for idx in range(no_of_queries):
+			tag, old_query = plausibility_queries[idx*2].split('::::')
+			new_query = plausibility_queries[(idx*2) + 1]
+			try:
+				rows, idx = gmPG2.run_ro_queries (
+					link_obj = template_conn,
+					queries = [{'cmd': unicode(old_query)}]
+				)
+				old_val = rows[0][0]
+			except:
+				_log.LogException('error in plausibility check [%s] (old), aborting' % tag)
+				print "Failed (SQL error)."
+				return False
+			try:
+				rows, idx = gmPG2.run_ro_queries (
+					link_obj = target_conn,
+					queries = [{'cmd': unicode(new_query)}]
+				)
+				new_val = rows[0][0]
+			except:
+				_log.LogException('error in plausibility check [%s] (new), aborting' % tag)
+				print "Failed (SQL error)."
+				return False
+
+			if new_val != old_val:
+				_log.Log(gmLog.lErr, 'plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
+				print "Failed (check [%s])." % tag
+				return False
+
+		return True
+	#--------------------------------------------------------------
 	def verify_result_hash(self):
 		# verify template database hash
+		print "==> verifying target database schema ..."
+
 		target_version = _cfg.get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
 			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
@@ -687,8 +754,25 @@ class database:
 			return True
 		_log.Log(gmLog.lErr, 'target database identity hash invalid')
 		if target_version == 'devel':
+			print "Skipped (devel version)."
 			_log.Log(gmLog.lWarn, 'testing/development only, not failing due to invalid target database identity hash')
-			return True	
+			return True
+		print "Failed."
+		return False
+	#--------------------------------------------------------------
+	def tranfer_users(self):
+		transfer_users = _cfg.get(self.section, 'transfer users')
+		if transfer_users is None:
+			return True
+		transfer_users = bool(int(transfer_users))
+		if not transfer_users:
+			return True
+		cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
+		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], return_data = True)
+		if rows[0][0]:
+			_log.Log(gmLog.lInfo, 'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
+			return True
+		_log.Log(gmLog.lErr, 'error transferring user from [%s] to [%s]' % (self.template_db, self.name))
 		return False
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
@@ -1060,8 +1144,6 @@ def handle_cfg():
 	if not bootstrap_notifications():
 		exit_with_msg("Cannot bootstrap notification tables.")
 
-	print "Done with config file [%s]." % _cfg.cfgName
-
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -1089,8 +1171,11 @@ if __name__ == "__main__":
 	if not db.verify_result_hash():
 		exit_with_msg("Bootstrapping failed: wrong result hash")
 
+	if not db.check_data_plausibility():
+		exit_with_msg("Bootstrapping failed: plausibility checks failed")
+
 	_log.Log(gmLog.lInfo, "shutdown")
-	print "Done bootstrapping: We likely succeeded."
+	print "Done bootstrapping: We very likely succeeded."
 else:
 	print "This currently is not intended to be used as a module."
 
@@ -1121,7 +1206,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.49  2007-03-26 16:10:17  ncq
+# Revision 1.50  2007-04-02 15:18:21  ncq
+# - transfer users
+# - cleanup
+# - run plausibility checks on data after upgrade
+#
+# Revision 1.49  2007/03/26 16:10:17  ncq
 # - syntax error fix
 #
 # Revision 1.48  2007/03/23 12:43:02  ncq
