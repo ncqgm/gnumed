@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.319 2007-04-01 15:28:14 ncq Exp $
-__version__ = "$Revision: 1.319 $"
+# $Id: gmGuiMain.py,v 1.320 2007-04-02 18:40:58 ncq Exp $
+__version__ = "$Revision: 1.320 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -376,6 +376,14 @@ class gmTopLevelFrame(wx.Frame):
 			_('Search for data in the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
+		# - start new encounter
+		ID = wx.NewId()
+		menu_emr.Append (
+			ID,
+			_('Start new encounter'),
+			_('Start a new encounter for the active patient right now.')
+		)
+		wx.EVT_MENU(self, ID, self.__on_start_new_encounter)
 		# - add health issue
 		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 		menu_emr.Append (
@@ -665,6 +673,14 @@ class gmTopLevelFrame(wx.Frame):
 		import Gnumed.wxpython.gmDermTool as DT
 		frame = DT.DermToolDialog(None, -1)
 		frame.Show(True)
+	#----------------------------------------------
+	def __on_start_new_encounter(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot start new encounter. No active patient.'))
+			return False
+		emr = pat.get_emr()
+		emr.start_new_encounter()
 	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -1308,7 +1324,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.319  2007-04-01 15:28:14  ncq
+# Revision 1.320  2007-04-02 18:40:58  ncq
+# - add menu item to start new encounter
+#
+# Revision 1.319  2007/04/01 15:28:14  ncq
 # - safely get_encoding()
 #
 # Revision 1.318  2007/03/26 16:09:50  ncq
