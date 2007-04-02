@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.117 2007-03-31 21:34:11 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmDemographicsWidgets.py,v 1.118 2007-04-02 18:39:52 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,7 +16,7 @@ import wx.wizard
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmFuzzyTimestamp, gmTools
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
@@ -1110,7 +1110,7 @@ class cPatIdentityPanel(wx.Panel):
 		if identity is not None:
 			self.__ident = identity
 
-		dob = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__ident['dob'])
+		dob = gmDateTime.cFuzzyTimestamp(timestamp = self.__ident['dob'])
 		active_name = self.__ident.get_active_name()
 
 		self.PRW_gender.SetData(self.__ident['gender'])
@@ -1734,7 +1734,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.117  2007-03-31 21:34:11  ncq
+# Revision 1.118  2007-04-02 18:39:52  ncq
+# - gmFuzzyTimestamp -> gmDateTime
+#
+# Revision 1.117  2007/03/31 21:34:11  ncq
 # - use gmPerson.set_active_patient()
 #
 # Revision 1.116  2007/02/22 17:41:13  ncq

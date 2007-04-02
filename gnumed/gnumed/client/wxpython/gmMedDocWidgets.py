@@ -2,15 +2,15 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.118 2007-03-31 21:51:05 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmMedDocWidgets.py,v 1.119 2007-04-02 18:39:52 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmFuzzyTimestamp, gmTools
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
@@ -218,7 +218,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
 		self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
 
-		fts = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
+		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__part['ext_ref'], ''))
 		self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
@@ -449,7 +449,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._PhWheel_doc_type.SetText('')
 		# -----------------------------
 		# FIXME: make this configurable: either now() or last_date()
-		fts = gmFuzzyTimestamp.cFuzzyTimestamp()
+		fts = gmDateTime.cFuzzyTimestamp()
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		self._PRW_doc_comment.SetText('')
 		# FIXME: should be set to patient's primary doc
@@ -1374,7 +1374,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.118  2007-03-31 21:51:05  ncq
+# Revision 1.119  2007-04-02 18:39:52  ncq
+# - gmFuzzyTimestamp -> gmDateTime
+#
+# Revision 1.118  2007/03/31 21:51:05  ncq
 # - add xsane default device option
 #
 # Revision 1.117  2007/03/08 16:21:11  ncq

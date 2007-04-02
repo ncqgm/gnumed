@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.56 2007-03-31 21:50:15 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmEMRStructWidgets.py,v 1.57 2007-04-02 18:39:52 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -22,7 +22,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmFuzzyTimestamp, gmCfg
+from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmDateTime, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 if __name__ == '__main__':
 	gmI18N.install_domain()
@@ -132,15 +132,15 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
 
-		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
+		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__encounter['started'],
-			accuracy = gmFuzzyTimestamp.acc_minutes
+			accuracy = gmDateTime.acc_minutes
 		)
 		self._PRW_start.SetText(fts.format_accurately(), data=fts)
 
-		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
+		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__encounter['last_affirmed'],
-			accuracy = gmFuzzyTimestamp.acc_minutes
+			accuracy = gmDateTime.acc_minutes
 		)
 		self._PRW_end.SetText(fts.format_accurately(), data=fts)
 
@@ -730,9 +730,9 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		self._PRW_age_noted.Refresh()
 		self._PRW_age_noted.SetData(data=age)
 
-		fts = gmFuzzyTimestamp.cFuzzyTimestamp (
+		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = pat['dob'] + age,
-			accuracy = gmFuzzyTimestamp.acc_months
+			accuracy = gmDateTime.acc_months
 		)
 		wx.CallAfter(self._PRW_year_noted.SetText, str(fts), fts)
 		# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
@@ -1082,7 +1082,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.56  2007-03-31 21:50:15  ncq
+# Revision 1.57  2007-04-02 18:39:52  ncq
+# - gmFuzzyTimestamp -> gmDateTime
+#
+# Revision 1.56  2007/03/31 21:50:15  ncq
 # - cPatient now cIdentity child
 #
 # Revision 1.55  2007/03/18 14:05:31  ncq

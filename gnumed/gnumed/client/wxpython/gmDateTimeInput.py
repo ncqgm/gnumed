@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.54 2007-03-18 14:01:52 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmDateTimeInput.py,v 1.55 2007-04-02 18:39:52 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,7 +22,7 @@ import mx.DateTime as mxDT, wx
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmMatchProvider, gmFuzzyTimestamp
+from Gnumed.pycommon import gmLog, gmMatchProvider, gmDateTime
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -80,7 +80,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 		self.__now = mxDT.now()
-		matches = gmFuzzyTimestamp.str2fuzzy_timestamp_matches(aFragment.strip())
+		matches = gmDateTime.str2fuzzy_timestamp_matches(aFragment.strip())
 		if len(matches) > 0:
 			return (True, matches)
 		else:
@@ -117,7 +117,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if val is None:
 			val = self.GetValue().strip()
 
-		matches = gmFuzzyTimestamp.str2fuzzy_timestamp_matches(str_timestamp=val)
+		matches = gmDateTime.str2fuzzy_timestamp_matches(str_timestamp=val)
 		if len(matches) == 1:
 			return matches[0]['data']
 
@@ -153,7 +153,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 
 		if data is not None:
 			if isinstance(data, pyDT.datetime):
-				data = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp=data)
+				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			if value.strip() == u'':
 				value = data.format_accurately()
 
@@ -162,7 +162,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	def SetData(self, data=None):
 		if data is not None:
 			if isinstance(data, pyDT.datetime):
-				data = gmFuzzyTimestamp.cFuzzyTimestamp(timestamp=data)
+				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(), data = data)
 		else:
 			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
@@ -229,7 +229,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.54  2007-03-18 14:01:52  ncq
+# Revision 1.55  2007-04-02 18:39:52  ncq
+# - gmFuzzyTimestamp -> gmDateTime
+#
+# Revision 1.54  2007/03/18 14:01:52  ncq
 # - re-add lost 1.54
 #
 # Revision 1.54  2007/03/12 12:26:15  ncq

@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -14,7 +14,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmI18N, gmDateTime, gmFuzzyTimestamp, gmTools, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmI18N, gmDateTime, gmTools, gmMatchProvider
 from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPerson, gmAllergy
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
@@ -87,9 +87,9 @@ where narrative %(fragment_condition)s
 			self.__allergy = allergy
 
 		if self.__allergy is None:
-			ts = gmFuzzyTimestamp.cFuzzyTimestamp (
+			ts = gmDateTime.cFuzzyTimestamp (
 				timestamp = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone),
-				accuracy = gmFuzzyTimestamp.acc_days
+				accuracy = gmDateTime.acc_days
 			)
 			self._DPRW_date_noted.SetData(data = ts)
 			self._PRW_trigger.SetText()
@@ -106,9 +106,9 @@ where narrative %(fragment_condition)s
 		if not isinstance(self.__allergy, gmAllergy.cAllergy):
 			raise ValueError('[%s].refresh(): expected gmAllergy.cAllergy instance, got [%s] instead' % (self.__class__.__name__, self.__issue))
 
-		ts = gmFuzzyTimestamp.cFuzzyTimestamp (
+		ts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__allergy['date'],
-			accuracy = gmFuzzyTimestamp.acc_days
+			accuracy = gmDateTime.acc_days
 		)
 		self._DPRW_date_noted.SetData(data=ts)
 		self._PRW_trigger.SetText(value = self.__allergy['substance'])
@@ -461,7 +461,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.23  2007-03-27 09:59:47  ncq
+# Revision 1.24  2007-04-02 18:39:52  ncq
+# - gmFuzzyTimestamp -> gmDateTime
+#
+# Revision 1.23  2007/03/27 09:59:47  ncq
 # - enable spell checker on allergy.reaction
 #
 # Revision 1.22  2007/03/26 16:49:50  ncq
