@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.101 2007-04-02 14:31:35 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmPhraseWheel.py,v 1.102 2007-04-02 15:16:55 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -112,6 +112,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.phrase_separators = '[;/|]+'
 		self.navigate_after_selection = False
 		self.speller = None
+		self.speller_word_separators = '[\W\d_]+'
 		self.picklist_delay = 150		# milliseconds
 
 		# state tracking
@@ -409,10 +410,13 @@ class cPhraseWheel(wx.TextCtrl):
 		# no matches found: might simply be due to a typo, so spellcheck
 		if len(self.__current_matches) == 0:
 			if self.speller is not None:
-				if not self.speller.check(self.input2match):
-					spells = self.speller.suggest(self.input2match)
+				# filter out the last word
+				word = regex.split(self.__speller_word_separators, self.input2match)[-1]
+				if not self.speller.check(word):
+					spells = self.speller.suggest(word)
+					truncated_input2match = self.input2match[:self.input2match.rindex(word)]
 					for spell in spells:
-						self.__current_matches.append({'label': spell, 'data': None})
+						self.__current_matches.append({'label': truncated_input2match + spell, 'data': None})
 					self._picklist.SetItems(self.__current_matches)
 
 	#--------------------------------------------------------
@@ -498,6 +502,17 @@ class cPhraseWheel(wx.TextCtrl):
 		return self.__phrase_separators.pattern
 	#------------
 	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
+	#--------------------------------------------------------
+	def _set_speller_word_separators(self, word_separators):
+		if word_separators is None:
+			self.__speller_word_separators = regex.compile('[\W\d_]+')
+		else:
+			self.__speller_word_separators = regex.compile(word_separators)
+	#------------
+	def _get_speller_word_separators(self):
+		return self.__speller_word_separators.pattern
+	#------------
+	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
 	#--------------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		"""Callback for delayed match retrieval timer.
@@ -819,7 +834,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.101  2007-04-02 14:31:35  ncq
+# Revision 1.102  2007-04-02 15:16:55  ncq
+# - make spell checker act on last word of phrase only
+# - to that end add property speller_word_separators, a
+#   regex which defaults to standard word boundaries + digits + _
+#
+# Revision 1.101  2007/04/02 14:31:35  ncq
 # - cleanup
 #
 # Revision 1.100  2007/04/01 16:33:47  ncq
