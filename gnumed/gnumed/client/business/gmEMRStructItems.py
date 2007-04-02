@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.95 $"
+__version__ = "$Revision: 1.96 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -444,7 +444,7 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	queries.append({'cmd': cEncounter._cmd_fetch_payload % u"currval('clin.encounter_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True, get_col_idx=True)
 	encounter = cEncounter(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
-	return (True, encounter)
+	return encounter
 #-----------------------------------------------------------
 def get_encounter_types():
 	cmd = u"SELECT _(description) from clin.encounter_type"
@@ -544,7 +544,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.95  2007-03-18 13:01:55  ncq
+# Revision 1.96  2007-04-02 18:35:20  ncq
+# - create_encounter now more exception-y
+#
+# Revision 1.95  2007/03/18 13:01:55  ncq
 # - a bit of cleanup
 #
 # Revision 1.94  2007/01/09 18:01:32  ncq
