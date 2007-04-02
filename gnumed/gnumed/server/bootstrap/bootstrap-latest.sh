@@ -45,3 +45,8 @@ LOG="bootstrap-latest-v5.log"
 CONF="update_db-v4_v5.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 dropdb -U gm-dbo gnumed_v4
+
+LOG="bootstrap-latest-v6.log"
+CONF="update_db-v5_v6.conf"
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+dropdb -U gm-dbo gnumed_v5
