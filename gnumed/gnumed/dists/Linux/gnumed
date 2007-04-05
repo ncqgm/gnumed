@@ -6,28 +6,52 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.5 2007-03-26 17:18:04 ncq Exp $
+# $Id: gnumed,v 1.6 2007-04-05 17:21:18 ncq Exp $
 # license: GPL
-# Karsten Hilbert, Sebastian Hilbert
+# Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
 
+# for debugging this script
 # set -x
 
-CONFSOURCE="/etc/gnumed/gnumed-client.conf"
+OPTIONS=$@
 
-echo "GNUmed startup"
-
-# - make sure standard config file is there
-# - people using --conf-file=<FILE> are on their own
-if [ ! -s ${HOME}/.gnumed/gnumed.conf ] ; then
-	if [ ! -e ${CONFSOURCE} ] ; then
-		echo "Global config file ${CONFSOURCE} missing."
-	fi
+# Verify the name of the script for the appendix "-debug"
+# If it is symlinked to a file with this name use --debug as option
+name=`basename $0`
+if echo $name | grep -q -- "-debug" ; then
+	name=`echo $name | sed 's/-debug//'`
+	OPTIONS="$OPTIONS --debug"
 fi
 
-# this ugly hack needs to go once we use proper
-# distutil installation for the Python part
-export PYTHONPATH="${PYTHONPATH}:/usr/lib/python/site-packages/Gnumed:/usr/lib/python/site-packages/Gnumed/wxpython:/usr/lib/python/site-packages/Gnumed/pycommon"
+# the system-wide configuration file for backend profiles
+SYSCONF="/etc/gnumed/gnumed-client.conf"
+if [ ! -e ${SYSCONF} ] ; then
+	echo "Global config file ${SYSCONF} missing."
+	exit
+fi
+
+## Different ways to obtain the version number of the running Python interpreter
+## store this here just for the purpose of education :-)
+# PYVER=`python -V 2>&1 | sed 's/Python[[:space:]]\+\([0-9]\+\.[0-9]\+\).*/\1/'`
+# PYVER=`pyversions -vd`
+# PYVER=`python -c 'import platform; print platform.python_version()'`
+PYVER=`python -c 'import sys; print sys.version[:3]'`
+
+# this is where the gnumed.py Python script actually lives
+GNUMEDDIR=/var/lib/python-support/python${PYVER}/Gnumed/wxpython
+
+# check for explicit --conf-file option
+CONFFILE=""
+if echo $OPTIONS | grep -q -- "--conf-file[[:space:]]*=" ; then
+	CONFFILE=`echo $OPTIONS | sed -e 's/^.*--conf-file[[:space:]]*=[[:space:]]*\([^[:space:]]\+\).*/\1/'`
+	if [ ! -s ${CONFFILE} ] ; then
+		echo "Given config file ${CONFFILE} missing."
+		exit
+	fi
+	CONFFILE="--conf-file=${CONFFILE}"
+	OPTIONS=`echo $OPTIONS | sed -e 's/--conf-file[[:space:]]*=[[:space:]]*[^[:space:]]\+//'`
+fi
 
 # source systemwide startup extension shell script if it exists
 if [ -r /etc/gnumed/gnumed-startup-local.sh ] ; then
@@ -39,15 +63,16 @@ if [ -r ${HOME}/.gnumed/gnumed-startup-local.sh ] ; then
 	. ${HOME}/.gnumed/gnumed-startup-local.sh
 fi
 
-# now run a client
-python /usr/lib/python/site-packages/Gnumed/wxpython/gnumed.py $@
-#--log-file=somewhere.log
-#--conf-file=somewhere.conf
-#--debug
+# now run the client
+python ${GNUMEDDIR}/gnumed.py ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.5  2007-03-26 17:18:04  ncq
+# Revision 1.6  2007-04-05 17:21:18  ncq
+# - pull in some logic from Debian startup script
+# - cleanup for system-wide config file
+#
+# Revision 1.5  2007/03/26 17:18:04  ncq
 # - no more --unicode-gettext
 # - no more copying /etc/gnumed/gnumed.conf
 #
