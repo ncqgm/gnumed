@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.65 2007-04-01 15:29:51 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmPatSearchWidgets.py,v 1.66 2007-04-06 23:15:21 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -19,10 +19,10 @@ import sys, os.path, time, glob, locale, datetime as pyDT
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
 from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
-from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
+from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgDataMiningPnl
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -32,6 +32,69 @@ _cfg = gmCfg.gmDefCfgFile
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
 
+#============================================================
+class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgDataMiningPnl.wxgDataMiningPnl.__init__(self, *args, **kwargs)
+
+		self.__init_ui()
+
+	#--------------------------------------------------------
+	def __init_ui(self):
+		mp = gmMatchProvider.cMatchProvider_SQL2 (
+			queries = [u'select distinct on (label) cmd, label from cfg.report_query where label %(fragment_condition)s or cmd %(fragment_condition)s']
+		)
+		mp.setThresholds(2,3,5)
+		self._PRW_report_name.matcher = mp
+		self._PRW_report_name.add_callback_on_selection(callback = self._on_report_selected)
+	#--------------------------------------------------------
+	def _on_report_selected(self, *args, **kwargs):
+		self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
+	#--------------------------------------------------------
+	# notebook plugin API
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		pass
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_run_button_pressed(self, evt):
+		query = self._TCTRL_query.GetValue().strip().rstrip(';')
+		if query == u'':
+			return True
+
+		self._LCTRL_result.set_columns()
+
+		# FIXME: make configurable
+		query = u'select * from (' + query + u') as real_query limit 1024'
+		try:
+			# read-only only for safety reasons !
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
+		except:
+			self._LCTRL_result.set_columns([_('Error')])
+			self._LCTRL_result.InsertStringItem(sys.maxint, label = _('The query failed.'))
+			gmDispatcher.send(gmSignals.statustext(), msg = _('The query failed.'), beep = True)
+			_log.LogException('report query failed')
+			return False
+
+		if len(rows) == 0:
+			self._LCTRL_result.set_columns([_('Results')])
+			self._LCTRL_result.InsertStringItem(sys.maxint, label = _('Report returned no data.'))
+			gmDispatcher.send(gmSignals.statustext(), msg = _('No data returned for this report.'), beep = True)
+			return True
+
+		cols = [(value, key) for key, value in idx.items()]
+		cols.sort()
+		cols = [pair[1] for pair in cols]
+
+		self._LCTRL_result.set_columns(cols)
+		for row in rows:
+			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = unicode(gmTools.coalesce(row[0], u'')))
+			for col_idx in range(1, len(row)):
+				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = str(gmTools.coalesce(row[col_idx], u'')))
+
+		self._LCTRL_result.set_column_widths()
 #============================================================
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
 
@@ -800,7 +863,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.65  2007-04-01 15:29:51  ncq
+# Revision 1.66  2007-04-06 23:15:21  ncq
+# - add data mining panel
+#
+# Revision 1.65  2007/04/01 15:29:51  ncq
 # - safely get_encoding()
 #
 # Revision 1.64  2007/03/02 15:38:47  ncq
