@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.30 2007-03-31 21:52:04 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.31 2007-04-06 23:16:21 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -28,7 +28,6 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffV01.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgRequest.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgDoubleListSplitterPnl.py "\
-"./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgDataMiningPnl.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmAU_VaccV01.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmBMIWidgets.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmCharacterValidator.py "\
@@ -261,6 +260,15 @@ cp -R ../../server/sql/v4-v5/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/s
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v4-v5/superuser
 cp -R ../../server/sql/v4-v5/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v5/superuser
 
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/superuser
+
+cp -R ../../server/sql/v5-v6/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
+cp -R ../../server/sql/v5-v6/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
+cp -R ../../server/sql/v5-v6/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/superuser
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
@@ -292,9 +300,14 @@ tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$CLIENTREV/Gnumed
 # cleanup
 rm -R ./GNUmed-$SRVREV/
 
+echo "include schema docs"
+
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.30  2007-03-31 21:52:04  ncq
+# Revision 1.31  2007-04-06 23:16:21  ncq
+# - add v5 -> v6 schema files
+#
+# Revision 1.30  2007/03/31 21:52:04  ncq
 # - rename client to server directory when packing tarballs
 # - add cleanup
 #
