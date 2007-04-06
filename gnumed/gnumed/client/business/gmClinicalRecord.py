@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.241 2007-04-02 18:32:51 ncq Exp $
-__version__ = "$Revision: 1.241 $"
+# $Id: gmClinicalRecord.py,v 1.242 2007-04-06 23:12:58 ncq Exp $
+__version__ = "$Revision: 1.242 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -85,7 +85,7 @@ select fk_encounter from
 		}
 
 		# load current or create new encounter
-		# FIXME: this should be configurable (for explanation see the method source)
+		self.remove_empty_encounters()
 		self.__encounter = None
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
@@ -117,8 +117,6 @@ select fk_encounter from
 
 #		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
 #		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
-
-		self.remove_empty_encounters()
 
 		return True
 	#--------------------------------------------------------
@@ -1417,7 +1415,6 @@ where
 	def remove_empty_encounters(self):
 		# remove empty encounters
 		# FIXME: this should be done async
-		# FIXME: au.referral is missing
 		cmd = u"""
 delete from clin.encounter where 
 	fk_patient = %(pat)s and
@@ -1620,7 +1617,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.241  2007-04-02 18:32:51  ncq
+# Revision 1.242  2007-04-06 23:12:58  ncq
+# - move remove_empty_encounters() from cleanup() to init()
+#
+# Revision 1.241  2007/04/02 18:32:51  ncq
 # - start_new_encounter()
 #
 # Revision 1.240  2007/04/01 15:25:25  ncq
