@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: cfg-report_query.sql,v 1.1 2007-04-06 23:10:54 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: cfg-report_query.sql,v 1.2 2007-04-07 22:29:12 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -25,22 +25,15 @@ create table cfg.report_query (
 		not null
 ) inherits (audit.audit_fields);
 
-
-select audit.add_table_for_audit('cfg', 'report_query');
-
-
-comment on table cfg.report_query is
-	'This table stores SQL commands to be used in frontend report style queries.';
-
-
-grant select, insert, update, delete on table cfg.report_query  to group "gm-doctors";
-
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: cfg-report_query.sql,v $
--- Revision 1.1  2007-04-06 23:10:54  ncq
+-- Revision 1.2  2007-04-07 22:29:12  ncq
+-- - only this is static
+--
+-- Revision 1.1  2007/04/06 23:10:54  ncq
 -- - store data mining queries
 --
 --
