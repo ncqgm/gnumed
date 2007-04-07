@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.66 2007-04-06 23:15:21 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmPatSearchWidgets.py,v 1.67 2007-04-07 22:45:28 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -20,7 +20,7 @@ import sys, os.path, time, glob, locale, datetime as pyDT
 import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
-from Gnumed.business import gmPerson, gmKVK
+from Gnumed.business import gmPerson, gmKVK, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgDataMiningPnl
 
@@ -33,6 +33,7 @@ ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
 
 #============================================================
+# FIXME: this class is perhaps a bit oddly placed here
 class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -59,8 +60,25 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		report = self._PRW_report_name.GetValue().strip()
+		if report == u'':
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without name.'), beep=True)
+			return False
+		query = self._TCTRL_query.GetValue().strip()
+		if query == u'':
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without query.'), beep=True)
+			return False
+		surgery = gmSurgery.cSurgery()
+		# FIXME: check for exists and ask for permission
+		if surgery.save_report_definition(name=report, query=query, overwrite=True):
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Saved report definition [%s].') % report, beep=False)
+			return True
+		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error saving report definition [%s].') % report, beep=True)
+		return False
+	#--------------------------------------------------------
 	def _on_run_button_pressed(self, evt):
-		query = self._TCTRL_query.GetValue().strip().rstrip(';')
+		query = self._TCTRL_query.GetValue().strip().strip(';')
 		if query == u'':
 			return True
 
@@ -69,7 +87,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		# FIXME: make configurable
 		query = u'select * from (' + query + u') as real_query limit 1024'
 		try:
-			# read-only only for safety reasons !
+			# read-only only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
 		except:
 			self._LCTRL_result.set_columns([_('Error')])
@@ -863,7 +881,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.66  2007-04-06 23:15:21  ncq
+# Revision 1.67  2007-04-07 22:45:28  ncq
+# - add save handler to data mining panel
+#
+# Revision 1.66  2007/04/06 23:15:21  ncq
 # - add data mining panel
 #
 # Revision 1.65  2007/04/01 15:29:51  ncq
