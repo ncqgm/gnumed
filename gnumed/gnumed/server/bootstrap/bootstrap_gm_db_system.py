@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -304,6 +304,9 @@ class db_server:
 			return None
 
 		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
+		if self.conn is None:
+			_log.Log(gmLog.lErr, 'Cannot connect.')
+			return None
 
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
 		return True
@@ -623,6 +626,7 @@ class database:
 			# FIXME: verify that database is owned by "gm-dbo"
 			drop_existing = bool(_cfg.get(self.section, 'drop target database'))
 			if drop_existing:
+				print "==> dropping pre-existing *target* database [%s] ..." % self.name
 				cmd = 'drop database "%s"' % self.name
 				self.conn.set_isolation_level(0)
 				cursor = self.conn.cursor()
@@ -634,7 +638,6 @@ class database:
 					return False
 				cursor.close()
 				self.conn.commit()
-				print "Dropped pre-existing *target* database [%s]." % self.name
 			else:
 				return False
 
@@ -688,13 +691,13 @@ class database:
 		plausibility_queries = _cfg.get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
 			_log.Log(gmLog.lWarn, 'no plausibility checks defined')
-			print "Skipped."
+			print "    ... skipped (no checks defined)"
 			return True
 
 		no_of_queries, remainder = divmod(len(plausibility_queries), 2)
 		if remainder != 0:
 			_log.Log(gmLog.lErr, 'odd number of plausibility queries defined, aborting')
-			print "Failed (configuration error)."
+			print "    ... failed (configuration error)"
 			return False
 
 		template_conn = connect (
@@ -723,7 +726,7 @@ class database:
 				old_val = rows[0][0]
 			except:
 				_log.LogException('error in plausibility check [%s] (old), aborting' % tag)
-				print "Failed (SQL error)."
+				print "    ... failed (SQL error)"
 				return False
 			try:
 				rows, idx = gmPG2.run_ro_queries (
@@ -733,13 +736,15 @@ class database:
 				new_val = rows[0][0]
 			except:
 				_log.LogException('error in plausibility check [%s] (new), aborting' % tag)
-				print "Failed (SQL error)."
+				print "    ... failed (SQL error)"
 				return False
 
 			if new_val != old_val:
 				_log.Log(gmLog.lErr, 'plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
-				print "Failed (check [%s])." % tag
+				print "    ... failed (check [%s])" % tag
 				return False
+
+			_log.Log(gmLog.lInfo, 'plausibility check [%s]: success' % tag)
 
 		return True
 	#--------------------------------------------------------------
@@ -754,10 +759,10 @@ class database:
 			return True
 		_log.Log(gmLog.lErr, 'target database identity hash invalid')
 		if target_version == 'devel':
-			print "Skipped (devel version)."
+			print "    ... skipped (devel version)"
 			_log.Log(gmLog.lWarn, 'testing/development only, not failing due to invalid target database identity hash')
 			return True
-		print "Failed."
+		print "    ... failed (hash mismatch)"
 		return False
 	#--------------------------------------------------------------
 	def tranfer_users(self):
@@ -765,12 +770,12 @@ class database:
 		transfer_users = _cfg.get(self.section, 'transfer users')
 		if transfer_users is None:
 			_log.Log(gmLog.lInfo, 'user transfer not defined')
-			print "Skipped (unconfigured)."
+			print "    ... skipped (unconfigured)"
 			return True
 		transfer_users = int(transfer_users)
 		if not transfer_users:
 			_log.Log(gmLog.lInfo, 'configured to not transfer users')
-			print "Skipped (switched off)."
+			print "    ... skipped (disabled)"
 			return True
 		cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
 		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
@@ -778,7 +783,7 @@ class database:
 			_log.Log(gmLog.lInfo, 'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
 		_log.Log(gmLog.lErr, 'error transferring user from [%s] to [%s]' % (self.template_db, self.name))
-		print "Failed."
+		print "    ... failed"
 		return False
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
@@ -1212,7 +1217,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.51  2007-04-02 18:42:14  ncq
+# Revision 1.52  2007-04-07 22:48:00  ncq
+# - improved console output
+#
+# Revision 1.51  2007/04/02 18:42:14  ncq
 # - better console output
 #
 # Revision 1.50  2007/04/02 15:18:21  ncq
