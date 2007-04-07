@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.49.2.1 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -304,6 +304,9 @@ class db_server:
 			return None
 
 		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
+		if self.conn is None:
+			_log.Log(gmLog.lErr, 'Cannot connect.')
+			return False
 
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
 		return True
@@ -1121,7 +1124,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.49  2007-03-26 16:10:17  ncq
+# Revision 1.49.2.1  2007-04-07 14:59:06  ncq
+# - detect failing database connection
+#
+# Revision 1.49  2007/03/26 16:10:17  ncq
 # - syntax error fix
 #
 # Revision 1.48  2007/03/23 12:43:02  ncq
