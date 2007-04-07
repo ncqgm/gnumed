@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: clin-encounter.sql,v 1.1 2007-02-04 15:31:40 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-encounter.sql,v 1.2 2007-04-07 22:49:06 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -19,6 +19,14 @@
 --\unset ON_ERROR_STOP
 --drop forgot_to_edit_drops;
 --\set ON_ERROR_STOP 1
+
+-- adjust data
+update clin.encounter
+	set last_affirmed = (started + '1 second'::interval
+where
+	started > last_affirmed;
+;
+
 
 alter table clin.encounter
 	add constraint encounter_must_start_before_it_ends
@@ -32,11 +40,14 @@ alter table clin.encounter
 --grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-encounter.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: clin-encounter.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-encounter.sql,v $
--- Revision 1.1  2007-02-04 15:31:40  ncq
+-- Revision 1.2  2007-04-07 22:49:06  ncq
+-- - need to adjust data before adding constraint
+--
+-- Revision 1.1  2007/02/04 15:31:40  ncq
 -- - add check for END after START
 --
 -- Revision 1.6  2007/01/27 21:16:08  ncq
