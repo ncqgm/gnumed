@@ -10,17 +10,17 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.67 2007-04-07 22:45:28 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmPatSearchWidgets.py,v 1.68 2007-04-08 21:17:14 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, glob, locale, datetime as pyDT
+import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser
 
 import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
-from Gnumed.business import gmPerson, gmKVK, gmSurgery
+from Gnumed.business import gmPerson, gmKVK, gmDataMining
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgDataMiningPnl
 
@@ -60,6 +60,25 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
+	def _on_schema_button_pressed(self, evt):
+		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=0, autoraise=1)
+	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, evt):
+		report = self._PRW_report_name.GetValue().strip()
+		if report == u'':
+			return True
+		if gmDataMining.delete_report_definition(name=report):
+			self._PRW_report_name.SetText()
+			self._TCTRL_query.SetValue(u'')
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Deleted report definition [%s].') % report, beep=False)
+			return True
+		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error deleting report definition [%s].') % report, beep=True)
+		return False
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PRW_report_name.SetText()
+		self._TCTRL_query.SetValue(u'')
+	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
 		if report == u'':
@@ -69,9 +88,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if query == u'':
 			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without query.'), beep=True)
 			return False
-		surgery = gmSurgery.cSurgery()
 		# FIXME: check for exists and ask for permission
-		if surgery.save_report_definition(name=report, query=query, overwrite=True):
+		if gmDataMining.save_report_definition(name=report, query=query, overwrite=True):
 			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Saved report definition [%s].') % report, beep=False)
 			return True
 		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error saving report definition [%s].') % report, beep=True)
@@ -881,7 +899,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.67  2007-04-07 22:45:28  ncq
+# Revision 1.68  2007-04-08 21:17:14  ncq
+# - add more event handlers to data mining panel
+#
+# Revision 1.67  2007/04/07 22:45:28  ncq
 # - add save handler to data mining panel
 #
 # Revision 1.66  2007/04/06 23:15:21  ncq
