@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.69 2007-04-09 16:31:06 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmPatSearchWidgets.py,v 1.70 2007-04-09 18:52:47 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -59,6 +59,25 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		pass
 	#--------------------------------------------------------
 	# event handlers
+	#--------------------------------------------------------
+	def _on_list_item_activated(self, evt):
+		data = self._LCTRL_result.get_selected_item_data()
+		try:
+			pk_pat = data['pk_patient']
+		except KeyError:
+			gmGuiHelpers.gm_show_warning(
+				_(
+				'Cannot activate patient.\n\n'
+				'The report result list does not contain\n'
+				'a column named "pk_patient".\n\n'
+				'You may want to use the SQL "AS" column alias\n'
+				'syntax to make your query return such a column.\n'
+				),
+				_('activating patient from report result')
+			)
+			return
+		pat = gmPerson.cPatient(aPK_obj = pk_pat)
+		gmPerson.set_active_patient(patient = pat)
 	#--------------------------------------------------------
 	def _on_contribute_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -165,6 +184,7 @@ The GNUmed client.
 				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = str(gmTools.coalesce(row[col_idx], u'')))
 
 		self._LCTRL_result.set_column_widths()
+		self._LCTRL_result.set_data(data = rows)
 #============================================================
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
 
@@ -933,7 +953,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.69  2007-04-09 16:31:06  ncq
+# Revision 1.70  2007-04-09 18:52:47  ncq
+# - magic patient activation from report result list
+#
+# Revision 1.69  2007/04/09 16:31:06  ncq
 # - add _on_contribute
 #
 # Revision 1.68  2007/04/08 21:17:14  ncq
