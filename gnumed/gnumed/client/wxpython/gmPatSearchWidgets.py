@@ -10,12 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.71 2007-04-09 21:12:49 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmPatSearchWidgets.py,v 1.72 2007-04-09 22:03:57 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser
+import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser, fileinput
 
 import wx
 
@@ -41,6 +41,9 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		self.__init_ui()
 
+		# make me a file drop target
+		dt = gmGuiHelpers.cFileDropTarget(self)
+		self.SetDropTarget(dt)
 	#--------------------------------------------------------
 	def __init_ui(self):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -52,6 +55,14 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_report_selected(self, *args, **kwargs):
 		self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
+	#--------------------------------------------------------
+	# file drop target API
+	#--------------------------------------------------------
+	def add_filenames(self, filenames):
+		# act on first file only
+		fname = filenames[0]
+		for line in fileinput.input(fname):
+			self._TCTRL_query.AppendText(line)
 	#--------------------------------------------------------
 	# notebook plugin API
 	#--------------------------------------------------------
@@ -955,7 +966,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.71  2007-04-09 21:12:49  ncq
+# Revision 1.72  2007-04-09 22:03:57  ncq
+# - make data mining panel a file drop target
+#
+# Revision 1.71  2007/04/09 21:12:49  ncq
 # - better wording in contribute email
 # - properly unicode() SQL results
 #
