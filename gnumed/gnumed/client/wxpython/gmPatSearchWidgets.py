@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.68 2007-04-08 21:17:14 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmPatSearchWidgets.py,v 1.69 2007-04-09 16:31:06 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -59,6 +59,40 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		pass
 	#--------------------------------------------------------
 	# event handlers
+	#--------------------------------------------------------
+	def _on_contribute_button_pressed(self, evt):
+		report = self._PRW_report_name.GetValue().strip()
+		if report == u'':
+			return
+		query = self._TCTRL_query.GetValue().strip()
+		if query == u'':
+			return
+
+		auth = {'user': gmTools.default_mail_sender, 'password': u'gm/bugs/gmx'}
+		msg = u"""
+To: gnumed-devel@gnu.org
+From: GNUmed Report Generator <gnumed@gmx.net>
+Subject: user contributed report
+
+This is a report contributed by a user:
+
+#-------------------------------------
+
+%s
+
+%s
+
+#-------------------------------------
+
+The GNUmed client.
+""" % (report, query)
+
+		if not gmTools.send_mail(message = msg, auth = auth):
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
+			return False
+
+		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Thank you for your contribution to the GNUmed community !'), beep = False)
+		return True
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
 		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=0, autoraise=1)
@@ -899,7 +933,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.68  2007-04-08 21:17:14  ncq
+# Revision 1.69  2007-04-09 16:31:06  ncq
+# - add _on_contribute
+#
+# Revision 1.68  2007/04/08 21:17:14  ncq
 # - add more event handlers to data mining panel
 #
 # Revision 1.67  2007/04/07 22:45:28  ncq
