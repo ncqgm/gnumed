@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.52 2007-03-18 14:07:14 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmGuiHelpers.py,v 1.53 2007-04-09 22:02:40 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -164,7 +164,7 @@ class cFileDropTarget(wx.FileDropTarget):
 		Widgets being declared file drop targets
 		must provide the method:
 
-			add_filename(filenames)
+			add_filenames(filenames)
 	"""
 	#-----------------------------------------------
 	def __init__(self, target):
@@ -465,7 +465,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.52  2007-03-18 14:07:14  ncq
+# Revision 1.53  2007-04-09 22:02:40  ncq
+# - fix docstring
+#
+# Revision 1.52  2007/03/18 14:07:14  ncq
 # - factor out hook script running
 #
 # Revision 1.51  2007/03/02 15:32:56  ncq
