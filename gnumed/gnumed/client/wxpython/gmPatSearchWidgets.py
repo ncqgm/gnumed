@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.70 2007-04-09 18:52:47 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmPatSearchWidgets.py,v 1.71 2007-04-09 21:12:49 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -65,7 +65,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		try:
 			pk_pat = data['pk_patient']
 		except KeyError:
-			gmGuiHelpers.gm_show_warning(
+			gmGuiHelpers.gm_show_warning (
 				_(
 				'Cannot activate patient.\n\n'
 				'The report result list does not contain\n'
@@ -93,15 +93,16 @@ To: gnumed-devel@gnu.org
 From: GNUmed Report Generator <gnumed@gmx.net>
 Subject: user contributed report
 
-This is a report contributed by a user:
+This is a report definition contributed
+by a GNUmed user:
 
-#-------------------------------------
+#--------------------------------------
 
 %s
 
 %s
 
-#-------------------------------------
+#--------------------------------------
 
 The GNUmed client.
 """ % (report, query)
@@ -179,9 +180,10 @@ The GNUmed client.
 
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
-			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = unicode(gmTools.coalesce(row[0], u'')))
+			label = unicode(gmTools.coalesce(row[0], u''))
+			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
-				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = str(gmTools.coalesce(row[col_idx], u'')))
+				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = unicode(gmTools.coalesce(row[col_idx], u'')))
 
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
@@ -953,7 +955,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.70  2007-04-09 18:52:47  ncq
+# Revision 1.71  2007-04-09 21:12:49  ncq
+# - better wording in contribute email
+# - properly unicode() SQL results
+#
+# Revision 1.70  2007/04/09 18:52:47  ncq
 # - magic patient activation from report result list
 #
 # Revision 1.69  2007/04/09 16:31:06  ncq
