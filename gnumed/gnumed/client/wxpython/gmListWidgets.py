@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.3 2007-03-18 14:09:31 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmListWidgets.py,v 1.4 2007-04-09 18:51:47 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,7 +20,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		except KeyError:
 			kwargs['style'] = wx.LC_REPORT
 
-		# FIXME: remember SINGLE_SELECTION and use that in get_selected_item_data()
+		self.__is_single_selection = ((kwargs['style'] & wx.LC_SINGLE_SEL) != 0)
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
@@ -39,6 +39,11 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			self.InsertColumn(idx, columns[idx])
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
+		if widths is None:
+			for idx in range(self.GetColumnCount()):
+				self.SetColumnWidth(col = idx, width = wx.LIST_AUTOSIZE)
+			return
+
 		for idx in range(len(widths)):
 			self.SetColumnWidth(col = idx, width = widths[idx])
 	#------------------------------------------------------------
@@ -50,9 +55,17 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		return self.__data[item_idx]
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=True):
-		# FIXME: support only_one overriding self.is_single_choice
-		# FIXME: idx = GetFirstSelected, while idx != -1: idx = GetNextSelected()
-		return self.__data[self.GetFirstSelected()]
+
+		if self.__is_single_selection or only_one:
+			return self.__data[self.GetFirstSelected()]
+
+		data = []
+		idx = self.GetFirstSelected()
+		while idx != -1:
+			idx = self.GetNextSelected()
+			data.append(self.__data[idx])
+
+		return data
 	#------------------------------------------------------------
 	def deselect_selected_item(self):
 		self.Select(idx = self.GetFirstSelected(), on = 0)
@@ -65,7 +78,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.3  2007-03-18 14:09:31  ncq
+# Revision 1.4  2007-04-09 18:51:47  ncq
+# - add support for multiple selections and auto-setting the widths
+#
+# Revision 1.3  2007/03/18 14:09:31  ncq
 # - add set_columns() and set_column_widths()
 #
 # Revision 1.2  2006/12/11 20:50:45  ncq
