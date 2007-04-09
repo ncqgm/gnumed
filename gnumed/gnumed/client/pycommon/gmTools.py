@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.18 2007-03-08 16:19:30 ncq Exp $
+# $Id: gmTools.py,v 1.19 2007-04-09 16:30:31 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,7 +22,6 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 
-#===========================================================================
 ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 
 # CAPitalization modes:
@@ -34,6 +33,38 @@ ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 	CAPS_NAMES,					# CAP in a way suitable for names (tries to be smart)
 	CAPS_FIRST_ONLY				# CAP first char, lowercase the rest
 ) = range(6)
+
+default_mail_sender = u'gnumed@gmx.net'
+default_mail_receiver = u'gnumed-devel@gnu.org'
+default_mail_server = u'mail.gmx.net'
+
+#===========================================================================
+def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False):
+	if message is None:
+		return False
+	message = message.lstrip().lstrip('\r\n').lstrip()
+
+	if sender is None:
+		sender = default_mail_sender
+
+	if receiver is None:
+		receiver = [default_mail_receiver]
+
+	if server is None:
+		server = default_mail_server
+
+	import smtplib
+	session = smtplib.SMTP(server)
+	session.set_debuglevel(debug)
+	if auth is not None:
+		session.login(auth['user'], auth['password'])
+	refused = session.sendmail(sender, receiver, message)
+	session.quit()
+	if len(refused) != 0:
+		_log.Log(gmLog.lErr, "refused recipients: %s" % refused)
+		return False
+
+	return True
 #===========================================================================
 def mkdir(directory=None):
 	try:
@@ -364,6 +395,21 @@ if __name__ == '__main__':
 		print "testing mkdir()"
 		mkdir(sys.argv[1])
 	#-----------------------------------------------------------------------
+	def test_send_mail():
+		msg = u"""
+To: %s
+From: %s
+Subject: gmTools test suite mail
+
+This is a test mail from the gmTools.py module.
+""" % (default_mail_receiver, default_mail_sender)
+		print "mail sending succeeded:", send_mail (
+			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
+			message = msg,
+			auth = {'user': default_mail_sender, 'password': u'gm/bugs/gmx'},
+			debug = True
+		)
+	#-----------------------------------------------------------------------
 	print __doc__
 
 	#test_str2interval()
@@ -372,10 +418,14 @@ if __name__ == '__main__':
 	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
+	#test_send_mail()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.18  2007-03-08 16:19:30  ncq
+# Revision 1.19  2007-04-09 16:30:31  ncq
+# - add send_mail()
+#
+# Revision 1.18  2007/03/08 16:19:30  ncq
 # - typo and cleanup
 #
 # Revision 1.17  2007/02/17 13:58:11  ncq
