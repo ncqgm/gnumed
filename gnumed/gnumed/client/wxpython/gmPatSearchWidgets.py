@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.72 2007-04-09 22:03:57 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmPatSearchWidgets.py,v 1.73 2007-04-11 14:53:33 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -19,7 +19,7 @@ import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser, fileinput
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmMimeLib
 from Gnumed.business import gmPerson, gmKVK, gmDataMining
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgDataMiningPnl
@@ -55,12 +55,24 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_report_selected(self, *args, **kwargs):
 		self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
+		self._BTN_run.SetFocus()
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
 	def add_filenames(self, filenames):
 		# act on first file only
 		fname = filenames[0]
+		# act on text files only
+		mime_type = gmMimeLib.guess_mimetye(fname)
+		if not mime_type.startswith('text/'):
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
+			return False
+		# act on "small" files only
+		stat_val = os.stat(fname)
+		if stat_val.st_size > 2000:
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. File too big (> 2000 bytes).') % fname, beep = True)
+			return False
+		# all checks passed
 		for line in fileinput.input(fname):
 			self._TCTRL_query.AppendText(line)
 	#--------------------------------------------------------
@@ -966,7 +978,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.72  2007-04-09 22:03:57  ncq
+# Revision 1.73  2007-04-11 14:53:33  ncq
+# - do some safeguarding against binary/large files being dropped onto
+#   the data mining plugin - check mimetype and size
+#
+# Revision 1.72  2007/04/09 22:03:57  ncq
 # - make data mining panel a file drop target
 #
 # Revision 1.71  2007/04/09 21:12:49  ncq
