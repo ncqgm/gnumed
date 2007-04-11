@@ -12,21 +12,20 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.37 2007-02-19 17:21:18 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmManual.py,v 1.38 2007-04-11 20:47:34 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
-import os
+import os, sys, os.path
 
 import wx
 import wx.html
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmI18N
+from Gnumed.pycommon import gmLog
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_manual_path = 'user-manual/index.html'
 
 ID_MANUALCONTENTS = wx.NewId()
 ID_MANUALBACK = wx.NewId()
@@ -53,14 +52,17 @@ class ManualHtmlPanel(wx.Panel):
 	def __init__(self, parent, frame):
 		wx.Panel.__init__(self, parent, -1)
 		self.frame = frame
+
 		# get base directory for manuals from broker
-		# Ideally this should be something like "/usr/doc/gnumed/"
-		# try standard location
-		# FIXME: this should be a) configurable, b) not hardcoded here (?)
-		if os.name == 'posix':
-			self.docdir = '/usr/share/doc/gnumed/user-manual/'
-		else:
-			self.docdir = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'doc', 'user-manual')
+		std_paths = wx.StandardPaths.Get()
+		candidates = [
+			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..', 'doc', 'user-manual')),
+			'/usr/share/doc/gnumed/user-manual/',
+			os.path.join(std_paths.GetDataDir(), 'doc', 'user-manual')
+		]
+		for self.docdir in candidates:
+			if os.access(self.docdir, os.R_OK):
+				break
 
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
@@ -242,7 +244,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.37  2007-02-19 17:21:18  ncq
+# Revision 1.38  2007-04-11 20:47:34  ncq
+# - nore more 'resource dir'
+#
+# Revision 1.37  2007/02/19 17:21:18  ncq
 # - docs are in /usr/share/doc/gnumed/
 #
 # Revision 1.36  2006/11/26 17:46:42  ncq
