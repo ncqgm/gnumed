@@ -1014,7 +1014,6 @@ places:
 
 1) programmer supplied arguments
 2) user supplied command line (getopt style):	--conf-file=&lt;a file name&gt;
-3) user supplied GNUMED_DIR directory
 4) ~/.&lt;aDir&gt;/&lt;aName&gt;.conf
 5) ~/.&lt;aName&gt;.conf
 6) /etc/&lt;aDir&gt;/&lt;aName&gt;.conf
@@ -1365,7 +1364,6 @@ the command line like this:
 
 This module searches for message catalog files in 3 main locations:
  - in standard POSIX places (/usr/share/locale/ ...)
- - below $GNUMED_DIR/locale/
  - below (one level above binary directory)/locale/
 
 For DOS/Windows I don't know of standard places so only the last
@@ -1952,32 +1950,6 @@ Command line arguments:
  end up.
 --help, -h, or -?
  Well, show this help.
-
-
-def get_base_dir():
-	Retrieve the global base directory.
-
-	   The most preferable approach would be to just let
-	   the user specify the name of a config file on the
-	   command line but for that we'd have to load some
-	   non-standard modules already unless we want to
-	   duplicate the entire config file infrastructure
-	   right here.
-
-	   1) regardless of OS if the environment variable GNUMED_DIR
-		  is set this directory will be tried as a base dir
-		  - this will allow people to start GNUmed from any dir
-		    they want on any OS they happen to run
-		  - the variable name has been chosen to be descriptive
-		    but still not waste too many resources
-	   2) assume /usr/share/gnumed/ as base dir
-		  - this will work on POSIX systems and may work on
-		    Cygwin systems
-		  - this is the no-brainer for stock UN*X
-	   3) finally try one level below path to binary
-	      - last resort for lesser systems
-		  - this is the no-brainer for DOS/Windows
-		  - it also allows running from a local CVS copy
 
 
 further action:

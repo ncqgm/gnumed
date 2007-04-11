@@ -118,31 +118,6 @@ Command line arguments:
  Well, show this help.
 
 
-def get_base_dir():
-	Retrieve the global base directory.
-
-	   The most preferable approach would be to just let
-	   the user specify the name of a config file on the
-	   command line but for that we'd have to load some
-	   non-standard modules already unless we want to
-	   duplicate the entire config file infrastructure
-	   right here.
-
-	   1) regardless of OS if the environment variable GNUMED_DIR
-		  is set this directory will be tried as a base dir
-		  - this will allow people to start GNUmed from any dir
-		    they want on any OS they happen to run
-		  - the variable name has been chosen to be descriptive
-		    but still not waste too many resources
-	   2) assume /usr/share/gnumed/ as base dir
-		  - this will work on POSIX systems and may work on
-		    Cygwin systems
-		  - this is the no-brainer for stock UN*X
-	   3) finally try one level below path to binary
-	      - last resort for lesser systems
-		  - this is the no-brainer for DOS/Windows
-		  - it also allows running from a local CVS copy
-
 
 further action:
 - import gmLog, gmCLI

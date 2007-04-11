@@ -175,7 +175,6 @@ places:
 
 1) programmer supplied arguments
 2) user supplied command line (getopt style):	--conf-file=&#60;a file name&#62;
-3) user supplied GNUMED_DIR directory
 4) ~/.&#60;aDir&#62;/&#60;aName&#62;.conf
 5) ~/.&#60;aName&#62;.conf
 6) /etc/&#60;aDir&#62;/&#60;aName&#62;.conf
@@ -641,7 +640,6 @@ the command line like this:
  --text-domain=&#60; your text domain &#62;
 This module searches for message catalog files in 3 main locations:
  - in standard POSIX places (/usr/share/locale/ ...)
- - below $GNUMED_DIR/locale/
  - below (one level above binary directory)/locale/
 
 For DOS/Windows I don't know of standard places so only the last
