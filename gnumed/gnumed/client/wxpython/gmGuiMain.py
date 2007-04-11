@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.321 2007-04-11 14:51:55 ncq Exp $
-__version__ = "$Revision: 1.321 $"
+# $Id: gmGuiMain.py,v 1.322 2007-04-11 20:43:51 ncq Exp $
+__version__ = "$Revision: 1.322 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1056,6 +1056,7 @@ class gmApp(wx.App):
 	def OnInit(self):
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
+		#self.SetVendor(u'The GNUmed Development Community.')
 
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
@@ -1321,13 +1322,14 @@ if __name__ == '__main__':
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	_log.AddTarget(aLogTarget)
 	_log.Log(gmLog.lInfo, 'Starting up as main module.')
-	gb = gmGuiBroker.GuiBroker()
-	gb['gnumed_dir'] = os.curdir + "/.."
 	main()
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.321  2007-04-11 14:51:55  ncq
+# Revision 1.322  2007-04-11 20:43:51  ncq
+# - cleanup
+#
+# Revision 1.321  2007/04/11 14:51:55  ncq
 # - use SetAppName() on App instance
 #
 # Revision 1.320  2007/04/02 18:40:58  ncq

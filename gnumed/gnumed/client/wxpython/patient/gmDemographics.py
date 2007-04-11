@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.37 2006-07-30 17:51:00 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmDemographics.py,v 1.38 2007-04-11 20:47:54 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "R.Terry, SJ Tan"
 
 
@@ -430,12 +430,14 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 if __name__ == "__main__":
 	import gmGuiBroker
 	app = wxPyWidgetTester(size = (800, 600))
-	#gmGuiBroker.GuiBroker ()['gnumed_dir'] = '/home/ian/gnumed/gnumed/client'
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.37  2006-07-30 17:51:00  ncq
+# Revision 1.38  2007-04-11 20:47:54  ncq
+# - cleanup
+#
+# Revision 1.37  2006/07/30 17:51:00  ncq
 # - cleanup
 #
 # Revision 1.36  2006/05/15 13:42:02  ncq
