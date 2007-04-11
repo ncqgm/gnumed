@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.91 2007-03-31 21:18:40 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmMedDoc.py,v 1.92 2007-04-11 14:51:06 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -588,8 +588,7 @@ def search_for_document(patient_id=None, type_id=None):
 	"""
 	# sanity checks
 	if patient_id is None:
-		_log.Log(gmLog.lErr, 'need patient id to create document')
-		return None
+		raise ValueError('need patient id to create document')
 
 	args = {'pat_id': patient_id, 'type_id': type_id}
 	if type_id is None:
@@ -729,7 +728,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.91  2007-03-31 21:18:40  ncq
+# Revision 1.92  2007-04-11 14:51:06  ncq
+# - raising exception on error
+#
+# Revision 1.91  2007/03/31 21:18:40  ncq
 # - apply basename to original filename on save
 #
 # Revision 1.90  2007/03/08 16:17:47  ncq
