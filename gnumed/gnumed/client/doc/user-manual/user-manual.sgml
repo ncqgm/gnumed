@@ -853,28 +853,6 @@ Then, obviously you would need to create the gnumed database and the bootstrap d
 <title>Configure Files and Setup Environment Parameters</title>
 
 <sect3>
-<title>PYTHONPATH and GNUMED_DIR</title>
-<para>
-<emphasis>I HAVE BEEN TOLD: GnuMed should run without GNUMED_DIR in most circumstances. One only needs to set it if GnuMed absolutely cannot find its files.</emphasis> [I needed to set it on my RH 8.0 system.]
-<orderedlist>
-<listitem><para>as root: find / -name site-packages
-</para></listitem><listitem><para>
-Copy that full path down
-</para></listitem><listitem><para>
-As user gnumed: vi ~/.bashrc - I am assuming you are running the bash script. It is okay if this file does not exist, vi will create it. Put that directory name in using the export command as below. My lines are:
-<screen>
-export PYTHONPATH=/usr/lib/python2.2/site-packages
-
-export GNUMED_DIR=/home/gnumed/gnumed/gnumed/client
-</screen>
-</para></listitem><listitem><para>
-source ~/.bashrc [this will make that an environment variable. You can check it by typing env|grep PYTHONPATH]
-</para></listitem></orderedlist>
-</para>
-
-</sect3>
-
-<sect3>
 
 <title>pg_clog, postgres.conf and PGDATA</title>
 
@@ -987,8 +965,6 @@ If the GUI does not come up:
 </listitem><listitem><para>
 If your error lists files "gmCLI" and "gmLog" - the error actually means files "gmCLI.py" and "gmLog.py" These files are on your system.
 
-</para></listitem><listitem><para>
-This error means that your GNUMED_DIR environment variable is not set to ".....client" directory. Do an env| grep GNUMED_DIR or do an echo $GNUMED_DIR to see if it is set correctly. See section above.
 </para></listitem>
 </orderedlist>
 </para>
