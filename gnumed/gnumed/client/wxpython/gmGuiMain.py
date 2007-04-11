@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.320 2007-04-02 18:40:58 ncq Exp $
-__version__ = "$Revision: 1.320 $"
+# $Id: gmGuiMain.py,v 1.321 2007-04-11 14:51:55 ncq Exp $
+__version__ = "$Revision: 1.321 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1054,6 +1054,9 @@ Search results:
 class gmApp(wx.App):
 
 	def OnInit(self):
+		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
+		self.SetAppName(u'gnumed')
+
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
@@ -1061,9 +1064,9 @@ class gmApp(wx.App):
 		if gmCLI.has_arg('--conf-file'):
 			fname = gmCLI.arg['--conf-file']
 		else:
-			std_pathes = wx.StandardPaths.Get()
+			std_paths = wx.StandardPaths.Get()
 			try:
-				fname = os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf')
+				fname = os.path.join(std_paths.GetUserConfigDir(), '.gnumed', 'gnumed.conf')
 				open(fname)
 			except IOError:
 				fname = os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
@@ -1324,7 +1327,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.320  2007-04-02 18:40:58  ncq
+# Revision 1.321  2007-04-11 14:51:55  ncq
+# - use SetAppName() on App instance
+#
+# Revision 1.320  2007/04/02 18:40:58  ncq
 # - add menu item to start new encounter
 #
 # Revision 1.319  2007/04/01 15:28:14  ncq
