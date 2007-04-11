@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.53 2007-04-09 22:02:40 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmGuiHelpers.py,v 1.54 2007-04-11 20:41:58 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -331,15 +331,6 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		return None
 
 	return conn
-#------------------------------------------------------------------------
-def gm_icon (name):
-	"""
-	Returns a icon based on the name
-	Hint: run names through gettext ()
-	"""
-	fname = os.path.join(gmGuiBroker.GuiBroker ()['gnumed_dir'], 'bitmaps', '%s.png' % name)
-	img = wx.Image(fname, wx.BITMAP_TYPE_ANY)
-	return wx.BitmapFromImage(img)
 #----------------------------------------------------------------------
 def makePageTitle(wizPg, title):
 	"""
@@ -465,7 +456,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.53  2007-04-09 22:02:40  ncq
+# Revision 1.54  2007-04-11 20:41:58  ncq
+# - remove gm_icon()
+#
+# Revision 1.53  2007/04/09 22:02:40  ncq
 # - fix docstring
 #
 # Revision 1.52  2007/03/18 14:07:14  ncq
