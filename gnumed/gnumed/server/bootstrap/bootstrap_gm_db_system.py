@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -787,6 +787,7 @@ class database:
 		return False
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
+		print "==> setting up auditing ..."
 		# get audit trail configuration
 		tmp = _cfg.get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
@@ -840,6 +841,7 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
+		print "==> setting up notifications ..."
 		# get configuration
 		tmp = _cfg.get(self.section, 'notification disable')
 		# if this option is not given, assume we want notification
@@ -1217,7 +1219,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.52  2007-04-07 22:48:00  ncq
+# Revision 1.53  2007-04-11 14:53:49  ncq
+# - better console output
+#
+# Revision 1.52  2007/04/07 22:48:00  ncq
 # - improved console output
 #
 # Revision 1.51  2007/04/02 18:42:14  ncq
