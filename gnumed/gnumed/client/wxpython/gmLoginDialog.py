@@ -7,12 +7,12 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.78 2007-04-02 15:15:19 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmLoginDialog.py,v 1.79 2007-04-11 20:45:01 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import os.path, time, cPickle, zlib, types
+import os, os.path, time, cPickle, zlib, types, sys
 
 import wx
 
@@ -48,13 +48,14 @@ class LoginPanel(wx.Panel):
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
+		std_paths = wx.StandardPaths.Get()
+
 		self.user_preferences_file = None
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
-			std_pathes = wx.StandardPaths.Get()
 			fnames = [
-				os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
+				os.path.join(std_paths.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
 				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
 			]
 		for fname in fnames:
@@ -76,7 +77,16 @@ class LoginPanel(wx.Panel):
 
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
-		bitmap = os.path.join (self.gb['resource dir'], 'bitmaps', 'gnumedlogo.png')
+		# find bitmap
+		candidates = [
+			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..')),
+			std_paths.GetDataDir()
+		]
+		for candidate in candidates:
+			bitmap = os.path.join(candidate, 'bitmaps', 'gnumedlogo.png')
+			if os.access(bitmap, os.R_OK):
+				break
+
 		try:
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
 			bmp = wx.StaticBitmap(self, -1, png, wx.Point(10, 10), wx.Size(png.GetWidth(), png.GetHeight()))
@@ -429,9 +439,6 @@ class LoginDialog(wx.Dialog):
 # main
 #----------------------------------------------------
 if __name__ == '__main__':
-	gb = gmGuiBroker.GuiBroker()	
-	gb['gnumed_dir'] = os.curdir+'/..'
-
 	app = wx.PyWidgetTester(size = (300,400))
 	#show the login panel in a main window
 #	app.SetWidget(LoginPanel, -1)
@@ -450,7 +457,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.78  2007-04-02 15:15:19  ncq
+# Revision 1.79  2007-04-11 20:45:01  ncq
+# - no more 'resource dir'
+#
+# Revision 1.78  2007/04/02 15:15:19  ncq
 # - v5 -> v6
 #
 # Revision 1.77  2007/03/08 16:20:50  ncq
