@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.67 2007-03-02 15:40:58 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmPlugin.py,v 1.68 2007-04-11 20:47:13 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -31,8 +31,16 @@ class cLoadProgressBar (wx.ProgressDialog):
 			style = wx.PD_ELAPSED_TIME
 			)
 		# set window icon
-		gb = gmGuiBroker.GuiBroker()
-		png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'serpent.png')
+		std_paths = wx.StandardPaths.Get()
+		candidates = [
+			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..')),
+			std_paths.GetDataDir()
+		]
+		for candidate in candidates:
+			png_fname = os.path.join(candidate, 'bitmaps', 'serpent.png')
+			if os.access(png_fname, os.R_OK):
+				break
+
 		icon = wx.EmptyIcon()
 		try:
 			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
@@ -42,7 +50,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 		self.idx = 0
 		self.nr_plugins = nr_plugins
 		self.prev_plugin = ""
-
+	#----------------------------------------------------------
 	def Update (self, result, plugin):
 		if result == -1:
 			result = ""
@@ -389,7 +397,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 			return defaults
 		# now scan it
 		files = os.listdir(search_path)
-		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (plugin_dir, gb['gnumed_dir']))
+		_log.Log(gmLog.lData, "plugin set: %s" % plugin_dir)
 		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
 		_log.Log(gmLog.lData, "files found: %s" % str(files))
 		p_list = []
@@ -427,7 +435,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.67  2007-03-02 15:40:58  ncq
+# Revision 1.68  2007-04-11 20:47:13  ncq
+# - no more 'resource dir' and 'gnumed_dir'
+#
+# Revision 1.67  2007/03/02 15:40:58  ncq
 # - status text now set by signal
 #
 # Revision 1.66  2007/02/17 14:13:11  ncq

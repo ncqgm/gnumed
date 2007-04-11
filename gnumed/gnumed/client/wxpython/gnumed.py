@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.112 2007-03-27 10:29:49 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gnumed.py,v 1.113 2007-04-11 20:47:13 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -229,139 +229,6 @@ def setup_signal_handlers():
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
-def get_resource_dir():
-	"""Detect resource directory base.
-
-	1) resource directory defined in config file
-	  - this will allow people to start GNUmed from any
-	    dir they want on any OS they happen to run
-    2) assume /usr/share/gnumed/ as resource dir
-	  - this will work on POSIX/LSB systems and may work
-	    on Cygwin systems
-	  - this is the no-brainer for stock UN*X
-    3) finally try one level below path to binary
-      - last resort for lesser systems
-	  - this is the no-brainer for DOS/Windows
-	  - it also allows running from a local CVS copy
-	"""
-	print "GNUmed startup: Determining GNUmed resource directory ..."
-	# config file
-	candidate = _cfg.get('client', 'resource directory')
-	if candidate not in [None, '']:
-		# expand ~/... and ~*/...
-		# normalize case
-		# connect to / dir
-		tmp = os.path.normcase(os.path.abspath(os.path.expanduser(candidate)))
-		if os.access(tmp, os.R_OK):
-			return tmp
-		print "- resource path [%s] not accessible" % tmp
-		print '- adjust [client] -> "resource directory"'
-		print "  in the config file"
-		return None
-
-	# - normalize and convert slashes to local filesystem convention
-	tmp = os.path.normcase('/usr/share/gnumed/')
-	if os.access(tmp, os.R_OK):
-		return tmp
-
-	print '- standard resource path [%s] not accessible' % tmp
-	print '- seems like we are running from an arbitrary'
-	print '  directory (like a CVS tree or on Windows)'
-
-	# get path to binary
-	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
-	# strip one directory level
-	# this is a rather neat trick :-)
-	tmp = os.path.normpath(os.path.join(tmp, '..'))
-	# sanity check (paranoia rulez)
-	if os.access(tmp, os.R_OK):
-		return tmp
-
-	print '- resource path [%s] not accessible' % tmp
-	print ''
-	print 'GNUmed startup: Something is really rotten here. We better'
-	print 'GNUmed startup: fail gracefully ! Please ask your administrator'
-	print 'GNUmed startup: for help.'
-
-	return None
-#----------------------------------------------------------
-def get_base_dir():
-	"""Retrieve the global base directory.
-
-	   The most preferable approach would be to just let
-	   the user specify the name of a config file on the
-	   command line but for that we'd have to load some
-	   non-standard modules already unless we want to
-	   duplicate the entire config file infrastructure
-	   right here.
-
-	   1) regardless of OS if the environment variable GNUMED_DIR
-		  is set this directory will be tried as a base dir
-		  - this will allow people to start GNUmed from any dir
-		    they want on any OS they happen to run
-		  - the variable name has been chosen to be descriptive
-		    but still not waste too many resources
-	   2) assume /usr/share/gnumed/ as base dir
-		  - this will work on POSIX systems and may work on
-		    Cygwin systems
-		  - this is the no-brainer for stock UN*X
-	   3) finally try one level below path to binary
-	      - last resort for lesser systems
-		  - this is the no-brainer for DOS/Windows
-		  - it also allows running from a local CVS copy
-	"""
-	print "GNUmed startup: Determining GNUmed base directory ..."
-	# environment variable
-	if os.environ.has_key('GNUMED_DIR'):
-		var = os.environ['GNUMED_DIR']
-		# - expand '~' and '~user'
-		# - expand '$var' and '${var}'
-		# - make absolute (normalizes slashes, too)
-		# - normalize case
-		tmp = os.path.normcase (os.path.abspath (
-			os.path.expandvars(os.path.expanduser(var))
-		))
-		print '- environment variable GNUMED_DIR contains [%s]' % tmp
-		print '  this expands to [%s]' % tmp
-		# - however, we don't want any random rogue to throw us off
-		#   balance so we check whether that's a valid path
-		# - note that it may still be the wrong directory
-		if os.path.exists(tmp):
-			return tmp
-		print '  (this is not a valid path, however)'
-	else:
-		print '- environment variable GNUMED_DIR not set'
-		print '  (only necessary if nothing else works, though)'
-
-	# standard POSIX path
-	# - only works on POSIX where the given string is a valid path definition
-	tmp = '/usr/share/gnumed/'
-	# - sanity check
-	if os.path.exists(tmp):
-		return tmp
-
-	print '- standard path [%s] not accessible' % tmp
-	print '- seems like we are running from an arbitrary'
-	print '  directory (like a CVS tree or on Windows), namely:'
-
-	# get path to binary
-	bin = sys.argv[0]
-	tmp = os.path.dirname(os.path.abspath(bin))
-	# strip one directory level
-	tmp = os.path.normpath(os.path.join(tmp, '..'))
-	print '  [%s] -> [%s]' % (bin, tmp)
-	# sanity check (paranoia rulez)
-	if os.path.exists(tmp):
-		return tmp
-
-	print '- application installation path [%s] not accessible' % tmp
-	print ''
-	print 'GNUmed startup: Something is really rotten here. We better'
-	print 'GNUmed startup: fail gracefully ! This may be one of those'
-	print 'GNUmed startup: cases where setting GNUMED_DIR might help.'
-
-	return None
-#==========================================================
 def log_object_refcounts():
 	if not gmCLI.has_arg('--debug'):
 		return
@@ -417,22 +284,8 @@ setup_pathes()
 setup_date_time()
 setup_cfg_files()
 
-appPath = get_base_dir()
-if appPath is None:
-	sys.exit("CRITICAL ERROR: Cannot determine base path.")
-_log.Log(gmLog.lData, "old-style resource path: %s" % appPath)
-
-resPath = get_resource_dir()
-if resPath is None:
-	sys.exit("CRITICAL ERROR: Cannot determine resouce path.")
-_log.Log(gmLog.lData, "new-style resource path: %s" % resPath)
-
 # import more of our stuff
 from Gnumed.pycommon import gmI18N, gmGuiBroker, gmHooks
-
-gb = gmGuiBroker.GuiBroker()
-gb['gnumed_dir'] = appPath
-gb['resource dir'] = resPath
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
@@ -455,7 +308,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.112  2007-03-27 10:29:49  ncq
+# Revision 1.113  2007-04-11 20:47:13  ncq
+# - no more 'resource dir' and 'gnumed_dir'
+#
+# Revision 1.112  2007/03/27 10:29:49  ncq
 # - better placement for default word list
 #
 # Revision 1.111  2007/03/26 14:45:36  ncq
