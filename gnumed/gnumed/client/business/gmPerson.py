@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.112 2007-03-18 13:04:42 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmPerson.py,v 1.112.2.1 2007-04-17 09:30:43 ncq Exp $
+__version__ = "$Revision: 1.112.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -654,10 +654,8 @@ class cPatient(cIdentity):
 		"""
 		if self.__db_cache.has_key('clinical record'):
 			self.__db_cache['clinical record'].cleanup()
-			del self.__db_cache['clinical record']
 		if self.__db_cache.has_key('document folder'):
 			self.__db_cache['document folder'].cleanup()
-			del self.__db_cache['document folder']
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
 	def get_emr(self):
@@ -1860,7 +1858,12 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.112  2007-03-18 13:04:42  ncq
+# Revision 1.112.2.1  2007-04-17 09:30:43  ncq
+# - do not delete cached EMR/doc folder objects early so they are
+#   not needlessly re-created thereby needlessly restarting new
+#   encounters
+#
+# Revision 1.112  2007/03/18 13:04:42  ncq
 # - re-add lost 1.112
 #
 # Revision 1.112  2007/03/12 13:29:17  ncq
