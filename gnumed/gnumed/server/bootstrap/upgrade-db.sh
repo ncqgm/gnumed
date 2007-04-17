@@ -20,12 +20,15 @@ cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
 PREV_VER="$1"
-VER="$2"
-LOG="update_db-v${PREV_VER}_v${VER}.log"
-CONF="update_db-v${PREV_VER}_v${VER}.conf"
-BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${VER}-"`hostname`".sql.bz2"
+NEXT_VER="$2"
+LOG="update_db-v${PREV_VER}_v${NEXT_VER}.log"
+CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
+BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${NEXT_VER}-"`hostname`".sql.bz2"
 
 if test ! -f $CONF ; then
+	echo ""
+	echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
+	echo ""
 	echo "========================================="
 	echo "ERROR: The configuration file:"
 	echo "ERROR:"
@@ -33,16 +36,20 @@ if test ! -f $CONF ; then
 	echo "ERROR"
 	echo "ERROR: does not exist. Aborting."
 	echo "========================================="
+	echo ""
+	echo "USAGE: $0 x x+1"
+	echo "   x   - database version to upgrade from"
+	echo "   x+1 - database version to upgrade to (sequentially only)"
 	exit
 fi ;
 
-export GM_CORE_DB="gnumed_v${VER}"
+export GM_CORE_DB="gnumed_v${NEXT_VER}"
 
 echo "==========================================================="
 echo "Upgrading GNUmed database."
 echo ""
 echo "This will *non-destructively* create a new GNUmed database"
-echo "of version v${VER} from an existing v${PREV_VER} database."
+echo "of version v${NEXT_VER} from an existing v${PREV_VER} database."
 echo "Existing data is transferred and transformed as necessary."
 echo ""
 echo "The name of the new database will be \"${GM_CORE_DB}\"."
