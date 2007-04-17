@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.238.2.2 2007-04-17 09:28:37 ncq Exp $
-__version__ = "$Revision: 1.238.2.2 $"
+# $Id: gmClinicalRecord.py,v 1.238.2.3 2007-04-17 09:29:53 ncq Exp $
+__version__ = "$Revision: 1.238.2.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -85,7 +85,7 @@ select fk_encounter from
 		}
 
 		# load current or create new encounter
-		self.remove_empty_encounters()
+#		self.remove_empty_encounters()
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
@@ -1618,7 +1618,12 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.238.2.2  2007-04-17 09:28:37  ncq
+# Revision 1.238.2.3  2007-04-17 09:29:53  ncq
+# - the whole remove_empty_encounters() business is bogus
+#   considering the same patient can be open on several
+#   machines
+#
+# Revision 1.238.2.2  2007/04/17 09:28:37  ncq
 # - remove empty encounters just before initiating a new one
 #
 # Revision 1.238.2.1  2007/03/28 21:37:01  ncq
