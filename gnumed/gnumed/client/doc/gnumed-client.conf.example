@@ -5,17 +5,17 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.1 2007-03-26 15:01:50 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.1.2.1 2007-04-17 09:40:49 ncq Exp $
 
 
 [backend]
 profiles = $profiles$
-GNUmed v5 database on public server
+GNUmed database on public server
 $profiles$
 
 
 
-[profile GNUmed v5 database on public server]
+[profile GNUmed database on public server]
 host = salaam.homeunix.com
 port = 5432
 database = gnumed_v5
@@ -23,7 +23,7 @@ database = gnumed_v5
 
 
 
-[profile GNUmed v5 database on this machine (Linux)]
+[profile GNUmed database on this machine (Linux)]
 host = 
 port = 5432
 database = gnumed_v5
@@ -31,7 +31,7 @@ database = gnumed_v5
 
 
 
-[profile GNUmed v5 database on this machine (Windows)]
+[profile GNUmed database on this machine (Windows)]
 host = 127.0.0.1
 port = 5432
 database = gnumed_v5
@@ -40,7 +40,10 @@ database = gnumed_v5
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.1  2007-03-26 15:01:50  ncq
+# Revision 1.1.2.1  2007-04-17 09:40:49  ncq
+# - made more generic
+#
+# Revision 1.1  2007/03/26 15:01:50  ncq
 # - added as example for /etc/gnumed/gnumed-client.conf
 #
 #
