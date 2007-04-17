@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.98.2.1 2007-03-30 11:27:21 ncq Exp $
-__version__ = "$Revision: 1.98.2.1 $"
+# $Id: gmPhraseWheel.py,v 1.98.2.2 2007-04-17 09:31:39 ncq Exp $
+__version__ = "$Revision: 1.98.2.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -300,9 +300,15 @@ class cPhraseWheel(wx.TextCtrl):
 	def enable_default_spellchecker(self):
 		try:
 			import enchant
-			self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
 		except ImportError:
 			self.speller = None
+			return False
+		try:
+			self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
+		except enchant.DictNotFoundError:
+			self.speller = None
+			return False
+		return True
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -819,7 +825,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.98.2.1  2007-03-30 11:27:21  ncq
+# Revision 1.98.2.2  2007-04-17 09:31:39  ncq
+# - catch DictNotFound when enabling spell checker
+#
+# Revision 1.98.2.1  2007/03/30 11:27:21  ncq
 # - make enchant spell checking optional
 #
 # Revision 1.98  2007/03/27 10:29:49  ncq
