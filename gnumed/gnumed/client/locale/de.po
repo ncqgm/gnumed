@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.84.2.1 $
+# $Revision: 1.84.2.2 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-03-28 17:11+CEST\n"
+"POT-Creation-Date: 2007-04-17 11:32+CEST\n"
 "PO-Revision-Date: 2007-03-27 11:40+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -42,39 +42,39 @@ msgstr "interner Fehler, Log kontrollieren"
 msgid "consistency error, check log"
 msgstr "Konsistenzfehler, siehe Log"
 
-#: ../business/gmClinicalRecord.py:290 ../business/gmClinicalRecord.py:420
+#: ../business/gmClinicalRecord.py:288 ../business/gmClinicalRecord.py:418
 msgid "modified entry"
 msgstr "revidierter Eintrag"
 
-#: ../business/gmClinicalRecord.py:290 ../business/gmClinicalRecord.py:420
+#: ../business/gmClinicalRecord.py:288 ../business/gmClinicalRecord.py:418
 msgid "original entry"
 msgstr "Originaleintrag"
 
-#: ../business/gmClinicalRecord.py:368 ../business/gmClinicalRecord.py:537
+#: ../business/gmClinicalRecord.py:366 ../business/gmClinicalRecord.py:535
 msgid "%s: encounter (%s)"
 msgstr "%s: Arztkontakt (%s)"
 
-#: ../business/gmClinicalRecord.py:373 ../business/gmClinicalRecord.py:542
+#: ../business/gmClinicalRecord.py:371 ../business/gmClinicalRecord.py:540
 msgid "health issue: %s"
 msgstr "Grunderkrankung: %s"
 
-#: ../business/gmClinicalRecord.py:374 ../business/gmClinicalRecord.py:543
+#: ../business/gmClinicalRecord.py:372 ../business/gmClinicalRecord.py:541
 msgid "episode     : %s"
 msgstr "Episode    : %s"
 
-#: ../business/gmClinicalRecord.py:644
+#: ../business/gmClinicalRecord.py:642
 msgid "allergies/intolerances"
 msgstr "Allergien/Unverträglichkeiten"
 
-#: ../business/gmClinicalRecord.py:974
+#: ../business/gmClinicalRecord.py:967
 msgid "ERROR: cannot retrieve vaccinated indications"
 msgstr "ERROR: kann beimpfte Indikationen nicht laden"
 
-#: ../business/gmClinicalRecord.py:976
+#: ../business/gmClinicalRecord.py:969
 msgid "no vaccinations recorded"
 msgstr "keine Impfungen vermerkt"
 
-#: ../business/gmClinicalRecord.py:1263
+#: ../business/gmClinicalRecord.py:1256
 msgid ""
 "A fairly recent encounter exists for patient:\n"
 " %s\n"
@@ -100,11 +100,11 @@ msgstr ""
 "\n"
 "Mit \"Nein\" beginnen Sie einen neuen Kontakt."
 
-#: ../business/gmClinicalRecord.py:1278 ../business/gmClinicalRecord.py:1279
+#: ../business/gmClinicalRecord.py:1271 ../business/gmClinicalRecord.py:1272
 msgid "none given"
 msgstr "nicht angegeben"
 
-#: ../business/gmClinicalRecord.py:1281
+#: ../business/gmClinicalRecord.py:1274
 msgid "recording patient encounter"
 msgstr "vermerke Arzt-Patienten-Kontakt"
 
@@ -203,92 +203,92 @@ msgstr ""
 "Setzen Sie dazu in der Konfigurationsdatei die Option <name> in der Gruppe "
 "[workplace]."
 
-#: ../business/gmPerson.py:976 ../business/gmPerson.py:1001
-#: ../business/gmPerson.py:1014
+#: ../business/gmPerson.py:974 ../business/gmPerson.py:999
+#: ../business/gmPerson.py:1012
 msgid "internal patient ID"
 msgstr "interne Patientennummer"
 
-#: ../business/gmPerson.py:980 ../business/gmPerson.py:995
-#: ../business/gmPerson.py:1059 ../business/gmPerson.py:1091
-#: ../business/gmPerson.py:1391 ../business/gmPerson.py:1396
-#: ../business/gmPerson.py:1400
+#: ../business/gmPerson.py:978 ../business/gmPerson.py:993
+#: ../business/gmPerson.py:1057 ../business/gmPerson.py:1089
+#: ../business/gmPerson.py:1389 ../business/gmPerson.py:1394
+#: ../business/gmPerson.py:1398
 msgid "date of birth"
 msgstr "Geburtsdatum"
 
-#: ../business/gmPerson.py:987 ../business/gmPerson.py:1027
-#: ../business/gmPerson.py:1045
+#: ../business/gmPerson.py:985 ../business/gmPerson.py:1025
+#: ../business/gmPerson.py:1043
 msgid "external patient ID"
 msgstr "externe Patientenkennung"
 
-#: ../business/gmPerson.py:1081 ../business/gmPerson.py:1196
+#: ../business/gmPerson.py:1079 ../business/gmPerson.py:1194
 msgid "first name"
 msgstr "Vorname"
 
-#: ../business/gmPerson.py:1110
+#: ../business/gmPerson.py:1108
 msgid "name, gender, date of birth"
 msgstr "Name, Geschlecht, Geburtsdatum"
 
-#: ../business/gmPerson.py:1194
+#: ../business/gmPerson.py:1192
 msgid "last name"
 msgstr "Nachname"
 
-#: ../business/gmPerson.py:1198
+#: ../business/gmPerson.py:1196
 msgid "any name part"
 msgstr "beliebiger Namensteil"
 
-#: ../business/gmPerson.py:1234 ../business/gmPerson.py:1238
+#: ../business/gmPerson.py:1232 ../business/gmPerson.py:1236
 msgid "name: first-last"
 msgstr "Vorname - Nachname"
 
-#: ../business/gmPerson.py:1243 ../business/gmPerson.py:1247
+#: ../business/gmPerson.py:1241 ../business/gmPerson.py:1245
 msgid "name: last-first"
 msgstr "Nachname - Vorname"
 
-#: ../business/gmPerson.py:1252 ../business/gmPerson.py:1337
-#: ../business/gmPerson.py:1363 ../business/gmPerson.py:1373
-#: ../business/gmPerson.py:1382 ../business/gmPerson.py:1431
+#: ../business/gmPerson.py:1250 ../business/gmPerson.py:1335
+#: ../business/gmPerson.py:1361 ../business/gmPerson.py:1371
+#: ../business/gmPerson.py:1380 ../business/gmPerson.py:1429
 msgid "name"
 msgstr "Name"
 
-#: ../business/gmPerson.py:1266 ../business/gmPerson.py:1270
+#: ../business/gmPerson.py:1264 ../business/gmPerson.py:1268
 msgid "names: first-last, date of birth"
 msgstr "Vorname - Nachname, Geburtsdatum"
 
-#: ../business/gmPerson.py:1275
+#: ../business/gmPerson.py:1273
 msgid "names: last-first, date of birth"
 msgstr "Nachname - Vorname, Geburtsdatum"
 
-#: ../business/gmPerson.py:1279
+#: ../business/gmPerson.py:1277
 msgid "names: last-first, dob"
 msgstr "Namen: Vorname-Nachname, Geburtsdatum"
 
-#: ../business/gmPerson.py:1284
+#: ../business/gmPerson.py:1282
 msgid "name, date of birth"
 msgstr "Name, Geburtsdatum"
 
-#: ../business/gmPerson.py:1319 ../business/gmPerson.py:1323
+#: ../business/gmPerson.py:1317 ../business/gmPerson.py:1321
 msgid "names: first last"
 msgstr "Vorname, Nachname"
 
-#: ../business/gmPerson.py:1328 ../business/gmPerson.py:1332
+#: ../business/gmPerson.py:1326 ../business/gmPerson.py:1330
 msgid "names: last, first"
 msgstr "Nachname, Vorname"
 
-#: ../business/gmPerson.py:1345 ../business/gmPerson.py:1349
-#: ../business/gmPerson.py:1354 ../business/gmPerson.py:1358
+#: ../business/gmPerson.py:1343 ../business/gmPerson.py:1347
+#: ../business/gmPerson.py:1352 ../business/gmPerson.py:1356
 msgid "name: last, first"
 msgstr "Name: Nachname, Vorname"
 
-#: ../business/gmPerson.py:1405 ../business/gmPerson.py:1410
-#: ../business/gmPerson.py:1414
+#: ../business/gmPerson.py:1403 ../business/gmPerson.py:1408
+#: ../business/gmPerson.py:1412
 msgid "date of birth/death"
 msgstr "Geburts-/Todesdatum"
 
-#: ../business/gmPerson.py:1620
+#: ../business/gmPerson.py:1618
 msgid "Mr"
 msgstr "Herr"
 
-#: ../business/gmPerson.py:1621
+#: ../business/gmPerson.py:1619
 msgid "Mrs"
 msgstr "Frau"
 
@@ -1068,13 +1068,13 @@ msgstr "Reaktionstyp"
 #: ../wxGladeWidgets/wxgEpisodeEditAreaDlg.py:16
 #: ../wxGladeWidgets/wxgReviewDocPartDlg.py:30
 #: ../wxGladeWidgets/wxgScanIdxPnl.py:33 ../wxpython/gmAllergyWidgets.py:188
-#: ../wxpython/gmDermTool.py:38 ../wxpython/gmEMRStructWidgets.py:939
+#: ../wxpython/gmDermTool.py:38 ../wxpython/gmEMRStructWidgets.py:943
 #: ../wxpython/gmEditArea.py:287
 msgid "Save"
 msgstr "Speichern"
 
 #: ../wxGladeWidgets/wxgAllergyManagerDlg.py:18
-#: ../wxpython/gmAllergyWidgets.py:189 ../wxpython/gmEMRStructWidgets.py:940
+#: ../wxpython/gmAllergyWidgets.py:189 ../wxpython/gmEMRStructWidgets.py:944
 #: ../wxpython/gmEditArea.py:579 ../wxpython/gmEditArea.py:792
 #: ../wxpython/gmEditArea.py:1956
 msgid "Clear"
@@ -1380,7 +1380,6 @@ msgid "Summary"
 msgstr "Zusammenfassung"
 
 #: ../wxGladeWidgets/wxgEpisodeEditAreaDlg.py:27
-#, fuzzy
 msgid "edit episode details"
 msgstr "Details der Episode ändern"
 
@@ -2114,11 +2113,11 @@ msgstr ""
 msgid "Creating new allergy not allowed."
 msgstr "Anlegen einer neuen Allergie nicht vorgesehen."
 
-#: ../wxpython/gmAllergyWidgets.py:191 ../wxpython/gmEMRStructWidgets.py:942
+#: ../wxpython/gmAllergyWidgets.py:191 ../wxpython/gmEMRStructWidgets.py:946
 msgid "Update"
 msgstr "Update"
 
-#: ../wxpython/gmAllergyWidgets.py:192 ../wxpython/gmEMRStructWidgets.py:943
+#: ../wxpython/gmAllergyWidgets.py:192 ../wxpython/gmEMRStructWidgets.py:947
 msgid "Restore"
 msgstr "Zurücksetzen"
 
@@ -2792,11 +2791,11 @@ msgstr ""
 msgid "Foundational Issue"
 msgstr "Grunderkrankung"
 
-#: ../wxpython/gmEMRStructWidgets.py:250
+#: ../wxpython/gmEMRStructWidgets.py:249
 msgid "Closed episodes older than %s days on health issue [%s]"
 msgstr "Episoden älter als %s Tage für Grundkrankheit [%s] wurden beendet."
 
-#: ../wxpython/gmEMRStructWidgets.py:263
+#: ../wxpython/gmEMRStructWidgets.py:269
 msgid ""
 "You want to associate the running episode:\n"
 "\n"
@@ -2834,27 +2833,27 @@ msgstr ""
 "\n"
 "Welche Episode wollen Sie beenden ?"
 
-#: ../wxpython/gmEMRStructWidgets.py:286
+#: ../wxpython/gmEMRStructWidgets.py:292
 msgid "Resolving two-running-episodes conflict"
 msgstr "Auflösung des Konflikts zwischen zwei laufenden Episoden"
 
-#: ../wxpython/gmEMRStructWidgets.py:289
+#: ../wxpython/gmEMRStructWidgets.py:295
 msgid "close existing episode \"%s\""
 msgstr "schließe existierende Episode \"%s\""
 
-#: ../wxpython/gmEMRStructWidgets.py:289
+#: ../wxpython/gmEMRStructWidgets.py:295
 msgid "old episode"
 msgstr "alte Episode"
 
-#: ../wxpython/gmEMRStructWidgets.py:290
+#: ../wxpython/gmEMRStructWidgets.py:296
 msgid "close moving (new) episode \"%s\""
 msgstr "schließe die zu verschiebende (neue) Episode \"%s\""
 
-#: ../wxpython/gmEMRStructWidgets.py:290 ../wxpython/gmSOAPWidgets.py:131
+#: ../wxpython/gmEMRStructWidgets.py:296 ../wxpython/gmSOAPWidgets.py:131
 msgid "new episode"
 msgstr "neue Episode"
 
-#: ../wxpython/gmEMRStructWidgets.py:509
+#: ../wxpython/gmEMRStructWidgets.py:514
 msgid ""
 "Cannot attach episode [%s] to health issue [%s] because it already has a "
 "running episode."
@@ -2862,7 +2861,7 @@ msgstr ""
 "Kann Episode [%s] nicht der Grunderkrankung [%s] zuordnen, weil diese "
 "bereits eine laufende Episode hat."
 
-#: ../wxpython/gmEMRStructWidgets.py:673
+#: ../wxpython/gmEMRStructWidgets.py:677
 msgid ""
 "Cannot create new health issue:\n"
 " [%(issue)s]"
@@ -2871,31 +2870,31 @@ msgstr ""
 "[%(issue)s]\n"
 "nicht anlegen."
 
-#: ../wxpython/gmEMRStructWidgets.py:674
+#: ../wxpython/gmEMRStructWidgets.py:678
 msgid "Selecting health issue"
 msgstr "Grunderkrankung wählen"
 
-#: ../wxpython/gmEMRStructWidgets.py:722
+#: ../wxpython/gmEMRStructWidgets.py:726
 msgid "Cannot parse [%s] into valid interval."
 msgstr "Kann <%s> nicht in einen Zeitraum übersetzen."
 
-#: ../wxpython/gmEMRStructWidgets.py:724
+#: ../wxpython/gmEMRStructWidgets.py:728
 msgid "Patient is only %s old. Cannot accept age [%s]."
 msgstr "Patient ist erst %s alt. Kann Alter [%s] nicht akzeptieren."
 
-#: ../wxpython/gmEMRStructWidgets.py:760
+#: ../wxpython/gmEMRStructWidgets.py:764
 msgid "Condition diagnosed in the future."
 msgstr "Diagnosestellung ist in der Zukunft."
 
-#: ../wxpython/gmEMRStructWidgets.py:885
+#: ../wxpython/gmEMRStructWidgets.py:889
 msgid "Creating new health issue not allowed."
 msgstr "Anlegen einer neuen Grunderkrankung nicht vorgesehen."
 
-#: ../wxpython/gmEMRStructWidgets.py:917
+#: ../wxpython/gmEMRStructWidgets.py:921
 msgid "past medical history"
 msgstr "Eigenanamnese"
 
-#: ../wxpython/gmEMRStructWidgets.py:990
+#: ../wxpython/gmEMRStructWidgets.py:994
 msgid "Select desired test option from the 'File' menu"
 msgstr ""
 
@@ -4896,13 +4895,13 @@ msgstr ""
 "\n"
 "Der Wizard \"Neuer Patient\" wird aufgerufen."
 
-#: ../wxpython/gmPhraseWheel.py:107
+#: ../wxpython/gmPhraseWheel.py:106
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 "Sie müssen entweder einen Wert aus der Liste wählen oder einen identischen "
 "Wert eintippen."
 
-#: ../wxpython/gmPhraseWheel.py:112
+#: ../wxpython/gmPhraseWheel.py:111
 msgid "The content is invalid. It must match the pattern: [%s]"
 msgstr "Die Eingabe ist ungültig. Sie muß dem Muster [%s] genügen."
 
