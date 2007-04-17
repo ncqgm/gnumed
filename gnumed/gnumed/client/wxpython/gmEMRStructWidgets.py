@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.55.2.1 2007-03-28 21:38:11 ncq Exp $
-__version__ = "$Revision: 1.55.2.1 $"
+# $Id: gmEMRStructWidgets.py,v 1.55.2.2 2007-04-17 09:31:18 ncq Exp $
+__version__ = "$Revision: 1.55.2.2 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -251,6 +251,13 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 
 	# no more open episode on target issue: should work now
 	if existing_epi is None:
+		episode['pk_health_issue'] = target_issue['pk']
+		if save_to_backend:
+			episode.save_payload()
+		return True
+
+	# don't conflict on SELF ;-)
+	if existing_epi['pk_encounter'] == episode['pk_encounter']:
 		episode['pk_health_issue'] = target_issue['pk']
 		if save_to_backend:
 			episode.save_payload()
@@ -1082,7 +1089,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.55.2.1  2007-03-28 21:38:11  ncq
+# Revision 1.55.2.2  2007-04-17 09:31:18  ncq
+# - do not conflict open episodes on themselves per issue
+#
+# Revision 1.55.2.1  2007/03/28 21:38:11  ncq
 # - cPatient is now a cIdentity child
 #
 # Revision 1.55  2007/03/18 14:05:31  ncq
