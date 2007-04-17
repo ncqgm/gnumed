@@ -7,7 +7,7 @@
 # this file should live in ~/.gnumed/gnumed.conf
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.5 $
+# $Revision: 1.5.2.1 $
 
 
 [backend]
@@ -21,23 +21,15 @@ logins = $logins$
 any-doc
 $logins$
 
-# during login the user can chose from several
-# profiles defining which GNUmed database server
-# to connect to,
-#
-# the profiles themselves are defined further below
-#
-profiles = $profiles$
-GNUmed - v5 database on this machine (Linux)
-GNUmed - v5 database on this machine (Windows)
-GNUmed - v5 database on public server
-$profiles$
+
 
 # If the system locale matches this value a mismatch
 # with the database locale will be ignored.
 # Remove this option if you want to stop ignoring mismatches.
 #
 #ignored mismatching system locale = de_DE@euro
+
+
 
 # If GNUmed cannot detect the proper timezone from system
 # information or you want to use a timezone different from
@@ -50,26 +42,6 @@ $profiles$
 #
 #client timezone = CETDST
 
-
-[profile GNUmed - v5 database on this machine (Linux)]
-host = 
-port = 5432
-database = gnumed_v5
-#encoding = UTF8
-
-
-[profile GNUmed - v5 database on this machine (Windows)]
-host = 127.0.0.1
-port = 5432
-database = gnumed_v5
-#encoding = cp1252
-
-
-[profile GNUmed - v5 database on public server]
-host = salaam.homeunix.com
-port = 5432
-database = gnumed_v5
-#encoding = UTF8
 
 
 [workplace]
@@ -109,7 +81,10 @@ filename = patient.xdt
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.5  2007-03-08 11:32:39  ncq
+# Revision 1.5.2.1  2007-04-17 11:28:10  ncq
+# - remove redundant profile defs from here
+#
+# Revision 1.5  2007/03/08 11:32:39  ncq
 # - encoding now per backend profile
 #
 # Revision 1.4  2007/01/24 11:38:07  ncq
