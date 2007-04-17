@@ -5,10 +5,18 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.1.2.1 2007-04-17 09:40:49 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.1.2.2 2007-04-17 11:25:47 ncq Exp $
 
 
 [backend]
+
+
+# during login the user can chose from several
+# profiles defining which GNUmed database server
+# to connect to,
+#
+# the profiles themselves are defined further below
+#
 profiles = $profiles$
 GNUmed database on public server
 $profiles$
@@ -40,7 +48,10 @@ database = gnumed_v5
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.1.2.1  2007-04-17 09:40:49  ncq
+# Revision 1.1.2.2  2007-04-17 11:25:47  ncq
+# - a bit of documentation may help
+#
+# Revision 1.1.2.1  2007/04/17 09:40:49  ncq
 # - made more generic
 #
 # Revision 1.1  2007/03/26 15:01:50  ncq
