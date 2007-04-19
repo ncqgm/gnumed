@@ -2,20 +2,20 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.19 2007-04-09 16:30:31 ncq Exp $
+# $Id: gmTools.py,v 1.20 2007-04-19 13:09:52 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os
+import datetime as pydt, re as regex, sys, os, os.path
 
 
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmBorg
 
 
 _log = gmLog.gmDefLog
@@ -37,6 +37,66 @@ ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
+
+#===========================================================================
+class cPaths(gmBorg.cBorg):
+
+	def __init__(self, app_name=None, wx=None):
+		gmBorg.cBorg.__init__(self)
+
+		try:
+			self.already_inited
+			return
+		except AttributeError:
+			pass
+
+		self.init_paths(app_name=app_name, wx=wx)
+		self.already_inited = True		
+	#--------------------------------------
+	# public API
+	#--------------------------------------
+	def init_paths(self, app_name=None, wx=None):
+		if app_name is None:
+			app_name, ext = os.path.splitext(os.path.basename(sys.argv[0]))
+
+		self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
+		self.local_config_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
+		try:
+			self.system_config_dir = os.path.join('/etc', app_name)
+		except ValueError:
+			self.system_config_dir = self.local_config_dir
+
+		if wx is None:
+			return True
+
+		std_paths = wx.StandardPaths.Get()
+
+		self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+		self.system_config_dir = os.path.join(std_paths.GetConfigDir(), app_name)
+
+	#--------------------------------------
+	# properties
+	#--------------------------------------
+	def _set_user_config_dir(self, path):
+		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
+			raise ValueError('[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+		self.__user_config_dir = path
+
+	def _get_user_config_dir(self):
+		return self.__user_config_dir
+
+	user_config_dir = property(_get_user_config_dir, _set_user_config_dir)
+	#--------------------------------------
+	def _set_system_config_dir(self, path):
+		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
+			raise ValueError('[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+		self.__system_config_dir = path
+
+	def _get_system_config_dir(self):
+		return self.__system_config_dir
+
+	system_config_dir = property(_get_system_config_dir, _set_system_config_dir)
+	#--------------------------------------
 
 #===========================================================================
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False):
@@ -410,19 +470,30 @@ This is a test mail from the gmTools.py module.
 			debug = True
 		)
 	#-----------------------------------------------------------------------
+	def test_cPaths():
+		paths = cPaths(wx=None, app_name='gnumed')
+		print "user   config dir:", paths.user_config_dir
+		print "system config dir:", paths.system_config_dir
+		print "local  config dir:", paths.local_config_dir
+
+	#-----------------------------------------------------------------------
 	print __doc__
 
 	#test_str2interval()
-	test_coalesce()
+	#test_coalesce()
 	#test_capitalize()
 	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
+	test_cPaths()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.19  2007-04-09 16:30:31  ncq
+# Revision 1.20  2007-04-19 13:09:52  ncq
+# - add cPaths borg and test suite
+#
+# Revision 1.19  2007/04/09 16:30:31  ncq
 # - add send_mail()
 #
 # Revision 1.18  2007/03/08 16:19:30  ncq
