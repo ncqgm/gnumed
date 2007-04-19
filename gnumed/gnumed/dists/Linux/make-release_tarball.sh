@@ -2,13 +2,13 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.31 2007-04-06 23:16:21 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.32 2007-04-19 13:18:46 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 SRVREV="CVS-HEAD"
-SRVARCH="GNUmed-server.$SRVREV.tgz"
+SRVARCH="GNUmed-server.v$SRVREV.tgz"
 
 FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/business/README "\
@@ -289,22 +289,26 @@ ln -s client Gnumed
 cd ..
 tar -cvzf $CLIENTARCH ./GNUmed-$CLIENTREV/client/ ./GNUmed-$CLIENTREV/Gnumed
 
-cd GNUmed-$CLIENTREV
+mv GNUmed-$CLIENTREV GNUmed-v$SRVREV
+cd GNUmed-v$SRVREV
 rm Gnumed
 ln -s server Gnumed
 cd ..
-mv GNUmed-$CLIENTREV GNUmed-$SRVREV
-tar -cvzf $SRVARCH ./GNUmed-$SRVREV/server/ ./GNUmed-$CLIENTREV/Gnumed
+
+tar -cvzf $SRVARCH ./GNUmed-v$SRVREV/server/ ./GNUmed-v$SRVREV/Gnumed
 
 
 # cleanup
-rm -R ./GNUmed-$SRVREV/
+rm -R ./GNUmed-v$SRVREV/
 
 echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.31  2007-04-06 23:16:21  ncq
+# Revision 1.32  2007-04-19 13:18:46  ncq
+# - cleanup
+#
+# Revision 1.31  2007/04/06 23:16:21  ncq
 # - add v5 -> v6 schema files
 #
 # Revision 1.30  2007/03/31 21:52:04  ncq

@@ -1,5 +1,5 @@
 #  coding: latin-1
-"""GnuMed quick patient search widget.
+"""GNUmed quick patient search widget.
 
 This widget allows to search for patients based on the
 critera name, date of birth and patient ID. It goes to
@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.73 2007-04-11 14:53:33 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmPatSearchWidgets.py,v 1.74 2007-04-19 13:13:47 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -978,7 +978,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.73  2007-04-11 14:53:33  ncq
+# Revision 1.74  2007-04-19 13:13:47  ncq
+# - cleanup
+#
+# Revision 1.73  2007/04/11 14:53:33  ncq
 # - do some safeguarding against binary/large files being dropped onto
 #   the data mining plugin - check mimetype and size
 #
