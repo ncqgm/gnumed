@@ -1,13 +1,12 @@
 # GNUmed default config file
 # -------------------------------------------------------------
-# created by gmCfg because no other config file could be found,
-# please check the docs that came with the software
-# to find out what options you can set in here
-#
 # this file should live in ~/.gnumed/gnumed.conf
+#
+# see also: http://wiki.gnumed.de/bin/view/Gnumed/ConfigFiles
+#
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 
 [backend]
@@ -21,17 +20,7 @@ logins = $logins$
 any-doc
 $logins$
 
-# during login the user can chose from several
-# profiles defining which GNUmed database server
-# to connect to,
-#
-# the profiles themselves are defined further below
-#
-profiles = $profiles$
-GNUmed - v5 database on this machine (Linux)
-GNUmed - v5 database on this machine (Windows)
-GNUmed - v5 database on public server
-$profiles$
+
 
 # If the system locale matches this value a mismatch
 # with the database locale will be ignored.
@@ -51,39 +40,12 @@ $profiles$
 #client timezone = CETDST
 
 
-[profile GNUmed - v5 database on this machine (Linux)]
-host = 
-port = 5432
-database = gnumed_v6
-#encoding = UTF8
-
-
-[profile GNUmed - v6 database on this machine (Windows)]
-host = 127.0.0.1
-port = 5432
-database = gnumed_v6
-#encoding = cp1252
-
-
-[profile GNUmed - v6 database on public server]
-host = salaam.homeunix.com
-port = 5432
-database = gnumed_v6
-#encoding = UTF8
-
 
 [workplace]
 
 # Set the help desk contact information for your
 # GNUmed installation here.
 help desk = GNUmed developers <gnumed-devel@gnu.org>
-
-# This name is used to describe the workstation at the
-# business logic level, eg. "ultrasound room machine 1",
-#
-# A lot of configuration options stored in the backend
-# are tied to this name.
-name = <example workplace>
 
 
 # here you can define profiles for XDT files
@@ -109,7 +71,11 @@ filename = patient.xdt
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.6  2007-04-02 14:28:59  ncq
+# Revision 1.7  2007-04-19 13:11:39  ncq
+# - remove workplace, default is now to use default from system-wide file
+# - cleanup
+#
+# Revision 1.6  2007/04/02 14:28:59  ncq
 # - switch to v6 database
 #
 # Revision 1.5  2007/03/08 11:32:39  ncq
