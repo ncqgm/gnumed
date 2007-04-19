@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.322 2007-04-11 20:43:51 ncq Exp $
-__version__ = "$Revision: 1.322 $"
+# $Id: gmGuiMain.py,v 1.323 2007-04-19 13:12:51 ncq Exp $
+__version__ = "$Revision: 1.323 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1057,28 +1057,32 @@ class gmApp(wx.App):
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
 		#self.SetVendor(u'The GNUmed Development Community.')
+		paths = gmTools.cPaths(app_name = 'gnumed', wx = wx)
+		paths.init_paths(wx = wx, app_name = 'gnumed')
+
+		if gmCLI.has_arg('--conf-file'):
+			candidates = [gmCLI.arg['--conf-file']]
+		else:
+			candidates = [
+				os.path.join(paths.user_config_dir, 'gnumed.conf'),
+				os.path.join(paths.local_config_dir, 'gnumed.conf')
+			]
+		for candidate in candidates:
+			try:
+				open(candidate).close()
+				self.user_prefs_cfg_file = gmCfg.cCfgFile(aFile = candidate, flags = gmCfg.cfg_IGNORE_CMD_LINE)
+				break
+			except IOError:
+				continue
 
 		# create a GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
 
-		if gmCLI.has_arg('--conf-file'):
-			fname = gmCLI.arg['--conf-file']
-		else:
-			std_paths = wx.StandardPaths.Get()
-			try:
-				fname = os.path.join(std_paths.GetUserConfigDir(), '.gnumed', 'gnumed.conf')
-				open(fname)
-			except IOError:
-				fname = os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
-				open(fname)
-
-		self.user_preferences_file = fname
-
 		self.__setup_platform()
 
 		# check for slave mode
-		tmp = _cfg.get('workplace', 'slave mode')
+		tmp = self.user_prefs_cfg_file.get('workplace', 'slave mode')
 		if tmp == "1":
 			self.__guibroker['main.slave_mode'] = True
 			_log.Log(gmLog.lInfo, 'slave mode is ON')
@@ -1086,7 +1090,7 @@ class gmApp(wx.App):
 			self.__guibroker['main.slave_mode'] = False
 			_log.Log(gmLog.lInfo, 'slave mode is OFF')
 		if self.__guibroker['main.slave_mode']:
-			self.__guibroker['main.slave_personality'] = _cfg.get('workplace', 'slave personality')
+			self.__guibroker['main.slave_personality'] = self.user_prefs_cfg_file.get('workplace', 'slave personality')
 			if not self.__guibroker['main.slave_personality']:
 				msg = _(
 					'Slave mode requested but personality not set.\n\n'
@@ -1144,7 +1148,7 @@ class gmApp(wx.App):
 			from Gnumed.pycommon import gmScriptingListener
 			from Gnumed.wxpython import gmMacro
 			macro_executor = gmMacro.cMacroPrimitives(self.__guibroker['main.slave_personality'])
-			port = _cfg.get('workplace', 'xml-rpc port')
+			port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
 			if not port:
 				port = 9999
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
@@ -1244,7 +1248,7 @@ class gmApp(wx.App):
 			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, gmI18N.system_locale))
 
 		# returns either None or a locale string
-		ignored_sys_lang = _cfg.get('backend', 'ignored mismatching system locale')
+		ignored_sys_lang = self.user_prefs_cfg_file.get('backend', 'ignored mismatching system locale')
 		# are we to ignore *this* mismatch ?
 		if gmI18N.system_locale == ignored_sys_lang:
 			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
@@ -1260,12 +1264,8 @@ class gmApp(wx.App):
 				"with the database locale will be ignored.",
 				"Remove this option if you want to stop ignoring mismatches.",
 			]
-			prefs = gmCfg.cCfgFile (
-				aFile = self.user_preferences_file,
-				flags = gmCfg.cfg_IGNORE_CMD_LINE
-			)
-			prefs.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
-			prefs.store()
+			self.user_prefs_cfg_file.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
+			self.user_prefs_cfg_file.store()
 			return True
 
 		# try setting database language (only possible if translation exists)
@@ -1326,7 +1326,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.322  2007-04-11 20:43:51  ncq
+# Revision 1.323  2007-04-19 13:12:51  ncq
+# - use gmTools.cPaths to use proper user prefs file
+#
+# Revision 1.322  2007/04/11 20:43:51  ncq
 # - cleanup
 #
 # Revision 1.321  2007/04/11 14:51:55  ncq
