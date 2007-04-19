@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.113 2007-04-06 23:14:24 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmPerson.py,v 1.114 2007-04-19 13:09:03 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -613,18 +613,39 @@ class gmCurrentProvider(gmBorg.cBorg):
 		return True
 	#--------------------------------------------------------
 	def _get_workplace(self):
+		"""Return the current workplace (client profile) definition.
+
+		- from the system-wide config file
+		- from the user config file
+		- from the command line config file
+		"""
 		if self.__workplace is not None:
 			return self.__workplace
 
-		self.__workplace = 'xxxDEFAULTxxx'
-		if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
-			print _('No config file to read workplace name from !')
-		else:
-			tmp = gmCfg.gmDefCfgFile.get('workplace', 'name')
-			if tmp is None:
-				print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
-			else:
+#		if gmCLI.has_arg('--conf-file'):
+#			candidate = [gmCLI.arg['--conf-file']]
+#		else:
+
+		paths = gmTools.cPaths()
+		candidates = [
+			os.path.join(paths.local_config_dir, 'gnumed.conf'),
+			os.path.join(paths.user_config_dir, 'gnumed.conf'),
+			os.path.join(paths.system_config_dir, 'gnumed-client.conf')
+		]
+
+		self.__workplace = None
+		for candidate in candidates:
+			try:
+				cfg = gmCfg.cCfgFile(aFile = candidate)
+			except IOError:
+				continue
+			tmp = cfg.get('workplace', 'name')
+			if tmp is not None:
 				self.__workplace = tmp
+				break
+
+		if self.__workplace is None:
+			self.__workplace = 'GNUmed Default'
 
 		return self.__workplace
 	#--------------------------------------------------------
@@ -1858,7 +1879,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.113  2007-04-06 23:14:24  ncq
+# Revision 1.114  2007-04-19 13:09:03  ncq
+# - read workplace from proper config file
+#
+# Revision 1.113  2007/04/06 23:14:24  ncq
 # - if we del the emr object link cache too early we'll get
 #   a continue-encounter ? popup
 #
