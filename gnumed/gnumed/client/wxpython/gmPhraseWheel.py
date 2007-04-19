@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.102 2007-04-02 15:16:55 ncq Exp $
-__version__ = "$Revision: 1.102 $"
+# $Id: gmPhraseWheel.py,v 1.103 2007-04-19 13:14:30 ncq Exp $
+__version__ = "$Revision: 1.103 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -301,9 +301,15 @@ class cPhraseWheel(wx.TextCtrl):
 	def enable_default_spellchecker(self):
 		try:
 			import enchant
-			self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
 		except ImportError:
 			self.speller = None
+			return False
+		try:
+			self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
+		except enchant.DictNotFoundError:
+			self.speller = None
+			return False
+		return True
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -834,7 +840,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.102  2007-04-02 15:16:55  ncq
+# Revision 1.103  2007-04-19 13:14:30  ncq
+# - don't fail input if enchant/aspell installed but no dict available ...
+#
+# Revision 1.102  2007/04/02 15:16:55  ncq
 # - make spell checker act on last word of phrase only
 # - to that end add property speller_word_separators, a
 #   regex which defaults to standard word boundaries + digits + _
