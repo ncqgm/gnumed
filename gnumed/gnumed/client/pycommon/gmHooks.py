@@ -10,7 +10,8 @@ This framework calls the script
 at various times during client execution. The script must
 contain a function
 
-	def run_script(hook=None)
+def run_script(hook=None):
+	pass
 
 which accepts a single argument <hook>. That argument will
 contain the hook that is being activated.
@@ -22,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.3 2007-04-01 15:29:22 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmHooks.py,v 1.4 2007-04-20 08:21:42 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -107,7 +108,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.3  2007-04-01 15:29:22  ncq
+# Revision 1.4  2007-04-20 08:21:42  ncq
+# - improved docs
+#
+# Revision 1.3  2007/04/01 15:29:22  ncq
 # - create hook script on first use if not existant
 # - improve test
 #
