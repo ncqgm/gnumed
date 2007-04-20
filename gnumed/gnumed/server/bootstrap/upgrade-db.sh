@@ -24,6 +24,7 @@ NEXT_VER="$2"
 LOG="update_db-v${PREV_VER}_v${NEXT_VER}.log"
 CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
 BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${NEXT_VER}-"`hostname`".sql.bz2"
+PG_PORT=""
 
 if test ! -f $CONF ; then
 	echo ""
@@ -43,7 +44,15 @@ if test ! -f $CONF ; then
 	exit
 fi ;
 
-export GM_CORE_DB="gnumed_v${NEXT_VER}"
+# only uncomment if needed and you know what you are doing
+#export GM_CORE_DB="gnumed_v${NEXT_VER}"
+
+# uncomment and set if your PostgreSQL server is running
+# on a port different from the default port 5432, such as
+# 5433 for PostgreSQL 8.1 running on Debian alongside
+# a 7.4 server
+#export GM_DB_PORT="5433"
+#PG_PORT="-p ${GM_DB_PORT}"
 
 echo "==========================================================="
 echo "Upgrading GNUmed database."
@@ -52,13 +61,13 @@ echo "This will *non-destructively* create a new GNUmed database"
 echo "of version v${NEXT_VER} from an existing v${PREV_VER} database."
 echo "Existing data is transferred and transformed as necessary."
 echo ""
-echo "The name of the new database will be \"${GM_CORE_DB}\"."
+echo "The name of the new database will be \"gnumed_v${NEXT_VER}\"."
 echo "==========================================================="
 echo ""
 echo "1) creating backup of existing database ..."
 echo "   Note that this may take a substantial amount of time and disk space!"
 echo "   You may need to type in the password for gm-dbo."
-pg_dump -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
+pg_dump ${PG_PORT} -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
 echo ""
 echo "2) upgrading to new database ..."
 rm -rf ${LOG}
