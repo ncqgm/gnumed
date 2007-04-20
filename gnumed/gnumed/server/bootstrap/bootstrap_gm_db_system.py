@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -298,7 +298,13 @@ class db_server:
 			_log.Log(gmLog.lErr, "Need to know the server name.")
 			return None
 
-		self.port = self.cfg.get(self.section, "port")
+		env_var = 'GM_DB_PORT'
+		self.port = os.getenv(env_var)
+		if self.port is None:
+			_log.Log(gmLog.lInfo, 'environment variable [%s] is not set, using database port from config file' % env_var)
+			self.port = self.cfg.get(self.section, "port")
+		else:
+			_log.Log(gmLog.lInfo, 'using database port [%s] from environment variable [%s]' % (self.port, env_var))
 		if self.port is None:
 			_log.Log(gmLog.lErr, "Need to know the database server port address.")
 			return None
@@ -374,6 +380,7 @@ class db_server:
 			cursor.close()
 			print "The database owner already exists."
 			print "Please provide the password previously used for it."
+			print ""
 			_dbowner = user(anAlias = dbowner_alias)
 			return True
 
@@ -1219,7 +1226,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.53  2007-04-11 14:53:49  ncq
+# Revision 1.54  2007-04-20 08:31:04  ncq
+# - honor GM_DB_PORT environment variable
+#
+# Revision 1.53  2007/04/11 14:53:49  ncq
 # - better console output
 #
 # Revision 1.52  2007/04/07 22:48:00  ncq
