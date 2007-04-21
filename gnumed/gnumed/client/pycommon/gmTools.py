@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.20 2007-04-19 13:09:52 ncq Exp $
+# $Id: gmTools.py,v 1.21 2007-04-21 19:38:27 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -265,6 +265,12 @@ def str2interval(str_interval=None):
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
+def none_if(value=None, none_equivalent=None):
+	"""Modelled after the SQL NULLIF function."""
+	if value == none_equivalent:
+		return None
+	return value
+#---------------------------------------------------------------------------
 def coalesce(initial=None, instead=None, template_initial=None, template_instead=None):
 	"""Modelled after the SQL coalesce function.
 
@@ -475,7 +481,27 @@ This is a test mail from the gmTools.py module.
 		print "user   config dir:", paths.user_config_dir
 		print "system config dir:", paths.system_config_dir
 		print "local  config dir:", paths.local_config_dir
+	#-----------------------------------------------------------------------
+	def test_none_if():
+		print "testing none_if()"
+		print "-----------------"
+		tests = [
+			[None, None, None],
+			['a', 'a', None],
+			['a', 'b', 'a'],
+			['a', None, 'a'],
+			[None, 'a', None],
+			[1, 1, None],
+			[1, 2, 1],
+			[1, None, 1],
+			[None, 1, None]
+		]
 
+		for test in tests:
+			if none_if(value = test[0], none_equivalent = test[1]) != test[2]:
+				print 'ERROR: none_if(%s) returned [%s], expected [%s]' % (test[0], none_if(test[0], test[1]), test[2])
+
+		return True
 	#-----------------------------------------------------------------------
 	print __doc__
 
@@ -486,11 +512,15 @@ This is a test mail from the gmTools.py module.
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
-	test_cPaths()
+	#test_cPaths()
+	test_none_if()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.20  2007-04-19 13:09:52  ncq
+# Revision 1.21  2007-04-21 19:38:27  ncq
+# - add none_if() and test suite
+#
+# Revision 1.20  2007/04/19 13:09:52  ncq
 # - add cPaths borg and test suite
 #
 # Revision 1.19  2007/04/09 16:30:31  ncq
