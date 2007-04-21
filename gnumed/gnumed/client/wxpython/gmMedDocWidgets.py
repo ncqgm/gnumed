@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.119 2007-04-02 18:39:52 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmMedDocWidgets.py,v 1.120 2007-04-21 19:40:06 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -222,6 +222,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__part['ext_ref'], ''))
 		self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
+		self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
+		self._SPINCTRL_seq_idx.SetValue(gmTools.coalesce(self.__part['seq_idx'], 0))
 
 		self._LCTRL_existing_reviews.InsertColumn(0, _('who'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
@@ -304,7 +306,6 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# 1) handle associated episode
 		pk_episode = self._PhWheel_episode.GetData(can_create=True, is_open=True)
 		if pk_episode is None:
-			# FIXME: allow attaching to health issue
 			gmGuiHelpers.gm_show_error (
 				_('Cannot create episode\n [%s]'),
 				_('editing document properties')
@@ -355,7 +356,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 			# FIXME: if msg is not None
 
-		self.__part['filename'] = self._TCTRL_filename.GetValue().strip()
+		self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
+		self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
 
 		success, data = self.__part.save_payload()
 		if not success:
@@ -1374,7 +1376,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.119  2007-04-02 18:39:52  ncq
+# Revision 1.120  2007-04-21 19:40:06  ncq
+# - handle seq_idx spin ctrl in review doc (part)
+#
+# Revision 1.119  2007/04/02 18:39:52  ncq
 # - gmFuzzyTimestamp -> gmDateTime
 #
 # Revision 1.118  2007/03/31 21:51:05  ncq
