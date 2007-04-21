@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: dem-identity.sql,v 1.1 2007-04-20 08:18:03 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-identity.sql,v 1.2 2007-04-21 19:43:39 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -23,11 +23,12 @@ alter table dem.identity
 
 update dem.identity
 	set title = NULL
-	where trim(coalesce(title, '')) = '';
+	where
+		title is not NULL and
+		trim(title) = '';
 
 \unset ON_ERROR_STOP
-alter table dem.identity
-	drop constraint 'identity_title_check';
+alter table dem.identity drop constraint "identity_title_check";
 \set ON_ERROR_STOP 1
 
 alter table dem.identity
@@ -63,11 +64,14 @@ create trigger tr_null_empty_title
 
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-identity.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: dem-identity.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-identity.sql,v $
--- Revision 1.1  2007-04-20 08:18:03  ncq
+-- Revision 1.2  2007-04-21 19:43:39  ncq
+-- - properly check title for empty string
+--
+-- Revision 1.1  2007/04/20 08:18:03  ncq
 -- - tighten dem.identity.title handling
 --
 -- Revision 1.6  2007/01/27 21:16:08  ncq
