@@ -1,4 +1,4 @@
+mklink /J ..\Gnumed ..\client
 set PYTHONPATH=..\;%PYTHONPATH%
-set PATH=%PATH%;c:\\Python23
-Python wxpython/gnumed.py --log-file=gm-from-cvs.bat.log --debug
+Python wxpython/gnumed.py --log-file=gm-from-cvs.log --conf-file=gm-from-cvs.conf --debug
 
