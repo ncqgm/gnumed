@@ -35,9 +35,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.7 2007-04-02 18:21:27 ncq Exp $
+# $Id: gmDateTime.py,v 1.8 2007-04-23 16:56:54 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -134,7 +134,7 @@ def init():
 		_log.Log(gmLog.lData, msg % (' not ', time.timezone * -1, time.altzone * -1))
 
 	if current_utc_offset > 0:
-		_log.Log(gmLog.lData, 'UTC offset is positive, assuming EAST of Greenwich ("clock is ahead)"')
+		_log.Log(gmLog.lData, 'UTC offset is positive, assuming EAST of Greenwich ("clock is ahead")')
 	elif current_utc_offset < 0:
 		_log.Log(gmLog.lData, 'UTC offset is negative, assuming WEST of Greenwich ("clock is behind")')
 	else:
@@ -916,7 +916,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.7  2007-04-02 18:21:27  ncq
+# Revision 1.8  2007-04-23 16:56:54  ncq
+# - poperly place misplaced "
+#
+# Revision 1.7  2007/04/02 18:21:27  ncq
 # - incorporate all of gmFuzzyTimestamp.py
 #
 # Revision 1.6  2007/01/16 17:59:55  ncq
