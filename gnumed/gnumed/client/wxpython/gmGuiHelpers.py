@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.54 2007-04-11 20:41:58 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmGuiHelpers.py,v 1.55 2007-04-23 01:06:42 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -298,23 +298,26 @@ def gm_statustext(aMessage=None, aLogLevel=None, beep=True):
 	gmDispatcher.send(gmSignals.statustext(), msg=aMessage, loglevel=aLogLevel, beep=beep)
 	return True
 #-------------------------------------------------------------------------
-def get_dbowner_connection(procedure=None):
+def get_dbowner_connection(procedure=None, dbo_password=None):
 	if procedure is None:
 		procedure = _('<restricted procedure>')
 
 	# 1) get password for gm-dbo
-	pwd_gm_dbo = wx.GetPasswordFromUser (
-		message = _("""
+	if dbo_password is None:
+		pwd_gm_dbo = wx.GetPasswordFromUser (
+			message = _("""
  [%s]
 
 This is a restricted procedure. We need the
 password for the GNUmed database owner.
 
 Please enter the password for <gm-dbo>:""") % procedure,
-		caption = procedure
-	)
-	if pwd_gm_dbo == '':
-		return None
+			caption = procedure
+		)
+		if pwd_gm_dbo == '':
+			return None
+	else:
+		pwd_gm_dbo = dbo_password
 
 	# 2) connect as gm-dbo
 	login = gmPG2.get_default_login()
@@ -323,7 +326,7 @@ Please enter the password for <gm-dbo>:""") % procedure,
 		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True, pooled=False)
 	except:
 		_log.LogException('cannot connect')
-		gmGuiHelpers.gm_show_error (
+		gm_show_error (
 			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
 			aTitle = procedure,
 			aLogLevel = gmLog.lErr
@@ -456,7 +459,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.54  2007-04-11 20:41:58  ncq
+# Revision 1.55  2007-04-23 01:06:42  ncq
+# - add password argument to get_dbowner_connection()
+#
+# Revision 1.54  2007/04/11 20:41:58  ncq
 # - remove gm_icon()
 #
 # Revision 1.53  2007/04/09 22:02:40  ncq
