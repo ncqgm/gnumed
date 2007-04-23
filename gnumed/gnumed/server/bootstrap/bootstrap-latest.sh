@@ -8,14 +8,19 @@ cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
 VER="6"
-DROPDB_PORT=""
 
-# uncomment and set if your PostgreSQL server is running
-# on a port different from the default port 5432, such as
-# 5433 for PostgreSQL 8.1 running on Debian alongside
-# a 7.4 server
+
+# if you need to adjust the port you want to use to
+# connect to PostgreSQL you can use the environment
+# variable below (this may be necessary if your PostgreSQL
+# server is running on a port different from the default 5432)
 #export GM_DB_PORT="5433"
-#DROPDB_PORT="-p ${GM_DB_PORT}"
+
+
+# tell libpq-based tools about the non-default port, if any
+if test -n "${GM_DB_PORT}" ; then
+	export PGPORT="${GM_DB_PORT}"
+fi ;
 
 echo "==========================================================="
 echo "Bootstrapping latest GNUmed database."
@@ -28,7 +33,7 @@ echo "not disturb the operation of the GNUmed client in your"
 echo "country in any way."
 echo "==========================================================="
 echo "1) Dropping old baseline gnumed_v2 database if there is any."
-sudo -u postgres dropdb ${DROPDB_PORT} -i gnumed_v2
+sudo -u postgres dropdb -i gnumed_v2
 rm -rf ${LOG}
 
 echo "=========================="
@@ -43,19 +48,19 @@ unset GM_CORE_DB
 LOG="bootstrap-latest-v3.log"
 CONF="update_db-v2_v3.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-sudo -u postgres dropdb ${DROPDB_PORT} gnumed_v2
+sudo -u postgres dropdb gnumed_v2
 
 LOG="bootstrap-latest-v4.log"
 CONF="update_db-v3_v4.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-sudo -u postgres dropdb ${DROPDB_PORT} gnumed_v3
+sudo -u postgres dropdb gnumed_v3
 
 LOG="bootstrap-latest-v5.log"
 CONF="update_db-v4_v5.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-sudo -u postgres dropdb ${DROPDB_PORT} gnumed_v4
+sudo -u postgres dropdb gnumed_v4
 
 LOG="bootstrap-latest-v6.log"
 CONF="update_db-v5_v6.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-sudo -u postgres dropdb ${DROPDB_PORT} gnumed_v5
+sudo -u postgres dropdb gnumed_v5

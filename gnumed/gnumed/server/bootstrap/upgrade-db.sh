@@ -44,15 +44,26 @@ if test ! -f $CONF ; then
 	exit
 fi ;
 
-# only uncomment if needed and you know what you are doing
+# if you need to adjust the database name to something
+# other than what the config file has you can use the
+# following environment variable:
 #export GM_CORE_DB="gnumed_v${NEXT_VER}"
 
-# uncomment and set if your PostgreSQL server is running
-# on a port different from the default port 5432, such as
-# 5433 for PostgreSQL 8.1 running on Debian alongside
-# a 7.4 server
+
+# if you need to adjust the port you want to use to
+# connect to PostgreSQL you can use the environment
+# variable below (this may be necessary if your PostgreSQL
+# server is running on a port different from the default 5432)
 #export GM_DB_PORT="5433"
-#PG_PORT="-p ${GM_DB_PORT}"
+
+
+# tell libpq-based tools about the non-default port, if any
+if test -n "${GM_DB_PORT}" ; then
+	echo "found GM_DB_PORT"
+	export PGPORT="${GM_DB_PORT}"
+fi ;
+
+exit;
 
 echo "==========================================================="
 echo "Upgrading GNUmed database."
@@ -67,7 +78,7 @@ echo ""
 echo "1) creating backup of existing database ..."
 echo "   Note that this may take a substantial amount of time and disk space!"
 echo "   You may need to type in the password for gm-dbo."
-pg_dump ${PG_PORT} -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
+pg_dump -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
 echo ""
 echo "2) upgrading to new database ..."
 rm -rf ${LOG}
