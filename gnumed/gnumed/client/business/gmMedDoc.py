@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.92 2007-04-11 14:51:06 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmMedDoc.py,v 1.93 2007-04-23 01:02:05 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -376,6 +376,20 @@ where
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return True
+	#--------------------------------------------------------
+	def set_as_active_photograph(self):
+		if self._payload[self._idx['type']] != u'patient photograph':
+			return False
+		# set seq_idx to current max + 1
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': u'select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where fk_doc=%(doc_id)s',
+				'args': {'doc_id': self._payload[self._idx['pk_doc']]}
+			}]
+		)
+		self._payload[self._idx['seq_idx']] = rows[0][0]
+		self._is_modified = True
+		self.save_payload()
 #============================================================
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -728,7 +742,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.92  2007-04-11 14:51:06  ncq
+# Revision 1.93  2007-04-23 01:02:05  ncq
+# - add set_as_active_photograph()
+#
+# Revision 1.92  2007/04/11 14:51:06  ncq
 # - raising exception on error
 #
 # Revision 1.91  2007/03/31 21:18:40  ncq
