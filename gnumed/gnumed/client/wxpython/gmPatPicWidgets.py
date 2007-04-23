@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.21 2007-04-11 14:52:47 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPatPicWidgets.py,v 1.22 2007-04-23 01:10:58 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -71,6 +71,10 @@ class cPatientPicture(wx.StaticBitmap):
 
 		# pre-make menu
 		self.__photo_menu = wx.Menu()
+		ID = wx.NewId()
+		self.__photo_menu.Append(ID, _('Refresh from database'))
+		wx.EVT_MENU(self, ID, self._on_refresh_from_backend)
+		self.__photo_menu.AppendSeparator()
 		self.__photo_menu.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
 		self.__photo_menu.Append(ID_ImportPhoto, _("Import from file"))
 
@@ -93,6 +97,9 @@ class cPatientPicture(wx.StaticBitmap):
 			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No active patient.'))
 			return False
 		self.PopupMenu(self.__photo_menu, event.GetPosition())
+	#-----------------------------------------------------------------
+	def _on_refresh_from_backend(self, evt):
+		self.__reload_photo()
 	#-----------------------------------------------------------------
 	def _on_ImportPhoto(self, event):
 		"""Import an existing photo."""
@@ -191,7 +198,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.21  2007-04-11 14:52:47  ncq
+# Revision 1.22  2007-04-23 01:10:58  ncq
+# - add menu item to refresh from database
+#
+# Revision 1.21  2007/04/11 14:52:47  ncq
 # - lots of cleanup
 # - properly implement popup menu actions
 #
