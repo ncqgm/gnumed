@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.121 2007-04-23 01:08:04 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmMedDocWidgets.py,v 1.122 2007-04-23 16:59:35 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -199,11 +199,26 @@ u"""select * from ((
 				self.data = gmMedDoc.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
 		return self.data
 #============================================================
+# slightly misnamed due to 
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
-		self.__part = kwds['part']
+		"""Support parts and docs now.
+		"""
+		part = kwds['part']
 		del kwds['part']
 		wxgReviewDocPartDlg.wxgReviewDocPartDlg.__init__(self, *args, **kwds)
+
+		if isinstance(part, gmMedDoc.cMedDocPart):
+			self.__part = part
+			self.__doc = self.__part.get_containing_document()
+			self.__reviewing_doc = False
+		elif isinstance(part, gmMedDoc.cMedDoc):
+			self.__doc = part
+			self.__part = self.__doc.get_parts()[0]
+			self.__reviewing_doc = True
+		else:
+			raise ValueError('<part> must be gmMedDoc.cMedDoc or gmMedDoc.cMedDocPart instance, got <%s>' % type(part))
+
 		self.__init_ui_data()
 	#--------------------------------------------------------
 	# internal API
@@ -221,9 +236,12 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
 		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__part['ext_ref'], ''))
-		self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
-		self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
-		self._SPINCTRL_seq_idx.SetValue(gmTools.coalesce(self.__part['seq_idx'], 0))
+		if self.__reviewing_doc:
+			self._TCTRL_filename.Enable(False)
+			self._SPINCTRL_seq_idx.Enable(False)
+		else:
+			self._TCTRL_filename.SetValue(gmTools.coalesce(self.__part['filename'], ''))
+			self._SPINCTRL_seq_idx.SetValue(gmTools.coalesce(self.__part['seq_idx'], 0))
 
 		self._LCTRL_existing_reviews.InsertColumn(0, _('who'))
 		self._LCTRL_existing_reviews.InsertColumn(1, _('when'))
@@ -255,6 +273,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 					self._ChBOX_abnormal.SetValue(bool(rev[2]))
 					self._ChBOX_relevant.SetValue(bool(rev[3]))
 					break
+
+		self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
 
 		return True
 	#--------------------------------------------------------
@@ -301,8 +321,6 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		evt.Skip()
 
-		doc = self.__part.get_containing_document()
-
 		# 1) handle associated episode
 		pk_episode = self._PhWheel_episode.GetData(can_create=True, is_open=True)
 		if pk_episode is None:
@@ -320,13 +338,13 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		# since the phrasewheel operates on the active
 		# patient all episodes really should belong
 		# to it so we don't check patient change
-		doc['pk_episode'] = pk_episode
-		doc['pk_type'] = doc_type
-		doc['comment'] = self._PRW_doc_comment.GetValue().strip()
-		doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
-		doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
+		self.__doc['pk_episode'] = pk_episode
+		self.__doc['pk_type'] = doc_type
+		self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
+		self.__doc['date'] = self._PhWheel_doc_date.GetData().get_pydt()
+		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
-		success, data = doc.save_payload()
+		success, data = self.__doc.save_payload()
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot link the document to episode\n\n [%s]') % epi_name,
@@ -340,32 +358,32 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			abnormal = self._ChBOX_abnormal.GetValue()
 			relevant = self._ChBOX_relevant.GetValue()
 			msg = None
-			# - on all pages
-			if self._ChBOX_sign_all_pages.GetValue():
-				if not doc.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
+			if self.__reviewing_doc:		# - on all pages
+				if not self.__doc.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
 					msg = _('Error setting "reviewed" status of this document.')
 				if self._ChBOX_responsible.GetValue():
-					if not doc.set_primary_reviewer(reviewer = provider['pk_staff']):
+					if not self.__doc.set_primary_reviewer(reviewer = provider['pk_staff']):
 						msg = _('Error setting responsible clinician for this document.')
-			# - just on this page
-			else:
+			else:								# - just on this page
 				if not self.__part.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
 					msg = _('Error setting "reviewed" status of this page.')
 				if self._ChBOX_responsible.GetValue():
 					self.__part['pk_intended_reviewer'] = provider['pk_staff']
+			if msg is not None:
+				gmGuiHelpers.gm_show_error(msg, _('editing document properties'))
+				return False
 
-			# FIXME: if msg is not None
-
-		self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
-		self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
-
-		success, data = self.__part.save_payload()
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Error saving document review.'),
-				_('editing document properties')
-			)
-			return False
+		# 3) handle page specific parts
+		if not self.__reviewing_doc:
+			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
+			self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			success, data = self.__part.save_payload()
+			if not success:
+				gmGuiHelpers.gm_show_error (
+					_('Error saving page properties.'),
+					_('editing document properties')
+				)
+				return False
 
 		return True
 	#--------------------------------------------------------
@@ -374,9 +392,6 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self._ChBOX_abnormal.Enable(enable = state)
 		self._ChBOX_relevant.Enable(enable = state)
 		self._ChBOX_responsible.Enable(enable = state)
-		# NOTE: for now *always* apply to all pages so we can
-		# NOTE: offer review from document level as well
-		#self._ChBOX_sign_all_pages.Enable(enable = state)
 	#--------------------------------------------------------
 	def _on_doc_type_loses_focus(self):
 		pk_doc_type = self._PhWheel_doc_type.GetData()
@@ -1173,6 +1188,18 @@ class cDocTree(wx.TreeCtrl):
 		del self.__curr_node_data
 		evt.Skip()
 	#--------------------------------------------------------
+	def __activate_as_current_photo(self, evt):
+		self.__curr_node_data.set_as_active_photograph()
+	#--------------------------------------------------------
+	def __display_curr_part(self, evt):
+		self.__display_part(part=self.__curr_node_data)
+	#--------------------------------------------------------
+	def __review_curr_part(self, evt):
+		self.__review_part(part=self.__curr_node_data)
+	#--------------------------------------------------------
+	def __show_description(self, evt):
+		print "showing description"
+	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
@@ -1188,8 +1215,6 @@ class cDocTree(wx.TreeCtrl):
 		ID = wx.NewId()
 		menu.AppendItem(wx.MenuItem(menu, ID, _('Export to disk')))
 		wx.EVT_MENU(menu, ID, self.__export_doc_to_disk)
-
-		# FIXME: add item "reorder pages"
 
 		# show descriptions
 		descriptions = self.__curr_node_data.get_descriptions()
@@ -1230,12 +1255,6 @@ class cDocTree(wx.TreeCtrl):
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
-	#--------------------------------------------------------
-	def __activate_as_current_photo(self, evt):
-		self.__curr_node_data.set_as_active_photograph()
-	#--------------------------------------------------------
-	def __display_curr_part(self, evt):
-		self.__display_part(part=self.__curr_node_data)
 	#--------------------------------------------------------
 	def __display_part(self, part):
 		"""Display document part."""
@@ -1321,13 +1340,6 @@ class cDocTree(wx.TreeCtrl):
 
 		return 1
 	#--------------------------------------------------------
-	def __review_curr_part(self, evt):
-		if isinstance(self.__curr_node_data, gmMedDoc.cMedDocPart):
-			self.__review_part(part=self.__curr_node_data)
-		else:
-			parts = self.__curr_node_data.get_parts()
-			self.__review_part(part=parts[0])
-	#--------------------------------------------------------
 	def __review_part(self, part=None):
 		dlg = cReviewDocPartDlg (
 			parent = self,
@@ -1336,9 +1348,6 @@ class cDocTree(wx.TreeCtrl):
 		)
 		if dlg.ShowModal() == wx.ID_OK:
 			self.__populate_tree()
-	#--------------------------------------------------------
-	def __show_description(self, evt):
-		print "showing description"
 	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
@@ -1384,7 +1393,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.121  2007-04-23 01:08:04  ncq
+# Revision 1.122  2007-04-23 16:59:35  ncq
+# - make cReviewDocPartDlg accept documents as well as document
+#   parts and dynamically adjust UI appropriately
+#
+# Revision 1.121  2007/04/23 01:08:04  ncq
 # - add "activate as current photo" to popup menu
 #
 # Revision 1.120  2007/04/21 19:40:06  ncq
