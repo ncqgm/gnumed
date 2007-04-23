@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.120 2007-04-21 19:40:06 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmMedDocWidgets.py,v 1.121 2007-04-23 01:08:04 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1222,9 +1222,17 @@ class cDocTree(wx.TreeCtrl):
 		ID = wx.NewId()
 		menu.AppendItem(wx.MenuItem(menu, ID, _('Review/Edit properties')))
 		wx.EVT_MENU(menu, ID, self.__review_curr_part)
+		# make active patient photograph
+		if self.__curr_node_data['type'] == 'patient photograph':
+			ID = wx.NewId()
+			menu.AppendItem(wx.MenuItem(menu, ID, _('Activate as current photo')))
+			wx.EVT_MENU(menu, ID, self.__activate_as_current_photo)
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
+	#--------------------------------------------------------
+	def __activate_as_current_photo(self, evt):
+		self.__curr_node_data.set_as_active_photograph()
 	#--------------------------------------------------------
 	def __display_curr_part(self, evt):
 		self.__display_part(part=self.__curr_node_data)
@@ -1376,7 +1384,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.120  2007-04-21 19:40:06  ncq
+# Revision 1.121  2007-04-23 01:08:04  ncq
+# - add "activate as current photo" to popup menu
+#
+# Revision 1.120  2007/04/21 19:40:06  ncq
 # - handle seq_idx spin ctrl in review doc (part)
 #
 # Revision 1.119  2007/04/02 18:39:52  ncq
