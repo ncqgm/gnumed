@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.15 2007-03-01 16:35:01 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmStaffWidgets.py,v 1.16 2007-04-23 01:11:51 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -215,7 +215,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			return False
 
 		# connect as "gm-dbo"
-		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Enlisting Patient as Staff.'))
+		conn = gmGuiHelpers.get_dbowner_connection (
+			procedure = _('Enlisting Patient as Staff.'),
+			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), u'')
+		)
 		if conn is None:
 			return False
 
@@ -234,7 +237,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.15  2007-03-01 16:35:01  ncq
+# Revision 1.16  2007-04-23 01:11:51  ncq
+# - handle gm-dbo password field
+#
+# Revision 1.15  2007/03/01 16:35:01  ncq
 # - no more idents
 #
 # Revision 1.14  2007/02/22 17:41:13  ncq
