@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: gmCreateProceduralLanguages.sql,v 1.2 2006-12-29 16:30:40 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: gmCreateProceduralLanguages.sql,v 1.3 2007-04-24 17:04:08 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -35,7 +35,7 @@ select true;
 ';
 
 SELECT CASE
-	WHEN (SELECT COUNT(oid) > 0 FROM pg_language WHERE lanname = 'plpgsql') THEN
+	WHEN (SELECT COUNT(1) > 0 FROM pg_language WHERE lanname = 'plpgsql') THEN
 		true
 	ELSE
 		(SELECT make_plpgsql())
@@ -50,7 +50,10 @@ drop function make_plpgsql();
 
 -- ==============================================================
 -- $Log: gmCreateProceduralLanguages.sql,v $
--- Revision 1.2  2006-12-29 16:30:40  ncq
+-- Revision 1.3  2007-04-24 17:04:08  ncq
+-- - oid can be missing on later PG versions
+--
+-- Revision 1.2  2006/12/29 16:30:40  ncq
 -- - drop helper function after use
 --
 -- Revision 1.1  2006/12/29 13:52:12  ncq
