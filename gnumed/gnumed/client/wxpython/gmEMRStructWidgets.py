@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.58 2007-04-13 15:58:00 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmEMRStructWidgets.py,v 1.59 2007-04-25 22:00:47 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -41,6 +41,22 @@ dialog_OK = -2
 
 #================================================================
 # encounter related widgets/functions
+#----------------------------------------------------------------
+def ask_for_encounter_continuation(msg=None, caption=None):
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent = None,
+		id = -1,
+		caption = caption,
+		question = msg,
+		button_defs = [
+			{'label': _('Continue'), 'tooltip': _('Continue the existing recent encounter.'), 'default': False},
+			{'label': _('Start new'), 'tooltip': _('Start a new encounter. The existing one will be closed.'), 'default': True}
+		]
+	)
+	result = dlg.ShowModal()
+	if result == wx.ID_YES:
+		return True
+	return False
 #----------------------------------------------------------------
 class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of encounter type.
@@ -1089,7 +1105,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.58  2007-04-13 15:58:00  ncq
+# Revision 1.59  2007-04-25 22:00:47  ncq
+# - use better question dialog for very recent encounter
+#
+# Revision 1.58  2007/04/13 15:58:00  ncq
 # - don't conflict open episode on itself
 #
 # Revision 1.57  2007/04/02 18:39:52  ncq
