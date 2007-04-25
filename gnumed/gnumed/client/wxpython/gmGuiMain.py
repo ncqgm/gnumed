@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.323 2007-04-19 13:12:51 ncq Exp $
-__version__ = "$Revision: 1.323 $"
+# $Id: gmGuiMain.py,v 1.324 2007-04-25 22:01:25 ncq Exp $
+__version__ = "$Revision: 1.324 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -266,6 +266,10 @@ class gmTopLevelFrame(wx.Frame):
 		ID_SCREENSHOT = wx.NewId()
 		menu_gnumed.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
 		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
+
+		ID = wx.NewId()
+		menu_gnumed.Append(ID, _('Set database language'), _('Configure the database language.'))
+		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
 
 		menu_gnumed.AppendSeparator()
 
@@ -619,6 +623,21 @@ class gmTopLevelFrame(wx.Frame):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
 		# calls wx.EVT_CLOSE handler
 		self.Close()
+	#----------------------------------------------
+	def __on_set_db_lang(self, event):
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
+		)
+		result = gmGuiHelpers.gm_SingleChoiceDialog (
+			aMessage = _('Please select the database language from the list below.'),
+			aTitle = _('configuring database language'),
+			choices = [row[0] for row in rows]
+		)
+		if result is False:
+			return
+		rows, idx = gmPG2.run_rw_queries (
+			queries = [{'cmd': u'select i18n', 'args': {'lang': result}}]
+		)
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
@@ -1160,7 +1179,8 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _do_after_init(self):
 		# - setup GUI callback in clinical record
-		gmClinicalRecord.set_func_ask_user(a_func = gmGuiHelpers.gm_show_question)
+#		gmClinicalRecord.set_func_ask_user(a_func = gmGuiHelpers.gm_show_question)
+		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
 
 		# - raise startup-default plugin (done in cTopLevelFrame)
 
@@ -1326,7 +1346,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.323  2007-04-19 13:12:51  ncq
+# Revision 1.324  2007-04-25 22:01:25  ncq
+# - add database language configurator
+#
+# Revision 1.323  2007/04/19 13:12:51  ncq
 # - use gmTools.cPaths to use proper user prefs file
 #
 # Revision 1.322  2007/04/11 20:43:51  ncq
