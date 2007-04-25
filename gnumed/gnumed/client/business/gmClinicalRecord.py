@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.242 2007-04-06 23:12:58 ncq Exp $
-__version__ = "$Revision: 1.242 $"
+# $Id: gmClinicalRecord.py,v 1.243 2007-04-25 21:59:15 ncq Exp $
+__version__ = "$Revision: 1.243 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1249,27 +1249,34 @@ where
 		)
 		enc = gmI18N.get_encoding()
 		msg = _(
-			'A fairly recent encounter exists for patient:\n'
+			'Very recently (between "%s" and "%s" ago)\n'
+			'a consultation has been recorded for the patient:\n'
+			'\n'
 			' %s\n'
-			'started: %s\n'
-			'affirmed: %s\n'
-			'type: %s\n'
-			'RFE: %s\n'
-			'AOE: %s\n\n'
-			'Do you want to reactivate this encounter ?\n\n'
-			'Hitting "No" will start a new one.'
+			'\n'
+			'with the following details:\n'
+			'\n'
+			' date: %s\n'
+			' time: %s - %s\n'
+			' type: %s\n'
+			' request: %s\n'
+			' outcome: %s\n'
+			'\n'
+			'Do you want to continue this consultation\n'
+			'or do you want to start a new one ?\n'
 		) % (
+			max_ttl,
+			min_ttl,
 			pat_str,
-			encounter['started'].strftime('%x %X').decode(enc),
-			encounter['last_affirmed'].strftime('%x %X').decode(enc),
+			encounter['started'].strftime('%x').decode(enc),
+			encounter['started'].strftime('%H:%M'), encounter['last_affirmed'].strftime('%H:%M'),
 			encounter['l10n_type'],
 			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
 			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
 		)
-		title = _('recording patient encounter')
 		attach = False
 		try:
-			attach = _func_ask_user(msg, title)
+			attach = _func_ask_user(msg = msg, caption = _('starting patient encounter'))
 		except:
 			_log.LogException('cannot ask user for guidance')
 			return False
@@ -1617,7 +1624,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.242  2007-04-06 23:12:58  ncq
+# Revision 1.243  2007-04-25 21:59:15  ncq
+# - improve message on very-recent-encounter
+#
+# Revision 1.242  2007/04/06 23:12:58  ncq
 # - move remove_empty_encounters() from cleanup() to init()
 #
 # Revision 1.241  2007/04/02 18:32:51  ncq
