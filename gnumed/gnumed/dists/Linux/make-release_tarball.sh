@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.32 2007-04-19 13:18:46 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.33 2007-04-27 13:30:28 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -187,14 +187,13 @@ echo "picking up GNUmed User Manual from the web"
 mkdir -p ./GNUmed-$CLIENTREV/client/doc/user-manual/
 wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual
 rm -vf PublishManual*
-wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/gm-manual//Gnumed.tgz
+wget -v -O ./GNUmed-$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.tgz http://wiki.gnumed.de/twiki/pub/Gnumed.tgz
 cd ./GNUmed-$CLIENTREV/client/doc/user-manual/
 tar -xvzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
 ln -s GnumedManual.html index.html
 rm -vf GNUmed-User-Manual.tgz
 cd -
-
 
 #----------------------------------
 # create server package
@@ -305,7 +304,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.32  2007-04-19 13:18:46  ncq
+# Revision 1.33  2007-04-27 13:30:28  ncq
+# - properly download manual again
+#
+# Revision 1.32  2007/04/19 13:18:46  ncq
 # - cleanup
 #
 # Revision 1.31  2007/04/06 23:16:21  ncq
