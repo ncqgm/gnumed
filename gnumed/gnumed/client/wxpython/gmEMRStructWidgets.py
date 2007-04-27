@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.59 2007-04-25 22:00:47 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmEMRStructWidgets.py,v 1.60 2007-04-27 13:28:25 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -43,7 +43,7 @@ dialog_OK = -2
 # encounter related widgets/functions
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None):
-	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 		parent = None,
 		id = -1,
 		caption = caption,
@@ -51,7 +51,8 @@ def ask_for_encounter_continuation(msg=None, caption=None):
 		button_defs = [
 			{'label': _('Continue'), 'tooltip': _('Continue the existing recent encounter.'), 'default': False},
 			{'label': _('Start new'), 'tooltip': _('Start a new encounter. The existing one will be closed.'), 'default': True}
-		]
+		],
+		show_checkbox = False
 	)
 	result = dlg.ShowModal()
 	if result == wx.ID_YES:
@@ -1105,7 +1106,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.59  2007-04-25 22:00:47  ncq
+# Revision 1.60  2007-04-27 13:28:25  ncq
+# - use c2ButtonQuestionDlg
+#
+# Revision 1.59  2007/04/25 22:00:47  ncq
 # - use better question dialog for very recent encounter
 #
 # Revision 1.58  2007/04/13 15:58:00  ncq
