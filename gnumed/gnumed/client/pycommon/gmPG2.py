@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -303,6 +303,10 @@ def get_schema_version(link_obj=None):
 		return map_schema_hash2version[rows[0]['md5']]
 	except KeyError:
 		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+#------------------------------------------------------------------------
+def get_schema_structure(link_obj=None):
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm_concat_table_structure()'}])
+	return rows[0][0]
 #------------------------------------------------------------------------
 def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': u'select CURRENT_USER'}])
@@ -1008,7 +1012,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.43  2007-04-02 18:36:17  ncq
+# Revision 1.44  2007-04-27 13:19:58  ncq
+# - get_schema_structure()
+#
+# Revision 1.43  2007/04/02 18:36:17  ncq
 # - fix comment
 #
 # Revision 1.42  2007/04/02 14:31:17  ncq
