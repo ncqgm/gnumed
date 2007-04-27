@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.55 2007-04-23 01:06:42 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmGuiHelpers.py,v 1.56 2007-04-27 13:28:48 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,11 +24,56 @@ if __name__ == '__main__':
 import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
+# ========================================================================
+class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		caption = kwargs['caption']
+		question = kwargs['question']
+		button_defs = kwargs['button_defs'][:2]
+		show_checkbox = kwargs['show_checkbox']
+
+		del kwargs['caption']
+		del kwargs['question']
+		del kwargs['button_defs']
+		del kwargs['show_checkbox']
+
+		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
+
+		self.SetTitle(title = caption)
+		self._LBL_question.SetLabel(label = question)
+
+		if not show_checkbox:
+			self._CHBOX_dont_ask_again.Hide()
+
+		buttons = [self._BTN_1, self._BTN_2]
+		for idx in range(len(button_defs)):
+			buttons[idx].SetLabel(label = button_defs[idx]['label'])
+			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
+			if button_defs[idx]['default']:
+				buttons[idx].SetDefault()
+
+		self.Fit()
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_BTN_1_pressed(self, evt):
+		if self.IsModal():
+			self.EndModal(wx.ID_YES)
+		else:
+			self.Close()
+	#--------------------------------------------------------
+	def _on_BTN_2_pressed(self, evt):
+		if self.IsModal():
+			self.EndModal(wx.ID_NO)
+		else:
+			self.Close()
 # ========================================================================
 class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 
@@ -459,7 +504,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.55  2007-04-23 01:06:42  ncq
+# Revision 1.56  2007-04-27 13:28:48  ncq
+# - implement c2ButtonQuestionDlg
+#
+# Revision 1.55  2007/04/23 01:06:42  ncq
 # - add password argument to get_dbowner_connection()
 #
 # Revision 1.54  2007/04/11 20:41:58  ncq
