@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.96 $"
+__version__ = "$Revision: 1.97 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -143,13 +143,18 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		'pk_patient'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', row=None):
+	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None):
 		pk = aPK_obj
 		if pk is None and row is None:
-			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [id_patient, name]}], get_col_idx=True)
+			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s and pk_health_issue=%s"
+			rows, idx = gmPG2.run_ro_queries(queries = [{
+					'cmd': cmd,
+					'args': [id_patient, name, health_issue]
+				}],
+				get_col_idx=True
+			)
 			if len(rows) == 0:
-				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s]' % (id_patient, name)
+				raise gmExceptions.NoSuchBusinessObjectError, 'no episode for [%s:%s:%s]' % (id_patient, name, health_issue)
 			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 		else:
@@ -393,7 +398,7 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	episode_name - name of episode
 	"""
 	try:
-		episode = cEpisode(id_patient=patient_id, name=episode_name)
+		episode = cEpisode(id_patient=patient_id, name=episode_name, health_issue=pk_health_issue)
 		if episode['episode_open'] != is_open:
 			episode['episode_open'] = is_open
 			episode.save_payload()
@@ -544,7 +549,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.96  2007-04-02 18:35:20  ncq
+# Revision 1.97  2007-04-27 22:54:13  ncq
+# - when checking for existing episodes need to check
+#   associated health issue, too, of course
+#
+# Revision 1.96  2007/04/02 18:35:20  ncq
 # - create_encounter now more exception-y
 #
 # Revision 1.95  2007/03/18 13:01:55  ncq
