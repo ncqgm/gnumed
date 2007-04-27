@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.2 2007-02-19 10:35:14 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.3 2007-04-27 13:30:49 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -16,7 +16,9 @@
 #
 #==============================================================
 
-PGDATABASE="gnumed_v5"
+# FIXME: factor out into /etc/gnumed/gm-backup_database.conf and source that
+
+PGDATABASE="gnumed_XX"
 PGPASSWORD="need to set this to password of gm-dbo if gm-dbo needs a password"
 
 # where to eventually put the backups
@@ -106,7 +108,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.2  2007-02-19 10:35:14  ncq
+# Revision 1.3  2007-04-27 13:30:49  ncq
+# - add FIXME
+#
+# Revision 1.2  2007/02/19 10:35:14  ncq
 # - add some (ana)crontab lines and a few lines of documentation
 #
 # Revision 1.1  2007/02/16 15:33:37  ncq
