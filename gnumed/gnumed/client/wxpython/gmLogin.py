@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.32 2007-03-18 14:10:07 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmLogin.py,v 1.33 2007-04-27 13:29:31 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "H.Herb"
 
 import wx
@@ -99,6 +99,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				dlg.panel.save_state()
 
 			if not compatible:
+				_log.Log(gmLog.lData, 'normalized schema dump follows:')
+				for line in gmPG2.get_schema_structure().split():
+					_log.Log(gmLog.lData, line)
 				connected_db_version = gmPG2.get_schema_version()
 				msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
 				if require_version:
@@ -138,7 +141,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.32  2007-03-18 14:10:07  ncq
+# Revision 1.33  2007-04-27 13:29:31  ncq
+# - log schema dump on version conflict
+#
+# Revision 1.32  2007/03/18 14:10:07  ncq
 # - do show schema mismatch warning even if --override-schema-check
 #
 # Revision 1.31  2007/03/08 11:41:55  ncq
