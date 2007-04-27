@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.6 2007-04-05 17:21:18 ncq Exp $
+# $Id: gnumed,v 1.7 2007-04-27 13:30:07 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -60,7 +60,7 @@ fi
 
 # source local startup extension shell script if it exists
 if [ -r ${HOME}/.gnumed/gnumed-startup-local.sh ] ; then
-	. ${HOME}/.gnumed/gnumed-startup-local.sh
+	. ${HOME}/.gnumed/scripts/gnumed-startup-local.sh
 fi
 
 # now run the client
@@ -68,7 +68,10 @@ python ${GNUMEDDIR}/gnumed.py ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.6  2007-04-05 17:21:18  ncq
+# Revision 1.7  2007-04-27 13:30:07  ncq
+# - better location for user-local shell include
+#
+# Revision 1.6  2007/04/05 17:21:18  ncq
 # - pull in some logic from Debian startup script
 # - cleanup for system-wide config file
 #
