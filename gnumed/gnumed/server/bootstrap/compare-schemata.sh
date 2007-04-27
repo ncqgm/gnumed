@@ -2,11 +2,11 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/compare-schemata.sh,v $
-# $Id: compare-schemata.sh,v 1.2 2005-11-29 22:40:25 ncq Exp $
+# $Id: compare-schemata.sh,v 1.3 2007-04-27 13:31:11 ncq Exp $
 # ============================================
 
-DB1="gnumed_v2_new"
-DB2="gnumed_v2_cp"
+DB1="gnumed_v6"
+DB2="gnumed_v6"
 LOG="schema-diff.txt"
 
 rm -vf $LOG
@@ -31,7 +31,10 @@ less $LOG
 
 # ============================================
 # $Log: compare-schemata.sh,v $
-# Revision 1.2  2005-11-29 22:40:25  ncq
+# Revision 1.3  2007-04-27 13:31:11  ncq
+# - bump version
+#
+# Revision 1.2  2005/11/29 22:40:25  ncq
 # - improved layout
 #
 # Revision 1.1  2005/11/29 22:09:18  ncq
