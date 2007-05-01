@@ -63,8 +63,6 @@ if test -n "${GM_DB_PORT}" ; then
 	export PGPORT="${GM_DB_PORT}"
 fi ;
 
-exit;
-
 echo "==========================================================="
 echo "Upgrading GNUmed database."
 echo ""
