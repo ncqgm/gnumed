@@ -2,56 +2,38 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.3 2007-04-27 13:30:49 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.4 2007-05-01 19:41:38 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
 #
+# anacron
+# -------
+#  The following line could be added to a system's
+#  /etc/anacrontab to make sure it creates daily
+#  database backups for GNUmed:
 #
-# The following line could be added to a system's
-# /etc/anacrontab to make sure it creates daily
-# database backups for GNUmed:
+#  1       15      backup-gnumed-<your-company>    /usr/bin/gm-backup_database.sh
 #
-# 1       15      backup-gnumed-<your-company>    /usr/bin/gm-backup_database.sh
 #
+# cron
+# ----
+#  add the following line to a crontab file to run a
+#  database backup at 12:47 and 19:47 every day
+#
+#  47 12,19 * * * * /usr/bin/gm-backup_database.sh
+#
+# It is useful to have a PROCMAIL rule for the GNotary server replies
+# piping them into the stoarage area where the backups are kept.
 #==============================================================
 
-# FIXME: factor out into /etc/gnumed/gm-backup_database.conf and source that
-
-PGDATABASE="gnumed_XX"
-PGPASSWORD="need to set this to password of gm-dbo if gm-dbo needs a password"
-
-# where to eventually put the backups
-BACKUP_DIR="/root/"
-
-# user/group the backup is eventually owned by
-BACKUP_OWNER="$USER.$USER"
-
-# file permissions mask to set the backup file to
-BACKUP_MASK="0600"
-
-# identify the logical/business-level owner of this
-# GNUmed database instance, such as "ACME GP Office",
-# do not use spaces: "ACME_GP_Offices"
-INSTANCE_OWNER="GNUmed_Team"
-
-# set this to an email address which will receive
-# digitally signed replies from the GNotary server
-# notarizing the hash of the backup
-SIG_RECEIVER="root"
-
-# set this to the email address of the GNotary server
-# you want your hashes to be signed by
-GNOTARY_SERVER="gnotary@gnotary.de"
-
-# you will have to set the GNotary TAN here, using
-# "free" works but makes you a Freeloader, as it is
-# mainly intended for testing
-GNOTARY_TAN="free"
-
-# it is useful to have a PROCMAIL rule for the replies
-# piping them into the stoarage area where the backups
-# are kept
+# load config file
+if [ -r /etc/gnumed/gnumed-backup.conf ] ; then
+	. /etc/gnumed/gnumed-backup.conf
+else
+	echo "Cannot read configuration file /etc/gnumed/gnumed-backup.conf. Aborting."
+	exit 1
+fi
 
 #==============================================================
 # There really should not be any need to
@@ -60,55 +42,64 @@ GNOTARY_TAN="free"
 
 TS=`date +%Y-%m-%d-%H-%M-%S`
 HOST=`hostname`
-BACKUP_BASE="$BACKUP_DIR/backup-$PGDATABASE-$INSTANCE_OWNER-$HOST"
-BACKUP_FILE="$BACKUPBASE-$TS.sql"
+BACKUP_BASE="${BACKUP_DIR}/backup-${GM_DATABASE}-${INSTANCE_OWNER}-${HOST}"
+BACKUP_FILE="${BACKUP_BASE}-${TS}.sql"
 
 # create dump
-PGUSER="gm-dbo"
-PGPORT="5432"
-pg_dump -f $BACKUP_FILE
-bzip2 -zq9 $BACKUP_FILE
-bzip2 -tq $BACKUP_FILE.bz2
+pg_dump -U ${GM_DBO} -d ${GM_DATABASE} -p ${GM_PORT} -f ${BACKUP_FILE}
+# compress it
+bzip2 -zq9 ${BACKUP_FILE}
+# test it
+bzip2 -tq ${BACKUP_FILE}.bz2
 
 # give to admin owner
 chmod $BACKUP_MASK $BACKUP_FILE.bz2
 chown $BACKUP_OWNER $BACKUP_FILE.bz2
 
-# GNotary support
-LOCAL_MAILER=`which mail`
+if test ! -z ${GNOTARY_TAN} ; then
 
-#SHA512="SHA 512:"`sha512sum -b $BACKUP_FILE`
-SHA512=`openssl dgst -sha512 -hex $BACKUP_FILE`
-RMD160=`openssl dgst -ripemd160 -hex $BACKUP_FILE`
+	# GNotary support
+	LOCAL_MAILER=`which mail`
 
-export REPLYTO=$SIG_RECEIVER
-#export USER="karsten.hilbert@gmx.net"
+	#SHA512="SHA 512:"`sha512sum -b $BACKUP_FILE`
+	SHA512=`openssl dgst -sha512 -hex ${BACKUP_FILE}`
+	RMD160=`openssl dgst -ripemd160 -hex ${BACKUP_FILE}`
 
-# send mail
-(
-	echo "Subject: gnotarize"
-	echo " "
-	echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
-	echo "<message>"
-	echo "	<tan>$GNOTARY_TAN</tan>"
-	echo "	<action>notarize</action>"
-	echo "	<hashes number=\"2\">"
-	echo "		<hash file=\"$BACKUP_FILE\" modified=\"$TS\" algorithm=\"SHA-512\">$SHA512</hash>"
-	echo "		<hash file=\"$BACKUP_FILE\" modified=\"$TS\" algorithm=\"RIPE-MD-160\">$RMD160</hash>"
-	echo "	</hashes>"
-	echo "</message>"
-	echo " "
-) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
+	export REPLYTO=$SIG_RECEIVER
+
+	# send mail
+	(
+		echo "Subject: gnotarize"
+		echo " "
+		echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
+		echo "<message>"
+		echo "	<tan>$GNOTARY_TAN</tan>"
+		echo "	<action>notarize</action>"
+		echo "	<hashes number=\"2\">"
+		echo "		<hash file=\"$BACKUP_FILE\" modified=\"$TS\" algorithm=\"SHA-512\">$SHA512</hash>"
+		echo "		<hash file=\"$BACKUP_FILE\" modified=\"$TS\" algorithm=\"RIPE-MD-160\">$RMD160</hash>"
+		echo "	</hashes>"
+		echo "</message>"
+		echo " "
+	) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
+
+fi
 
 # zip up any leftover backups
-bzip2 -zq9 $BACKUP_BASE-*.sql
-bzip2 -tq $BACKUP_BASE-*.sql
+for OLD_BACKUP in $BACKUP_BASE-*.sql ; do
+	bzip2 -zq9 ${OLD_BACKUP}
+	bzip2 -tq ${OLD_BACKUP}
+done
 
 exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.3  2007-04-27 13:30:49  ncq
+# Revision 1.4  2007-05-01 19:41:38  ncq
+# - better docs
+# - factor out config
+#
+# Revision 1.3  2007/04/27 13:30:49  ncq
 # - add FIXME
 #
 # Revision 1.2  2007/02/19 10:35:14  ncq
