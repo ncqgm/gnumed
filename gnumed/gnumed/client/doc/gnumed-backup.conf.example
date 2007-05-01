@@ -6,9 +6,13 @@
 # copy this file to /etc/gnumed/gnumed-backup.conf and
 # configure appropriately
 #
+# if the PostgreSQL user $GM_DBO needs a password you will
+# have to configure that using a .pgpass file (see the PG
+# manual for how to do that)
+#
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.1 2007-05-01 16:34:45 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.2 2007-05-01 16:45:24 ncq Exp $
 
 #------------------------------------------------------------
 # those need to be changed in most if not all cases
@@ -35,6 +39,9 @@ BACKUP_OWNER="$USER.$USER"
 # which PostgreSQL user to dump as, usually "gm-dbo"
 GM_DBO="gm-dbo"
 
+# if your PostgreSQL server is running on another port
+GM_PORT="5432"
+
 # file permissions mask to set the backup file to
 BACKUP_MASK="0600"
 
@@ -47,15 +54,18 @@ SIG_RECEIVER="$USER@localhost"
 # you want your hashes to be signed by
 GNOTARY_SERVER="gnotary@gnotary.de"
 
-# you will have to set the GNotary TAN here, using
-# "free" works but makes you a Freeloader, as it is
-# mainly intended for testing, setting this to ""
-# effectively disables notarizing
+# you will have to set the GNotary TAN here,
+# using "free" works but makes you a Freeloader,
+# as it is mainly intended for testing,
+# setting this to "" effectively disables notarizing
 GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.1  2007-05-01 16:34:45  ncq
+# Revision 1.2  2007-05-01 16:45:24  ncq
+# - improved
+#
+# Revision 1.1  2007/05/01 16:34:45  ncq
 # - needed by gm-backup_database.sh
 #
 #
