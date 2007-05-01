@@ -1,0 +1,61 @@
+#!/bin/sh
+#------------------------------------------------------------
+#
+# this is a shell fragment used by gm-backup_database.sh
+#
+# copy this file to /etc/gnumed/gnumed-backup.conf and
+# configure appropriately
+#
+#------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
+# $Id: gnumed-backup.conf.example,v 1.1 2007-05-01 16:34:45 ncq Exp $
+
+#------------------------------------------------------------
+# those need to be changed in most if not all cases
+#------------------------------------------------------------
+
+# identify the logical/business-level owner of this
+# GNUmed database instance, such as "ACME GP Office",
+# do not use spaces: "ACME_GP_Offices"
+INSTANCE_OWNER="GNUmed_Team"
+
+# where to eventually store the backup
+BACKUP_DIR=""
+
+# which database to backup
+GM_DATABASE="gnumed_v6"
+
+# user/group the backup is eventually owned by
+BACKUP_OWNER="$USER.$USER"
+
+#------------------------------------------------------------
+# those need to be changed less likely:
+#------------------------------------------------------------
+
+# which PostgreSQL user to dump as, usually "gm-dbo"
+GM_DBO="gm-dbo"
+
+# file permissions mask to set the backup file to
+BACKUP_MASK="0600"
+
+# set this to an email address which will receive
+# digitally signed replies from the GNotary server
+# notarizing the hash of the backup
+SIG_RECEIVER="$USER@localhost"
+
+# set this to the email address of the GNotary server
+# you want your hashes to be signed by
+GNOTARY_SERVER="gnotary@gnotary.de"
+
+# you will have to set the GNotary TAN here, using
+# "free" works but makes you a Freeloader, as it is
+# mainly intended for testing, setting this to ""
+# effectively disables notarizing
+GNOTARY_TAN="free"
+
+#============================================================
+# $Log: gnumed-backup.conf.example,v $
+# Revision 1.1  2007-05-01 16:34:45  ncq
+# - needed by gm-backup_database.sh
+#
+#
