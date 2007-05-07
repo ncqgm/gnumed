@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.115 2007-05-07 08:00:18 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmPerson.py,v 1.116 2007-05-07 12:29:02 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -615,23 +615,28 @@ class gmCurrentProvider(gmBorg.cBorg):
 	def _get_workplace(self):
 		"""Return the current workplace (client profile) definition.
 
-		- from the system-wide config file
-		- from the user config file
 		- from the command line config file
+		- from the config file in the working directory
+		- from the config file in the binary install directory
+		- from the user config file
+		- from the system-wide config file
+
+		The first occurrence counts.
 		"""
 		if self.__workplace is not None:
 			return self.__workplace
 
 #		if gmCLI.has_arg('--conf-file'):
-#			candidate = [gmCLI.arg['--conf-file']]
+#			candidates = [gmCLI.arg['--conf-file']]
 #		else:
-
+		candidates = []
 		paths = gmTools.cPaths()
-		candidates = [
-			os.path.join(paths.local_config_dir, 'gnumed.conf'),
+		candidates.extend ([
+			os.path.join(paths.working_dir, 'gnumed.conf'),
+			os.path.join(paths.local_base_dir, 'gnumed.conf'),
 			os.path.join(paths.user_config_dir, 'gnumed.conf'),
 			os.path.join(paths.system_config_dir, 'gnumed-client.conf')
-		]
+		])
 
 		self.__workplace = None
 		for candidate in candidates:
@@ -1882,7 +1887,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.115  2007-05-07 08:00:18  ncq
+# Revision 1.116  2007-05-07 12:29:02  ncq
+# - improve logic when looking for config file for workplace detection
+#
+# Revision 1.115  2007/05/07 08:00:18  ncq
 # - call get_emr() early enough
 #
 # Revision 1.114  2007/04/19 13:09:03  ncq
