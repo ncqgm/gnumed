@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v5-v6/dynamic/gm-schema.sql,v $
--- $Id: gm-schema.sql,v 1.1 2007-05-07 16:25:45 ncq Exp $
+-- $Id: gm-schema.sql,v 1.2 2007-05-07 16:45:54 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -133,7 +133,7 @@ begin
 		_filename,
 		_version
 	);
-	select into _hash md5(gm_concat_table_structure());
+	select into _hash md5(gm.concat_table_structure());
 	return _hash;
 end;' language 'plpgsql';
 
@@ -144,11 +144,14 @@ drop function public.log_script_insertion(text, text) cascade;
 drop table public.gm_database_revision cascade;
 
 -- =============================================
-select gm.log_script_insertion('$RCSfile: gm-schema.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: gm-schema.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gm-schema.sql,v $
--- Revision 1.1  2007-05-07 16:25:45  ncq
+-- Revision 1.2  2007-05-07 16:45:54  ncq
+-- - fix missing schema qual
+--
+-- Revision 1.1  2007/05/07 16:25:45  ncq
 -- - start putting a bunch of database maintenance related stuff into
 --   its own schema so we come clean of using "public" which will
 --   enable us to drop "public" from the identity hash function which
