@@ -59,7 +59,6 @@ fi ;
 
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
-	echo "found GM_DB_PORT"
 	export PGPORT="${GM_DB_PORT}"
 fi ;
 
