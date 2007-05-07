@@ -14,7 +14,7 @@
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.3 2007-05-01 19:40:08 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.4 2007-05-07 08:00:52 ncq Exp $
 
 #------------------------------------------------------------
 # those need to be changed in most if not all cases
@@ -26,7 +26,7 @@
 INSTANCE_OWNER="GNUmed_Team"
 
 # where to eventually store the backup
-BACKUP_DIR=""
+BACKUP_DIR="${HOME}"
 
 # which database to backup
 GM_DATABASE="gnumed_v6"
@@ -64,7 +64,10 @@ GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.3  2007-05-01 19:40:08  ncq
+# Revision 1.4  2007-05-07 08:00:52  ncq
+# - default backup location $HOME rather than /
+#
+# Revision 1.3  2007/05/01 19:40:08  ncq
 # - add URL
 #
 # Revision 1.2  2007/05/01 16:45:24  ncq
