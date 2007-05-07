@@ -34,37 +34,40 @@ echo "country in any way."
 echo "==========================================================="
 echo "1) Dropping old baseline gnumed_v2 database if there is any."
 sudo -u postgres dropdb -i gnumed_v2
-rm -rf ${LOG}
+
 
 echo "=========================="
 echo "2) bootstrapping databases"
 
 LOG="bootstrap-latest-v2.log"
+rm -rf ${LOG}
 CONF="redo-v2.conf"
 export GM_CORE_DB="gnumed_v2"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 unset GM_CORE_DB
 
 LOG="bootstrap-latest-v3.log"
+rm -rf ${LOG}
 CONF="update_db-v2_v3.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 echo "Dropping obsoleted staging database gnumed_v2 ..."
 sudo -u postgres dropdb gnumed_v2
 
 LOG="bootstrap-latest-v4.log"
+rm -rf ${LOG}
 CONF="update_db-v3_v4.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 echo "Dropping obsoleted staging database gnumed_v3 ..."
 sudo -u postgres dropdb gnumed_v3
 
 LOG="bootstrap-latest-v5.log"
+rm -rf ${LOG}
 CONF="update_db-v4_v5.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 echo "Dropping obsoleted staging database gnumed_v4 ..."
 sudo -u postgres dropdb gnumed_v4
 
 LOG="bootstrap-latest-v6.log"
+rm -rf ${LOG}
 CONF="update_db-v5_v6.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-echo "Dropping obsoleted staging database gnumed_v5 ..."
-sudo -u postgres dropdb gnumed_v5
