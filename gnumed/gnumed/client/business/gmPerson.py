@@ -6,13 +6,13 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.114 2007-04-19 13:09:03 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmPerson.py,v 1.115 2007-05-07 08:00:18 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re, string, types, datetime as pyDT, codecs
+import sys, os.path, time, re, string, types, datetime as pyDT, codecs, threading
 
 
 # GNUmed
@@ -684,6 +684,7 @@ class cPatient(cIdentity):
 			return self.__db_cache['clinical record']
 		except KeyError:
 			pass
+
 		self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
@@ -692,6 +693,7 @@ class cPatient(cIdentity):
 			return self.__db_cache['document folder']
 		except KeyError:
 			pass
+
 		self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['document folder']
 #============================================================
@@ -759,6 +761,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		self.__send_pre_selection_notification()
 		self.patient.cleanup()
 		self.patient = patient
+		self.patient.get_emr()
 		self.__send_selection_notification()
 
 		return None
@@ -1879,7 +1882,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.114  2007-04-19 13:09:03  ncq
+# Revision 1.115  2007-05-07 08:00:18  ncq
+# - call get_emr() early enough
+#
+# Revision 1.114  2007/04/19 13:09:03  ncq
 # - read workplace from proper config file
 #
 # Revision 1.113  2007/04/06 23:14:24  ncq
