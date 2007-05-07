@@ -185,7 +185,7 @@
                         <object class="wxButton" name="_btn_close" base="EditButton">
                             <default>1</default>
                             <label>Close</label>
-                            <tooltip>Dismiss this dialog.</tooltip>
+                            <tooltip>Close this dialog.</tooltip>
                             <id>wx.ID_CANCEL</id>
                         </object>
                     </object>

@@ -49,7 +49,7 @@ class wxgEditStaffListDlg(wx.Dialog):
         self._btn_deactivate.Enable(False)
         self._btn_delete.SetToolTipString(_("Entirely remove the staff entry (including the database account). This will only be possible if no patient data was aved under this account. If any data exists the entry will be deactivated only. You will need to know the password for the GNUmed database administrator <gm-dbo>."))
         self._btn_delete.Enable(False)
-        self._btn_close.SetToolTipString(_("Dismiss this dialog."))
+        self._btn_close.SetToolTipString(_("Close this dialog."))
         self._btn_close.SetDefault()
         # end wxGlade
 

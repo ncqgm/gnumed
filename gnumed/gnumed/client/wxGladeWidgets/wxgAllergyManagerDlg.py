@@ -20,7 +20,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
         self._BTN_undisclosed = wx.Button(self, -1, _("Undisclosed"), style=wx.BU_EXACTFIT)
         self._BTN_unknown = wx.Button(self, -1, _("Unknown"), style=wx.BU_EXACTFIT)
         self._BTN_none = wx.Button(self, -1, _("None"), style=wx.BU_EXACTFIT)
-        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Dismiss"), style=wx.BU_EXACTFIT)
+        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Close"), style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -49,7 +49,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
         self._BTN_unknown.Enable(False)
         self._BTN_none.SetToolTipString(_("None: It is believed the patient does not currently suffer from any allergies."))
         self._BTN_none.Enable(False)
-        self._BTN_dismiss.SetToolTipString(_("Dismiss the dialag. Will discard unsaved data."))
+        self._BTN_dismiss.SetToolTipString(_("Close the dialag. Will discard unsaved data."))
         self._BTN_dismiss.SetDefault()
         # end wxGlade
 

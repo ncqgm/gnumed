@@ -152,8 +152,8 @@
                         <object class="wxButton" name="_BTN_dismiss" base="EditButton">
                             <style>wxBU_EXACTFIT</style>
                             <default>1</default>
-                            <label>Dismiss</label>
-                            <tooltip>Dismiss the dialag. Will discard unsaved data.</tooltip>
+                            <label>Close</label>
+                            <tooltip>Close the dialag. Will discard unsaved data.</tooltip>
                             <id>wx.ID_CANCEL</id>
                         </object>
                     </object>

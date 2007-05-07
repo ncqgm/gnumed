@@ -18,7 +18,7 @@ class wxgEditDocumentTypesPnl(wx.ScrolledWindow):
         self._BTN_set_translation = wx.Button(self, -1, _("Set translation"))
         self._BTN_add = wx.Button(self, -1, _("Add"))
         self._BTN_delete = wx.Button(self, -1, _("Delete"))
-        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Dismiss"))
+        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Close"))
 
         self.__set_properties()
         self.__do_layout()

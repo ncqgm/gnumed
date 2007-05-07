@@ -15,7 +15,7 @@ class wxgIssueSelectionDlg(wx.Dialog):
         self._lbl_message = wx.StaticText(self, -1, _("Please select a health issue:"))
         self._PhWheel_issue = gmEMRStructWidgets.cIssueSelectionPhraseWheel(self, -1)
         self._BTN_OK = wx.Button(self, wx.ID_OK, _("OK"))
-        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Dismiss"))
+        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Close"))
 
         self.__set_properties()
         self.__do_layout()

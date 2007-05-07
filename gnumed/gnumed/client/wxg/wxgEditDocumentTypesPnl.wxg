@@ -128,7 +128,7 @@
                         <option>0</option>
                         <object class="wxButton" name="_BTN_dismiss" base="EditButton">
                             <default>1</default>
-                            <label>Dismiss</label>
+                            <label>Close</label>
                             <id>wx.ID_CANCEL</id>
                         </object>
                     </object>
