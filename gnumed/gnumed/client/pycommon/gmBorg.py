@@ -1,13 +1,13 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.1 2004-02-25 09:30:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmBorg.py,v 1.2 2007-05-07 12:30:05 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 #===================================================
-class cBorg:
+class cBorg(object):
 	"""A generic Borg mixin.
 
 	- mixin this class with your class' ancestors to borg it
@@ -23,7 +23,10 @@ class cBorg:
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2007-05-07 12:30:05  ncq
+# - make cBorg an object child so properties work on it
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.3  2003/12/29 16:21:51  uid66147
