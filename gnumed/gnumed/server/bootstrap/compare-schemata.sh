@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/compare-schemata.sh,v $
-# $Id: compare-schemata.sh,v 1.3 2007-04-27 13:31:11 ncq Exp $
+# $Id: compare-schemata.sh,v 1.4 2007-05-07 16:31:09 ncq Exp $
 # ============================================
 
 DB1="gnumed_v6"
@@ -15,14 +15,14 @@ touch $LOG
 echo "Comparing database schemata" >> $LOG
 echo "---------------------------" >> $LOG
 echo $DB1 >> $LOG
-psql -d $DB1 -U gm-dbo -A -c "select md5(gm_concat_table_structure());" >> $LOG
+psql -d $DB1 -U gm-dbo -A -c "select md5(gm.concat_table_structure());" >> $LOG
 echo $DB2 >> $LOG
-psql -d $DB2 -U gm-dbo -A -c "select md5(gm_concat_table_structure());" >> $LOG
+psql -d $DB2 -U gm-dbo -A -c "select md5(gm.concat_table_structure());" >> $LOG
 echo "-----------------------------" >> $LOG
 echo "diff -Bub $DB1 $DB2" >> $LOG
 echo "-----------------------------" >> $LOG
-psql -d $DB1 -U gm-dbo -c "select gm_concat_table_structure();" > new.txt
-psql -d $DB2 -U gm-dbo -c "select gm_concat_table_structure();" > cp.txt
+psql -d $DB1 -U gm-dbo -c "select gm.concat_table_structure();" > new.txt
+psql -d $DB2 -U gm-dbo -c "select gm.concat_table_structure();" > cp.txt
 diff -Bub new.txt cp.txt >> $LOG
 rm -vf new.txt
 rm -vf cp.txt
@@ -31,7 +31,10 @@ less $LOG
 
 # ============================================
 # $Log: compare-schemata.sh,v $
-# Revision 1.3  2007-04-27 13:31:11  ncq
+# Revision 1.4  2007-05-07 16:31:09  ncq
+# - use new database maint functions in gm.
+#
+# Revision 1.3  2007/04/27 13:31:11  ncq
 # - bump version
 #
 # Revision 1.2  2005/11/29 22:40:25  ncq
