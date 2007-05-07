@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.68 2007-04-11 20:47:13 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmPlugin.py,v 1.69 2007-05-07 12:35:20 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -31,16 +31,8 @@ class cLoadProgressBar (wx.ProgressDialog):
 			style = wx.PD_ELAPSED_TIME
 			)
 		# set window icon
-		std_paths = wx.StandardPaths.Get()
-		candidates = [
-			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..')),
-			std_paths.GetDataDir()
-		]
-		for candidate in candidates:
-			png_fname = os.path.join(candidate, 'bitmaps', 'serpent.png')
-			if os.access(png_fname, os.R_OK):
-				break
-
+		paths = gmTools.cPaths(app_name = u'gnumed', wx = wx)
+		png_fname = os.path.join(paths.system_app_data_dir, 'bitmaps', 'serpent.png')
 		icon = wx.EmptyIcon()
 		try:
 			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
@@ -435,7 +427,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.68  2007-04-11 20:47:13  ncq
+# Revision 1.69  2007-05-07 12:35:20  ncq
+# - improve use of gmTools.cPaths()
+#
+# Revision 1.68  2007/04/11 20:47:13  ncq
 # - no more 'resource dir' and 'gnumed_dir'
 #
 # Revision 1.67  2007/03/02 15:40:58  ncq

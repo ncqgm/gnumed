@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.326 2007-05-07 08:04:13 ncq Exp $
-__version__ = "$Revision: 1.326 $"
+# $Id: gmGuiMain.py,v 1.327 2007-05-07 12:35:20 ncq Exp $
+__version__ = "$Revision: 1.327 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1084,7 +1084,7 @@ class gmApp(wx.App):
 		else:
 			candidates = [
 				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.local_config_dir, 'gnumed.conf')
+				os.path.join(paths.local_base_dir, 'gnumed.conf')
 			]
 		for candidate in candidates:
 			try:
@@ -1346,7 +1346,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.326  2007-05-07 08:04:13  ncq
+# Revision 1.327  2007-05-07 12:35:20  ncq
+# - improve use of gmTools.cPaths()
+#
+# Revision 1.326  2007/05/07 08:04:13  ncq
 # - rename menu admin to office
 #
 # Revision 1.325  2007/04/27 13:29:08  ncq

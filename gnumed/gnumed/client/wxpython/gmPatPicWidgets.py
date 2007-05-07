@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.22 2007-04-23 01:10:58 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPatPicWidgets.py,v 1.23 2007-05-07 12:35:20 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -41,15 +41,8 @@ class cPatientPicture(wx.StaticBitmap):
 	def __init__(self, parent, id, width=50, height=54):
 
 		# find assets
-		std_paths = wx.StandardPaths.Get()
-		candidates = [
-			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..')),
-			std_paths.GetDataDir()
-		]
-		for candidate in candidates:
-			self.__fallback_pic_name = os.path.join(candidate, 'bitmaps', 'empty-face-in-bust.png')
-			if os.access(self.__fallback_pic_name, os.R_OK):
-				break
+		paths = gmTools.cPaths(app_name  = 'gnumed', wx = wx)
+		self.__fallback_pic_name = os.path.join(paths.system_app_data_dir, 'bitmaps', 'empty-face-in-bust.png')
 
 		# load initial dummy bitmap
 		img_data = wx.Image(self.__fallback_pic_name, wx.BITMAP_TYPE_ANY)
@@ -198,7 +191,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.22  2007-04-23 01:10:58  ncq
+# Revision 1.23  2007-05-07 12:35:20  ncq
+# - improve use of gmTools.cPaths()
+#
+# Revision 1.22  2007/04/23 01:10:58  ncq
 # - add menu item to refresh from database
 #
 # Revision 1.21  2007/04/11 14:52:47  ncq

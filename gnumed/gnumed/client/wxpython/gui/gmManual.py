@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.38 2007-04-11 20:47:34 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmManual.py,v 1.39 2007-05-07 12:35:20 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path
@@ -54,11 +54,11 @@ class ManualHtmlPanel(wx.Panel):
 		self.frame = frame
 
 		# get base directory for manuals from broker
-		std_paths = wx.StandardPaths.Get()
+		paths = gmTools.cPaths(app_name = 'gnumed', wx = wx)
 		candidates = [
-			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..', 'doc', 'user-manual')),
+			os.path.join(paths.local_base_dir, 'doc', 'user-manual'),
 			'/usr/share/doc/gnumed/user-manual/',
-			os.path.join(std_paths.GetDataDir(), 'doc', 'user-manual')
+			os.path.join(paths.system_app_data_dir, 'doc', 'user-manual')
 		]
 		for self.docdir in candidates:
 			if os.access(self.docdir, os.R_OK):
@@ -244,7 +244,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.38  2007-04-11 20:47:34  ncq
+# Revision 1.39  2007-05-07 12:35:20  ncq
+# - improve use of gmTools.cPaths()
+#
+# Revision 1.38  2007/04/11 20:47:34  ncq
 # - nore more 'resource dir'
 #
 # Revision 1.37  2007/02/19 17:21:18  ncq
