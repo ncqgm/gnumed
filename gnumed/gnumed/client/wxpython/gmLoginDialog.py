@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.79 2007-04-11 20:45:01 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmLoginDialog.py,v 1.80 2007-05-07 12:33:31 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -48,15 +48,14 @@ class LoginPanel(wx.Panel):
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
-		std_paths = wx.StandardPaths.Get()
-
 		self.user_preferences_file = None
+		paths = gmTools.cPaths(app_name = 'gnumed', wx=wx)
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
 			fnames = [
-				os.path.join(std_paths.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
-				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+				os.path.join(paths.user_config_dir, 'gnumed.conf'),
+				os.path.join(paths.working_dir, 'gnumed.conf')
 			]
 		for fname in fnames:
 			try:
@@ -78,15 +77,7 @@ class LoginPanel(wx.Panel):
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
 		# find bitmap
-		candidates = [
-			os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), '..')),
-			std_paths.GetDataDir()
-		]
-		for candidate in candidates:
-			bitmap = os.path.join(candidate, 'bitmaps', 'gnumedlogo.png')
-			if os.access(bitmap, os.R_OK):
-				break
-
+		bitmap = os.path.join(paths.system_app_data_dir, 'bitmaps', 'gnumedlogo.png')
 		try:
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
 			bmp = wx.StaticBitmap(self, -1, png, wx.Point(10, 10), wx.Size(png.GetWidth(), png.GetHeight()))
@@ -110,7 +101,7 @@ class LoginPanel(wx.Panel):
 			weight = wx.BOLD,
 			underline = False
 		))
-		self.pboxgrid = wx.FlexGridSizer( 4, 2, 5, 5 )
+		self.pboxgrid = wx.FlexGridSizer(5, 2, 5, 5)
 		self.pboxgrid.AddGrowableCol(1)
 
 		# PROFILE COMBO
@@ -152,9 +143,16 @@ class LoginPanel(wx.Panel):
 		self.pwdentry = wx.TextCtrl( self, 1, '', wx.DefaultPosition, wx.Size(80,-1), wx.TE_PASSWORD )
 		# set focus on password entry
 		self.pwdentry.SetFocus()
-		self.pboxgrid.Add( self.pwdentry, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-		
-		
+		self.pboxgrid.Add( self.pwdentry, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+		# --debug checkbox
+		label = wx.StaticText(self, -1, _('Options'), wx.DefaultPosition, wx.DefaultSize, 0)
+		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+		self._CHBOX_debug = wx.CheckBox(self, -1, _('debug mode'))
+		self._CHBOX_debug.SetToolTipString(_('Check this to run GNUmed client in debugging mode.'))
+		self.pboxgrid.Add(self._CHBOX_debug, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
 		#----------------------------------------------------------------------
 		#new button code inserted rterry 06Sept02
 		#button order re-arraged to make it consistant with usual dialog format
@@ -221,10 +219,10 @@ class LoginPanel(wx.Panel):
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
-			std_pathes = wx.StandardPaths.Get()
+			paths = gmTools.cPaths(app_name = 'gnumed', wx = wx)
 			fnames = [
-				os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
-				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+				os.path.join(paths.user_config_dir, 'gnumed.conf'),
+				os.path.join(paths.working_dir, 'gnumed.conf')
 			]
 
 		for fname in fnames:
@@ -264,11 +262,11 @@ class LoginPanel(wx.Panel):
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
-			std_pathes = wx.StandardPaths.Get()
+			paths = gmTools.cPaths()
 			fnames = [
-				os.path.join(std_pathes.GetConfigDir(), 'gnumed', 'gnumed-client.conf'),
-				os.path.join(std_pathes.GetUserConfigDir(), '.gnumed', 'gnumed.conf'),
-				os.path.join(os.path.abspath(os.curdir), 'gnumed.conf')
+				os.path.join(paths.system_config_dir, 'gnumed-client.conf'),
+				os.path.join(paths.user_config_dir, 'gnumed.conf'),
+				os.path.join(paths.working_dir, 'gnumed.conf')
 			]
 
 		for fname in fnames:
@@ -341,6 +339,8 @@ class LoginPanel(wx.Panel):
 				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
 			)
 		)
+
+		self._CHBOX_debug.SetValue(gmCLI.has_arg('--debug'))
 	#----------------------------------------------------
 	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
@@ -401,6 +401,15 @@ For assistance on using GnuMed please contact:
 
 	#----------------------------
 	def __on_login_button_pressed(self, event):
+
+		if self._CHBOX_debug.GetValue():
+			_log.SetAllLogLevels(gmLog.lData)
+		else:
+			if gmCLI.has_arg ("--quiet"):
+				_log.SetAllLogLevels(gmLog.lErr)
+			else:
+				_log.SetAllLogLevels(gmLog.lInfo)
+
 		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
 #		self.user = self._CBOX_user.GetValue().strip()
 #		self.password = self.GetPassword()
@@ -457,7 +466,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.79  2007-04-11 20:45:01  ncq
+# Revision 1.80  2007-05-07 12:33:31  ncq
+# - use gmTools.cPaths
+# - support debug mode checkbox
+#
+# Revision 1.79  2007/04/11 20:45:01  ncq
 # - no more 'resource dir'
 #
 # Revision 1.78  2007/04/02 15:15:19  ncq
