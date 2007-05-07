@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.74 2007-04-19 13:13:47 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmPatSearchWidgets.py,v 1.75 2007-05-07 08:04:36 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -617,8 +617,6 @@ class cPatientSelector(wx.TextCtrl):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 
-#		ident = gmPerson.cIdentity(aPK_obj=pat['pk_identity'])
-#		self.__remember_ident(ident)
 		self.__remember_ident(pat)
 
 		dbcfg = gmCfg.cCfgSQL()
@@ -652,7 +650,7 @@ class cPatientSelector(wx.TextCtrl):
 		if self.curr_pat.is_connected():
 			self.SetValue(self.curr_pat['description'])
 		else:
-			self.SetValue('')
+			self.SetValue(u'')
 	#--------------------------------------------------------
 	def __remember_ident(self, ident=None):
 
@@ -978,7 +976,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.74  2007-04-19 13:13:47  ncq
+# Revision 1.75  2007-05-07 08:04:36  ncq
+# - a bit of cleanup
+#
+# Revision 1.74  2007/04/19 13:13:47  ncq
 # - cleanup
 #
 # Revision 1.73  2007/04/11 14:53:33  ncq
