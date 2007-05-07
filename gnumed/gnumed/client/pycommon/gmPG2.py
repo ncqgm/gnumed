@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -95,15 +95,16 @@ known_schema_hashes = {
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
 	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
 	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': '7e7b093af57aea48c288e76632a382e5',
-	'v6': 'v6 not released'
+	'v5': '7e7b093af57aea48c288e76632a382e5',	# old (v1)
+	'v6': '90e2026ac2efd236da9c8608b8685b2d'	# new (v2)
 }
 
 map_schema_hash2version = {
 	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
 	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
 	'4428ccf2e54c289136819e701bb095ea': 'v4',
-	'7e7b093af57aea48c288e76632a382e5': 'v5'
+	'7e7b093af57aea48c288e76632a382e5': 'v5',
+	'90e2026ac2efd236da9c8608b8685b2d': 'v6'
 }
 
 # get columns and data types for a given table
@@ -1024,7 +1025,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.45  2007-05-07 16:28:34  ncq
+# Revision 1.46  2007-05-07 16:45:12  ncq
+# - add v6 schema hash
+#
+# Revision 1.45  2007/05/07 16:28:34  ncq
 # - use database maintenance functions in schema "gm"
 #
 # Revision 1.44  2007/04/27 13:19:58  ncq
