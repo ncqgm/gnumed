@@ -35,8 +35,10 @@ with the same database at the same time.
 Be extra quiet and show only _real_ errors in the log.
 .TP
 .B \--debug
-Be extra verbose and report nearly everything that's going
-on. Useful for, well, debugging :-)  Slow, too.
+Pre-set the [debug mode] checkbox in the login dialog
+which controls increased verbosity in the log file.
+
+Useful for, well, debugging :-)  Slower, too.
 .TP
 .B \--text-domain=TEXTDOMAIN
 Set this to change the name of the language file to be loaded.
@@ -77,8 +79,11 @@ variables work.
 .SH FILES
 .PP
 .TP
+.B ~/etc/gnumed/gnumed-client.conf
+The system-wide configuration file.
+.TP
 .B ~/.gnumed/gnumed.conf
-The default configuration file.
+The user-specific configuration file.
 .TP
 .B ~/.gnumed/gnumed.log
 The default log file.
@@ -114,4 +119,4 @@ Use at your own risk. You have been warned. Take proper backups !
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.16 2007-04-11 20:39:40 ncq Exp $
+$Id: gnumed.1,v 1.17 2007-05-07 12:29:18 ncq Exp $
