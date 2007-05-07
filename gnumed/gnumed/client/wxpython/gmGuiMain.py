@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf8 -*-
 """GNUmed GUI client.
 
 This contains the GUI application framework and main window
@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.325 2007-04-27 13:29:08 ncq Exp $
-__version__ = "$Revision: 1.325 $"
+# $Id: gmGuiMain.py,v 1.326 2007-05-07 08:04:13 ncq Exp $
+__version__ = "$Revision: 1.326 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -130,7 +130,7 @@ def jump_to_ifap(import_drugs=False):
 			import csv
 			csv_lines = csv.DictReader (
 				csv_file,
-				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl Packungsgröße'.split(),
+				fieldnames = u'PZN Handelsname Form Abpackungsmenge Einheit Preis1 Hersteller Preis2 rezeptpflichtig Festbetrag Packungszahl PackungsgrÃ¶ÃŸe'.split(),
 				delimiter = ';'
 			)
 			pat = gmPerson.gmCurrentPatient()
@@ -142,7 +142,7 @@ def jump_to_ifap(import_drugs=False):
 					line['Packungszahl'].strip(),
 					line['Handelsname'].strip(),
 					line['Form'].strip(),
-					line[u'Packungsgröße'].strip(),
+					line[u'PackungsgrÃ¶ÃŸe'].strip(),
 					line['Abpackungsmenge'].strip(),
 					line['Einheit'].strip(),
 					line['Hersteller'].strip(),
@@ -278,27 +278,27 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
-		# -- menu "Administration" --------------------
-		menu_admin = wx.Menu()
+		# -- menu "Office" --------------------
+		menu_office = wx.Menu()
 
 		# FIXME: regroup into sub-menus
 
 		ID_ADD_NEW_STAFF = wx.NewId()
-		menu_admin.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
+		menu_office.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
 		ID_DEL_STAFF = wx.NewId()
-		menu_admin.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
+		menu_office.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
 		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_edit_staff_list)
 
 		# - draw a line
-		menu_admin.AppendSeparator()
+		menu_office.AppendSeparator()
 
 		ID_EDIT_DOC_TYPES = wx.NewId()
-		menu_admin.Append(ID_EDIT_DOC_TYPES, _('Edit document types'), _('Edit the list of document types available in the system.'))
+		menu_office.Append(ID_EDIT_DOC_TYPES, _('Edit document types'), _('Edit the list of document types available in the system.'))
 		wx.EVT_MENU(self, ID_EDIT_DOC_TYPES, self.__on_edit_doc_types)
 
-		self.mainmenu.Append(menu_admin, _('&Administration'))
+		self.mainmenu.Append(menu_office, _('&Office'))
 
 		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
@@ -1346,7 +1346,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.325  2007-04-27 13:29:08  ncq
+# Revision 1.326  2007-05-07 08:04:13  ncq
+# - rename menu admin to office
+#
+# Revision 1.325  2007/04/27 13:29:08  ncq
 # - bump expected db version
 #
 # Revision 1.324  2007/04/25 22:01:25  ncq
