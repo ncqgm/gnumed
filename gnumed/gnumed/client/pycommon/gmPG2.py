@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -288,7 +288,18 @@ def set_default_login(login=None):
 # =======================================================================
 def database_schema_compatible(link_obj=None, version=None):
 	expected_hash = known_schema_hashes[version]
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+#	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	if version == 'devel':
+		args = {'ver': '9999'}
+	else:
+		args = {'ver': version.strip('v')}
+	rows, idx = run_ro_queries (
+		link_obj = link_obj,
+		queries = [{
+			'cmd': u'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5',
+			'args': args
+		}]
+	)
 	if rows[0]['md5'] != expected_hash:
 		_log.Log(gmLog.lErr, 'database schema version mismatch')
 		_log.Log(gmLog.lErr, 'expected: %s (%s)' % (version, expected_hash))
@@ -298,14 +309,14 @@ def database_schema_compatible(link_obj=None, version=None):
 	return True
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
 	try:
 		return map_schema_hash2version[rows[0]['md5']]
 	except KeyError:
 		return u'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
 #------------------------------------------------------------------------
 def get_schema_structure(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm_concat_table_structure()'}])
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
 	return rows[0][0]
 #------------------------------------------------------------------------
 def get_current_user():
@@ -437,6 +448,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			conn_close()
 			_log.Log(gmLog.lErr, 'query failed: [%s]' % curs.query)
 			_log.Log(gmLog.lErr, 'PG status message: %s' % curs.statusmessage)
+			_log.flush()
 			raise
 
 	data = None
@@ -1012,7 +1024,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.44  2007-04-27 13:19:58  ncq
+# Revision 1.45  2007-05-07 16:28:34  ncq
+# - use database maintenance functions in schema "gm"
+#
+# Revision 1.44  2007/04/27 13:19:58  ncq
 # - get_schema_structure()
 #
 # Revision 1.43  2007/04/02 18:36:17  ncq
