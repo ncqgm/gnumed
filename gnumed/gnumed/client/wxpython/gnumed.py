@@ -11,8 +11,8 @@ care of all the pre- and post-GUI runtime environment setup.
 --quiet
  Be extra quiet and show only _real_ errors in the log.
 --debug
- Be extra verbose and report nearly everything that's going
- on. Useful for, well, debugging :-)
+ Pre-set the [debug mode] checkbox in the login dialog to
+ increase verbosity in the log file. Useful for, well, debugging :-)
 --profile=<file>
  Activate profiling and write profile data to <file>.
 --text-domain=<text domain>
@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.114 2007-04-19 13:14:50 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gnumed.py,v 1.115 2007-05-07 12:34:41 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -122,7 +122,7 @@ requirements please ask on the mailing list.
 
 	try:
 		from Gnumed.pycommon import gmLog as _gmLog
-		from Gnumed.pycommon import gmCLI as _gmCLI
+#		from Gnumed.pycommon import gmCLI as _gmCLI
 	except ImportError:
 		sys.exit(import_error_sermon)
 
@@ -130,17 +130,11 @@ requirements please ask on the mailing list.
 	gmLog = _gmLog
 	global _log
 	_log = gmLog.gmDefLog
-	global gmCLI
-	gmCLI = _gmCLI
+#	global gmCLI
+#	gmCLI = _gmCLI
 
-	# debug level logging ?
-	if gmCLI.has_arg("--debug"):
-		print "GNUmed startup: Activating verbose log level for debugging."
-		_log.SetAllLogLevels(gmLog.lData)
-	elif gmCLI.has_arg ("--quiet"):
-		_log.SetAllLogLevels(gmLog.lErr)
-	else:
-		_log.SetAllLogLevels(gmLog.lInfo)
+	# always start with debugging enabled
+	_log.SetAllLogLevels(gmLog.lData)
 
 	# Console Is Good(tm) ...
 	# ... but only for Panics and important messages
@@ -150,8 +144,6 @@ requirements please ask on the mailing list.
 	return 1
 #==========================================================
 def setup_locale():
-	from Gnumed.pycommon import gmI18N
-
 	gmI18N.activate_locale()
 
 	td = None
@@ -166,8 +158,8 @@ def setup_locale():
 
 	return True
 #==========================================================
-def setup_pathes():
-	"""Create needed pathes in user home directory."""
+def setup_paths():
+	"""Create needed paths in user home directory."""
 
 	from Gnumed.pycommon import gmTools
 
@@ -274,6 +266,9 @@ def check_help_request():
 sys.excepthook = handle_uncaught_exception
 
 setup_logging()
+
+from Gnumed.pycommon import gmCLI, gmI18N
+
 setup_locale()
 check_help_request()
 #setup_signal_handlers()
@@ -282,12 +277,12 @@ _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
 
-setup_pathes()
+setup_paths()
 setup_date_time()
 setup_cfg_files()
 
 # import more of our stuff
-from Gnumed.pycommon import gmI18N, gmGuiBroker, gmHooks
+from Gnumed.pycommon import gmGuiBroker, gmHooks
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
@@ -310,7 +305,12 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.114  2007-04-19 13:14:50  ncq
+# Revision 1.115  2007-05-07 12:34:41  ncq
+# - better --debug docs
+# - cleanup
+# - always startup with --debug enabled
+#
+# Revision 1.114  2007/04/19 13:14:50  ncq
 # - init paths
 #
 # Revision 1.113  2007/04/11 20:47:13  ncq
