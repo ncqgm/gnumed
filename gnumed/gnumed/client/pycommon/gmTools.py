@@ -1,10 +1,10 @@
-# -*- coding: latin1 -*-
+# -*- coding: utf8 -*-
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.21 2007-04-21 19:38:27 ncq Exp $
+# $Id: gmTools.py,v 1.22 2007-05-07 12:31:06 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -51,20 +51,27 @@ class cPaths(gmBorg.cBorg):
 			pass
 
 		self.init_paths(app_name=app_name, wx=wx)
-		self.already_inited = True		
+		self.already_inited = True
 	#--------------------------------------
 	# public API
 	#--------------------------------------
 	def init_paths(self, app_name=None, wx=None):
+
 		if app_name is None:
 			app_name, ext = os.path.splitext(os.path.basename(sys.argv[0]))
 
+		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
+		self.working_dir = os.path.abspath(os.curdir)
+
 		self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
-		self.local_config_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
 		try:
 			self.system_config_dir = os.path.join('/etc', app_name)
 		except ValueError:
-			self.system_config_dir = self.local_config_dir
+			self.system_config_dir = self.local_base_dir
+		try:
+			self.system_app_data_dir = os.path.join(sys.prefix, 'share', app_name)
+		except ValueError:
+			self.system_app_data_dir = self.local_base_dir
 
 		if wx is None:
 			return True
@@ -72,8 +79,14 @@ class cPaths(gmBorg.cBorg):
 		std_paths = wx.StandardPaths.Get()
 
 		self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
-		self.system_config_dir = os.path.join(std_paths.GetConfigDir(), app_name)
-
+		try:
+			self.system_config_dir = os.path.join(std_paths.GetConfigDir(), app_name)
+		except ValueError:
+			pass
+		try:
+			self.system_app_data_dir = std_paths.GetDataDir()
+		except ValueError:
+			pass
 	#--------------------------------------
 	# properties
 	#--------------------------------------
@@ -89,7 +102,7 @@ class cPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def _set_system_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
-			raise ValueError('[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+			raise ValueError('[%s:system_config_dir]: invalid path [%s]' % (self.__class__.__name__, path))
 		self.__system_config_dir = path
 
 	def _get_system_config_dir(self):
@@ -97,7 +110,15 @@ class cPaths(gmBorg.cBorg):
 
 	system_config_dir = property(_get_system_config_dir, _set_system_config_dir)
 	#--------------------------------------
+	def _set_system_app_data_dir(self, path):
+		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
+			raise ValueError('[%s:system_app_data_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+		self.__system_app_data_dir = path
 
+	def _get_system_app_data_dir(self):
+		return self.__system_app_data_dir
+
+	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
 #===========================================================================
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False):
 	if message is None:
@@ -434,7 +455,7 @@ if __name__ == '__main__':
 			[u'boots-sChau', u'Boots-Schau', CAPS_WORDS],
 			[u'boot camp', u'Boot Camp', CAPS_WORDS],
 			[u'fahrner-Kampe', u'Fahrner-Kampe', CAPS_NAMES],
-			[u'häkkönen', u'Häkkönen', CAPS_NAMES]
+			[u'hÃ¤kkÃ¶nen', u'HÃ¤kkÃ¶nen', CAPS_NAMES]
 		]
 		for pair in pairs:
 			result = capitalize(pair[0], pair[2])
@@ -477,10 +498,14 @@ This is a test mail from the gmTools.py module.
 		)
 	#-----------------------------------------------------------------------
 	def test_cPaths():
+		print "testing cPaths()"
+		print "----------------"
 		paths = cPaths(wx=None, app_name='gnumed')
-		print "user   config dir:", paths.user_config_dir
-		print "system config dir:", paths.system_config_dir
-		print "local  config dir:", paths.local_config_dir
+		print "user     config dir:", paths.user_config_dir
+		print "system   config dir:", paths.system_config_dir
+		print "local      base dir:", paths.local_base_dir
+		print "system app data dir:", paths.system_app_data_dir
+		print "working directory  :", paths.working_dir
 	#-----------------------------------------------------------------------
 	def test_none_if():
 		print "testing none_if()"
@@ -512,12 +537,16 @@ This is a test mail from the gmTools.py module.
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
-	#test_cPaths()
-	test_none_if()
+	test_cPaths()
+	#test_none_if()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.21  2007-04-21 19:38:27  ncq
+# Revision 1.22  2007-05-07 12:31:06  ncq
+# - improved path handling and testing
+# - switch file to utf8
+#
+# Revision 1.21  2007/04/21 19:38:27  ncq
 # - add none_if() and test suite
 #
 # Revision 1.20  2007/04/19 13:09:52  ncq
