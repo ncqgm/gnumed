@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.4 2007-05-01 19:41:38 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.5 2007-05-07 08:06:16 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -28,10 +28,11 @@
 #==============================================================
 
 # load config file
-if [ -r /etc/gnumed/gnumed-backup.conf ] ; then
-	. /etc/gnumed/gnumed-backup.conf
+CONF="/etc/gnumed/gnumed-backup.conf"
+if [ -r ${CONF} ] ; then
+	. ${CONF}
 else
-	echo "Cannot read configuration file /etc/gnumed/gnumed-backup.conf. Aborting."
+	echo "Cannot read configuration file ${CONF}. Aborting."
 	exit 1
 fi
 
@@ -43,27 +44,32 @@ fi
 TS=`date +%Y-%m-%d-%H-%M-%S`
 HOST=`hostname`
 BACKUP_BASE="${BACKUP_DIR}/backup-${GM_DATABASE}-${INSTANCE_OWNER}-${HOST}"
-BACKUP_FILE="${BACKUP_BASE}-${TS}.sql"
+BACKUP_FILE="${BACKUP_BASE}-${TS}"
 
-# create dump
-pg_dump -U ${GM_DBO} -d ${GM_DATABASE} -p ${GM_PORT} -f ${BACKUP_FILE}
-# compress it
-bzip2 -zq9 ${BACKUP_FILE}
+# create dumps
+pg_dump -U ${GM_DBO} -d ${GM_DATABASE} -p ${GM_PORT} -f ${BACKUP_FILE}-database.sql
+sudo -u postgres pg_dumpall -p ${GM_PORT} > ${BACKUP_FILE}-roles.sql
+
+# compress them
+tar -c ${BACKUP_FILE}-database.sql ${BACKUP_FILE}-roles.sql | bzip2 -zq9 > ${BACKUP_FILE}.bz2
 # test it
 bzip2 -tq ${BACKUP_FILE}.bz2
+# clean up
+rm -f ${BACKUP_FILE}-database.sql
+rm -f ${BACKUP_FILE}-roles.sql
 
 # give to admin owner
-chmod $BACKUP_MASK $BACKUP_FILE.bz2
-chown $BACKUP_OWNER $BACKUP_FILE.bz2
+chmod $BACKUP_MASK ${BACKUP_FILE}.bz2
+chown $BACKUP_OWNER ${BACKUP_FILE}.bz2
 
 if test ! -z ${GNOTARY_TAN} ; then
 
 	# GNotary support
 	LOCAL_MAILER=`which mail`
 
-	#SHA512="SHA 512:"`sha512sum -b $BACKUP_FILE`
-	SHA512=`openssl dgst -sha512 -hex ${BACKUP_FILE}`
-	RMD160=`openssl dgst -ripemd160 -hex ${BACKUP_FILE}`
+	#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILE}.bz2`
+	SHA512=`openssl dgst -sha512 -hex ${BACKUP_FILE}.bz2`
+	RMD160=`openssl dgst -ripemd160 -hex ${BACKUP_FILE}.bz2`
 
 	export REPLYTO=$SIG_RECEIVER
 
@@ -76,8 +82,8 @@ if test ! -z ${GNOTARY_TAN} ; then
 		echo "	<tan>$GNOTARY_TAN</tan>"
 		echo "	<action>notarize</action>"
 		echo "	<hashes number=\"2\">"
-		echo "		<hash file=\"$BACKUP_FILE\" modified=\"$TS\" algorithm=\"SHA-512\">$SHA512</hash>"
-		echo "		<hash file=\"$BACKUP_FILE\" modified=\"$TS\" algorithm=\"RIPE-MD-160\">$RMD160</hash>"
+		echo "		<hash file=\"${BACKUP_FILE}.bz2\" modified=\"$TS\" algorithm=\"SHA-512\">$SHA512</hash>"
+		echo "		<hash file=\"${BACKUP_FILE}.bz2\" modified=\"$TS\" algorithm=\"RIPE-MD-160\">$RMD160</hash>"
 		echo "	</hashes>"
 		echo "</message>"
 		echo " "
@@ -86,16 +92,23 @@ if test ! -z ${GNOTARY_TAN} ; then
 fi
 
 # zip up any leftover backups
-for OLD_BACKUP in $BACKUP_BASE-*.sql ; do
-	bzip2 -zq9 ${OLD_BACKUP}
-	bzip2 -tq ${OLD_BACKUP}
+for OLD_BACKUP in ${BACKUP_BASE}-*.sql ; do
+	# but only if there isn't already a corresponding *.bz2
+	if test ! -f ${OLD_BACKUP}.bz2 ; then
+		bzip2 -zq9 ${OLD_BACKUP}
+		bzip2 -tq ${OLD_BACKUP}
+	fi
 done
 
 exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.4  2007-05-01 19:41:38  ncq
+# Revision 1.5  2007-05-07 08:06:16  ncq
+# - include roles in dump
+# - make zipping up old backups safer
+#
+# Revision 1.4  2007/05/01 19:41:38  ncq
 # - better docs
 # - factor out config
 #
