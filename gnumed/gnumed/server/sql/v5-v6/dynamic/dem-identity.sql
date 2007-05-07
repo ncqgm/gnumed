@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: dem-identity.sql,v 1.2 2007-04-21 19:43:39 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: dem-identity.sql,v 1.3 2007-05-07 16:33:06 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -64,11 +64,14 @@ create trigger tr_null_empty_title
 
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-identity.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: dem-identity.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: dem-identity.sql,v $
--- Revision 1.2  2007-04-21 19:43:39  ncq
+-- Revision 1.3  2007-05-07 16:33:06  ncq
+-- - log_script_insertion() now in gm.
+--
+-- Revision 1.2  2007/04/21 19:43:39  ncq
 -- - properly check title for empty string
 --
 -- Revision 1.1  2007/04/20 08:18:03  ncq

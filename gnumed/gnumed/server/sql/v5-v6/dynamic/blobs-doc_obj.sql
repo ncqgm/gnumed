@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-doc_obj.sql,v 1.1 2007-04-21 19:36:55 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-doc_obj.sql,v 1.2 2007-05-07 16:33:06 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -62,11 +62,14 @@ alter table blobs.doc_obj
 	add check (trim(coalesce(filename, 'NULL')) <> '');
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-doc_obj.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: blobs-doc_obj.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: blobs-doc_obj.sql,v $
--- Revision 1.1  2007-04-21 19:36:55  ncq
+-- Revision 1.2  2007-05-07 16:33:06  ncq
+-- - log_script_insertion() now in gm.
+--
+-- Revision 1.1  2007/04/21 19:36:55  ncq
 -- - tighten constraints
 --
 --

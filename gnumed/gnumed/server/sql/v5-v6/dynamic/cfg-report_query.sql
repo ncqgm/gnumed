@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: cfg-report_query.sql,v 1.2 2007-04-21 19:42:43 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: cfg-report_query.sql,v 1.3 2007-05-07 16:33:06 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -87,11 +87,14 @@ order by clin_when'
 
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: cfg-report_query.sql,v $
--- Revision 1.2  2007-04-21 19:42:43  ncq
+-- Revision 1.3  2007-05-07 16:33:06  ncq
+-- - log_script_insertion() now in gm.
+--
+-- Revision 1.2  2007/04/21 19:42:43  ncq
 -- - add phone list and daily work list reports
 --
 -- Revision 1.1  2007/04/07 22:30:36  ncq

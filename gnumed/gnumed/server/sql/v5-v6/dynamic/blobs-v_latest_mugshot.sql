@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_latest_mugshot.sql,v 1.1 2007-04-20 08:20:51 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-v_latest_mugshot.sql,v 1.2 2007-05-07 16:33:06 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -61,11 +61,14 @@ comment on view blobs.v_latest_mugshot is
 grant select on blobs.v_latest_mugshot to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_latest_mugshot.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: blobs-v_latest_mugshot.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: blobs-v_latest_mugshot.sql,v $
--- Revision 1.1  2007-04-20 08:20:51  ncq
+-- Revision 1.2  2007-05-07 16:33:06  ncq
+-- - log_script_insertion() now in gm.
+--
+-- Revision 1.1  2007/04/20 08:20:51  ncq
 -- - to replace MAX() we have to add "limit 1" to "order by ... desc"
 --
 --

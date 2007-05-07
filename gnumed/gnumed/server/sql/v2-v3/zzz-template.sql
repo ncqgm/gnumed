@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: zzz-template.sql,v 1.6 2007-01-27 21:16:08 ncq Exp $
--- $Revision: 1.6 $
+-- $Id: zzz-template.sql,v 1.7 2007-05-07 16:32:09 ncq Exp $
+-- $Revision: 1.7 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -29,11 +29,14 @@ comment on forgot_to_edit_comment is
 grant select on forgot_to_edit_grants to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.6 $');
+select gm.log_script_insertion('$RCSfile: zzz-template.sql,v $', '$Revision: 1.7 $');
 
 -- ==============================================================
 -- $Log: zzz-template.sql,v $
--- Revision 1.6  2007-01-27 21:16:08  ncq
+-- Revision 1.7  2007-05-07 16:32:09  ncq
+-- - log_script_insertion() now in gm.
+--
+-- Revision 1.6  2007/01/27 21:16:08  ncq
 -- - the begin/commit does not fit into our change script model
 --
 -- Revision 1.5  2006/10/24 13:09:45  ncq
