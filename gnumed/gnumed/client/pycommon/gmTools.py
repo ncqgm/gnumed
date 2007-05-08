@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.22 2007-05-07 12:31:06 ncq Exp $
+# $Id: gmTools.py,v 1.23 2007-05-08 16:03:55 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -37,6 +37,18 @@ ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
+
+#===========================================================================
+def handle_uncaught_exception(t, v, tb):
+
+	print ",========================================================"
+	print "| Unhandled exception caught !"
+	print "| Type :", t
+	print "| Value:", v
+	print "`========================================================"
+	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
+	# FIXME: allow user to mail report to developers from here
+	sys.__excepthook__(t,v,tb)
 
 #===========================================================================
 class cPaths(gmBorg.cBorg):
@@ -542,7 +554,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.22  2007-05-07 12:31:06  ncq
+# Revision 1.23  2007-05-08 16:03:55  ncq
+# - add console exception display handler
+#
+# Revision 1.22  2007/05/07 12:31:06  ncq
 # - improved path handling and testing
 # - switch file to utf8
 #
