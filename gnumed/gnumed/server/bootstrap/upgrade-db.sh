@@ -75,7 +75,7 @@ echo ""
 echo "1) creating backup of existing database ..."
 echo "   Note that this may take a substantial amount of time and disk space!"
 echo "   You may need to type in the password for gm-dbo."
-pg_dump -d gnumed_v${PREV_VER} -U gm-dbo | bzip2 -z9 > ${BAK_FILE}
+pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}
 echo ""
 echo "2) upgrading to new database ..."
 rm -rf ${LOG}
