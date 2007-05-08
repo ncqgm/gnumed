@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.116 2007-05-08 11:16:51 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gnumed.py,v 1.117 2007-05-08 16:07:00 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -86,19 +86,7 @@ _old_sig_term = None
 #==========================================================
 # convenience functions
 #==========================================================
-def handle_uncaught_exception(t, v, tb):
-
-	print ",========================================================"
-	print "| Unhandled exception caught !"
-	print "| Type :", t
-	print "| Value:", v
-	print "`========================================================"
-	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
-	# FIXME: allow user to mail report to developers from here
-	sys.__excepthook__(t,v,tb)
-
-#==========================================================
-def setup_logging():
+def setup_console_exption_handler():
 	import_error_sermon = """
 CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
@@ -121,9 +109,14 @@ requirements please ask on the mailing list.
 """ % '\n '.join(sys.path)
 
 	try:
-		from Gnumed.pycommon import gmLog as _gmLog
+		from Gnumed.pycommon import gmTools
 	except ImportError:
 		sys.exit(import_error_sermon)
+
+	sys.excepthook = gmTools.handle_uncaught_exception
+#==========================================================
+def setup_logging():
+	from Gnumed.pycommon import gmLog as _gmLog
 
 	global gmLog
 	gmLog = _gmLog
@@ -133,7 +126,7 @@ requirements please ask on the mailing list.
 	# always start with debugging enabled
 	_log.SetAllLogLevels(gmLog.lData)
 
-	return 1
+	return True
 #==========================================================
 def setup_locale():
 	gmI18N.activate_locale()
@@ -254,9 +247,7 @@ def check_help_request():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
-# set up top level exception handler
-sys.excepthook = handle_uncaught_exception
-
+setup_console_exption_handler()
 setup_logging()
 
 from Gnumed.pycommon import gmCLI, gmI18N
@@ -297,7 +288,11 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.116  2007-05-08 11:16:51  ncq
+# Revision 1.117  2007-05-08 16:07:00  ncq
+# - console exception display handler factored out
+# - cleanup
+#
+# Revision 1.116  2007/05/08 11:16:51  ncq
 # - cleanup
 #
 # Revision 1.115  2007/05/07 12:34:41  ncq
