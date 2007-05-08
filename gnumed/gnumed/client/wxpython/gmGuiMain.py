@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.327 2007-05-07 12:35:20 ncq Exp $
-__version__ = "$Revision: 1.327 $"
+# $Id: gmGuiMain.py,v 1.328 2007-05-08 11:15:41 ncq Exp $
+__version__ = "$Revision: 1.328 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1127,6 +1127,9 @@ class gmApp(wx.App):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
+		if gmCLI.has_arg('--debug'):
+			self.RedirectStdio()
+
 		# check account <-> staff member association
 		try:
 			global _provider
@@ -1346,7 +1349,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.327  2007-05-07 12:35:20  ncq
+# Revision 1.328  2007-05-08 11:15:41  ncq
+# - redirect stdio when debugging is enabled
+#
+# Revision 1.327  2007/05/07 12:35:20  ncq
 # - improve use of gmTools.cPaths()
 #
 # Revision 1.326  2007/05/07 08:04:13  ncq
