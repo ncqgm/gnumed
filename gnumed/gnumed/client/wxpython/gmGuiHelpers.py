@@ -11,12 +11,12 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.56 2007-04-27 13:28:48 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmGuiHelpers.py,v 1.57 2007-05-08 16:04:40 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os
+import sys, os, shutil, datetime as pyDT, traceback
 
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
@@ -24,11 +24,80 @@ if __name__ == '__main__':
 import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
+_prev_excepthook = None
+
+# ========================================================================
+def handle_uncaught_exception_wx(t, v, tb):
+
+	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
+
+	for target in _log.get_targets():
+		if not isinstance(target, gmLog.cLogTargetFile):
+			continue
+		name = os.path.basename(target.ID)
+		name, ext = os.path.splitext(name)
+		new_name = os.path.expanduser(os.path.join (
+			'~',
+			'gnumed',
+			'logs',
+			'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+		))
+		_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
+		_log.flush()
+		shutil.copy2(target.ID, new_name)
+
+	wx.EndBusyCursor()
+
+	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
+	dlg.ShowModal()
+	if dlg.close_gnumed:
+		top_win = wx.GetApp().GetTopWindow()
+		wx.CallAfter(top_win.Close)
+
+	sys.__excepthook__(t,v,tb)
+# ------------------------------------------------------------------------
+def install_wx_exception_handler():
+	global _prev_excepthook
+	_prev_excepthook = sys.excepthook
+	sys.excepthook = handle_uncaught_exception_wx
+	return True
+# ------------------------------------------------------------------------
+def uninstall_wx_exception_handler():
+	if _prev_excepthook is None:
+		sys.excepthook = sys.__excepthook__
+		return True
+	sys.excepthook = _prev_excepthook
+	return True
+# ========================================================================
+class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		exception = kwargs['exception']
+		del kwargs['exception']
+		logfile = kwargs['logfile']
+		del kwargs['logfile']
+
+		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
+
+		self._TCTRL_logfile.SetValue(logfile)
+		t, v, tb = exception
+		self._TCTRL_exc_type.SetValue(str(t))
+		self._TCTRL_exc_value.SetValue(str(v))
+		self._TCTRL_traceback.SetValue(''.join(traceback.format_tb(tb)))
+
+		self.Fit()
+
+		self.close_gnumed = False
+	#------------------------------------------
+	def _on_close_gnumed_button_pressed(self, evt):
+		self.close_gnumed = True
+		evt.Skip()
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
@@ -504,7 +573,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.56  2007-04-27 13:28:48  ncq
+# Revision 1.57  2007-05-08 16:04:40  ncq
+# - add wxPython based exception display handler
+#
+# Revision 1.56  2007/04/27 13:28:48  ncq
 # - implement c2ButtonQuestionDlg
 #
 # Revision 1.55  2007/04/23 01:06:42  ncq
