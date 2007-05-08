@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.115 2007-05-07 12:34:41 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gnumed.py,v 1.116 2007-05-08 11:16:51 ncq Exp $
+__version__ = "$Revision: 1.116 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -122,7 +122,6 @@ requirements please ask on the mailing list.
 
 	try:
 		from Gnumed.pycommon import gmLog as _gmLog
-#		from Gnumed.pycommon import gmCLI as _gmCLI
 	except ImportError:
 		sys.exit(import_error_sermon)
 
@@ -130,16 +129,9 @@ requirements please ask on the mailing list.
 	gmLog = _gmLog
 	global _log
 	_log = gmLog.gmDefLog
-#	global gmCLI
-#	gmCLI = _gmCLI
 
 	# always start with debugging enabled
 	_log.SetAllLogLevels(gmLog.lData)
-
-	# Console Is Good(tm) ...
-	# ... but only for Panics and important messages
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
-	_log.AddTarget(aLogTarget)
 
 	return 1
 #==========================================================
@@ -305,7 +297,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.115  2007-05-07 12:34:41  ncq
+# Revision 1.116  2007-05-08 11:16:51  ncq
+# - cleanup
+#
+# Revision 1.115  2007/05/07 12:34:41  ncq
 # - better --debug docs
 # - cleanup
 # - always startup with --debug enabled
