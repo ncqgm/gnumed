@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.328 2007-05-08 11:15:41 ncq Exp $
-__version__ = "$Revision: 1.328 $"
+# $Id: gmGuiMain.py,v 1.329 2007-05-08 16:06:03 ncq Exp $
+__version__ = "$Revision: 1.329 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -268,6 +268,24 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
 
 		ID = wx.NewId()
+		menu_gnumed.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
+		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
+
+		ID = wx.NewId()
+		menu_gnumed.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
+		wx.EVT_MENU(self, ID, self.__on_display_bugtracker)
+
+		ID_UNBLOCK = wx.NewId()
+		menu_gnumed.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
+
+		ID_TEST_EXCEPTION = wx.NewId()
+		menu_gnumed.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
+		wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
+
+		menu_gnumed.AppendSeparator()
+
+		ID = wx.NewId()
 		menu_gnumed.Append(ID, _('Set database language'), _('Configure the database language.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
 
@@ -425,11 +443,6 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
-		ID_UNBLOCK = wx.NewId()
-		self.menu_tools.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
-		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
-		self.menu_tools.AppendSeparator()
-
 		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
 		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
 		ID_DICOM_VIEWER = wx.NewId()
@@ -473,10 +486,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		help_menu.AppendSeparator()
 
-		# - save log file
-		ID = wx.NewId()
-		help_menu.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
-		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
 
 		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
@@ -592,6 +601,31 @@ class gmTopLevelFrame(wx.Frame):
 		del contribs
 		del gmAbout
 	#----------------------------------------------
+	# GNUmed menu
+	#----------------------------------------------
+	def OnFileExit(self, event):
+		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
+		# calls wx.EVT_CLOSE handler
+		self.Close()
+	#----------------------------------------------
+	def __on_set_db_lang(self, event):
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
+		)
+		result = gmGuiHelpers.gm_SingleChoiceDialog (
+			aMessage = _('Please select the database language from the list below.'),
+			aTitle = _('configuring database language'),
+			choices = [row[0] for row in rows]
+		)
+		if result is False:
+			return
+		rows, idx = gmPG2.run_rw_queries (
+			queries = [{'cmd': u'select i18n', 'args': {'lang': result}}]
+		)
+	#----------------------------------------------
+	def __on_unblock_cursor(self, evt):
+		wx.EndBusyCursor()
+	#----------------------------------------------
 	def __on_backup_log_file(self, evt):
 		for target in _log.get_targets():
 			if isinstance(target, gmLog.cLogTargetFile):
@@ -617,30 +651,12 @@ class gmTopLevelFrame(wx.Frame):
 				shutil.copy2(target.ID, new_name)
 				gmDispatcher.send(gmSignals.statustext(), msg = _('Log file backed up as [%s].') % new_name)
 	#----------------------------------------------
-	# GNUmed menu
-	#----------------------------------------------
-	def OnFileExit(self, event):
-		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
-		# calls wx.EVT_CLOSE handler
-		self.Close()
-	#----------------------------------------------
-	def __on_set_db_lang(self, event):
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
+	def __on_display_bugtracker(self, evt):
+		webbrowser.open (
+			url = 'http://savannah.gnu.org/bugs/?group=gnumed',
+			new = False,
+			autoraise = True
 		)
-		result = gmGuiHelpers.gm_SingleChoiceDialog (
-			aMessage = _('Please select the database language from the list below.'),
-			aTitle = _('configuring database language'),
-			choices = [row[0] for row in rows]
-		)
-		if result is False:
-			return
-		rows, idx = gmPG2.run_rw_queries (
-			queries = [{'cmd': u'select i18n', 'args': {'lang': result}}]
-		)
-	#----------------------------------------------
-	def __on_unblock_cursor(self, evt):
-		wx.EndBusyCursor()
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 		# FIXME: scan CD for *.dcm files, put them into list and let
@@ -672,6 +688,9 @@ class gmTopLevelFrame(wx.Frame):
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Saved screenshot to file [%s].') % fname)
 		evt.Skip()
+	#----------------------------------------------
+	def __on_test_exception(self, evt):
+		raise ValueError('raised ValueError to test exception handling')
 	#----------------------------------------------
 	def OnClose(self, event):
 		"""wx.EVT_CLOSE handler.
@@ -1073,6 +1092,8 @@ Search results:
 class gmApp(wx.App):
 
 	def OnInit(self):
+		gmGuiHelpers.install_wx_exception_handler()
+
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
 		#self.SetVendor(u'The GNUmed Development Community.')
@@ -1199,7 +1220,7 @@ class gmApp(wx.App):
 		- after destroying all application windows and controls
 		- before wx.Windows internal cleanup
 		"""
-		pass
+		gmGuiHelpers.uninstall_wx_exception_handler()
 	#----------------------------------------------
 	def _on_query_end_session(self):
 		print "unhandled event detected: QUERY_END_SESSION"
@@ -1349,7 +1370,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.328  2007-05-08 11:15:41  ncq
+# Revision 1.329  2007-05-08 16:06:03  ncq
+# - cleanup menu layout
+# - link to bug tracker on Savannah
+# - add exception handler test
+# - install/uninstall wxPython based exception display handler at appropriate times
+#
+# Revision 1.328  2007/05/08 11:15:41  ncq
 # - redirect stdio when debugging is enabled
 #
 # Revision 1.327  2007/05/07 12:35:20  ncq
