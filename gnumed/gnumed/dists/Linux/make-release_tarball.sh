@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.33 2007-04-27 13:30:28 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.34 2007-05-08 16:07:32 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -207,6 +207,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-restore_from_backup.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
 
 
@@ -218,6 +219,13 @@ cp -R ../../client/pycommon/*.py ./GNUmed-$CLIENTREV/server/pycommon/
 # bootstrap
 mkdir -p ./GNUmed-$CLIENTREV/server/bootstrap
 cp -R ../../server/bootstrap/* ./GNUmed-$CLIENTREV/server/bootstrap/
+
+
+# doc
+mkdir -p ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../client/doc/gnumed-backup.conf.example ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../client/doc/gnumed-restore.conf.example ./GNUmed-$CLIENTREV/server/doc/
+cp -R ../../server/bootstrap/README ./GNUmed-$CLIENTREV/server/doc/
 
 
 # sql
@@ -304,7 +312,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.33  2007-04-27 13:30:28  ncq
+# Revision 1.34  2007-05-08 16:07:32  ncq
+# - include restore script and docs in server package
+#
+# Revision 1.33  2007/04/27 13:30:28  ncq
 # - properly download manual again
 #
 # Revision 1.32  2007/04/19 13:18:46  ncq
