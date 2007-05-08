@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf8 -*-
 """GNUmed site customization file.
 
 This file sets up the default string encoding for Python.
@@ -15,7 +15,7 @@ by running "locale charmap". On Windows, tough luck.
 If you need this file you will see an error like this:
 
 File "/usr/lib/python2.4/site-packages/Gnumed/business/gmPerson.py", line 836, in __normalize
-	normalized =    aString.replace(u'Ä'.encode('latin-1'), u'(Ä|AE|Ae|A|E)'.encode('latin-1'))
+	normalized =    aString.replace(u'Ã¤'.encode('latin-1'), u'(Ã„|AE|Ae|A|E)'.encode('latin-1'))
 	UnicodeDecodeError: 'ascii' codec can't decode byte 0xc4 in position 0: ordinal not in range(128)
 
 when trying to search for a patient. There is a built-in test below
@@ -23,8 +23,8 @@ but that approach may not be fool-proof.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/sitecustomize.py,v $
-# $Id: sitecustomize.py,v 1.6 2006-10-23 13:27:37 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: sitecustomize.py,v 1.7 2007-05-08 11:14:11 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -35,13 +35,8 @@ do_set_encoding = False
 
 # - most European countries but shouldn't
 #   hurt in US-ASCII countries, either
-#def_encoding = 'iso8859-1'
-
-# - if you need the EURO symbol
+# - includes the EURO symbol
 def_encoding = 'iso8859-15'
-
-# - might work, too
-#def_encoding = 'latin1'
 
 # - for testing
 #def_encoding = 'ascii'
@@ -54,7 +49,6 @@ if __name__ == '__main__':
 	print "------------------------------------------------"
 	sys.exit()
 
-print "GNUmed startup: running sitecustomize.py"
 if do_set_encoding:
 	print "GNUmed startup: Setting Python string encoding to [%s]" % def_encoding
 	try:
@@ -68,7 +62,11 @@ if do_set_encoding:
 
 #==============================================================
 # $Log: sitecustomize.py,v $
-# Revision 1.6  2006-10-23 13:27:37  ncq
+# Revision 1.7  2007-05-08 11:14:11  ncq
+# - make utf8
+# - some cleanup
+#
+# Revision 1.6  2006/10/23 13:27:37  ncq
 # - this is only an example, don't activate it by default
 #
 # Revision 1.5  2005/09/28 21:18:36  ncq
