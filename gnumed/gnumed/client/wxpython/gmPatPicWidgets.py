@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.23 2007-05-07 12:35:20 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPatPicWidgets.py,v 1.24 2007-05-08 11:16:32 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -21,7 +21,7 @@ import wx, wx.lib.imagebrowser
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmTools
 from Gnumed.business import gmMedDoc, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -191,7 +191,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.23  2007-05-07 12:35:20  ncq
+# Revision 1.24  2007-05-08 11:16:32  ncq
+# - need to import gmTools
+#
+# Revision 1.23  2007/05/07 12:35:20  ncq
 # - improve use of gmTools.cPaths()
 #
 # Revision 1.22  2007/04/23 01:10:58  ncq

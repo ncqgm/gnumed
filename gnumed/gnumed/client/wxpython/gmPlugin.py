@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.69 2007-05-07 12:35:20 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmPlugin.py,v 1.70 2007-05-08 11:16:32 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -13,7 +13,7 @@ import os, sys, re
 
 import wx
 
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmSignals, gmTools
 from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.69  2007-05-07 12:35:20  ncq
+# Revision 1.70  2007-05-08 11:16:32  ncq
+# - need to import gmTools
+#
+# Revision 1.69  2007/05/07 12:35:20  ncq
 # - improve use of gmTools.cPaths()
 #
 # Revision 1.68  2007/04/11 20:47:13  ncq

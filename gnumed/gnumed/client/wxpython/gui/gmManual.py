@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.39 2007-05-07 12:35:20 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmManual.py,v 1.40 2007-05-08 11:17:09 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path
@@ -21,7 +21,7 @@ import os, sys, os.path
 import wx
 import wx.html
 
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmTools
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
 
 _log = gmLog.gmDefLog
@@ -244,7 +244,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.39  2007-05-07 12:35:20  ncq
+# Revision 1.40  2007-05-08 11:17:09  ncq
+# - need to import gmTools
+#
+# Revision 1.39  2007/05/07 12:35:20  ncq
 # - improve use of gmTools.cPaths()
 #
 # Revision 1.38  2007/04/11 20:47:34  ncq
