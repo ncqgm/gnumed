@@ -54,7 +54,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -241,7 +241,7 @@ class cLogger:
 			if not tb:
 				return
 			while 1:
-				if  not tb.tb_next:
+				if not tb.tb_next:
 					break
 				tb = tb.tb_next
 			# and put the frames on a stack
@@ -860,7 +860,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.28  2007-03-26 14:43:08  ncq
+# Revision 1.29  2007-05-08 16:03:20  ncq
+# - cleanup
+#
+# Revision 1.28  2007/03/26 14:43:08  ncq
 # - support flush() in file targets
 # - add get_targets() to external API
 #
