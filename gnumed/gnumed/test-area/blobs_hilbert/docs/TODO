@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -24,11 +24,6 @@ viewer
 =====================================================
 post-1.0
 ========
-- integrate as plugin with GnuMed
-- integrate into GnuMed messaging infrastructure
-
-schema
-------
 
 import
 ------
