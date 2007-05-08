@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.80 2007-05-07 12:33:31 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmLoginDialog.py,v 1.81 2007-05-08 11:16:10 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -404,8 +404,12 @@ For assistance on using GnuMed please contact:
 
 		if self._CHBOX_debug.GetValue():
 			_log.SetAllLogLevels(gmLog.lData)
+			gmCLI._cli_args['--debug'] = True
+			_log.Log(gmLog.lInfo, 'debug mode enabled')
 		else:
-			if gmCLI.has_arg ("--quiet"):
+			_log.Log(gmLog.lInfo, 'debug mode disabled')
+			del gmCLI._cli_args['--debug']
+			if gmCLI.has_arg("--quiet"):
 				_log.SetAllLogLevels(gmLog.lErr)
 			else:
 				_log.SetAllLogLevels(gmLog.lInfo)
@@ -466,7 +470,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.80  2007-05-07 12:33:31  ncq
+# Revision 1.81  2007-05-08 11:16:10  ncq
+# - set debugging flag based on user checkbox selection
+#
+# Revision 1.80  2007/05/07 12:33:31  ncq
 # - use gmTools.cPaths
 # - support debug mode checkbox
 #
