@@ -1,8 +1,8 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
-$Id: README,v 1.5 2007-02-06 12:11:44 ncq Exp $
+$Id: README,v 1.6 2007-05-08 12:09:42 ncq Exp $
 --------------------------------------------------------------------------
 
-The files and scripts in this directory are intended for
+The files and scripts in the bootstrap/ directory are intended for
 bootstrapping a new or upgrading an existing GNUmed database.
 
 The main bootstrapper is bootstrap_gm_db_system.py. It does
@@ -14,8 +14,8 @@ The redo-v2.sh shell script sets up a new GNUmed v2 database.
 Any existing gnumed_v2 database WILL BE DROPPED.
 
 The bootstrap-latest.sh shell script creates the latest version
-of the GNUmed database from scratch. It DROPS any existing
-prior gnumed_v* databases along the way.
+of the GNUmed database from scratch. It DROPS any EXISTING
+gnumed_v* DATABASES along the way.
 
 The upgrade-db.sh script upgrades an existing GNUmed database.
 The original database WILL NOT BE CHANGED in any way.
@@ -23,11 +23,22 @@ The original database WILL NOT BE CHANGED in any way.
 Bootstrapping is a rather complicated affair. Here are some
 prerequisites that need to be matched:
 
-1) You need to be able to connect to template1 and the
-   target database (gnumed_v*) as "gm-dbo" and "postgres".
+1) The scripts are best run as root.
 
-2) You need to have the procedural language pl/pgsql
-   available.
+2) You need to have the procedural language
+   pl/pgsql available.
+
+3) After bootstrapping you need to add the following
+   lines to your pg_hba.conf file to allow GNUmed
+   users to connect:
+
+# for local connections from the same machine
+local	samegroup	+gm-logins							md5
+
+# for remote connections from other machines
+host	samegroup	+gm-logins		<IP/NETMASK>		md5
+
+
 
 Enjoy and please do report bugs !
 
