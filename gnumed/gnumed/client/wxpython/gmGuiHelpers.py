@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.57 2007-05-08 16:04:40 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmGuiHelpers.py,v 1.58 2007-05-11 14:15:59 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -23,6 +23,7 @@ if __name__ == '__main__':
 
 import wx
 
+from Gnumed.business import gmSurgery
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg
 
@@ -55,11 +56,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 
 	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
 	dlg.ShowModal()
-	if dlg.close_gnumed:
-		top_win = wx.GetApp().GetTopWindow()
-		wx.CallAfter(top_win.Close)
-
-	sys.__excepthook__(t,v,tb)
+	dlg.Destroy()
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	global _prev_excepthook
@@ -85,6 +82,8 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
+		office = gmSurgery.gmCurrentPractice()
+		self._TCTRL_helpdesk.SetValue(office.helpdesk)
 		self._TCTRL_logfile.SetValue(logfile)
 		t, v, tb = exception
 		self._TCTRL_exc_type.SetValue(str(t))
@@ -92,11 +91,10 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		self._TCTRL_traceback.SetValue(''.join(traceback.format_tb(tb)))
 
 		self.Fit()
-
-		self.close_gnumed = False
 	#------------------------------------------
 	def _on_close_gnumed_button_pressed(self, evt):
-		self.close_gnumed = True
+		top_win = wx.GetApp().GetTopWindow()
+		wx.CallAfter(top_win.Close)
 		evt.Skip()
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
@@ -573,7 +571,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.57  2007-05-08 16:04:40  ncq
+# Revision 1.58  2007-05-11 14:15:59  ncq
+# - display help desk in exception handler
+# - properly handle keep running/close client buttons
+#
+# Revision 1.57  2007/05/08 16:04:40  ncq
 # - add wxPython based exception display handler
 #
 # Revision 1.56  2007/04/27 13:28:48  ncq
