@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.11 2007-02-17 13:55:26 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmKVK.py,v 1.12 2007-05-11 14:10:19 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -242,18 +242,21 @@ if __name__ == "__main__":
 #	Statuserg. |        | str  | 1-3
 #	Titel Pat  |        | str  | 3-15
 #	Vorname    |        | str  | 2-28
-#	Adelspräd. |        | str  | 1-15
+#	AdelsprÃ¤d. |        | str  | 1-15
 #	Nachname   |  x     | str  | 2-28
 #	geboren    |  x     | int  | 8      | DDMMYYYY
-#	Straße     |        | str  | 1-28
-#	Ländercode |        | str  | 1-3
+#	StraÃŸe     |        | str  | 1-28
+#	LÃ¤ndercode |        | str  | 1-3
 #	PLZ        |  x     | int  | 4-7
 #	Ort        |  x     | str  | 2-23
-#	gültig bis |        | int  | 4      | MMYY
+#	gÃ¼ltig bis |        | int  | 4      | MMYY
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.11  2007-02-17 13:55:26  ncq
+# Revision 1.12  2007-05-11 14:10:19  ncq
+# - latin1 -> utf8
+#
+# Revision 1.11  2007/02/17 13:55:26  ncq
 # - consolidate, remove bitrot
 #
 # Revision 1.10  2007/02/15 14:54:47  ncq
