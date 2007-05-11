@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.116 2007-05-07 12:29:02 ncq Exp $
-__version__ = "$Revision: 1.116 $"
+# $Id: gmPerson.py,v 1.117 2007-05-11 14:10:52 ncq Exp $
+__version__ = "$Revision: 1.117 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,7 @@ import sys, os.path, time, re, string, types, datetime as pyDT, codecs, threadin
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmCLI
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 _log = gmLog.gmDefLog
@@ -626,10 +626,9 @@ class gmCurrentProvider(gmBorg.cBorg):
 		if self.__workplace is not None:
 			return self.__workplace
 
-#		if gmCLI.has_arg('--conf-file'):
-#			candidates = [gmCLI.arg['--conf-file']]
-#		else:
 		candidates = []
+		if gmCLI.has_arg('--conf-file'):
+			candidates.append(gmCLI.arg['--conf-file'])
 		paths = gmTools.cPaths()
 		candidates.extend ([
 			os.path.join(paths.working_dir, 'gnumed.conf'),
@@ -1887,7 +1886,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.116  2007-05-07 12:29:02  ncq
+# Revision 1.117  2007-05-11 14:10:52  ncq
+# - look in --conf-file for workplace def, too
+#
+# Revision 1.116  2007/05/07 12:29:02  ncq
 # - improve logic when looking for config file for workplace detection
 #
 # Revision 1.115  2007/05/07 08:00:18  ncq
