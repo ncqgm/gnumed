@@ -7,15 +7,16 @@ import wx
 class wxgUnhandledExceptionDlg(wx.Dialog):
     def __init__(self, *args, **kwds):
         # begin wxGlade: wxgUnhandledExceptionDlg.__init__
-        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME|wx.STAY_ON_TOP
+        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
-        self.__szr_middle_staticbox = wx.StaticBox(self, -1, _("Error Details"))
+        self.__szr_middle_staticbox = wx.StaticBox(self, -1, _("Details"))
         self.__pnl_top_message = wx.Panel(self, -1, style=wx.NO_BORDER)
+        self._TCTRL_helpdesk = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_logfile = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_exc_type = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_exc_value = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_traceback = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)
-        self._BTN_ok = wx.Button(self, wx.ID_CANCEL, _("OK"))
+        self._BTN_ok = wx.Button(self, wx.ID_OK, _("Keep running"))
         self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Close GNUmed"))
 
         self.__set_properties()
@@ -28,13 +29,15 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         # begin wxGlade: wxgUnhandledExceptionDlg.__set_properties
         self.SetTitle(_("GNUmed exception handler"))
         self.__pnl_top_message.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self._TCTRL_helpdesk.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_helpdesk.Enable(False)
         self._TCTRL_logfile.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_logfile.Enable(False)
         self._TCTRL_exc_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_exc_type.Enable(False)
         self._TCTRL_exc_value.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_exc_value.Enable(False)
-        self._BTN_ok.SetToolTipString(_("Close this dialog."))
+        self._BTN_ok.SetToolTipString(_("Close this dialog but keep running GNUmed."))
         self._BTN_ok.SetDefault()
         self._BTN_close.SetToolTipString(_("Close this dialog AND the GNUmed client."))
         # end wxGlade
@@ -44,7 +47,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_middle = wx.StaticBoxSizer(self.__szr_middle_staticbox, wx.VERTICAL)
-        _gszr_exception = wx.FlexGridSizer(3, 2, 3, 3)
+        _gszr_details = wx.FlexGridSizer(4, 2, 3, 5)
         __szr_top_inner = wx.BoxSizer(wx.VERTICAL)
         __lbl_top_message = wx.StaticText(self.__pnl_top_message, -1, _("An unhandled exception has occurred."), style=wx.ALIGN_CENTRE)
         __lbl_top_message.SetBackgroundColour(wx.Colour(255, 0, 0))
@@ -56,19 +59,22 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         __szr_top_inner.Fit(self.__pnl_top_message)
         __szr_top_inner.SetSizeHints(self.__pnl_top_message)
         __szr_main.Add(self.__pnl_top_message, 0, wx.EXPAND, 0)
-        __lbl_explanation = wx.StaticText(self, -1, _("GNUmed detected an error for which no specific handler had been defined.\n\nDetails about the error can be found in the log file a copy of which has\nbeen saved away in your home directory (see below). It may contain\nbits of sensitive information so you may want to screen the content\nbefore handing it to IT staff for debugging.\n\nGNUmed will try to keep running. However, it is strongly advised to\nclose this client as soon as possible. You can try to save unsaved data\nbut don't count on it.\n\nIt should then be safe to restart the client."))
+        __lbl_explanation = wx.StaticText(self, -1, _("GNUmed detected an error for which no specific handler had been defined.\n\nDetails about the error can be found in the log file a copy of which has\nbeen saved away in your home directory (see below). It may contain\nbits of sensitive information so you may want to screen the content\nbefore handing it to IT staff for debugging.\n\nGNUmed will try to keep running. However, it is strongly advised to\nclose this GNUmed workplace as soon as possible. You can try to save\nunsaved data but don't count on it.\n\nIt should then be safe to restart GNUmed."))
         __szr_main.Add(__lbl_explanation, 0, wx.ALL|wx.EXPAND, 5)
+        __lbl_helpdesk = wx.StaticText(self, -1, _("Help desk"))
+        _gszr_details.Add(__lbl_helpdesk, 0, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 0)
+        _gszr_details.Add(self._TCTRL_helpdesk, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_logfile = wx.StaticText(self, -1, _("Log file"))
-        _gszr_exception.Add(__lbl_logfile, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_exception.Add(self._TCTRL_logfile, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.Add(__lbl_logfile, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.Add(self._TCTRL_logfile, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_type = wx.StaticText(self, -1, _("Type"))
-        _gszr_exception.Add(__lbl_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_exception.Add(self._TCTRL_exc_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.Add(__lbl_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.Add(self._TCTRL_exc_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_value = wx.StaticText(self, -1, _("Value"))
-        _gszr_exception.Add(__lbl_value, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_exception.Add(self._TCTRL_exc_value, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_exception.AddGrowableCol(1)
-        __szr_middle.Add(_gszr_exception, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
+        _gszr_details.Add(__lbl_value, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.Add(self._TCTRL_exc_value, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_details.AddGrowableCol(1)
+        __szr_middle.Add(_gszr_details, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
         __szr_middle.Add(self._TCTRL_traceback, 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_middle, 1, wx.ALL|wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
@@ -86,6 +92,14 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
 
     def _on_close_gnumed_button_pressed(self, event): # wxGlade: wxgUnhandledExceptionDlg.<event_handler>
         print "Event handler `_on_close_gnumed_button_pressed' not implemented"
+        event.Skip()
+
+    def __on_keep_running_button_pressed(self, event): # wxGlade: wxgUnhandledExceptionDlg.<event_handler>
+        print "Event handler `__on_keep_running_button_pressed' not implemented"
+        event.Skip()
+
+    def __on_close_gnumed_button_pressed(self, event): # wxGlade: wxgUnhandledExceptionDlg.<event_handler>
+        print "Event handler `__on_close_gnumed_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgUnhandledExceptionDlg
