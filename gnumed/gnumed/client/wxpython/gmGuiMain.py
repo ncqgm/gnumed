@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.329 2007-05-08 16:06:03 ncq Exp $
-__version__ = "$Revision: 1.329 $"
+# $Id: gmGuiMain.py,v 1.330 2007-05-11 14:18:04 ncq Exp $
+__version__ = "$Revision: 1.330 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -263,27 +263,28 @@ class gmTopLevelFrame(wx.Frame):
 		# menu "GNUmed"
 		menu_gnumed = wx.Menu()
 
+		menu_debugging = wx.Menu()
+		menu_gnumed.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
+
 		ID_SCREENSHOT = wx.NewId()
-		menu_gnumed.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
+		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
 		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
 
 		ID = wx.NewId()
-		menu_gnumed.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
+		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
 		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
 
 		ID = wx.NewId()
-		menu_gnumed.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
+		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
 		wx.EVT_MENU(self, ID, self.__on_display_bugtracker)
 
 		ID_UNBLOCK = wx.NewId()
-		menu_gnumed.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		menu_debugging.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
 
 		ID_TEST_EXCEPTION = wx.NewId()
-		menu_gnumed.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
+		menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 		wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
-
-		menu_gnumed.AppendSeparator()
 
 		ID = wx.NewId()
 		menu_gnumed.Append(ID, _('Set database language'), _('Configure the database language.'))
@@ -1370,7 +1371,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.329  2007-05-08 16:06:03  ncq
+# Revision 1.330  2007-05-11 14:18:04  ncq
+# - put debugging stuff into submenue
+#
+# Revision 1.329  2007/05/08 16:06:03  ncq
 # - cleanup menu layout
 # - link to bug tracker on Savannah
 # - add exception handler test
