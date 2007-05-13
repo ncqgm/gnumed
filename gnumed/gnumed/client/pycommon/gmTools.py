@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.24 2007-05-13 20:22:17 ncq Exp $
+# $Id: gmTools.py,v 1.25 2007-05-13 21:20:54 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -86,6 +86,7 @@ class cPaths(gmBorg.cBorg):
 			self.system_app_data_dir = self.local_base_dir
 
 		if wx is None:
+			self.__log_paths()
 			return True
 
 		std_paths = wx.StandardPaths.Get()
@@ -99,6 +100,16 @@ class cPaths(gmBorg.cBorg):
 			self.system_app_data_dir = std_paths.GetDataDir()
 		except ValueError:
 			pass
+
+		self.__log_paths()
+		return True
+	#--------------------------------------
+	def __log_paths(self):
+		_log.Log(gmLog.lData, 'local base dir: %s' % self.local_base_dir)
+		_log.Log(gmLog.lData, 'working dir: %s' % self.working_dir)
+		_log.Log(gmLog.lData, 'user-specific config dir: %s' % self.user_config_dir)
+		_log.Log(gmLog.lData, 'system-wide config dir: %s' % self.system_config_dir)
+		_log.Log(gmLog.lData, 'system-wide application data dir: %s' % self.system_app_data_dir)
 	#--------------------------------------
 	# properties
 	#--------------------------------------
@@ -560,7 +571,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.24  2007-05-13 20:22:17  ncq
+# Revision 1.25  2007-05-13 21:20:54  ncq
+# - improved logging
+#
+# Revision 1.24  2007/05/13 20:22:17  ncq
 # - log errors
 #
 # Revision 1.23  2007/05/08 16:03:55  ncq
