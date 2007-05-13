@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.23 2007-05-08 16:03:55 ncq Exp $
+# $Id: gmTools.py,v 1.24 2007-05-13 20:22:17 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -104,7 +104,9 @@ class cPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def _set_user_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
-			raise ValueError('[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+			msg = '[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			_log.Log(gmLog.lErr, msg)
+			raise ValueError(msg)
 		self.__user_config_dir = path
 
 	def _get_user_config_dir(self):
@@ -114,7 +116,9 @@ class cPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def _set_system_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
-			raise ValueError('[%s:system_config_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+			msg = '[%s:system_config_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			_log.Log(gmLog.lErr, msg)
+			raise ValueError(msg)
 		self.__system_config_dir = path
 
 	def _get_system_config_dir(self):
@@ -124,7 +128,9 @@ class cPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def _set_system_app_data_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
-			raise ValueError('[%s:system_app_data_dir]: invalid path [%s]' % (self.__class__.__name__, path))
+			msg = '[%s:system_app_data_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			_log.Log(gmLog.lErr, msg)
+			raise ValueError(msg)
 		self.__system_app_data_dir = path
 
 	def _get_system_app_data_dir(self):
@@ -554,7 +560,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.23  2007-05-08 16:03:55  ncq
+# Revision 1.24  2007-05-13 20:22:17  ncq
+# - log errors
+#
+# Revision 1.23  2007/05/08 16:03:55  ncq
 # - add console exception display handler
 #
 # Revision 1.22  2007/05/07 12:31:06  ncq
