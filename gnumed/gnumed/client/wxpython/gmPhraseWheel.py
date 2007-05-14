@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.104 2007-05-14 13:11:25 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmPhraseWheel.py,v 1.105 2007-05-14 14:43:11 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -130,6 +130,10 @@ class cPhraseWheel(wx.TextCtrl):
 		self._on_set_focus_callbacks = []
 		self._on_modified_callbacks = []
 
+		try:
+			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_TAB
+		except KeyError:
+			kwargs['style'] = wx.TE_PROCESS_TAB
 		wx.TextCtrl.__init__ (self, parent, id, **kwargs)
 
 		# multiple matches dropdown list
@@ -467,6 +471,14 @@ class cPhraseWheel(wx.TextCtrl):
 			# FIXME: input history ?
 			pass
 	#--------------------------------------------------------
+	def __on_tab(self):
+		if self.__picklist_dropdown.IsShown():
+			if len(self.__current_matches) == 1:
+				self.__select_picklist_row(new_row_idx=0)
+				self._on_list_item_selected()
+				return True
+		return False
+	#--------------------------------------------------------
 	# internal helpers: logic
 	#--------------------------------------------------------
 	def __char_is_allowed(self, char=None):
@@ -589,9 +601,17 @@ class cPhraseWheel(wx.TextCtrl):
 			self.__on_cursor_up()
 			return
 
-		# user pressed <ENTER>
 		if keycode == wx.WXK_RETURN:
 			self._on_enter()
+			return
+
+		if keycode == wx.WXK_TAB:
+			if event.ShiftDown():
+				self.Navigate(flags = wx.NavigationKeyEvent.IsBackward)
+				return
+			tab_handled = self.__on_tab()
+			if not tab_handled:
+				self.Navigate(flags = wx.NavigationKeyEvent.IsForward)
 			return
 
 		# FIXME: need PAGE UP/DOWN//POS1/END here to move in picklist
@@ -840,7 +860,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.104  2007-05-14 13:11:25  ncq
+# Revision 1.105  2007-05-14 14:43:11  ncq
+# - allow TAB to select item from picklist if only one match available
+#
+# Revision 1.104  2007/05/14 13:11:25  ncq
 # - use statustext() signal
 #
 # Revision 1.103  2007/04/19 13:14:30  ncq
