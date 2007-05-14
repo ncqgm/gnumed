@@ -13,6 +13,13 @@
 # @TODO: Almost everything
 ############################################################################
 
+class DatabaseObjectInUseError(Exception):
+	def __init__(self, msg):
+		self.errmsg = msg
+
+	def __str__(self):
+		return self.errmsg
+
 
 class ConnectionError(Exception):
 	#raised whenever the database backend connection fails
@@ -110,7 +117,10 @@ class InvalidInputError(Exception):
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.8  2006-11-24 09:51:00  ncq
+# Revision 1.9  2007-05-14 10:32:07  ncq
+# - add exception DatabaseObjectInUseError
+#
+# Revision 1.8  2006/11/24 09:51:00  ncq
 # - don't blindly str() self.errmsg as this may not actually be possible (easily, with encodings)
 #
 # Revision 1.7  2006/10/10 07:27:34  ncq
