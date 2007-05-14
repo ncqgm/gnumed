@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf8 -*-
 """GNUmed patient objects.
 
 This is a patient object intended to let a useful client-side
@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.117 2007-05-11 14:10:52 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmPerson.py,v 1.118 2007-05-14 11:03:28 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -941,19 +941,19 @@ class cPatientSearcher_SQL:
 			return aString
 
 		# umlauts
-		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|A|E)')
-		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe|O)')
-		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue|U)')
-		normalized = normalized.replace(u'ä', u'(ä|ae|e|a)')
-		normalized = normalized.replace(u'ö', u'(ö|oe|o)')
-		normalized = normalized.replace(u'ü', u'(ü|ue|u|y)')
-		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
+		normalized =    aString.replace(u'Ã„', u'(Ã„|AE|Ae|A|E)')
+		normalized = normalized.replace(u'Ã–', u'(Ã–|OE|Oe|O)')
+		normalized = normalized.replace(u'Ãœ', u'(Ãœ|UE|Ue|U)')
+		normalized = normalized.replace(u'Ã¤', u'(Ã¤|ae|e|a)')
+		normalized = normalized.replace(u'Ã¶', u'(Ã¶|oe|o)')
+		normalized = normalized.replace(u'Ã¼', u'(Ã¼|ue|u|y)')
+		normalized = normalized.replace(u'ÃŸ', u'(ÃŸ|sz|ss|s)')
 
 		# common soundalikes
-		# - René, Desiré, Inés ...
-		normalized = normalized.replace(u'é', u'***DUMMY***')
-		normalized = normalized.replace(u'è', u'***DUMMY***')
-		normalized = normalized.replace(u'***DUMMY***', u'(é|e|è|ä|ae)')
+		# - RenÃ©, DesirÃ©, InÃ©s ...
+		normalized = normalized.replace(u'Ã©', u'***DUMMY***')
+		normalized = normalized.replace(u'Ã¨', u'***DUMMY***')
+		normalized = normalized.replace(u'***DUMMY***', u'(Ã©|e|Ã¨|Ã¤|ae)')
 
 		# FIXME: missing i/a/o - but uncommon in German
 		normalized = normalized.replace('v', '***DUMMY***')
@@ -1201,7 +1201,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
-		if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term):
+		if re.match("^(\s|\t)*[a-zÃ¤Ã¶Ã¼ÃŸÃ©Ã¡ÃºÃ³Ã§Ã¸A-ZÃ„Ã–ÃœÃ‡Ã˜]+(\s|\t)*$", search_term):
 			# there's no intermediate whitespace due to the regex
 			tmp = normalized.strip()
 			args = []
@@ -1806,8 +1806,8 @@ if __name__ == '__main__':
 
 		print "testing _normalize_soundalikes()"
 		print "--------------------------------"
-		# FIXME: support Ähler -> Äler and Dähler -> Däler
-		data = [u'Krüger', u'Krueger', u'Kruger', u'Überle', u'Böger', u'Boger', u'Öder', u'Ähler', u'Däler', u'Großer']
+		# FIXME: support Ã„hler -> Ã„ler and DÃ¤hler -> DÃ¤ler
+		data = [u'KrÃ¼ger', u'Krueger', u'Kruger', u'Ãœberle', u'BÃ¶ger', u'Boger', u'Ã–der', u'Ã„hler', u'DÃ¤ler', u'GroÃŸer']
 		for name in data:
 			print '%s: %s' % (name, searcher._normalize_soundalikes(name))
 
@@ -1886,7 +1886,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.117  2007-05-11 14:10:52  ncq
+# Revision 1.118  2007-05-14 11:03:28  ncq
+# - latin1 -> utf8
+#
+# Revision 1.117  2007/05/11 14:10:52  ncq
 # - look in --conf-file for workplace def, too
 #
 # Revision 1.116  2007/05/07 12:29:02  ncq
