@@ -1,12 +1,12 @@
-# -*- encoding: latin-1 -*-
+# -*- encoding: utf8 -*-
 """GnuMed German XDT mapping data.
 
 This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.39 2007-03-10 15:13:05 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmXdtMappings.py,v 1.40 2007-05-14 10:37:31 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -29,15 +29,15 @@ xdt_id_map = {
 	'6298':'??',
 	'6299':'??',
 
-	#KBV-Prüfnummer 
-	'0101':'KBV-Prüfnummer',
+	#KBV-PrÃ¼fnummer 
+	'0101':'KBV-PrÃ¼fnummer',
 	#responsible software vendor 
 	'0102':'Softwareverantwortlicher',
 	#software package 
 	'0103':'Software',
 	#PC hardware 
 	'0104':'Hardware',
-	'0105':'KBV-Prüfnummer',
+	'0105':'KBV-PrÃ¼fnummer',
 	'0111':'Email-Adresse des SV',
 	'0121':'Strasse des SV',
 	'0122':'PLZ des SV',
@@ -62,20 +62,20 @@ xdt_id_map = {
 	'0208': 'Telefonnummer',
 	'0209': 'Telefaxnummer',
 	'0210': ' Modemnummer',
-	'0211': 'Arztname für Leistungsdifferenzierung',
+	'0211': 'Arztname fÃ¼r Leistungsdifferenzierung',
 	'0213': 'Leistungskennzeichen',
-	'0214': 'Erläuterung zum Leistungskennzeichen',
+	'0214': 'ErlÃ¤uterung zum Leistungskennzeichen',
 	'0215': 'PLZ der Praxisadresse',
 	'0216': 'Ort der Praxisadresse',
 	'0218': 'E-Mail der Praxis/des Arztes',
-	'0225': 'Anzahl der Ärzte',
+	'0225': 'Anzahl der Ã„rzte',
 
 	'0250':'Name erste freie Kategorie',
 	'0251':'Inhalt erste freie Kategorie',
 
 	'0915':'PZN Medikament auf Kassenrezept',
-	'0917':'Packungsgrösse Medikament auf Kassenrezept',
-	'0918':'Packungsgrösse Medikament auf Privatrezept',
+	'0917':'PackungsgrÃ¶sse Medikament auf Kassenrezept',
+	'0918':'PackungsgrÃ¶sse Medikament auf Privatrezept',
 	'0919':'Hilfsmittelbezeichnung',
 	'0920':'Hilfsmittelnummer',
 	'0922':'PZN Hilfsmittel',
@@ -83,17 +83,17 @@ xdt_id_map = {
 	'0925':'Heilmittel',
 	'0950':'PZN Dauermedikament',
 	'0951':'PZN Medikament auf Privatrezept',
-	'0952':'PZN Ärztemuster',
-	'0953':'Packungsgrösse Ärztemuster',
-	'0960':'Kennzeichnung Gebührenpflichtig',
+	'0952':'PZN Ã„rztemuster',
+	'0953':'PackungsgrÃ¶sse Ã„rztemuster',
+	'0960':'Kennzeichnung GebÃ¼hrenpflichtig',
 	'0961':'Kennzeichnung aut idem',
 	'0962':'Kennzeichnung noctu',
 	'0970':'Anzahl (Packungen) Medikament auf Rezept',
 	'0971':'Anzahl (Packungen) Medikament auf Privatrezept',
 	'2700':'IK des Krankenhauses',
 	'2701':'Fachgebiet laut LKA',
-	'2702':'Arztnummer des Anästhesisten',
-	'2706':'Indikationsschlüssel',
+	'2702':'Arztnummer des AnÃ¤sthesisten',
+	'2706':'IndikationsschlÃ¼ssel',
 	'2709':'Lfd. OP-Nummer',
 	'2710':'Lfd. OP-Nummer',
 	'2711':'OP-Datum',
@@ -101,37 +101,37 @@ xdt_id_map = {
 	'2721':'Narkosezwischenfall',
 	'2722':'Pneumonie',
 	'2723':'Wundinfektion',
-	'2724':'Gefäss- oder Nervenläsion',
-	'2725':'Lagerungsschäden',
+	'2724':'GefÃ¤ss- oder NervenlÃ¤sion',
+	'2725':'LagerungsschÃ¤den',
 	'2726':'Venenthrombose',
 	'2727':'Komplikation',
 	'2728':'Erfolgsbeurteilung hinsichtlich Indikationsstellung',
 	'2729':'Erfolgsbeurteilung hinsichtlich Histologie',
 	'2730':'Revisionseingriff',
-	'2731':'Stationäre Aufnahme',
+	'2731':'StationÃ¤re Aufnahme',
 	'2732':'Angaben zu implantierten Materialien',
 	'2740':'Art der Operation',
 	'2741':'Dauer der Operation',
 	'2742':'Operierte Seite',
-	'2743':'Art der Anästhesie',
-	'2744':'Art der Anästhesie gemäss Klassifikation Strukturvertrag',
+	'2743':'Art der AnÃ¤sthesie',
+	'2744':'Art der AnÃ¤sthesie gemÃ¤ss Klassifikation Strukturvertrag',
 	'2750':'Operateur hat Facharztstatus',
-	'2751':'Anzahl ärztl. Assistenten bei OP',
+	'2751':'Anzahl Ã¤rztl. Assistenten bei OP',
 	'2752':'(Ein) OP-Assistent hat Facharztstatus',
-	'2753':'Anzahl nichtärzticher Assistenten bei OP',
-	'2760':'Art der Anästhesie',
-	'2761':'Anästhesie erbracht',
-	'2762':'Dauer der Anästhesie',
+	'2753':'Anzahl nichtÃ¤rzticher Assistenten bei OP',
+	'2760':'Art der AnÃ¤sthesie',
+	'2761':'AnÃ¤sthesie erbracht',
+	'2762':'Dauer der AnÃ¤sthesie',
 	'2770':'Blutung',
 	'2771':'Narkosezwischenfall',
 	'2772':'Pneumonie',
 	'2773':'Wundinfektion',
-	'2774':'Gefäss- oder Nervenläsion',
-	'2775':'Lagerungsschäden',
+	'2774':'GefÃ¤ss- oder NervenlÃ¤sion',
+	'2775':'LagerungsschÃ¤den',
 	'2776':'Venenthrombose',
 	'2780':'Revisionseingriff erforderlich',
 	'2781':'Histologie',
-	'2782':'Stationäre Weiterbehandlung erforderlich',
+	'2782':'StationÃ¤re Weiterbehandlung erforderlich',
 	#Patientennummer/Patientenkennung
 	'3000':'Patientennummer',
 	#Namenszusatz/Vorsatzwort des Patienten
@@ -157,12 +157,12 @@ xdt_id_map = {
 	'3111':'Geburtsjahr des Patienten',
 	'3112':'PLZ des Patienten',
 	'3113':'Wohnort des Patienten',
-	'3114':'Wohnsitzländercode',
+	'3114':'WohnsitzlÃ¤ndercode',
 	'3116':'KV-Bereich',
 	#Arbeitgeber -- nur bei header 0191 --
 	'3150':'Arbeitgeber',
-	#Bezeichnung des Unfallversicherungsträgers -- nur bei header 0191 --
-	'3152':'Unfallversicherungsträger',
+	#Bezeichnung des UnfallversicherungstrÃ¤gers -- nur bei header 0191 --
+	'3152':'UnfallversicherungstrÃ¤ger',
 	#Name des Hauptversicherten
 	'3200':'Namenszusatz/Vorsatzwort des Hauptversicherten',
 	'3201':'Name des Hauptversicherten',
@@ -182,7 +182,7 @@ xdt_id_map = {
 	#Geschlecht des Hauptversicherten -- nur bei header 0190 --
 	'3210':'Geschlecht des Hauptversicherten',
 	'3600': 'Patientennummer (alter BDT ?, beobachtet bei Medistar)',
-	'3601': 'Röntgennummer',
+	'3601': 'RÃ¶ntgennummer',
 	'3602': 'Archivnummer',
 	'3603': 'BG-Nummer',
 	#Datum Patient seit -- nur bei header 6100 --
@@ -191,16 +191,16 @@ xdt_id_map = {
 	 '3612':'Datum Versichertenbeginn bei Wechsel',
 	#Beruf des Patienten -- nur bei header 6100 --
 	'3620':'Beruf des Patienten',
-	#Grösse des Patienten -- nur bei header 6200 --
-	'3622':'Grösse des Patienten',
+	#GrÃ¶sse des Patienten -- nur bei header 6200 --
+	'3622':'GrÃ¶sse des Patienten',
 	#Gewicht des Patienten -- nur bei header 6200 --
 	'3623':'Gewicht des Patienten',
 	#Arbeitgeber des Patienten -- nur bei header 6100 --
 	'3625':'Arbeitgeber des Patienten',
 	#Telefonnummer des Patienten -- nur bei header 6100 --
 	'3626':'Telefonnummer des Patienten',
-	#Nationalität des Patienten -- nur bei header 6100 --
-	'3627':'Nationalität des Patienten',
+	#NationalitÃ¤t des Patienten -- nur bei header 6100 --
+	'3627':'NationalitÃ¤t des Patienten',
 	#Muttersprache Patient -- nur bei header 6100 --
 	'3628':'Muttersprache des Patienten',
 	#Arztnummer des Hausarztes -- nur bei header 6100 --
@@ -223,8 +223,8 @@ xdt_id_map = {
 	'3654':'Risikofaktoren',
 	#Allergien -- nur bei header 6100 --
 	'3656':'Allergien',
-	#Unfälle -- nur bei header 6100 --
-	'3658':'Unfälle',
+	#UnfÃ¤lle -- nur bei header 6100 --
+	'3658':'UnfÃ¤lle',
 	#Operationen -- nur bei header 6100 --
 	'3660':'Operationen',
 	#Anamnese -- nur bei header 6100 --
@@ -251,33 +251,33 @@ xdt_id_map = {
 	'4101':'Quartal',
 	#Ausstellungsdatum
 	'4102':'Ausstellungsdatum',
-	#Gültigkeitsdatum
-	'4103':'Gültigkeitsdatum',
+	#GÃ¼ltigkeitsdatum
+	'4103':'GÃ¼ltigkeitsdatum',
 	#VKNR- Vertragskassenarztnummer
 	'4104':'Abrechnungs-VKNR',
-	#Geschäftsstelle
-	'4105':'Geschäftsstelle',
-	#Kostenträgergruppe
-	'4106':'Kostenträger-Abrechnungsbereich(KTAB)',
+	#GeschÃ¤ftsstelle
+	'4105':'GeschÃ¤ftsstelle',
+	#KostentrÃ¤gergruppe
+	'4106':'KostentrÃ¤ger-Abrechnungsbereich(KTAB)',
 	#Abrechnungsart
 	'4107':'Abrechnungsart',
 	#letzter Einlesetag der VK im Quartal TTMMJJ
 	'4109':'letzter Einlesetag der KVK im Quartal',
-	#Bis-Datum der Gültigkeit MMJJ
-	'4110':'Bis-Datum der Gültigigkeit',
+	#Bis-Datum der GÃ¼ltigkeit MMJJ
+	'4110':'Bis-Datum der GÃ¼ltigigkeit',
 	#Krankenkassennummer
 	'4111':'Krankenkassennummer (IK)',
 	#Versichertenstatus VK
 	'4112':'Versichertenstatus VK',
-	##'4113':'Statusergänzung/DMP-Kennzeichnung',
+	##'4113':'StatusergÃ¤nzung/DMP-Kennzeichnung',
 	'4113':'Ost/West-Status VK',
-	#Gebührenordnung
-	'4121':'Gebührenordnung',
+	#GebÃ¼hrenordnung
+	'4121':'GebÃ¼hrenordnung',
 	#Abrechnungsgebiet
 	'4122':'Abrechnungsgebiet',
 	'4123':'Personenkreis/Untersuchungskategorie',
 	'4124':'SKT-Zusatzangaben',
-	'4125':'Gültigkeitszeitraum von ... bis ...',
+	'4125':'GÃ¼ltigkeitszeitraum von ... bis ...',
 	#Ursache des Leidens 
 	'4201':'Ursache des Leidens',
 	'4202':'Unfall, Unfallfolgen',
@@ -285,8 +285,8 @@ xdt_id_map = {
 	'4206':'mutmasslicher Tag der Entbindung',
 	#Diagnose/Verdacht -- nur bei header 0102 --
 	'4207':'Diagnose/Verdacht',
-	#erläuternder Text zur Überweisung -- nur bei header 0102 --
-	'4209':'erläuternder Text zur Überweisung',
+	#erlÃ¤uternder Text zur Ãœberweisung -- nur bei header 0102 --
+	'4209':'erlÃ¤uternder Text zur Ãœberweisung',
 	#Ankreuzfeld LSR  -- nur bei header 0102 --
 	'4210':'Ankreuzfeld LSR',
 	#Ankreuzfeld HAH  -- nur bei header 0102 --
@@ -295,20 +295,20 @@ xdt_id_map = {
 	'4212':'Ankreuzfeld ABO.RH',
 	#Ankreuzfeld AK  -- nur bei header 0102 --
 	'4213':'Ankreuzfeld AK',
-	#Überweisung von Arztnummer  -- nur bei header 0102 --
+	#Ãœberweisung von Arztnummer  -- nur bei header 0102 --
 	'4217':'Vertragsarzt-Nr. des Erstveranlassers',
-	'4218':'Überweisung von Arztnummer',
-	#Überweisung an  -- nur bei header 0102 --
-	'4219':'Überweisung von anderen Ärzten',
-	'4220':'Überweisung an',
-	'4221':'Kurativ / Präventiv / Sonstige Hilfen / bei belegärztlicher Behandlung',
+	'4218':'Ãœberweisung von Arztnummer',
+	#Ãœberweisung an  -- nur bei header 0102 --
+	'4219':'Ãœberweisung von anderen Ã„rzten',
+	'4220':'Ãœberweisung an',
+	'4221':'Kurativ / PrÃ¤ventiv / Sonstige Hilfen / bei belegÃ¤rztlicher Behandlung',
 	'4222':'Kennziffer OI./O.II.',
 	'4223':'Kennziffer OIII.',
-	#stationäre Behandlung von bis -- nur bei header 0103/0190 --
-	'4233':'stationäre Behandlung von... bis...',
+	#stationÃ¤re Behandlung von bis -- nur bei header 0103/0190 --
+	'4233':'stationÃ¤re Behandlung von... bis...',
 	'4234':'anerkannte Psychotherapie',
 	'4235':'Datum des Anerkennungsbescheides',
-	#Klasse bei stationärer Behandlung -- nur bei header 0190 --
+	#Klasse bei stationÃ¤rer Behandlung -- nur bei header 0190 --
 	'4236':'Klasse bei Behandlung',
 	#Krankenhausname -- nur bei header 0190 --
 	'4237':'Krankenhausname',
@@ -319,16 +319,16 @@ xdt_id_map = {
 	#weiterbehandelnder Arzt -- nur bei header 0104 --
 	'4243':'weiterbehandelnder Arzt',
 	'4261':'Kurart',
-	'4262':'Durchführung als Kompaktkur',
+	'4262':'DurchfÃ¼hrung als Kompaktkur',
 	'4263':'genehmigte Kurdauer in Wochen',
 	'4264':'Anreisetag',
 	'4265':'Abreisetag',
 	'4266':'Kurabbruch am',
-	'4267':'Bewilligte Kurverlängerung in Wochen',
-	'4268':'Bewilligungsdatum Kurverlängerung',
-	'4269':'Verhaltenspräventive Massnahmen angeregt',
-	'4270':'Verhaltenspräventive Massnahmen durchgeführt',
-	'4271':'Kompaktkur nicht möglich',
+	'4267':'Bewilligte KurverlÃ¤ngerung in Wochen',
+	'4268':'Bewilligungsdatum KurverlÃ¤ngerung',
+	'4269':'VerhaltensprÃ¤ventive Massnahmen angeregt',
+	'4270':'VerhaltensprÃ¤ventive Massnahmen durchgefÃ¼hrt',
+	'4271':'Kompaktkur nicht mÃ¶glich',
 	#Unfalltag -- nur bei header 0191 --
 	'4500':'Unfalltag',
 	#Uhrzeit des Unfalls -- nur bei header 0191 --
@@ -341,12 +341,12 @@ xdt_id_map = {
 	'4504':'Beginn der Arbeitszeit',
 	#Unfallort -- nur bei header 0191 --
 	'4505':'Unfallort',
-	#Beschäftigung als -- nur bei header 0191 --
-	'4506':'Beschäftigung als',
-	#Beschäftigung seit -- nur bei header 0191 --
-	'4507':'Beschäftigung seit',
-	#Staatsangehörigkeit -- nur bei header 0191 --
-	'4508':'Staatsangehörigkeit',
+	#BeschÃ¤ftigung als -- nur bei header 0191 --
+	'4506':'BeschÃ¤ftigung als',
+	#BeschÃ¤ftigung seit -- nur bei header 0191 --
+	'4507':'BeschÃ¤ftigung seit',
+	#StaatsangehÃ¶rigkeit -- nur bei header 0191 --
+	'4508':'StaatsangehÃ¶rigkeit',
 	#Unfallbetrieb -- nur bei header 0191 --
 	'4509':'Unfallbetrieb',
 	#Unfallhergang -- nur bei header 0191 --
@@ -357,8 +357,8 @@ xdt_id_map = {
 	'4513':'Erstmalige_Behandlung',
 	#Behandlung durch -- nur bei header 0191 --
 	'4514':'Behandlung_durch',
-	#Art dieser ersten ärztlichen Behandlung -- nur bei header 0191 --
-	'4515':'Art dieser ersten ärztlichen Behandlung',
+	#Art dieser ersten Ã¤rztlichen Behandlung -- nur bei header 0191 --
+	'4515':'Art dieser ersten Ã¤rztlichen Behandlung',
 	#Alkoholeinfluss -- nur bei header 0191 --
 	'4520':'Alkoholeinfluss',
 	#Anzeichen eines Alkoholeinflusses -- nur bei header 0191 --
@@ -367,12 +367,12 @@ xdt_id_map = {
 	'4522':'Blutentnahme',
 	#Befund -- nur bei header 0191 --
 	'4530':'Befund',
-	#Röntgenergebniss -- nur bei header 0191 --
-	'4540':'Röntgenergebniss',
+	#RÃ¶ntgenergebniss -- nur bei header 0191 --
+	'4540':'RÃ¶ntgenergebniss',
 	#Art etwaiger Erstversorgung durch D-Arzt -- nur bei header 0191 --
 	'4550':'Art etwaiger Versorgung durch D-Arzt',
-	#krankhafte Veränderungen unabhängig vom Unfall -- nur bei header 0191 --
-	'4551':'krankhafte Verändrungen unabhängig vom Unfall',
+	#krankhafte VerÃ¤nderungen unabhÃ¤ngig vom Unfall -- nur bei header 0191 --
+	'4551':'krankhafte VerÃ¤ndrungen unabhÃ¤ngig vom Unfall',
 	#Bedenken gegen Angaben -- nur bei header 0191 --
 	'4552':'Bedenken gegen Angaben',
 	#Art der Bedenken bei allegemeinen Bedenken-- nur bei header 0191 --
@@ -381,10 +381,10 @@ xdt_id_map = {
 	'4554':'Bedenken gegen Arbeistunfall',
 	#Art der Bedenken gegen Arbeitsunfall -- nur bei header 0191 --
 	'4555':'Art_Bedenken gegen Arbeitsunfall',
-	#arbeitsfähig -- nur bei header 0191 --
-	'4560':'arbeitsfähig',
-	#wieder arbeitsfähig ab -- nur bei header 0191 --
-	'4561':'wieder arbeitsfähig ab',
+	#arbeitsfÃ¤hig -- nur bei header 0191 --
+	'4560':'arbeitsfÃ¤hig',
+	#wieder arbeitsfÃ¤hig ab -- nur bei header 0191 --
+	'4561':'wieder arbeitsfÃ¤hig ab',
 	#AU-Bescheinigung ausgestellt -- nur bei header 0191 --
 	'4562':'AU ausgestellt',
 	#besondere Heilbehandlung erforderlich -- nur bei header 0191 --
@@ -401,24 +401,24 @@ xdt_id_map = {
 	'4580':'Rechnungsart',
 	#allgemeine Heilbehandlung durch -- nur bei header 0191 --
 	'4581':'allgemeine Heilbehandlung durch',
-	#AU über 3 Tage -- nur bei header 0191 --
-	'4582':'AU über 3 Tage',
+	#AU Ã¼ber 3 Tage -- nur bei header 0191 --
+	'4582':'AU Ã¼ber 3 Tage',
 	#AU bescheinigt als -- nur bei header 0191 --
 	'4583':'AU bescheinigt als',
 	#Nachschau erforderlich -- nur bei header 0191 --
 	'4584':'Nachschau erforderlich',
 	#Rechnungsnummer -- nur bei header 0190 --
 	'4601':'Rechnungsnummer',
-	#Anschrift des Rechnungsadressaten (Empfänger) -- nur bei header 0190 --
+	#Anschrift des Rechnungsadressaten (EmpfÃ¤nger) -- nur bei header 0190 --
 	'4602':'Rechnungsanschrift',
-	#überweisender Arzt -- nur bei header 0190 --
-	'4603':'überweisender Arzt',
+	#Ã¼berweisender Arzt -- nur bei header 0190 --
+	'4603':'Ã¼berweisender Arzt',
 	#Rechnungsdatum -- nur bei header 0190 --
 	'4604':'Rechnungsdatum',
 	#Endsumme -- nur bei header 0190 --
 	'4605':'Endsumme',
-	#Abdingungserklärung vorhanden -- nur bei header 0190 --
-	'4608':'Abdingungserklärung vorhanden',
+	#AbdingungserklÃ¤rung vorhanden -- nur bei header 0190 --
+	'4608':'AbdingungserklÃ¤rung vorhanden',
 	#Unterkonto Arzt -- nur bei header 0190 --
 	'4611':'Unterkonto Arzt',
 	#Anlage erforderlich -- nur bei header 0190 --
@@ -426,27 +426,27 @@ xdt_id_map = {
 	#Kopfzeile -- nur bei header 0190 --
 	'4615':'Kopfzeile',
 	#Fusszeile -- nur bei header 0190 --
-	'4617': 'Fußzeile',
+	'4617': 'FuÃŸzeile',
 	'5000': 'Leistungstag',
 	'5001': 'GNR',
 	#Art der Untersuchung
 	'5002':'Art der Untersuchung',
-	#Empfänger des Briefes
-	'5003':'Empfänger des Briefes',
+	#EmpfÃ¤nger des Briefes
+	'5003':'EmpfÃ¤nger des Briefes',
 	#Kilometer (nur bei GOA)
 	'5004':'Kilometer',
 	#Multiplikator
 	'5005':'Multiplikator',
 	#Um-Uhrzeit
 	'5006':'Um-Uhrzeit',
-	#Bestellzeit-Ausführungszeit
-	'5007':'Bestellzeit-Ausführungszeit',
+	#Bestellzeit-AusfÃ¼hrungszeit
+	'5007':'Bestellzeit-AusfÃ¼hrungszeit',
 	#DKM=Doppelkilometer
 	'5008':'Doppel-KM',
-	#freier Begründungstext
-	'5009':'freier Begründungstext',
-	#Medikament als Begründung -- nur bei header 0190 --
-	'5010':'Medikament als Begründung',
+	#freier BegrÃ¼ndungstext
+	'5009':'freier BegrÃ¼ndungstext',
+	#Medikament als BegrÃ¼ndung -- nur bei header 0190 --
+	'5010':'Medikament als BegrÃ¼ndung',
 	#Sachkosten-Bezeichnung
 	'5011':'Sachkosten-Bezeichnung',
 	#Sachkosten/Materialkosten (Dpf)
@@ -460,13 +460,13 @@ xdt_id_map = {
 	'5017':'Besuchsort bei Hausbesuchen',
 	#Zone bei Besuchen
 	'5018':'Zone bei Besuchen',
-	'5019':'Erbringungsort,Standort des Gerätes',
+	'5019':'Erbringungsort,Standort des GerÃ¤tes',
 	'5023':'GO-Nummern-Zusatz',
-	'5024':'GNR-Zusatzkennzeichen für poststationär erbrachte Leistungen',
+	'5024':'GNR-Zusatzkennzeichen fÃ¼r poststationÃ¤r erbrachte Leistungen',
 	#Beschreibung der GNR -- nur bei header 0190 --
 	'5060':'Beschreibung der GNR',
-	#Gebühr -- nur bei header 0190 --
-	'5061':'Gebühr',
+	#GebÃ¼hr -- nur bei header 0190 --
+	'5061':'GebÃ¼hr',
 	#Faktor -- nur bei header 0190 --
 	'5062':'Faktor',
 	#Betrag -- nur bei header 0190 --
@@ -479,12 +479,12 @@ xdt_id_map = {
 	'5091':'Gutachtenbezeichnung',
 	#Abrechnungsdiagnosen -- nur bei header 0102 --
 	'6000':'Abrechnungsdiagnosen',
-	#ICD-Schlüssel
-	'6001':'ICD-Schlüssel',
+	#ICD-SchlÃ¼ssel
+	'6001':'ICD-SchlÃ¼ssel',
 	'6003':'Diagnosensicherheit',
 	'6004':'Seitenlokalisation',
-	'6005':'Histologischer Befund bei Malignität',
-	'6006':'Diagnosenerläuterung',
+	'6005':'Histologischer Befund bei MalignitÃ¤t',
+	'6006':'DiagnosenerlÃ¤uterung',
 	#Tag der Speicherung von Behandlungsdaten -- nur bei header 6200 --
 	'6200':'gespeichert am',
 	#aktuelle Diagnose -- nur bei header 6200 --
@@ -493,17 +493,17 @@ xdt_id_map = {
 	'6210':'Medikament verordnet auf Kassenrezept',
 	#ausserhalb Rezept verordnetes Medikament -- nur bei header 6200 --
 	'6211':'Medikament verordnet auf Privatrezept',
-	#Ärztenummer -- nur bei header 6200 --
-	 ##'6215':'Ärztenummer',
-	'6215':'Ärztemuster',
+	#Ã„rztenummer -- nur bei header 6200 --
+	 ##'6215':'Ã„rztenummer',
+	'6215':'Ã„rztemuster',
 	#Befund -- nur bei header 6200 --
 	'6220':'Befund',
 	#Fremdbefund -- nur bei header 6200 --
 	'6221':'Fremdbefund',
 	#Laborbefund -- nur bei header 6200 --
 	'6222':'Laborbefund',
-	#Röntgenbefund -- nur bei header 6200 --
-	'6225':'Röntgenbefund',
+	#RÃ¶ntgenbefund -- nur bei header 6200 --
+	'6225':'RÃ¶ntgenbefund',
 	#Blutdruck -- nur bei header 6200 --
 	'6230':'Blutdruck',
 	#Symptome -- nur bei header 6200 --
@@ -512,8 +512,8 @@ xdt_id_map = {
 	'6260':'Therapie',
 	#physikalische Therapie -- nur bei header 6200 --
 	'6265':'physikalische Therapie',
-	#Überweisung Inhalt -- nur bei header 6200 --
-	'6280':'Überweisung Inhalt',
+	#Ãœberweisung Inhalt -- nur bei header 6200 --
+	'6280':'Ãœberweisung Inhalt',
 	#AU-Dauer -- nur bei header 6200 --
 	'6285':'AU Dauer (von - bis)',
 	#AU-wegen -- nur bei header 6200 --
@@ -536,8 +536,8 @@ xdt_id_map = {
 	'6306':'Attest',
 	#Inhalt des Attestes -- nur bei header 6200 --
 	'6307':'Inhalt des Attestes',
-	#Name des Briefempfängers -- nur bei header 6200 --
-	'6310':'Name des Briefempfängers',
+	#Name des BriefempfÃ¤ngers -- nur bei header 6200 --
+	'6310':'Name des BriefempfÃ¤ngers',
 	#Anrede -- nur bei header 6200 --
 	'6311':'Anrede',
 	#Strasse -- nur bei header 6200 --
@@ -565,8 +565,8 @@ xdt_id_map = {
 	#--------------------------------------------------------
 	# Satzidentifikation
 	'8000':'Satzidentifikation >>===============',
-	# Satzlänge
-	'8100': 'Satzlänge',
+	# SatzlÃ¤nge
+	'8100': 'SatzlÃ¤nge',
 
 	# LDT
 	'8301': 'UNBEKANNT Datum',       ## nicht in GDT 2.1 Specs (KS)
@@ -577,7 +577,7 @@ xdt_id_map = {
 
 	'8311': 'UNBEKANNT Integer lang',## nicht in GDT 2.1 Specs (KS)
 	'8312': 'UNBEKANNT Integer kurz',## nicht in GDT 2.1 Specs (KS)
-	'8315': 'GDT-ID Empfänger',
+	'8315': 'GDT-ID EmpfÃ¤nger',
 	'8316': 'GDT-ID Sender',
 
 	'8320': 'Labor Bezeichnung',     ## nicht in GDT 2.1 Specs (KS)
@@ -587,10 +587,10 @@ xdt_id_map = {
 
 	# Befundstatus -- nur bei header 6200/8202 --
 	'8401': 'Befundstatus',
-	#Geräte- bzw. Verfahrensspezifisches Kennfeld -- nur bei header 6200 --
-	'8402':'Gerätespezifisches Kennfeld',
+	#GerÃ¤te- bzw. Verfahrensspezifisches Kennfeld -- nur bei header 6200 --
+	'8402':'GerÃ¤tespezifisches Kennfeld',
 	# LDT
-	'8403': 'Gebührenordnung',
+	'8403': 'GebÃ¼hrenordnung',
 	# LDT
 	'8404': 'Kosten in Doppelpfennigen',
 	'8406': 'Kosten in Cent',
@@ -648,22 +648,22 @@ xdt_id_map = {
 	#Abschluss-Zeile -- nur bei header 6200 --
 	'8490':'Abschluss-Zeile',
 	# LDT
-	'8609': 'Gebührenordung',
+	'8609': 'GebÃ¼hrenordung',
 	#Signatur -- nur bei header 6200 --
 	'8990':'Signatur',
 	'9100':'Arztnummer des Absenders',
-	'9102':'Empfänger',
+	'9102':'EmpfÃ¤nger',
 	'9103':'Erstellungsdatum',
-	'9105':'Lfd.Nr. Datenträger im Paket',	
+	'9105':'Lfd.Nr. DatentrÃ¤ger im Paket',	
 	'9106':'verwendeter Zeichensatz',
 	'9115':'Erstellungsdatum ADT-Datenpaket',
 	'9116':'Erstellungsdatum KADT-Datenpaket',
 	'9117':'Erstellungsdatum AODT-Datenpaket',
 	'9118':'Erstellungsdatum STDT-Datenpaket',
 	'9132':'enthaltene Datenpakete dieser Datei',
-	'9202':'Gesamtlänge Datenpaket',
+	'9202':'GesamtlÃ¤nge Datenpaket',
 	#number of media for this data package     
-	'9203':'Anzahl Datenträger im Paket',
+	'9203':'Anzahl DatentrÃ¤ger im Paket',
 	'9204':'Abrechnungsquartal',
 	'9206': 'Zeichensatz (encoding)',
 	#ADT-version
@@ -677,22 +677,22 @@ xdt_id_map = {
 	#storage timeframe
 	'9601':'Zeitraum der Speicherung',
 	#time of transfer start
-	'9602':'Beginn der Übertragung',
+	'9602':'Beginn der Ãœbertragung',
 	'9901':'Systeminterner Parameter'
 }
 #--------------------------------------------------------------
 # 8000
 xdt_packet_type_map = {
-	'0020': "========<< Anfang Datenträger >>========",
-	'0021': "========<< Ende Datenträger >>========",
+	'0020': "========<< Anfang DatentrÃ¤ger >>========",
+	'0021': "========<< Ende DatentrÃ¤ger >>========",
 	'0022': "========<< Anfang Datenpaket >>========",
 	'0023': "========<< Ende Datenpaket >>========",
 	'0010': "========<< Praxisdaten >>========",
-	'0101': "========<< Fall: Primärarzt >>========",
-	'0102': "========<< Fall: Überweisung >>========",
+	'0101': "========<< Fall: PrimÃ¤rarzt >>========",
+	'0102': "========<< Fall: Ãœberweisung >>========",
 	'0103': "========<< Fall: Belegarzt  >>========",
 	'0104': "========<< Fall: Notfall/Dienst/Vertretung >>========",
-	'0109': "========<< Kurärztliche Abrechnung >>========",
+	'0109': "========<< KurÃ¤rztliche Abrechnung >>========",
 	'0190': "========<< Fall: Privat >>========",
 	'0191': "========<< Fall: BG >>========",
 	'0199': "========<< Fall: unstrukturiert >>========",
@@ -705,9 +705,9 @@ xdt_packet_type_map = {
 	'con9': "========<< Container-Abschluss >>========",
 	'prax': "========<< Praxisdaten >>========",
 	'kad0': "========<< KADT-Datenpaket-Header >>========",
-	'kad9': "========<< KADT-Datenpaket-Abschluß >>========",
+	'kad9': "========<< KADT-Datenpaket-AbschluÃŸ >>========",
 	'std0': "========<< STDT-Datenpaket-Header >>========",
-	'std9': "========<< STDT-Datenpaket-Abschluß >>========",
+	'std9': "========<< STDT-Datenpaket-AbschluÃŸ >>========",
 	'st13': "========<< Statistiksatz >>========"
 }
 #--------------------------------------------------------------
@@ -792,11 +792,11 @@ xdt_Archivierungsart_map = {
 xdt_Praxistyp_map = {
 	'1':'Einzelpraxis',
 	'2':'Gemeinschaftspraxis',
-	'3':'Fachübergreifende GP',
+	'3':'FachÃ¼bergreifende GP',
 	'4':'Praxisgemeinschaft',
-	'5':'Fachübergreifende GP ohne Kennzeichen Leistung',
-	'6':'ermächtigter Arzt',
-	'7':'Krankenhaus oder ärztlich geleitete Einrichtung'
+	'5':'FachÃ¼bergreifende GP ohne Kennzeichen Leistung',
+	'6':'ermÃ¤chtigter Arzt',
+	'7':'Krankenhaus oder Ã¤rztlich geleitete Einrichtung'
 }
 # Versichertenart MFR : 3108
 xdt_Versichertenart_map = {
@@ -804,24 +804,24 @@ xdt_Versichertenart_map = {
 	'3':'Familienversicherter',
 	'5':'Rentner',
 }
-# Kostenträgeruntergruppe : 4106
+# KostentrÃ¤geruntergruppe : 4106
 xdt_Kostentraegeruntergruppe_map = {
 	'00':'default',
 	'01':'SVA(Sozialversicherungsabkommen)',
 	'02':'BVG(Bundesversorgungsgesetz)',
-	'03':'BEG(Bundesentschädigungsgesetz)',
-	'04':'Grenzgänger',
+	'03':'BEG(BundesentschÃ¤digungsgesetz)',
+	'04':'GrenzgÃ¤nger',
 	'05':'Rheinschiffer',
-	'06':'SHT(Sozialhilfeträger, ohne Asylstellen)',
+	'06':'SHT(SozialhilfetrÃ¤ger, ohne Asylstellen)',
 	'07':'BVFG(Bundesvertriebenengesetz)',
 	'08':'Asylstellen(AS)',
-	'09':'Schwangerschaftsabbrüche'
+	'09':'SchwangerschaftsabbrÃ¼che'
 }
 # Abrechnungsart : 4107
 xdt_Abrechnungsart_map = {
-	'1':'PKA(Primärkassen)',
+	'1':'PKA(PrimÃ¤rkassen)',
 	'2':'EKK(Ersatzkassen)',
-	'3':'SKT(Sonstige Kostenträger)',
+	'3':'SKT(Sonstige KostentrÃ¤ger)',
 }
 # Ost/West-Status VK : 4113
 xdt_Ost_West_Status_map = {
@@ -830,12 +830,12 @@ xdt_Ost_West_Status_map = {
 	'7':'SVA',
 	'8':'SVA',
 	'9':'Ost',
-	'M':'eingeschriebene Versicherte in Disease-Management-Programmen für Diabetes mellitus Typ2 - RK West',
-	'X':'eingeschriebene Versicherte in Disease-Management-Programmen für Diabetes mellitus Typ2 - RK Ost',
-	'A':'eingeschriebene Versicherte in Disease-Management-Programmen für Brustkrebs - RK West',
-	'C':'eingeschriebene Versicherte in Disease-Management-Programmen für Brustkrebs - RK Ost',
+	'M':'eingeschriebene Versicherte in Disease-Management-Programmen fÃ¼r Diabetes mellitus Typ2 - RK West',
+	'X':'eingeschriebene Versicherte in Disease-Management-Programmen fÃ¼r Diabetes mellitus Typ2 - RK Ost',
+	'A':'eingeschriebene Versicherte in Disease-Management-Programmen fÃ¼r Brustkrebs - RK West',
+	'C':'eingeschriebene Versicherte in Disease-Management-Programmen fÃ¼r Brustkrebs - RK Ost',
 }
-# Gebührenordnung : 4121
+# GebÃ¼hrenordnung : 4121
 xdt_Gebuehrenordnung_map = {
 	'1':'BMA',
 	'2':'E-GO',
@@ -848,14 +848,14 @@ xdt_Abrechnungsgebiet_map = {
 	'02':'Dialyse-Sachkosten',
 	'03':'Methadon-Substitutionsbehandlung',
 	'04':'Grosse Psychotherapie',
-	##'04':'persönlich erbrachte Notfallleistungen durch ermächtigte Krankenhausärzte',
+	##'04':'persÃ¶nlich erbrachte Notfallleistungen durch ermÃ¤chtigte KrankenhausÃ¤rzte',
 	'05':'Verhaltenstherapie',
-	##'05':'sonstige Notfallleistungen durch ermächtigte Krankenhausärzte',
+	##'05':'sonstige Notfallleistungen durch ermÃ¤chtigte KrankenhausÃ¤rzte',
 	'06':'Fremde Zytologie',
 	'07':'Diabestesabrechnung',
 	'08':'Umweltmedizin',
 	'09':'Rheuma',
-	'10':'Hirnleistungsstörungen',
+	'10':'HirnleistungsstÃ¶rungen',
 	'11':'Kodex-Anhangsarzt',
 	'12':'Kodex-Arzt',
 	'13':'Kodex-Listenarzt',
@@ -878,13 +878,13 @@ xdt_Scheinuntergruppe_map = {
 	'22':'Rahmenauftrag',
 	'23':'Konsillaruntersuchung',
 	'24':'Mit/Weiterbehandlung (Defaultwert ausser bei Einsendepraxen)',
-	'25':'Überweisung aus anderen Gründen',
-	'26':'Stat. Mitbehandlung, Vergütung nach amb. Grundsätzen',
-	'27':'Überweisungs-/Abrechnungssschein für Laboratoriumsuntersuchungen als Auftragsleistung',
-	'30':'Belegärztliche Behandlung (Default bei SA 0103)',
-	'31':'Belegärztliche Mitbehandlung',
-	'32':'Urlaubs-/bzw. Krankheitsvertretung bei belegärztlicher Behandlung',
-	'41':'ärztlicher Notfalldienst',
+	'25':'Ãœberweisung aus anderen GrÃ¼nden',
+	'26':'Stat. Mitbehandlung, VergÃ¼tung nach amb. GrundsÃ¤tzen',
+	'27':'Ãœberweisungs-/Abrechnungssschein fÃ¼r Laboratoriumsuntersuchungen als Auftragsleistung',
+	'30':'BelegÃ¤rztliche Behandlung (Default bei SA 0103)',
+	'31':'BelegÃ¤rztliche Mitbehandlung',
+	'32':'Urlaubs-/bzw. Krankheitsvertretung bei belegÃ¤rztlicher Behandlung',
+	'41':'Ã¤rztlicher Notfalldienst',
 	'42':'Urlaubs-bzw. Krankheitsvertretung',
 	'43':'Notfall',
 	'44':'Notfalldienst bei Taxi',
@@ -892,16 +892,16 @@ xdt_Scheinuntergruppe_map = {
 	'46':'Zentraler Notfalldienst',
 	'90':'default bei SA 0190',
 	'91':'Konsillaruntersuchung',
-	'92':'stat. Mitbehandlung Vergütung nach stat. Grundsätzen',
-	'93':'stat. Mitbehandlung Vergütung nach ambul. Grundsätzen',
-	'94':'belegärztliche Behandlung im Krankenhaus'
+	'92':'stat. Mitbehandlung VergÃ¼tung nach stat. GrundsÃ¤tzen',
+	'93':'stat. Mitbehandlung VergÃ¼tung nach ambul. GrundsÃ¤tzen',
+	'94':'belegÃ¤rztliche Behandlung im Krankenhaus'
 }
-# Gesetzlicher Abzug zur stationären Behandlung gemäss Paragraph 6a GOA
+# Gesetzlicher Abzug zur stationÃ¤ren Behandlung gemÃ¤ss Paragraph 6a GOA
 xdt_gesetzlicher_Abzug_map = {
 	'1':'nein',
 	'2':'ja'
 }
-# Klasse bei stationärer Behandlung
+# Klasse bei stationÃ¤rer Behandlung
 xdt_Klasse_stationaere_Behandlung_map = {
 	'1':'Einbettzimmer',
 	'2':'Zweibettzimmer',
@@ -920,13 +920,13 @@ xdt_Rechnungsart_map = {
 	'70':'Justizvollzugsanstalt',
 	'71':'Jugendarbeitsschutz',
 	'72':'Landesversicherungsanstalt',
-	'73':'Bundesversicherungsanstalt für Angestellte',
+	'73':'Bundesversicherungsanstalt fÃ¼r Angestellte',
 	'74':'Sozialamt',
 	'75':'Sozialgericht',
 	'80':'Studenten-Deutsche',
-	'81':'Studenten-Ausländer'
+	'81':'Studenten-AuslÃ¤nder'
 }
-# Abdingungserklärung vorhanden
+# AbdingungserklÃ¤rung vorhanden
 xdt_Abdingungserklaerung_map = {
 	'1':'nein',
 	'2':'ja'
@@ -951,14 +951,14 @@ xdt_Arbeitsunfall_map = {
 	'1':'nein',
 	'2':'ja'
 }
-# arbeitsfähig
+# arbeitsfÃ¤hig
 xdt_arbeitsfaehig_map = {
 	'1':'angekreuzt'
 }
 # Besondere Heilbehandlung erforderlich
 xdt_Heilbehandlung_erforderlich_map = {
 	'1':'ambulant',
-	'2':'stationär'
+	'2':'stationÃ¤r'
 }
 # Besondere Heilbehandlung durch
 xdt_Besondere_Heilbehandlung_durch_map = {
@@ -970,7 +970,7 @@ xdt_Allgemeine_Heilbehandlung_durch_map = {
 	'1':'selbst',
 	'2':'anderer Arzt'
 }
-# AU über 3 Tage
+# AU Ã¼ber 3 Tage
 xdt_AU_3Tage_map = {
 	'1':'angekreuzt'
 }
@@ -1009,7 +1009,7 @@ xdt_Resistenzmethode_map = {
 xdt_Resistenzinterpretation_map = {
 	'0':'nicht getestet',
 	'1':'sensibel/wirksam',
-	'2':'mässig sensibel/schwach wirksam',
+	'2':'mÃ¤ssig sensibel/schwach wirksam',
 	'3':'resistent/unwirksam',
 	'4':'wirksam in hohen Konzentrationen'
 }
@@ -1017,8 +1017,8 @@ xdt_Resistenzinterpretation_map = {
 kvdt_enthaltene_Datenpakete_map = {
 	'1':'ADT-Datenpaket',
 	'2':'AODT-Datenpaket(roter Erhebungsbogen)',
-	'3':'Kurärztliches Abrechnungsdatenpaket',
-	'4':'AODT-Hessen-Datenpaket (grüner Erhebungsbogen der KV Hessen)',
+	'3':'KurÃ¤rztliches Abrechnungsdatenpaket',
+	'4':'AODT-Hessen-Datenpaket (grÃ¼ner Erhebungsbogen der KV Hessen)',
 	'5':'STDT-Datenpaket'
 }
 #KV-Bereich : 3116
@@ -1035,9 +1035,9 @@ kvdt_KV_Bereich_map = {
 	'49':'Pfalz',
 	'50':'Trier',
 	'55':'Nordbaden',
-	'60':'Südbaden',
-	'61':'Nordwürtemberg',
-	'62':'Südwürtemberg',
+	'60':'SÃ¼dbaden',
+	'61':'NordwÃ¼rtemberg',
+	'62':'SÃ¼dwÃ¼rtemberg',
 	'71':'Bayern',
 	'72':'Berlin',
 	'73':'Saarland',
@@ -1049,41 +1049,41 @@ kvdt_KV_Bereich_map = {
 }
 # Personenkreis / Untersuchungskategorie : 4123
 kvdt_Personenkreis_Untersuchungskategorie_map = {
-	'01':'Beschädigter',
-	'02':'Schwerbeschädigter',
-	'03':'Angehöriger',
+	'01':'BeschÃ¤digter',
+	'02':'SchwerbeschÃ¤digter',
+	'03':'AngehÃ¶riger',
 	'04':'Hinterbliebener',
 	'05':'Pflegeperson',
 	'06':'Tauglichkeitsuntersuchung',
-	'07':'ärztl. Versorgung',
+	'07':'Ã¤rztl. Versorgung',
 	'08':'Bewerber',
 	'09':'Erstuntersuchung',
 	'10':'Nachuntersuchung',
-	'11':'Ergänzungsuntersuchung',
+	'11':'ErgÃ¤nzungsuntersuchung',
 	'12':'Verfolgte'
 }
 #Unfall, Unfallfolgen : 4202
 kvdt_Unfallfolgen_map = {
 	'1':'ja'
 }
-#belegärztliche Behandlung : 4221
+#belegÃ¤rztliche Behandlung : 4221
 kvdt_belegaerztliche_Behandlung_map = {
 	'1':'kurativ',
-	'2':'präventiv',
+	'2':'prÃ¤ventiv',
 	'3':'sonstige Hilfen',
-	'4':'bei belegärztlicher Behandlung'
+	'4':'bei belegÃ¤rztlicher Behandlung'
 }
 # anerkannte Psychotherapie : 4234
 kvdt_anerkannte_Psychotherapie_map = {
 	'1':'ja'
 }
-# Abklärung somatischer Ursachen : 4236
+# AbklÃ¤rung somatischer Ursachen : 4236
 kvdt_somatische_Ursachen_map = {
 	'1':'ja'
 }
-# GNR-Zusatzkennzeichen für poststationär erbrachte Leistungen : 5024
+# GNR-Zusatzkennzeichen fÃ¼r poststationÃ¤r erbrachte Leistungen : 5024
 kvdt_Zusatzkennzeichen_poststationaere_Leistungen_map = {
-	'N':'poststationäre Leistung'	
+	'N':'poststationÃ¤re Leistung'	
 }
 # Diagnosensicherheit : 6003
 kvdt_Diagnosensicherheit_map = {
@@ -1097,29 +1097,29 @@ kvdt_Seitenlokalisation_map = {
 	'L':'Links',
 	'B':'beiderseits'
 }
-# Empfänger : 9102
+# EmpfÃ¤nger : 9102
 kvdt_Empfaenger_map = {
 	'01':'Schleswig-Holstein',
 	'02':'Hamburg',
 	'03':'Bremen',
 	'06':'Aurich',
 	'07':'Braunschweig',
-	'08':'Göttingen',
+	'08':'GÃ¶ttingen',
 	'09':'Hannover',
 	'10':'Hildesheim',
-	'11':'Lüneburg',
+	'11':'LÃ¼neburg',
 	'12':'Oldenburg',
-	'13':'Osnabrück',
+	'13':'OsnabrÃ¼ck',
 	'14':'Stade',
 	'15':'Verden',
 	'16':'Wilhelmshaven',
 	'18':'Dortmund',
-	'19':'Münster',
+	'19':'MÃ¼nster',
 	'20':'KV Westfalen Lippe',
 	'21':'Aachen',
-	'24':'Düsseldorf',
+	'24':'DÃ¼sseldorf',
 	'25':'Duisburg',
-	'27':'Köln',
+	'27':'KÃ¶ln',
 	'28':'Linker Niederrhein',
 	'31':'Ruhr',
 	'37':'Bergisch-Land',
@@ -1141,9 +1141,9 @@ kvdt_Empfaenger_map = {
 	'57':'Freiburg',
 	'58':'Konstanz',
 	'59':'Offenburg',
-	'61':'Nord-Würtemberg',
-	'62':'Süd-Würtemberg',
-	'63':'München Sadt u. Land',
+	'61':'Nord-WÃ¼rtemberg',
+	'62':'SÃ¼d-WÃ¼rtemberg',
+	'63':'MÃ¼nchen Sadt u. Land',
 	'64':'Oberbayern',
 	'65':'Oberfranken',
 	'66':'Mittelfranken',
@@ -1173,10 +1173,10 @@ kvdt_Facharztstatus_map = {
 	'0':'nein',
 	'1':'ja'	
 }
-# Anästhesie erbracht : 2761
+# AnÃ¤sthesie erbracht : 2761
 kvdt_Anaesthesie_erbracht_map = {
 	'1':'vom Operateur',
-	'2':'vom Anästhesisten'
+	'2':'vom AnÃ¤sthesisten'
 }
 # Blutung : 2770-2776,2720-2726
 kvdt_Zwischenfall_map = {
@@ -1194,18 +1194,18 @@ kvdt_Histologie_map = {
 	'0':'nein',
 	'1':'ja'
 }
-# stationäre Weiterbehandlung erforderlich : 2782
+# stationÃ¤re Weiterbehandlung erforderlich : 2782
 kvdt_stationaere_Weiterbehandlung_map = {
 	'1':'unmittelbare Aufnahme zur Weiterbehandlung',
-	'2':'stationäre Aufnahme zur Weiterbehandlung bis zum 12.Tag'
+	'2':'stationÃ¤re Aufnahme zur Weiterbehandlung bis zum 12.Tag'
 }
-# stationäre Aufnahme : 2731
+# stationÃ¤re Aufnahme : 2731
 kvdt_stationaere_Aufnahme_map = {
 	'0':'nein',
 	'1':'unmittelbare Aufnahme zur Weiterbehandlung',
-	'2':'stationäre Aufnahme zur Weiterbehandlung bis zum 12.Tag'
+	'2':'stationÃ¤re Aufnahme zur Weiterbehandlung bis zum 12.Tag'
 }
-# Indikationsschlüssel : 2706
+# IndikationsschlÃ¼ssel : 2706
 kvdt_Indikationsschluessel_map = {
 	'0':'keine Angabe'
 }
@@ -1246,29 +1246,29 @@ kvdt_operierte_Seite_map = {
 	'2':'rechts',
 	'3':'beidseitig'
 }
-# Art der Anästhesie gemäß Klassifikation Strukturvertrag : 2744
+# Art der AnÃ¤sthesie gemÃ¤ÃŸ Klassifikation Strukturvertrag : 2744
 kvdt_Anaesthesie_Art_map = {
 	'1':'Intubationsnarkose',
-	'2':'Spinalanästhesie',
+	'2':'SpinalanÃ¤sthesie',
 	'3':'Maskennarkose',
 	'4':'Stand-By',
-	'5':'Plexusanästhesie',
-	'6':'Periduralanästhesie',
-	'7':'intravenöse Region',
-	'8':'Lokalanästhesie',
-	'9':'Retrobulbär-/Peribulbäranästhesie'
+	'5':'PlexusanÃ¤sthesie',
+	'6':'PeriduralanÃ¤sthesie',
+	'7':'intravenÃ¶se Region',
+	'8':'LokalanÃ¤sthesie',
+	'9':'RetrobulbÃ¤r-/PeribulbÃ¤ranÃ¤sthesie'
 }
 # Kurart : 4261
 kvdt_Kurart_map = {
-	'1':'Ambulante Vorsorgeleistung zur Krankheitsverhütung',
+	'1':'Ambulante Vorsorgeleistung zur KrankheitsverhÃ¼tung',
 	'2':'Ambulante Vorsorgeleistung bei bestehenden Krankheiten',
-	'3':'Ambulante Vorsorgeleistung für Kinder'
+	'3':'Ambulante Vorsorgeleistung fÃ¼r Kinder'
 }
-# Packungsgröße bei Kassenrezept und Privatrezept : 0917,0918
+# PackungsgrÃ¶ÃŸe bei Kassenrezept und Privatrezept : 0917,0918
 kvdt_Packungsgroesse_map = {
 	'N1':'Kleine Packung',
 	'N2':'Mittlere Packung',
-	'N3':'Große Packung',
+	'N3':'GroÃŸe Packung',
 	'kA':'keine Angabe'
 }
 # Heilmittel : 0925
@@ -1277,19 +1277,19 @@ kvdt_Packungsgroesse_map = {
 #	'02':'Bewegungstherapie',
 #	'03':'Krankengymnastik',
 #	'04':'Elektrotherapie',
-#	'06':'Thermotherapie(Wärme- und Kältetherapie)',
-#	'08':'Kohlensäurebäder',
+#	'06':'Thermotherapie(WÃ¤rme- und KÃ¤ltetherapie)',
+#	'08':'KohlensÃ¤urebÃ¤der',
 #	'09':'Inhalalationtherapie',
 #	'10':'Traktionsbehandlung',
 #	'20':'Stimmtherapie',
 #	'25':'Sprechtherapie',
 #	'30':'Sprachtherapie',
 #	'35':'Sprech- und/oder Sprachtherapie bei Kindern und Jugendlichen',
-#	'40':'Beschäftigungs- und Arbeitstherapie (Ergotherapie)',
+#	'40':'BeschÃ¤ftigungs- und Arbeitstherapie (Ergotherapie)',
 #	'90':'Sonstiges',
 #}
 
-# Kennzeichnung gebührenpflichtig, aut idem, noctu
+# Kennzeichnung gebÃ¼hrenpflichtig, aut idem, noctu
 kvdt_Kennzeichnung_map = {
 	'0':'nein',
 	'1':'ja'
@@ -1391,7 +1391,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.39  2007-03-10 15:13:05  ncq
+# Revision 1.40  2007-05-14 10:37:31  ncq
+# - recoded to utf8
+#
+# Revision 1.39  2007/03/10 15:13:05  ncq
 # - improved mappings, added code 3600
 #
 # Revision 1.38  2007/02/21 10:29:43  ncq
