@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.60 2007-05-14 10:05:33 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmGuiHelpers.py,v 1.61 2007-05-14 10:34:07 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -410,12 +410,6 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 	else:
 		return None
 #-------------------------------------------------------------------------
-def gm_statustext(aMessage=None, aLogLevel=None, beep=True):
-
-	print "***** gm_statustext deprecated *****"
-	gmDispatcher.send(gmSignals.statustext(), msg=aMessage, loglevel=aLogLevel, beep=beep)
-	return True
-#-------------------------------------------------------------------------
 def get_dbowner_connection(procedure=None, dbo_password=None):
 	if procedure is None:
 		procedure = _('<restricted procedure>')
@@ -577,7 +571,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.60  2007-05-14 10:05:33  ncq
+# Revision 1.61  2007-05-14 10:34:07  ncq
+# - no more gm_statustext()
+#
+# Revision 1.60  2007/05/14 10:05:33  ncq
 # - make "default" button definition optional
 #
 # Revision 1.59  2007/05/14 08:36:13  ncq
