@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.25 2007-01-21 12:22:44 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmXdtViewer.py,v 1.26 2007-05-14 13:11:25 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -20,7 +20,7 @@ import sys, os, os.path, codecs
 import wx
 
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
-from Gnumed.pycommon import gmLog, gmI18N
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
@@ -92,7 +92,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		encoding = gmXdtObjects.determine_xdt_encoding(filename = filename)
 		if encoding is None:
 			encoding = 'utf8'
-			gmGuiHelpers.gm_statustext(_('Encoding missing in xDT file. Assuming [%s].') % encoding)
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Encoding missing in xDT file. Assuming [%s].') % encoding)
 			_log.Log(gmLog.lWarn, 'xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
 
 		try:
@@ -418,7 +418,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.25  2007-01-21 12:22:44  ncq
+# Revision 1.26  2007-05-14 13:11:25  ncq
+# - use statustext() signal
+#
+# Revision 1.25  2007/01/21 12:22:44  ncq
 # - use determine_xdt_encoding()
 #
 # Revision 1.24  2006/11/24 10:01:31  ncq

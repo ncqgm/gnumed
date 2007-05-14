@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.122 2007-04-23 16:59:35 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmMedDocWidgets.py,v 1.123 2007-05-14 13:11:24 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -332,7 +332,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		doc_type = self._PhWheel_doc_type.GetData(can_create = True)
 		if doc_type is None:
-			gmGuiHelpers.gm_statustext(_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip(), beep=True)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
 			return False
 
 		# since the phrasewheel operates on the active
@@ -426,7 +426,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	def add_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmGuiHelpers.gm_statustext(_('Cannot accept new documents. No active patient.'))
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot accept new documents. No active patient.'))
 			return
 
 		# dive into folders dropped onto us and extract files (one level deep only)
@@ -434,7 +434,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		for pathname in filenames:
 			try:
 				files = os.listdir(pathname)
-				gmGuiHelpers.gm_statustext(_('Extracting files from folder [%s] ...') % pathname)
+				gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Extracting files from folder [%s] ...') % pathname)
 				for file in files:
 					fullname = os.path.join(pathname, file)
 					if not os.path.isfile(fullname):
@@ -817,7 +817,7 @@ off this message in the GNUmed configuration.""") % ref
 
 		# prepare for next document
 		self.__init_ui_data()
-		gmGuiHelpers.gm_statustext(_('Successfully saved new document.'))
+		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Successfully saved new document.'))
 		return True
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
@@ -1379,7 +1379,7 @@ class cDocTree(wx.TreeCtrl):
 		fnames = self.__curr_node_data.export_parts_to_files(export_dir=dirname)
 		wx.EndBusyCursor()
 
-		gmGuiHelpers.gm_statustext(_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname), beep=False)
+		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname))
 
 		return True
 #============================================================
@@ -1393,7 +1393,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.122  2007-04-23 16:59:35  ncq
+# Revision 1.123  2007-05-14 13:11:24  ncq
+# - use statustext() signal
+#
+# Revision 1.122  2007/04/23 16:59:35  ncq
 # - make cReviewDocPartDlg accept documents as well as document
 #   parts and dynamically adjust UI appropriately
 #

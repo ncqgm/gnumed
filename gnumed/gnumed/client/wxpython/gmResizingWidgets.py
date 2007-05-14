@@ -4,22 +4,19 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.45 2007-01-20 22:52:27 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmResizingWidgets.py,v 1.46 2007-05-14 13:11:25 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
 import sys
 
-try:
-	import wxversion
-	import wx
-	import wx.stc
-except ImportError:
-	from wxPython import wx
-	from wxPython import stc
 
-from Gnumed.pycommon import gmI18N, gmLog
+import wx
+import wx.stc
+
+
+from Gnumed.pycommon import gmI18N, gmLog, gmDispatcher, gmSignals
 from Gnumed.wxpython import gmGuiHelpers, gmTimer
 
 _log = gmLog.gmDefLog
@@ -796,10 +793,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		try:
 			create_widget = self.__popup_keywords[kwd]['widget_factory']
 		except KeyError:
-			gmGuiHelpers.gm_statustext (
-				aMessage = _('No action configured for keyword [%s].') % kwd,
-				aLogLevel = gmLog.lWarn
-			)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No action configured for keyword [%s].') % kwd)
 			return False
 
 #		best_pos, best_size = self.__get_best_popup_geom()
@@ -823,9 +817,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			return False
 
 		if not isinstance(popup, wx.Dialog):
-			gmGuiHelpers.gm_statustext (
-				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
-			)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd))
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
 			_log.Log(gmLog.lErr, 'the result (%s) is not a wx.Dialog subclass instance, however' % str(popup))
 			return False
@@ -1068,7 +1060,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.45  2007-01-20 22:52:27  ncq
+# Revision 1.46  2007-05-14 13:11:25  ncq
+# - use statustext() signal
+#
+# Revision 1.45  2007/01/20 22:52:27  ncq
 # - .KeyCode -> GetKeyCode()
 #
 # Revision 1.44  2007/01/18 22:07:52  ncq

@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.71 2007-05-14 10:33:33 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmEMRBrowser.py,v 1.72 2007-05-14 13:11:24 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -36,7 +36,7 @@ def export_emr_to_ascii(parent=None):
 	# sanity checks
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.is_connected():
-		gmGuiHelpers.gm_statustext(_('Cannot export EMR. No active patient.'), gmLog.lErr)
+		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot export EMR. No active patient.'))
 		return False
 	if parent is None:
 		_log.Log(gmLog.lErr, 'cannot dump emr in gui mode without parent widget')
@@ -96,10 +96,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
-			gmGuiHelpers.gm_statustext (
-				_('Cannot load clinical narrative. No active patient.'),
-				gmLog.lWarn
-			)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot load clinical narrative. No active patient.'),)
 			return False
 
 		if not self.__populate_tree():
@@ -176,8 +173,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# - edit encounter details
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('edit consultation details')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
-		# delete encounter
-		# attach all progress notes to another encounter
 
 		# - health issues
 		self.__issue_context_popup = wx.Menu()
@@ -235,10 +230,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			return
 
 		self.__populate_tree()
-	#--------------------------------------------------------
-	def __relink_episode_encounters(self, event):
-		print "relinking encounters of episode"
-		print self.__curr_node_data
 	#--------------------------------------------------------
 	# encounters
 	def __handle_encounter_context(self, pos=wx.DefaultPosition):
@@ -573,7 +564,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.71  2007-05-14 10:33:33  ncq
+# Revision 1.72  2007-05-14 13:11:24  ncq
+# - use statustext() signal
+#
+# Revision 1.71  2007/05/14 10:33:33  ncq
 # - allow deleting episode
 #
 # Revision 1.70  2007/03/18 14:04:00  ncq

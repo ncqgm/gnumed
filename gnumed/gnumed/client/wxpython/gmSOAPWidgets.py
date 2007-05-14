@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.92 2007-03-08 11:53:59 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmSOAPWidgets.py,v 1.93 2007-05-14 13:11:25 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -453,7 +453,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		page_idx = self.__soap_notebook.GetSelection()
 		soap_nb_page = self.__soap_notebook.GetPage(page_idx)
 		if not soap_nb_page.save():
-			gmGuiHelpers.gm_statustext(_('Problem saving progress note: duplicate information ?'))
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Problem saving progress note: duplicate information ?'))
 			return False
 		self.__soap_notebook.DeletePage(page_idx)
 		# always keep one unassociated editor open
@@ -1062,7 +1062,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.92  2007-03-08 11:53:59  ncq
+# Revision 1.93  2007-05-14 13:11:25  ncq
+# - use statustext() signal
+#
+# Revision 1.92  2007/03/08 11:53:59  ncq
 # - cleanup
 #
 # Revision 1.91  2007/03/02 15:39:13  ncq

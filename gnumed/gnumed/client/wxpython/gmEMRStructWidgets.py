@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.60 2007-04-27 13:28:25 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmEMRStructWidgets.py,v 1.61 2007-05-14 13:11:24 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -263,7 +263,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		default = 60				# 2 months
 	))
 	if target_issue.close_expired_episode(ttl=epi_ttl) is True:
-		gmGuiHelpers.gm_statustext(_('Closed episodes older than %s days on health issue [%s]') % (epi_ttl, target_issue['description']))
+		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Closed episodes older than %s days on health issue [%s]') % (epi_ttl, target_issue['description']))
 	existing_epi = target_issue.get_open_episode()
 
 	# no more open episode on target issue: should work now
@@ -527,8 +527,8 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			self.__episode['pk_health_issue'] = self._PRW_issue.GetData(can_create=True)
 			issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
 			if not move_episode_to_issue(episode = self.__episode, target_issue = issue, save_to_backend = False):
-				gmGuiHelpers.gm_statustext (
-					_('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
+				gmDispatcher.send(signal=gmSignals.statustext(), msg=
+						_('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
 						self.__episode['description'],
 						issue['description']
 					)
@@ -740,9 +740,9 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
 
 		if age is None:
-			gmGuiHelpers.gm_statustext(_('Cannot parse [%s] into valid interval.') % str_age)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot parse [%s] into valid interval.') % str_age)
 		if age >= max_age:
-			gmGuiHelpers.gm_statustext(_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
 
 		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
@@ -778,7 +778,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		year_noted = year_noted.get_pydt()
 
 		if year_noted >= pydt.datetime.now(tz=year_noted.tzinfo):
-			gmGuiHelpers.gm_statustext(_('Condition diagnosed in the future.'))
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Condition diagnosed in the future.'))
 			self._PRW_year_noted.SetBackgroundColour('pink')
 			self._PRW_year_noted.Refresh()
 			wx.CallAfter(self._PRW_age_noted.SetText, '')
@@ -1106,7 +1106,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.60  2007-04-27 13:28:25  ncq
+# Revision 1.61  2007-05-14 13:11:24  ncq
+# - use statustext() signal
+#
+# Revision 1.60  2007/04/27 13:28:25  ncq
 # - use c2ButtonQuestionDlg
 #
 # Revision 1.59  2007/04/25 22:00:47  ncq

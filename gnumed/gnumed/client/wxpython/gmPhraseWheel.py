@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.103 2007-04-19 13:14:30 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmPhraseWheel.py,v 1.104 2007-05-14 13:11:25 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -26,7 +26,7 @@ import wx.lib.mixins.listctrl as listmixins
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
-from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmTools, gmSignals, gmDispatcher
 
 #============================================================
 # those can be used by the <accepted_chars> phrasewheel parameter
@@ -701,12 +701,12 @@ class cPhraseWheel(wx.TextCtrl):
 		# no exact match found
 		if self.data is None:
 			if self.selection_only:
-				gmGuiHelpers.gm_statustext(self.selection_only_error_msg)
+				gmDispatcher.send(signal=gmSignals.statustext(), msg=self.selection_only_error_msg)
 				self.SetBackgroundColour('pink')
 
 		# check value against final_regex if any given
 		if not self.__final_regex.match(self.GetValue().strip()):
-			gmGuiHelpers.gm_statustext(self.final_regex_error_msg)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=self.final_regex_error_msg)
 			self.SetBackgroundColour('pink')
 
 		# notify interested parties
@@ -840,7 +840,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.103  2007-04-19 13:14:30  ncq
+# Revision 1.104  2007-05-14 13:11:25  ncq
+# - use statustext() signal
+#
+# Revision 1.103  2007/04/19 13:14:30  ncq
 # - don't fail input if enchant/aspell installed but no dict available ...
 #
 # Revision 1.102  2007/04/02 15:16:55  ncq

@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.75 2007-05-07 08:04:36 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmPatSearchWidgets.py,v 1.76 2007-05-14 13:11:24 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -481,7 +481,7 @@ def load_patient_from_external_sources(parent=None):
 	dtos.extend(load_persons_from_kvks())
 
 	if len(dtos) == 0:
-		gmGuiHelpers.gm_statustext(_('No patients found in external sources.'))
+		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No patients found in external sources.'))
 		return True
 	else:
 		if parent is None:
@@ -976,7 +976,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.75  2007-05-07 08:04:36  ncq
+# Revision 1.76  2007-05-14 13:11:24  ncq
+# - use statustext() signal
+#
+# Revision 1.75  2007/05/07 08:04:36  ncq
 # - a bit of cleanup
 #
 # Revision 1.74  2007/04/19 13:13:47  ncq
