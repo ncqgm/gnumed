@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.6 2007-05-08 11:18:20 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.7 2007-05-14 16:46:33 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -53,11 +53,10 @@ sudo -u postgres pg_dumpall -g -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
 
 # compress and test it
 tar -cWf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
-bzip2 -zq9 ${BACKUP_FILENAME}.tar
-bzip2 -tq ${BACKUP_FILENAME}.tar.bz2
-# clean up
 rm -f ${BACKUP_FILENAME}-database.sql
 rm -f ${BACKUP_FILENAME}-roles.sql
+bzip2 -zq9 ${BACKUP_FILENAME}.tar
+bzip2 -tq ${BACKUP_FILENAME}.tar.bz2
 
 # give to admin owner
 chmod ${BACKUP_MASK} ${BACKUP_FILENAME}.tar.bz2
@@ -106,7 +105,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.6  2007-05-08 11:18:20  ncq
+# Revision 1.7  2007-05-14 16:46:33  ncq
+# - be a bit more resource friendly
+#
+# Revision 1.6  2007/05/08 11:18:20  ncq
 # - robustify
 # - include database creation commands, dump roles only
 #
