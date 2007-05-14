@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.7 2007-05-14 16:46:33 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.8 2007-05-14 21:29:24 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -48,8 +48,13 @@ BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
 # create dumps
 cd ${BACKUP_DIR}
-pg_dump -C -U ${GM_DBO} -d ${GM_DATABASE} -p ${GM_PORT} -f ${BACKUP_FILENAME}-database.sql
-sudo -u postgres pg_dumpall -g -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
+if test -z ${GM_HOST} ; then
+	pg_dump -C -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
+	sudo -u postgres pg_dumpall -g -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
+else
+	pg_dump -C -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
+	pg_dumpall -g -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql
+fi ;
 
 # compress and test it
 tar -cWf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
@@ -105,7 +110,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.7  2007-05-14 16:46:33  ncq
+# Revision 1.8  2007-05-14 21:29:24  ncq
+# - start supporting dumps from remote hosts
+#
+# Revision 1.7  2007/05/14 16:46:33  ncq
 # - be a bit more resource friendly
 #
 # Revision 1.6  2007/05/08 11:18:20  ncq
