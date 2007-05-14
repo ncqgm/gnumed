@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.78 2007-05-14 13:52:24 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmPatSearchWidgets.py,v 1.79 2007-05-14 14:56:41 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -850,7 +850,7 @@ class cPatientSelector(wx.TextCtrl):
 		# only one matching identity
 		if len(idents) == 1:
 			self.SetActivePatient(idents[0])
-			self.display_name()		# needed when the found patient is the same as the active one
+			self._display_name()		# needed when the found patient is the same as the active one
 			wx.EndBusyCursor()
 			return None
 
@@ -867,7 +867,7 @@ class cPatientSelector(wx.TextCtrl):
 		ident = dlg.get_selected_person()
 		dlg.Destroy()
 		self.SetActivePatient(ident)
-		self.display_name()		# needed when the found patient is the same as the active one
+		self._display_name()		# needed when the found patient is the same as the active one
 		wx.EndBusyCursor()
 
 		return None
@@ -990,7 +990,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.78  2007-05-14 13:52:24  ncq
+# Revision 1.79  2007-05-14 14:56:41  ncq
+# - fix typo
+#
+# Revision 1.78  2007/05/14 13:52:24  ncq
 # - add display_name() in two places to fix visual glitch with search
 #
 # Revision 1.77  2007/05/14 13:37:42  ncq
