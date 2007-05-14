@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.87 $
+# $Revision: 1.88 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-05-11 16:11+CEST\n"
+"POT-Creation-Date: 2007-05-14 12:31+CEST\n"
 "PO-Revision-Date: 2007-05-10 00:02+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -116,11 +116,11 @@ msgstr "nicht angegeben"
 msgid "starting patient encounter"
 msgstr "beginne Arzt-Patienten-Kontakt"
 
-#: ../business/gmEMRStructItems.py:459
+#: ../business/gmEMRStructItems.py:472
 msgid "chart review"
 msgstr "Akteneinsicht"
 
-#: ../business/gmEMRStructItems.py:459
+#: ../business/gmEMRStructItems.py:472
 msgid "in surgery"
 msgstr "Sprechstunde"
 
@@ -1498,7 +1498,7 @@ msgid "Request"
 msgstr "Auftrag"
 
 #: ../wxGladeWidgets/wxgEncounterEditAreaPnl.py:58
-#: ../wxpython/gmEMRBrowser.py:143 ../wxpython/gmEMRBrowser.py:342
+#: ../wxpython/gmEMRBrowser.py:143 ../wxpython/gmEMRBrowser.py:367
 msgid "Summary"
 msgstr "Zusammenfassung"
 
@@ -2938,35 +2938,73 @@ msgstr "Kartei von %s"
 msgid "Edit episode details"
 msgstr "Details der Episode ändern"
 
-#: ../wxpython/gmEMRBrowser.py:171
+#: ../wxpython/gmEMRBrowser.py:166
+msgid "Delete episode"
+msgstr "Episode löschen"
+
+#: ../wxpython/gmEMRBrowser.py:174
 msgid "move encounter data to another episode"
 msgstr "APK-Daten einer anderen Episode zuordnen"
 
-#: ../wxpython/gmEMRBrowser.py:174
+#: ../wxpython/gmEMRBrowser.py:177
 msgid "edit consultation details"
 msgstr "Details der Konsultation ändern"
 
-#: ../wxpython/gmEMRBrowser.py:182
+#: ../wxpython/gmEMRBrowser.py:185
 msgid "edit health issue"
 msgstr "Grunderkrankung bearbeiten"
 
-#: ../wxpython/gmEMRBrowser.py:189
+#: ../wxpython/gmEMRBrowser.py:192
 msgid "create health issue"
 msgstr "Grunderkrankung anlegen"
 
-#: ../wxpython/gmEMRBrowser.py:193
+#: ../wxpython/gmEMRBrowser.py:196
 msgid "manage allergies"
 msgstr "Allergien dokumentieren"
 
-#: ../wxpython/gmEMRBrowser.py:200
+#: ../wxpython/gmEMRBrowser.py:203
 msgid "Episode %s"
 msgstr "Episode %s"
 
-#: ../wxpython/gmEMRBrowser.py:237
+#: ../wxpython/gmEMRBrowser.py:216
+msgid "Deleting episode"
+msgstr "Löschen einer Episode"
+
+#: ../wxpython/gmEMRBrowser.py:218
+msgid "Delete the episode if possible (it must be completely empty)."
+msgstr "Die Episode löschen, falls möglich (muß vollständig leer sein)."
+
+#: ../wxpython/gmEMRBrowser.py:218
+msgid "Yes, delete"
+msgstr "Ja, löschen"
+
+#: ../wxpython/gmEMRBrowser.py:219
+msgid "Cancel and do NOT delete the episode."
+msgstr "Abbrechen und die Episode NICHT löschen."
+
+#: ../wxpython/gmEMRBrowser.py:219
+msgid "No, cancel"
+msgstr "Nein, abbrechen"
+
+#: ../wxpython/gmEMRBrowser.py:221
+msgid ""
+"Are you sure you want to delete this episode ?\n"
+"\n"
+" \"%s\"\n"
+msgstr ""
+"Sind Sie sicher, daß die Episode gelöscht werden soll ?\n"
+"\n"
+" \"%s\"\n"
+
+#: ../wxpython/gmEMRBrowser.py:234
+msgid "Cannot delete episode. There is still clinical data recorded for it."
+msgstr "Kann die Episode nicht löschen. Sie enthält noch Karteieinträge."
+
+#: ../wxpython/gmEMRBrowser.py:262
 msgid "Reordering EMR ..."
 msgstr "Umordnen der Karteikarte ..."
 
-#: ../wxpython/gmEMRBrowser.py:238
+#: ../wxpython/gmEMRBrowser.py:263
 msgid ""
 "The EMR entries in this encounter were attached to episode:\n"
 " \"%s\"\n"
@@ -2976,16 +3014,16 @@ msgstr ""
 "\"%s\"\n"
 "Bitte die Episode wählen, zu der die Einträge verschoben werden sollen:"
 
-#: ../wxpython/gmEMRBrowser.py:242
+#: ../wxpython/gmEMRBrowser.py:267
 msgid "move entries"
 msgstr "Einträge verschieben"
 
-#: ../wxpython/gmEMRBrowser.py:462 ../wxpython/gmEMRTextDump.py:34
+#: ../wxpython/gmEMRBrowser.py:487 ../wxpython/gmEMRTextDump.py:34
 #: ../wxpython/gmEMRTextDump.py:108
 msgid "No EMR data loaded."
 msgstr "Keine Karteieinträge geladen."
 
-#: ../wxpython/gmEMRBrowser.py:499
+#: ../wxpython/gmEMRBrowser.py:524
 msgid ""
 "An error occurred while retrieving the EMR\n"
 "in journal form for the active patient.\n"
@@ -3503,19 +3541,19 @@ msgstr "Druckerkonfiguration"
 msgid "Calibration"
 msgstr "Kalibrierung"
 
-#: ../wxpython/gmGuiHelpers.py:291 ../wxpython/gmGuiHelpers.py:345
+#: ../wxpython/gmGuiHelpers.py:297 ../wxpython/gmGuiHelpers.py:351
 msgid "programmer forgot to specify info message"
 msgstr "Programmierer hat vergessen, Information anzugeben."
 
-#: ../wxpython/gmGuiHelpers.py:298
+#: ../wxpython/gmGuiHelpers.py:304
 msgid "generic single choice dialog"
 msgstr "allgemeine Nutzerauswahl"
 
-#: ../wxpython/gmGuiHelpers.py:317
+#: ../wxpython/gmGuiHelpers.py:323
 msgid "programmer forgot to specify error message"
 msgstr "Programmierer hat vergessen, Fehler genau anzugeben."
 
-#: ../wxpython/gmGuiHelpers.py:323
+#: ../wxpython/gmGuiHelpers.py:329
 msgid ""
 "\n"
 "\n"
@@ -3525,27 +3563,27 @@ msgstr ""
 "\n"
 "Die Logdatei enthält genauere Angaben !"
 
-#: ../wxpython/gmGuiHelpers.py:326
+#: ../wxpython/gmGuiHelpers.py:332
 msgid "generic error message"
 msgstr "allgemeine Fehlermeldung"
 
-#: ../wxpython/gmGuiHelpers.py:352
+#: ../wxpython/gmGuiHelpers.py:358
 msgid "generic info message"
 msgstr "allgemeine Information"
 
-#: ../wxpython/gmGuiHelpers.py:366
+#: ../wxpython/gmGuiHelpers.py:372
 msgid "programmer forgot to specify warning"
 msgstr "Programmierer hat vergessen, Warnung anzugeben."
 
-#: ../wxpython/gmGuiHelpers.py:373
+#: ../wxpython/gmGuiHelpers.py:379
 msgid "generic warning message"
 msgstr "allgemeine Warnmeldung"
 
-#: ../wxpython/gmGuiHelpers.py:415
+#: ../wxpython/gmGuiHelpers.py:420
 msgid "<restricted procedure>"
 msgstr "<zugangsbeschränkte Funktion>"
 
-#: ../wxpython/gmGuiHelpers.py:420
+#: ../wxpython/gmGuiHelpers.py:425
 msgid ""
 "\n"
 " [%s]\n"
@@ -3563,15 +3601,15 @@ msgstr ""
 "\n"
 "Bitte geben Sie das Passwort für <gm-dbo> ein:"
 
-#: ../wxpython/gmGuiHelpers.py:442
+#: ../wxpython/gmGuiHelpers.py:447
 msgid "Cannot connect as the GNUmed database owner <gm-dbo>."
 msgstr "Verbindung als Besitzer <gm-dbo> der GNUmed-Datenbank fehlgeschlagen."
 
-#: ../wxpython/gmGuiHelpers.py:492
+#: ../wxpython/gmGuiHelpers.py:497
 msgid "This field can only contain digits."
 msgstr "Dieses Feld darf nur Ziffern enthalten."
 
-#: ../wxpython/gmGuiHelpers.py:494
+#: ../wxpython/gmGuiHelpers.py:499
 msgid "This field cannot be empty."
 msgstr "Dieses Feld darf nicht leer sein."
 
@@ -7121,9 +7159,6 @@ msgstr "erstmals"
 
 #~ msgid "no"
 #~ msgstr "nein"
-
-#~ msgid "cancel"
-#~ msgstr "abbrechen"
 
 #~ msgid ""
 #~ "You want to move the open episode\n"
