@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.104 2007-04-01 15:25:55 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmPatientExporter.py,v 1.105 2007-05-14 13:09:04 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -517,18 +517,17 @@ class cEmrExport:
             emr_tree.SetPyData(issue_node, a_health_issue)
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
             for an_episode in episodes:
-	       self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
-
-
+                self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
     #--------------------------------------------------------             
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
-               episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
-               emr_tree.SetPyData(episode_node, an_episode)
-#	       encounters = self._get_encounters( a_health_issue, an_episode, emr )
-	       encounters = self._get_encounters( an_episode, emr )
-	       self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
-	       return episode_node
-	       
+        episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
+        emr_tree.SetPyData(episode_node, an_episode)
+        if an_episode['episode_open']:
+            emr_tree.SetItemBold(issue_node, True)
+#       encounters = self._get_encounters( a_health_issue, an_episode, emr )
+        encounters = self._get_encounters( an_episode, emr )
+        self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
+        return episode_node
     #--------------------------------------------------------             
     def _add_encounters_to_tree( self, encounters, emr_tree, episode_node):
                for an_encounter in encounters:
@@ -1263,7 +1262,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.104  2007-04-01 15:25:55  ncq
+# Revision 1.105  2007-05-14 13:09:04  ncq
+# - use bold on health issues with open episodes
+#
+# Revision 1.104  2007/04/01 15:25:55  ncq
 # - safely get encoding
 #
 # Revision 1.103  2007/03/02 15:30:00  ncq
