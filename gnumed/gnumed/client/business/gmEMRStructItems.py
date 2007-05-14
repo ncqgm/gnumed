@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.97 $"
+__version__ = "$Revision: 1.98 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -415,6 +415,19 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return episode
 #-----------------------------------------------------------
+def delete_episode(episode=None):
+	if isinstance(episode, cEpisode):
+		pk = episode['pk_episode']
+	else:
+		pk = int(episode)
+
+	try:
+		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.episode where pk=%(pk)s', 'args': {'pk': pk}}])
+	except gmPG2.dbapi.IntegrityError:
+		# should be parsing pgcode/and or error message
+		_log.LogException('cannot delete episode')
+		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
+#-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
 
@@ -549,7 +562,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.97  2007-04-27 22:54:13  ncq
+# Revision 1.98  2007-05-14 10:32:50  ncq
+# - raise DatabaseObjectInUseError on psycopg2 integrity error
+#
+# Revision 1.97  2007/04/27 22:54:13  ncq
 # - when checking for existing episodes need to check
 #   associated health issue, too, of course
 #
