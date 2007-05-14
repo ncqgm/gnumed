@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.59 2007-05-14 08:36:13 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmGuiHelpers.py,v 1.60 2007-05-14 10:05:33 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -126,8 +126,11 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
 			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
-			if button_defs[idx]['default']:
-				buttons[idx].SetDefault()
+			try:
+				if button_defs[idx]['default']:
+					buttons[idx].SetDefault()
+			except KeyError:
+				pass
 
 		self.Fit()
 	#--------------------------------------------------------
@@ -574,7 +577,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.59  2007-05-14 08:36:13  ncq
+# Revision 1.60  2007-05-14 10:05:33  ncq
+# - make "default" button definition optional
+#
+# Revision 1.59  2007/05/14 08:36:13  ncq
 # - in c2ButtonQuestionDlg make keyword show_checkbox option defaulting to False
 #
 # Revision 1.58  2007/05/11 14:15:59  ncq
