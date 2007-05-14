@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.76 2007-05-14 13:11:24 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmPatSearchWidgets.py,v 1.77 2007-05-14 13:37:42 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -483,16 +483,28 @@ def load_patient_from_external_sources(parent=None):
 	if len(dtos) == 0:
 		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No patients found in external sources.'))
 		return True
-	else:
-		if parent is None:
-			parent = wx.GetApp().GetTopWindow()
-		dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
-		dlg.set_dtos(dtos=dtos)
-		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			return True
-		dto = dlg.get_selected_dto()['dto']
-		dlg.Destroy()
+	elif len(dtos) == 1:
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.is_connected():
+			dto = dtos[0]
+			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
+			names = curr_pat.get_active_name()
+			key_pat = names['first'] + names['last'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
+			_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
+			_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
+			if key_dto == key_pat:
+				gmDispatcher.send(signal=gmSignals.statustext(), msg=_('The only external patient is already active in GNUmed.'), beep=False)
+				return True
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
+	dlg.set_dtos(dtos=dtos)
+	result = dlg.ShowModal()
+	if result == wx.ID_CANCEL:
+		return True
+	dto = dlg.get_selected_dto()['dto']
+	dlg.Destroy()
 
 	# FIXME: config: delete DTO source after selection, eg KVK
 
@@ -976,7 +988,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.76  2007-05-14 13:11:24  ncq
+# Revision 1.77  2007-05-14 13:37:42  ncq
+# - don't do anything if the only external patient is
+#   already the active patient in GNUmed
+#
+# Revision 1.76  2007/05/14 13:11:24  ncq
 # - use statustext() signal
 #
 # Revision 1.75  2007/05/07 08:04:36  ncq
