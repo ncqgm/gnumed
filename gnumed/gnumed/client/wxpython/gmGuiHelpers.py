@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.58 2007-05-11 14:15:59 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmGuiHelpers.py,v 1.59 2007-05-14 08:36:13 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -104,12 +104,15 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		caption = kwargs['caption']
 		question = kwargs['question']
 		button_defs = kwargs['button_defs'][:2]
-		show_checkbox = kwargs['show_checkbox']
+		try:
+			show_checkbox = kwargs['show_checkbox']
+			del kwargs['show_checkbox']
+		except KeyError:
+			show_checkbox = False
 
 		del kwargs['caption']
 		del kwargs['question']
 		del kwargs['button_defs']
-		del kwargs['show_checkbox']
 
 		wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
@@ -571,7 +574,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.58  2007-05-11 14:15:59  ncq
+# Revision 1.59  2007-05-14 08:36:13  ncq
+# - in c2ButtonQuestionDlg make keyword show_checkbox option defaulting to False
+#
+# Revision 1.58  2007/05/11 14:15:59  ncq
 # - display help desk in exception handler
 # - properly handle keep running/close client buttons
 #
