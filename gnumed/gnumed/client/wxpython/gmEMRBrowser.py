@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.70 2007-03-18 14:04:00 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmEMRBrowser.py,v 1.71 2007-05-14 10:33:33 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import sys, types, os.path, StringIO
 import wx
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmExceptions
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets
@@ -161,7 +161,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		menu_id = wx.NewId()
 		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit episode details')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
-		# delete episode
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete episode')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
 		# attach all encounters to another episode
 
 		# - encounters
@@ -201,15 +204,37 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
 	def __edit_episode(self, event):
-		node_data = self.GetPyData(self.__curr_node)
-		dlg = gmEMRStructWidgets.cEpisodeEditAreaDlg(parent=self, episode=node_data)
+		dlg = gmEMRStructWidgets.cEpisodeEditAreaDlg(parent=self, episode=self.__curr_node_data)
 		result = dlg.ShowModal()
 		if result == wx.ID_OK:
 			self.__populate_tree()
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
-		print "deleting episode"
-		print self.__curr_node_data
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			parent = self,
+			id = -1,
+			caption = _('Deleting episode'),
+			button_defs = [
+				{'label': _('Yes, delete'), 'tooltip': _('Delete the episode if possible (it must be completely empty).')},
+				{'label': _('No, cancel'), 'tooltip': _('Cancel and do NOT delete the episode.')}
+			],
+			question = _(
+				'Are you sure you want to delete this episode ?\n'
+				'\n'
+				' "%s"\n'
+			) % self.__curr_node_data['description']
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_YES:
+			return
+
+		try:
+			gmEMRStructItems.delete_episode(episode = self.__curr_node_data)
+		except gmExceptions.DatabaseObjectInUseError:
+			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
+			return
+
+		self.__populate_tree()
 	#--------------------------------------------------------
 	def __relink_episode_encounters(self, event):
 		print "relinking encounters of episode"
@@ -548,7 +573,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.70  2007-03-18 14:04:00  ncq
+# Revision 1.71  2007-05-14 10:33:33  ncq
+# - allow deleting episode
+#
+# Revision 1.70  2007/03/18 14:04:00  ncq
 # - add allergy handling to menu and root node of tree
 #
 # Revision 1.69  2007/03/02 15:31:45  ncq
