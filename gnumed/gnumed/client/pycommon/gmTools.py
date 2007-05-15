@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.26 2007-05-14 08:35:06 ncq Exp $
+# $Id: gmTools.py,v 1.27 2007-05-15 08:20:13 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -99,10 +99,13 @@ class cPaths(gmBorg.cBorg):
 		except ValueError:
 			pass
 		try:
-			self.system_app_data_dir = std_paths.GetDataDir()
-			if self.system.app_data_dir.find(app_name) == -1:
-				_log.Log(gmLog.lWarn, 'this platform returns a broken value for the system-wide application data dir: %s' % self.system_app_data_dir)
+			# Robin attests that the following doesn't give
+			# sane values on Windows, so IFDEF it
+			if 'wxMSW' in wx.PlatformInfo:
+				_log.Log(gmLog.lWarn, 'this platform returns a broken value for the system-wide application data dir')
 				self.system_app_data_dir = self.local_base_dir
+			else:
+				self.system_app_data_dir = std_paths.GetDataDir()
 		except ValueError:
 			pass
 
@@ -576,7 +579,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.26  2007-05-14 08:35:06  ncq
+# Revision 1.27  2007-05-15 08:20:13  ncq
+# - ifdef GetDataDir() on wxMSW as per Robin's suggestion
+#
+# Revision 1.26  2007/05/14 08:35:06  ncq
 # - better logging
 # - try to handle platforms with broken GetDataDir()
 #
