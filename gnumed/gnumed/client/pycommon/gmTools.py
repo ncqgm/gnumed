@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.27 2007-05-15 08:20:13 ncq Exp $
+# $Id: gmTools.py,v 1.28 2007-05-17 15:10:16 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -90,14 +90,22 @@ class cPaths(gmBorg.cBorg):
 			self.__log_paths()
 			return True
 
+		#--------------------
+		# retry with wxPython
 		std_paths = wx.StandardPaths.Get()
 
-		self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+		try:
+			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+		except ValueError:
+			mkdir(os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name))
+			self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+
 		try:
 			#self.system_config_dir = os.path.join(std_paths.GetConfigDir(), app_name)
 			self.system_config_dir = std_paths.GetConfigDir()
 		except ValueError:
 			pass
+
 		try:
 			# Robin attests that the following doesn't give
 			# sane values on Windows, so IFDEF it
@@ -579,7 +587,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.27  2007-05-15 08:20:13  ncq
+# Revision 1.28  2007-05-17 15:10:16  ncq
+# - create user config dir if it doesn't exist
+#
+# Revision 1.27  2007/05/15 08:20:13  ncq
 # - ifdef GetDataDir() on wxMSW as per Robin's suggestion
 #
 # Revision 1.26  2007/05/14 08:35:06  ncq
