@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/gm-restore_from_backup.sh,v $
-# $Id: gm-restore_from_backup.sh,v 1.1 2007-05-08 11:11:21 ncq Exp $
+# $Id: gm-restore_from_backup.sh,v 1.2 2007-05-17 15:21:04 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -88,7 +88,7 @@ editor ${BACKUP}-roles.sql
 
 echo ""
 echo "==> Checking for existence of target database ..."
-TARGET=`grep -i "create database gnumed_v" ${BACKUP}-database.sql | cut -f 3 -d " "`
+TARGET=`head -n 40 ${BACKUP}-database.sql | grep -i "create database gnumed_v" | cut -f 3 -d " "`
 if test -z ${TARGET} ; then
 	echo "    ERROR: backup does not create target database, aborting"
 	exit 1
@@ -132,7 +132,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_from_backup.sh,v $
-# Revision 1.1  2007-05-08 11:11:21  ncq
+# Revision 1.2  2007-05-17 15:21:04  ncq
+# - speed up grepping for create database
+#
+# Revision 1.1  2007/05/08 11:11:21  ncq
 # - a tested restore script
 #
 #
