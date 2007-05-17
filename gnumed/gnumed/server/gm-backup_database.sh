@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.8 2007-05-14 21:29:24 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.9 2007-05-17 15:16:23 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -42,18 +42,27 @@ fi
 #==============================================================
 
 TS=`date +%Y-%m-%d-%H-%M-%S`
-HOST=`hostname`
-BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-${HOST}"
+if test -z ${GM_HOST} ; then
+	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
+else
+	BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-${GM_HOST}"
+fi ;
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
 # create dumps
 cd ${BACKUP_DIR}
 if test -z ${GM_HOST} ; then
-	pg_dump -C -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
+	# locally
 	sudo -u postgres pg_dumpall -g -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
+	pg_dump -C -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
 else
-	pg_dump -C -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
-	pg_dumpall -g -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql
+	# remotely
+	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
+		pg_dumpall -g -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql
+		pg_dump -C -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
+	else
+		echo "Cannot ping database host ${GM_HOST}."
+	fi ;
 fi ;
 
 # compress and test it
@@ -110,7 +119,11 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.8  2007-05-14 21:29:24  ncq
+# Revision 1.9  2007-05-17 15:16:23  ncq
+# - set backup base name based on GM_HOST, not localhost
+# - ping remote GM_HOST before trying to dump
+#
+# Revision 1.8  2007/05/14 21:29:24  ncq
 # - start supporting dumps from remote hosts
 #
 # Revision 1.7  2007/05/14 16:46:33  ncq
