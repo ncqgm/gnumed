@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.9 2007-05-17 15:16:23 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.10 2007-05-17 15:17:24 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -62,6 +62,7 @@ else
 		pg_dump -C -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
 	else
 		echo "Cannot ping database host ${GM_HOST}."
+		exit 1
 	fi ;
 fi ;
 
@@ -119,7 +120,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.9  2007-05-17 15:16:23  ncq
+# Revision 1.10  2007-05-17 15:17:24  ncq
+# - abort on ping error
+#
+# Revision 1.9  2007/05/17 15:16:23  ncq
 # - set backup base name based on GM_HOST, not localhost
 # - ping remote GM_HOST before trying to dump
 #
