@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.28 2007-05-17 15:10:16 ncq Exp $
+# $Id: gmTools.py,v 1.29 2007-05-17 15:12:59 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -75,7 +75,12 @@ class cPaths(gmBorg.cBorg):
 		self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..'))
 		self.working_dir = os.path.abspath(os.curdir)
 
-		self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
+		try:
+			self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
+		except ValueError:
+			mkdir(os.path.expanduser(os.path.join('~', '.%s' % app_name)))
+			self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
+
 		try:
 			self.system_config_dir = os.path.join('/etc', app_name)
 		except ValueError:
@@ -587,7 +592,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.28  2007-05-17 15:10:16  ncq
+# Revision 1.29  2007-05-17 15:12:59  ncq
+# - even more careful about pathes
+#
+# Revision 1.28  2007/05/17 15:10:16  ncq
 # - create user config dir if it doesn't exist
 #
 # Revision 1.27  2007/05/15 08:20:13  ncq
