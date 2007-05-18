@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.330 2007-05-11 14:18:04 ncq Exp $
-__version__ = "$Revision: 1.330 $"
+# $Id: gmGuiMain.py,v 1.331 2007-05-18 10:14:22 ncq Exp $
+__version__ = "$Revision: 1.331 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -444,11 +444,15 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
-		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
-		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
 		ID_DICOM_VIEWER = wx.NewId()
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer for CD-ROM (X-Ray, CT, MR, etc). Linux only (on Windows just insert CD).'))
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
+		if not (
+			os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK)
+			or os.access('/usr/bin/xmedcon-fake', os.X_OK)
+		):
+			_log.Log(gmLog.lInfo, 'neither OsiriX nor xmedcon found, disabling menu item')
+			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
 #		self.menu_tools.Append(ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
@@ -660,10 +664,16 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
-		# FIXME: scan CD for *.dcm files, put them into list and let
-		# FIXME: user call viewer for each
-		# FIXME: parse DICOMDIR file
-		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+		# raw check for OsiriX binary
+		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
+		else:
+			# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
+			# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
+			# FIXME: scan CD for *.dcm files, put them into list and
+			# FIXME: let user call viewer for each
+			# FIXME: parse DICOMDIR file
+			gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
@@ -1371,7 +1381,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.330  2007-05-11 14:18:04  ncq
+# Revision 1.331  2007-05-18 10:14:22  ncq
+# - support OsiriX dicom viewer if available
+# - only enable dicom viewer menu item if a (known) viewer is available
+#   (does not affect viewing from document system)
+#
+# Revision 1.330  2007/05/11 14:18:04  ncq
 # - put debugging stuff into submenue
 #
 # Revision 1.329  2007/05/08 16:06:03  ncq
