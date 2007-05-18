@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.79 2007-05-14 14:56:41 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmPatSearchWidgets.py,v 1.80 2007-05-18 15:55:58 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -260,6 +260,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
+		self._LCTRL_persons.Select(0)
 
 		self._LCTRL_persons.set_data(data=persons)
 	#--------------------------------------------------------
@@ -317,6 +318,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
+		self._LCTRL_persons.Select(0)
 
 		self._LCTRL_persons.set_data(data=dtos)
 	#--------------------------------------------------------
@@ -990,7 +992,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.79  2007-05-14 14:56:41  ncq
+# Revision 1.80  2007-05-18 15:55:58  ncq
+# - auto-select first item in person/dto selector
+#
+# Revision 1.79  2007/05/14 14:56:41  ncq
 # - fix typo
 #
 # Revision 1.78  2007/05/14 13:52:24  ncq
