@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.61 2007-05-14 13:11:24 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmEMRStructWidgets.py,v 1.62 2007-05-18 13:28:57 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -27,7 +27,7 @@ from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 if __name__ == '__main__':
 	gmI18N.install_domain()
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
@@ -35,9 +35,54 @@ from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 	
-# module level constants
-dialog_CANCELLED = -1
-dialog_OK = -2
+#================================================================
+class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		self.encounter = kwargs['encounter']
+		self.source_episode = kwargs['episode']
+		del kwargs['encounter']
+		del kwargs['episode']
+
+		wxgMoveNarrativeDlg.wxgMoveNarrativeDlg.__init__(self, *args, **kwargs)
+
+		self.LBL_source_episode.SetLabel(u'%s%s' % (self.source_episode['description'], gmTools.coalesce(self.source_episode['health_issue'], u'', u' (%s)')))
+		self.LBL_encounter.SetLabel('%s: %s %s - %s' % (
+			self.encounter['started'].strftime('%x').decode(gmI18N.get_encoding()),
+			self.encounter['l10n_type'],
+			self.encounter['started'].strftime('%H:%M'),
+			self.encounter['last_affirmed'].strftime('%H:%M')
+		))
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+		narr = emr.get_clin_narrative(episodes=[self.source_episode['pk_episode']], encounters=[self.encounter['pk_encounter']])
+		if len(narr) == 0:
+			narr = [{'narrative': _('There is no narrative for this episode in this encounter.')}]
+		self.LBL_narrative.SetLabel(u'\n'.join([n['narrative'] for n in narr]))
+
+	#------------------------------------------------------------
+	def _on_move_button_pressed(self, event):
+
+		target_episode = self._PRW_episode_selector.GetData(can_create = False)
+
+		if target_episode is None:
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Must select episode to move narrative to first.'))
+			# FIXME: set to pink
+			self._PRW_episode_selector.SetFocus()
+			return False
+
+		target_episode = gmEMRStructItems.cEpisode(aPK_obj=target_episode)
+
+		self.encounter.transfer_clinical_data (
+			source_episode = self.source_episode,
+			target_episode = target_episode
+		)
+
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		else:
+			self.Close()
 
 #================================================================
 # encounter related widgets/functions
@@ -1106,7 +1151,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.61  2007-05-14 13:11:24  ncq
+# Revision 1.62  2007-05-18 13:28:57  ncq
+# - implement cMoveNarrativeDlg
+#
+# Revision 1.61  2007/05/14 13:11:24  ncq
 # - use statustext() signal
 #
 # Revision 1.60  2007/04/27 13:28:25  ncq
