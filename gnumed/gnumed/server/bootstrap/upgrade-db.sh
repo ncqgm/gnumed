@@ -24,7 +24,7 @@ NEXT_VER="$2"
 LOG="update_db-v${PREV_VER}_v${NEXT_VER}.log"
 CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
 BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${NEXT_VER}-"`hostname`".sql.bz2"
-PG_PORT=""
+
 
 if test ! -f $CONF ; then
 	echo ""
@@ -59,8 +59,11 @@ fi ;
 
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
-	export PGPORT="${GM_DB_PORT}"
+	PORT_DEF="-p ${GM_DB_PORT}"
+else
+	PORT_DEF=""
 fi ;
+
 
 echo "==========================================================="
 echo "Upgrading GNUmed database."
@@ -75,7 +78,7 @@ echo ""
 echo "1) creating backup of existing database ..."
 echo "   Note that this may take a substantial amount of time and disk space!"
 echo "   You may need to type in the password for gm-dbo."
-pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}
+pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} | bzip2 -z9 > ${BAK_FILE}
 echo ""
 echo "2) upgrading to new database ..."
 rm -rf ${LOG}
