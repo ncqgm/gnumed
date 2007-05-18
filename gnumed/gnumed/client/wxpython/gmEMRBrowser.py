@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.72 2007-05-14 13:11:24 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmEMRBrowser.py,v 1.73 2007-05-18 13:29:25 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -150,7 +150,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		return True
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
-		# make popup menus for later use
 
 		# - episodes
 		self.__epi_context_popup = wx.Menu()
@@ -166,11 +165,12 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# - encounters
 		self.__enc_context_popup = wx.Menu()
-		menu_id = wx.NewId()
 		# - move data
+		menu_id = wx.NewId()
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('move encounter data to another episode')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
 		# - edit encounter details
+		menu_id = wx.NewId()
 		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('edit consultation details')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
 
@@ -246,69 +246,50 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		node_parent = self.GetItemParent(self.__curr_node)
 		owning_episode = self.GetPyData(node_parent)
 
-		# FIXME: use PRW
-		episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
-			None,
+		episode_selector = gmEMRStructWidgets.cMoveNarrativeDlg (
+			self,
 			-1,
-			caption = _('Reordering EMR ...'),
-			msg = _(
-				'The EMR entries in this encounter were attached to episode:\n "%s"\n'
-				"Please select the episode you want to move them to:"
-			) % owning_episode['description'],
-			action_txt = _('move entries'),
-			pk_health_issue = owning_episode['pk_health_issue']
+			episode = owning_episode,
+			encounter = self.__curr_node_data
 		)
-		retval = episode_selector.ShowModal()
-		target = episode_selector.get_selected_episode()
+
+		result = episode_selector.ShowModal()
 		episode_selector.Destroy()
-		
-		if retval == dialog_OK:
-			target_episode_node = self.__find_node(self.GetRootItem(), target)
-			if target_episode_node and target_episode_node.IsOk():
-				print "DEBUG trying to move node ", node, " to ", target_episode_node
-				self.__move_node(node, target_episode_node)
-				self.EnsureVisible(target_episode_node)
-			else:
-				print "No target episode node found"
-			self.__curr_node_data.transfer_clinical_data (
-				source_episode = owning_episode,
-				target_episode = target_episode_node
-			)
-		
-		# FIXME: GNUmed internal signal
-		#self._on_episodes_modified()
+
+		if result == wx.ID_YES:
+			self.__populate_tree()
 	#--------------------------------------------------------
-	def __find_node(self, root, data_object):
-		nodes = []
-		id , cookie = self.GetFirstChild(root)
+#	def __find_node(self, root, data_object):
+#		nodes = []
+#		id , cookie = self.GetFirstChild(root)
 
 		#print "DEBUG id , cookie", id, cookie
 		#print "DEBUG id dict is ", id.__dict__.keys()
-		while id.IsOk():
-			nodes.append(id)
-			id, cookie = self.GetNextChild( root, cookie)
+#		while id.IsOk():
+#			nodes.append(id)
+#			id, cookie = self.GetNextChild( root, cookie)
 
-		l = [x for x in nodes if self.GetPyData(x) == data_object]
-		if l == []:
-			print "DEBUG looking further in ", nodes
-			if nodes == []:
-				return None
-			else:
-				for x in nodes:
-					val = self.__find_node(x, data_object)
-					if val:
-						return val
-		else:
-			return l[0]
+#		l = [x for x in nodes if self.GetPyData(x) == data_object]
+#		if l == []:
+#			print "DEBUG looking further in ", nodes
+#			if nodes == []:
+#				return None
+#			else:
+#				for x in nodes:
+#					val = self.__find_node(x, data_object)
+#					if val:
+#						return val
+#		else:
+#			return l[0]
 	#--------------------------------------------------------
-	def __move_node(self, node, target_node):
-		new_node = self.AppendItem(target_node, self.GetItemText(node))
-		self.SetPyData(new_node, self.GetPyData(node))
-		id, cookie = self.GetFirstChild(node)
-		while id.IsOk():
-			self.__move_node(id, new_node)
-			id, cookie = self.GetNextChild(node)
-		self.Delete(node)
+#	def __move_node(self, node, target_node):
+#		new_node = self.AppendItem(target_node, self.GetItemText(node))
+#		self.SetPyData(new_node, self.GetPyData(node))
+#		id, cookie = self.GetFirstChild(node)
+#		while id.IsOk():
+#			self.__move_node(id, new_node)
+#			id, cookie = self.GetNextChild(node)
+#		self.Delete(node)
 	#--------------------------------------------------------
 	# health issues
 	def __handle_issue_context(self, pos=wx.DefaultPosition):
@@ -564,7 +545,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.72  2007-05-14 13:11:24  ncq
+# Revision 1.73  2007-05-18 13:29:25  ncq
+# - some cleanup
+# - properly support moving narrative between episodes
+#
+# Revision 1.72  2007/05/14 13:11:24  ncq
 # - use statustext() signal
 #
 # Revision 1.71  2007/05/14 10:33:33  ncq
