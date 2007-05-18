@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.98 $"
+__version__ = "$Revision: 1.99 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -203,9 +203,6 @@ from (
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
 	#--------------------------------------------------------
-	def get_description(self):
-		return self._payload[self._idx['description']]
-	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
 
@@ -281,21 +278,27 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		@param target_episode The episode the elements will be relinked to.
 		@type target_episode A cEpisode intance.
 		"""
-		# sanity check
 		if source_episode['pk_episode'] == target_episode['pk_episode']:
-			return (True, True)
+			return True
+
 		queries = []
 		cmd = u"""
 			UPDATE clin.clin_root_item
-			SET fk_episode = %s
+			SET fk_episode = %(trg)s
  			WHERE
-				fk_encounter = %s AND
-				fk_episode = %s
+				fk_encounter = %(enc)s AND
+				fk_episode = %(src)s
 			"""
-		# run queries
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [target_episode['pk_episode'], self.pk_obj, source_episode['pk_episode']]}])
+		rows, idx = gmPG2.run_rw_queries(queries = [{
+			'cmd': cmd,
+			'args': {
+				'trg': target_episode['pk_episode'],
+				'enc': self.pk_obj,
+				'src': source_episode['pk_episode']
+			}
+		}])
 		self.refetch_payload()
-		return (True, True)
+		return True
 	#--------------------------------------------------------
 	def has_clinical_data(self):
 		cmd = u"""
@@ -523,7 +526,7 @@ if __name__ == '__main__':
 		print "updatable:", episode.get_updatable_fields()
 		raw_input('ENTER to continue')
 
-		old_description = episode.get_description()
+		old_description = episode['description']
 		old_enc = cEncounter(aPK_obj = 1)
 
 		desc = '1-%s' % episode['description']
@@ -562,7 +565,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.98  2007-05-14 10:32:50  ncq
+# Revision 1.99  2007-05-18 13:25:56  ncq
+# - fix cEncounter.transfer_clinical_data()
+#
+# Revision 1.98  2007/05/14 10:32:50  ncq
 # - raise DatabaseObjectInUseError on psycopg2 integrity error
 #
 # Revision 1.97  2007/04/27 22:54:13  ncq
