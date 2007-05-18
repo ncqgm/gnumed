@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.123 2007-05-14 13:11:24 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmMedDocWidgets.py,v 1.124 2007-05-18 22:02:30 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1358,8 +1358,13 @@ class cDocTree(wx.TreeCtrl):
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		dname = '%s_%s-%s' % (pat['lastnames'], pat['firstnames'], pat['dob'].strftime('%Y-%m-%d'))
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname))
+		dname1 = '%s_%s-%s' % (pat['lastnames'], pat['firstnames'], pat['dob'].strftime('%Y-%m-%d'))
+		dname2 = '%s-%s%s' % (
+			self.__curr_node_data['l10n_type'],
+			self.__curr_node_data['date'].strftime('%Y-%m-%d'),
+			gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
+		)
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname1, dname2))
 		if not os.access(def_dir, os.F_OK):
 			os.makedirs(def_dir)
 		
@@ -1393,7 +1398,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.123  2007-05-14 13:11:24  ncq
+# Revision 1.124  2007-05-18 22:02:30  ncq
+# - create export/docs/<patient>/<doc>/ *subdir* for document export
+#
+# Revision 1.123  2007/05/14 13:11:24  ncq
 # - use statustext() signal
 #
 # Revision 1.122  2007/04/23 16:59:35  ncq
