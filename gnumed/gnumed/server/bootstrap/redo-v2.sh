@@ -21,7 +21,9 @@ export GM_CORE_DB="gnumed_v${VER}"
 
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
-	export PGPORT="${GM_DB_PORT}"
+	PORT_DEF="-p ${GM_DB_PORT}"
+else
+	PORT_DEF=""
 fi ;
 
 
@@ -36,7 +38,7 @@ echo "not disturb the operation of the GNUmed client in your"
 echo "country in any way."
 echo "==========================================================="
 echo "Dropping old database if there is any."
-dropdb -U gm-dbo -i $GM_CORE_DB
+dropdb -U gm-dbo -i ${PORT_DEF} $GM_CORE_DB
 rm -rf ${LOG}
 echo "======================="
 echo "bootstrapping database"
