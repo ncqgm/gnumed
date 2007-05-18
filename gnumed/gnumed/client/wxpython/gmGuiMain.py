@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.331 2007-05-18 10:14:22 ncq Exp $
-__version__ = "$Revision: 1.331 $"
+# $Id: gmGuiMain.py,v 1.332 2007-05-18 10:14:50 ncq Exp $
+__version__ = "$Revision: 1.332 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -449,7 +449,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if not (
 			os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK)
-			or os.access('/usr/bin/xmedcon-fake', os.X_OK)
+			or os.access('/usr/bin/xmedcon', os.X_OK)
 		):
 			_log.Log(gmLog.lInfo, 'neither OsiriX nor xmedcon found, disabling menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
@@ -1381,7 +1381,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.331  2007-05-18 10:14:22  ncq
+# Revision 1.332  2007-05-18 10:14:50  ncq
+# - revert testing
+#
+# Revision 1.331  2007/05/18 10:14:22  ncq
 # - support OsiriX dicom viewer if available
 # - only enable dicom viewer menu item if a (known) viewer is available
 #   (does not affect viewing from document system)
