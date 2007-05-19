@@ -96,17 +96,18 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.40 2006-11-14 23:30:33 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmBusinessDBObject.py,v 1.41 2007-05-19 23:12:28 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import sys, copy, types, inspect
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG2
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -154,29 +155,9 @@ class cBusinessDBObject:
 		self.__class__._cmd_fetch_payload
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
-		# FIXME: if you want this check to be done please update all the child classes, too
-#		self.__class__._subtable_dml_templates
-			# a dictionary of subtables by name,
-			# values are dictionaries  of 3 queries keyed 'select', 'insert' and 'delete',
-			#
-			# The 'select' query accepts one parameter (this object's primary
-			# key) and returns some rows. One column in which must be 'pk'.
-			# These rows, as dictionaries, are avaiable as attributes of the
-			# business object, by the name of the key in _subtable_dml_templates.
-			#
-			# The 'insert' query is called by add_to_subtable(). It must have
-			# %(labelled)s parameters for the columns to insert into from
-			# the dictionary passed to add_to_subtable(). 'pk_master' is also
-			# available in this dictionary, being the primary key of the
-			# 'master' table.
-			#
-			# The 'delete' is called from del_from_subtable(). Two parameters
-			# in the order: pk for the master object and pk of the
-			# subtable row to be deleted.
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
-		self._subtable_cmd_queue = []		# must be suitable to be passed as <queries> argument to gmPG2.run_rw_queries()
 
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
@@ -246,36 +227,19 @@ class cBusinessDBObject:
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
 		# use try: except: as it is faster and we want this as fast as possible
+
 		# 1) backend payload cache
 		try:
 			return self._payload[self._idx[attribute]]
 		except KeyError:
 			pass
+
 		# 2) cached extension method results ...
 		try:
 			return self._ext_cache[attribute] # FIXME: when do we evict this cache ?
 		except KeyError:
 			pass
-		# 3) subtable
-		try:
-			subtable = self._subtable_dml_templates[attribute]
-			try:
-				query = subtable['select']
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': [self.pk_obj]}], get_col_idx=True)
-				self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
-				return self._ext_cache[attribute]
-			except KeyError:
-				_log.LogException('[%s:%s]: subtable support error, no "select" for subtable [%s]' % (self.__class__.__name__, self.pk_obj, attribute), sys.exc_info(), verbose=0)
-				# FIXME: should actually fail and return appropriate error
-			except:
-				_log.Log(gmLog.lErr, '[%s:%s]: error getting subtable [%s] values' % (self.__class__.__name__, self.pk_obj, attribute))
-				raise
-		except (KeyError, AttributeError):
-			# either
-			# - no subtable support (no attribute _subtable_dml_templates)
-			# - or no known subtable <attribute>
-			pass
-		# 4) getters providing extensions
+
 		getter = getattr(self, 'get_%s' % attribute, None)
 		if not callable(getter):
 			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
@@ -284,10 +248,13 @@ class cBusinessDBObject:
 			methods = filter(lambda x: x[0].startswith('get_'), inspect.getmembers(self, inspect.ismethod))
 			_log.Log(gmLog.lWarn, '[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
 			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+
+		print "******* use of getter for %s in %s deprecated **************" % (attribute, self.__class__.__name__)
 		self._ext_cache[attribute] = getter()
 		return self._ext_cache[attribute]
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
+
 		# 1) backend payload cache
 		if attribute in self.__class__._updatable_fields:
 			try:
@@ -299,6 +266,7 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lWarn, '[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
 				_log.Log(gmLog.lWarn, '[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+
 		# 2) setters providing extensions
 		if hasattr(self, 'set_%s' % attribute):
 			setter = getattr(self, "set_%s" % attribute)
@@ -316,6 +284,7 @@ class cBusinessDBObject:
 			if setter(value):
 				self._is_modified = True
 				return
+
 		# 3) don't know what to do with <attribute>
 		_log.Log(gmLog.lErr, '[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
 		_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
@@ -373,19 +342,21 @@ class cBusinessDBObject:
 		"""
 		if not self._is_modified:
 			return (True, None)
+
 		args = {}
 		for field in self._idx.keys():
 			args[field] = self._payload[self._idx[field]]
 		self.modified_payload = args
+
 		close_conn = self.__noop
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
 			close_conn = conn.close
 
-			# query succeeded but failed to find the row to lock
-			# because another transaction committed an UPDATE or
-			# DELETE *before* we attempted to lock it ...
-			# FIXME: this can fail if savepoints are used since subtransactions change the xmin/xmax ...
+		# query succeeded but failed to find the row to lock
+		# because another transaction committed an UPDATE or
+		# DELETE *before* we attempted to lock it ...
+		# FIXME: this can fail if savepoints are used since subtransactions change the xmin/xmax ...
 
 		queries = []
 		for query in self.__class__._cmds_store_payload:
@@ -404,88 +375,19 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
 				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
 				_log.Log(gmLog.lErr, args)
+				# FIXME: turn into proper exception
 				return (False, None)
-		# execute cached changes to subtables
-		if len(self._subtable_cmd_queue) > 0:
-			queries = []
-			for query in self._subtable_cmd_queue:
-				queries.append({'cmd': query})
-			rows, idx = gmPG2.run_rw_queries(link_obj=conn, queries = queries)
-			self._subtable_cmd_queue = []
-		try:
-			conn.commit()
-			close_conn()
-		except:
-			typ, val, tb = sys.exc_info()
-			return (False, (1, val))
+
+		conn.commit()
+		close_conn()
+
 		self._is_modified = False
 		# update to new "original" payload
 		self.original_payload = {}
 		for field in self._idx.keys():
 			self.original_payload[field] = self._payload[self._idx[field]]
+
 		return (True, None)
-	#----------------------------------------------------
-	def del_from_subtable(self, table, row):
-		"""Delete a row from a subtable.
-
-		1) remove from subtable cache
-		2) queue backend subtable delete for save_payload()
-		"""
-		try:
-			row_count = len(self._ext_cache[table])
-		except KeyError:
-			_log.Log(gmLog.lErr, 'table [%s] not registered as subtable in class [%s]' % (table, self.__class__.__name__))
-			return False
-		for i in range(row_count):
-			if self._ext_cache[table][i]['pk'] == row['pk']:
-				del self._ext_cache[table][i]
-		self._subtable_cmd_queue.append((self._subtable_dml_templates[table]['delete'], [self.pk_obj, row['pk']]))
-		self._is_modified = True
-		return True
-	#-----------------------------------------------------
-	def add_to_subtable(self, table, row):
-		"""Add a row to a subtable.
-
-		1) add to subtable cache
-		2) queue backend subtable insert for save_payload()
-		"""
-		row['pk_master'] = self.pk_obj
-		try:
-			self._ext_cache[table].append(row)
-			self._subtable_cmd_queue.append((self._subtable_dml_templates[table]['insert'], [row]))
-		except KeyError:
-			_log.Log(gmLog.lErr, 'table [%s] not registered as subtable in class [%s]' % (table, self.__class__.__name__))
-			return False
-		self._is_modified = True
-		return True
-	#----------------------------------------------------
-	def sync_subtable(self, table, items):
-		"""FIXME: is this actually used anywhere ?
-
-		Ensures that a new version of the subtable matches whats in the
-		database, adding and deleting as appropriate.
-		"""
-		print "WARNING: %s.sync_subtable() is likely broken" % self.__class__.__name__
-		table_cache = self._ext_cache[table][:]
-		# FIXME: this ain't gonna work as t is undefined
-		# FIXME: leave it in for now so we find out whether this method is used anywhere
-		# FIXME: should be: for row_idx in range (len(table_cache)):
-		for row_idx in range (len(t)):
-			for j in range (items):
-				eqn = 1
-				for k in items[j].keys():
-					if items[j][k] != self._ext_cache[table][row_idx][k]:
-						eqn = 0
-				if eqn: # these dicts are considered equal
-					items[j]['__same'] = 1
-					table_cache[row_idx]['__same'] = 1
-		for i in items:
-			if not i.has_key('__same'):
-				self.add_to_subtable (table, i)
-		for i in table_cache:
-			if not i.has_key('__same'):
-				self.del_from_subtable (table, i)
-
 #============================================================
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
@@ -516,7 +418,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.40  2006-11-14 23:30:33  ncq
+# Revision 1.41  2007-05-19 23:12:28  ncq
+# - cleanup
+# - remove _subtable support
+#
+# Revision 1.40  2006/11/14 23:30:33  ncq
 # - fix var name
 #
 # Revision 1.39  2006/10/31 15:59:47  ncq
