@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.118 2007-05-14 11:03:28 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmPerson.py,v 1.119 2007-05-19 22:16:23 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -84,24 +84,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		u"""select xmin_identity from dem.v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
-	_subtable_dml_templates = {
-		'ext_ids': {
-			'select': u"""
-				select
-					external_id as pk,
-					fk_origin as id_type,
-					comment,
-					external_id,
-					eeid.name as type,
-					eeid.context as context
-				from dem.lnk_identity2ext_id, dem.enum_ext_id_types eeid
-				where id_identity = %s and fk_origin = eeid.pk""",
-			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s",
-			'insert': u"""
-				insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
-				values(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""
-		}
-	}
 	#--------------------------------------------------------
 	def _get_ID(self):
 		return self._payload[self._idx['pk_identity']]
@@ -231,6 +213,24 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_external_ids(self, id_type=None, issuer=None):
 		return []
+
+		{'ext_ids': {
+			'select': u"""
+				select
+					external_id as pk,
+					fk_origin as id_type,
+					comment,
+					external_id,
+					eeid.name as type,
+					eeid.context as context
+				from dem.lnk_identity2ext_id, dem.enum_ext_id_types eeid
+				where id_identity = %s and fk_origin = eeid.pk""",
+			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s",
+			'insert': u"""
+				insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
+				values(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""
+		}
+		}
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
@@ -834,12 +834,15 @@ class gmCurrentPatient(gmBorg.cBorg):
 		if not isinstance(self.patient, gmNull.cNull):
 			return getattr(self.patient, attribute)
 	#--------------------------------------------------------
-	# __getitem__ handling
+	# __get/setitem__ handling
 	#--------------------------------------------------------
-	def __getitem__(self, aVar = None):
+	def __getitem__(self, attribute = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self.patient[aVar]
+		return self.patient[attribute]
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		self.patient[attribute] = value
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -1722,6 +1725,10 @@ if __name__ == '__main__':
 		print "setting active patient with", patient
 		set_active_patient(patient=patient)
 
+		pat = gmCurrentPatient()
+		print pat['dob']
+		#pat['dob'] = 'test'
+
 		staff = cStaff()
 		print "setting active patient with", staff
 		set_active_patient(patient=staff)
@@ -1867,11 +1874,11 @@ if __name__ == '__main__':
 		pass
 	#--------------------------------------------------------
 #	test_patient_search_queries()
-	test_ask_for_patient()
+#	test_ask_for_patient()
 #	test_dto_person()
 #	test_staff()
 #	test_identity()
-#	test_set_active_pat()
+	test_set_active_pat()
 
 #	map_gender2salutation('m')
 
@@ -1886,7 +1893,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.118  2007-05-14 11:03:28  ncq
+# Revision 1.119  2007-05-19 22:16:23  ncq
+# - a lot of cleanup/remomve _subtable stuff
+# - add __setitem__ to gmCurrentPatient
+#
+# Revision 1.118  2007/05/14 11:03:28  ncq
 # - latin1 -> utf8
 #
 # Revision 1.117  2007/05/11 14:10:52  ncq
