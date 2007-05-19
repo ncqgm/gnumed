@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/Attic/gm-from-cvs-macosx.sh,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 # start kvkd
 # FIXME: needs logic to prevent more than one kvkd from running
@@ -12,7 +12,11 @@
 cd ../
 ln -vfsn client Gnumed
 cd -
-export DISPLAY=":0"
 export PYTHONPATH="${PYTHONPATH}:../"
-pythonw wxpython/gnumed.py --debug --log-file=gm-from-cvs-macosx.log
-#--profile=gm-from-cvs-macosx.prof
+
+LOG="~/Library/Logs/gm-from-cvs-macosx.log"
+rm -vf $LOG
+
+# run
+python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --debug --override-schema-check
+# --profile=gm-from-cvs-macosx.prof
