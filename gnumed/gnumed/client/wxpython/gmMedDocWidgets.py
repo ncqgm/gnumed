@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.124 2007-05-18 22:02:30 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmMedDocWidgets.py,v 1.125 2007-05-20 01:28:09 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -158,8 +158,8 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 			l10n_desc = self._TCTRL_l10n_type.GetValue().strip()
 			if (l10n_desc != '') and (l10n_desc != doc_type['l10n_type']):
 				doc_type.set_translation(translation = l10n_desc)
+			self.repopulate_ui()
 
-		self.repopulate_ui()
 		return
 	#--------------------------------------------------------
 	def _on_type_modified(self, event):
@@ -1398,7 +1398,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.124  2007-05-18 22:02:30  ncq
+# Revision 1.125  2007-05-20 01:28:09  ncq
+# - only repopulate if we actually saved a new doc type
+#
+# Revision 1.124  2007/05/18 22:02:30  ncq
 # - create export/docs/<patient>/<doc>/ *subdir* for document export
 #
 # Revision 1.123  2007/05/14 13:11:24  ncq
