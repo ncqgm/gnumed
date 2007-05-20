@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.93 2007-04-23 01:02:05 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmMedDoc.py,v 1.94 2007-05-20 01:27:31 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types, time
@@ -565,8 +565,11 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
 				{'cmd': u'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
-				{'cmd': u'select i18n.upd_tx(%s, %s, (select lang from i18n.curr_lang where user = CURRENT_USER))',
-				 'args': [self._payload[self._idx['type']], translation]
+				{'cmd': u'select i18n.upd_tx((select lang from i18n.curr_lang where user = CURRENT_USER), %(orig)s, %(tx)s)',
+				 'args': {
+				 	'orig': self._payload[self._idx['type']],
+					'tx': translation
+					}
 				}
 			],
 			return_data = True
@@ -742,7 +745,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.93  2007-04-23 01:02:05  ncq
+# Revision 1.94  2007-05-20 01:27:31  ncq
+# - fix set_translation() - lang needs to go first in i18n.upd_tx()
+#
+# Revision 1.93  2007/04/23 01:02:05  ncq
 # - add set_as_active_photograph()
 #
 # Revision 1.92  2007/04/11 14:51:06  ncq
