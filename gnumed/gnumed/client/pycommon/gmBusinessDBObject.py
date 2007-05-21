@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.41 2007-05-19 23:12:28 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmBusinessDBObject.py,v 1.42 2007-05-21 14:47:22 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -234,12 +234,7 @@ class cBusinessDBObject:
 		except KeyError:
 			pass
 
-		# 2) cached extension method results ...
-		try:
-			return self._ext_cache[attribute] # FIXME: when do we evict this cache ?
-		except KeyError:
-			pass
-
+		# 2) extension method results ...
 		getter = getattr(self, 'get_%s' % attribute, None)
 		if not callable(getter):
 			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
@@ -249,7 +244,6 @@ class cBusinessDBObject:
 			_log.Log(gmLog.lWarn, '[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
 			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
 
-		print "******* use of getter for %s in %s deprecated **************" % (attribute, self.__class__.__name__)
 		self._ext_cache[attribute] = getter()
 		return self._ext_cache[attribute]
 	#--------------------------------------------------------
@@ -418,7 +412,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.41  2007-05-19 23:12:28  ncq
+# Revision 1.42  2007-05-21 14:47:22  ncq
+# - no caching of get_*()ers anymore, but don't deprecate them eiter
+#
+# Revision 1.41  2007/05/19 23:12:28  ncq
 # - cleanup
 # - remove _subtable support
 #
