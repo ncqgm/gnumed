@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.119 2007-05-19 22:16:23 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmPerson.py,v 1.120 2007-05-21 14:46:09 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -506,6 +506,17 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			return rows[0]
 		else:
 			return None
+	#----------------------------------------------------------------------
+	# convenience
+	#----------------------------------------------------------------------
+	def get_dirname(self):
+		"""Format patient demographics into patient specific path name fragment."""
+		return '%s-%s%s-%s' % (
+			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
+			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
+			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
+			self._payload[self._idx['dob']].strftime('%Y-%m-%d')
+		)
 #============================================================
 class cStaffMember(cIdentity):
 	"""Represents a staff member which is a person.
@@ -1893,7 +1904,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.119  2007-05-19 22:16:23  ncq
+# Revision 1.120  2007-05-21 14:46:09  ncq
+# - cIdentity.get_dirname()
+#
+# Revision 1.119  2007/05/19 22:16:23  ncq
 # - a lot of cleanup/remomve _subtable stuff
 # - add __setitem__ to gmCurrentPatient
 #
