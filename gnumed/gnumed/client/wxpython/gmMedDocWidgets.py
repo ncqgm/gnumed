@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.126 2007-05-21 13:05:25 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmMedDocWidgets.py,v 1.127 2007-05-21 14:49:20 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1358,15 +1358,13 @@ class cDocTree(wx.TreeCtrl):
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		dname1 = '%s_%s-%s' % (pat['lastnames'], pat['firstnames'], pat['dob'].strftime('%Y-%m-%d'))
-		dname2 = '%s-%s%s' % (
+		dname = '%s-%s%s' % (
 			self.__curr_node_data['l10n_type'],
 			self.__curr_node_data['date'].strftime('%Y-%m-%d'),
 			gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', dname1, dname2))
-		if not os.access(def_dir, os.F_OK):
-			os.makedirs(def_dir)
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', pat['dirname'], dname))
+		gmTools.mkdir(def_dir)
 		
 		dlg = wx.DirDialog (
 			parent = self,
@@ -1374,11 +1372,12 @@ class cDocTree(wx.TreeCtrl):
 			defaultPath = def_dir,
 			style = wx.DD_DEFAULT_STYLE
 		)
-		if dlg.ShowModal() != wx.ID_OK:
-			dlg.Destroy()
-			return True
+		result = dlg.ShowModal()
 		dirname = dlg.GetPath()
 		dlg.Destroy()
+
+		if result != wx.ID_OK:
+			return True
 
 		wx.BeginBusyCursor()
 		fnames = self.__curr_node_data.export_parts_to_files(export_dir=dirname)
@@ -1398,7 +1397,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.126  2007-05-21 13:05:25  ncq
+# Revision 1.127  2007-05-21 14:49:20  ncq
+# - use pat['dirname'] for export
+#
+# Revision 1.126  2007/05/21 13:05:25  ncq
 # - catch-all wildcard on UNIX must be *, not *.*
 #
 # Revision 1.125  2007/05/20 01:28:09  ncq
