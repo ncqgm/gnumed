@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.120 2007-05-21 14:46:09 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmPerson.py,v 1.121 2007-05-21 22:29:18 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -283,10 +283,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		if (activities is None) and (occupation is None):
 			return True
+		occupation = occupation.strip()
+		if len(occupation) == 0:
+			return True
 		if activities is not None:
 			activities = activities.strip()
-		if occupation is not None:
-			occupation = occupation.strip()
 
 		args = {'act': activities, 'pat_id': self.pk_obj, 'job': occupation}
 
@@ -1904,7 +1905,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.120  2007-05-21 14:46:09  ncq
+# Revision 1.121  2007-05-21 22:29:18  ncq
+# - be more careful in link_occupation()
+#
+# Revision 1.120  2007/05/21 14:46:09  ncq
 # - cIdentity.get_dirname()
 #
 # Revision 1.119  2007/05/19 22:16:23  ncq
