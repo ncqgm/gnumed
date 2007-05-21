@@ -5,8 +5,8 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.5 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmAllergiesPlugin.py,v 1.6 2007-05-21 14:50:05 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -40,8 +40,9 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 		return gmAllergiesPlugin.tab_name
 
 	def GetWidget (self, parent):
-		self._widget = gmAllergyWidgets.cAllergyPanel(parent, -1)
-		return self._widget
+#		self._widget = gmAllergyWidgets.cAllergyPanel(parent, -1)
+#		return self._widget
+		pass
 
 	def MenuInfo (self):
 		return ('view', '&Allergies')
@@ -57,11 +58,14 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	app = wxPyWidgetTester(size = (600, 600))
-	app.SetWidget(gmAllergyWidgets.cAllergyPanel, -1)
+	#app.SetWidget(gmAllergyWidgets.cAllergyPanel, -1)
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.5  2005-09-28 21:27:30  ncq
+# Revision 1.6  2007-05-21 14:50:05  ncq
+# - cleanup
+#
+# Revision 1.5  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.4  2005/09/26 18:01:52  ncq

@@ -4,7 +4,7 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -39,7 +39,8 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 				return self.__icons[_("""icon_letter_A""")]
 
 	def GetWidget (self, parent):
-		return gmAllergyWidgets.cAllergyPanel (parent, -1)
+		pass
+#		return gmAllergyWidgets.cAllergyPanel (parent, -1)
 
 #============================================================================
 if __name__ == "__main__":
@@ -50,7 +51,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.25  2004-07-17 21:16:39  ncq
+# Revision 1.26  2007-05-21 14:50:05  ncq
+# - cleanup
+#
+# Revision 1.25  2004/07/17 21:16:39  ncq
 # - cleanup/refactor allergy widgets:
 #   - Horst space plugin added
 #   - Richard space plugin separated out
