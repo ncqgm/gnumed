@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.26 2007-02-22 17:28:45 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmXdtObjects.py,v 1.27 2007-05-21 13:04:29 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -18,10 +18,16 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmLog, gmDateTime
-from Gnumed.business import gmXdtMappings
+from Gnumed.business import gmXdtMappings, gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+#==============================================================
+class cDTO_xdt_person(gmPerson.cDTO_person):
+
+	def store(self):
+		pass
 #==============================================================
 def determine_xdt_encoding(filename=None, default_encoding=None):
 
@@ -300,7 +306,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.26  2007-02-22 17:28:45  ncq
+# Revision 1.27  2007-05-21 13:04:29  ncq
+# - start class cDTO_xdt_person
+#
+# Revision 1.26  2007/02/22 17:28:45  ncq
 # - improve test suite
 #
 # Revision 1.25  2007/01/21 12:20:45  ncq
