@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.83 2007-04-11 20:47:13 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmTopPanel.py,v 1.84 2007-05-21 17:13:43 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -320,7 +320,7 @@ class cMainTopPanel(wx.Panel):
 			return True
 
 		tmp = []
-		tt = u'%-70s\n\n' % u'Allergies:'
+		tt = u'%-70s\n\n' % _('Allergies:')
 		for allergy in allergies:
 			if allergy['type'] == 'allergy':
 				tmp.append(allergy['descriptor'][:10])
@@ -432,7 +432,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.83  2007-04-11 20:47:13  ncq
+# Revision 1.84  2007-05-21 17:13:43  ncq
+# - translate "Allergies" in allergy field tooltip
+#
+# Revision 1.83  2007/04/11 20:47:13  ncq
 # - no more 'resource dir' and 'gnumed_dir'
 #
 # Revision 1.82  2007/03/26 16:50:14  ncq
