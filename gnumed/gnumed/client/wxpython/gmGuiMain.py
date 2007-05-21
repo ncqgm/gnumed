@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.333 2007-05-21 13:05:25 ncq Exp $
-__version__ = "$Revision: 1.333 $"
+# $Id: gmGuiMain.py,v 1.334 2007-05-21 14:48:58 ncq Exp $
+__version__ = "$Revision: 1.334 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -826,7 +826,8 @@ Search results:
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
-		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export')))
+		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', pat['dirname']))
+		gmTools.mkdir(aDefDir)
 		# FIXME: make configurable
 		fname = '%s-%s_%s.txt' % (_('emr-journal'), pat['lastnames'], pat['firstnames'])
 		dlg = wx.FileDialog (
@@ -1378,7 +1379,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.333  2007-05-21 13:05:25  ncq
+# Revision 1.334  2007-05-21 14:48:58  ncq
+# - use export/EMR/pat['dirname']
+#
+# Revision 1.333  2007/05/21 13:05:25  ncq
 # - catch-all wildcard on UNIX must be *, not *.*
 #
 # Revision 1.332  2007/05/18 10:14:50  ncq
