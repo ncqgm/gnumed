@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.125 2007-05-20 01:28:09 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmMedDocWidgets.py,v 1.126 2007-05-21 13:05:25 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -628,7 +628,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			message = _('Choose a file'),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
-			wildcard = "all (*.*)|*.*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg",
+			wildcard = "%s (*)|*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
 			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST | wx.MULTIPLE
 		)
 		result = dlg.ShowModal()
@@ -1398,7 +1398,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.125  2007-05-20 01:28:09  ncq
+# Revision 1.126  2007-05-21 13:05:25  ncq
+# - catch-all wildcard on UNIX must be *, not *.*
+#
+# Revision 1.125  2007/05/20 01:28:09  ncq
 # - only repopulate if we actually saved a new doc type
 #
 # Revision 1.124  2007/05/18 22:02:30  ncq

@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.332 2007-05-18 10:14:50 ncq Exp $
-__version__ = "$Revision: 1.332 $"
+# $Id: gmGuiMain.py,v 1.333 2007-05-21 13:05:25 ncq Exp $
+__version__ = "$Revision: 1.333 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -489,9 +489,6 @@ class gmTopLevelFrame(wx.Frame):
 		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
 		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
 
-		help_menu.AppendSeparator()
-
-
 		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
 		self.__gb['main.helpmenu'] = help_menu
@@ -827,7 +824,7 @@ Search results:
 			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot export EMR journal. No active patient.'))
 			return False
 		# get file name
-		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
+		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
 		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export')))
 		# FIXME: make configurable
@@ -874,7 +871,7 @@ Search results:
 			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot export EMR for Medistar. No active patient.'))
 			return False
 		# get file name
-		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
+		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
 		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed','export')))
 		# FIXME: make configurable
@@ -1381,7 +1378,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.332  2007-05-18 10:14:50  ncq
+# Revision 1.333  2007-05-21 13:05:25  ncq
+# - catch-all wildcard on UNIX must be *, not *.*
+#
+# Revision 1.332  2007/05/18 10:14:50  ncq
 # - revert testing
 #
 # Revision 1.331  2007/05/18 10:14:22  ncq

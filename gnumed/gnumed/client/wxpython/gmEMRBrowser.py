@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.73 2007-05-18 13:29:25 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmEMRBrowser.py,v 1.74 2007-05-21 13:05:25 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -42,7 +42,7 @@ def export_emr_to_ascii(parent=None):
 		_log.Log(gmLog.lErr, 'cannot dump emr in gui mode without parent widget')
 		return False
 	# get file name
-	aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
+	aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
 	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
 	fname = '%s-%s_%s.txt' % (_('emr-export'), pat['lastnames'], pat['firstnames'])
 	dlg = wx.FileDialog (
@@ -545,7 +545,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.73  2007-05-18 13:29:25  ncq
+# Revision 1.74  2007-05-21 13:05:25  ncq
+# - catch-all wildcard on UNIX must be *, not *.*
+#
+# Revision 1.73  2007/05/18 13:29:25  ncq
 # - some cleanup
 # - properly support moving narrative between episodes
 #
