@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.26 2007-05-14 13:11:25 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmXdtViewer.py,v 1.27 2007-05-21 13:06:39 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -59,7 +59,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			message = _("Choose an xDT file"),
 			defaultDir = root_dir,
 			defaultFile = '',
-			wildcard = '%s (*.xDT)|*.?DT;*.?dt|%s (*.*)|*.*' % (_('xDT files'), _('all files')),
+			wildcard = '%s (*.xDT)|*.?DT;*.?dt|%s (*)|*|%s (*.*)|*.*' % (_('xDT files'), _('all files'), _('all files (Win)')),
 			style = wx.OPEN | wx.FILE_MUST_EXIST
 		)
 		choice = dlg.ShowModal()
@@ -418,7 +418,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.26  2007-05-14 13:11:25  ncq
+# Revision 1.27  2007-05-21 13:06:39  ncq
+# - proper chatch-all wildcard * rather than *.*
+#
+# Revision 1.26  2007/05/14 13:11:25  ncq
 # - use statustext() signal
 #
 # Revision 1.25  2007/01/21 12:22:44  ncq
