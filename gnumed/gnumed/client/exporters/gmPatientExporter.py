@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.105 2007-05-14 13:09:04 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmPatientExporter.py,v 1.106 2007-05-21 14:46:44 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -91,17 +91,14 @@ class cEmrExport:
             return
         self.__patient = patient
     #--------------------------------------------------------
-    def set_output_file(self, file_name=None):
+    def set_output_file(self, target=None):
         """
             Sets exporter output file
             
             @param file_name - The file to dump the EMR to
             @type file_name - FileType
         """
-        if not isinstance(file_name, types.FileType) :
-            _log.Log(gmLog.lErr, "can't set output file [%s] for exporter" % file_name)
-            return
-        self.__target = file_name
+        self.__target = target
     #--------------------------------------------------------
     def get_patient(self):
         """
@@ -988,15 +985,15 @@ class cEMRJournalExporter:
 				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
 
 		if filename is None:
-			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export'))
 			filename = u'%s-%s-%s-%s.txt' % (
-				os.path.join(path, _('emr-journal')),
-				patient['lastnames'].replace(u' ', u'-'),
+				_('emr-journal'),
+				patient['lastnames'].replace(u' ', u'_'),
 				patient['firstnames'].replace(u' ', u'_'),
 				patient['dob'].strftime('%Y-%m-%d')
 			)
+			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', patient['dirname'], filename))
 
-		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8')
+		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8', errors = 'replace')
 		self.export(target = f, patient = patient)
 		f.close()
 		return filename
@@ -1262,7 +1259,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.105  2007-05-14 13:09:04  ncq
+# Revision 1.106  2007-05-21 14:46:44  ncq
+# - use patient['dirname']
+#
+# Revision 1.105  2007/05/14 13:09:04  ncq
 # - use bold on health issues with open episodes
 #
 # Revision 1.104  2007/04/01 15:25:55  ncq
