@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.117 2007-05-08 16:07:00 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gnumed.py,v 1.118 2007-05-21 14:49:42 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -152,6 +152,7 @@ def setup_paths():
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
@@ -288,7 +289,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.117  2007-05-08 16:07:00  ncq
+# Revision 1.118  2007-05-21 14:49:42  ncq
+# - create gnumed/export/EMR/
+#
+# Revision 1.117  2007/05/08 16:07:00  ncq
 # - console exception display handler factored out
 # - cleanup
 #
