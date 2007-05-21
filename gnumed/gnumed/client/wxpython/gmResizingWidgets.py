@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.46 2007-05-14 13:11:25 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmResizingWidgets.py,v 1.47 2007-05-21 13:06:12 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -644,29 +644,19 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - after last character in widget:
 		#	- if after ';': go to next in tab order
 		#	- f no ';' there: add one
-		if event.GetKeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
-#			if (self.list is not None) and self.list.alive:
-#				self.list.Enter()
+#		if event.GetKeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
+#			if self.GetLength() == 0:
+#				if self.next_in_tab_order is not None:
+#					self.next_in_tab_order.SetFocus()
 #				return
-			if self.GetLength() == 0:
-				if self.next_in_tab_order is not None:
-					self.next_in_tab_order.SetFocus()
-				return
-			if curs_pos == self.GetLength():
-				# FIXME: make this smarter to deal with whitespace after ';'
-				if self.GetCharAt(curs_pos-1) == ord(';'):
-					if self.next_in_tab_order:
-						self.next_in_tab_order.SetFocus()
-					# FIXME: why ?
-#					elif self.__parent.complete:
-#						self.__parent.complete()
-				else:
-					self.AddText (';')
-				return
-
-		# FIXME: why ?
-#		if event.GetKeyCode() == wx.WXK_F12 and self.__parent.complete:
-#			self.__parent.complete()
+#			if curs_pos == self.GetLength():
+#				# FIXME: make this smarter to deal with whitespace after ';'
+#				if self.GetCharAt(curs_pos-1) == ord(';'):
+#					if self.next_in_tab_order:
+#						self.next_in_tab_order.SetFocus()
+#				else:
+#					self.AddText (';')
+#				return
 
 		event.Skip()	# skip to next event handler to keep processing
 	#------------------------------------------------
@@ -1060,7 +1050,11 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.46  2007-05-14 13:11:25  ncq
+# Revision 1.47  2007-05-21 13:06:12  ncq
+# - make ENTER start new line in STC rather than appending ;
+#   - user request
+#
+# Revision 1.46  2007/05/14 13:11:25  ncq
 # - use statustext() signal
 #
 # Revision 1.45  2007/01/20 22:52:27  ncq
