@@ -35,9 +35,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.8 2007-04-23 16:56:54 ncq Exp $
+# $Id: gmDateTime.py,v 1.9 2007-05-21 17:13:12 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -53,7 +53,7 @@ import psycopg2						# this will go once datetime has timezone classes
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmI18N
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -903,8 +903,6 @@ if __name__ == '__main__':
 			raw_input('press ENTER to continue')
 
 	#-------------------------------------------------
-
-	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 
@@ -916,7 +914,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.8  2007-04-23 16:56:54  ncq
+# Revision 1.9  2007-05-21 17:13:12  ncq
+# - import gmI18N
+#
+# Revision 1.8  2007/04/23 16:56:54  ncq
 # - poperly place misplaced "
 #
 # Revision 1.7  2007/04/02 18:21:27  ncq
