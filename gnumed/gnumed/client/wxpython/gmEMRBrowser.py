@@ -2,19 +2,19 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.74 2007-05-21 13:05:25 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmEMRBrowser.py,v 1.75 2007-05-21 14:48:20 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # std lib
-import sys, types, os.path, StringIO
+import sys, types, os.path, StringIO, codecs
 
 # 3rd party
 import wx
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmExceptions
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets
@@ -22,9 +22,6 @@ from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl, wxgSplittedEMRTreeBrows
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
-# module level constants
-dialog_OK = -2
 
 #============================================================
 def export_emr_to_ascii(parent=None):
@@ -34,40 +31,47 @@ def export_emr_to_ascii(parent=None):
 	@type parent - A wx.Window instance
 	"""
 	# sanity checks
+	if parent is None:
+		raise TypeError('[export_emr_to_ascii]: expected wx.Window instance as parent, got <None>')
+
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.is_connected():
 		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot export EMR. No active patient.'))
 		return False
-	if parent is None:
-		_log.Log(gmLog.lErr, 'cannot dump emr in gui mode without parent widget')
-		return False
+
 	# get file name
-	aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+	wc = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
+	defdir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', pat['dirname'])))
+	gmTools.mkdir(defdir)
 	fname = '%s-%s_%s.txt' % (_('emr-export'), pat['lastnames'], pat['firstnames'])
 	dlg = wx.FileDialog (
 		parent = parent,
 		message = _("Save patient's EMR as..."),
-		defaultDir = aDefDir,
+		defaultDir = defdir,
 		defaultFile = fname,
-		wildcard = aWildcard,
+		wildcard = wc,
 		style = wx.SAVE
 	)
 	choice = dlg.ShowModal()
 	fname = dlg.GetPath()
 	dlg.Destroy()
-	if choice == wx.ID_OK:
-		_log.Log(gmLog.lData, 'exporting EMR to [%s]' % fname)
-		output_file = open(fname, 'wb')
-		# instantiate exporter
-		exporter = gmPatientExporter.cEmrExport(patient = pat)
-		exporter.set_output_file(output_file)
-		exporter.dump_constraints()
-		exporter.dump_demographic_record(True)
-		exporter.dump_clinical_record()
-		exporter.dump_med_docs()
-		output_file.close()
-		gmGuiHelpers.gm_show_info('EMR successfully exported to file: %s' % fname, _('emr_dump'), gmLog.lInfo)
+	if choice != wx.ID_OK:
+		return None
+
+	_log.Log(gmLog.lData, 'exporting EMR to [%s]' % fname)
+
+#	output_file = open(fname, 'wb')
+	output_file = codecs.open(fname, 'wb', encoding='utf8', errors='replace')
+	exporter = gmPatientExporter.cEmrExport(patient = pat)
+	exporter.set_output_file(output_file)
+	exporter.dump_constraints()
+	exporter.dump_demographic_record(True)
+	exporter.dump_clinical_record()
+	exporter.dump_med_docs()
+	output_file.close()
+
+	gmDispatcher.send(gmSignals.statustext(), msg = _('EMR successfully exported to file: %s') % fname, beep = False)
+	return fname
 #============================================================
 class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	"""This wx.TreeCtrl derivative displays a tree view of the medical record."""
@@ -545,7 +549,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.74  2007-05-21 13:05:25  ncq
+# Revision 1.75  2007-05-21 14:48:20  ncq
+# - cleanup
+# - use pat['dirname'], use export/EMR/
+# - unicode output files
+#
+# Revision 1.74  2007/05/21 13:05:25  ncq
 # - catch-all wildcard on UNIX must be *, not *.*
 #
 # Revision 1.73  2007/05/18 13:29:25  ncq
