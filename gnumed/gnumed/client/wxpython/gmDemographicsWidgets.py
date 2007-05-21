@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.119 2007-05-14 13:11:24 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmDemographicsWidgets.py,v 1.120 2007-05-21 22:30:12 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -531,16 +531,6 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		self.PRW_occupation = cOccupationPhraseWheel(parent = PNL_form,	id = -1)
-#		queries = []
-#		queries.append("select distinct name, name from dem.occupation where name %(fragment_condition)s")
-#		mp = gmMatchProvider.cMatchProvider_SQL2(queries)
-#		mp.setThresholds(3, 5, 15)		
-#		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
-#			parent = PNL_form,
-#			id = -1,
-#		)
-#		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
-#		self.PRW_occupation.matcher = mp
 
 		# form main validator
 		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
@@ -659,7 +649,6 @@ class cNewPatientWizard(wx.wizard.Wizard):
 		ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
 		update_identity_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 		link_contacts_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
-		#ident.link_occupation(occupation = self.PRW_occupation.GetValue().strip())
 		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
@@ -1624,30 +1613,36 @@ def link_contacts_from_dtd(identity, dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
-	# FIXME: support address type
-
-	success = identity.link_address (
-		number = dtd['address_number'].strip(),
-		street = dtd['street'].strip(),
-		postcode = dtd['zip_code'].strip(),
-		urb = dtd['town'].strip(),
-		state = dtd['state'].strip(),
-		country = dtd['country'].strip()
+	lng = len (
+		dtd['address_number'].strip() +
+		dtd['street'].strip() +
+		dtd['zip_code'].strip() +
+		dtd['town'].strip() +
+		dtd['state'].strip() +
+		dtd['country'].strip()
 	)
-	if not success:
-		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot update patient address.'))
-		return False
+	if lng > 0:
+		# FIXME: support address type
+		success = identity.link_address (
+			number = dtd['address_number'].strip(),
+			street = dtd['street'].strip(),
+			postcode = dtd['zip_code'].strip(),
+			urb = dtd['town'].strip(),
+			state = dtd['state'].strip(),
+			country = dtd['country'].strip()
+		)
+		if not success:
+			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot update patient address.'))
 
-	input_phone = dtd['phone']
-	if len(input_phone) > 0:
+	if len(dtd['phone']) > 0:
 		identity.link_communication (
 			comm_medium = 'homephone',
-			url = input_phone,
+			url = dtd['phone'],
 			is_confidential = False
 		)
 
 	# FIXME: error checking
-	identity.save_payload()
+#	identity.save_payload()
 	return True
 #============================================================				
 def link_occupation_from_dtd(identity, dtd=None):
@@ -1734,7 +1729,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.119  2007-05-14 13:11:24  ncq
+# Revision 1.120  2007-05-21 22:30:12  ncq
+# - cleanup
+# - don't try to store empty address in link_contacts_from_dtd()
+#
+# Revision 1.119  2007/05/14 13:11:24  ncq
 # - use statustext() signal
 #
 # Revision 1.118  2007/04/02 18:39:52  ncq
