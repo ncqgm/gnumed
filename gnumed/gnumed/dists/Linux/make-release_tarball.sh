@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.34 2007-05-08 16:07:32 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.35 2007-05-22 14:03:43 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -28,6 +28,11 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_StaffV01.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgRequest.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgDoubleListSplitterPnl.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/StyledTextCtrl_1.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/gmDermTool.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/gmEMRDataSelector.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/gmProgressNoteSTC.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/zz-gmNewFileTemplate.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmAU_VaccV01.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmBMIWidgets.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gmCharacterValidator.py "\
@@ -67,6 +72,7 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmSnellen.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmSQL.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmVaccinationsPlugin.py "\
+"./GNUmed-$CLIENTREV/server/bootstrap/xxx-upgrade-instructions.txt "\
 "./GNUmed-$CLIENTREV/server/bootstrap/amis-config.set "\
 "./GNUmed-$CLIENTREV/server/bootstrap/bootstrap-amis.conf "\
 "./GNUmed-$CLIENTREV/server/bootstrap/bootstrap-archive.conf "\
@@ -270,11 +276,9 @@ cp -R ../../server/sql/v4-v5/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
-mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/superuser
 
 cp -R ../../server/sql/v5-v6/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
 cp -R ../../server/sql/v5-v6/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
-cp -R ../../server/sql/v5-v6/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/superuser
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -312,7 +316,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.34  2007-05-08 16:07:32  ncq
+# Revision 1.35  2007-05-22 14:03:43  ncq
+# - cleanup of files
+#
+# Revision 1.34  2007/05/08 16:07:32  ncq
 # - include restore script and docs in server package
 #
 # Revision 1.33  2007/04/27 13:30:28  ncq
