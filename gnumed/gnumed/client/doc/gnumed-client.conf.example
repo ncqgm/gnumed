@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.3 2007-04-19 13:10:53 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.4 2007-05-22 13:33:35 ncq Exp $
 
 
 
@@ -38,7 +38,7 @@ $profiles$
 
 [profile public GNUmed database]
 host = salaam.homeunix.com
-port = 5432
+port = 5433
 database = gnumed_v6
 #encoding = UTF8
 
@@ -62,7 +62,10 @@ database = gnumed_v6
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.3  2007-04-19 13:10:53  ncq
+# Revision 1.4  2007-05-22 13:33:35  ncq
+# - default to 5433 on salaam
+#
+# Revision 1.3  2007/04/19 13:10:53  ncq
 # - add default workplace
 #
 # Revision 1.2  2007/04/02 14:25:17  ncq
