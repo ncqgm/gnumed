@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.82 2007-05-22 13:35:11 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmLoginDialog.py,v 1.82.2.1 2007-05-27 21:49:35 ncq Exp $
+__version__ = "$Revision: 1.82.2.1 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -408,6 +408,7 @@ For assistance on using GnuMed please contact:
 			_log.Log(gmLog.lInfo, 'debug mode enabled')
 		else:
 			_log.Log(gmLog.lInfo, 'debug mode disabled')
+			gmCLI._cli_args['--debug'] = False
 			del gmCLI._cli_args['--debug']
 			if gmCLI.has_arg("--quiet"):
 				_log.SetAllLogLevels(gmLog.lErr)
@@ -470,7 +471,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.82  2007-05-22 13:35:11  ncq
+# Revision 1.82.2.1  2007-05-27 21:49:35  ncq
+# - fix KeyError exception
+#
+# Revision 1.82  2007/05/22 13:35:11  ncq
 # - default port 5433 now on salaam
 #
 # Revision 1.81  2007/05/08 11:16:10  ncq
