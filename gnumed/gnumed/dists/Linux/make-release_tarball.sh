@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.35.2.2 2007-05-27 21:50:31 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.35.2.3 2007-06-01 15:19:07 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.2.6.1"
+CLIENTREV="0.2.6.2"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 SRVREV="6"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
@@ -276,9 +276,11 @@ cp -R ../../server/sql/v4-v5/superuser/*.sql ./GNUmed-$CLIENTREV/server/sql/v4-v
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/fixups
 
 cp -R ../../server/sql/v5-v6/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
 cp -R ../../server/sql/v5-v6/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
+cp -R ../../server/sql/v5-v6/fixups/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -316,7 +318,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.35.2.2  2007-05-27 21:50:31  ncq
+# Revision 1.35.2.3  2007-06-01 15:19:07  ncq
+# - include fixup, bump version
+#
+# Revision 1.35.2.2  2007/05/27 21:50:31  ncq
 # - bump version
 #
 # Revision 1.35.2.1  2007/05/27 15:08:59  ncq
