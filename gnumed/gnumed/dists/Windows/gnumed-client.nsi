@@ -8,8 +8,8 @@ Var /GLOBAL LANGGETTEXT
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "GNUmed-client"
-!define PRODUCT_VERSION "0.2"
-!define PRODUCT_SUBREV "6.2"
+!define PRODUCT_VERSION "head"
+!define PRODUCT_SUBREV ""
 !define PRODUCT_PUBLISHER "GNUmed Systemhaus"
 !define PRODUCT_WEB_SITE "http://www.gnumed.de"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
