@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.39 2007-05-08 11:14:34 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmScanBackend.py,v 1.40 2007-06-05 14:58:16 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -328,7 +328,7 @@ class cXSaneScanner:
 
 		self.__prepare_xsanerc(tmpdir=path)
 
-		gmShellAPI.run_command_in_shell (
+		normal_exit = gmShellAPI.run_command_in_shell (
 			command = 'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
 				filename,
 				gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
@@ -339,7 +339,10 @@ class cXSaneScanner:
 
 		self.__restore_xsanerc()
 
-		return glob.glob(filename.replace('###', '*'))
+		if normal_exit:
+			return glob.glob(filename.replace('###', '*'))
+
+		return False
 	#---------------------------------------------------
 	def image_transfer_done(self):
 		return True
@@ -426,6 +429,13 @@ def get_devices():
 	return False
 #-----------------------------------------------------
 def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None, calling_window=None, xsane_device_settings=None):
+	"""Connect to a scanner and return the scanned pages as a file list.
+
+	returns:
+		- list of filenames: names of scanned pages.
+		- None: unable to connect to scanner
+	"""
+
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
 	except gmExceptions.ConstructorError:
@@ -450,6 +460,9 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
 	scanner.close()
 	_log.Log(gmLog.lData, 'acquired pages into files: %s' % str(fnames))
+
+	if fnames is False:
+		return None
 
 	return fnames
 #==================================================
@@ -482,7 +495,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.39  2007-05-08 11:14:34  ncq
+# Revision 1.40  2007-06-05 14:58:16  ncq
+# - better support missing XSane, thereby enabling better error reporting
+#
+# Revision 1.39  2007/05/08 11:14:34  ncq
 # - cleanup
 #
 # Revision 1.38  2007/04/01 15:27:09  ncq
