@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.10 2007-05-17 15:17:24 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.11 2007-06-05 14:59:44 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -23,8 +23,10 @@
 #
 #  47 12,19 * * * * /usr/bin/gm-backup_database.sh
 #
-# It is useful to have a PROCMAIL rule for the GNotary server replies
-# piping them into the stoarage area where the backups are kept.
+#
+# You need to allow root to access the GNUmed database as
+# user "gm-dbo" by either editing pg_hba.conf or using a
+# .pgpass file.
 #==============================================================
 
 # load config file
@@ -49,8 +51,13 @@ else
 fi ;
 BACKUP_FILENAME="${BACKUP_BASENAME}-${TS}"
 
-# create dumps
 cd ${BACKUP_DIR}
+if test "$?" != "0" ; then
+	echo "Cannot change into backup directory [${BACKUP_DIR}]. Aborting."
+	exit 1
+fi
+
+# create dumps
 if test -z ${GM_HOST} ; then
 	# locally
 	sudo -u postgres pg_dumpall -g -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
@@ -68,59 +75,25 @@ fi ;
 
 # compress and test it
 tar -cWf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
+if test "$?" != "0" ; then
+	echo "Creating backup tar archive [${BACKUP_FILENAME}.tar] failed. Aborting."
+	exit 1
+fi
 rm -f ${BACKUP_FILENAME}-database.sql
 rm -f ${BACKUP_FILENAME}-roles.sql
-bzip2 -zq9 ${BACKUP_FILENAME}.tar
-bzip2 -tq ${BACKUP_FILENAME}.tar.bz2
 
-# give to admin owner
-chmod ${BACKUP_MASK} ${BACKUP_FILENAME}.tar.bz2
-chown ${BACKUP_OWNER} ${BACKUP_FILENAME}.tar.bz2
-
-if test ! -z ${GNOTARY_TAN} ; then
-
-	# GNotary support
-	LOCAL_MAILER=`which mail`
-
-	#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-	SHA512=`openssl dgst -sha512 -hex ${BACKUP_FILENAME}.tar.bz2`
-	RMD160=`openssl dgst -ripemd160 -hex ${BACKUP_FILENAME}.tar.bz2`
-
-	export REPLYTO=$SIG_RECEIVER
-
-	# send mail
-	(
-		echo "Subject: gnotarize"
-		echo " "
-		echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
-		echo "<message>"
-		echo "	<tan>$GNOTARY_TAN</tan>"
-		echo "	<action>notarize</action>"
-		echo "	<hashes number=\"2\">"
-		echo "		<hash file=\"${BACKUP_FILENAME}.tar.bz2\" modified=\"${TS}\" algorithm=\"SHA-512\">$SHA512</hash>"
-		echo "		<hash file=\"${BACKUP_FILENAME}.tar.bz2\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">$RMD160</hash>"
-		echo "	</hashes>"
-		echo "</message>"
-		echo " "
-	) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
-
-fi
-
-# zip up any leftover backups
-shopt -s -q nullglob
-for OLD_BACKUP in ${BACKUP_DIR}/${BACKUP_BASENAME}-*.tar ; do
-	# but only if there isn't already a corresponding *.bz2
-	if test ! -f ${OLD_BACKUP}.bz2 ; then
-		bzip2 -zq9 ${OLD_BACKUP}
-		bzip2 -tq ${OLD_BACKUP}
-	fi
-done
+chown ${BACKUP_OWNER} ${BACKUP_FILENAME}.tar
 
 exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.10  2007-05-17 15:17:24  ncq
+# Revision 1.11  2007-06-05 14:59:44  ncq
+# - improved docstring
+# - better error checking
+# - factor out bzipping and signing
+#
+# Revision 1.10  2007/05/17 15:17:24  ncq
 # - abort on ping error
 #
 # Revision 1.9  2007/05/17 15:16:23  ncq
