@@ -14,7 +14,7 @@
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.6 2007-05-17 15:14:54 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.7 2007-06-05 14:57:03 ncq Exp $
 
 #------------------------------------------------------------
 # those need to be changed in most if not all cases
@@ -50,6 +50,9 @@ GM_HOST=""
 # file permissions mask to set the backup file to
 BACKUP_MASK="0600"
 
+# the compression level to use with bzip2 (1-9) (see: man bzip2)
+COMPRESSION_LEVEL="9"
+
 # set this to an email address which will receive
 # digitally signed replies from the GNotary server
 # notarizing the hash of the backup
@@ -67,7 +70,10 @@ GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.6  2007-05-17 15:14:54  ncq
+# Revision 1.7  2007-06-05 14:57:03  ncq
+# - add compression level variable
+#
+# Revision 1.6  2007/05/17 15:14:54  ncq
 # - better default backup target dir in line with the rest of GNUmed
 #
 # Revision 1.5  2007/05/14 21:28:09  ncq
