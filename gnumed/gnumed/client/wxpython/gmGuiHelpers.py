@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.61 2007-05-14 10:34:07 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmGuiHelpers.py,v 1.61.2.1 2007-06-06 08:21:39 ncq Exp $
+__version__ = "$Revision: 1.61.2.1 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,7 +52,8 @@ def handle_uncaught_exception_wx(t, v, tb):
 		_log.flush()
 		shutil.copy2(target.ID, new_name)
 
-	wx.EndBusyCursor()
+	try: wx.EndBusyCursor()
+	except: pass
 
 	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
 	dlg.ShowModal()
@@ -571,7 +572,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.61  2007-05-14 10:34:07  ncq
+# Revision 1.61.2.1  2007-06-06 08:21:39  ncq
+# - MSW does ref counting on Begin/EndBusyCursor :-( so deal with that
+#
+# Revision 1.61  2007/05/14 10:34:07  ncq
 # - no more gm_statustext()
 #
 # Revision 1.60  2007/05/14 10:05:33  ncq
