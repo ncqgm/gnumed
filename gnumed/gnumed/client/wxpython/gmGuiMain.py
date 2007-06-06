@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.334 2007-05-21 14:48:58 ncq Exp $
-__version__ = "$Revision: 1.334 $"
+# $Id: gmGuiMain.py,v 1.334.2.1 2007-06-06 08:22:05 ncq Exp $
+__version__ = "$Revision: 1.334.2.1 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -614,15 +614,16 @@ class gmTopLevelFrame(wx.Frame):
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 		)
+		langs = [row[0] for row in rows]
 		result = gmGuiHelpers.gm_SingleChoiceDialog (
 			aMessage = _('Please select the database language from the list below.'),
 			aTitle = _('configuring database language'),
-			choices = [row[0] for row in rows]
+			choices = langs
 		)
 		if result is False:
 			return
 		rows, idx = gmPG2.run_rw_queries (
-			queries = [{'cmd': u'select i18n', 'args': {'lang': result}}]
+			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': langs[result]}}]
 		)
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
@@ -1379,7 +1380,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.334  2007-05-21 14:48:58  ncq
+# Revision 1.334.2.1  2007-06-06 08:22:05  ncq
+# - actually set selected database language
+#
+# Revision 1.334  2007/05/21 14:48:58  ncq
 # - use export/EMR/pat['dirname']
 #
 # Revision 1.333  2007/05/21 13:05:25  ncq
