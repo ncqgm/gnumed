@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.127 2007-05-21 14:49:20 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmMedDocWidgets.py,v 1.128 2007-06-10 10:17:36 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -550,11 +550,13 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			if device is not None:
 				return device
 
-		devices = self.scan_module.get_devices()
-		if devices is False:
+		try:
+			devices = self.scan_module.get_devices()
+		except:
+			_log.LogException('cannot retrieve list of image sources')
 			gmGuiHelpers.gm_statustext (
 				_('There is no scanner support installed on this machine.'),
-				gmLog.lWarn
+				gmLog.lInfo
 			)
 			return None
 
@@ -599,16 +601,22 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		# FIXME: configure whether to use XSane or sane directly
 		# FIXME: add support for xsane_device_settings argument
-		fnames = self.scan_module.acquire_pages_into_files (
-			device = chosen_device,
-			delay = 5,
-			tmpdir = tmpdir,
-			calling_window = self
-		)
-
-		if fnames is False:
+		try:
+			fnames = self.scan_module.acquire_pages_into_files (
+				device = chosen_device,
+				delay = 5,
+				tmpdir = tmpdir,
+				calling_window = self
+			)
+		except:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Page could not be acquired from source.'),
+				aMessage = _(
+					'No pages could be acquired from the source.\n\n'
+					'This may mean the scanner driver is not properly installed\n\n'
+					'On Windows you must install the TWAIN Python module\n'
+					'while on Linux and MacOSX it is recommended to install\n'
+					'the XSane package.'
+				),
 				aTitle = _('acquiring page')
 			)
 			return None
@@ -930,6 +938,17 @@ class cDocTree(wx.TreeCtrl):
 			return True
 		self.__sort_mode = mode
 	#--------------------------------------------------------
+	def display_selected_part(self, *args, **kwargs):
+
+		node = self.GetSelection()
+		node_data = self.GetPyData(node)
+
+		if not isinstance(node_data, gmMedDoc.cMedDocPart):
+			return True
+
+		self.__display_part(part = node_data)
+		return True
+	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
@@ -1148,7 +1167,7 @@ class cDocTree(wx.TreeCtrl):
 	#------------------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
-	def _on_activate (self, event):
+	def _on_activate(self, event):
 		node = event.GetItem()
 		node_data = self.GetPyData(node)
 
@@ -1397,7 +1416,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.127  2007-05-21 14:49:20  ncq
+# Revision 1.128  2007-06-10 10:17:36  ncq
+# - gmScanBackend now uses exceptions for error handling
+# - improved error message when no sanner driver found
+#
+# Revision 1.127  2007/05/21 14:49:20  ncq
 # - use pat['dirname'] for export
 #
 # Revision 1.126  2007/05/21 13:05:25  ncq
