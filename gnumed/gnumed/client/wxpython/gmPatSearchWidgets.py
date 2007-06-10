@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.80 2007-05-18 15:55:58 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmPatSearchWidgets.py,v 1.81 2007-06-10 10:12:55 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -635,7 +635,7 @@ class cPatientSelector(wx.TextCtrl):
 
 		dbcfg = gmCfg.cCfgSQL()
 		dob_distance = dbcfg.get2 (
-			option = u'',
+			option = u'patient_search.dob_warn_interval',
 			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = u'user',
 			default = u'1 week'
@@ -992,7 +992,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.80  2007-05-18 15:55:58  ncq
+# Revision 1.81  2007-06-10 10:12:55  ncq
+# - options need names
+#
+# Revision 1.80  2007/05/18 15:55:58  ncq
 # - auto-select first item in person/dto selector
 #
 # Revision 1.79  2007/05/14 14:56:41  ncq
