@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.29 2007-05-17 15:12:59 ncq Exp $
+# $Id: gmTools.py,v 1.30 2007-06-10 09:56:03 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -283,51 +283,57 @@ days_per_week = 7
 def str2interval(str_interval=None):
 
 	# "(~)35(yYjJaA)"	- at age 35 years
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(y|Y|j|J|a|A|\s|\t)*$', str_interval):
-		return pydt.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_year))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(y|Y|j|J|a|A|\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(days = (int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]) * days_per_year))
 
 	# "(~)12mM" - at age 12 months
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(m|M)+(\s|\t)*$', str_interval):
-		years, months = divmod(int(regex.findall('\d+', str_interval)[0]), 12)
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(m|M)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		years, months = divmod (
+			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
+			12
+		)
 		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
 
 	# weeks
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(w|W)+(\s|\t)*$', str_interval):
-		return pydt.timedelta(weeks = int(regex.findall('\d+', str_interval)[0]))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(w|W)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# days
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(d|D|t|T)+(\s|\t)*$', str_interval):
-		return pydt.timedelta(days = int(regex.findall('\d+', str_interval)[0]))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(d|D|t|T)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# hours
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(h|H)+(\s|\t)*$', str_interval):
-		return pydt.timedelta(hours = int(regex.findall('\d+', str_interval)[0]))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*(h|H)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# x/12 - months
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*12(\s|\t)*$', str_interval):
-		years, months = divmod(int(regex.findall('\d+', str_interval)[0]), 12)
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*12(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		years, months = divmod (
+			int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]),
+			12
+		)
 		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
 
 	# x/52 - weeks
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52(\s|\t)*$', str_interval):
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
 #		return pydt.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_week))
-		return pydt.timedelta(weeks = int(regex.findall('\d+', str_interval)[0]))
+		return pydt.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# x/7 - days
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*7(\s|\t)*$', str_interval):
-		return pydt.timedelta(days = int(regex.findall('\d+', str_interval)[0]))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*7(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(days = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# x/24 - hours
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*24(\s|\t)*$', str_interval):
-		return pydt.timedelta(hours = int(regex.findall('\d+', str_interval)[0]))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*24(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(hours = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# x/60 - minutes
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*60(\s|\t)*$', str_interval):
-		return pydt.timedelta(minutes = int(regex.findall('\d+', str_interval)[0]))
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*60(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		return pydt.timedelta(minutes = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# nYnM - years, months
-	if regex.match('^(\s|\t)*~*(\s|\t)*\d+(y|Y|j|J|a|A|\s|\t)+\d+(\s|\t)*(m|M)+(\s|\t)*$', str_interval):
-		parts = regex.findall('\d+', str_interval)
+	if regex.match(u'^(\s|\t)*~*(\s|\t)*\d+(y|Y|j|J|a|A|\s|\t)+\d+(\s|\t)*(m|M)+(\s|\t)*$', str_interval, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)
 		years, months = divmod(int(parts[1]), 12)
 		years += int(parts[0])
 		return pydt.timedelta(days = ((years * days_per_year) + (months * days_per_month)))
@@ -400,13 +406,13 @@ def capitalize(text=None, mode=CAPS_NAMES):
 		return text[0].upper() + text[1:].lower()
 
 	if mode == CAPS_WORDS:
-		return regex.sub(r'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
+		return regex.sub(ur'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
 
 	if mode == CAPS_NAMES:
 		#return regex.sub(r'\w+', __cap_name, text)
 		return capitalize(text=text, mode=CAPS_FIRST)		# until fixed
 
-	print "ERROR: invalid capitalize() mode: [%s], leaving input as is", mode
+	print "ERROR: invalid capitalization mode: [%s], leaving input as is" % mode
 	return text
 #---------------------------------------------------------------------------
 def wrap(text, width):
@@ -494,9 +500,10 @@ if __name__ == '__main__':
 		return passed
 	#-----------------------------------------------------------------------
 	def test_capitalize():
-		print 'testing capitalize()'
-		print '--------------------'
+		print 'testing capitalize() ...'
+		success = True
 		pairs = [
+			# [original, expected result, CAPS mode]
 			[u'Boot', u'Boot', CAPS_FIRST_ONLY],
 			[u'boot', u'Boot', CAPS_FIRST_ONLY],
 			[u'booT', u'Boot', CAPS_FIRST_ONLY],
@@ -505,14 +512,24 @@ if __name__ == '__main__':
 			[u'boots-sChau', u'Boots-Schau', CAPS_WORDS],
 			[u'boot camp', u'Boot Camp', CAPS_WORDS],
 			[u'fahrner-Kampe', u'Fahrner-Kampe', CAPS_NAMES],
-			[u'häkkönen', u'Häkkönen', CAPS_NAMES]
+			[u'häkkönen', u'Häkkönen', CAPS_NAMES],
+			[u'McBurney', u'McBurney', CAPS_NAMES],
+			[u'mcBurney', u'McBurney', CAPS_NAMES],
+			[u'blumberg', u'Blumberg', CAPS_NAMES],
+			[u'roVsing', u'RoVsing', CAPS_NAMES],
+			[u'Özdemir', u'Özdemir', CAPS_NAMES],
+			[u'özdemir', u'Özdemir', CAPS_NAMES],
 		]
 		for pair in pairs:
 			result = capitalize(pair[0], pair[2])
 			if result != pair[1]:
+				success = False
 				print 'ERROR (caps mode %s): "%s" -> "%s", expected "%s"' % (pair[2], pair[0], result, pair[1])
 
-		return True
+		if success:
+			print "... SUCCESS"
+
+		return success
 	#-----------------------------------------------------------------------
 	def test_import_module():
 		print "testing import_module_from_directory()"
@@ -582,17 +599,20 @@ This is a test mail from the gmTools.py module.
 
 	#test_str2interval()
 	#test_coalesce()
-	#test_capitalize()
+	test_capitalize()
 	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
-	test_cPaths()
+	#test_cPaths()
 	#test_none_if()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.29  2007-05-17 15:12:59  ncq
+# Revision 1.30  2007-06-10 09:56:03  ncq
+# - u''ificiation and flags in regex calls
+#
+# Revision 1.29  2007/05/17 15:12:59  ncq
 # - even more careful about pathes
 #
 # Revision 1.28  2007/05/17 15:10:16  ncq
