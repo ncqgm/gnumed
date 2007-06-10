@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.62 2007-05-18 13:28:57 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmEMRStructWidgets.py,v 1.63 2007-06-10 10:02:53 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -319,7 +319,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		return True
 
 	# don't conflict on SELF ;-)
-	if existing_epi['pk_encounter'] == episode['pk_encounter']:
+	if existing_epi['pk_episode'] == episode['pk_episode']:
 		episode['pk_health_issue'] = target_issue['pk']
 		if save_to_backend:
 			episode.save_payload()
@@ -1151,7 +1151,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.62  2007-05-18 13:28:57  ncq
+# Revision 1.63  2007-06-10 10:02:53  ncq
+# - episode pk is pk_episode
+#
+# Revision 1.62  2007/05/18 13:28:57  ncq
 # - implement cMoveNarrativeDlg
 #
 # Revision 1.61  2007/05/14 13:11:24  ncq
