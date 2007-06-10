@@ -2,14 +2,14 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.40 2007-06-05 14:58:16 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmScanBackend.py,v 1.41 2007-06-10 10:19:24 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
 #==================================================
 # stdlib
-import sys, os.path, os, string, time, shutil, tempfile, codecs, glob, locale
+import sys, os.path, os, string, time, shutil, tempfile, codecs, glob, locale, errno
 
 # 3rd party
 import Image
@@ -28,11 +28,23 @@ _sane_module = None
 
 use_XSane = True
 #=======================================================
+# TWAIN handling
+#=======================================================
+def _twain_import_module():
+	global _twain_module
+	if _twain_module is None:
+		try:
+			import twain
+			_twain_module = twain
+		except ImportError:
+			_log.LogException('cannot import TWAIN module (WinTWAIN.py)')
+			raise
+		_log.Log(gmLog.lInfo, "TWAIN version: %s" % _twain_module.Version())
+#=======================================================
 class cTwainScanner:
 
 	def __init__(self, calling_window=None):
-		if not _twain_import_module():
-			raise gmExceptions.ConstructorError, 'cannot instantiate TWAIN driver class: cannot import TWAIN module'
+		_twain_import_module()
 
 		self.__calling_window = calling_window
 		self.__src_manager = None
@@ -57,7 +69,8 @@ class cTwainScanner:
 		self.__filename = os.path.abspath(os.path.expanduser(filename))
 
 		if not self.__init_scanner():
-			return False
+			raise OSError(-1, 'cannot init TWAIN scanner device')
+#			return False
 
 		self.__done_transferring_image = False
 		self.__scanner.RequestAcquire(True)
@@ -199,6 +212,25 @@ class cTwainScanner:
 
 		return 
 #=======================================================
+# SANE handling
+#=======================================================
+def _sane_import_module():
+	global _sane_module
+	if _sane_module is None:
+		try:
+			import sane
+		except ImportError:
+			_log.LogException('cannot import SANE module')
+			raise
+		_sane_module = sane
+		try:
+			init_result = _sane_module.init()
+		except:
+			_log.LogException('cannot init SANE module', verbose=1)
+			raise
+		_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
+		_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
+#=======================================================
 class cSaneScanner:
 
 	# for testing uncomment "test" backend in /etc/sane/dll.conf
@@ -206,9 +238,7 @@ class cSaneScanner:
 	_src_manager = None
 
 	def __init__(self, device=None):
-		msg = 'cannot instantiate SANE driver class'
-		if not _sane_import_module():
-			raise gmExceptions.ConstructorError, msg
+		_sane_import_module()
 
 		# FIXME: need to test against devs[x][0]
 #		devs = _sane_module.get_devices()
@@ -220,15 +250,10 @@ class cSaneScanner:
 		self.__device = device
 		_log.Log(gmLog.lInfo, 'using SANE device [%s]' % self.__device)
 
-		if not self.__init_scanner():
-			raise gmExceptions.ConstructorError, msg
+		self.__init_scanner()
 	#---------------------------------------------------
 	def __init_scanner(self):
-		try:
-			self.__scanner = _sane_module.open(self.__device)
-		except:
-			_log.LogException('cannot open SANE scanner', sys.exc_info(), verbose=0)
-			return False
+		self.__scanner = _sane_module.open(self.__device)
 
 		_log.Log(gmLog.lData, 'opened SANE device: %s' % str(self.__scanner))
 		_log.Log(gmLog.lData, 'SANE device config: %s' % str(self.__scanner.get_parameters()))
@@ -257,13 +282,10 @@ class cSaneScanner:
 			time.sleep(delay)
 			_log.Log(gmLog.lData, 'some sane backends report device_busy if we advance too fast. delay set to %s sec' % delay)
 
-		try:
-			self.__scanner.start()
-			img = self.__scanner.snap()
-			img.save(filename)
-		except:
-			_log.LogException('Unable to get image from scanner into [%s] !' % filename, sys.exc_info(), verbose=1)
-			return False
+		_log.Log(gmLog.lData, 'Trying to get image from scanner into [%s] !' % filename)
+		self.__scanner.start()
+		img = self.__scanner.snap()
+		img.save(filename)
 
 		return [filename]
 	#---------------------------------------------------
@@ -289,6 +311,9 @@ class cSaneScanner:
 #		#self.__scannerdepth=6
 #		#self.__scannerbr_x = 412.0
 #		#self.__scannerbr_y = 583.0
+
+#==================================================
+# XSane handling
 #==================================================
 class cXSaneScanner:
 
@@ -301,7 +326,7 @@ class cXSaneScanner:
 		# while not strictly necessary it is good to fail early
 		# this will tell us fairly safely whether XSane is properly installed
 		if not os.access(cXSaneScanner._xsanerc, os.W_OK):
-			raise IOError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
+			raise IOError(errno.EACCES, 'XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
 
 		self.device_settings_file = None
 		self.default_device = None
@@ -328,21 +353,19 @@ class cXSaneScanner:
 
 		self.__prepare_xsanerc(tmpdir=path)
 
-		normal_exit = gmShellAPI.run_command_in_shell (
-			command = 'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
-				filename,
-				gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
-				gmTools.coalesce(self.default_device, '')
-			),
-			blocking = True
+		cmd = 'xsane --no-mode-selection --save --force-filename "%s" %s %s' % (
+			filename,
+			gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
+			gmTools.coalesce(self.default_device, '')
 		)
+		normal_exit = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
 
 		self.__restore_xsanerc()
 
 		if normal_exit:
 			return glob.glob(filename.replace('###', '*'))
 
-		return False
+		raise OSError(-1, 'cannot start XSane', cmd)
 	#---------------------------------------------------
 	def image_transfer_done(self):
 		return True
@@ -387,46 +410,21 @@ class cXSaneScanner:
 	def __restore_xsanerc(self):
 		shutil.copy2(cXSaneScanner._xsanerc_backup, cXSaneScanner._xsanerc)
 #==================================================
-def _twain_import_module():
-	global _twain_module
-	if _twain_module is None:
-		try:
-			import twain
-			_twain_module = twain
-		except ImportError:
-			_log.LogException('cannot import TWAIN module (WinTWAIN.py)', sys.exc_info(), verbose=0)
-			return False
-		_log.Log(gmLog.lInfo, "TWAIN version: %s" % _twain_module.Version())
-	return True
-#-----------------------------------------------------
-def _sane_import_module():
-	global _sane_module
-	if _sane_module is None:
-		try:
-			import sane
-		except ImportError:
-			_log.LogException('cannot import SANE module', sys.exc_info(), verbose=0)
-			return False
-		_sane_module = sane
-		try:
-			init_result = _sane_module.init()
-		except:
-			_log.LogException('cannot init SANE module', sys.exc_info(), verbose=1)
-			return False
-		_log.Log(gmLog.lInfo, "SANE version: %s" % str(init_result))
-		_log.Log(gmLog.lData, 'SANE device list: %s' % str(_sane_module.get_devices()))
-	return True
-#-----------------------------------------------------
 def get_devices():
-	if _twain_import_module():
+	try:
+		_twain_import_module()
 		# TWAIN does not support get_devices():
 		# devices can only be selected from within TWAIN itself
 		return None
+	except ImportError:
+		pass
+
 	if use_XSane:
+		# neither does XSane
 		return None
-	if _sane_import_module():
-		return _sane_module.get_devices()
-	return False
+
+	_sane_import_module()
+	return _sane_module.get_devices()
 #-----------------------------------------------------
 def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None, calling_window=None, xsane_device_settings=None):
 	"""Connect to a scanner and return the scanned pages as a file list.
@@ -435,34 +433,22 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 		- list of filenames: names of scanned pages.
 		- None: unable to connect to scanner
 	"""
-
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
-	except gmExceptions.ConstructorError:
+	except ImportError:
 		if use_XSane:
 			_log.Log(gmLog.lData, 'using XSane')
-			try:
-				scanner = cXSaneScanner()
-				scanner.device_settings_file = xsane_device_settings
-				scanner.default_device = device
-			except IOError:
-				_log.LogException('Cannot load any scanner driver (XSANE or TWAIN).', verbose=False)
-				return None
+			scanner = cXSaneScanner()
+			scanner.device_settings_file = xsane_device_settings
+			scanner.default_device = device
 		else:
 			_log.Log(gmLog.lData, 'using SANE directly')
-			try:
-				scanner = cSaneScanner(device=device)
-			except gmExceptions.ConstructorError:
-				_log.LogException('Cannot load any scanner driver (SANE or TWAIN).', verbose=False)
-				return None
+			scanner = cSaneScanner(device=device)
 
 	_log.Log(gmLog.lData, 'requested filename: [%s]' % filename)
 	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
 	scanner.close()
 	_log.Log(gmLog.lData, 'acquired pages into files: %s' % str(fnames))
-
-	if fnames is False:
-		return None
 
 	return fnames
 #==================================================
@@ -471,10 +457,10 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
-#	from Gnumed.pycommon import gmI18N
-
 	print "devices:"
 	print get_devices()
+
+	sys.exit()
 
 	setups = [
 		{'dev': 'test:0', 'file': 'x1-test0-1-0001'},
@@ -492,10 +478,12 @@ if __name__ == '__main__':
 		else:
 			print " image files:", fnames
 
-
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.40  2007-06-05 14:58:16  ncq
+# Revision 1.41  2007-06-10 10:19:24  ncq
+# - use exceptions for error reporting
+#
+# Revision 1.40  2007/06/05 14:58:16  ncq
 # - better support missing XSane, thereby enabling better error reporting
 #
 # Revision 1.39  2007/05/08 11:14:34  ncq
