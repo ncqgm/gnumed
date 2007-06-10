@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.40 2007-05-08 11:17:09 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmManual.py,v 1.41 2007-06-10 10:13:33 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path
@@ -62,6 +62,7 @@ class ManualHtmlPanel(wx.Panel):
 		]
 		for self.docdir in candidates:
 			if os.access(self.docdir, os.R_OK):
+				_log.Log(gmLog.lInfo, 'found Manual path [%s]' % self.docdir)
 				break
 
 		self.box = wx.BoxSizer(wx.VERTICAL)
@@ -97,7 +98,7 @@ class ManualHtmlPanel(wx.Panel):
 		if os.access (name, os.F_OK):
 			self.html.LoadPage(name)
 		else:
-			_log.Log (gmLog.lErr, "cannot load local document %s" % name)
+			_log.Log(gmLog.lErr, "cannot load local document %s" % name)
 			self.html.LoadPage('http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual?template=viewprint')
 	#--------------------------------------------------------
 	def OnLoadFile(self, event):
@@ -108,12 +109,10 @@ class ManualHtmlPanel(wx.Panel):
 		dlg.Destroy()
 	#--------------------------------------------------------
 	def OnBack(self, event):
-		if not self.html.HistoryBack():
-			_log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+		self.html.HistoryBack():
 	#--------------------------------------------------------
 	def OnForward(self, event):
-		if not self.html.HistoryForward():
-			_log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+		self.html.HistoryForward():
 	#--------------------------------------------------------
 	def OnViewSource(self, event):
 		return 1
@@ -244,7 +243,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.40  2007-05-08 11:17:09  ncq
+# Revision 1.41  2007-06-10 10:13:33  ncq
+# - somewhat improved logging
+#
+# Revision 1.40  2007/05/08 11:17:09  ncq
 # - need to import gmTools
 #
 # Revision 1.39  2007/05/07 12:35:20  ncq
