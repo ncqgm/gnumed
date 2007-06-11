@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.41 2007-06-10 10:13:33 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmManual.py,v 1.42 2007-06-11 20:26:34 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os, sys, os.path
@@ -109,10 +109,10 @@ class ManualHtmlPanel(wx.Panel):
 		dlg.Destroy()
 	#--------------------------------------------------------
 	def OnBack(self, event):
-		self.html.HistoryBack():
+		self.html.HistoryBack()
 	#--------------------------------------------------------
 	def OnForward(self, event):
-		self.html.HistoryForward():
+		self.html.HistoryForward()
 	#--------------------------------------------------------
 	def OnViewSource(self, event):
 		return 1
@@ -243,7 +243,10 @@ class gmManual (gmPlugin.cNotebookPlugin):
 		wx.EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.41  2007-06-10 10:13:33  ncq
+# Revision 1.42  2007-06-11 20:26:34  ncq
+# - fix spurious ":"s
+#
+# Revision 1.41  2007/06/10 10:13:33  ncq
 # - somewhat improved logging
 #
 # Revision 1.40  2007/05/08 11:17:09  ncq
