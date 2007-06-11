@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.61 2007-05-14 10:34:07 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmGuiHelpers.py,v 1.62 2007-06-11 20:35:06 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,7 +52,9 @@ def handle_uncaught_exception_wx(t, v, tb):
 		_log.flush()
 		shutil.copy2(target.ID, new_name)
 
-	wx.EndBusyCursor()
+	# careful: MSW does reference counting on Begin/End* :-(
+	try: wx.EndBusyCursor()
+	except: pass
 
 	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
 	dlg.ShowModal()
@@ -292,31 +294,63 @@ class cFileDropTarget(wx.FileDropTarget):
 	def OnDropFiles(self, x, y, filenames):
 		self.target.add_filenames(filenames)
 # ========================================================================
+def gm_MultiChoiceDialog(parent=None, msg=None, caption=None, choices=None, selections=None, log_level=None):
+
+	if msg is None:
+		msg = _('programmer forgot to specify info message')
+
+	if log_level is not None:
+		_log.Log(log_level, msg.replace('\015', ' ').replace('\012', ' '))
+
+	if caption is None:
+		caption = _('generic multi choice dialog')
+
+	dlg = wx.MultiChoiceDialog (
+		parent = parent,
+		message = msg,
+		caption = caption,
+		choices = choices
+	)
+	if selections is not None:
+		dlg.SetSelections(selections)
+
+	btn_pressed = dlg.ShowModal()
+	sel = dlg.GetSelections()
+	dlg.Destroy()
+
+	if btn_pressed == wx.ID_OK:
+		return sel
+
+	return None
+#-------------------------------------------------------------------------
 def gm_SingleChoiceDialog(aMessage = None, aTitle = None, aLogLevel = None, choices = None):
-    if aMessage is None:
-        aMessage = _('programmer forgot to specify info message')
 
-    if aLogLevel is not None:
-        log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
-        _log.Log(aLogLevel, log_msg)
+	if aMessage is None:
+		aMessage = _('programmer forgot to specify info message')
 
-    if aTitle is None:
-        aTitle = _('generic single choice dialog')
+	if aLogLevel is not None:
+		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
+		_log.Log(aLogLevel, log_msg)
 
-    dlg = wx.SingleChoiceDialog (
-        parent = None,
-        message = aMessage,
-        caption = aTitle,
-        choices = choices,
-        style = wx.OK | wx.CANCEL | wx.CENTRE
-    )
-    btn_pressed = dlg.ShowModal()
-    dlg.Destroy()
+	if aTitle is None:
+		aTitle = _('generic single choice dialog')
 
-    if btn_pressed == wx.ID_OK:
-        return dlg.GetSelection()
-    else:
-        return False
+	dlg = wx.SingleChoiceDialog (
+		parent = None,
+		message = aMessage,
+		caption = aTitle,
+		choices = choices,
+		style = wx.OK | wx.CANCEL | wx.CENTRE
+	)
+	btn_pressed = dlg.ShowModal()
+
+	if btn_pressed == wx.ID_OK:
+		sel = dlg.GetSelection()
+		dlg.Destroy()
+		return sel
+
+	dlg.Destroy()
+	return False
 #-------------------------------------------------------------------------
 def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
@@ -571,7 +605,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.61  2007-05-14 10:34:07  ncq
+# Revision 1.62  2007-06-11 20:35:06  ncq
+# - MSW does ref counting in Begin/EndBusyCursor
+# - add gmMultiChoiceDialog
+#
+# Revision 1.61  2007/05/14 10:34:07  ncq
 # - no more gm_statustext()
 #
 # Revision 1.60  2007/05/14 10:05:33  ncq
