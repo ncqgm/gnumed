@@ -8,8 +8,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: clin-v_emr_journal.sql,v 1.1 2007-06-11 18:41:31 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-v_emr_journal.sql,v 1.2 2007-06-11 20:02:07 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -249,7 +249,7 @@ select
 		(select short_alias from dem.staff where db_user = vdm.modified_by),
 		'<' || vdm.modified_by || '>'
 	) as modified_by,
-	'b' as soap_cat,
+	'o' as soap_cat,
 	_('document entry') || ' ' || _('modified') || ': '
 		|| vdm.l10n_type || ' "'
 		|| vdm.ext_ref || '" ('
@@ -279,11 +279,14 @@ comment on view clin.v_emr_journal is
 grant select on clin.v_emr_journal to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: clin-v_emr_journal.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-v_emr_journal.sql,v $
--- Revision 1.1  2007-06-11 18:41:31  ncq
+-- Revision 1.2  2007-06-11 20:02:07  ncq
+-- - set proper sOap category on document entries
+--
+-- Revision 1.1  2007/06/11 18:41:31  ncq
 -- - new
 --
 -- Revision 1.2  2006/12/11 17:03:58  ncq
