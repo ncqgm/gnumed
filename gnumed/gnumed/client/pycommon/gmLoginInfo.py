@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.11 2007-04-02 14:31:17 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmLoginInfo.py,v 1.12 2007-06-11 20:23:45 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -163,7 +163,7 @@ class LoginInfo:
 		self.password = ""
 		self.host = ''
 		self.port = 5432
-		self.database = "gnumed_v6"
+		self.database = "gnumed_v7"
 		self.__profile = 'default'
 
 #====================================================================
@@ -172,7 +172,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.11  2007-04-02 14:31:17  ncq
+# Revision 1.12  2007-06-11 20:23:45  ncq
+# - bump database version
+#
+# Revision 1.11  2007/04/02 14:31:17  ncq
 # - v5 -> v6
 #
 # Revision 1.10  2007/03/08 11:36:45  ncq

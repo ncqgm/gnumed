@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.83 2007-06-10 10:17:54 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmLoginDialog.py,v 1.84 2007-06-11 20:25:55 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,7 +24,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 _cfg = gmCfg.gmDefCfgFile
 
-curr_db = 'gnumed_v6'
+curr_db = 'gnumed_v7'
 
 #====================================================
 class cBackendProfile:
@@ -471,7 +471,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.83  2007-06-10 10:17:54  ncq
+# Revision 1.84  2007-06-11 20:25:55  ncq
+# - bump database version
+#
+# Revision 1.83  2007/06/10 10:17:54  ncq
 # - fix when no --debug
 #
 # Revision 1.82  2007/05/22 13:35:11  ncq
