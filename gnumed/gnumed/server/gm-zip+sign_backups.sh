@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-zip+sign_backups.sh,v $
-# $Id: gm-zip+sign_backups.sh,v 1.1 2007-06-05 14:53:44 ncq Exp $
+# $Id: gm-zip+sign_backups.sh,v 1.2 2007-06-12 13:21:53 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -78,8 +78,6 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 
 			# send mail
 			(
-				echo "~R${SIG_RECEIVER}"
-				echo "Subject: gnotarize"
 				echo " "
 				echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
 				echo "<message>"
@@ -100,7 +98,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-zip+sign_backups.sh,v $
-# Revision 1.1  2007-06-05 14:53:44  ncq
+# Revision 1.2  2007-06-12 13:21:53  ncq
+# - remove redundant lines from mail body
+#
+# Revision 1.1  2007/06/05 14:53:44  ncq
 # - factored out from the actual backup script
 #
 # Revision 1.10  2007/05/17 15:17:24  ncq
