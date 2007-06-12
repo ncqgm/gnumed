@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -436,7 +436,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		try:
 			args = query['args']
 		except KeyError:
-			args = (None,)
+			args = None
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
@@ -545,7 +545,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		try:
 			args = query['args']
 		except KeyError:
-			args = (None,)
+			args = None
 		try:
 			curs.execute(query['cmd'], args)
 		except:
@@ -1025,7 +1025,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.47  2007-06-11 20:24:18  ncq
+# Revision 1.48  2007-06-12 16:02:12  ncq
+# - fix case when there are no args for execute()
+#
+# Revision 1.47  2007/06/11 20:24:18  ncq
 # - bump database version
 #
 # Revision 1.46  2007/05/07 16:45:12  ncq
