@@ -8,8 +8,8 @@
 -- Author: Karsten.Hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: clin-v_emr_journal.sql,v 1.2 2007-06-11 20:02:07 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: clin-v_emr_journal.sql,v 1.3 2007-06-12 13:23:58 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -33,7 +33,7 @@ select
 		'<' || cn.modified_by || '>'
 	) as modified_by,
 	cn.soap_cat as soap_cat,
-	cn.narrative,
+	cn.narrative || ' //' as narrative,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	vpi.pk_health_issue as pk_health_issue,
@@ -55,7 +55,7 @@ select
 		'<' || chi.modified_by || '>'
 	) as modified_by,
 	'a' as soap_cat,
-	_('health issue') || ' ' || _('modified') || ': '
+	_('health issue') || ': '
 		|| chi.description
 		|| coalesce((' (' || chi.laterality || ')'), '') || ', '
 		|| _('noted at age') || ': '
@@ -64,7 +64,7 @@ select
 		|| case when chi.clinically_relevant then _('clinically relevant') else _('clinically not relevant') end
 		|| case when chi.is_confidential then ', ' || _('confidential') else '' end
 		|| case when chi.is_cause_of_death then ', ' || _('cause of death') else '' end
-		|| ';'
+		|| ' //'
 	as narrative,
 	-1 as pk_encounter,
 	-1 as pk_episode,
@@ -85,10 +85,12 @@ select
 		'<' || cenc.modified_by || '>'
 	) as modified_by,
 	's' as soap_cat,
-	_('encounter') || ' ' || _('started') || ': ('
-		|| (select _(description) from clin.encounter_type where pk=cenc.fk_type) || ') '
-		|| _('RFE') || ': ' || cenc.reason_for_encounter || '; '
-		|| _('AOE') || ':' 
+	_('encounter') || ': '
+		|| (select _(description) from clin.encounter_type where pk=cenc.fk_type)
+		|| to_char(cenc.started, ' YYYY-MM-DD HH24:MI') || to_char(cenc.last_affirmed, ' - HH24:MI') || '; '
+		|| _('RFE') || ': ' || coalesce(cenc.reason_for_encounter, '?') || '; '
+		|| _('AOE') || ': ' || coalesce(cenc.assessment_of_encounter, '?')
+		|| ' //'
 	as narrative,
 	cenc.pk as pk_encounter,
 	-1 as pk_episode,
@@ -108,7 +110,7 @@ select
 		'<' || vpep.episode_modified_by || '>'
 	) as modified_by,
 	's' as soap_cat,
-	_('episode') || ' ' || _('modified') || ': ' || vpep.description as narrative,
+	_('episode') || ': ' || vpep.description || ' //' as narrative,
 	-1 as pk_encounter,
 	vpep.pk_episode as pk_episode,
 	-1 as pk_health_issue,
@@ -127,11 +129,12 @@ select
 		'<' || vhxf.modified_by || '>'
 	) as modified_by,
 	vhxf.soap_cat as soap_cat,
-	_('Family Hx') || ' ' || _('modified') || ': '
+	_('Family Hx') || ': '
 		|| _(vhxf.relationship) || ' '
 		|| vhxf.name_relative || ' @ '
 		|| vhxf.age_noted || ': '
 		|| vhxf.condition
+		|| ' //'
 	as narrative,
 	vhxf.pk_encounter as pk_encounter,
 	vhxf.pk_episode as pk_episode,
@@ -180,7 +183,8 @@ select
 		|| _('generic')   || ': ' || coalesce(vpa.generics, '') || '; '
 		|| _('ATC code')  || ': ' || coalesce(vpa.atc_code, '') || '; '
 		|| _('type')      || ': ' || vpa.l10n_type || '; '
-		|| _('reaction')  || ': ' || coalesce(vpa.reaction, '') || ';'
+		|| _('reaction')  || ': ' || coalesce(vpa.reaction, '')
+		|| ' //'
 	as narrative,
 	vpa.pk_encounter as pk_encounter,
 	vpa.pk_episode as pk_episode,
@@ -204,7 +208,8 @@ select
 		|| _('sample ID') || ': ' || vlr.request_id || '; '
 		|| _('sample taken') || ': ' || vlr.sampled_when || '; '
 		|| _('status') || ': ' || vlr.l10n_request_status || '; '
-		|| _('notes') || ': ' || coalesce(vlr.progress_note, '') || ';'
+		|| _('notes') || ': ' || coalesce(vlr.progress_note, '')
+		|| ' //'
 	as narrative,
 	vlr.pk_encounter as pk_encounter,
 	vlr.pk_episode as pk_epiode,
@@ -230,7 +235,8 @@ select
 --		|| coalesce(vtr.unified_target_min, -9999)::text || ' - '
 --		|| coalesce(vtr.unified_target_max, -9999)::text || ' / '
 		|| coalesce(vtr.unified_target_range, '?') || '); '
-		|| _('notes') || vtr.comment || ';'
+		|| _('notes') || vtr.comment
+		|| ' //'
 	as narrative,
 	vtr.pk_encounter as pk_encounter,
 	vtr.pk_episode as pk_episode,
@@ -250,12 +256,12 @@ select
 		'<' || vdm.modified_by || '>'
 	) as modified_by,
 	'o' as soap_cat,
-	_('document entry') || ' ' || _('modified') || ': '
+	_('document entry') || ': '
 		|| vdm.l10n_type || ' "'
 		|| vdm.ext_ref || '" ('
 		|| to_char(vdm.date, 'YYYY-MM-DD HH24:MI') || '): '
 		|| coalesce(vdm.comment, '')
-		|| ';'
+		|| ' //'
 	as narrative,
 	vdm.pk_encounter as pk_encounter,
 	vdm.pk_episode as pk_episode,
@@ -274,16 +280,23 @@ comment on view clin.v_emr_journal is
 	 visible fields. Mainly useful for display as a simple
 	 EMR journal.';
 
--- --------------------------------------------------------------
--- don't forget appropriate grants
+
 grant select on clin.v_emr_journal to group "gm-doctors";
 
+
+select i18n.i18n('document entry');
+select i18n.i18n('Family Hx');
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: clin-v_emr_journal.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: clin-v_emr_journal.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: clin-v_emr_journal.sql,v $
--- Revision 1.2  2007-06-11 20:02:07  ncq
+-- Revision 1.3  2007-06-12 13:23:58  ncq
+-- - improved output
+-- - mark strings for translation
+--
+-- Revision 1.2  2007/06/11 20:02:07  ncq
 -- - set proper sOap category on document entries
 --
 -- Revision 1.1  2007/06/11 18:41:31  ncq
