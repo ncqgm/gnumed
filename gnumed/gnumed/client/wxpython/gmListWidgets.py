@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.4 2007-04-09 18:51:47 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmListWidgets.py,v 1.5 2007-06-12 16:03:02 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -30,9 +30,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		Note that this will (have to) delete the items.
 		"""
-		self.DeleteAllItems()
-		for idx in range(self.GetColumnCount()):
-			self.DeleteColumn(idx)
+		self.ClearAll()
 		if columns is None:
 			return
 		for idx in range(len(columns)):
@@ -78,7 +76,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.4  2007-04-09 18:51:47  ncq
+# Revision 1.5  2007-06-12 16:03:02  ncq
+# - properly get rid of all columns in set_columns()
+#
+# Revision 1.4  2007/04/09 18:51:47  ncq
 # - add support for multiple selections and auto-setting the widths
 #
 # Revision 1.3  2007/03/18 14:09:31  ncq
