@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.81 2007-06-10 10:12:55 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmPatSearchWidgets.py,v 1.82 2007-06-12 16:03:58 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -63,7 +63,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		# act on first file only
 		fname = filenames[0]
 		# act on text files only
-		mime_type = gmMimeLib.guess_mimetye(fname)
+		mime_type = gmMimeLib.guess_mimetype(fname)
 		if not mime_type.startswith('text/'):
 			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
 			return False
@@ -138,7 +138,9 @@ The GNUmed client.
 		return True
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
-		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=0, autoraise=1)
+		# new=2: Python 2.5: open new tab
+		# will block when called in text mode (that is, from a terminal, too !)
+		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=2, autoraise=1)
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -187,8 +189,12 @@ The GNUmed client.
 		except:
 			self._LCTRL_result.set_columns([_('Error')])
 			self._LCTRL_result.InsertStringItem(sys.maxint, label = _('The query failed.'))
+			self._LCTRL_result.InsertStringItem(sys.maxint, label = u'')
+			t, v = sys.exc_info()[:2]
+			self._LCTRL_result.InsertStringItem(sys.maxint, label = unicode(t))
+			self._LCTRL_result.InsertStringItem(sys.maxint, label = str(v).decode(gmI18N.get_encoding()))
 			gmDispatcher.send(gmSignals.statustext(), msg = _('The query failed.'), beep = True)
-			_log.LogException('report query failed')
+			_log.LogException('report query failed', verbose=True)
 			return False
 
 		if len(rows) == 0:
@@ -197,11 +203,14 @@ The GNUmed client.
 			gmDispatcher.send(gmSignals.statustext(), msg = _('No data returned for this report.'), beep = True)
 			return True
 
+		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
+		# set_columns() and sort them according to position-in-query
 		cols = [(value, key) for key, value in idx.items()]
 		cols.sort()
 		cols = [pair[1] for pair in cols]
-
 		self._LCTRL_result.set_columns(cols)
+
+		# set data
 		for row in rows:
 			label = unicode(gmTools.coalesce(row[0], u''))
 			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
@@ -992,7 +1001,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.81  2007-06-10 10:12:55  ncq
+# Revision 1.82  2007-06-12 16:03:58  ncq
+# - some comments
+# - fix typo
+# - better error display on failing queries
+#
+# Revision 1.81  2007/06/10 10:12:55  ncq
 # - options need names
 #
 # Revision 1.80  2007/05/18 15:55:58  ncq
