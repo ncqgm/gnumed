@@ -7,19 +7,16 @@ for which no translation is given.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.6 2006-05-16 15:56:20 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: dump-missing-db_translations.py,v 1.7 2007-06-12 13:23:06 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, string
+import sys, string, codecs
 
-from Gnumed.pycommon import gmLog
+sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmPG2
 _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
-
-from Gnumed.pycommon import gmPG
-# FIXME:
-gmPG.set_default_client_encoding('latin1')
 
 #============================================================
 def esc_str(astring):
@@ -31,8 +28,8 @@ def esc_str(astring):
 if __name__ == '__main__':
 	print 'dumping untranslated database strings'
 	# get strings
-	cmd = 'select lang, orig from i18n.v_missing_translations order by lang'
-	rows = gmPG.run_ro_query('default', cmd)
+	cmd = u'select lang, orig from i18n.v_missing_translations order by lang'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if rows is None:
 		_log.Log(gmLog.lErr, 'cannot retrieve untranslated strings')
 		sys.exit('cannot retrieve untranslated strings')
@@ -41,7 +38,7 @@ if __name__ == '__main__':
 		print "nothing to translate"
 		sys.exit(0)
 	# write strings to file
-	dump = open('gnumed-db_translation.sql', 'wb')
+	dump = codecs.open('gnumed-db_translation.sql', 'wb', 'utf8')
 	dump.write('\unset ON_ERROR_STOP\n\n')
 	for row in rows:
 		dump.write("select i18n.upd_tx('%s', '%s', '');\n" % (row[0], esc_str(row[1])))
@@ -51,7 +48,10 @@ if __name__ == '__main__':
 	print "done"
 #============================================================
 # $Log: dump-missing-db_translations.py,v $
-# Revision 1.6  2006-05-16 15:56:20  ncq
+# Revision 1.7  2007-06-12 13:23:06  ncq
+# - make it work with gmPG2
+#
+# Revision 1.6  2006/05/16 15:56:20  ncq
 # - cleanup
 #
 # Revision 1.5  2006/01/09 13:48:23  ncq
