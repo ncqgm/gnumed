@@ -2,18 +2,21 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.128 2007-06-10 10:17:36 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmMedDocWidgets.py,v 1.129 2007-06-12 13:24:48 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
 
+
 import wx
 
+
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
-from Gnumed.business import gmPerson, gmMedDoc
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin
+from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -199,7 +202,6 @@ u"""select * from ((
 				self.data = gmMedDoc.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
 		return self.data
 #============================================================
-# slightly misnamed due to 
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
 		"""Support parts and docs now.
@@ -1235,6 +1237,11 @@ class cDocTree(wx.TreeCtrl):
 		menu.AppendItem(wx.MenuItem(menu, ID, _('Export to disk')))
 		wx.EVT_MENU(menu, ID, self.__export_doc_to_disk)
 
+		# edit encounter
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Edit corresponding consultation')))
+		wx.EVT_MENU(menu, ID, self.__edit_consultation_details)
+
 		# show descriptions
 		descriptions = self.__curr_node_data.get_descriptions()
 		desc_menu = wx.Menu()
@@ -1370,6 +1377,14 @@ class cDocTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
+	def __edit_consultation_details(self, evt):
+		print type(self.__curr_node_data)
+		print self.__curr_node_data
+		enc = gmEMRStructItems.cEncounter(aPK_obj=self.__curr_node_data['pk_encounter'])
+		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
+		if dlg.ShowModal() == wx.ID_OK:
+			self.__populate_tree()
+	#--------------------------------------------------------
 	def __export_doc_to_disk(self, evt):
 		"""Export document into directory.
 
@@ -1416,7 +1431,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.128  2007-06-10 10:17:36  ncq
+# Revision 1.129  2007-06-12 13:24:48  ncq
+# - allow editing of encounter corresponding to a document
+#
+# Revision 1.128  2007/06/10 10:17:36  ncq
 # - gmScanBackend now uses exceptions for error handling
 # - improved error message when no sanner driver found
 #
