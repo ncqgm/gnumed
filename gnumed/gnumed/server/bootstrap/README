@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/README,v $
-$Id: README,v 1.6 2007-05-08 12:09:42 ncq Exp $
+$Id: README,v 1.7 2007-06-14 10:11:07 ncq Exp $
 --------------------------------------------------------------------------
 
 The files and scripts in the bootstrap/ directory are intended for
@@ -10,15 +10,13 @@ all the heavy lifting including setting up the database,
 making sure users and procedural languages are set up and
 importing the schema definition files.
 
-The redo-v2.sh shell script sets up a new GNUmed v2 database.
-Any existing gnumed_v2 database WILL BE DROPPED.
-
 The bootstrap-latest.sh shell script creates the latest version
 of the GNUmed database from scratch. It DROPS any EXISTING
 gnumed_v* DATABASES along the way.
 
 The upgrade-db.sh script upgrades an existing GNUmed database.
-The original database WILL NOT BE CHANGED in any way.
+The original database WILL NOT BE CHANGED in any way. This allows
+for SAFE UPGRADES from one database version to the next.
 
 Bootstrapping is a rather complicated affair. Here are some
 prerequisites that need to be matched:
