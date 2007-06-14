@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.84 2007-06-11 20:25:55 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmLoginDialog.py,v 1.85 2007-06-14 21:55:49 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -81,9 +81,24 @@ class LoginPanel(wx.Panel):
 		try:
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
 			bmp = wx.StaticBitmap(self, -1, png, wx.Point(10, 10), wx.Size(png.GetWidth(), png.GetHeight()))
-			self.topsizer.Add(bmp, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
+			self.topsizer.Add (
+				bmp,
+				proportion = 0,
+				flag = wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL,
+				border = 10
+			)
 		except:
-			self.topsizer.Add(wx.StaticText (self, -1, _("Cannot find image") + bitmap, style=wx.ALIGN_CENTRE), 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 10)
+			self.topsizer.Add (
+				wx.StaticText (
+					self,
+					-1,
+					label = _("Cannot find image") + bitmap,
+					style = wx.ALIGN_CENTRE
+				),
+				proportion = 0,
+				flag = wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL,
+				border = 10
+			)
 
 		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
 			paramsbox_caption = _("Slave Login - %s" % gmPerson.gmCurrentProvider().workplace)
@@ -471,7 +486,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.84  2007-06-11 20:25:55  ncq
+# Revision 1.85  2007-06-14 21:55:49  ncq
+# - try to fix wx2.8 problem with size
+#
+# Revision 1.84  2007/06/11 20:25:55  ncq
 # - bump database version
 #
 # Revision 1.83  2007/06/10 10:17:54  ncq
