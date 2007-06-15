@@ -7,7 +7,7 @@ ln -vsn client Gnumed
 cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
-VER="6"
+VER="7"
 
 
 # if you need to adjust the port you want to use to
@@ -42,6 +42,7 @@ sudo -u postgres dropdb -i ${PORT_DEF} gnumed_v2
 echo "=========================="
 echo "2) bootstrapping databases"
 
+# baseline v2
 LOG="bootstrap-latest-v2.log"
 rm -rf ${LOG}
 CONF="redo-v2.conf"
@@ -49,6 +50,7 @@ export GM_CORE_DB="gnumed_v2"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 unset GM_CORE_DB
 
+# v2 -> v3
 LOG="bootstrap-latest-v3.log"
 rm -rf ${LOG}
 CONF="update_db-v2_v3.conf"
@@ -56,6 +58,7 @@ CONF="update_db-v2_v3.conf"
 echo "Dropping obsoleted staging database gnumed_v2 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v2
 
+# v3 -> v4
 LOG="bootstrap-latest-v4.log"
 rm -rf ${LOG}
 CONF="update_db-v3_v4.conf"
@@ -73,4 +76,11 @@ sudo -u postgres dropdb ${PORT_DEF} gnumed_v4
 LOG="bootstrap-latest-v6.log"
 rm -rf ${LOG}
 CONF="update_db-v5_v6.conf"
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+echo "Dropping obsoleted staging database gnumed_v5 ..."
+sudo -u postgres dropdb ${PORT_DEF} gnumed_v5
+
+LOG="bootstrap-latest-v7.log"
+rm -rf ${LOG}
+CONF="update_db-v6_v7.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
