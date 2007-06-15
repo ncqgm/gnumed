@@ -35,9 +35,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.10 2007-06-15 08:01:09 ncq Exp $
+# $Id: gmDateTime.py,v 1.11 2007-06-15 08:10:40 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -170,10 +170,10 @@ def __explicit_offset(str2parse, offset_chars='hdwmy'):
 		This also defines the significance of the order of the characters.
 	"""
 	# "+/-XXd/w/m/t"
-	if not regex.match("^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[%s](\s|\t)*$" % offset_chars, str2parse):
+	if not regex.match(u"^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[%s](\s|\t)*$" % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
-	val = int(regex.findall('\d{1,2}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
-	offset_char = regex.findall('[%s]' % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE)[0].lower()
+	val = int(regex.findall(u'\d{1,2}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
+	offset_char = regex.findall(u'[%s]' % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE)[0].lower()
 
 	now = mxDT.now()
 	enc = gmI18N.get_encoding()
@@ -252,7 +252,7 @@ def __single_char(str2parse, trigger_chars='ndmy'):
 
 	This also defines the significance of the order of the characters.
 	"""
-	if not regex.match('^(\s|\t)*[%s]{1}(\s|\t)*$' % trigger_chars, str2parse):
+	if not regex.match(u'^(\s|\t)*[%s]{1}(\s|\t)*$' % trigger_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
 	val = str2parse.strip().lower()
 
@@ -324,8 +324,8 @@ def __single_slash(str2parse):
 	"""
 	matches = []
 	now = mxDT.now()
-	if regex.match("^(\s|\t)*\d{1,2}(\s|\t)*/+(\s|\t)*$", str2parse):
-		val = int(regex.findall('\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
+	if regex.match(u"^(\s|\t)*\d{1,2}(\s|\t)*/+(\s|\t)*$", str2parse, flags = regex.LOCALE | regex.UNICODE):
+		val = int(regex.findall(u'\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
 
 		if val < 100 and val >= 0:
 			matches.append ({
@@ -385,8 +385,8 @@ def __single_slash(str2parse):
 				'label': '%.2d/19' % val
 			})
 
-	elif regex.match("^(\s|\t)*\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}(\s|\t)*$", str2parse):
-		parts = regex.findall('\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)
+	elif regex.match(u"^(\s|\t)*\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}(\s|\t)*$", str2parse, flags = regex.LOCALE | regex.UNICODE):
+		parts = regex.findall(u'\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)
 		fts = cFuzzyTimestamp (
 			timestamp = mxDT.now() + mxDT.RelativeDateTime(year = int(parts[1]), month = int(parts[0])),
 			accuracy = acc_months
@@ -403,14 +403,14 @@ def __numbers_only(str2parse):
 
 	Spaces or tabs are discarded.
 	"""
-	if not regex.match("^(\s|\t)*\d{1,4}(\s|\t)*$", str2parse):
+	if not regex.match(u"^(\s|\t)*\d{1,4}(\s|\t)*$", str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
 
 	# strftime() returns str but in the localized encoding,
 	# so we may need to decode that to unicode
 	enc = gmI18N.get_encoding()
 	now = mxDT.now()
-	val = int(regex.findall('\d{1,4}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
+	val = int(regex.findall(u'\d{1,4}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
 
 	matches = []
 
@@ -631,10 +631,10 @@ def __single_dot(str2parse):
 		- 14th current month this year
 		- 14th next month this year
 	"""
-	if not regex.match("^(\s|\t)*\d{1,2}\.{1}(\s|\t)*$", str2parse):
+	if not regex.match(u"^(\s|\t)*\d{1,2}\.{1}(\s|\t)*$", str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
 
-	val = int(regex.findall('\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
+	val = int(regex.findall(u'\d+', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
 	now = mxDT.now()
 	enc = gmI18N.get_encoding()
 
@@ -873,10 +873,10 @@ if __name__ == '__main__':
 			val = raw_input('Enter date fragment ("exit" quits): ')
 			matches = str2fuzzy_timestamp_matches(str2parse = val)
 			for match in matches:
-				print match['label']
-				print match['data']
-				print "---------------"
-
+				print 'label shown  :', match['label']
+				print 'data attached:', match['data']
+				print ""
+			print "---------------"	
 	#-------------------------------------------------
 	def test_cFuzzyTimeStamp():
 		print "testing fuzzy timestamp class"
@@ -914,7 +914,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.10  2007-06-15 08:01:09  ncq
+# Revision 1.11  2007-06-15 08:10:40  ncq
+# - improve test suite
+#
+# Revision 1.10  2007/06/15 08:01:09  ncq
 # - better argument naming
 # - fix regexen for unicode/locale
 #
