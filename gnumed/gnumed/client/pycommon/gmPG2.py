@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1014,18 +1014,28 @@ if __name__ == "__main__":
 		print pool.getconn()
 		print type(pool.getconn())
 	#--------------------------------------------------------------------
+	def test_list_args():
+		dsn = get_default_dsn()
+		conn = get_connection(dsn, readonly=True)
+		curs = conn.cursor()
+		curs.execute('select * from clin.clin_narrative where narrative = %s', ['a'])
+	#--------------------------------------------------------------------
 	# run tests
 #	test_get_connection()
 #	test_exceptions()
 #	test_ro_queries()
 #	test_request_dsn()
 #	test_set_encoding()
-	test_connection_pool()
+#	test_connection_pool()
+	test_list_args()
 	print "tests ran successfully"
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.48  2007-06-12 16:02:12  ncq
+# Revision 1.49  2007-06-15 10:24:24  ncq
+# - add a test to the test suite
+#
+# Revision 1.48  2007/06/12 16:02:12  ncq
 # - fix case when there are no args for execute()
 #
 # Revision 1.47  2007/06/11 20:24:18  ncq
