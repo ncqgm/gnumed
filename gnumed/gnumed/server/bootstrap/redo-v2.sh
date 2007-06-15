@@ -4,7 +4,7 @@
 #
 # This script is pretty much obsolete these days. Most of the
 # time what you need to run is either bootstrap-latest.sh or
-# upgrade-db.sh
+# upgrade-db.sh.
 #
 # Only run this script if you know *why* you need to do so.
 #
