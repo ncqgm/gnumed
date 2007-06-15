@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.55 2007-04-02 18:39:52 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmDateTimeInput.py,v 1.56 2007-06-15 10:24:53 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -117,7 +117,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if val is None:
 			val = self.GetValue().strip()
 
-		matches = gmDateTime.str2fuzzy_timestamp_matches(str_timestamp=val)
+		matches = gmDateTime.str2fuzzy_timestamp_matches(str2parse=val)
 		if len(matches) == 1:
 			return matches[0]['data']
 
@@ -229,7 +229,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.55  2007-04-02 18:39:52  ncq
+# Revision 1.56  2007-06-15 10:24:53  ncq
+# - adjust to change function signature
+#
+# Revision 1.55  2007/04/02 18:39:52  ncq
 # - gmFuzzyTimestamp -> gmDateTime
 #
 # Revision 1.54  2007/03/18 14:01:52  ncq
