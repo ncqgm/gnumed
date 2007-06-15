@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -314,6 +314,10 @@ class db_server:
 			_log.Log(gmLog.lErr, 'Cannot connect.')
 			return None
 
+		curs = self.conn.cursor()
+		curs.execute(u"set lc_messages to 'C'")
+		curs.close()
+
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
 		return True
 	#--------------------------------------------------------------
@@ -578,6 +582,10 @@ class database:
 			self.server.superuser.password
 		)
 
+		curs = self.conn.cursor()
+		curs.execute(u"set lc_messages to 'C'")
+		curs.close()
+
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __connect_superuser_to_db(self):
@@ -591,6 +599,10 @@ class database:
 			self.server.superuser.name,
 			self.server.superuser.password
 		)
+
+		curs = self.conn.cursor()
+		curs.execute(u"set lc_messages to 'C'")
+		curs.close()
 
 		return self.conn and 1
 	#--------------------------------------------------------------
@@ -1106,7 +1118,7 @@ def become_pg_demon_user():
 		os.setuid(pg_demon_user_passwd_line[2])
 
 	elif running_as == pg_demon_user_passwd_line[0]: # we are the postgres user already
-		_log.Log (gmLog.lInfo, 'I am already the UNIX user [%s]' % pg_demon_user_passwd_line[0])
+		_log.Log (gmLog.lInfo, 'I already am the UNIX user [%s]' % pg_demon_user_passwd_line[0])
 
 	else:
 		_log.Log(gmLog.lWarn, 'not running as root or postgres, cannot become postmaster demon user')
@@ -1226,7 +1238,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.54  2007-04-20 08:31:04  ncq
+# Revision 1.55  2007-06-15 14:37:57  ncq
+# - force lc_messages to 'C' so that we don't encounter
+#   the dreaded "ERROR_STACK_SIZE exceeded" error
+#
+# Revision 1.54  2007/04/20 08:31:04  ncq
 # - honor GM_DB_PORT environment variable
 #
 # Revision 1.53  2007/04/11 14:53:49  ncq
