@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.129 2007-06-12 13:24:48 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmMedDocWidgets.py,v 1.130 2007-06-18 20:38:32 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -14,7 +14,7 @@ import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 
@@ -577,10 +577,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		device_names = []
 		for device in devices:
 			device_names.append('%s (%s)' % (device[2], device[0]))
-		# wxPython does not support client data in wxSingleChoiceDialog
-		device_idx = gmGuiHelpers.gm_SingleChoiceDialog (
-			aMessage = _('Select an image capture device'),
-			aTitle = _('device selection'),
+
+		device_idx = gmListWidgets.get_choice_from_list (
+			parent = self,
+			msg = _('Select an image capture device'),
+			caption = _('device selection'),
 			choices = device_names
 		)
 		if device_idx is False:
@@ -1431,7 +1432,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.129  2007-06-12 13:24:48  ncq
+# Revision 1.130  2007-06-18 20:38:32  ncq
+# - use gmListWidgets.get_choice_from_list()
+#
+# Revision 1.129  2007/06/12 13:24:48  ncq
 # - allow editing of encounter corresponding to a document
 #
 # Revision 1.128  2007/06/10 10:17:36  ncq
