@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConcatTableStructureFutureStub.sql,v $
--- $Id: gmConcatTableStructureFutureStub.sql,v 1.1 2007-05-07 16:21:51 ncq Exp $
+-- $Id: gmConcatTableStructureFutureStub.sql,v 1.2 2007-06-18 20:35:25 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -19,6 +19,7 @@ drop schema gm cascade;
 \set ON_ERROR_STOP 1
 
 create schema gm authorization "gm-dbo";
+grant usage on schema gm to group "gm-doctors";
 
 -- ---------------------------------------------
 create or replace function gm.concat_table_structure(integer)
@@ -50,11 +51,14 @@ end;
 ';
 
 -- =============================================
-select public.log_script_insertion('$RCSfile: gmConcatTableStructureFutureStub.sql,v $', '$Revision: 1.1 $');
+select public.log_script_insertion('$RCSfile: gmConcatTableStructureFutureStub.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmConcatTableStructureFutureStub.sql,v $
--- Revision 1.1  2007-05-07 16:21:51  ncq
+-- Revision 1.2  2007-06-18 20:35:25  ncq
+-- - add missing grant
+--
+-- Revision 1.1  2007/05/07 16:21:51  ncq
 -- - needed during upgrade from v2/3/4/5
 --
 --
