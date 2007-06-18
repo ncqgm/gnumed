@@ -2,14 +2,109 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.5 2007-06-12 16:03:02 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmListWidgets.py,v 1.6 2007-06-18 20:33:56 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
+
+
+import sys
+
 
 import wx
 import wx.lib.mixins.listctrl as listmixins
 
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
+
+#================================================================
+def get_choice_from_list(parent=None, msg=None, caption=None, choices=None):
+
+	if msg is None:
+		msg = _('programmer forgot to specify info message')
+
+	if caption is None:
+		caption = _('generic single choice dialog')
+
+	dlg = wx.SingleChoiceDialog (
+		parent = None,
+		message = msg,
+		caption = caption,
+		choices = choices,
+		style = wx.OK | wx.CANCEL | wx.CENTRE
+	)
+	btn_pressed = dlg.ShowModal()
+	sel = dlg.GetSelection()
+	dlg.Destroy()
+
+	if btn_pressed == wx.ID_OK:
+		return sel
+
+	return False
+#================================================================
+def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None):
+
+	if msg is None:
+		msg = _('programmer forgot to specify info message')
+
+	if caption is None:
+		caption = _('generic multi choice dialog')
+
+	dlg = cGenericListSelectorDlg(parent, -1, caption)
+	dlg.set_columns(columns = columns)
+	dlg.set_string_items(items = choices)
+	if selections is not None:
+		dlg.set_selections(selections = selections)
+	if data is not None:
+		dlg.set_data(data=data)
+
+	btn_pressed = dlg.ShowModal()
+	sels = dlg.get_selected_item_data()
+	dlg.Destroy()
+
+	if btn_pressed == wx.ID_OK:
+		return sels
+
+	return None
+#----------------------------------------------------------------
+class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDlg):
+
+	def __init__(self, *args, **kwargs):
+
+#		try: msg = kwargs['msg']
+#		except KeyError: msg = None
+
+		wxgGenericListSelectorDlg.wxgGenericListSelectorDlg.__init__(self, *args, **kwargs)
+	#------------------------------------------------------------
+	def set_columns(self, columns=None):
+		self._LCTRL_items.set_columns(columns = columns)
+	#------------------------------------------------------------
+	def set_string_items(self, items = None):
+		self._LCTRL_items.set_string_items(items = items)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.Select(0)
+	#------------------------------------------------------------
+	def set_selections(self, selections = None):
+		self._LCTRL_items.set_selections(selections = selections)
+	#------------------------------------------------------------
+	def set_data(self, data = None):
+		self._LCTRL_items.set_data(data = data)
+	#------------------------------------------------------------
+	def get_selected_item_data(self, only_one=False):
+		return self._LCTRL_items.get_selected_item_data(only_one=only_one)
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_list_item_selected(self, event):
+		self._BTN_ok.Enable(True)
+		self._BTN_ok.SetDefault()
+	#------------------------------------------------------------
+	def _on_list_item_deselected(self, event):
+		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+			self._BTN_ok.Enable(False)
+			self._BTN_cancel.SetDefault()
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
@@ -24,6 +119,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+	#------------------------------------------------------------
+	# setters
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		"""(Re)define the columns.
@@ -45,14 +142,48 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		for idx in range(len(widths)):
 			self.SetColumnWidth(col = idx, width = widths[idx])
 	#------------------------------------------------------------
+	def set_string_items(self, items = None):
+		"""Supports string items only."""
+
+		self.DeleteAllItems()
+
+		if items is None:
+			return
+
+		for item in items:
+			row_num = self.InsertStringItem(index = sys.maxint, label = item[0])
+			for col_idx in range(1, len(item)):
+				self.SetStringItem(index = row_num, col = col_idx, label = item[col_idx])
+
+		self.__data = items
+	#------------------------------------------------------------
 	def set_data(self, data = None):
 		"""<data must be a list corresponding to the item indices>"""
 		self.__data = data
 	#------------------------------------------------------------
+	def set_selections(self, selections=None):
+		for idx in selections:
+			self.Select(idx = idx, on = 1)
+	#------------------------------------------------------------
+	# getters
+	#------------------------------------------------------------
 	def get_item_data(self, item_idx = None):
 		return self.__data[item_idx]
 	#------------------------------------------------------------
-	def get_selected_item_data(self, only_one=True):
+	def get_selected_items(self, only_one=False):
+
+		if self.__is_single_selection or only_one:
+			return self.GetFirstSelected()
+
+		items = []
+		idx = self.GetFirstSelected()
+		while idx != -1:
+			idx = self.GetNextSelected(idx)
+			items.append(idx)
+
+		return items
+	#------------------------------------------------------------
+	def get_selected_item_data(self, only_one=False):
 
 		if self.__is_single_selection or only_one:
 			return self.__data[self.GetFirstSelected()]
@@ -60,23 +191,61 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		data = []
 		idx = self.GetFirstSelected()
 		while idx != -1:
-			idx = self.GetNextSelected()
+			idx = self.GetNextSelected(idx)
 			data.append(self.__data[idx])
 
 		return data
 	#------------------------------------------------------------
 	def deselect_selected_item(self):
 		self.Select(idx = self.GetFirstSelected(), on = 0)
+
 #================================================================
 # main
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	print "no obvious syntax errors"
-	print "please write a real unit test"
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+	#------------------------------------------------------------
+	def test_wxMultiChoiceDialog():
+		app = wx.PyWidgetTester(size = (400, 500))
+		dlg = wx.MultiChoiceDialog (
+			parent = None,
+			message = 'test message',
+			caption = 'test caption',
+			choices = ['a', 'b', 'c', 'd', 'e']
+		)
+		dlg.ShowModal()
+		sels = dlg.GetSelections()
+		print "selected:"
+		for sel in sels:
+			print sel
+	#------------------------------------------------------------
+	def test_get_choices_from_list():
+		app = wx.PyWidgetTester(size = (200, 50))
+		chosen = get_choices_from_list (
+			caption = 'select health issues',
+			choices = [['D.M.II', '4'], ['MS', '3'], ['Fraktur', '2']],
+			columns = ['issue', 'no of episodes']
+		)
+		print "chosen:"
+		print chosen
+	#------------------------------------------------------------
+
+	test_get_choices_from_list()
+#	test_wxMultiChoiceDialog()
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.5  2007-06-12 16:03:02  ncq
+# Revision 1.6  2007-06-18 20:33:56  ncq
+# - add get_choice(s)_from_list()
+# - add cGenericListSelectorDlg
+# - add set_string_items()/set_selections()/get_selected_items()
+# - improve test suite
+#
+# Revision 1.5  2007/06/12 16:03:02  ncq
 # - properly get rid of all columns in set_columns()
 #
 # Revision 1.4  2007/04/09 18:51:47  ncq
