@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.76 2007-06-10 09:56:54 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmEMRBrowser.py,v 1.77 2007-06-18 20:31:10 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -402,9 +402,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			return 1
 
 		if isinstance(item1, gmEMRStructItems.cHealthIssue):
-			if item1['description'] == item2['description']:
+			if item1['description'].lower() == item2['description'].lower():
 				return 0
-			if item1['description'] < item2['description']:
+			if item1['description'].lower() > item2['description'].lower():
 				return 1
 			return -1
 
@@ -558,7 +558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.76  2007-06-10 09:56:54  ncq
+# Revision 1.77  2007-06-18 20:31:10  ncq
+# - case insensitively sort health issues
+#
+# Revision 1.76  2007/06/10 09:56:54  ncq
 # - actually sort tree items, add sorting for health issues
 #
 # Revision 1.75  2007/05/21 14:48:20  ncq
