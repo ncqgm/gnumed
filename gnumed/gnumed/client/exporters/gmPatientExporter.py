@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.106 2007-05-21 14:46:44 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmPatientExporter.py,v 1.107 2007-06-18 19:33:19 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -521,7 +521,7 @@ class cEmrExport:
         emr_tree.SetPyData(episode_node, an_episode)
         if an_episode['episode_open']:
             emr_tree.SetItemBold(issue_node, True)
-#       encounters = self._get_encounters( a_health_issue, an_episode, emr )
+
         encounters = self._get_encounters( an_episode, emr )
         self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
         return episode_node
@@ -530,25 +530,13 @@ class cEmrExport:
                for an_encounter in encounters:
                     label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].strftime('%Y-%m-%d'))
                     encounter_node = emr_tree.AppendItem(episode_node, label)
-		    #import threading
-		    #def added():
-		    #	print "added ", label
-		    #threading.Timer(2, added).start() 
                     emr_tree.SetPyData(encounter_node, an_encounter)
-		   
-		   
-    #--------------------------------------------------------             
-#    def _get_encounters ( self, a_health_issue, an_episode, emr ):
+    #--------------------------------------------------------
     def _get_encounters ( self, an_episode, emr ):
                encounters = emr.get_encounters (
-                   since = self.__constraints['since'],
-                   until = self.__constraints['until'],
-                   id_list = self.__constraints['encounters'],
                    episodes = [an_episode['pk_episode']]
-#                   ,issues = [a_health_issue['pk']]
                )
                return encounters
-	       
     #--------------------------------------------------------             
     def  _update_health_issue_branch(self, emr_tree, a_health_issue):
             emr = self.__patient.get_emr()
@@ -761,7 +749,7 @@ class cEmrExport:
             for soap_entry in soap_cat_narratives:
                 txt += gmTools.wrap (
                     '%s %.8s: %s\n' % (
-                        soap_entry['date'].strftime('%H:%M'),
+                        soap_entry['date'].strftime('%d.%m %H:%M'),
                         soap_entry['provider'],
                         soap_entry['narrative']
                     ), 75
@@ -1259,7 +1247,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.106  2007-05-21 14:46:44  ncq
+# Revision 1.107  2007-06-18 19:33:19  ncq
+# - cleanup
+# - show date in narrative, too
+#
+# Revision 1.106  2007/05/21 14:46:44  ncq
 # - use patient['dirname']
 #
 # Revision 1.105  2007/05/14 13:09:04  ncq
