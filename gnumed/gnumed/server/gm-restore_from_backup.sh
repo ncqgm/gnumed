@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/gm-restore_from_backup.sh,v $
-# $Id: gm-restore_from_backup.sh,v 1.2 2007-05-17 15:21:04 ncq Exp $
+# $Id: gm-restore_from_backup.sh,v 1.3 2007-06-18 20:36:39 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -64,6 +64,7 @@ WORK_DIR="${HOME}/gnumed/gm-restore-${TS}/"
 mkdir -p -v ${WORK_DIR}
 cd ${WORK_DIR}
 
+
 echo ""
 echo "==> Creating copy of backup file ..."
 cp -v ${BACKUP} ${WORK_DIR}
@@ -87,14 +88,14 @@ editor ${BACKUP}-roles.sql
 
 
 echo ""
-echo "==> Checking for existence of target database ..."
-TARGET=`head -n 40 ${BACKUP}-database.sql | grep -i "create database gnumed_v" | cut -f 3 -d " "`
-if test -z ${TARGET} ; then
+TARGET_DB=`head -n 40 ${BACKUP}-database.sql | grep -i "create database gnumed_v" | cut -f 3 -d " "`
+echo "==> Checking for existence of target database ${TARGET_DB} ..."
+if test -z ${TARGET_DB} ; then
 	echo "    ERROR: backup does not create target database, aborting"
 	exit 1
 fi
-if test `sudo -u postgres psql -l | grep ${TARGET} | wc -l` -ne 0 ; then
-	echo "    ERROR: database ${TARGET} already exists, aborting"
+if test `sudo -u postgres psql -l | grep ${TARGET_DB} | wc -l` -ne 0 ; then
+	echo "    ERROR: database ${TARGET_DB} already exists, aborting"
 	exit 1
 fi
 
@@ -103,6 +104,7 @@ echo ""
 echo "==> Restoring GNUmed roles ..."
 touch restoring-roles.log
 chmod 0666 restoring-roles.log
+# FIXME: when 8.2 becomes standard use --single-transaction
 sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> restoring-roles.log
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore roles, aborting"
@@ -111,14 +113,22 @@ fi
 
 
 echo ""
-echo "==> Restoring GNUmed database ..."
+echo "==> Restoring GNUmed database ${TARGET_DB} ..."
 touch restoring-database.log
 chmod 0666 restoring-database.log
+# FIXME: when 8.2 becomes standard use --single-transaction
 sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-database.sql &> restoring-database.log
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database, aborting"
 	exit 1
 fi
+
+
+echo ""
+echo "==> Analyzing database ${TARGET_DB} ..."
+# --full doesn't make sense since there are no
+# deleted rows in a freshly restored database
+sudo -u postgres vacuumdb -v -z -d ${TARGET_DB} -p ${GM_PORT} &> analyzing-database.log
 
 
 echo ""
@@ -132,7 +142,11 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_from_backup.sh,v $
-# Revision 1.2  2007-05-17 15:21:04  ncq
+# Revision 1.3  2007-06-18 20:36:39  ncq
+# - improved output
+# - vacuum analyze after restoration
+#
+# Revision 1.2  2007/05/17 15:21:04  ncq
 # - speed up grepping for create database
 #
 # Revision 1.1  2007/05/08 11:11:21  ncq
