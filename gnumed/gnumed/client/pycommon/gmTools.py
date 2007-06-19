@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.30 2007-06-10 09:56:03 ncq Exp $
+# $Id: gmTools.py,v 1.31 2007-06-19 12:43:17 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -342,6 +342,11 @@ def str2interval(str_interval=None):
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
+def bool2str(bool=None, true_str='True', false_str='False'):
+	if bool is True:
+		return true_str
+	return false_str
+#---------------------------------------------------------------------------
 def none_if(value=None, none_equivalent=None):
 	"""Modelled after the SQL NULLIF function."""
 	if value == none_equivalent:
@@ -595,21 +600,36 @@ This is a test mail from the gmTools.py module.
 
 		return True
 	#-----------------------------------------------------------------------
+	def test_bool2str():
+		tests = [
+			[True, 'Yes', 'Yes', 'Yes'],
+			[False, 'OK', 'not OK', 'not OK']
+		]
+		for test in tests:
+			if bool2str(test[0], test[1], test[2]) != test[3]:
+				print 'ERROR: bool2str(%s, %s, %s) returned [%s], expected [%s]' % (test[0], test[1], test[2], bool2str(test[0], test[1], test[2]), test[3])
+
+		return True
+	#-----------------------------------------------------------------------
 	print __doc__
 
 	#test_str2interval()
 	#test_coalesce()
-	test_capitalize()
+	#test_capitalize()
 	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
 	#test_cPaths()
 	#test_none_if()
+	test_bool2str()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.30  2007-06-10 09:56:03  ncq
+# Revision 1.31  2007-06-19 12:43:17  ncq
+# - add bool2str() and test
+#
+# Revision 1.30  2007/06/10 09:56:03  ncq
 # - u''ificiation and flags in regex calls
 #
 # Revision 1.29  2007/05/17 15:12:59  ncq
