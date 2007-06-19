@@ -21,13 +21,12 @@ class wxgGenericListSelectorDlg(wx.Dialog):
 
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_list_item_deselected, self._LCTRL_items)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_items)
-        self.Bind(wx.EVT_BUTTON, self._on_ok_button_pressed, self._BTN_ok)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgGenericListSelectorDlg.__set_properties
         self.SetTitle(_("generic list selector dialog"))
-        self.SetSize((400,500))
+        self.SetSize((400, 500))
         self._LCTRL_items.SetToolTipString(_("Mark the items you want to work on with <SPACE>."))
         self._LCTRL_items.SetFocus()
         self._BTN_ok.SetToolTipString(_("Act on the items selected in the above list."))
