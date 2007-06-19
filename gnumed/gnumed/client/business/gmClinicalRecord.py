@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.243 2007-04-25 21:59:15 ncq Exp $
-__version__ = "$Revision: 1.243 $"
+# $Id: gmClinicalRecord.py,v 1.244 2007-06-19 12:40:40 ncq Exp $
+__version__ = "$Revision: 1.244 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -171,10 +171,10 @@ select fk_encounter from
 		return 1
 	#--------------------------------------------------------
 	def _db_callback_episodes_modified(self):
-		try:
-			del self.__db_cache['episodes']
-		except KeyError:
-			pass
+#		try:
+#			del self.__db_cache['episodes']
+#		except KeyError:
+#			pass
 		try:
 			del self.__db_cache['problems']
 		except KeyError:
@@ -701,21 +701,23 @@ where
 		tmp = []
 		for r in rows:
 			tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
-		self.__db_cache['episodes'] = tmp
 
 		# now filter
-		if id_list is None and issues is None and open_status is None:
-			return self.__db_cache['episodes']
+		if (id_list is None) and (issues is None) and (open_status is None):
+			return tmp
+
 		# ok, let's filter episode list
 		filtered_episodes = []
-		filtered_episodes.extend(self.__db_cache['episodes'])
+		filtered_episodes.extend(tmp)
 		if open_status is not None:
 			filtered_episodes = filter(lambda epi: epi['episode_open'] == open_status, filtered_episodes)
 
 		if issues is not None:
 			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
+
 		if id_list is not None:
 			filtered_episodes = filter(lambda epi: epi['pk_episode'] in id_list, filtered_episodes)
+
 		return filtered_episodes
 	#------------------------------------------------------------------
 	def get_episodes_by_encounter(self, pk_encounter=None):
@@ -1624,7 +1626,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.243  2007-04-25 21:59:15  ncq
+# Revision 1.244  2007-06-19 12:40:40  ncq
+# - cleanup
+#
+# Revision 1.243  2007/04/25 21:59:15  ncq
 # - improve message on very-recent-encounter
 #
 # Revision 1.242  2007/04/06 23:12:58  ncq
