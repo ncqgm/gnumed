@@ -99,7 +99,9 @@ echo ""
 
 echo "2) upgrading to new database ..."
 rm -rf ${LOG}
-# fixup for schema hash function - cannot be done inside bootstrapper
+# fixup for schema hash function
+# - cannot be done inside bootstrapper
+# - only needed for converting anything below v6 with a v6 bootstrapper
 #echo "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
 #psql -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
