@@ -66,6 +66,7 @@ CONF="update_db-v3_v4.conf"
 echo "Dropping obsoleted staging database gnumed_v3 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v3
 
+# v4 -> v5
 LOG="bootstrap-latest-v5.log"
 rm -rf ${LOG}
 CONF="update_db-v4_v5.conf"
@@ -73,6 +74,7 @@ CONF="update_db-v4_v5.conf"
 echo "Dropping obsoleted staging database gnumed_v4 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v4
 
+# v5 -> v6
 LOG="bootstrap-latest-v6.log"
 rm -rf ${LOG}
 CONF="update_db-v5_v6.conf"
@@ -80,6 +82,7 @@ CONF="update_db-v5_v6.conf"
 echo "Dropping obsoleted staging database gnumed_v5 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v5
 
+# v6 -> v7
 LOG="bootstrap-latest-v7.log"
 rm -rf ${LOG}
 CONF="update_db-v6_v7.conf"
