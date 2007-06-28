@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.82 2007-06-12 16:03:58 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmPatSearchWidgets.py,v 1.83 2007-06-28 12:40:48 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -319,7 +319,10 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			dto = rec['dto']
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = dto.lastnames)
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = dto.firstnames)
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x').decode(gmI18N.get_encoding()))
+			if dto.dob is None:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
+			else:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x').decode(gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
@@ -377,12 +380,10 @@ def load_persons_from_xdt():
 		if encoding is None:
 			_log.Log(gmLog.lWarn, 'xDT source profile [%s] does not specify an <encoding> for BDT file [%s]' % (profile, name))
 		source = _cfg.get('XDT profile %s' % profile, 'source')
-		if source is None:
-			source = _('unknown')
 		dob_format = _cfg.get('XDT profile %s' % profile, 'DOB format')
 		if dob_format is None:
-			_log.Log(gmLog.lErr, 'XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
-			continue
+			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
+#			continue
 		bdt_files.append({'file': name, 'source': source, 'encoding': encoding, 'dob_format': dob_format})
 
 	dtos = []
@@ -408,16 +409,16 @@ def load_persons_from_xdt():
 			_log.LogException('cannot access xDT file [%s]' % bdt_file['file'])
 			continue
 
-		except ValueError:
-			gmGuiHelpers.gm_show_info (
-				_(
-				'Cannot load patient from BDT file\n\n'
-				' [%s]'
-				) % bdt_file,
-				_('Activating xDT patient')
-			)
-			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
-			continue
+#		except ValueError:
+#			gmGuiHelpers.gm_show_info (
+#				_(
+#				'Cannot load patient from BDT file\n\n'
+#				' [%s]'
+#				) % bdt_file,
+#				_('Activating xDT patient')
+#			)
+#			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
+#			continue
 
 		except:
 			gmGuiHelpers.gm_show_error (
@@ -425,13 +426,13 @@ def load_persons_from_xdt():
 				'Cannot load patient from BDT file\n\n'
 				' [%s]'
 				) % bdt_file,
-				_('Activating xDT patient'),
-				aLogLevel = None
+				_('Activating xDT patient')
+			, aLogLevel = None
 			)
 			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
 			continue
 
-		dtos.append({'dto': dto, 'source': bdt_file['source']})
+		dtos.append({'dto': dto, 'source': gmTools.coalesce(bdt_file['source'], dto.source)})
 
 	return dtos
 #============================================================
@@ -495,17 +496,18 @@ def load_patient_from_external_sources(parent=None):
 		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No patients found in external sources.'))
 		return True
 	elif len(dtos) == 1:
-		curr_pat = gmPerson.gmCurrentPatient()
-		if curr_pat.is_connected():
-			dto = dtos[0]
-			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
-			names = curr_pat.get_active_name()
-			key_pat = names['first'] + names['last'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
-			_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
-			_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
-			if key_dto == key_pat:
-				gmDispatcher.send(signal=gmSignals.statustext(), msg=_('The only external patient is already active in GNUmed.'), beep=False)
-				return True
+		dto = dtos[0]['dto']
+		if dto.dob is not None:
+			curr_pat = gmPerson.gmCurrentPatient()
+			if curr_pat.is_connected():
+				key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
+				names = curr_pat.get_active_name()
+				key_pat = names['first'] + names['last'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
+				_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
+				_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
+				if key_dto == key_pat:
+					gmDispatcher.send(signal=gmSignals.statustext(), msg=_('The only external patient is already active in GNUmed.'), beep=False)
+					return True
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -548,7 +550,7 @@ def load_patient_from_external_sources(parent=None):
 		if parent is None:
 			parent = wx.GetApp().GetTopWindow()
 		dlg = cSelectPersonFromListDlg(parent=parent, id=-1)
-		dlg.set_persons(persons=persons)
+		dlg.set_persons(persons=idents)
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
 			return True
@@ -1001,7 +1003,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.82  2007-06-12 16:03:58  ncq
+# Revision 1.83  2007-06-28 12:40:48  ncq
+# - handle dto.dob being optional now
+# - support dto source gotten from xdt file
+#
+# Revision 1.82  2007/06/12 16:03:58  ncq
 # - some comments
 # - fix typo
 # - better error display on failing queries
