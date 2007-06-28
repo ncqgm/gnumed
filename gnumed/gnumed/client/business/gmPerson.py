@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.122 2007-06-10 09:32:23 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmPerson.py,v 1.123 2007-06-28 12:31:34 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -53,10 +53,11 @@ class cDTO_person(object):
 			raise ValueError('invalid gender: [%s]' % val)
 
 		if attr == 'dob':
-			if not isinstance(val, pyDT.datetime):
-				raise TypeError(_('invalid type for DOB (must be datetime.datetime): %s [%s]') % (type(val), val))
-			if val.tzinfo is None:
-				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % val.isoformat())
+			if val is not None:
+				if not isinstance(val, pyDT.datetime):
+					raise TypeError('invalid type for DOB (must be datetime.datetime): %s [%s]' % (type(val), val))
+				if val.tzinfo is None:
+					raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % val.isoformat())
 
 		object.__setattr__(self, attr, val)
 		return
@@ -245,7 +246,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 
 		file.write(template % (u'013', u'8000', u'6301'))
 		file.write(template % (u'013', u'9218', u'2.10'))
-		external_id_type = 'APW Patient ID'
+#		external_id_type = 'APW Patient ID'
 		if external_id_type is None:
 			file.write(template % (u'%03d' % (9 + len(str(self.ID))), u'3000', self.ID))
 		else:
@@ -257,7 +258,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['firstnames']])), u'3102', self._payload[self._idx['firstnames']]))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), u'3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
 		file.write(template % (u'010', u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
-		file.write(template % (u'025', u'6330', 'GNUmed::encoding'))
+		file.write(template % (u'025', u'6330', 'GNUmed::9206::encoding'))
 		file.write(template % (u'%03d' % (9 + len(encoding)), u'6331', encoding))
 		if external_id_type is None:
 			file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
@@ -891,7 +892,6 @@ class cPatientSearcher_SQL:
 
 		if not parse_search_term:
 			queries = self._generate_queries_from_dto(dto)
-			print queries
 			if queries is None:
 				parse_search_term = True
 			if len(queries) == 0:
@@ -1142,29 +1142,18 @@ SELECT DISTINCT ON (pk_identity) * from (
 		vals = [_('name, gender, date of birth')]
 		where_snippets = []
 
-		try:
-			vals.append(dto.firstnames)
-			where_snippets.append(u'firstnames=%s')
-		except KeyError:
-			pass
+		vals.append(dto.firstnames)
+		where_snippets.append(u'firstnames=%s')
+		vals.append(dto.lastnames)
+		where_snippets.append(u'lastnames=%s')
 
-		try:
-			vals.append(dto.lastnames)
-			where_snippets.append(u'lastnames=%s')
-		except KeyError:
-			pass
-
-		try:
+		if dto.dob is not None:
 			vals.append(dto.dob)
 			where_snippets.append(u"dem.date_trunc_utc('day', dob) = dem.date_trunc_utc('day', %s::timestamp with time zone)")
-		except KeyError:
-			pass
 
-		try:
+		if dto.gender is not None:
 			vals.append(dto.gender)
 			where_snippets.append('gender=%s')
-		except KeyError:
-			pass
 
 		# sufficient data ?
 		if len(where_snippets) == 0:
@@ -1927,7 +1916,12 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.122  2007-06-10 09:32:23  ncq
+# Revision 1.123  2007-06-28 12:31:34  ncq
+# - allow None for dob in dto
+# - set external ID to GNUmed interal ID on export_as_gdt()
+# - create proper queries from DTO in absence of, say, DOB
+#
+# Revision 1.122  2007/06/10 09:32:23  ncq
 # - cast "re" as "regex"
 # - use gmTools.capitalize() instead of homegrown _make_sane_caps()
 # - lots of u''ification in replace()
