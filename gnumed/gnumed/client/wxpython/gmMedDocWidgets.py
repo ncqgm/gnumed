@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.130 2007-06-18 20:38:32 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmMedDocWidgets.py,v 1.131 2007-06-28 12:39:37 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -403,7 +403,6 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
-# FIXME: this must listen to patient change signals ...
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
 	def __init__(self, *args, **kwds):
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
@@ -417,6 +416,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# make me a file drop target
 		dt = gmGuiHelpers.cFileDropTarget(self)
 		self.SetDropTarget(dt)
+		self._LBOX_doc_pages.SetDropTarget(dt)
 
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
@@ -547,8 +547,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			device = dbcfg.get2 (
 				option =  'external.xsane.default_device',
 				workplace = gmPerson.gmCurrentProvider().workplace,
-				bias = 'workplace'
+				bias = 'workplace',
+				default = ''
 			)
+			if device.strip() == u'':
+				device = None
 			if device is not None:
 				return device
 
@@ -1432,7 +1435,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.130  2007-06-18 20:38:32  ncq
+# Revision 1.131  2007-06-28 12:39:37  ncq
+# - make pages listbox in scan/index panel be a drop target itself, too
+# - handle preset device = '' as unconfigured
+#
+# Revision 1.130  2007/06/18 20:38:32  ncq
 # - use gmListWidgets.get_choice_from_list()
 #
 # Revision 1.129  2007/06/12 13:24:48  ncq
