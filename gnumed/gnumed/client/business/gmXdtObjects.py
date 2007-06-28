@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.27 2007-05-21 13:04:29 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmXdtObjects.py,v 1.28 2007-06-28 12:34:35 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmDateTime
+from Gnumed.pycommon import gmLog, gmDateTime, gmTools
 from Gnumed.business import gmXdtMappings, gmPerson
 
 _log = gmLog.gmDefLog
@@ -56,21 +56,17 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 		'3106': 'zipurb',
 		'3107': 'street',
 		'3112': 'zip',
-		'3113': 'urb'
+		'3113': 'urb',
+		'8316': 'source'
 	}
+
 	needed_fields = (
 		'3101',
-		'3102',
-		'3103'
-	)
-	interesting_fields = needed_fields + (
-		'3110',
-		'3106',
-		'3107',
-		'3112',
-		'3113'
+		'3102'
 	)
 
+	interesting_fields = _map_id2name.keys()
+	
 	data = {}
 
 	# try to find encoding if not given
@@ -79,19 +75,24 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding)
 
-	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
 	for line in xdt_file:
 
-		if len(data) == len(interesting_fields):
-			break
+#		# can't use more than what's interesting ... ;-)
+#		if len(data) == len(interesting_fields):
+#			break
 
 		line = line.replace('\015','')
 		line = line.replace('\012','')
 
-		# do we care about this line ?
+		# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
 		field = line[3:7]
+		# do we care about this line ?
 		if field in interesting_fields:
-			data[_map_id2name[field]] = line[7:]
+			try:
+				already_seen = data[_map_id2name[field]]
+				break
+			except KeyError:
+				data[_map_id2name[field]] = line[7:]
 
 	xdt_file.close()
 
@@ -105,35 +106,44 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	dto.firstnames = data['firstnames']
 	dto.lastnames = data['lastnames']
 
-	# FIXME: different data orders are possible
-	dob = time.strptime(data['dob'], dob_format)
-	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+	# CAVE: different data orders are possible, so configuration may be needed
+	# FIXME: detect xDT version and use default from the standard when dob_format is None
+	try:
+		dob = time.strptime(data['dob'], gmTools.coalesce(dob_format, '%d%m%Y'))
+		dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+	except KeyError:
+		dto.dob = None
 
 	try:
 		dto.gender = gmXdtMappings.map_gender_xdt2gm[data['gender'].lower()]
-	except:
+	except KeyError:
 		dto.gender = None
 
 	dto.zip = None
 	try:
 		dto.zip = regex.match('\d{5}', data['zipurb']).group()
-	except: pass
+	except KeyError: pass
 	try:
 		dto.zip = data['zip']
-	except: pass
+	except KeyError: pass
 
 	dto.urb = None
 	try:
 		dto.urb = regex.sub('\d{5} ', '', data['zipurb'])
-	except: pass
+	except KeyError: pass
 	try:
 		dto.urb = data['urb']
-	except: pass
+	except KeyError: pass
 
 	try:
 		dto.street = data['street']
-	except:
+	except KeyError:
 		dto.street = None
+
+	try:
+		dto.source = data['source']
+	except KeyError:
+		dto.source = None
 
 	return dto
 #==============================================================
@@ -306,7 +316,12 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.27  2007-05-21 13:04:29  ncq
+# Revision 1.28  2007-06-28 12:34:35  ncq
+# - handle GDT source field, too
+# - safer detection of subsequent records
+# - improved date parsing logic
+#
+# Revision 1.27  2007/05/21 13:04:29  ncq
 # - start class cDTO_xdt_person
 #
 # Revision 1.26  2007/02/22 17:28:45  ncq
