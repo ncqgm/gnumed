@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.244 2007-06-19 12:40:40 ncq Exp $
-__version__ = "$Revision: 1.244 $"
+# $Id: gmClinicalRecord.py,v 1.245 2007-06-28 12:30:05 ncq Exp $
+__version__ = "$Revision: 1.245 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -202,20 +202,7 @@ select fk_encounter from
 			return None
 		return data
 	#--------------------------------------------------------
-	def _build_narrative_cache_from_rows(self, rows, idx):
-		for row in rows:
-			narr_row = {
-				'pk_field': 'pk_narrative',
-				'idx': idx,
-				'data': row
-			}
-			narr = gmClinNarrative.cNarrative(row=narr_row)
-			self.__db_cache['narrative'].append(narr)
-
-		return True
-	#--------------------------------------------------------
-	def get_clin_narrative(self, since=None, until=None, encounters=None,
-		episodes=None, issues=None, soap_cats=None):
+	def get_clin_narrative(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None):
 		"""Get SOAP notes pertinent to this encounter.
 
 			since
@@ -231,27 +218,26 @@ select fk_encounter from
 			soap_cats
 				- list of SOAP categories of the narrative to be retrieved
 		"""
-		try:
-			self.__db_cache['narrative']
-		except KeyError:
-			cmd = u"select * from clin.v_pat_narrative where pk_patient=%s order by date"
-			rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-			self.__db_cache['narrative'] = []
-			self._build_narrative_cache_from_rows(rows, idx)
+		cmd = u"select * from clin.v_pat_narrative where pk_patient=%s order by date"
+		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 
-		# ok, let's constrain our list
-		filtered_narrative = []
-		filtered_narrative.extend(self.__db_cache['narrative'])
+		filtered_narrative = [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
+
 		if since is not None:
 			filtered_narrative = filter(lambda narr: narr['date'] >= since, filtered_narrative)
+
 		if until is not None:
 			filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
+
 		if issues is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
+
 		if episodes is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
+
 		if encounters is not None:
 			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
+
 		if soap_cats is not None:
 			soap_cats = map(lambda c: c.lower(), soap_cats)
 			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
@@ -1626,7 +1612,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.244  2007-06-19 12:40:40  ncq
+# Revision 1.245  2007-06-28 12:30:05  ncq
+# - uncache get_clin_narrative access
+#
+# Revision 1.244  2007/06/19 12:40:40  ncq
 # - cleanup
 #
 # Revision 1.243  2007/04/25 21:59:15  ncq
