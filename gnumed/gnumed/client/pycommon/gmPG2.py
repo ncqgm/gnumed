@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -798,8 +798,12 @@ class cAdapterMxDateTime(object):
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
-# properly adapt *tuples* into (a, b, c, ...) in "... IN ..." queries
-psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
+try:
+	# properly adapt *tuples* into (a, b, c, ...) in "... IN ..." queries
+	psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
+except AttributeError:
+	# only needed in psycopg2 < 0.2.6
+	pass
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY()..." so we can support PG arrays
@@ -1032,7 +1036,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.49  2007-06-15 10:24:24  ncq
+# Revision 1.50  2007-06-28 12:35:38  ncq
+# - optionalize SQL IN tuple adaptation as it's now builtin to 0.2.6 psycopg2
+#
+# Revision 1.49  2007/06/15 10:24:24  ncq
 # - add a test to the test suite
 #
 # Revision 1.48  2007/06/12 16:02:12  ncq
