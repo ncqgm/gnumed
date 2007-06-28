@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.6 2007-06-18 20:33:56 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmListWidgets.py,v 1.7 2007-06-28 12:38:15 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -178,8 +178,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		items = []
 		idx = self.GetFirstSelected()
 		while idx != -1:
-			idx = self.GetNextSelected(idx)
 			items.append(idx)
+			idx = self.GetNextSelected(idx)
 
 		return items
 	#------------------------------------------------------------
@@ -191,8 +191,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		data = []
 		idx = self.GetFirstSelected()
 		while idx != -1:
-			idx = self.GetNextSelected(idx)
 			data.append(self.__data[idx])
+			idx = self.GetNextSelected(idx)
 
 		return data
 	#------------------------------------------------------------
@@ -239,7 +239,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.6  2007-06-18 20:33:56  ncq
+# Revision 1.7  2007-06-28 12:38:15  ncq
+# - fix logic reversal in get_selected_*()
+#
+# Revision 1.6  2007/06/18 20:33:56  ncq
 # - add get_choice(s)_from_list()
 # - add cGenericListSelectorDlg
 # - add set_string_items()/set_selections()/get_selected_items()
