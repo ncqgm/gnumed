@@ -5,8 +5,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.41 2007-06-15 07:58:01 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmXdtMappings.py,v 1.42 2007-06-28 12:31:55 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -510,7 +510,11 @@ xdt_packet_type_map = {
 	'0199': "========<< Fall: unstrukturiert >>========",
 	'6100': "========<< Patientenstamm >>========",
 	'6200': "========<< Behandlungsdaten >>========",
-	'6302': "========>> GDT: Anforderung einer neuen Untersuchung >>========",
+	'6300': '========>> GDT: Stammdaten anfordern >>========',
+	'6301': '========>> GDT: Stammdaten übermitteln >>========',
+	'6302': "========<< GDT: Untersuchung (neue) anfordern >>========",
+	'6310': "========<< GDT: Untersuchung übermitteln >>========",
+	'6311': "========<< GDT: Untersuchung anzeigen >>========",
 	'adt0': "========<< ADT-Datenpaket-Header >>========",
 	'adt9': "========<< ADT-Datenpaket-Abschluss >>========",
 	'con0': "========<< Container-Header >>========",
@@ -1203,7 +1207,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.41  2007-06-15 07:58:01  ncq
+# Revision 1.42  2007-06-28 12:31:55  ncq
+# - improved Satzart mappings
+#
+# Revision 1.41  2007/06/15 07:58:01  ncq
 # - greatly improve the xDT mappings
 #
 # Revision 1.40  2007/05/14 10:37:31  ncq
