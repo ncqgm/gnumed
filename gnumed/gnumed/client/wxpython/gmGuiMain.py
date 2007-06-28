@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.336 2007-06-11 20:30:46 ncq Exp $
-__version__ = "$Revision: 1.336 $"
+# $Id: gmGuiMain.py,v 1.337 2007-06-28 12:37:22 ncq Exp $
+__version__ = "$Revision: 1.337 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,7 +52,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord
 from Gnumed.exporters import gmPatientExporter
 
@@ -183,7 +183,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
-			_provider['title'],
+			gmTools.coalesce(_provider['title'], ''),
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
 			_provider['short_alias'],
@@ -192,7 +192,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# set window title via template
 		if self.__gb['main.slave_mode']:
-			self.__title_template = _('Slave GNUmed [%s%s.%s@%s] %s: %s')
+			self.__title_template = _('Enslaved GNUmed [%s%s.%s@%s] %s: %s')
 		else:
 			self.__title_template = 'GNUmed [%s%s.%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
@@ -286,9 +286,16 @@ class gmTopLevelFrame(wx.Frame):
 		menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 		wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
 
+		menu_config = wx.Menu()
+		menu_gnumed.AppendMenu(wx.NewId(), _('Options ...'), menu_config)
+
 		ID = wx.NewId()
-		menu_gnumed.Append(ID, _('Set database language'), _('Configure the database language.'))
+		menu_config.Append(ID, _('Database language'), _('Configure the database language.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
+
+		ID = wx.NewId()
+		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
 		menu_gnumed.AppendSeparator()
 
@@ -615,13 +622,14 @@ class gmTopLevelFrame(wx.Frame):
 			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 		)
 		langs = [row[0] for row in rows]
-		result = gmGuiHelpers.gm_SingleChoiceDialog (
-			aMessage = _(
+		result = gmListWidgets.get_choice_from_list (
+			parent = self,
+			msg = _(
 				'Please select the database language from the list below.\n\n'
 				'This setting will not affect the language the user\n'
 				'interface is displayed in.'
 			),
-			aTitle = _('configuring database language'),
+			caption = _('configuring database language'),
 			choices = langs
 		)
 		if result is False:
@@ -629,6 +637,9 @@ class gmTopLevelFrame(wx.Frame):
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': langs[result]}}]
 		)
+	#----------------------------------------------
+	def __on_configure_workplace(self, evt):
+		pass
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
@@ -1046,7 +1057,7 @@ Search results:
 			pat_str = _('no patient')
 
 		title = self.__title_template % (
-			_provider['title'],
+			gmTools.coalesce(_provider['title'], ''),
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
 			_provider.workplace,
@@ -1363,7 +1374,9 @@ def main():
 	wx.Image_AddHandler(wx.JPEGHandler())
 	wx.Image_AddHandler(wx.GIFHandler())
 	# create an instance of our GNUmed main application
-	app = gmApp(False)
+	# - do not redirect stdio (yet)
+	# - allow signals to be delivered
+	app = gmApp(redirect = False, clearSigInt = False)
 	_log.Log(gmLog.lInfo, 'display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
 	# and enter the main event loop
 	app.MainLoop()
@@ -1384,7 +1397,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.336  2007-06-11 20:30:46  ncq
+# Revision 1.337  2007-06-28 12:37:22  ncq
+# - show proper title in caption line of main window
+# - improved menus
+# - allow signals to be delivered
+#
+# Revision 1.336  2007/06/11 20:30:46  ncq
 # - set expected database version to "devel"
 #
 # Revision 1.335  2007/06/10 10:18:37  ncq
