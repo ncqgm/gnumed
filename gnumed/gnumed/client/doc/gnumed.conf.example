@@ -1,4 +1,4 @@
-# GNUmed default config file
+# GNUmed user config file
 # -------------------------------------------------------------
 # this file should live in ~/.gnumed/gnumed.conf
 #
@@ -6,7 +6,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 
 [backend]
@@ -71,7 +71,10 @@ filename = patient.xdt
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.7  2007-04-19 13:11:39  ncq
+# Revision 1.8  2007-07-02 16:05:31  ncq
+# - better docs
+#
+# Revision 1.7  2007/04/19 13:11:39  ncq
 # - remove workplace, default is now to use default from system-wide file
 # - cleanup
 #
