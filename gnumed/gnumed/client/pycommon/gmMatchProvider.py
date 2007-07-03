@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.21 2007-01-07 23:02:11 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmMatchProvider.py,v 1.22 2007-07-03 15:57:24 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -19,6 +19,7 @@ import string, types, time, sys, re
 import gmPG2, gmExceptions, gmLog
 
 _log = gmLog.gmDefLog
+
 #============================================================
 class cMatchProvider:
 	"""Base class for match providing objects.
@@ -58,7 +59,6 @@ class cMatchProvider:
 
 		# sanity check
 		if aFragment is None:
-			_log.Log(gmLog.lErr, 'Cannot find matches without a fragment.')
 			raise ValueError, 'Cannot find matches without a fragment.'
 
 		# user explicitely wants all matches
@@ -426,6 +426,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
 		fragment_condition = u"~* %(fragment)s"
+		aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 		self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
 		return self.__find_matches(fragment_condition)
 	#--------------------------------------------------------
@@ -457,7 +458,11 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 			query = query % where_fragments
 
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': self._args}])
+			try:
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': self._args}])
+			except:
+				_log.LogException('Error running match provider SQL, ignoring query.')
+				continue
 
 			# no matches found: try next query
 			if len(rows) == 0:
@@ -475,7 +480,12 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.21  2007-01-07 23:02:11  ncq
+# Revision 1.22  2007-07-03 15:57:24  ncq
+# - use gmPG2.sanitize_pg_regex()
+# - ignore failing match retrieval queries such
+#   that we don't freak out in the phrasewheel
+#
+# Revision 1.21  2007/01/07 23:02:11  ncq
 # - more documentation on context
 #
 # Revision 1.20  2006/11/06 09:59:42  ncq
