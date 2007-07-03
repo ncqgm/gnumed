@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/gm-restore_from_backup.sh,v $
-# $Id: gm-restore_from_backup.sh,v 1.4 2007-07-03 10:03:22 ncq Exp $
+# $Id: gm-restore_from_backup.sh,v 1.5 2007-07-03 10:04:32 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -113,6 +113,7 @@ if test $? -ne 0 ; then
 	sudo -u postgres chmod 0666 ${LOG}
 	exit 1
 fi
+sudo -u postgres chmod 0666 ${LOG}
 
 
 echo ""
@@ -126,6 +127,7 @@ if test $? -ne 0 ; then
 	sudo -u postgres chmod 0666 ${LOG}
 	exit 1
 fi
+sudo -u postgres chmod 0666 ${LOG}
 
 
 echo ""
@@ -149,7 +151,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_from_backup.sh,v $
-# Revision 1.4  2007-07-03 10:03:22  ncq
+# Revision 1.5  2007-07-03 10:04:32  ncq
+# - properly chmod log files on success, too
+#
+# Revision 1.4  2007/07/03 10:03:22  ncq
 # - use WORK_DIR_BASE
 # - better comment before editing roles
 # - timestamped log files under LOG_BASE
