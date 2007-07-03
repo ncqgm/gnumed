@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/Attic/gm-restore_from_backup.sh,v $
-# $Id: gm-restore_from_backup.sh,v 1.3 2007-06-18 20:36:39 ncq Exp $
+# $Id: gm-restore_from_backup.sh,v 1.4 2007-07-03 10:03:22 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -60,7 +60,7 @@ fi
 echo ""
 echo "==> Setting up workspace ..."
 TS=`date +%Y-%m-%d-%H-%M-%S`
-WORK_DIR="${HOME}/gnumed/gm-restore-${TS}/"
+WORK_DIR="${WORK_DIR_BASE}/gm-restore-${TS}/"
 mkdir -p -v ${WORK_DIR}
 cd ${WORK_DIR}
 
@@ -83,6 +83,8 @@ echo ""
 echo "   You will now be shown the roles backup file."
 echo "   Please edit it to only include the roles you need for GNUmed."
 echo ""
+echo "   Remember that in PostgreSQL scripts the comment marker is \"--\"."
+echo ""
 read -e -p "   Press <ENTER> to continue."
 editor ${BACKUP}-roles.sql
 
@@ -102,24 +104,26 @@ fi
 
 echo ""
 echo "==> Restoring GNUmed roles ..."
-touch restoring-roles.log
-chmod 0666 restoring-roles.log
+LOG="${LOG_BASE}/restoring-roles-${TS}.log"
 # FIXME: when 8.2 becomes standard use --single-transaction
-sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> restoring-roles.log
+sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore roles, aborting"
+	echo "           see: ${LOG}"
+	sudo -u postgres chmod 0666 ${LOG}
 	exit 1
 fi
 
 
 echo ""
 echo "==> Restoring GNUmed database ${TARGET_DB} ..."
-touch restoring-database.log
-chmod 0666 restoring-database.log
+LOG="${LOG_BASE}/restoring-database-${TS}.log"
 # FIXME: when 8.2 becomes standard use --single-transaction
-sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-database.sql &> restoring-database.log
+sudo -u postgres psql -p ${GM_PORT} -f ${BACKUP}-database.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database, aborting"
+	echo "           see: ${LOG}"
+	sudo -u postgres chmod 0666 ${LOG}
 	exit 1
 fi
 
@@ -127,8 +131,11 @@ fi
 echo ""
 echo "==> Analyzing database ${TARGET_DB} ..."
 # --full doesn't make sense since there are no
-# deleted rows in a freshly restored database
-sudo -u postgres vacuumdb -v -z -d ${TARGET_DB} -p ${GM_PORT} &> analyzing-database.log
+# deleted rows in a freshly restored database but
+# we need to update statistics to get decent performance
+LOG="${LOG_BASE}/analyzing-database-${TS}.log"
+sudo -u postgres vacuumdb -v -z -d ${TARGET_DB} -p ${GM_PORT} &> ${LOG}
+sudo -u postgres chmod 0666 ${LOG}
 
 
 echo ""
@@ -142,7 +149,13 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_from_backup.sh,v $
-# Revision 1.3  2007-06-18 20:36:39  ncq
+# Revision 1.4  2007-07-03 10:03:22  ncq
+# - use WORK_DIR_BASE
+# - better comment before editing roles
+# - timestamped log files under LOG_BASE
+# - properly chmod log files
+#
+# Revision 1.3  2007/06/18 20:36:39  ncq
 # - improved output
 # - vacuum analyze after restoration
 #
