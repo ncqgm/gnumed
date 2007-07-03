@@ -14,14 +14,27 @@
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-restore.conf.example,v $
-# $Id: gnumed-restore.conf.example,v 1.1 2007-05-08 11:57:40 ncq Exp $
+# $Id: gnumed-restore.conf.example,v 1.2 2007-07-03 09:57:29 ncq Exp $
 
 # if your PostgreSQL server is running on another port
 GM_PORT="5432"
 
+# set this to a writable directory on a drive where
+# there is plenty of disk space available
+WORK_DIR_BASE="${HOME}/gnumed"
+
+# where to store log files,
+# note that if you chose to write logs to the work
+# directory they will get lost during cleanup if the
+# restore process succeeds
+LOG_BASE="."
+
 #============================================================
 # $Log: gnumed-restore.conf.example,v $
-# Revision 1.1  2007-05-08 11:57:40  ncq
+# Revision 1.2  2007-07-03 09:57:29  ncq
+# - WORK_DIR_BASE, LOG_BASE
+#
+# Revision 1.1  2007/05/08 11:57:40  ncq
 # - new
 #
 #
