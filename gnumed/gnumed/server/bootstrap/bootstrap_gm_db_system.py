@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -689,6 +689,8 @@ class database:
 		# create database
 		self.conn.set_isolation_level(0)
 		cursor = self.conn.cursor()
+		print "==> creating new target database [%s] ..." self.name
+		print "    (this can take a while if the source database is large)"
 		try:
 			cursor.execute(cmd)
 		except:
@@ -1238,7 +1240,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.55  2007-06-15 14:37:57  ncq
+# Revision 1.56  2007-07-03 15:51:47  ncq
+# - announce creating of target database and comment that it
+#   can take a while if the template (source) database is large
+#
+# Revision 1.55  2007/06/15 14:37:57  ncq
 # - force lc_messages to 'C' so that we don't encounter
 #   the dreaded "ERROR_STACK_SIZE exceeded" error
 #
