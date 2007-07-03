@@ -12,12 +12,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import time, locale, sys, re, os, codecs, types, datetime
+import time, locale, sys, re as regex, os, codecs, types, datetime
 
 
 # GNUmed
@@ -394,8 +394,28 @@ def get_col_names(link_obj=None, schema='public', table=None):
 		cols.append(row[0])
 	return cols
 # =======================================================================
-# query runners
+# query runners and helpers
 # =======================================================================
+def sanitize_pg_regex(expression=None, escape_all=False):
+	"""Escape input for use in a PostgreSQL regular expression.
+
+	If a fragment comes from user input and is to be used
+	as a regular expression we need to make sure it doesn't
+	contain invalid regex patterns such as unbalanced ('s.
+
+	<escape_all>
+		True: try to escape *all* metacharacters
+		False: only escape those which render the regex invalid
+	"""
+	return expression.replace (
+			'(', '\('
+		).replace (
+			')', '\)'
+		).replace (
+			'[', '\['
+		)
+		#']', '\]',			# not needed
+#------------------------------------------------------------------------
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
 
@@ -616,7 +636,7 @@ def get_raw_connection(dsn=None, verbose=False):
 			raise cAuthenticationError, (dsn, v), tb
 		if str(v).find('authentication failed for user') != -1:
 			raise cAuthenticationError, (dsn, v), tb
-		if re.search('user ".*" does not exist', str(v)) is not None:
+		if regex.search('user ".*" does not exist', str(v)) is not None:
 			raise cAuthenticationError, (dsn, v), tb
 		raise
 
@@ -1024,6 +1044,17 @@ if __name__ == "__main__":
 		curs = conn.cursor()
 		curs.execute('select * from clin.clin_narrative where narrative = %s', ['a'])
 	#--------------------------------------------------------------------
+	def test_sanitize_pg_regex():
+		tests = [
+			['(', '\\(']
+			, ['[', '\\[']
+			, [')', '\\)']
+		]
+		for test in tests:
+			result = sanitize_pg_regex(test[0])
+			if result != test[1]:
+				print 'ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
+	#--------------------------------------------------------------------
 	# run tests
 #	test_get_connection()
 #	test_exceptions()
@@ -1031,12 +1062,17 @@ if __name__ == "__main__":
 #	test_request_dsn()
 #	test_set_encoding()
 #	test_connection_pool()
-	test_list_args()
+#	test_list_args()
+	test_sanitize_pg_regex()
 	print "tests ran successfully"
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.50  2007-06-28 12:35:38  ncq
+# Revision 1.51  2007-07-03 15:53:50  ncq
+# - import re as regex
+# - sanitize_pg_regex() and test
+#
+# Revision 1.50  2007/06/28 12:35:38  ncq
 # - optionalize SQL IN tuple adaptation as it's now builtin to 0.2.6 psycopg2
 #
 # Revision 1.49  2007/06/15 10:24:24  ncq
