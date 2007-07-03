@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.105 2007-05-14 14:43:11 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmPhraseWheel.py,v 1.106 2007-07-03 16:03:04 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -58,7 +58,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def get_selected_item_label(self):
 		return self.__data[self.GetFirstSelected()]['label']
 #============================================================
-# FIXME: cols in pick list, snap_to_basename/first match on tab+set selection, learn() -> PWL
+# FIXME: cols in pick list, snap_to_basename+set selection, learn() -> PWL
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
@@ -104,11 +104,10 @@ class cPhraseWheel(wx.TextCtrl):
 		self.matcher = None
 		self.selection_only = False
 		self.selection_only_error_msg = _('You must select a value from the picklist or type an exact match.')
-#		self.snap_to_first_match = (False or self.selection_only)
 		self.capitalisation_mode = gmTools.CAPS_NONE
 		self.accepted_chars = None
 		self.final_regex = '.*'
-		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]') % self.__final_regex.pattern
+		self.final_regex_error_msg = _('The content is invalid. It must match the pattern: [%s]')
 		self.phrase_separators = '[;/|]+'
 		self.navigate_after_selection = False
 		self.speller = None
@@ -174,9 +173,6 @@ class cPhraseWheel(wx.TextCtrl):
 		self.__timer.Stop()
 	#--------------------------------------------------------
 	# external API
-	#--------------------------------------------------------
-#	def set_snap_to_first_match(self, state = False):
-#		self.snap_to_first_match = (state or self.selection_only)
 	#--------------------------------------------------------
 	def add_callback_on_selection(self, callback=None):
 		"""
@@ -676,15 +672,6 @@ class cPhraseWheel(wx.TextCtrl):
 		for callback in self._on_set_focus_callbacks:
 			callback()
 
-#		if self.snap_to_first_match:
-#			if self.GetValue().strip() == u'':
-#				# programmers better make sure the turnaround time is limited
-#				self.__update_matches_in_picklist(val='*')
-#				if len(self.__current_matches) > 0:
-#					wx.TextCtrl.SetValue(self, self.__current_matches[0]['label'])
-#					self.data = self.__current_matches[0]['data']
-#					self.MarkDirty()
-#
 		self.__timer.Start(oneShot = True, milliseconds = self.picklist_delay)
 
 		return True
@@ -726,7 +713,7 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# check value against final_regex if any given
 		if not self.__final_regex.match(self.GetValue().strip()):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=self.final_regex_error_msg)
+			gmDispatcher.send(signal=gmSignals.statustext(), msg=self.final_regex_error_msg % self.__final_regex.pattern)
 			self.SetBackgroundColour('pink')
 
 		# notify interested parties
@@ -860,7 +847,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.105  2007-05-14 14:43:11  ncq
+# Revision 1.106  2007-07-03 16:03:04  ncq
+# - cleanup
+# - compile final_regex_error_msg just before using it
+#   since self.final_regex can have changed
+#
+# Revision 1.105  2007/05/14 14:43:11  ncq
 # - allow TAB to select item from picklist if only one match available
 #
 # Revision 1.104  2007/05/14 13:11:25  ncq
