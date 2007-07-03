@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.120 2007-05-21 22:30:12 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gmDemographicsWidgets.py,v 1.121 2007-07-03 16:00:12 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -372,7 +372,8 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			**kwargs
 		)
 		self.SetToolTipString(_("Type or select an alias (nick name, preferred name, call name, warrior name, artist name)."))
-		self.capitalisation_mode = gmTools.CAPS_NAMES
+		# nicknames CAN start with lower case !
+		#self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
 #============================================================
 class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1729,7 +1730,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.120  2007-05-21 22:30:12  ncq
+# Revision 1.121  2007-07-03 16:00:12  ncq
+# - nickname MAY start with lower case
+#
+# Revision 1.120  2007/05/21 22:30:12  ncq
 # - cleanup
 # - don't try to store empty address in link_contacts_from_dtd()
 #
