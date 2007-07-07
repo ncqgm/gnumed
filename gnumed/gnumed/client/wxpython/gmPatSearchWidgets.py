@@ -10,12 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.83 2007-06-28 12:40:48 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmPatSearchWidgets.py,v 1.84 2007-07-07 12:43:25 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser, fileinput
+import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser, fileinput, re as regex
 
 import wx
 
@@ -180,6 +180,7 @@ The GNUmed client.
 			return True
 
 		self._LCTRL_result.set_columns()
+		self._LCTRL_result.patient_key = None
 
 		# FIXME: make configurable
 		query = u'select * from (' + query + u') as real_query limit 1024'
@@ -188,18 +189,27 @@ The GNUmed client.
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
 		except:
 			self._LCTRL_result.set_columns([_('Error')])
-			self._LCTRL_result.InsertStringItem(sys.maxint, label = _('The query failed.'))
-			self._LCTRL_result.InsertStringItem(sys.maxint, label = u'')
 			t, v = sys.exc_info()[:2]
-			self._LCTRL_result.InsertStringItem(sys.maxint, label = unicode(t))
-			self._LCTRL_result.InsertStringItem(sys.maxint, label = str(v).decode(gmI18N.get_encoding()))
+			rows = [
+				[_('The query failed.')],
+				[u''],
+				[unicode(t)]
+			]
+			for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
+				rows.append([line])
+			rows.append([u''])
+			for line in query.split('\n'):
+				rows.append([line])
+			self._LCTRL_result.set_string_items(rows)
+			self._LCTRL_result.set_column_widths()
 			gmDispatcher.send(gmSignals.statustext(), msg = _('The query failed.'), beep = True)
 			_log.LogException('report query failed', verbose=True)
 			return False
 
 		if len(rows) == 0:
 			self._LCTRL_result.set_columns([_('Results')])
-			self._LCTRL_result.InsertStringItem(sys.maxint, label = _('Report returned no data.'))
+			self._LCTRL_result.set_string_items([[_('Report returned no data.')]])
+			self._LCTRL_result.set_column_widths()
 			gmDispatcher.send(gmSignals.statustext(), msg = _('No data returned for this report.'), beep = True)
 			return True
 
@@ -209,16 +219,16 @@ The GNUmed client.
 		cols.sort()
 		cols = [pair[1] for pair in cols]
 		self._LCTRL_result.set_columns(cols)
-
-		# set data
 		for row in rows:
 			label = unicode(gmTools.coalesce(row[0], u''))
 			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
 				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = unicode(gmTools.coalesce(row[col_idx], u'')))
-
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
+		try: self._LCTRL_result.patient_key = idx['pk_patient']
+		except KeyError: pass
+		return True
 #============================================================
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
 
@@ -701,7 +711,7 @@ class cPatientSelector(wx.TextCtrl):
 		# - process some special chars
 		wx.EVT_CHAR(self, self._on_char)
 		# - select data in input field upon tabbing in
-		wx.EVT_SET_FOCUS (self, self._on_get_focus)
+		wx.EVT_SET_FOCUS(self, self._on_get_focus)
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
 		# FIXME: causes core dump in one version of wxPython -SJTAN
@@ -1003,7 +1013,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.83  2007-06-28 12:40:48  ncq
+# Revision 1.84  2007-07-07 12:43:25  ncq
+# - in cDataMiningPnl use cPatientListingCtrl
+#
+# Revision 1.83  2007/06/28 12:40:48  ncq
 # - handle dto.dob being optional now
 # - support dto source gotten from xdt file
 #
