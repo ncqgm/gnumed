@@ -23,7 +23,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self._BTN_delete = wx.Button(self.splitter_top_panel, -1, _("Delete"), style=wx.BU_EXACTFIT)
         self._BTN_contribute = wx.Button(self.splitter_top_panel, -1, _("Contribute"), style=wx.BU_EXACTFIT)
         self._BTN_schema = wx.Button(self.splitter_top_panel, -1, _("Schema"), style=wx.BU_EXACTFIT)
-        self._LCTRL_result = gmListWidgets.cReportListCtrl(self._splitter_bottom_panel, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
+        self._LCTRL_result = gmListWidgets.cPatientListingCtrl(self._splitter_bottom_panel, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -34,7 +34,6 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         self.Bind(wx.EVT_BUTTON, self._on_contribute_button_pressed, self._BTN_contribute)
         self.Bind(wx.EVT_BUTTON, self._on_schema_button_pressed, self._BTN_schema)
-        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_result)
         # end wxGlade
 
     def __set_properties(self):
@@ -55,11 +54,6 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         __szr_splitter_bottom = wx.BoxSizer(wx.VERTICAL)
         _fgszr_top = wx.FlexGridSizer(3, 2, 1, 4)
         _szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_splitter_top = wx.BoxSizer(wx.VERTICAL)
-        self.splitter_top_panel.SetAutoLayout(True)
-        self.splitter_top_panel.SetSizer(__szr_splitter_top)
-        __szr_splitter_top.Fit(self.splitter_top_panel)
-        __szr_splitter_top.SetSizeHints(self.splitter_top_panel)
         __LBL_report_name = wx.StaticText(self.splitter_top_panel, -1, _("Report"))
         _fgszr_top.Add(__LBL_report_name, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _fgszr_top.Add(self._PRW_report_name, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -76,23 +70,15 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         _szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
         _szr_buttons.Add(self._BTN_schema, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _fgszr_top.Add(_szr_buttons, 1, wx.EXPAND, 0)
-        self.splitter_top_panel.SetAutoLayout(True)
         self.splitter_top_panel.SetSizer(_fgszr_top)
-        _fgszr_top.Fit(self.splitter_top_panel)
-        _fgszr_top.SetSizeHints(self.splitter_top_panel)
         _fgszr_top.AddGrowableRow(1)
         _fgszr_top.AddGrowableCol(1)
         __szr_splitter_bottom.Add(self._LCTRL_result, 1, wx.EXPAND, 0)
-        self._splitter_bottom_panel.SetAutoLayout(True)
         self._splitter_bottom_panel.SetSizer(__szr_splitter_bottom)
-        __szr_splitter_bottom.Fit(self._splitter_bottom_panel)
-        __szr_splitter_bottom.SetSizeHints(self._splitter_bottom_panel)
         self._splitter.SplitHorizontally(self.splitter_top_panel, self._splitter_bottom_panel)
         _szr_main.Add(self._splitter, 1, wx.EXPAND, 0)
-        self.SetAutoLayout(True)
         self.SetSizer(_szr_main)
         _szr_main.Fit(self)
-        _szr_main.SetSizeHints(self)
         # end wxGlade
 
     def _on_run_button_pressed(self, event): # wxGlade: wxgDataMiningPnl.<event_handler>
