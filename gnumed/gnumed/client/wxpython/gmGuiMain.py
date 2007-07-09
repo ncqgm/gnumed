@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.337 2007-06-28 12:37:22 ncq Exp $
-__version__ = "$Revision: 1.337 $"
+# $Id: gmGuiMain.py,v 1.338 2007-07-09 12:44:06 ncq Exp $
+__version__ = "$Revision: 1.338 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -305,26 +305,27 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
 		# -- menu "Office" --------------------
-		menu_office = wx.Menu()
+		self.menu_office = wx.Menu()
 
 		# FIXME: regroup into sub-menus
 
 		ID_ADD_NEW_STAFF = wx.NewId()
-		menu_office.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
+		self.menu_office.Append(ID_ADD_NEW_STAFF, _('Add staff member'), _('Add a new staff member'))
 		wx.EVT_MENU(self, ID_ADD_NEW_STAFF, self.__on_add_new_staff)
 
 		ID_DEL_STAFF = wx.NewId()
-		menu_office.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
+		self.menu_office.Append(ID_DEL_STAFF, _('Edit staff list'), _('Edit the list of staff'))
 		wx.EVT_MENU(self, ID_DEL_STAFF, self.__on_edit_staff_list)
 
 		# - draw a line
-		menu_office.AppendSeparator()
+		self.menu_office.AppendSeparator()
 
 		ID_EDIT_DOC_TYPES = wx.NewId()
-		menu_office.Append(ID_EDIT_DOC_TYPES, _('Edit document types'), _('Edit the list of document types available in the system.'))
+		self.menu_office.Append(ID_EDIT_DOC_TYPES, _('Edit document types'), _('Edit the list of document types available in the system.'))
 		wx.EVT_MENU(self, ID_EDIT_DOC_TYPES, self.__on_edit_doc_types)
 
-		self.mainmenu.Append(menu_office, _('&Office'))
+		self.__gb['main.officemenu'] = self.menu_office
+		self.mainmenu.Append(self.menu_office, _('&Office'))
 
 		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
@@ -1397,7 +1398,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.337  2007-06-28 12:37:22  ncq
+# Revision 1.338  2007-07-09 12:44:06  ncq
+# - make office menu accessible to plugins
+#
+# Revision 1.337  2007/06/28 12:37:22  ncq
 # - show proper title in caption line of main window
 # - improved menus
 # - allow signals to be delivered
