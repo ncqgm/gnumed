@@ -7,7 +7,7 @@ import wx
 class wxgDataMiningPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmListWidgets, gmPhraseWheel
+        from Gnumed.wxpython import gmDataMiningWidgets, gmPhraseWheel
 
         # begin wxGlade: wxgDataMiningPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -23,7 +23,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self._BTN_delete = wx.Button(self.splitter_top_panel, -1, _("Delete"), style=wx.BU_EXACTFIT)
         self._BTN_contribute = wx.Button(self.splitter_top_panel, -1, _("Contribute"), style=wx.BU_EXACTFIT)
         self._BTN_schema = wx.Button(self.splitter_top_panel, -1, _("Schema"), style=wx.BU_EXACTFIT)
-        self._LCTRL_result = gmListWidgets.cPatientListingCtrl(self._splitter_bottom_panel, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
+        self._LCTRL_result = gmDataMiningWidgets.cPatientListingCtrl(self._splitter_bottom_panel, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
 
         self.__set_properties()
         self.__do_layout()

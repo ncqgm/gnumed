@@ -184,7 +184,7 @@
                                 <flag>wxEXPAND</flag>
                                 <border>0</border>
                                 <option>1</option>
-                                <object class="gmListWidgets.cPatientListingCtrl" name="_LCTRL_result" base="EditListCtrl">
+                                <object class="gmDataMiningWidgets.cPatientListingCtrl" name="_LCTRL_result" base="EditListCtrl">
                                     <style>wxLC_REPORT|wxLC_SINGLE_SEL|wxSIMPLE_BORDER</style>
                                 </object>
                             </object>
