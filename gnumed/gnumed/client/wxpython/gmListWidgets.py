@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.8 2007-07-07 12:42:00 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmListWidgets.py,v 1.9 2007-07-09 12:45:47 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -154,10 +154,11 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			return
 
 		for item in items:
-			col_val = unicode(gmTools.coalesce(item[0], u''))
+			# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
+			col_val = unicode(item[0])
 			row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
 			for col_idx in range(1, len(item)):
-				col_val = unicode(gmTools.coalesce(item[col_idx], u''))
+				col_val = unicode(item[col_idx])
 				self.SetStringItem(index = row_num, col = col_idx, label = col_val)
 
 		self.__data = items
@@ -204,62 +205,6 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def deselect_selected_item(self):
 		self.Select(idx = self.GetFirstSelected(), on = 0)
 #================================================================
-class cPatientListingCtrl(cReportListCtrl):
-
-	def __init__(self, *args, **kwargs):
-		"""<patient_key> must index or name a column in self.__data"""
-		try:
-			self.patient_key = kwargs['patient_key']
-			del kwargs['patient_key']
-		except KeyError:
-			self.patient_key = None
-
-		cReportListCtrl.__init__(self, *args, **kwargs)
-
-		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self)
-	#------------------------------------------------------------
-	# event handling
-	#------------------------------------------------------------
-	def _on_list_item_activated(self, evt):
-		if self.patient_key is None:
-			gmDispatcher.send(signal = 'statustext', msg = _('List not known to be patient-related.'))
-			return
-		data = self.get_selected_item_data(only_one=True)
-		try:
-			pat_data = data[self.patient_key]
-		except (KeyError, IndexError, TypeError):
-			gmGuiHelpers.gm_show_info (
-				_(
-				'Cannot activate patient.\n\n'
-				'The row does not contain a column\n'
-				'named or indexed "%s".\n\n'
-				) % self.patient_key,
-				_('activating patient from list')
-			)
-			return
-		try:
-			pat_pk = int(pat_data)
-			pat = gmPerson.cIdentity(aPK_obj = pat_pk)
-		except (ValueError, TypeError):
-			searcher = gmPerson.cPatientSearcher_SQL()
-			idents = searcher.get_identities(pat_data)
-			if len(idents) == 0:
-				gmDispatcher.send(signal = 'statustext', msg = _('No matching patient found.'))
-				return
-			if len(idents) == 1:
-				pat = idents[0]
-			else:
-				dlg = cSelectPersonFromListDlg(parent=wx.GetTopLevelParent(self), id=-1)
-				dlg.set_persons(persons=idents)
-				result = dlg.ShowModal()
-				if result == wx.ID_CANCEL:
-					dlg.Destroy()
-					return
-				ident = dlg.get_selected_person()
-				dlg.Destroy()
-
-		gmPerson.set_active_patient(patient = pat)
-#================================================================
 # main
 #----------------------------------------------------------------
 if __name__ == '__main__':
@@ -293,27 +238,17 @@ if __name__ == '__main__':
 		print "chosen:"
 		print chosen
 	#------------------------------------------------------------
-	def test_pat_list_ctrl():
-		app = wx.PyWidgetTester(size = (400, 500))
-		lst = cPatientListingCtrl(app.frame, patient_key = 0)
-		lst.set_columns(['name', 'comment'])
-		lst.set_string_items([
-			['Kirk', 'Kirk by name'],
-			['#12', 'Kirk by ID'],
-			['unknown', 'unknown patient']
-		])
-#		app.SetWidget(cPatientListingCtrl, patient_key = 0)
-		app.frame.Show()
-		app.MainLoop()
-	#------------------------------------------------------------
 
 #	test_get_choices_from_list()
 #	test_wxMultiChoiceDialog()
-	test_pat_list_ctrl()
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.8  2007-07-07 12:42:00  ncq
+# Revision 1.9  2007-07-09 12:45:47  ncq
+# - fix unicode()ing in set_string_items(): can't use (..., errors='replace') :-(
+# - factor out cPatientListingCtrl into gmDataMiningWidgets.py
+#
+# Revision 1.8  2007/07/07 12:42:00  ncq
 # - set_string_items now applies unicode() to all item members
 # - cPatientListingCtrl and test suite
 #
