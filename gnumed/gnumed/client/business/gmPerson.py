@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.123 2007-06-28 12:31:34 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmPerson.py,v 1.124 2007-07-09 11:27:42 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1134,7 +1134,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
-		_log.Log(gmLog.lData, '_generate_queries_from_dto("%s")' % dto)
+		_log.Log(gmLog.lData, u'_generate_queries_from_dto("%s")' % dto)
 
 		if not isinstance(dto, cDTO_person):
 			return None
@@ -1482,7 +1482,7 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 			self,
 			queries = [u"""select
 							pk_staff,
-							short_alias || ' (' || title || firstnames || ' ' || lastnames || ')',
+							short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')',
 							1
 						from dem.v_staff
 						where
@@ -1916,7 +1916,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.123  2007-06-28 12:31:34  ncq
+# Revision 1.124  2007-07-09 11:27:42  ncq
+# - put coalesce on dem.identity.title yet another time
+#
+# Revision 1.123  2007/06/28 12:31:34  ncq
 # - allow None for dob in dto
 # - set external ID to GNUmed interal ID on export_as_gdt()
 # - create proper queries from DTO in absence of, say, DOB
