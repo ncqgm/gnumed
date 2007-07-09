@@ -10,19 +10,22 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.84 2007-07-07 12:43:25 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmPatSearchWidgets.py,v 1.85 2007-07-09 12:46:33 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
-import sys, os.path, time, glob, locale, datetime as pyDT, webbrowser, fileinput, re as regex
+import sys, os.path, time, glob, datetime as pyDT, re as regex
+
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider, gmMimeLib
-from Gnumed.business import gmPerson, gmKVK, gmDataMining
+
+from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
+from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
-from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg, wxgDataMiningPnl
+from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -32,203 +35,6 @@ _cfg = gmCfg.gmDefCfgFile
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()
 
-#============================================================
-# FIXME: this class is perhaps a bit oddly placed here
-class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
-
-	def __init__(self, *args, **kwargs):
-		wxgDataMiningPnl.wxgDataMiningPnl.__init__(self, *args, **kwargs)
-
-		self.__init_ui()
-
-		# make me a file drop target
-		dt = gmGuiHelpers.cFileDropTarget(self)
-		self.SetDropTarget(dt)
-	#--------------------------------------------------------
-	def __init_ui(self):
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u'select distinct on (label) cmd, label from cfg.report_query where label %(fragment_condition)s or cmd %(fragment_condition)s']
-		)
-		mp.setThresholds(2,3,5)
-		self._PRW_report_name.matcher = mp
-		self._PRW_report_name.add_callback_on_selection(callback = self._on_report_selected)
-	#--------------------------------------------------------
-	def _on_report_selected(self, *args, **kwargs):
-		self._TCTRL_query.SetValue(self._PRW_report_name.GetData())
-		self._BTN_run.SetFocus()
-	#--------------------------------------------------------
-	# file drop target API
-	#--------------------------------------------------------
-	def add_filenames(self, filenames):
-		# act on first file only
-		fname = filenames[0]
-		# act on text files only
-		mime_type = gmMimeLib.guess_mimetype(fname)
-		if not mime_type.startswith('text/'):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
-			return False
-		# act on "small" files only
-		stat_val = os.stat(fname)
-		if stat_val.st_size > 2000:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. File too big (> 2000 bytes).') % fname, beep = True)
-			return False
-		# all checks passed
-		for line in fileinput.input(fname):
-			self._TCTRL_query.AppendText(line)
-	#--------------------------------------------------------
-	# notebook plugin API
-	#--------------------------------------------------------
-	def repopulate_ui(self):
-		pass
-	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_list_item_activated(self, evt):
-		data = self._LCTRL_result.get_selected_item_data()
-		try:
-			pk_pat = data['pk_patient']
-		except KeyError:
-			gmGuiHelpers.gm_show_warning (
-				_(
-				'Cannot activate patient.\n\n'
-				'The report result list does not contain\n'
-				'a column named "pk_patient".\n\n'
-				'You may want to use the SQL "AS" column alias\n'
-				'syntax to make your query return such a column.\n'
-				),
-				_('activating patient from report result')
-			)
-			return
-		pat = gmPerson.cPatient(aPK_obj = pk_pat)
-		gmPerson.set_active_patient(patient = pat)
-	#--------------------------------------------------------
-	def _on_contribute_button_pressed(self, evt):
-		report = self._PRW_report_name.GetValue().strip()
-		if report == u'':
-			return
-		query = self._TCTRL_query.GetValue().strip()
-		if query == u'':
-			return
-
-		auth = {'user': gmTools.default_mail_sender, 'password': u'gm/bugs/gmx'}
-		msg = u"""
-To: gnumed-devel@gnu.org
-From: GNUmed Report Generator <gnumed@gmx.net>
-Subject: user contributed report
-
-This is a report definition contributed
-by a GNUmed user:
-
-#--------------------------------------
-
-%s
-
-%s
-
-#--------------------------------------
-
-The GNUmed client.
-""" % (report, query)
-
-		if not gmTools.send_mail(message = msg, auth = auth):
-			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
-			return False
-
-		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Thank you for your contribution to the GNUmed community !'), beep = False)
-		return True
-	#--------------------------------------------------------
-	def _on_schema_button_pressed(self, evt):
-		# new=2: Python 2.5: open new tab
-		# will block when called in text mode (that is, from a terminal, too !)
-		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=2, autoraise=1)
-	#--------------------------------------------------------
-	def _on_delete_button_pressed(self, evt):
-		report = self._PRW_report_name.GetValue().strip()
-		if report == u'':
-			return True
-		if gmDataMining.delete_report_definition(name=report):
-			self._PRW_report_name.SetText()
-			self._TCTRL_query.SetValue(u'')
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Deleted report definition [%s].') % report, beep=False)
-			return True
-		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error deleting report definition [%s].') % report, beep=True)
-		return False
-	#--------------------------------------------------------
-	def _on_clear_button_pressed(self, evt):
-		self._PRW_report_name.SetText()
-		self._TCTRL_query.SetValue(u'')
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		report = self._PRW_report_name.GetValue().strip()
-		if report == u'':
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without name.'), beep=True)
-			return False
-		query = self._TCTRL_query.GetValue().strip()
-		if query == u'':
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without query.'), beep=True)
-			return False
-		# FIXME: check for exists and ask for permission
-		if gmDataMining.save_report_definition(name=report, query=query, overwrite=True):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Saved report definition [%s].') % report, beep=False)
-			return True
-		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error saving report definition [%s].') % report, beep=True)
-		return False
-	#--------------------------------------------------------
-	def _on_run_button_pressed(self, evt):
-		query = self._TCTRL_query.GetValue().strip().strip(';')
-		if query == u'':
-			return True
-
-		self._LCTRL_result.set_columns()
-		self._LCTRL_result.patient_key = None
-
-		# FIXME: make configurable
-		query = u'select * from (' + query + u') as real_query limit 1024'
-		try:
-			# read-only only for safety reasons
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
-		except:
-			self._LCTRL_result.set_columns([_('Error')])
-			t, v = sys.exc_info()[:2]
-			rows = [
-				[_('The query failed.')],
-				[u''],
-				[unicode(t)]
-			]
-			for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
-				rows.append([line])
-			rows.append([u''])
-			for line in query.split('\n'):
-				rows.append([line])
-			self._LCTRL_result.set_string_items(rows)
-			self._LCTRL_result.set_column_widths()
-			gmDispatcher.send(gmSignals.statustext(), msg = _('The query failed.'), beep = True)
-			_log.LogException('report query failed', verbose=True)
-			return False
-
-		if len(rows) == 0:
-			self._LCTRL_result.set_columns([_('Results')])
-			self._LCTRL_result.set_string_items([[_('Report returned no data.')]])
-			self._LCTRL_result.set_column_widths()
-			gmDispatcher.send(gmSignals.statustext(), msg = _('No data returned for this report.'), beep = True)
-			return True
-
-		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
-		# set_columns() and sort them according to position-in-query
-		cols = [(value, key) for key, value in idx.items()]
-		cols.sort()
-		cols = [pair[1] for pair in cols]
-		self._LCTRL_result.set_columns(cols)
-		for row in rows:
-			label = unicode(gmTools.coalesce(row[0], u''))
-			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
-			for col_idx in range(1, len(row)):
-				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = unicode(gmTools.coalesce(row[col_idx], u'')))
-		self._LCTRL_result.set_column_widths()
-		self._LCTRL_result.set_data(data = rows)
-		try: self._LCTRL_result.patient_key = idx['pk_patient']
-		except KeyError: pass
-		return True
 #============================================================
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):
 
@@ -1013,7 +819,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.84  2007-07-07 12:43:25  ncq
+# Revision 1.85  2007-07-09 12:46:33  ncq
+# - move cDataMiningPnl to gmDataMiningWidgets.py
+#
+# Revision 1.84  2007/07/07 12:43:25  ncq
 # - in cDataMiningPnl use cPatientListingCtrl
 #
 # Revision 1.83  2007/06/28 12:40:48  ncq
