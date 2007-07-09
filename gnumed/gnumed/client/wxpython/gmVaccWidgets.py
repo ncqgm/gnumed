@@ -6,20 +6,17 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.31 2007-02-05 12:15:23 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmVaccWidgets.py,v 1.32 2007-07-09 12:47:17 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, time
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
 
+import wx
 import mx.DateTime as mxDT
+
 
 from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
 from Gnumed.business import gmPerson, gmVaccination
@@ -551,7 +548,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.31  2007-02-05 12:15:23  ncq
+# Revision 1.32  2007-07-09 12:47:17  ncq
+# - cleanup
+#
+# Revision 1.31  2007/02/05 12:15:23  ncq
 # - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
 #
 # Revision 1.30  2006/11/24 10:01:31  ncq
