@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.1 2007-07-09 11:03:49 ncq Exp $
-__version__ = '$Revision: 1.1 $'
+# $Id: gmDataMiningWidgets.py,v 1.2 2007-07-09 11:06:24 ncq Exp $
+__version__ = '$Revision: 1.2 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -19,7 +19,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmSignals, gmPG2
+from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmSignals, gmPG2, gmMatchProvider
 from Gnumed.business import gmPerson, gmDataMining
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
@@ -359,7 +359,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.1  2007-07-09 11:03:49  ncq
+# Revision 1.2  2007-07-09 11:06:24  ncq
+# - missing import
+#
+# Revision 1.1  2007/07/09 11:03:49  ncq
 # - new file
 #
 #
