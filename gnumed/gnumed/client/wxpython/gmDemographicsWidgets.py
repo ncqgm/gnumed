@@ -1,37 +1,95 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.121 2007-07-03 16:00:12 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmDemographicsWidgets.py,v 1.122 2007-07-09 12:42:48 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os, datetime as pyDT
+import time, string, sys, os, datetime as pyDT, csv, codecs
+
 
 import wx
 import wx.wizard
 
+
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime
+from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 
-DATE_FORMAT = '%Y-%m-%d'
-
-#FIXME: properly capitalize names/streets etc
-
 try:
 	_('do-not-translate-but-make-epydoc-happy')
 except NameError:
 	_ = lambda x:x
 
+#============================================================
+class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		kwargs['message'] = _("Today's KOrganizer appointments ...")
+		kwargs['button_defs'] = [
+			{'label': _('Reload'), 'tooltip': _('Reload appointments from KOrganizer')},
+			{'label': u''},
+			{'label': u''},
+			{'label': u''},
+			{'label': u'KOrganizer', 'tooltip': _('Launch KOrganizer')}
+		]
+		gmDataMiningWidgets.cPatientListingPnl.__init__(self, *args, **kwargs)
+
+		self.fname = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'korganizer2gnumed.csv'))
+		self.reload_cmd = 'konsolekalendar --view --export-type csv --export-file %s' % self.fname
+
+	#--------------------------------------------------------
+	def _on_BTN_1_pressed(self, event):
+		"""Reload appointments from KOrganizer."""
+		self.reload_appointments()
+	#--------------------------------------------------------
+	def _on_BTN_5_pressed(self, event):
+		"""Reload appointments from KOrganizer."""
+		gmShellAPI.run_command_in_shell(command = 'korganizer', blocking = False)
+	#--------------------------------------------------------
+	def reload_appointments(self):
+		try: os.remove(self.fname)
+		except OSError: pass
+		gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
+		csv_file = codecs.open(self.fname , mode = 'rU', encoding = 'utf8', errors = 'replace')
+		csv_lines = gmTools.unicode_csv_reader (
+			csv_file,
+			delimiter = ','
+		)
+		# start_date, start_time, end_date, end_time, title (patient), ort, comment, UID
+		self._LCTRL_items.set_columns ([
+			_('Place'),
+			_('Start'),
+			u'',
+			u'',
+			_('Patient'),
+			_('Comment')
+		])
+		items = []
+		data = []
+		for line in csv_lines:
+			items.append([line[5], line[0], line[1], line[3], line[4], line[6]])
+			data.append([line[4], line[7]])
+
+		self._LCTRL_items.set_string_items(items = items)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = data)
+		self._LCTRL_items.patient_key = 0
+	#--------------------------------------------------------
+	# notebook plugins API
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		self.reload_appointments()
 #============================================================
 def disable_identity(identity=None):
 	# ask user for assurance
@@ -1698,6 +1756,11 @@ if __name__ == "__main__":
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
+	def test_organizer_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		app.SetWidget(cKOrganizerSchedulePnl)
+		app.MainLoop()
+	#--------------------------------------------------------
 	gmI18N.activate_locale()
 	gmI18N.install_domain(text_domain='gnumed')
 	gmPG2.get_connection()
@@ -1721,8 +1784,9 @@ if __name__ == "__main__":
 		# run tests
 #		test_zipcode_prw()
 #		test_state_prw()
-		test_street_prw()
-	
+#		test_street_prw()
+		test_organizer_pnl()
+
 	except StandardError:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
@@ -1730,7 +1794,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.121  2007-07-03 16:00:12  ncq
+# Revision 1.122  2007-07-09 12:42:48  ncq
+# - KOrganizer panel
+#
+# Revision 1.121  2007/07/03 16:00:12  ncq
 # - nickname MAY start with lower case
 #
 # Revision 1.120  2007/05/21 22:30:12  ncq
