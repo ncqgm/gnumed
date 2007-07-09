@@ -2,14 +2,14 @@
 # GNUmed data mining plugin aka SimpleReports
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDataMiningPlugin.py,v $
-# $Id: gmDataMiningPlugin.py,v 1.1 2007-04-06 23:09:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDataMiningPlugin.py,v 1.2 2007-07-09 12:47:38 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import wx
 
-from Gnumed.wxpython import gmPlugin, gmPatSearchWidgets
+from Gnumed.wxpython import gmPlugin, gmDataMiningWidgets
 
 #======================================================================
 class gmDataMiningPlugin(gmPlugin.cNotebookPlugin):
@@ -24,7 +24,7 @@ class gmDataMiningPlugin(gmPlugin.cNotebookPlugin):
 		return gmDataMiningPlugin.tab_name
 	#--------------------------------------------------------
 	def GetWidget(self, parent):
-		self._widget = gmPatSearchWidgets.cDataMiningPnl(parent, -1)
+		self._widget = gmDataMiningWidgets.cDataMiningPnl(parent, -1)
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo(self):
@@ -34,7 +34,10 @@ class gmDataMiningPlugin(gmPlugin.cNotebookPlugin):
 		return True
 #======================================================================
 # $Log: gmDataMiningPlugin.py,v $
-# Revision 1.1  2007-04-06 23:09:13  ncq
+# Revision 1.2  2007-07-09 12:47:38  ncq
+# - refactoring adjustments
+#
+# Revision 1.1  2007/04/06 23:09:13  ncq
 # - this is new
 #
 #
