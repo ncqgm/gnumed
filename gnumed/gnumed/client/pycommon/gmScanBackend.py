@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.41 2007-06-10 10:19:24 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmScanBackend.py,v 1.42 2007-07-09 12:38:38 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -70,7 +70,6 @@ class cTwainScanner:
 
 		if not self.__init_scanner():
 			raise OSError(-1, 'cannot init TWAIN scanner device')
-#			return False
 
 		self.__done_transferring_image = False
 		self.__scanner.RequestAcquire(True)
@@ -480,7 +479,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.41  2007-06-10 10:19:24  ncq
+# Revision 1.42  2007-07-09 12:38:38  ncq
+# - cleanup
+#
+# Revision 1.41  2007/06/10 10:19:24  ncq
 # - use exceptions for error reporting
 #
 # Revision 1.40  2007/06/05 14:58:16  ncq
