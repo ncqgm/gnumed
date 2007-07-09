@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.9 2007-03-31 21:20:14 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmMimeLib.py,v 1.10 2007-07-09 12:39:36 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -25,11 +25,6 @@ def guess_mimetype(aFileName = None):
 
 	filenames are supposed to be in Unicode
 	"""
-	# sanity check
-	if not os.path.exists(aFileName):
-		_log.Log(gmLog.lErr, "Cannot guess mimetypes if I don't have any file to guess on.")
-		return None
-
 	desperate_guess = "application/octet-stream"
 	mime_type = desperate_guess
 	ret_code = -1
@@ -79,12 +74,7 @@ def guess_mimetype(aFileName = None):
 		_log.Log(gmLog.lInfo, "OS level mime detection failed, falling back to built-in.")
 
 		# we must trade speed vs. RAM now by loading a data file
-		try:
-			import gmMimeMagic
-		except ImportError:
-			exc = sys.exc_info()
-			_log.LogException("Cannot import internal magic data file.", exc, verbose=0)
-			return None
+		import gmMimeMagic
 		tmp = gmMimeMagic.file(aFileName)
 		# save resources
 		del gmMimeMagic
@@ -111,24 +101,21 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 
 	mailcaps = mailcap.getcaps()
 	(cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = '%s' % aFileName)
-	# FIXME: actually we should check for "x-token" flags such as x-docsys
+	# FIXME: we should check for "x-token" flags
 
-	#if (cmd is None) and ()
 	return cmd
 #-----------------------------------------------------------------------------------
-def guess_ext_by_mimetype(aMimeType = None):
+def guess_ext_by_mimetype(mimetype = ''):
 	"""Return file extension based on what the OS thinks a file of this mimetype should end in."""
-	# sanity checks
-	if aMimeType is None:
-		_log.Log(gmLog.lErr, "Cannot determine file name if I don't have a mime type.")
-		return None
+
+	_log.Log(gmLog.lInfo, 'trying to guess file extension from mime type')
 
 	# FIXME: does this screw up with scope of binding vs. scope of import ?
-	f_ext = mimetypes.guess_extension(aMimeType)
-	if f_ext is None:
-		_log.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
+	ext = mimetypes.guess_extension(mimetype)
+	if ext is None:
+		_log.Log(gmLog.lErr, "system does not know any file extension for mimetype <%s>" % mimetype)
 
-	return f_ext
+	return ext
 #-----------------------------------------------------------------------------------
 def guess_ext_for_file(aFile=None):
 	if aFile is None:
@@ -144,6 +131,7 @@ def guess_ext_for_file(aFile=None):
 	if f_ext is None:
 		_log.Log(gmLog.lErr, 'unable to guess file extension for mime type [%s]' % mime_type)
 		return None
+
 	return f_ext
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
@@ -179,17 +167,17 @@ def call_viewer_on_file(aFile = None, block=None):
 		) % (aFile, mime_type)
 		return False, msg
 
-	_log.Log(gmLog.lInfo, "Let's see what the OS can do about that.")
+	_log.Log(gmLog.lInfo, "let's see what the OS can do about that")
 	# does the file already have an extension ?
 	(path_name, f_ext) = os.path.splitext(aFile)
 	# no
-	if f_ext == "":
+	if f_ext == '':
 		# try to guess one
 		f_ext = guess_ext_by_mimetype(mime_type)
 		if f_ext is None:
-			_log.Log(gmLog.lWarn, "Unable to guess file extension from mime type. Trying sheer luck.")
+			_log.Log(gmLog.lWarn, "no suitable file extension found, trying sheer luck.")
 			file_to_display = aFile
-			f_ext = ''
+			f_ext = '?unknown?'
 		else:
 			file_to_display = aFile + f_ext
 			shutil.copyfile(aFile, file_to_display)
@@ -197,15 +185,17 @@ def call_viewer_on_file(aFile = None, block=None):
 	else:
 		file_to_display = aFile
 
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	# FIXME: this needs more experimentation on Windows
 	file_to_display = os.path.normpath(file_to_display)
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 	_log.Log(gmLog.lData, "file %s <type %s> (ext %s) -> file %s" % (aFile, mime_type, f_ext, file_to_display))
 	try:
 		os.startfile(file_to_display)
 	except:
-		msg = _("Unable to start viewer on file [%s].") % file_to_display		
-		_log.LogException(msg, sys.exc_info(), verbose=0)
-		return False, msg
+		_log.LogException('os.startfile(%s) failed' % file_to_display)
+		return False, _("Unable to start viewer on file [%s].") % file_to_display
 
 	# don't kill the file from under the (possibly async) viewer
 #	if file_to_display != aFile:
@@ -220,7 +210,10 @@ if __name__ == "__main__":
 	print get_viewer_cmd(guess_mimetype(filename), filename)
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.9  2007-03-31 21:20:14  ncq
+# Revision 1.10  2007-07-09 12:39:36  ncq
+# - cleanup, improved logging
+#
+# Revision 1.9  2007/03/31 21:20:14  ncq
 # - os.popen() needs encoded command strings
 # - fix test suite
 #
