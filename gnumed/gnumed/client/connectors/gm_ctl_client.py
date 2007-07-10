@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.1 2007-01-29 13:49:39 ncq Exp $
-__version__ = '$Revision: 1.1 $'
+# $Id: gm_ctl_client.py,v 1.2 2007-07-10 20:33:41 ncq Exp $
+__version__ = '$Revision: 1.2 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	l = None
 	if gmCLI.has_arg('--lang-gettext'):
 		l = gmCLI.arg['--lang-gettext']
-	gmI18N.install_domain(text_domain = td, language = l)
+	gmI18N.install_domain(domain = td, language = l)
 
 	connector = cBaseConnector()
 	if not connector.setup():
@@ -128,7 +128,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.1  2007-01-29 13:49:39  ncq
+# Revision 1.2  2007-07-10 20:33:41  ncq
+# - consolidate domain arg
+#
+# Revision 1.1  2007/01/29 13:49:39  ncq
 # - renamed
 #
 # Revision 1.10  2006/12/21 10:48:57  ncq
