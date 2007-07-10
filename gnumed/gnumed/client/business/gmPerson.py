@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.124 2007-07-09 11:27:42 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmPerson.py,v 1.125 2007-07-10 20:32:52 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -586,7 +586,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		* None: get currently logged on provider
 		* cStaff instance: change logged on provider (role)
 		"""
-		gmBorg.cBorg.__init__(self)
+#		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a provider pointer
 		try:
@@ -727,7 +727,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		* -1: unset currently active patient
 		* cPatient instance: set active patient if possible
 		"""
-		gmBorg.cBorg.__init__(self)
+#		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a patient pointer
 		try:
@@ -846,6 +846,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			raise AttributeError
 		if not isinstance(self.patient, gmNull.cNull):
 			return getattr(self.patient, attribute)
+		return self.patient
 	#--------------------------------------------------------
 	# __get/setitem__ handling
 	#--------------------------------------------------------
@@ -1916,7 +1917,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.124  2007-07-09 11:27:42  ncq
+# Revision 1.125  2007-07-10 20:32:52  ncq
+# - return gmNull.cNull instance if gmCurrentProvider.patient is not connected
+#
+# Revision 1.124  2007/07/09 11:27:42  ncq
 # - put coalesce on dem.identity.title yet another time
 #
 # Revision 1.123  2007/06/28 12:31:34  ncq
