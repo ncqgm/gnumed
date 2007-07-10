@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.106 2007-07-03 16:03:04 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmPhraseWheel.py,v 1.107 2007-07-10 20:27:27 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -728,7 +728,7 @@ class cPhraseWheel(wx.TextCtrl):
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain(text_domain='gnumed')
+	gmI18N.install_domain(domain='gnumed')
 
 	from Gnumed.pycommon import gmPG2, gmMatchProvider
 
@@ -847,7 +847,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.106  2007-07-03 16:03:04  ncq
+# Revision 1.107  2007-07-10 20:27:27  ncq
+# - install_domain() arg consolidation
+#
+# Revision 1.106  2007/07/03 16:03:04  ncq
 # - cleanup
 # - compile final_regex_error_msg just before using it
 #   since self.final_regex can have changed
