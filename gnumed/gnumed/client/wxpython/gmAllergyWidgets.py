@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -429,7 +429,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 if __name__ == "__main__":
 
 	gmI18N.activate_locale()
-	gmI18N.install_domain(text_domain='gnumed-en')
+	gmI18N.install_domain(domain='gnumed-en')
 
 	#-----------------------------------------------
 	def test_allergy_edit_area_dlg():
@@ -461,7 +461,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.24  2007-04-02 18:39:52  ncq
+# Revision 1.25  2007-07-10 20:28:36  ncq
+# - consolidate install_domain() args
+#
+# Revision 1.24  2007/04/02 18:39:52  ncq
 # - gmFuzzyTimestamp -> gmDateTime
 #
 # Revision 1.23  2007/03/27 09:59:47  ncq

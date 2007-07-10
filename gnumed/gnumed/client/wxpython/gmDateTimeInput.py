@@ -10,8 +10,8 @@ transparently add features.
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.56 2007-06-15 10:24:53 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmDateTimeInput.py,v 1.57 2007-07-10 20:28:36 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain(text_domain='gnumed')
+	gmI18N.install_domain(domain='gnumed')
 
 	#----------------------------------------------------
 	def test_cli():
@@ -229,7 +229,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.56  2007-06-15 10:24:53  ncq
+# Revision 1.57  2007-07-10 20:28:36  ncq
+# - consolidate install_domain() args
+#
+# Revision 1.56  2007/06/15 10:24:53  ncq
 # - adjust to change function signature
 #
 # Revision 1.55  2007/04/02 18:39:52  ncq

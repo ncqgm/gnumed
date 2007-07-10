@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.122 2007-07-09 12:42:48 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmDemographicsWidgets.py,v 1.123 2007-07-10 20:28:36 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1762,7 +1762,7 @@ if __name__ == "__main__":
 		app.MainLoop()
 	#--------------------------------------------------------
 	gmI18N.activate_locale()
-	gmI18N.install_domain(text_domain='gnumed')
+	gmI18N.install_domain(domain='gnumed')
 	gmPG2.get_connection()
 	
 	try:
@@ -1794,7 +1794,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.122  2007-07-09 12:42:48  ncq
+# Revision 1.123  2007-07-10 20:28:36  ncq
+# - consolidate install_domain() args
+#
+# Revision 1.122  2007/07/09 12:42:48  ncq
 # - KOrganizer panel
 #
 # Revision 1.121  2007/07/03 16:00:12  ncq
