@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.4 2007-04-20 08:21:42 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmHooks.py,v 1.5 2007-07-10 20:51:20 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmSignals, gmDispatcher, gmTools
 
 # ========================================================================
-hooks_registry = [
+known_hooks = [
 	u'post_patient_activation',
 	u'shutdown-post-GUI',
 	u'startup-after-GUI-init',
@@ -54,7 +54,7 @@ def run_hook_script(hook=None):
 	if hook is None:
 		raise ValueError('run_hook_script(): <hook> cannot be <None>')
 
-	if hook not in hooks_registry:
+	if hook not in known_hooks:
 		raise ValueError('run_hook_script(): unknown hook [%s]' % hook)
 
 	# hardcoding path and script name allows us to
@@ -108,7 +108,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.4  2007-04-20 08:21:42  ncq
+# Revision 1.5  2007-07-10 20:51:20  ncq
+# - hooks_registry -> known_hooks
+#
+# Revision 1.4  2007/04/20 08:21:42  ncq
 # - improved docs
 #
 # Revision 1.3  2007/04/01 15:29:22  ncq
