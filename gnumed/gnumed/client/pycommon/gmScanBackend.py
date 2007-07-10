@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.42 2007-07-09 12:38:38 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmScanBackend.py,v 1.43 2007-07-10 20:37:56 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -58,13 +58,15 @@ class cTwainScanner:
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
 			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+				f = tempfile.NamedTemporaryFile(prefix='gmScannedObj-')
 			else:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
-		else:
-			tmp, ext = os.path.splitext(filename)
-			if ext != '.bmp':
-				filename = filename + '.bmp'
+				f = tempfile.NamedTemporaryFile(prefix='gmScannedObj-', dir=tmpdir)
+			filename = f.name
+			f.close()
+
+		tmp, ext = os.path.splitext(filename)
+		if ext != '.bmp':
+			filename = filename + '.bmp'
 
 		self.__filename = os.path.abspath(os.path.expanduser(filename))
 
@@ -267,13 +269,15 @@ class cSaneScanner:
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
 			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-')
+				f = tempfile.NamedTemporaryFile(prefix='gmScannedObj-')
 			else:
-				(handle, filename) = tempfile.mkstemp(suffix='.bmp', prefix='gmScannedObj-', dir=tmpdir)
-		else:
-			tmp, ext = os.path.splitext(filename)
-			if ext != '.bmp':
-				filename = filename + '.bmp'
+				f = tempfile.NamedTemporaryFile(prefix='gmScannedObj-', dir=tmpdir)
+			filename = f.name
+			f.close()
+
+		tmp, ext = os.path.splitext(filename)
+		if ext != '.bmp':
+			filename = filename + '.bmp'
 
 		filename = os.path.abspath(os.path.expanduser(filename))
 
@@ -340,12 +344,14 @@ class cXSaneScanner:
 		"""
 		if filename is None:
 			if tmpdir is None:
-				(handle, filename) = tempfile.mkstemp(suffix=cXSaneScanner._filetype, prefix='gmScannedObj-')
+				f = tempfile.NamedTemporaryFile(prefix='gmScannedObj-')
 			else:
-				(handle, filename) = tempfile.mkstemp(suffix=cXSaneScanner._filetype, prefix='gmScannedObj-', dir=tmpdir)
-		else:
-			tmp, ext = os.path.splitext(filename)
-			filename = '%s-###.%s' % (tmp, cXSaneScanner._filetype)
+				f = tempfile.NamedTemporaryFile(prefix='gmScannedObj-', dir=tmpdir)
+			filename = f.name
+			f.close()
+
+		tmp, ext = os.path.splitext(filename)
+		filename = '%s-###.%s' % (tmp, cXSaneScanner._filetype)
 
 		filename = os.path.abspath(os.path.expanduser(filename))
 		path, name = os.path.split(filename)
@@ -479,7 +485,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.42  2007-07-09 12:38:38  ncq
+# Revision 1.43  2007-07-10 20:37:56  ncq
+# - properly delete the tempfile so XSane won't complain
+#
+# Revision 1.42  2007/07/09 12:38:38  ncq
 # - cleanup
 #
 # Revision 1.41  2007/06/10 10:19:24  ncq
