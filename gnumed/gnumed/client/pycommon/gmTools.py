@@ -2,14 +2,14 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.31 2007-06-19 12:43:17 ncq Exp $
+# $Id: gmTools.py,v 1.32 2007-07-10 20:45:42 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path
+import datetime as pydt, re as regex, sys, os, os.path, csv
 
 
 # GNUmed libs
@@ -20,9 +20,6 @@ from Gnumed.pycommon import gmLog, gmBorg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
-
-ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 
 # CAPitalization modes:
 (
@@ -38,6 +35,19 @@ default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
+
+#===========================================================================
+def utf_8_encoder(unicode_csv_data):
+	for line in unicode_csv_data:
+		yield line.encode('utf-8')
+
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
+	csv_reader = csv.reader(utf_8_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+
+	for row in csv_reader:
+		# decode UTF-8 back to Unicode, cell by cell:
+		yield [unicode(cell, 'utf-8') for cell in row]
 #===========================================================================
 def handle_uncaught_exception(t, v, tb):
 
@@ -231,49 +241,6 @@ def import_module_from_directory(module_path=None, module_name=None):
 
 	return module
 #===========================================================================
-def open_uri_in_ooo(filename=None):
-	"""Connect to OOo and open document.
-
-	<filename> must be absolute
-
-	Actually, this whole thing is redundant. We should just
-	use call_editor_on_mimetype(filename). The advantage of
-	this is that we can connect to a single OOo *server*.
-
-	You will need to start an OOo server before using this:
-
-		oowriter -accept="socket,host=localhost,port=2002;urp;"
-	"""
-	try:
-		import uno
-		from com.sun.star.connection import NoConnectException as UnoNoConnectException
-	except ImportError:
-		_log.Log(gmLog.lInfo, 'open_uri_in_ooo(): cannot import UNO, OpenOffice and/or UNO installed ?')
-		# fail gracefully if OOo/UNO isn't insalled
-		return False
-
-	# failing early is good
-	document_uri = uno.systemPathToFileUrl(filename)
-
-	resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
-	remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
-	ooo_desktop_uri = "com.sun.star.frame.Desktop"
-
-	local_context = uno.getComponentContext()
-	uri_resolver = local_context.ServiceManager.createInstanceWithContext(resolver_uri, local_context)
-
-	try:
-		remote_context = uri_resolver.resolve(remote_context_uri)
-	except UnoNoConnectException:
-		_log.Log(gmLog.lInfo, 'Cannot connect to OOo server. Trying to start one with: [%s]' % ooo_start_cmd)
-		os.system(ooo_start_cmd)
-		remote_context	= uri_resolver.resolve(remote_context_uri)
-
-	ooo_desktop	= remote_context.ServiceManager.createInstanceWithContext(ooo_desktop_uri, remote_context)
-	document = ooo_desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
-
-	return True
-#===========================================================================
 # FIXME: should this not be in gmTime or some such?
 # close enough on average
 days_per_year = 365
@@ -449,13 +416,6 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
 	#-----------------------------------------------------------------------
-	def test_open_uri_in_ooo():
-		try:
-			open_uri_in_ooo(filename=sys.argv[1])
-		except:
-			_log.LogException('cannot open [%s] in OOo' % sys.argv[1])
-			raise
-	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print "testing str2interval()"
 		print "----------------------"
@@ -610,13 +570,13 @@ This is a test mail from the gmTools.py module.
 				print 'ERROR: bool2str(%s, %s, %s) returned [%s], expected [%s]' % (test[0], test[1], test[2], bool2str(test[0], test[1], test[2]), test[3])
 
 		return True
+
 	#-----------------------------------------------------------------------
 	print __doc__
 
 	#test_str2interval()
 	#test_coalesce()
 	#test_capitalize()
-	#test_open_uri_in_ooo()
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
@@ -626,7 +586,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.31  2007-06-19 12:43:17  ncq
+# Revision 1.32  2007-07-10 20:45:42  ncq
+# - add unicode CSV reader
+# - factor out OOo related code
+#
+# Revision 1.31  2007/06/19 12:43:17  ncq
 # - add bool2str() and test
 #
 # Revision 1.30  2007/06/10 09:56:03  ncq
