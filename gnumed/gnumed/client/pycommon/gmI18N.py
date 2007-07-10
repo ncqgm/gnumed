@@ -37,9 +37,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.32 2007-04-01 15:20:52 ncq Exp $
+# $Id: gmI18N.py,v 1.33 2007-07-10 20:34:37 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -208,14 +208,14 @@ def activate_locale():
 
 	return True
 #---------------------------------------------------------------------------
-def install_domain(text_domain=None, language=None):
+def install_domain(domain=None, language=None):
 	"""Install a text domain suitable for the main script."""
 
 	# text domain directly specified ?
-	if text_domain is None:
+	if domain is None:
 		# get text domain from name of script
-		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-	_log.Log(gmLog.lInfo, 'text domain is [%s]' % text_domain)
+		domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+	_log.Log(gmLog.lInfo, 'text domain is [%s]' % domain)
 
 	_log.Log(gmLog.lData, 'searching message catalog file for system locale [%s]' % system_locale)
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
@@ -237,7 +237,7 @@ def install_domain(text_domain=None, language=None):
 		_log.Log(gmLog.lData, 'system is POSIX, looking in standard locations (see Python Manual)')
 		# if this is reported to segfault/fail/except on some
 		# systems we may have to assume "sys.prefix/share/locale/"
-		candidates.append(gettext.bindtextdomain(text_domain))
+		candidates.append(gettext.bindtextdomain(domain))
 	else:
 		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
 	# 2) $(<script-name>_DIR)/
@@ -263,13 +263,13 @@ def install_domain(text_domain=None, language=None):
 
 	# now try to actually install it
 	for candidate in candidates:
-		_log.Log(gmLog.lData, 'trying [%s](/%s/LC_MESSAGES/%s.mo)' % (candidate, system_locale, text_domain))
+		_log.Log(gmLog.lData, 'trying [%s](/%s/LC_MESSAGES/%s.mo)' % (candidate, system_locale, domain))
 		if not os.path.exists(candidate):
 			continue
 		try:
-			gettext.install(text_domain, candidate, unicode=1)
+			gettext.install(domain, candidate, unicode=1)
 		except:
-			_log.LogException('installing textdomain [%s] failed from [%s]' % (text_domain, candidate), sys.exc_info(), verbose=0)
+			_log.LogException('installing text domain [%s] failed from [%s]' % (domain, candidate), sys.exc_info(), verbose=0)
 			continue
 		# does it translate ?
 		if _(__tag__) == __tag__:
@@ -318,7 +318,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.32  2007-04-01 15:20:52  ncq
+# Revision 1.33  2007-07-10 20:34:37  ncq
+# - in install_domain(): rename text_domain arg to domain
+#
+# Revision 1.32  2007/04/01 15:20:52  ncq
 # - add get_encoding()
 # - fix test suite
 #
