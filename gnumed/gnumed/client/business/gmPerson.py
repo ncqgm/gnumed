@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.125 2007-07-10 20:32:52 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmPerson.py,v 1.126 2007-07-11 21:04:08 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -727,8 +727,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 		* -1: unset currently active patient
 		* cPatient instance: set active patient if possible
 		"""
-#		gmBorg.cBorg.__init__(self)
-
 		# make sure we do have a patient pointer
 		try:
 			tmp = self.patient
@@ -739,12 +737,17 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# this lock protects against activating another patient
 		# when we are controlled from a remote application
 		try:
-			tmp = self._locked
+			tmp = self.__locked
 		except AttributeError:
-			self.unlock()
+			self.locked = False
 
 		# user wants copy of current patient
 		if patient is None:
+			return None
+
+		# do nothing if patient is locked
+		if self.locked:
+			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient))
 			return None
 
 		# user wants to explicitely unset current patient
@@ -767,12 +770,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		# user wants different patient
 		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self.patient['pk_identity'], patient['pk_identity']))
-
-		# but not if patient is locked
-		if self._locked:
-			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['pk_identity'], patient['pk_identity']))
-			# FIXME: exception ?
-			return None
 
 		# everything seems swell
 		self.__send_pre_selection_notification()
@@ -804,14 +801,18 @@ class gmCurrentPatient(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
-	def lock(self):
-		self._locked = True
-	#--------------------------------------------------------
-	def unlock(self):
-		self._locked = False
-	#--------------------------------------------------------
-	def is_locked(self):
-		return self._locked
+	def _get_locked(self):
+		return self.__locked
+
+	def _set_locked(self, locked):
+		if locked:
+			self.__locked = True
+			gmDispatcher.send(signal='patient_locked')
+		else:
+			self.__locked = False
+			gmDispatcher.send(signal='patient_unlocked')
+
+	locked = property(_get_locked, _set_locked)
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
@@ -1606,21 +1607,34 @@ def prompted_input(prompt, default=None):
 #------------------------------------------------------------
 def ask_for_patient():
 	"""Text mode UI function to ask for patient."""
+
 	person_searcher = cPatientSearcher_SQL()
-	search_fragment = prompted_input("\nEnter person search term (eg. 'Kirk') or leave blank to exit")
-	if search_fragment in ['exit', 'quit', 'bye', None]:
-		print "user cancelled patient search"
-		return None
-	pats = person_searcher.get_patients(search_term = search_fragment)
-	if pats is None or len(pats) == 0:
-		prompted_input("No patient matches the query term. Press any key to continue.")
-		return None
-	elif len(pats) > 1:
-		for pat in pats:
-			print pat
-		prompted_input("Several patients match the query term. Press any key to continue.")
-		return None
-	return pats[0]
+
+	while True:
+		search_fragment = prompted_input("\nEnter person search term or leave blank to exit")
+
+		if search_fragment in ['exit', 'quit', 'bye', None]:
+			print "user cancelled patient search"
+			return None
+
+		pats = person_searcher.get_patients(search_term = search_fragment)
+
+		if (pats is None) or (len(pats) == 0):
+			print "No patient matches the query term."
+			print ""
+			continue
+
+		if len(pats) > 1:
+			print "Several patients match the query term:"
+			print ""
+			for pat in pats:
+				print pat
+				print ""
+			continue
+
+		return pats[0]
+
+	return None
 #============================================================
 # gender related
 #------------------------------------------------------------
@@ -1917,7 +1931,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.125  2007-07-10 20:32:52  ncq
+# Revision 1.126  2007-07-11 21:04:08  ncq
+# - make locked a property of gmCurrentPatient()
+# - improve ask_for_patient()
+#
+# Revision 1.125  2007/07/10 20:32:52  ncq
 # - return gmNull.cNull instance if gmCurrentProvider.patient is not connected
 #
 # Revision 1.124  2007/07/09 11:27:42  ncq
