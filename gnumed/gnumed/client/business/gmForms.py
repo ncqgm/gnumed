@@ -1,28 +1,226 @@
 # -*- coding: latin-1 -*-
 """GNUmed forms classes
-Business layer for printing all manner of forms, letters, scripts etc.
+Business layer for printing all manners of forms, letters, scripts etc.
  
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.39 2007-02-17 14:08:52 ncq Exp $
-__version__ = "$Revision: 1.39 $"
-__author__ ="Ian Haywood <ihaywood@gnu.org>"
+# $Id: gmForms.py,v 1.40 2007-07-11 21:12:50 ncq Exp $
+__version__ = "$Revision: 1.40 $"
+__author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
-# standard library 
-import sys, os.path, string, time, re, tempfile, cStringIO, types
 
-# 3rd party modules
-import Cheetah.Template, Cheetah.Filters
+import os, sys, time
+# os.path, string, re as regex, cStringIO, types
 
-# our modules
-from Gnumed.pycommon import gmLog, gmCfg, gmExceptions, gmMatchProvider, gmI18N, gmShellAPI
-from Gnumed.business import gmDemographicRecord, gmPerson
 
-# start logging
+import uno, unohelper
+from com.sun.star.util import oooXCloseListener
+from com.sun.star.connection import oooNoConnectException
+from com.sun.star.beans import oooPropertyValue
+
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions
+#gmCfg, gmShellAPI
+from Gnumed.business import gmPerson
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+
+known_placeholders = [
+	'lastname',
+	'firstname',
+	'title',
+	'date_of_birth'
+]
+
+#============================================================
+# Placeholder API, move elsewhere, eventually
+#============================================================
+class gmPlaceholderHandler(gmBorg.cBorg):
+
+	#--------------------------------------------------------
+	# __getitem__ API
+	#--------------------------------------------------------
+	def __getitem__(self, placeholder):
+		"""Map self['placeholder'] to self.placeholder.
+
+		This is useful for replacing placeholders parsed out
+		of documents as strings.
+
+		Unknown placeholders still deliver a result but it will be
+		made glaringly obvious that the placeholder was unknown.
+		"""
+		if placeholder not in known_placeholders:
+			return _('unknown placeholder: <%s>' % placeholder)
+
+		return getattr(self, placeholder)
+	#--------------------------------------------------------
+	# properties actually handling placeholders
+	#--------------------------------------------------------
+	def _setter_noop(self, val):
+		"""This does nothing, used as a NOOP properties setter."""
+		pass
+	#--------------------------------------------------------
+	def _get_lastname(self):
+		pat = gmPerson.gmCurrentPatient()
+		return pat.get_active_name()['last']
+	#--------------------------------------------------------
+	def _get_firstname(self):
+		pat = gmPerson.gmCurrentPatient()
+		return pat.get_active_name()['first']
+	#--------------------------------------------------------
+	def _get_title(self):
+		pat = gmPerson.gmCurrentPatient()
+		return gmTools.coalesce(pat.get_active_name()['title'], u'')
+	#--------------------------------------------------------
+	def _get_dob(self):
+		pat = gmPerson.gmCurrentPatient()
+		return pat['dob'].strftime('%x')
+	#--------------------------------------------------------
+	lastname = property(_get_lastname, _setter_noop)
+	firstname = property(_get_firstname, _setter_noop)
+	title = property(_get_title, _setter_noop)
+	date_of_birth = property(_get_dob, _setter_noop)
+
+#============================================================
+# OpenOffice API
+#============================================================
+class cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
+
+	def __init__(self):
+		pat = gmPerson.gmCurrentPatient()
+		pat.locked = True
+		unohelper.Base.__init__()
+		oooXCloseListener.__init__()
+
+	def disposing(self, evt):
+		print "disposing:"
+		print "unlocking patient"
+		pat = gmPerson.gmCurrentPatient()
+		pat.locked = False
+
+	def notifyClosing(self, evt):
+		print "notifyClosing:"
+
+	def queryClosing(self, evt, owner):
+		# owner is True/False whether I am the owner of the doc
+		print "queryClosing:"
+
+#------------------------------------------------------------
+class cOOoConnector(gmBorg.cBorg):
+	"""This class handles the connection to OOo.
+
+	Its Singleton instance stays around once initialized.
+	"""
+	# FIXME: need to detect closure of OOo !
+	def __init__(self):
+
+		self.ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
+		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
+		self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
+		self.desktop_uri = "com.sun.star.frame.Desktop"
+
+		self.local_context = uno.getComponentContext()
+		self.uri_resolver = self.local_context.ServiceManager.createInstanceWithContext(self.resolver_uri, self.local_context)
+
+		self.__desktop = None
+	#--------------------------------------------------------
+	def open_document(self, filename=None):
+		"""<filename> must be absolute"""
+		document_uri = uno.systemPathToFileUrl(filename)
+		doc = self.desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
+		return doc
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_desktop(self):
+		if self.__desktop is None:
+			try:
+				self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
+			except oooNoConnectException:
+				_log.LogException('Cannot connect to OOo server. Trying to start one with: [%s]' % self.ooo_start_cmd)
+				os.system(self.ooo_start_cmd)
+				time.sleep(0.5)
+				self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
+			self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
+
+		return self.__desktop
+
+	def _set_desktop(self, desktop):
+		pass
+
+	desktop = property(_get_desktop, _set_desktop)
+#------------------------------------------------------------
+class cOOoLetter(object):
+
+	def __init__(self, filename=None):
+
+		self.filename = filename
+		self.ooo_doc = None
+
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def open_in_ooo(self):
+		# export template from database
+		# connect to OOo
+		ooo_srv = cOOoConnector()
+		# open doc in OOo
+		self.ooo_doc = ooo_srv.open_document(filename=self.filename)
+		# listen for close events
+#		l = myCloseListener()
+#		doc.addCloseListener(l)
+
+	#--------------------------------------------------------
+	def replace_placeholders(self):
+
+		text_fields = self.ooo_doc.getTextFields().createEnumeration()
+		handler = gmPlaceholderHandler()
+		while text_fields.hasMoreElements():
+			text_field = text_fields.nextElement()
+
+			# placeholder ?
+			if not text_field.supportsService('com.sun.star.text.TextField.JumpEdit'):
+				continue
+			# placeholder of type text ?
+			if text_field.PlaceHolderType != 0:
+				continue
+
+			print 'placeholder (type TEXT) <%s> -> %s (%s)' % (
+				text_field.PlaceHolder,
+				handler[text_field.PlaceHolder],
+				text_field.Hint
+			)
+			text_field.Anchor.setString(handler[text_field.PlaceHolder])
+
+	#--------------------------------------------------------
+	def save_in_ooo(self, filename=None):
+		if filename is not None:
+			target_url = uno.systemPathToFileUrl(filename)
+			save_args = (
+				oooPropertyValue('Overwrite', 0, True, 0),
+				oooPropertyValue('FormatFilter', 0, 'swriter: StarOffice XML (Writer)', 0)
+
+			)
+			# "store AS url" stores the doc, marks it unmodified and updates
+			# the internal media descriptor - as opposed to "store TO url"
+			self.ooo_doc.storeAsURL(target_url, save_args)
+		else:
+			self.ooo_doc.store()
+	#--------------------------------------------------------
+	def close_in_ooo(self):
+		self.ooo_doc.dispose()
+		pat = gmPerson.gmCurrentPatient()
+		pat.locked = False
+		self.ooo_doc = None
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
 
 #============================================================
 class gmFormEngine:
@@ -113,7 +311,8 @@ class gmFormEngine:
 		return status
 
 
-class LaTeXFilter (Cheetah.Filters.Filter):
+#class LaTeXFilter(Cheetah.Filters.Filter):
+class LaTeXFilter:
 	def filter (self, item, table_sep= " \\\\\n", **kwds):
 		"""
 		Convience function to escape ISO-Latin-1 strings for TeX output
@@ -197,7 +396,7 @@ class LaTeXForm (gmFormEngine):
 		try:
 			if not gmShellAPI.run_command_in_shell(command, blocking=True):
 				_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
-				raise FormError ('external command %s returned error' % command
+				raise FormError ('external command %s returned error' % command)
 		except EnvironmentError, e:
 			_log.Log (gmLog.lErr, e.strerror)
 			raise FormError (e.strerror)		     
@@ -224,7 +423,7 @@ class HL7Form (gmFormEngine):
 # convenience functions
 #------------------------------------------------------------
 
-class FormTypeMP (gmMatchProvider.cMatchProvider_SQL):
+class FormTypeMP (gmMatchProvider.cMatchProvider_SQL2):
 	def __init__ (self):
 		source = [{
 			'column':'name',
@@ -233,7 +432,7 @@ class FormTypeMP (gmMatchProvider.cMatchProvider_SQL):
 			'pk':'pk'}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
 
-class FormMP (gmMatchProvider.cMatchProvider_SQL):
+class FormMP (gmMatchProvider.cMatchProvider_SQL2):
 	def __init__ (self):
 		source = [{
 			'column':'name_long',
@@ -388,12 +587,98 @@ def test_de():
 #------------------------------------------------------------
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	test_au()
+
+	from Gnumed.pycommon import gmI18N, gmDateTime
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+	gmDateTime.init()
+
+	#--------------------------------------------------------
+	def play_with_ooo():
+		try:
+			doc = open_uri_in_ooo(filename=sys.argv[1])
+		except:
+			_log.LogException('cannot open [%s] in OOo' % sys.argv[1])
+			raise
+
+		class myCloseListener(unohelper.Base, oooXCloseListener):
+			def disposing(self, evt):
+				print "disposing:"
+			def notifyClosing(self, evt):
+				print "notifyClosing:"
+			def queryClosing(self, evt, owner):
+				# owner is True/False whether I am the owner of the doc
+				print "queryClosing:"
+
+		l = myCloseListener()
+		doc.addCloseListener(l)
+
+		tfs = doc.getTextFields().createEnumeration()
+		print tfs
+		print dir(tfs)
+		while tfs.hasMoreElements():
+			tf = tfs.nextElement()
+			if tf.supportsService('com.sun.star.text.TextField.JumpEdit'):
+				print tf.getPropertyValue('PlaceHolder')
+				print "  ", tf.getPropertyValue('Hint')
+
+#		doc.close(True)		# closes but leaves open the dedicated OOo window
+		doc.dispose()		# closes and disposes of the OOo window
+	#--------------------------------------------------------
+	def test_open_uri_in_ooo():
+		try:
+			open_uri_in_ooo(filename=sys.argv[1])
+		except:
+			_log.LogException('cannot open [%s] in OOo' % sys.argv[1])
+			raise
+	#--------------------------------------------------------
+	def test_placeholders():
+		handler = gmPlaceholderHandler()
+
+		for placeholder in ['a', 'b', None]:
+			print handler[placeholder]
+
+		pat = gmPerson.ask_for_patient()
+		if pat is None:
+			return
+
+		gmPerson.set_active_patient(patient = pat)
+
+		for placeholder in known_placeholders:
+			print placeholder, "=", handler[placeholder]
+	#--------------------------------------------------------
+	def test_cOOoLetter():
+		pat = gmPerson.ask_for_patient()
+		if pat is None:
+			return
+		gmPerson.set_active_patient(patient = pat)
+
+#		doc = cOOoLetter(filename = '~/tmp/OOo-Forms/Reus-Therapiebericht.ott')
+		doc = cOOoLetter(filename = sys.argv[1])
+		doc.open_in_ooo()
+		doc.replace_placeholders()
+		doc.save_in_ooo('~/test_cOOoLetter.odt')
+		print "waiting 5 seconds ..."
+		time.sleep(5)
+		#doc.close_in_ooo()
+	#--------------------------------------------------------
+
+
+	# now run the tests
+	#test_open_uri_in_ooo()
+	#test_au()
 	#test_de()
+	#play_with_ooo()
+	#test_placeholders()
+	test_cOOoLetter()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.39  2007-02-17 14:08:52  ncq
+# Revision 1.40  2007-07-11 21:12:50  ncq
+# - gmPlaceholderHandler()
+# - OOo API with test suite
+#
+# Revision 1.39  2007/02/17 14:08:52  ncq
 # - gmPerson.gmCurrentProvider.workplace now a property
 #
 # Revision 1.38  2006/12/23 15:23:11  ncq
