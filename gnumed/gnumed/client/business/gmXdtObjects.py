@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.28 2007-06-28 12:34:35 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmXdtObjects.py,v 1.29 2007-07-11 21:05:10 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -246,13 +246,7 @@ def split_xdt_file(aFile,patlst,cfg):
 	return 1
 #==============================================================
 def get_rand_fname(aDir):
-	import time, tempfile
-	# set up temp file environment for creating unique random directory
-	tempfile.tempdir = aDir
-	tempfile.template = ""
-	# create temp filename
-	tmpname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()))
-	# extract name for dir
+	tmpname = gmTools.get_unique_filename(prefix='', suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()), dir=aDir)
 	path, fname = os.path.split(tmpname)
 	return fname
 #==============================================================
@@ -316,7 +310,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.28  2007-06-28 12:34:35  ncq
+# Revision 1.29  2007-07-11 21:05:10  ncq
+# - use gmTools.get_unique_filename()
+#
+# Revision 1.28  2007/06/28 12:34:35  ncq
 # - handle GDT source field, too
 # - safer detection of subsequent records
 # - improved date parsing logic

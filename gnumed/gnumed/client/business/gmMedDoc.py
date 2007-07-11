@@ -4,11 +4,11 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.94 2007-05-20 01:27:31 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmMedDoc.py,v 1.95 2007-07-11 21:02:27 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, tempfile, os, shutil, os.path, types, time
+import sys, os, shutil, os.path, types, time
 from cStringIO import StringIO
 
 if __name__ == '__main__':
@@ -171,12 +171,10 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		if filename is None:
-			# if tempdir is None -> use tempfile module default, else use given
-			# path as base directory for temp files
-			if aTempDir is not None:
-				tempfile.tempdir = aTempDir
-			tempfile.template = "gm-doc_obj-page_%s" % self._payload[self._idx['seq_idx']]
-			filename = tempfile.mktemp()
+			filename = gmTools.get_unique_filename (
+				prefix = 'gm-doc_obj-page_%s' % self._payload[self._idx['seq_idx']],
+				dir=aTempDir
+			)
 
 		# binary, no encoding
 		aFile = open(filename, 'wb+')
@@ -666,10 +664,10 @@ def delete_document_type(document_type=None):
 #------------------------------------------------------------
 def get_ext_ref():
 	"""This needs *considerably* more smarts."""
-	# set up temp file environment for creating unique random directory
-	tempfile.template = ''
-	# create temp dir name
-	dirname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()))
+	dirname = gmTools.get_unique_filename (
+		prefix = '',
+		suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime())
+	)
 	# extract name for dir
 	path, doc_ID = os.path.split(dirname)
 	return doc_ID
@@ -745,7 +743,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.94  2007-05-20 01:27:31  ncq
+# Revision 1.95  2007-07-11 21:02:27  ncq
+# - use gmTools.get_unique_filename()
+#
+# Revision 1.94  2007/05/20 01:27:31  ncq
 # - fix set_translation() - lang needs to go first in i18n.upd_tx()
 #
 # Revision 1.93  2007/04/23 01:02:05  ncq
