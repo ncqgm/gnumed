@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.131 2007-06-28 12:39:37 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmMedDocWidgets.py,v 1.132 2007-07-11 21:10:31 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1314,7 +1314,7 @@ class cDocTree(wx.TreeCtrl):
 		)
 		exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
 		if not os.path.isdir(exp_base):
-			_log.Log(gmLog.lWarn, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is None == tempfile.tempdir == use system defaults
+			_log.Log(gmLog.lWarn, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base)
 			exp_base = None
 		else:
 			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
@@ -1435,7 +1435,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.131  2007-06-28 12:39:37  ncq
+# Revision 1.132  2007-07-11 21:10:31  ncq
+# - cleanup
+#
+# Revision 1.131  2007/06/28 12:39:37  ncq
 # - make pages listbox in scan/index panel be a drop target itself, too
 # - handle preset device = '' as unconfigured
 #
