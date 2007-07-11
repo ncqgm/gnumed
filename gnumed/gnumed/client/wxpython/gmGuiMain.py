@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.338 2007-07-09 12:44:06 ncq Exp $
-__version__ = "$Revision: 1.338 $"
+# $Id: gmGuiMain.py,v 1.339 2007-07-11 21:09:05 ncq Exp $
+__version__ = "$Revision: 1.339 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -282,9 +282,15 @@ class gmTopLevelFrame(wx.Frame):
 		menu_debugging.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
 
-		ID_TEST_EXCEPTION = wx.NewId()
-		menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
-		wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
+		if gmCLI.has_arg('--debug'):
+
+			ID_TOGGLE_PAT_LOCK = wx.NewId()
+			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient'), _('Lock/unlock patient - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
+			wx.EVT_MENU(self, ID_TOGGLE_PAT_LOCK, self.__on_toggle_patient_lock)
+
+			ID_TEST_EXCEPTION = wx.NewId()
+			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
+			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
 
 		menu_config = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('Options ...'), menu_config)
@@ -644,6 +650,10 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
+	#----------------------------------------------
+	def __on_toggle_patient_lock(self, evt):
+		curr_pat = gmPerson.gmCurrentPatient()
+		curr_pat.locked = not curr_pat.locked
 	#----------------------------------------------
 	def __on_backup_log_file(self, evt):
 		for target in _log.get_targets():
@@ -1398,7 +1408,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.338  2007-07-09 12:44:06  ncq
+# Revision 1.339  2007-07-11 21:09:05  ncq
+# - add lock/unlock patient
+#
+# Revision 1.338  2007/07/09 12:44:06  ncq
 # - make office menu accessible to plugins
 #
 # Revision 1.337  2007/06/28 12:37:22  ncq
