@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -72,7 +72,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.29 $" % self.__class__.__name__
+		return "%s $Revision: 1.30 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -126,7 +126,7 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated load_patient_from_external_source()')
 			return (0, _('rejected load_patient_from_external_source(), not authenticated'))
-		if self.__pat.is_locked():
+		if self.__pat.locked():
 			_log.Log(gmLog.lErr, 'patient is locked, cannot load from external source')
 			return (0, _('current patient is locked'))
 		self.__user_done = False
@@ -144,7 +144,7 @@ class cMacroPrimitives:
 		if lock_after_load_cookie != self.__lock_after_load_cookie:
 			_log.Log(gmLog.lWarn, 'patient lock-after-load request rejected due to wrong cookie [%s]' % lock_after_load_cookie)
 			return (0, 'patient lock-after-load request rejected, wrong cookie provided')
-		self.__pat.lock()
+		self.__pat.locked = True
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
 	#-----------------------------------------------------------------
@@ -154,7 +154,7 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated lock_into_patient()')
 			return (0, _('rejected lock_into_patient(), not authenticated'))
-		if self.__pat.is_locked():
+		if self.__pat.locked():
 			_log.Log(gmLog.lErr, 'patient is already locked')
 			return (0, _('already locked into a patient'))
 		searcher = gmPerson.cPatientSearcher_SQL()
@@ -173,7 +173,7 @@ class cMacroPrimitives:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
 		if not gmPerson.set_active_patient(patient = idents[0]):
 			return (0, _('cannot activate patient [%s] (%s/%s)') % (str(idents[0]), search_term, search_dict))
-		self.__pat.lock()
+		self.__pat.locked = True
 		self.__pat_lock_cookie = str(random.random())
 		return (1, self.__pat_lock_cookie)
 	#-----------------------------------------------------------------
@@ -184,13 +184,13 @@ class cMacroPrimitives:
 			_log.Log(gmLog.lErr, 'non-authenticated unlock_patient()')
 			return (0, _('rejected unlock_patient, not authenticated'))
 		# we ain't locked anyways, so succeed
-		if not self.__pat.is_locked():
+		if not self.__pat.locked():
 			return (1, '')
 		# FIXME: ask user what to do about wrong cookie
 		if unlock_cookie != self.__pat_lock_cookie:
 			_log.Log(gmLog.lWarn, 'patient unlock request rejected due to wrong cookie [%s]' % unlock_cookie)
 			return (0, 'patient unlock request rejected, wrong cookie provided')
-		self.__pat.unlock()
+		self.__pat.locked = False
 		return (1, '')
 	#-----------------------------------------------------------------
 	def assume_staff_identity(self, auth_cookie = None, staff_name = "Dr.Jekyll", staff_creds = None):
@@ -226,7 +226,7 @@ class cMacroPrimitives:
 			self.__user_answer = 0
 		self.__user_done = True
 		if can_break_conn:
-			self.__pat.unlock()
+			self.__pat.locked = False
 			self.__attached = 0
 		return 1
 	#-----------------------------------------------------------------
@@ -284,7 +284,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.29  2007-07-03 16:00:56  ncq
+# Revision 1.30  2007-07-11 21:09:54  ncq
+# - use curr_pat.locked
+#
+# Revision 1.29  2007/07/03 16:00:56  ncq
 # - remove unneeded import
 #
 # Revision 1.28  2007/01/21 12:21:38  ncq
