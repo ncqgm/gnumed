@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.85 2007-07-09 12:46:33 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmPatSearchWidgets.py,v 1.86 2007-07-11 21:11:08 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -488,10 +488,14 @@ class cPatientSelector(wx.TextCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
+		name = u''
+
 		if self.curr_pat.is_connected():
-			self.SetValue(self.curr_pat['description'])
-		else:
-			self.SetValue(u'')
+			name = self.curr_pat['description']
+			if self.curr_pat.locked:
+				name = _('%(name)s (locked)') % {'name': name}
+
+		self.SetValue(name)
 	#--------------------------------------------------------
 	def __remember_ident(self, ident=None):
 
@@ -528,7 +532,9 @@ class cPatientSelector(wx.TextCtrl):
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
-	#----------------------------------------------
+		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
+		#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self._display_name)
 	#--------------------------------------------------------
@@ -819,7 +825,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.85  2007-07-09 12:46:33  ncq
+# Revision 1.86  2007-07-11 21:11:08  ncq
+# - display patient locked state
+# - listen on patient lock/unlock events
+#
+# Revision 1.85  2007/07/09 12:46:33  ncq
 # - move cDataMiningPnl to gmDataMiningWidgets.py
 #
 # Revision 1.84  2007/07/07 12:43:25  ncq
