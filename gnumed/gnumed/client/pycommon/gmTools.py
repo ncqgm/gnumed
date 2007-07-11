@@ -2,14 +2,14 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.32 2007-07-10 20:45:42 ncq Exp $
+# $Id: gmTools.py,v 1.33 2007-07-11 21:06:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path, csv
+import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile
 
 
 # GNUmed libs
@@ -181,6 +181,12 @@ class cPaths(gmBorg.cBorg):
 	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
 #===========================================================================
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False):
+	"""Send an E-Mail.
+
+	<debug>: see smtplib.set_debuglevel()
+	<auth>: {'user': ..., 'password': ...}
+	<receiver>: a list of email addresses
+	"""
 	if message is None:
 		return False
 	message = message.lstrip().lstrip('\r\n').lstrip()
@@ -214,6 +220,28 @@ def mkdir(directory=None):
 		if (e.errno == 17) and not os.path.isdir(directory):
 			raise
 	return True
+#---------------------------------------------------------------------------
+def get_unique_filename(prefix=None, suffix=None, dir=None):
+	"""This instroduces a race condition between the file.close() and actually using the filename."""
+
+	kwargs = {'dir': dir}
+
+	if prefix is None:
+		kwargs['prefix'] = 'gnumed-'
+	else:
+		kwargs['prefix'] = prefix
+
+	if suffix is None:
+		kwargs['suffix'] = '.tmp'
+	else:
+		if not suffix.startswith('.'):
+			suffix = '.' + suffix
+		kwargs['suffix'] = suffix
+
+	file, filename = tempfile.mkstemp(**kwargs)
+	file.close()
+
+	return filename
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None):
 	"""Import a module from any location."""
@@ -586,7 +614,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.32  2007-07-10 20:45:42  ncq
+# Revision 1.33  2007-07-11 21:06:51  ncq
+# - improved docs
+# - get_unique_filename()
+#
+# Revision 1.32  2007/07/10 20:45:42  ncq
 # - add unicode CSV reader
 # - factor out OOo related code
 #
