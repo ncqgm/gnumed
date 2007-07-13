@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-move_backups_offsite.sh,v $
-# $Id: gm-move_backups_offsite.sh,v 1.4 2007-07-13 11:32:46 ncq Exp $
+# $Id: gm-move_backups_offsite.sh,v 1.5 2007-07-13 12:11:42 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -53,16 +53,22 @@ CRC="no"
 # change anything below this line.
 #==============================================================
 
-BACKUP_FILE_GLOB="*.bz2"
-HOST=`hostname`
 LOG="${BACKUP_DIR}/backup.log"
+HOST=`hostname`
+BACKUP_FILE_GLOB="*.bz2"
+
+# do not run concurrently
+if test `ps ax | grep $0 | grep -v grep` != "" ; then
+	echo "${HOST}: "`date`": transfer already in progress, exiting" >> ${LOG}
+	exit
+fi
 
 # setup rsync arguments
 ARGS="--quiet --archive --partial"
 if test -n ${MAX_BANDWITH} ; then
 	ARGS="${ARGS} --bwlimit=${MAX_BANDWIDTH}"
 fi
-if test ${CRC} = "yes" ; then
+if test "${CRC}" = "yes" ; then
 	ARGS="${ARGS} --checksum"
 fi
 
@@ -80,7 +86,11 @@ fi
 
 #==============================================================
 # $Log: gm-move_backups_offsite.sh,v $
-# Revision 1.4  2007-07-13 11:32:46  ncq
+# Revision 1.5  2007-07-13 12:11:42  ncq
+# - do not run concurrently
+# - missing "" fix
+#
+# Revision 1.4  2007/07/13 11:32:46  ncq
 # - support optional end-to-end checksumming
 # - improved logging
 #
