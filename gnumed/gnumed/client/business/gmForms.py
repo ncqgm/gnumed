@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.41 2007-07-13 09:15:52 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmForms.py,v 1.42 2007-07-13 12:08:38 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -43,6 +43,9 @@ known_placeholders = [
 #============================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 
+	def __init__(self, *args, **kwargs):
+
+		self.debug = False
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -56,7 +59,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		made glaringly obvious that the placeholder was unknown.
 		"""
 		if placeholder not in known_placeholders:
-			return _('unknown placeholder: <%s>' % placeholder)
+			if self.debug:
+				return _('unknown placeholder: <%s>' % placeholder)
+			else:
+				return None
 
 		return getattr(self, placeholder)
 	#--------------------------------------------------------
@@ -95,22 +101,19 @@ class cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
 	def __init__(self):
 		pat = gmPerson.gmCurrentPatient()
 		pat.locked = True
-		unohelper.Base.__init__()
-		oooXCloseListener.__init__()
-
-	def disposing(self, evt):
-		print "OOo: disposing document"
-		print "unlocking patient"
-		pat = gmPerson.gmCurrentPatient()
-		pat.locked = False
-
-	def notifyClosing(self, evt):
-		print "notifyClosing"
 
 	def queryClosing(self, evt, owner):
 		# owner is True/False whether I am the owner of the doc
-		print "queryClosing"
+		print "OOo: queryClosing"
 
+	def notifyClosing(self, evt):
+		print "OOo: notifyClosing"
+
+	def disposing(self, evt):
+		print "OOo: disposing document"
+		print "GNUmed: unlocking patient"
+		pat = gmPerson.gmCurrentPatient()
+		pat.locked = False
 #------------------------------------------------------------
 class cOOoConnector(gmBorg.cBorg):
 	"""This class handles the connection to OOo.
@@ -145,7 +148,7 @@ class cOOoConnector(gmBorg.cBorg):
 			except oooNoConnectException:
 				_log.LogException('Cannot connect to OOo server. Trying to start one with: [%s]' % self.ooo_start_cmd)
 				os.system(self.ooo_start_cmd)
-				time.sleep(0.5)
+				time.sleep(0.5)			# OOo sometimes needs a bit
 				self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
 			self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
 
@@ -173,9 +176,8 @@ class cOOoLetter(object):
 		# open doc in OOo
 		self.ooo_doc = ooo_srv.open_document(filename=self.filename)
 		# listen for close events
-#		l = myCloseListener()
-#		doc.addCloseListener(l)
-
+		listener = cOOoDocumentCloseListener()
+		self.ooo_doc.addCloseListener(listener)
 	#--------------------------------------------------------
 	def replace_placeholders(self):
 
@@ -191,12 +193,18 @@ class cOOoLetter(object):
 			if text_field.PlaceHolderType != 0:
 				continue
 
+			handler.debug = True
 			print 'placeholder (type TEXT) <%s> -> %s (%s)' % (
 				text_field.PlaceHolder,
 				handler[text_field.PlaceHolder],
 				text_field.Hint
 			)
-			text_field.Anchor.setString(handler[text_field.PlaceHolder])
+			handler.debug = False
+			replacement = handler[text_field.PlaceHolder]
+			if replacement is None:
+				continue
+
+			text_field.Anchor.setString(replacement)
 
 	#--------------------------------------------------------
 	def save_in_ooo(self, filename=None):
@@ -653,14 +661,12 @@ if __name__ == '__main__':
 			return
 		gmPerson.set_active_patient(patient = pat)
 
-#		doc = cOOoLetter(filename = '~/tmp/OOo-Forms/Reus-Therapiebericht.ott')
 		doc = cOOoLetter(filename = sys.argv[1])
 		doc.open_in_ooo()
 		doc.replace_placeholders()
 		doc.save_in_ooo('~/test_cOOoLetter.odt')
-		print "waiting 5 seconds ..."
-		time.sleep(5)
-		#doc.close_in_ooo()
+		raw_input('press <ENTER> to continue')
+		doc.close_in_ooo()
 	#--------------------------------------------------------
 
 
@@ -674,7 +680,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.41  2007-07-13 09:15:52  ncq
+# Revision 1.42  2007-07-13 12:08:38  ncq
+# - do not touch unknown placeholders unless debugging is on, user might
+#   want to use them elsewise
+# - use close listener
+#
+# Revision 1.41  2007/07/13 09:15:52  ncq
 # - fix faulty imports
 #
 # Revision 1.40  2007/07/11 21:12:50  ncq
