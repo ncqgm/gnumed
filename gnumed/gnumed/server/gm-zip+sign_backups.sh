@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-zip+sign_backups.sh,v $
-# $Id: gm-zip+sign_backups.sh,v 1.2 2007-06-12 13:21:53 ncq Exp $
+# $Id: gm-zip+sign_backups.sh,v 1.3 2007-07-13 12:12:08 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -28,19 +28,20 @@
 # piping them into the stoarage area where the backups are kept.
 #==============================================================
 
-# load config file
 CONF="/etc/gnumed/gnumed-backup.conf"
+
+#==============================================================
+# There really should not be any need to
+# change anything below this line.
+#==============================================================
+
+# load config file
 if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "Cannot read configuration file ${CONF}. Aborting."
 	exit 1
 fi
-
-#==============================================================
-# There really should not be any need to
-# change anything below this line.
-#==============================================================
 
 TS=`date +%Y-%m-%d-%H-%M-%S`
 BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}"
@@ -98,7 +99,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-zip+sign_backups.sh,v $
-# Revision 1.2  2007-06-12 13:21:53  ncq
+# Revision 1.3  2007-07-13 12:12:08  ncq
+# - cleanup
+#
+# Revision 1.2  2007/06/12 13:21:53  ncq
 # - remove redundant lines from mail body
 #
 # Revision 1.1  2007/06/05 14:53:44  ncq
