@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.44 2007-07-11 21:06:01 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmScanBackend.py,v 1.45 2007-07-13 09:49:10 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -57,7 +57,7 @@ class cTwainScanner:
 	#---------------------------------------------------
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp' dir=tmpdir)
+			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', dir=tmpdir)
 		else:
 			tmp, ext = os.path.splitext(filename)
 			if ext != '.bmp':
@@ -474,7 +474,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.44  2007-07-11 21:06:01  ncq
+# Revision 1.45  2007-07-13 09:49:10  ncq
+# - add missing ","
+#
+# Revision 1.44  2007/07/11 21:06:01  ncq
 # - use gmTools.get_unique_filename()
 #
 # Revision 1.43  2007/07/10 20:37:56  ncq
