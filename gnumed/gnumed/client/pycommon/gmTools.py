@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.33 2007-07-11 21:06:51 ncq Exp $
+# $Id: gmTools.py,v 1.34 2007-07-13 09:47:38 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -238,8 +238,9 @@ def get_unique_filename(prefix=None, suffix=None, dir=None):
 			suffix = '.' + suffix
 		kwargs['suffix'] = suffix
 
-	file, filename = tempfile.mkstemp(**kwargs)
-	file.close()
+	f = tempfile.NamedTemporaryFile(**kwargs)
+	filename = f.name
+	f.close()
 
 	return filename
 #===========================================================================
@@ -600,6 +601,14 @@ This is a test mail from the gmTools.py module.
 		return True
 
 	#-----------------------------------------------------------------------
+	def test_get_unique_filename():
+		print get_unique_filename()
+		print get_unique_filename(prefix='test-')
+		print get_unique_filename(suffix='tst')
+		print get_unique_filename(prefix='test-', suffix='tst')
+		print get_unique_filename(dir='/home/ncq/Archiv/')
+	#-----------------------------------------------------------------------
+
 	print __doc__
 
 	#test_str2interval()
@@ -611,10 +620,14 @@ This is a test mail from the gmTools.py module.
 	#test_cPaths()
 	#test_none_if()
 	test_bool2str()
+	test_get_unique_filename()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.33  2007-07-11 21:06:51  ncq
+# Revision 1.34  2007-07-13 09:47:38  ncq
+# - fix and test suite for get_unique_filename()
+#
+# Revision 1.33  2007/07/11 21:06:51  ncq
 # - improved docs
 # - get_unique_filename()
 #
