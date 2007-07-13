@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.40 2007-07-11 21:12:50 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmForms.py,v 1.41 2007-07-13 09:15:52 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -16,9 +16,9 @@ import os, sys, time
 
 
 import uno, unohelper
-from com.sun.star.util import oooXCloseListener
-from com.sun.star.connection import oooNoConnectException
-from com.sun.star.beans import oooPropertyValue
+from com.sun.star.util import XCloseListener as oooXCloseListener
+from com.sun.star.connection import NoConnectException as oooNoConnectException
+from com.sun.star.beans import PropertyValue as oooPropertyValue
 
 
 if __name__ == '__main__':
@@ -99,17 +99,17 @@ class cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
 		oooXCloseListener.__init__()
 
 	def disposing(self, evt):
-		print "disposing:"
+		print "OOo: disposing document"
 		print "unlocking patient"
 		pat = gmPerson.gmCurrentPatient()
 		pat.locked = False
 
 	def notifyClosing(self, evt):
-		print "notifyClosing:"
+		print "notifyClosing"
 
 	def queryClosing(self, evt, owner):
 		# owner is True/False whether I am the owner of the doc
-		print "queryClosing:"
+		print "queryClosing"
 
 #------------------------------------------------------------
 class cOOoConnector(gmBorg.cBorg):
@@ -674,7 +674,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.40  2007-07-11 21:12:50  ncq
+# Revision 1.41  2007-07-13 09:15:52  ncq
+# - fix faulty imports
+#
+# Revision 1.40  2007/07/11 21:12:50  ncq
 # - gmPlaceholderHandler()
 # - OOo API with test suite
 #
