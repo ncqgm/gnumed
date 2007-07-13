@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.118 2007-05-21 14:49:42 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gnumed.py,v 1.119 2007-07-13 09:12:35 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -139,7 +139,7 @@ def setup_locale():
 	if gmCLI.has_arg('--lang-gettext'):
 		l = gmCLI.arg['--lang-gettext']
 
-	gmI18N.install_domain(text_domain = td, language = l)
+	gmI18N.install_domain(domain = td, language = l)
 
 	return True
 #==========================================================
@@ -195,17 +195,20 @@ def handle_sig_hup(signum, frame):
 		_old_sig_hup(signum, frame)
 #----------------------------------------------------------
 def handle_sig_term(signum, frame):
-	print "SIGTERM caught"
-	print signum
-	print frame
+	print 'GNUmed: SIGTERM (SIG%s) caught, shutting down ...' % signum
+	if frame is not None:
+		print '%s::%s@%s' % (frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno)
+
+	# FIXME: need to do something useful here
+
 	if _old_sig_term in [None, signal.SIG_IGN]:
 		sys.exit(signal.SIGTERM)
 	else:
 		_old_sig_term(signum, frame)
 #----------------------------------------------------------
 def setup_signal_handlers():
-	global _old_sig_hup
-	old_sig_hup = signal.signal(signal.SIGHUP, handle_sig_hup)
+#	global _old_sig_hup
+#	old_sig_hup = signal.signal(signal.SIGHUP, handle_sig_hup)
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
@@ -249,13 +252,13 @@ def check_help_request():
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
 setup_console_exption_handler()
+setup_signal_handlers()
 setup_logging()
 
 from Gnumed.pycommon import gmCLI, gmI18N
 
 setup_locale()
 check_help_request()
-#setup_signal_handlers()
 
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
@@ -289,7 +292,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.118  2007-05-21 14:49:42  ncq
+# Revision 1.119  2007-07-13 09:12:35  ncq
+# - setup signal handler
+#
+# Revision 1.118  2007/05/21 14:49:42  ncq
 # - create gnumed/export/EMR/
 #
 # Revision 1.117  2007/05/08 16:07:00  ncq
