@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.42 2007-07-13 12:08:38 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmForms.py,v 1.43 2007-07-13 21:00:55 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -135,7 +135,7 @@ class cOOoConnector(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
-		document_uri = uno.systemPathToFileUrl(filename)
+		document_uri = uno.absolutize(uno.systemPathToFileUrl(filename))
 		doc = self.desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
 		return doc
 	#--------------------------------------------------------
@@ -209,7 +209,7 @@ class cOOoLetter(object):
 	#--------------------------------------------------------
 	def save_in_ooo(self, filename=None):
 		if filename is not None:
-			target_url = uno.systemPathToFileUrl(filename)
+			target_url = uno.absolutize(uno.systemPathToFileUrl(filename))
 			save_args = (
 				oooPropertyValue('Overwrite', 0, True, 0),
 				oooPropertyValue('FormatFilter', 0, 'swriter: StarOffice XML (Writer)', 0)
@@ -680,7 +680,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.42  2007-07-13 12:08:38  ncq
+# Revision 1.43  2007-07-13 21:00:55  ncq
+# - apply uno.absolutize()
+#
+# Revision 1.42  2007/07/13 12:08:38  ncq
 # - do not touch unknown placeholders unless debugging is on, user might
 #   want to use them elsewise
 # - use close listener
