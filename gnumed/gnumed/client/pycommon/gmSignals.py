@@ -12,8 +12,9 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
+
 
 #=============================================================
 def popup_notice():
@@ -94,6 +95,8 @@ def clin_item_updated():
 	"""Frontend signal for clin_root_item cache update."""
 	return 'clin_item_updated'
 #-------------------------------------------------------------
+# patient_locked, patient_unlocked
+
 def pre_patient_selection():
 	"""the currently active patient is about to be changed"""
 	return 'pre_patient_selection'
@@ -227,7 +230,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.15  2007-03-02 15:30:46  ncq
+# Revision 1.16  2007-07-13 12:09:16  ncq
+# - add comment
+#
+# Revision 1.15  2007/03/02 15:30:46  ncq
 # - add statustext()
 #
 # Revision 1.14  2006/05/15 13:25:55  ncq
