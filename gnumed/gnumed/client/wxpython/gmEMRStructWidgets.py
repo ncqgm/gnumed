@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.63 2007-06-10 10:02:53 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmEMRStructWidgets.py,v 1.64 2007-07-13 12:20:48 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -24,9 +24,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmDateTime, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-if __name__ == '__main__':
-	gmI18N.install_domain()
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmEditArea
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
@@ -36,6 +34,78 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 	
 #================================================================
+# narrative related widgets/functions
+#----------------------------------------------------------------
+def select_narrative_from_episodes():
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	selected_soap = []
+
+	while 1:
+		# 1) select health issues to select episodes from
+		all_issues = emr.get_health_issues()
+		dlg = cIssueListSelectorDlg(parent = None, id = -1, issues = all_issues)
+		btn_pressed = dlg.ShowModal()
+		selected_issues = dlg.get_selected_item_data()
+		dlg.Destroy()
+
+		if btn_pressed == wx.ID_CANCEL:
+			return selected_soap
+
+		# 2) select episodes to select items from
+		issue_pks = [ i['pk'] for i in selected_issues ].append(None)
+		all_epis = emr.get_episodes(issues = issue_pks)
+		if len(all_epis) == 0:
+			continue
+
+		dlg = cEpisodeListSelectorDlg(parent = None, id = -1, episodes = all_epis)
+		btn_pressed = dlg.ShowModal()
+		selected_epis = dlg.get_selected_item_data()
+		dlg.Destroy()
+
+		if btn_pressed == wx.ID_CANCEL:
+			continue
+
+		# 3) select narrative corresponding to the above constraints
+		epi_pks = [ epi['pk_episode'] for epi in selected_epis ]
+		all_narr = emr.get_clin_narrative(episodes = epi_pks)
+		if len(all_narr) == 0:
+			continue
+
+		dlg = cNarrativeListSelectorDlg(parent = None, id = -1, narrative = all_narr)
+		btn_pressed = dlg.ShowModal()
+		selected_narr = dlg.get_selected_item_data()
+		dlg.Destroy()
+
+		if btn_pressed == wx.ID_CANCEL:
+			continue
+
+		selected_soap.extend(selected_narr)
+#----------------------------------------------------------------
+class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
+
+	# FIXME: support pre-selection
+
+	def __init__(self, *args, **kwargs):
+
+		narrative = kwargs['narrative']
+		del kwargs['narrative']
+
+		gmListWidgets.cGenericListSelectorDlg.__init__(self, *args, **kwargs)
+
+		self.SetTitle(_('Select the narrative you are interested in ...'))
+		# FIXME: add epi/issue
+		self._LCTRL_items.set_columns([_('when'), _('who'), _('type'), _('entry')]) #, _('Episode'), u'', _('Health Issue')])
+		# FIXME: date used should be date of encounter, not date_modified
+		# FIXME: translate/sort by soap_cat
+		self._LCTRL_items.set_string_items (
+			items = [ [narr['date'].strftime('%y-%m-%d %H:%M'), narr['provider'], narr['soap_cat'], narr['narrative'].translate('\n', '/').translate('\r', '/')] for narr in narrative ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = narrative)
+#----------------------------------------------------------------
 class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -381,6 +451,25 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		episode.save_payload()
 	return True
 #----------------------------------------------------------------
+class cEpisodeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
+
+	# FIXME: support pre-selection
+
+	def __init__(self, *args, **kwargs):
+
+		episodes = kwargs['episodes']
+		del kwargs['episodes']
+
+		gmListWidgets.cGenericListSelectorDlg.__init__(self, *args, **kwargs)
+
+		self.SetTitle(_('Select the episodes you are interested in ...'))
+		self._LCTRL_items.set_columns([_('Episode'), u'', _('Health Issue')])
+		self._LCTRL_items.set_string_items (
+			items = [ [epi['description'], gmTools.bool2str(epi['episode_open'], _('ongoing'), u''), gmTools.coalesce(epi['health_issue'], u'')] for epi in episodes ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = episodes)
+#----------------------------------------------------------------
 class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select an episode *description*.
 
@@ -611,6 +700,38 @@ class cEpisodeEditAreaDlg(wxgEpisodeEditAreaDlg.wxgEpisodeEditAreaDlg):
 		self._PNL_edit_area.refresh()
 #================================================================
 # foundational issue related widgets/functions
+#----------------------------------------------------------------
+class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
+
+	# FIXME: support pre-selection
+
+	def __init__(self, *args, **kwargs):
+
+		issues = kwargs['issues']
+		del kwargs['issues']
+
+		gmListWidgets.cGenericListSelectorDlg.__init__(self, *args, **kwargs)
+
+		self.SetTitle(_('Select the health issues you are interested in ...'))
+		self._LCTRL_items.set_columns([u'', _('Health Issue'), u'', u'', u''])
+
+		for issue in issues:
+			if issue['is_confidential']:
+				row_num = self._LCTRL_items.InsertStringItem(sys.maxint, label = _('confidential'))
+				self._LCTRL_items.SetItemTextColour(row_num, col=wx.NamedColour('RED'))
+			else:
+				row_num = self._LCTRL_items.InsertStringItem(sys.maxint, label = u'')
+
+			self._LCTRL_items.SetStringItem(index = row_num, col = 1, label = issue['description'])
+			if issue['clinically_relevant']:
+				self._LCTRL_items.SetStringItem(index = row_num, col = 2, label = _('relevant'))
+			if issue['is_active']:
+				self._LCTRL_items.SetStringItem(index = row_num, col = 3, label = _('active'))
+			if issue['is_cause_of_death']:
+				self._LCTRL_items.SetStringItem(index = row_num, col = 4, label = _('fatal'))
+
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = issues)
 #----------------------------------------------------------------
 class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let the user select a health issue.
@@ -1025,6 +1146,10 @@ class cHealthIssueEditAreaDlg(wxgHealthIssueEditAreaDlg.wxgHealthIssueEditAreaDl
 if __name__ == '__main__':
 
 	_log.SetAllLogLevels(gmLog.lData)
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+	gmDateTime.init()
 	
 	#================================================================	
 	class testapp (wx.App):
@@ -1124,6 +1249,13 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 300))
 		app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
 		app.MainLoop()
+	#----------------------------------------------------------------
+	def test_select_narrative_from_episodes():
+		app = wx.PyWidgetTester(size = (200, 50))
+		sels = select_narrative_from_episodes()
+		print "selected:"
+		for sel in sels:
+			print sel
 	#================================================================
 
 	# obtain patient
@@ -1147,11 +1279,15 @@ if __name__ == '__main__':
 	#test_epsiode_edit_area_pnl()
 	#test_episode_edit_area_dialog()
 	#test_health_issue_edit_area_dlg()
-	test_episode_selection_prw()
+	#test_episode_selection_prw()
+	test_select_narrative_from_episodes()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.63  2007-06-10 10:02:53  ncq
+# Revision 1.64  2007-07-13 12:20:48  ncq
+# - select_narrative_from_episodes(), related widgets, and test suite
+#
+# Revision 1.63  2007/06/10 10:02:53  ncq
 # - episode pk is pk_episode
 #
 # Revision 1.62  2007/05/18 13:28:57  ncq
