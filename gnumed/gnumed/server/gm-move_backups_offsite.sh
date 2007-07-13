@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-move_backups_offsite.sh,v $
-# $Id: gm-move_backups_offsite.sh,v 1.3 2007-06-05 15:00:31 ncq Exp $
+# $Id: gm-move_backups_offsite.sh,v 1.4 2007-07-13 11:32:46 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -41,36 +41,50 @@ TARGET_DIR="need to set this"
 # the maximum bandwith, in KBytes/second, to utilize
 MAX_BANDWIDTH=""
 
+# whether or not to use CRC comparison when
+# determining whether or not to transfer a file,
+# otherwise timestamp/size is used,
+# can put quite a bit of load on both machines,
+# values: yes/no
+CRC="no"
+
 #==============================================================
 # There really should not be any need to
 # change anything below this line.
 #==============================================================
 
-if test -z ${MAX_BANDWITH} ; then
-	BW_LIMIT=""
-else
-	BW_LIMIT="--bwlimit=${MAX_BANDWIDTH}"
-fi
-
 BACKUP_FILE_GLOB="*.bz2"
-
 HOST=`hostname`
 LOG="${BACKUP_DIR}/backup.log"
-TS=`date +%Y-%m-%d-%H-%M-%S`
+
+# setup rsync arguments
+ARGS="--quiet --archive --partial"
+if test -n ${MAX_BANDWITH} ; then
+	ARGS="${ARGS} --bwlimit=${MAX_BANDWIDTH}"
+fi
+if test ${CRC} = "yes" ; then
+	ARGS="${ARGS} --checksum"
+fi
+
+echo "$HOST: "`date`": attempting backup (rsync ${ARGS}) to ${TARGET_HOST}:${TARGET_DIR}" >> $LOG
 
 if ping -c 3 -i 2 $TARGET_HOST > /dev/null; then
-	if rsync -qac ${BW_LIMIT} ${BACKUP_DIR}/${BACKUP_FILE_GLOB} ${TARGET_HOST}:${TARGET_DIR}; then
-		echo "$HOST: $TS: rsynced backups to ${TARGET_HOST}: success" >> $LOG
+	if rsync ${ARGS} ${BACKUP_DIR}/${BACKUP_FILE_GLOB} ${TARGET_HOST}:${TARGET_DIR} ; then
+		echo "$HOST: "`date`": success" >> $LOG
 	else
-		echo "$HOST: $TS: rsyncing backups to ${TARGET_HOST}: failure" >> $LOG
-	fi;
+		echo "$HOST: "`date`": failure: cannot transfer files" >> $LOG
+	fi
 else
-    echo "$HOST: $TS: rsyncing backups to ${TARGET_HOST}: cannot reach target host" >> $LOG
-fi;
+    echo "$HOST: "`date`": failure: cannot reach target host" >> $LOG
+fi
 
 #==============================================================
 # $Log: gm-move_backups_offsite.sh,v $
-# Revision 1.3  2007-06-05 15:00:31  ncq
+# Revision 1.4  2007-07-13 11:32:46  ncq
+# - support optional end-to-end checksumming
+# - improved logging
+#
+# Revision 1.3  2007/06/05 15:00:31  ncq
 # - support max bandwidth utilization
 #
 # Revision 1.2  2007/02/19 10:35:14  ncq
