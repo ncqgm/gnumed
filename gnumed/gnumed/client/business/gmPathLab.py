@@ -4,14 +4,13 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.55 2007-03-08 11:31:08 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmPathLab.py,v 1.56 2007-07-17 11:13:25 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
 
-from Gnumed.pycommon import gmLog, gmExceptions
-from Gnumed.business import gmClinItem
+from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -20,11 +19,11 @@ _log.Log(gmLog.lInfo, __version__)
 
 #============================================================
 # FIXME: TODO
-class cTestResult(gmClinItem.cClinItem):
+class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	def link_to_lab_request(self):
 		pass
 #============================================================
-class cLabResult(gmClinItem.cClinItem):
+class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab result."""
 
 	_cmd_fetch_payload = """
@@ -89,7 +88,7 @@ class cLabResult(gmClinItem.cClinItem):
 		"""
 		# instantiate from row data ?
 		if aPK_obj is None:
-			gmClinItem.cClinItem.__init__(self, row=row)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
 			return
 		pk = aPK_obj
 		# find PK from row data ?
@@ -120,7 +119,7 @@ class cLabResult(gmClinItem.cClinItem):
 				raise gmExceptions.NoSuchClinItemError, 'no lab result for: %s' % aPK_obj
 			pk = data[0][0]
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
 		cmd = """
@@ -135,7 +134,7 @@ class cLabResult(gmClinItem.cClinItem):
 		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_patient']])
 		return pat[0]
 #============================================================
-class cLabRequest(gmClinItem.cClinItem):
+class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab request."""
 
 	_cmd_fetch_payload = """
@@ -176,7 +175,7 @@ class cLabRequest(gmClinItem.cClinItem):
 		"""
 		# instantiate from row data ?
 		if aPK_obj is None:
-			gmClinItem.cClinItem.__init__(self, row=row)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
 			return
 		pk = aPK_obj
 		# instantiate from "req_id" and "lab" ?
@@ -206,7 +205,7 @@ class cLabRequest(gmClinItem.cClinItem):
 				raise gmExceptions.NoSuchClinItemError, '[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj)
 			pk = data[0][0]
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
 		cmd = """
@@ -225,7 +224,7 @@ class cLabRequest(gmClinItem.cClinItem):
 			return None
 		return pat[0]
 #============================================================
-class cTestType(gmClinItem.cClinItem):
+class cTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
 
 	_cmd_fetch_payload = """select *, xmin from test_type where pk=%s"""
@@ -260,7 +259,7 @@ class cTestType(gmClinItem.cClinItem):
 		"""
 		# instantiate from row data ?
 		if aPK_obj is None:
-			gmClinItem.cClinItem.__init__(self, row=row)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
 			return
 		pk = aPK_obj
 		# instantiate from lab/code/name ?
@@ -304,7 +303,7 @@ class cTestType(gmClinItem.cClinItem):
 				raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
 			pk = data[0][0]
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		# find fk_test_org from name
@@ -318,7 +317,7 @@ class cTestType(gmClinItem.cClinItem):
 				if len(data) == 0:
 					raise ValueError, '[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute)
 				value = data[0][0]
-		gmClinItem.cClinItem.__setitem__(self, attribute, value)
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -346,7 +345,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.55 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.56 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -433,7 +432,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.55 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.56 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -688,7 +687,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.55  2007-03-08 11:31:08  ncq
+# Revision 1.56  2007-07-17 11:13:25  ncq
+# - no more gmClinItem
+#
+# Revision 1.55  2007/03/08 11:31:08  ncq
 # - just cleanup
 #
 # Revision 1.54  2007/01/09 12:56:18  ncq

@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.35 2007-03-08 11:31:08 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmVaccination.py,v 1.36 2007-07-17 11:13:42 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -50,7 +50,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _init_from_row_data(self, row=None):
 		"""Make sure we have is_booster/seq_no when loading from row data."""
-		gmClinItem.cClinItem._init_from_row_data(self, row=row)
+		gmBusinessDBObject.cBusinessDBObject._init_from_row_data(self, row=row)
 		try:
 			idx = self._idx['is_booster']
 		except KeyError:
@@ -69,7 +69,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 			self._idx['seq_no'] = -1
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		gmClinItem.cClinItem.__setitem__(self, attribute, value)
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 		if attribute in ['is_booster', 'seq_no']:
 			self._is_modified = False
 #	#--------------------------------------------------------
@@ -84,11 +84,11 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 #		"""
 #		Sets next shot due date
 #		
-#		* next_shot_due : Schedulled date for next vaccination shot
+#		* next_shot_due : Scheduled date for next vaccination shot
 #		"""
 #		self.__next_shot_due = next_shot_due
 #============================================================
-class cMissingVaccination(gmClinItem.cClinItem):
+class cMissingVaccination(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one missing vaccination.
 
 	- can be due or overdue
@@ -133,7 +133,7 @@ class cMissingVaccination(gmClinItem.cClinItem):
 		# should we auto-destroy after create_vaccination() ?
 		return (False, 'not implemented')
 #============================================================
-class cMissingBooster(gmClinItem.cClinItem):
+class cMissingBooster(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one due booster.
 	"""
 	_cmd_fetch_payload = """
@@ -148,7 +148,7 @@ class cMissingBooster(gmClinItem.cClinItem):
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
 #============================================================
-class cScheduledVaccination(gmClinItem.cClinItem):
+class cScheduledVaccination(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccination scheduled following a course.
 	"""
 	_cmd_fetch_payload = u"select * from clin.v_vaccs_scheduled4pat where pk_vacc_def=%s"
@@ -156,7 +156,7 @@ class cScheduledVaccination(gmClinItem.cClinItem):
 	_cmds_store_payload = ["""select 1"""]
 	_updatable_fields = []
 #============================================================
-class cVaccinationCourse(gmClinItem.cClinItem):
+class cVaccinationCourse(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccination course.
 	"""
 	_cmd_fetch_payload = """
@@ -543,7 +543,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.35  2007-03-08 11:31:08  ncq
+# Revision 1.36  2007-07-17 11:13:42  ncq
+# - no more gmClinItem
+#
+# Revision 1.35  2007/03/08 11:31:08  ncq
 # - just cleanup
 #
 # Revision 1.34  2007/02/22 17:27:44  ncq
