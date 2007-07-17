@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -72,7 +72,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.30 $" % self.__class__.__name__
+		return "%s $Revision: 1.31 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -126,7 +126,7 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated load_patient_from_external_source()')
 			return (0, _('rejected load_patient_from_external_source(), not authenticated'))
-		if self.__pat.locked():
+		if self.__pat.locked:
 			_log.Log(gmLog.lErr, 'patient is locked, cannot load from external source')
 			return (0, _('current patient is locked'))
 		self.__user_done = False
@@ -154,7 +154,7 @@ class cMacroPrimitives:
 		if auth_cookie != self.__auth_cookie:
 			_log.Log(gmLog.lErr, 'non-authenticated lock_into_patient()')
 			return (0, _('rejected lock_into_patient(), not authenticated'))
-		if self.__pat.locked():
+		if self.__pat.locked:
 			_log.Log(gmLog.lErr, 'patient is already locked')
 			return (0, _('already locked into a patient'))
 		searcher = gmPerson.cPatientSearcher_SQL()
@@ -184,7 +184,7 @@ class cMacroPrimitives:
 			_log.Log(gmLog.lErr, 'non-authenticated unlock_patient()')
 			return (0, _('rejected unlock_patient, not authenticated'))
 		# we ain't locked anyways, so succeed
-		if not self.__pat.locked():
+		if not self.__pat.locked:
 			return (1, '')
 		# FIXME: ask user what to do about wrong cookie
 		if unlock_cookie != self.__pat_lock_cookie:
@@ -284,7 +284,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.30  2007-07-11 21:09:54  ncq
+# Revision 1.31  2007-07-17 21:44:24  ncq
+# - use patient.locked properly
+#
+# Revision 1.30  2007/07/11 21:09:54  ncq
 # - use curr_pat.locked
 #
 # Revision 1.29  2007/07/03 16:00:56  ncq
