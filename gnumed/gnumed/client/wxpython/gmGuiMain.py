@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.342 2007-07-17 15:52:57 ncq Exp $
-__version__ = "$Revision: 1.342 $"
+# $Id: gmGuiMain.py,v 1.343 2007-07-17 21:43:50 ncq Exp $
+__version__ = "$Revision: 1.343 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -653,7 +653,10 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_toggle_patient_lock(self, evt):
 		curr_pat = gmPerson.gmCurrentPatient()
-		curr_pat.locked = not curr_pat.locked
+		if curr_pat.locked:
+			curr_pat.force_unlock()
+		else:
+			curr_pat.locked = True
 	#----------------------------------------------
 	def __on_backup_log_file(self, evt):
 		for target in _log.get_targets():
@@ -1425,7 +1428,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.342  2007-07-17 15:52:57  ncq
+# Revision 1.343  2007-07-17 21:43:50  ncq
+# - use refcounted patient lock
+#
+# Revision 1.342  2007/07/17 15:52:57  ncq
 # - display proper error message when starting the XML RPC server fails
 #
 # Revision 1.341  2007/07/17 13:52:12  ncq
