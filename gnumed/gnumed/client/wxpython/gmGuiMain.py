@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.341 2007-07-17 13:52:12 ncq Exp $
-__version__ = "$Revision: 1.341 $"
+# $Id: gmGuiMain.py,v 1.342 2007-07-17 15:52:57 ncq Exp $
+__version__ = "$Revision: 1.342 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1218,8 +1218,8 @@ class gmApp(wx.App):
 
 		# create the main window
 		cli_layout = gmCLI.arg.get('--layout', None)
+		# FIXME: load last position from backend
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440), cli_layout)
-		# and tell the app to use it
 		self.SetTopWindow(frame)
 
 		frame.CentreOnScreen(wx.BOTH)
@@ -1227,13 +1227,27 @@ class gmApp(wx.App):
 
 		# last but not least: start macro listener if so desired
 		if self.__guibroker['main.slave_mode']:
+			import socket
 			from Gnumed.pycommon import gmScriptingListener
 			from Gnumed.wxpython import gmMacro
 			macro_executor = gmMacro.cMacroPrimitives(self.__guibroker['main.slave_personality'])
 			port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
 			if not port:
 				port = 9999
-			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
+			try:
+				self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
+			except socket.error, e:
+				_log.LogException('cannot start GNUmed XML-RPC server')
+				gmGuiHelpers.gm_show_error (
+					aMessage = (
+						'Cannot start the GNUmed server:\n'
+						'\n'
+						' [%s]'
+					) % e,
+					aTitle = _('GNUmed startup')
+				)
+				return False
+
 			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
 		wx.CallAfter(self._do_after_init)
@@ -1411,7 +1425,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.341  2007-07-17 13:52:12  ncq
+# Revision 1.342  2007-07-17 15:52:57  ncq
+# - display proper error message when starting the XML RPC server fails
+#
+# Revision 1.341  2007/07/17 13:52:12  ncq
 # - fix SQL query for db welcome message
 #
 # Revision 1.340  2007/07/17 13:42:13  ncq
