@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.86 2007-07-11 21:11:08 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmPatSearchWidgets.py,v 1.87 2007-07-17 16:00:28 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -270,7 +270,11 @@ def load_persons_from_pracsoft_au():
 	fname = _cfg.get('AU PracSoft PATIENTS.IN', 'filename')
 	source = _cfg.get('AU PracSoft PATIENTS.IN', 'source')
 	if fname is not None and source is not None:
-		pracsoft_files.append({'file': os.path.expanduser(fname), 'source': source})
+		fname = os.path.abspath(os.path.expanduser(fname))
+		if os.access(fname, os.R_OK):
+			pracsoft_files.append({'file': os.path.expanduser(fname), 'source': source})
+		else:
+			_log.Log(gmLog.lErr, 'cannot read [%s] in AU PracSoft profile' % fname)
 
 	# and parse them
 	dtos = []
@@ -825,7 +829,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.86  2007-07-11 21:11:08  ncq
+# Revision 1.87  2007-07-17 16:00:28  ncq
+# - check existence of PracSoft import file
+#
+# Revision 1.86  2007/07/11 21:11:08  ncq
 # - display patient locked state
 # - listen on patient lock/unlock events
 #
