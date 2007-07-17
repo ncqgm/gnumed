@@ -12,14 +12,20 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.2 2007-07-10 20:33:41 ncq Exp $
-__version__ = '$Revision: 1.2 $'
+# $Id: gm_ctl_client.py,v 1.3 2007-07-17 13:39:46 ncq Exp $
+__version__ = '$Revision: 1.3 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
-import sys, time, xmlrpclib, socket, time
 
+import sys, time, xmlrpclib, socket, time, os
+
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog, gmCLI, gmNull
+from Gnumed.wxpython import gmGuiHelpers
+
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -36,16 +42,45 @@ class cBaseConnector:
 		self.__conn_auth = 0
 		self.__unlock_auth = 0
 	#--------------------------------------------------------------
-	def setup(self):
+	def connect(self):
 		# connect to GNUmed instance
-		# FIXME: wait and retry after force_detach()
 		port = _cfg.get('GNUmed instance', 'port')
 		self.__gm_server = xmlrpclib.ServerProxy('http://localhost:%s' % int(port))
+
 		try:
 			_log.Log(gmLog.lInfo, self.__gm_server.version())
 		except socket.error, e:
-			_log.LogException('Cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e), sys.exc_info())
-			return False
+			# FIXME: differentiate between already-attached and not-there
+			_log.LogException('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
+			# try starting GNUmed
+			# - no use trying to start GNUmed if wx cannot be imported
+			import wx
+			startup_cmd = _cfg.get('GNUmed instance', 'startup command')
+			os.system(startup_cmd)	# better be non-blocking, use gmShellAPI
+			_log.Log(gmLog.lInfo, 'trying to start one with [%s]' % startup_cmd)
+			app = wx.PySimpleApp()
+			retry = gmGuiHelpers.gm_show_question (
+				aMessage = _(
+					'GNUmed has been started with the command:\n'
+					'\n'
+					' [%s]\n'
+					'\n'
+					'Please enter user name and password\n'
+					'into the GNUmed login dialog.\n'
+					'\n'
+					'Has GNUmed started up successfully ?'
+				) % startup_cmd,
+				aTitle = _('GNUmed client controller')
+			)
+			if not retry:
+				return False
+			try:
+				_log.Log(gmLog.lInfo, self.__gm_server.version())
+			except socket.error, e:
+				# FIXME: differentiate between already-attached and not-there
+				_log.LogException('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
+				return False
+
 		target_personality = _cfg.get('GNUmed instance', 'personality')
 		success, self.__conn_auth = self.__gm_server.attach(target_personality)
 		if not success:
@@ -63,6 +98,8 @@ class cBaseConnector:
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot attach: %s' % self.__conn_auth)
 				return False
+	#--------------------------------------------------------------
+	def setup(self):
 		# load external patient
 		success, lock_cookie = self.__gm_server.load_patient_from_external_source(self.__conn_auth)
 		if not success:
@@ -107,17 +144,19 @@ class cBaseConnector:
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
-	gmI18N.activate_locale()
-
 	td = None
 	if gmCLI.has_arg('--text-domain'):
 		td = gmCLI.arg['--text-domain']
 	l = None
 	if gmCLI.has_arg('--lang-gettext'):
 		l = gmCLI.arg['--lang-gettext']
+
+	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = td, language = l)
 
 	connector = cBaseConnector()
+	if not connector.connect():
+		sys.exit('connect() error')
 	if not connector.setup():
 		connector.cleanup()
 		sys.exit('setup() error')
@@ -128,7 +167,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.2  2007-07-10 20:33:41  ncq
+# Revision 1.3  2007-07-17 13:39:46  ncq
+# - support starting up GNUmed client on demand
+#
+# Revision 1.2  2007/07/10 20:33:41  ncq
 # - consolidate domain arg
 #
 # Revision 1.1  2007/01/29 13:49:39  ncq
