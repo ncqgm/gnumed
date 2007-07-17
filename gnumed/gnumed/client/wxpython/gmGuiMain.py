@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.340 2007-07-17 13:42:13 ncq Exp $
-__version__ = "$Revision: 1.340 $"
+# $Id: gmGuiMain.py,v 1.341 2007-07-17 13:52:12 ncq Exp $
+__version__ = "$Revision: 1.341 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1210,7 +1210,7 @@ class gmApp(wx.App):
 		self.__set_db_lang()
 
 		# display database banner
-		rows, idx = gmPG2.run_ro_queries(link_obj = None, queries = [{'cmd': u'select _(message) from cfg.db_logon_banner'}])
+		rows, idx = gmPG2.run_ro_queries(link_obj = None, queries = [{'cmd': u'select _(message) as message from cfg.db_logon_banner'}])
 		if len(rows) > 0:
 			msg = rows[0]['message'].strip()
 			if msg != u'':
@@ -1411,7 +1411,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.340  2007-07-17 13:42:13  ncq
+# Revision 1.341  2007-07-17 13:52:12  ncq
+# - fix SQL query for db welcome message
+#
+# Revision 1.340  2007/07/17 13:42:13  ncq
 # - make displaying welcome message optional
 #
 # Revision 1.339  2007/07/11 21:09:05  ncq
