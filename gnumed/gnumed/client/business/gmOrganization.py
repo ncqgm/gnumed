@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
@@ -23,13 +23,13 @@ attrNames = [ 'name', 'office', 'subtype', 'memo','category', 'phone', 'fax', 'e
 addressNames = [ 'number', 'street', 'urb', 'postcode', 'state', 'country']
 	
 commtypes = { 
-	"email":gmDemographicRecord.EMAIL, 
-	"fax":gmDemographicRecord.FAX, 
+#	"email":gmDemographicRecord.EMAIL, 
+#	"fax":gmDemographicRecord.FAX, 
 	#gmDemographicRecord.HOME_PHONE, 
-	"phone":gmDemographicRecord.WORK_PHONE,
-	"web":gmDemographicRecord.WEB, 
-	"mobile":gmDemographicRecord.MOBILE,
-	"jabber":gmDemographicRecord.JABBER 
+#	"phone":gmDemographicRecord.WORK_PHONE,
+#	"web":gmDemographicRecord.WEB, 
+#	"mobile":gmDemographicRecord.MOBILE,
+#	"jabber":gmDemographicRecord.JABBER 
 	}
 
 commnames = dict( [ (v,k) for (k,v) in commtypes.items()] )
@@ -2021,7 +2021,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.35  2006-07-19 20:25:00  ncq
+# Revision 1.36  2007-07-17 10:38:06  ncq
+# - fix some epydoc related stuff
+#
+# Revision 1.35  2006/07/19 20:25:00  ncq
 # - gmPyCompat.py is history
 #
 # Revision 1.34  2006/01/07 17:40:56  ncq
