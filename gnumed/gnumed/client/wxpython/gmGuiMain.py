@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.339 2007-07-11 21:09:05 ncq Exp $
-__version__ = "$Revision: 1.339 $"
+# $Id: gmGuiMain.py,v 1.340 2007-07-17 13:42:13 ncq Exp $
+__version__ = "$Revision: 1.340 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1210,8 +1210,11 @@ class gmApp(wx.App):
 		self.__set_db_lang()
 
 		# display database banner
-		rows, idx = gmPG2.run_ro_queries(link_obj = None, queries = [{'cmd': u'select message from cfg.db_logon_banner'}])
-		gmGuiHelpers.gm_show_info(rows[0]['message'], _('Verifying database'))
+		rows, idx = gmPG2.run_ro_queries(link_obj = None, queries = [{'cmd': u'select _(message) from cfg.db_logon_banner'}])
+		if len(rows) > 0:
+			msg = rows[0]['message'].strip()
+			if msg != u'':
+				gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
 
 		# create the main window
 		cli_layout = gmCLI.arg.get('--layout', None)
@@ -1408,7 +1411,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.339  2007-07-11 21:09:05  ncq
+# Revision 1.340  2007-07-17 13:42:13  ncq
+# - make displaying welcome message optional
+#
+# Revision 1.339  2007/07/11 21:09:05  ncq
 # - add lock/unlock patient
 #
 # Revision 1.338  2007/07/09 12:44:06  ncq
