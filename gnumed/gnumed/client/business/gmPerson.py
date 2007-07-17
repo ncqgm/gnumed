@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.126 2007-07-11 21:04:08 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmPerson.py,v 1.127 2007-07-17 21:43:29 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -737,9 +737,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# this lock protects against activating another patient
 		# when we are controlled from a remote application
 		try:
-			tmp = self.__locked
+			tmp = self.__lock_depth
 		except AttributeError:
-			self.locked = False
+			self.__lock_depth = 0
 
 		# user wants copy of current patient
 		if patient is None:
@@ -802,17 +802,26 @@ class gmCurrentPatient(gmBorg.cBorg):
 	# patient change handling
 	#--------------------------------------------------------
 	def _get_locked(self):
-		return self.__locked
+		return (self.__lock_depth > 0)
 
 	def _set_locked(self, locked):
 		if locked:
-			self.__locked = True
+			self.__lock_depth = self.__lock_depth + 1
 			gmDispatcher.send(signal='patient_locked')
 		else:
-			self.__locked = False
+			if self.__lock_depth == 0:
+				_log.Log(gmLog.lErr, 'lock/unlock imbalance, trying to refcount lock depth below 0')
+				return
+			else:
+				self.__lock_depth = self.__lock_depth - 1
 			gmDispatcher.send(signal='patient_unlocked')
 
 	locked = property(_get_locked, _set_locked)
+	#--------------------------------------------------------
+	def force_unlock(self):
+		_log.Log(gmLog.lInfo, 'forced patient unlock at lock depth [%s]' % self.__lock_depth)
+		self.__lock_depth = 0
+		gmDispatcher.send(signal='patient_unlocked')
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
@@ -1931,7 +1940,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.126  2007-07-11 21:04:08  ncq
+# Revision 1.127  2007-07-17 21:43:29  ncq
+# - refcount patient lock
+#
+# Revision 1.126  2007/07/11 21:04:08  ncq
 # - make locked a property of gmCurrentPatient()
 # - improve ask_for_patient()
 #
