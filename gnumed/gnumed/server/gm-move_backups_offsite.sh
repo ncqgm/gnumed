@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-move_backups_offsite.sh,v $
-# $Id: gm-move_backups_offsite.sh,v 1.5 2007-07-13 12:11:42 ncq Exp $
+# $Id: gm-move_backups_offsite.sh,v 1.6 2007-07-17 13:44:38 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -58,7 +58,7 @@ HOST=`hostname`
 BACKUP_FILE_GLOB="*.bz2"
 
 # do not run concurrently
-if test `ps ax | grep $0 | grep -v grep` != "" ; then
+if test `ps ax | grep $0 | grep -v grep | grep -v $$` != "" ; then
 	echo "${HOST}: "`date`": transfer already in progress, exiting" >> ${LOG}
 	exit
 fi
@@ -86,7 +86,10 @@ fi
 
 #==============================================================
 # $Log: gm-move_backups_offsite.sh,v $
-# Revision 1.5  2007-07-13 12:11:42  ncq
+# Revision 1.6  2007-07-17 13:44:38  ncq
+# - fix grep
+#
+# Revision 1.5  2007/07/13 12:11:42  ncq
 # - do not run concurrently
 # - missing "" fix
 #
