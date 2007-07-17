@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.45 2007-07-13 09:49:10 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmScanBackend.py,v 1.46 2007-07-17 13:40:31 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -11,8 +11,10 @@ __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <
 # stdlib
 import sys, os.path, os, string, time, shutil, codecs, glob, locale, errno
 
+
 # 3rd party
-import Image
+#import Image
+
 
 # GNUmed
 if __name__ == '__main__':
@@ -474,7 +476,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.45  2007-07-13 09:49:10  ncq
+# Revision 1.46  2007-07-17 13:40:31  ncq
+# - PIL currently not used so don't load it
+#
+# Revision 1.45  2007/07/13 09:49:10  ncq
 # - add missing ","
 #
 # Revision 1.44  2007/07/11 21:06:01  ncq
