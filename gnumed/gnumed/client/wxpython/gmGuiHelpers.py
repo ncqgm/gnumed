@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.63 2007-06-18 20:31:58 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmGuiHelpers.py,v 1.64 2007-07-18 14:43:01 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -307,11 +307,6 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aTitle is None:
 		aTitle = _('generic error message')
 
-	print "-" * len(aTitle)
-	print aTitle
-	print "-" * len(aTitle)
-	print aMessage
-
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = aMessage,
@@ -547,7 +542,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.63  2007-06-18 20:31:58  ncq
+# Revision 1.64  2007-07-18 14:43:01  ncq
+# - do away with accessing console as it often breaks
+#
+# Revision 1.63  2007/06/18 20:31:58  ncq
 # - gm_Multi/SingleChoiceDlg moved to gmListWidgets
 #
 # Revision 1.62  2007/06/11 20:35:06  ncq
