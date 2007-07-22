@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.344 2007-07-22 09:25:59 ncq Exp $
-__version__ = "$Revision: 1.344 $"
+# $Id: gmGuiMain.py,v 1.345 2007-07-22 10:04:49 ncq Exp $
+__version__ = "$Revision: 1.345 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -620,6 +620,9 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal='show_document_viewer')
 	#----------------------------------------------
 	def __on_new_letter(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			return True
 		gmMedDocWidgets.create_new_letter()
 	#----------------------------------------------
 	# help menu
@@ -1468,7 +1471,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.344  2007-07-22 09:25:59  ncq
+# Revision 1.345  2007-07-22 10:04:49  ncq
+# - only allow new letter from menu if patient active
+#
+# Revision 1.344  2007/07/22 09:25:59  ncq
 # - support AMIDE DICOM viewer if installed
 # - menu "correspondence" with item "write letter"
 # - adjust to new get_choice_from_list()
