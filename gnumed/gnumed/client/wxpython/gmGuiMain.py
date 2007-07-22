@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.345 2007-07-22 10:04:49 ncq Exp $
-__version__ = "$Revision: 1.345 $"
+# $Id: gmGuiMain.py,v 1.346 2007-07-22 10:47:48 ncq Exp $
+__version__ = "$Revision: 1.346 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -475,7 +475,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
 		ID_DICOM_VIEWER = wx.NewId()
-		viewer = _('not installed')
+		viewer = _('no viewer installed')
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			viewer = u'OsiriX'
 		elif os.access('/usr/bin/amide', os.X_OK):
@@ -484,7 +484,7 @@ class gmTopLevelFrame(wx.Frame):
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
-		if viewer == _('not installed'):
+		if viewer == _('no viewer installed'):
 			_log.Log(gmLog.lInfo, 'neither OsiriX nor AMIDE nor xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
@@ -1471,7 +1471,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.345  2007-07-22 10:04:49  ncq
+# Revision 1.346  2007-07-22 10:47:48  ncq
+# - fix typo
+#
+# Revision 1.345  2007/07/22 10:04:49  ncq
 # - only allow new letter from menu if patient active
 #
 # Revision 1.344  2007/07/22 09:25:59  ncq
