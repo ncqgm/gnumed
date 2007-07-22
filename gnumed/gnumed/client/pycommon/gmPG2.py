@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -396,6 +396,139 @@ def get_col_names(link_obj=None, schema='public', table=None):
 # =======================================================================
 # query runners and helpers
 # =======================================================================
+def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None):
+	outfile = file(filename, 'wb')
+	result = bytea2file_object(data_query=data_query, file_obj=outfile, chunk_size=chunk_size, data_size=data_size, data_size_query=data_size_query)
+	outfile.close()
+	return result
+#------------------------------------------------------------------------
+def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=None, data_size_query=None):
+	"""Store data from a bytea field into a file.
+
+	<data_query>
+	- dict {'cmd': ..., 'args': ...}
+	- 'cmd' must be unicode
+	- 'args' must be a dict containing "... substring(data from %(start)s for %(size)s) ..."
+	- must return one row with one field of type bytea
+	<file>
+	- must be a file like Python object
+	<data_size>
+	- integer of the total size of the expected data or None
+	<data_size_query>
+	- dict {'cmd': ..., 'args': ...}
+	- cmd must be unicode
+	- must return one row with one field with the octet_length() of the data field
+	- used only when <data_size> is None
+	"""
+	# If the client sets an encoding other than the default we
+	# will receive encoding-parsed data which isn't the binary
+	# content we want. Hence we need to get our own connection.
+	# It must be a read-write one so that we don't affect the
+	# encoding for other users of the shared read-only
+	# connections.
+	# Actually, encodings shouldn't be applied to binary data
+	# (eg. bytea types) in the first place but that is only
+	# reported to be fixed > v7.4.
+	# further tests reveal that at least on PG 8.0 this bug still
+	# manifests itself
+	conn = get_raw_connection()
+	# this shouldn't actually, really be necessary
+#	if conn.version > '7.4':
+#		print "****************************************************"
+#		print "*** if exporting BLOBs suddenly fails and        ***"
+#		print "*** you are running PostgreSQL >= 8.1 please     ***"
+#		print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
+#		print "****************************************************"
+
+	if data_size is None:
+		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
+		data_size = rows[0][0]
+		if data_size in [None, 0]:
+			conn.close()
+			return False
+	_log.Log(gmLog.lData, 'expecting bytea data size: [%s] bytes' % data_size)
+	_log.Log(gmLog.lData, 'using chunk size of: [%s] bytes' % chunk_size)
+	if chunk_size == 0:
+		chunk_size = data_size
+		_log.Log(gmLog.lData, 'chunk size [0] bytes: retrieving all data at once')
+
+	# Windoze sucks: it can't transfer objects of arbitrary size,
+	# anyways, we need to split the transfer,
+	# however, only possible if postgres >= 7.2
+	needed_chunks, remainder = divmod(data_size, chunk_size)
+	_log.Log(gmLog.lData, 'chunks to retrieve: [%s]' % needed_chunks)
+	_log.Log(gmLog.lData, 'remainder to retrieve: [%s] bytes' % remainder)
+
+	# a chunk size of 0 means: all at once
+	if  data_size <= chunk_size:
+		# retrieve binary field
+		data_query['args']['start'] = 1
+		data_query['args']['size'] = data_size
+		rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
+		conn.close()
+		file_obj.write(str(rows[0][0]))
+		return True
+
+	# retrieve chunks
+	# does this not carry the danger of cutting up multi-byte escape sequences ?
+	# no, since bytea is binary,
+	# yes, since in bytea there are *some* escaped values, still
+	# no, since those are only escaped during *transfer*, not on-disk, hence
+	# only complete escape sequences are put on the wire
+	for chunk_id in range(needed_chunks):
+		chunk_start = (chunk_id * chunk_size) + 1
+		data_query['args']['start'] = chunk_start
+		data_query['args']['size'] = chunk_size
+		try:
+			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
+		except:
+			_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, chunk_size))
+			conn.close()
+			raise
+		# it would be a fatal error to see more than one result as ids are supposed to be unique
+		file_obj.write(str(rows[0][0]))
+
+	# retrieve remainder
+	if remainder > 0:
+#		_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
+		chunk_start = (needed_chunks * chunk_size) + 1
+#		cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, remainder)
+		data_query['args']['start'] = chunk_start
+		data_query['args']['size'] = remainder
+		try:
+			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
+		except:
+			_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes' % remainder)
+			conn.close()
+			raise
+		# it would be a fatal error to see more than one result as ids are supposed to be unique
+		file_obj.write(str(rows[0][0]))
+
+	conn.close()
+	return True
+#------------------------------------------------------------------------
+def file2bytea(query=None, filename=None, args=None):
+	"""Store data from a file into a bytea field.
+
+	The query must:
+	- be in unicode
+	- contain a format spec identifying the row (eg a primary key) matching <args>
+	- contain a format spec %(data)s::bytea
+	"""
+	# read data from file
+	infile = file(filename, "rb")
+	data_as_byte_string = infile.read()
+	infile.close()
+	args['data'] = buffer(data_as_byte_string)
+	del(data_as_byte_string)
+
+	# insert the data
+	conn = get_raw_connection()
+	run_rw_queries(link_obj=conn, queries = [{'cmd': query, 'args': args}], end_tx=True)
+	conn.close()
+
+	return
+#------------------------------------------------------------------------
 def sanitize_pg_regex(expression=None, escape_all=False):
 	"""Escape input for use in a PostgreSQL regular expression.
 
@@ -1068,7 +1201,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.51  2007-07-03 15:53:50  ncq
+# Revision 1.52  2007-07-22 09:03:33  ncq
+# - bytea2file(_object)()
+# - file2bytea()
+#
+# Revision 1.51  2007/07/03 15:53:50  ncq
 # - import re as regex
 # - sanitize_pg_regex() and test
 #
