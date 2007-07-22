@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.1 2007-07-18 14:42:33 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: ref-form_tables.sql,v 1.2 2007-07-22 09:28:42 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -49,15 +49,20 @@ comment on column ref.form_defs.in_use is
 -- --------------------------------------------------------------
 grant select, insert, update, insert on
 	ref.form_types,
-	ref.form_defs
+	ref.form_types_pk_seq,
+	ref.form_defs,
+	ref.form_defs_pk_seq
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.1  2007-07-18 14:42:33  ncq
+-- Revision 1.2  2007-07-22 09:28:42  ncq
+-- - missing grants
+--
+-- Revision 1.1  2007/07/18 14:42:33  ncq
 -- - added for forms handling
 --
 -- Revision 1.7  2007/05/07 16:32:09  ncq
