@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.123 2007-07-10 20:28:36 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gmDemographicsWidgets.py,v 1.124 2007-07-22 09:04:44 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -45,7 +45,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		]
 		gmDataMiningWidgets.cPatientListingPnl.__init__(self, *args, **kwargs)
 
-		self.fname = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp', 'korganizer2gnumed.csv'))
+		self.fname = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'korganizer2gnumed.csv'))
 		self.reload_cmd = 'konsolekalendar --view --export-type csv --export-file %s' % self.fname
 
 	#--------------------------------------------------------
@@ -1794,7 +1794,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.123  2007-07-10 20:28:36  ncq
+# Revision 1.124  2007-07-22 09:04:44  ncq
+# - tmp/ now in .gnumed/
+#
+# Revision 1.123  2007/07/10 20:28:36  ncq
 # - consolidate install_domain() args
 #
 # Revision 1.122  2007/07/09 12:42:48  ncq
