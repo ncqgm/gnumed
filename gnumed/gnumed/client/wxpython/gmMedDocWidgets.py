@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.132 2007-07-11 21:10:31 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmMedDocWidgets.py,v 1.133 2007-07-22 09:27:28 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -13,13 +13,54 @@ import wx
 
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
-from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems
+from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+#============================================================
+def create_new_letter(parent=None):
+
+	# 1) have user select template
+	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, all = False)
+	choices = [ [] for t in templates ]
+	template = gmListWidgets.get_choice_from_list (
+		parent = parent,
+		msg = u'',
+		caption = _('Select letter template.'),
+		choices = [ [t['name_long'], t['revision']] for t in templates ],
+		columns = [_('Template'), _('Revision')],
+		data = templates
+	)
+	if template is None:
+		print "user aborted template selection"
+		return
+
+	# 2) export template to file
+	print "user selected letter template:", template
+	filename = gmForms.export_form_template(pk = template['pk'])
+	if filename is None:
+		gmGuiHelpers.gm_show_error (
+			_(
+				'Error exporting form template\n'
+				'\n'
+				' "%s" (%s)'
+			) % (template['name_long'], template['revision']),
+			_('Letter template export')
+		)
+		return
+	print "exported to file:", filename
+
+	doc = gmForms.cOOoLetter(template_file = filename)
+	doc.open_in_ooo()
+	doc.replace_placeholders()
+	doc.save_in_ooo(filename = filename.replace('.ott', '.odt'))
+	raw_input('press <ENTER> to continue')
+	doc.close_in_ooo()
+
 
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -577,21 +618,23 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 			return None
 
-		device_names = []
-		for device in devices:
-			device_names.append('%s (%s)' % (device[2], device[0]))
+#		device_names = []
+#		for device in devices:
+#			device_names.append('%s (%s)' % (device[2], device[0]))
 
-		device_idx = gmListWidgets.get_choice_from_list (
+		device = gmListWidgets.get_choice_from_list (
 			parent = self,
 			msg = _('Select an image capture device'),
 			caption = _('device selection'),
-			choices = device_names
+			choices = [ '%s (%s)' % (d[2], d[0]) for d in devices ],
+			columns = [_('Device')],
+			data = devices
 		)
-		if device_idx is False:
+		if device is None:
 			return None
 
 		# FIXME: add support for actually reconfiguring
-		return devices[device_idx][0]
+		return device[0]
 	#--------------------------------------------------------
 	# event handling API
 	#--------------------------------------------------------
@@ -599,7 +642,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		chosen_device = self.get_device_to_use()
 
-		tmpdir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp'))
+		tmpdir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
 		try:
 			gmTools.mkdir(tmpdir)
 		except:
@@ -1299,7 +1342,7 @@ class cDocTree(wx.TreeCtrl):
 			return None
 
 		# get export directory for temporary files
-		def_tmp_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp'))
+		def_tmp_dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
 		if not os.path.isdir(def_tmp_dir):
 			try:
 				os.makedirs(def_tmp_dir)
@@ -1435,7 +1478,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.132  2007-07-11 21:10:31  ncq
+# Revision 1.133  2007-07-22 09:27:28  ncq
+# - create_new_letter()
+# - adjust to get_choice_from_list() changes
+# - tmp/ now in .gnumed/
+#
+# Revision 1.132  2007/07/11 21:10:31  ncq
 # - cleanup
 #
 # Revision 1.131  2007/06/28 12:39:37  ncq
