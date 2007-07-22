@@ -6,13 +6,13 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.43 2007-07-13 21:00:55 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmForms.py,v 1.44 2007-07-22 08:59:19 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time
-# os.path, string, re as regex, cStringIO, types
+import os, sys, time, os.path
+# string, re as regex, cStringIO, types
 
 
 import uno, unohelper
@@ -23,9 +23,10 @@ from com.sun.star.beans import PropertyValue as oooPropertyValue
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions
+from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2
 #gmCfg, gmShellAPI
 from Gnumed.business import gmPerson
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -38,6 +39,48 @@ known_placeholders = [
 	'date_of_birth'
 ]
 
+engine_ooo = 'O'
+
+#============================================================
+def get_form_templates(engine=None, all=False):
+	"""OOo forms only for now"""
+	# FIXME: support any engine/all forms
+	engine = engine_ooo
+	rows, idx = gmPG2.run_ro_queries (
+		queries = [{
+			'cmd': u"select pk, name_long, revision, in_use from ref.form_defs where in_use is True and engine = %(eng)s",
+			'args': {'eng': engine}
+		}]
+	)
+	return rows
+#============================================================
+def export_form_template(pk=None, filename=None):
+
+	if filename is None:
+		filename = gmTools.get_unique_filename (
+			prefix = 'gmOOoFormTemplate-',
+			suffix = '.ott',
+			dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+		)
+	data_query = {
+		'cmd': u'SELECT substring(template from %(start)s for %(size)s) FROM ref.form_defs WHERE pk = %(pk)s',
+		'args': {'pk': pk}
+	}
+	data_size_query = {
+		'cmd': u'select octet_length(template) from ref.form_defs where pk=%(pk)s',
+		'args': {'pk': pk}
+	}
+
+	result = gmPG2.bytea2file (
+		data_query = data_query,
+		filename = filename,
+		data_size_query = data_size_query,
+		chunk_size = 0			# FIXME: load config from backend
+	)
+	if result is False:
+		return None
+
+	return filename
 #============================================================
 # Placeholder API, move elsewhere, eventually
 #============================================================
@@ -135,7 +178,7 @@ class cOOoConnector(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
-		document_uri = uno.absolutize(uno.systemPathToFileUrl(filename))
+		document_uri = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
 		doc = self.desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
 		return doc
 	#--------------------------------------------------------
@@ -161,9 +204,9 @@ class cOOoConnector(gmBorg.cBorg):
 #------------------------------------------------------------
 class cOOoLetter(object):
 
-	def __init__(self, filename=None):
+	def __init__(self, template_file=None):
 
-		self.filename = filename
+		self.template_file = template_file
 		self.ooo_doc = None
 
 	#--------------------------------------------------------
@@ -174,7 +217,7 @@ class cOOoLetter(object):
 		# connect to OOo
 		ooo_srv = cOOoConnector()
 		# open doc in OOo
-		self.ooo_doc = ooo_srv.open_document(filename=self.filename)
+		self.ooo_doc = ooo_srv.open_document(filename=self.template_file)
 		# listen for close events
 		listener = cOOoDocumentCloseListener()
 		self.ooo_doc.addCloseListener(listener)
@@ -209,7 +252,7 @@ class cOOoLetter(object):
 	#--------------------------------------------------------
 	def save_in_ooo(self, filename=None):
 		if filename is not None:
-			target_url = uno.absolutize(uno.systemPathToFileUrl(filename))
+			target_url = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
 			save_args = (
 				oooPropertyValue('Overwrite', 0, True, 0),
 				oooPropertyValue('FormatFilter', 0, 'swriter: StarOffice XML (Writer)', 0)
@@ -661,7 +704,7 @@ if __name__ == '__main__':
 			return
 		gmPerson.set_active_patient(patient = pat)
 
-		doc = cOOoLetter(filename = sys.argv[1])
+		doc = cOOoLetter(template_file = sys.argv[1])
 		doc.open_in_ooo()
 		doc.replace_placeholders()
 		doc.save_in_ooo('~/test_cOOoLetter.odt')
@@ -680,7 +723,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.43  2007-07-13 21:00:55  ncq
+# Revision 1.44  2007-07-22 08:59:19  ncq
+# - get_form_templates()
+# - export_form_template()
+# - absolutize -> os.path.abspath
+#
+# Revision 1.43  2007/07/13 21:00:55  ncq
 # - apply uno.absolutize()
 #
 # Revision 1.42  2007/07/13 12:08:38  ncq
