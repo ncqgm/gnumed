@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.9 2007-07-09 12:45:47 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmListWidgets.py,v 1.10 2007-07-22 09:26:25 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -23,7 +23,23 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 
 #================================================================
-def get_choice_from_list(parent=None, msg=None, caption=None, choices=None):
+def get_choice_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None):
+
+	choices = get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = caption,
+		choices = choices,
+		selections = selections,
+		columns = columns,
+		data = data
+	)
+	if choices is None:
+		return None
+
+	return choices[0]
+#================================================================
+def get_choice_from_list_old(parent=None, msg=None, caption=None, choices=None):
 
 	if msg is None:
 		msg = _('programmer forgot to specify info message')
@@ -32,7 +48,7 @@ def get_choice_from_list(parent=None, msg=None, caption=None, choices=None):
 		caption = _('generic single choice dialog')
 
 	dlg = wx.SingleChoiceDialog (
-		parent = None,
+		parent = parent,
 		message = msg,
 		caption = caption,
 		choices = choices,
@@ -55,7 +71,7 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	if caption is None:
 		caption = _('generic multi choice dialog')
 
-	dlg = cGenericListSelectorDlg(parent, -1, caption)
+	dlg = cGenericListSelectorDlg(parent, -1, title = caption)
 	dlg.set_columns(columns = columns)
 	dlg.set_string_items(items = choices)
 	if selections is not None:
@@ -244,7 +260,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.9  2007-07-09 12:45:47  ncq
+# Revision 1.10  2007-07-22 09:26:25  ncq
+# - new get_choice_from_list()
+#
+# Revision 1.9  2007/07/09 12:45:47  ncq
 # - fix unicode()ing in set_string_items(): can't use (..., errors='replace') :-(
 # - factor out cPatientListingCtrl into gmDataMiningWidgets.py
 #
