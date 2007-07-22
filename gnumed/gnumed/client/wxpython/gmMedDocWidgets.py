@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.133 2007-07-22 09:27:28 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmMedDocWidgets.py,v 1.134 2007-07-22 10:04:23 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -58,10 +58,12 @@ def create_new_letter(parent=None):
 	doc.open_in_ooo()
 	doc.replace_placeholders()
 	doc.save_in_ooo(filename = filename.replace('.ott', '.odt'))
-	raw_input('press <ENTER> to continue')
-	doc.close_in_ooo()
 
+	print "now edit the letter in OOo"
+	print "then save the letter in OOo and close it"
 
+#	raw_input('press <ENTER> to continue')
+#	doc.close_in_ooo()
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -1478,7 +1480,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.133  2007-07-22 09:27:28  ncq
+# Revision 1.134  2007-07-22 10:04:23  ncq
+# - streamline create_new_letter()
+#
+# Revision 1.133  2007/07/22 09:27:28  ncq
 # - create_new_letter()
 # - adjust to get_choice_from_list() changes
 # - tmp/ now in .gnumed/
