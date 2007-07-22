@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.343 2007-07-17 21:43:50 ncq Exp $
-__version__ = "$Revision: 1.343 $"
+# $Id: gmGuiMain.py,v 1.344 2007-07-22 09:25:59 ncq Exp $
+__version__ = "$Revision: 1.344 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -350,7 +350,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
 
 		ID_DEL_PAT = wx.NewId()
-		menu_patient.Append(ID_DEL_PAT, _('Delete patient'), _('Deactivate patient in database.'))
+		menu_patient.Append(ID_DEL_PAT, _('Inactivate patient'), _('Deactivate patient in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
@@ -448,6 +448,22 @@ class gmTopLevelFrame(wx.Frame):
 		# - draw a line
 		menu_emr.AppendSeparator()
 
+		# -- menu "paperwork" ---------------------
+		menu_paperwork = wx.Menu()
+
+		# submenu "Documents"
+#		menu_docs = wx.Menu()
+
+#		item = menu_docs.Append(-1, _('&Show docs'), _('Switch to document collection'))
+#		self.Bind(wx.EVT_MENU, self__on_show_docs, item)
+
+#		item = menu_docs.Append(-1, _('&Add document'), _('Add a new document'))
+
+		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
+
+		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
+
 		# menu "View" ---------------------------
 #		self.menu_view = wx.Menu()
 #		self.__gb['main.viewmenu'] = self.menu_view
@@ -459,13 +475,17 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
 		ID_DICOM_VIEWER = wx.NewId()
-		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer for CD-ROM (X-Ray, CT, MR, etc). Linux only (on Windows just insert CD).'))
+		viewer = _('not installed')
+		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+			viewer = u'OsiriX'
+		elif os.access('/usr/bin/amide', os.X_OK):
+			viewer = u'AMIDE'
+		elif os.access('/usr/bin/xmedcon', os.X_OK):
+			viewer = u'(x)medcon'
+		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
-		if not (
-			os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK)
-			or os.access('/usr/bin/xmedcon', os.X_OK)
-		):
-			_log.Log(gmLog.lInfo, 'neither OsiriX nor xmedcon found, disabling menu item')
+		if viewer == _('not installed'):
+			_log.Log(gmLog.lInfo, 'neither OsiriX nor AMIDE nor xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -594,6 +614,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		return True
 	#----------------------------------------------
+	# menu "paperwork"
+	#----------------------------------------------
+	def __on_show_docs(self, evt):
+		gmDispatcher.send(signal='show_document_viewer')
+	#----------------------------------------------
+	def __on_new_letter(self, evt):
+		gmMedDocWidgets.create_new_letter()
+	#----------------------------------------------
 	# help menu
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -625,11 +653,13 @@ class gmTopLevelFrame(wx.Frame):
 		self.Close()
 	#----------------------------------------------
 	def __on_set_db_lang(self, event):
+
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 		)
-		langs = [row[0] for row in rows]
-		result = gmListWidgets.get_choice_from_list (
+		langs = [ row[0] for row in rows ]
+
+		language = gmListWidgets.get_choice_from_list (
 			parent = self,
 			msg = _(
 				'Please select the database language from the list below.\n\n'
@@ -637,12 +667,16 @@ class gmTopLevelFrame(wx.Frame):
 				'interface is displayed in.'
 			),
 			caption = _('configuring database language'),
-			choices = langs
+			choices = langs,
+			columns = [_('Language')],
+			data = langs
 		)
-		if result is False:
+
+		if language is None:
 			return
+
 		rows, idx = gmPG2.run_rw_queries (
-			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': langs[result]}}]
+			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}]
 		)
 	#----------------------------------------------
 	def __on_configure_workplace(self, evt):
@@ -694,13 +728,19 @@ class gmTopLevelFrame(wx.Frame):
 		# raw check for OsiriX binary
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
-		else:
-			# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
-			# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
-			# FIXME: scan CD for *.dcm files, put them into list and
-			# FIXME: let user call viewer for each
-			# FIXME: parse DICOMDIR file
-			gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+			return
+
+		if os.access('/usr/bin/amide', os.X_OK):
+			# FIXME: search for DICOMDIR and add that to AMIDE call
+			gmShellAPI.run_command_in_shell('/usr/bin/amide', blocking=False)
+			return
+
+		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
+		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
+		# FIXME: scan CD for *.dcm files, put them into list and
+		# FIXME: let user call viewer for each
+		# FIXME: parse DICOMDIR file
+		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
@@ -1428,7 +1468,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.343  2007-07-17 21:43:50  ncq
+# Revision 1.344  2007-07-22 09:25:59  ncq
+# - support AMIDE DICOM viewer if installed
+# - menu "correspondence" with item "write letter"
+# - adjust to new get_choice_from_list()
+#
+# Revision 1.343  2007/07/17 21:43:50  ncq
 # - use refcounted patient lock
 #
 # Revision 1.342  2007/07/17 15:52:57  ncq
