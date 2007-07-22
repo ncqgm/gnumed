@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.1 2007-07-18 14:28:23 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: ref-form_tables.sql,v 1.2 2007-07-22 09:29:53 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -24,10 +24,13 @@ create table ref.form_types (
 
 insert into ref.form_types select * from public.form_types;
 
+select setval(pg_get_serial_sequence('ref.form_types', 'pk'), (select max(pk) from ref.form_types) + 1);
+
 -- --------------------------------------------------------------
 create table ref.form_defs (
 	pk serial primary key,
 	fk_type integer
+		not null
 		references form_types(pk)
 		on update cascade
 		on delete restrict,
@@ -53,16 +56,21 @@ insert into ref.form_defs (fk_type, name_short, name_long, revision, engine, in_
 ;
 
 drop table public.form_defs cascade;
+drop table audit.log_form_defs cascade;
 drop table public.form_types cascade;
 
 delete from audit.audited_tables where schema = 'public' and table_name = 'form_defs';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.1  2007-07-18 14:28:23  ncq
+-- Revision 1.2  2007-07-22 09:29:53  ncq
+-- - need to adjust ref.form_types sequences
+-- - drop audit table of ref.form_defs, too
+--
+-- Revision 1.1  2007/07/18 14:28:23  ncq
 -- - we are now really getting into forms handling
 --
 --
