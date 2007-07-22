@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.2 2007-07-22 09:28:42 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: ref-form_tables.sql,v 1.3 2007-07-22 10:03:28 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -46,6 +46,38 @@ comment on column ref.form_defs.in_use is
 	'whether this template is currently actively
 	 used in a given practice';
 
+
+-- example form template
+\unset ON_ERROR_STOP
+insert into ref.form_types (name) values (i18n.i18n('physical therapy report'));
+\set ON_ERROR_STOP
+
+select i18n.upd_tx('de_DE', 'physical therapy report', 'Therapiebericht (PT)');
+
+
+delete from ref.form_defs where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
+
+insert into ref.form_defs (
+	fk_type,
+	name_short,
+	name_long,
+	revision,
+	engine,
+	template
+) values (
+	(select pk from ref.form_types where name = 'physical therapy report'),
+	'Therapiebericht PT (GNUmed)',
+	'Therapiebericht Physiotherapie (GNUmed-Standard)',
+	'1.0',
+	'O',
+	'real template missing,
+to create one save an OOo document as a template (.ott) file,
+the template can contain "field" -> "placeholders",
+the list of known placeholders is in business/gmForms.py::known_placeholders
+then import the ott file into the template field in ref.form_defs'::bytea
+);
+
+
 -- --------------------------------------------------------------
 grant select, insert, update, insert on
 	ref.form_types,
@@ -55,11 +87,14 @@ grant select, insert, update, insert on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.2  2007-07-22 09:28:42  ncq
+-- Revision 1.3  2007-07-22 10:03:28  ncq
+-- - add example letter template with instructions
+--
+-- Revision 1.2  2007/07/22 09:28:42  ncq
 -- - missing grants
 --
 -- Revision 1.1  2007/07/18 14:42:33  ncq
