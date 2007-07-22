@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.24 2007-05-08 11:16:32 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPatPicWidgets.py,v 1.25 2007-07-22 09:27:48 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -113,7 +113,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		fnames = gmScanBackend.acquire_pages_into_files (
 			delay = 5,
-			tmpdir = os.path.expanduser(os.path.join('~', 'gnumed', 'tmp')),
+			tmpdir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp')),
 			calling_window = self
 		)
 		if fnames is False:
@@ -191,7 +191,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.24  2007-05-08 11:16:32  ncq
+# Revision 1.25  2007-07-22 09:27:48  ncq
+# - tmp/ now in .gnumed/
+#
+# Revision 1.24  2007/05/08 11:16:32  ncq
 # - need to import gmTools
 #
 # Revision 1.23  2007/05/07 12:35:20  ncq
