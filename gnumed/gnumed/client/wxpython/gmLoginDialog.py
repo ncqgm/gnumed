@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.85 2007-06-14 21:55:49 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmLoginDialog.py,v 1.86 2007-08-07 21:42:40 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -49,7 +49,7 @@ class LoginPanel(wx.Panel):
 		self.parent = parent
 
 		self.user_preferences_file = None
-		paths = gmTools.cPaths(app_name = 'gnumed', wx=wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx=wx)
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
@@ -234,7 +234,7 @@ class LoginPanel(wx.Panel):
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
-			paths = gmTools.cPaths(app_name = 'gnumed', wx = wx)
+			paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 			fnames = [
 				os.path.join(paths.user_config_dir, 'gnumed.conf'),
 				os.path.join(paths.working_dir, 'gnumed.conf')
@@ -277,7 +277,7 @@ class LoginPanel(wx.Panel):
 		if gmCLI.has_arg('--conf-file'):
 			fnames = [gmCLI.arg['--conf-file']]
 		else:
-			paths = gmTools.cPaths()
+			paths = gmTools.gmPaths()
 			fnames = [
 				os.path.join(paths.system_config_dir, 'gnumed-client.conf'),
 				os.path.join(paths.user_config_dir, 'gnumed.conf'),
@@ -486,7 +486,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.85  2007-06-14 21:55:49  ncq
+# Revision 1.86  2007-08-07 21:42:40  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.85  2007/06/14 21:55:49  ncq
 # - try to fix wx2.8 problem with size
 #
 # Revision 1.84  2007/06/11 20:25:55  ncq

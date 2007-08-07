@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.346 2007-07-22 10:47:48 ncq Exp $
-__version__ = "$Revision: 1.346 $"
+# $Id: gmGuiMain.py,v 1.347 2007-08-07 21:42:40 ncq Exp $
+__version__ = "$Revision: 1.347 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1179,7 +1179,7 @@ class gmApp(wx.App):
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
 		#self.SetVendor(u'The GNUmed Development Community.')
-		paths = gmTools.cPaths(app_name = 'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
 		if gmCLI.has_arg('--conf-file'):
@@ -1471,7 +1471,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.346  2007-07-22 10:47:48  ncq
+# Revision 1.347  2007-08-07 21:42:40  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.346  2007/07/22 10:47:48  ncq
 # - fix typo
 #
 # Revision 1.345  2007/07/22 10:04:49  ncq

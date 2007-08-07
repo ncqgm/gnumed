@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.25 2007-07-22 09:27:48 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPatPicWidgets.py,v 1.26 2007-08-07 21:42:40 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -41,7 +41,7 @@ class cPatientPicture(wx.StaticBitmap):
 	def __init__(self, parent, id, width=50, height=54):
 
 		# find assets
-		paths = gmTools.cPaths(app_name  = 'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name  = 'gnumed', wx = wx)
 		self.__fallback_pic_name = os.path.join(paths.system_app_data_dir, 'bitmaps', 'empty-face-in-bust.png')
 
 		# load initial dummy bitmap
@@ -191,7 +191,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.25  2007-07-22 09:27:48  ncq
+# Revision 1.26  2007-08-07 21:42:40  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.25  2007/07/22 09:27:48  ncq
 # - tmp/ now in .gnumed/
 #
 # Revision 1.24  2007/05/08 11:16:32  ncq

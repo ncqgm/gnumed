@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.70 2007-05-08 11:16:32 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmPlugin.py,v 1.71 2007-08-07 21:42:40 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -31,7 +31,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 			style = wx.PD_ELAPSED_TIME
 			)
 		# set window icon
-		paths = gmTools.cPaths(app_name = u'gnumed', wx = wx)
+		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
 		png_fname = os.path.join(paths.system_app_data_dir, 'bitmaps', 'serpent.png')
 		icon = wx.EmptyIcon()
 		try:
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.70  2007-05-08 11:16:32  ncq
+# Revision 1.71  2007-08-07 21:42:40  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.70  2007/05/08 11:16:32  ncq
 # - need to import gmTools
 #
 # Revision 1.69  2007/05/07 12:35:20  ncq

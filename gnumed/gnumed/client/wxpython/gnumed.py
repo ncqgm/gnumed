@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.120 2007-07-22 09:28:13 ncq Exp $
-__version__ = "$Revision: 1.120 $"
+# $Id: gnumed.py,v 1.121 2007-08-07 21:42:40 ncq Exp $
+__version__ = "$Revision: 1.121 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -157,7 +157,7 @@ def setup_paths():
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
 
-	paths = gmTools.cPaths()
+	paths = gmTools.gmPaths()
 #==========================================================
 def setup_date_time():
 	from Gnumed.pycommon import gmDateTime
@@ -292,7 +292,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.120  2007-07-22 09:28:13  ncq
+# Revision 1.121  2007-08-07 21:42:40  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.120  2007/07/22 09:28:13  ncq
 # - tmp/ now in .gnumed/
 #
 # Revision 1.119  2007/07/13 09:12:35  ncq

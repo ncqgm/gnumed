@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.34 2007-07-13 09:47:38 ncq Exp $
+# $Id: gmTools.py,v 1.35 2007-08-07 21:41:02 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -61,7 +61,7 @@ def handle_uncaught_exception(t, v, tb):
 	sys.__excepthook__(t,v,tb)
 
 #===========================================================================
-class cPaths(gmBorg.cBorg):
+class gmPaths(gmBorg.cBorg):
 
 	def __init__(self, app_name=None, wx=None):
 		gmBorg.cBorg.__init__(self)
@@ -558,10 +558,10 @@ This is a test mail from the gmTools.py module.
 			debug = True
 		)
 	#-----------------------------------------------------------------------
-	def test_cPaths():
-		print "testing cPaths()"
-		print "----------------"
-		paths = cPaths(wx=None, app_name='gnumed')
+	def test_gmPaths():
+		print "testing gmPaths()"
+		print "-----------------"
+		paths = gmPaths(wx=None, app_name='gnumed')
 		print "user     config dir:", paths.user_config_dir
 		print "system   config dir:", paths.system_config_dir
 		print "local      base dir:", paths.local_base_dir
@@ -617,14 +617,17 @@ This is a test mail from the gmTools.py module.
 	#test_import_module()
 	#test_mkdir()
 	#test_send_mail()
-	#test_cPaths()
+	#test_gmPaths()
 	#test_none_if()
 	test_bool2str()
 	test_get_unique_filename()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.34  2007-07-13 09:47:38  ncq
+# Revision 1.35  2007-08-07 21:41:02  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.34  2007/07/13 09:47:38  ncq
 # - fix and test suite for get_unique_filename()
 #
 # Revision 1.33  2007/07/11 21:06:51  ncq
