@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.2 2007-05-11 14:11:20 ncq Exp $
+# $Id: gmSurgery.py,v 1.3 2007-08-07 21:34:19 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -41,7 +41,7 @@ class gmCurrentPractice(gmBorg.cBorg):
 		candidates = []
 		if gmCLI.has_arg('--conf-file'):
 			candidates.append(gmCLI.arg['--conf-file'])
-		paths = gmTools.cPaths()
+		paths = gmTools.gmPaths()
 		candidates.extend ([
 			os.path.join(paths.working_dir, 'gnumed.conf'),
 			os.path.join(paths.local_base_dir, 'gnumed.conf'),
@@ -101,7 +101,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.2  2007-05-11 14:11:20  ncq
+# Revision 1.3  2007-08-07 21:34:19  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.2  2007/05/11 14:11:20  ncq
 # - add gmCurrentPractice borg
 #
 # Revision 1.1  2007/04/07 23:00:01  ncq

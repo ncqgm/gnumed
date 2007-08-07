@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.127 2007-07-17 21:43:29 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmPerson.py,v 1.128 2007-08-07 21:34:18 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -642,7 +642,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		candidates = []
 		if gmCLI.has_arg('--conf-file'):
 			candidates.append(gmCLI.arg['--conf-file'])
-		paths = gmTools.cPaths()
+		paths = gmTools.gmPaths()
 		candidates.extend ([
 			os.path.join(paths.working_dir, 'gnumed.conf'),
 			os.path.join(paths.local_base_dir, 'gnumed.conf'),
@@ -1940,7 +1940,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.127  2007-07-17 21:43:29  ncq
+# Revision 1.128  2007-08-07 21:34:18  ncq
+# - cPaths -> gmPaths
+#
+# Revision 1.127  2007/07/17 21:43:29  ncq
 # - refcount patient lock
 #
 # Revision 1.126  2007/07/11 21:04:08  ncq
