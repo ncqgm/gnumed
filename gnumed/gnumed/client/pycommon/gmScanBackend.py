@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.46 2007-07-17 13:40:31 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmScanBackend.py,v 1.47 2007-08-08 21:26:39 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -336,13 +336,13 @@ class cXSaneScanner:
 		"""
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix='gmScannedObj-',
-				suffix='-###.%s' % cXSaneScanner._filetype,
-				dir=tmpdir
+				prefix = 'gmScannedObj-',
+				suffix = '-###%s' % cXSaneScanner._filetype,
+				dir = tmpdir
 			)
 		else:
-			tmp, ext = os.path.splitext(filename)
-			filename = '%s-###.%s' % (tmp, cXSaneScanner._filetype)
+			name, ext = os.path.splitext(filename)
+			filename = '%s-###%s' % (name, cXSaneScanner._filetype)
 
 		filename = os.path.abspath(os.path.expanduser(filename))
 		path, name = os.path.split(filename)
@@ -426,11 +426,12 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 	"""Connect to a scanner and return the scanned pages as a file list.
 
 	returns:
-		- list of filenames: names of scanned pages.
+		- list of filenames: names of scanned pages, may be []
 		- None: unable to connect to scanner
 	"""
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
+		_log.Log(gmLog.lData, 'using TWAIN')
 	except ImportError:
 		if use_XSane:
 			_log.Log(gmLog.lData, 'using XSane')
@@ -476,7 +477,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.46  2007-07-17 13:40:31  ncq
+# Revision 1.47  2007-08-08 21:26:39  ncq
+# - tiny improvements re file extension in XSane scanner driver
+#
+# Revision 1.46  2007/07/17 13:40:31  ncq
 # - PIL currently not used so don't load it
 #
 # Revision 1.45  2007/07/13 09:49:10  ncq
