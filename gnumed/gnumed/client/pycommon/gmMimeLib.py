@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.11 2007-08-07 21:40:36 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMimeLib.py,v 1.12 2007-08-08 21:23:20 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -185,7 +185,7 @@ def call_viewer_on_file(aFile = None, block=None):
 		# try to guess one
 		f_ext = guess_ext_by_mimetype(mime_type)
 		if f_ext is None:
-			_log.Log(gmLog.lWarn, "no suitable file extension found, trying sheer luck")
+			_log.Log(gmLog.lWarn, "no suitable file extension found, trying anyway")
 			file_to_display = aFile
 			f_ext = '?unknown?'
 		else:
@@ -223,7 +223,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.11  2007-08-07 21:40:36  ncq
+# Revision 1.12  2007-08-08 21:23:20  ncq
+# - improve wording
+#
+# Revision 1.11  2007/08/07 21:40:36  ncq
 # - streamline code
 # - teach guess_ext_by_mimetype() about mime_type2file_name.conf
 #
