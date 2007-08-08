@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -407,8 +407,8 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 
 	<data_query>
 	- dict {'cmd': ..., 'args': ...}
-	- 'cmd' must be unicode
-	- 'args' must be a dict containing "... substring(data from %(start)s for %(size)s) ..."
+	- 'cmd' must be unicode containing "... substring(data from %(start)s for %(size)s) ..."
+	- 'args' must be a dict
 	- must return one row with one field of type bytea
 	<file>
 	- must be a file like Python object
@@ -420,6 +420,9 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	- must return one row with one field with the octet_length() of the data field
 	- used only when <data_size> is None
 	"""
+	if data_size == 0:
+		return True
+
 	# If the client sets an encoding other than the default we
 	# will receive encoding-parsed data which isn't the binary
 	# content we want. Hence we need to get our own connection.
@@ -432,22 +435,18 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	# further tests reveal that at least on PG 8.0 this bug still
 	# manifests itself
 	conn = get_raw_connection()
-	# this shouldn't actually, really be necessary
-#	if conn.version > '7.4':
-#		print "****************************************************"
-#		print "*** if exporting BLOBs suddenly fails and        ***"
-#		print "*** you are running PostgreSQL >= 8.1 please     ***"
-#		print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
-#		print "****************************************************"
 
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
 		data_size = rows[0][0]
 		if data_size in [None, 0]:
 			conn.close()
-			return False
-	_log.Log(gmLog.lData, 'expecting bytea data size: [%s] bytes' % data_size)
+			return True
+
+	_log.Log(gmLog.lData, 'expecting bytea data of size: [%s] bytes' % data_size)
 	_log.Log(gmLog.lData, 'using chunk size of: [%s] bytes' % chunk_size)
+
+	# chunk size of 0 means "retrieve whole field at once"
 	if chunk_size == 0:
 		chunk_size = data_size
 		_log.Log(gmLog.lData, 'chunk size [0] bytes: retrieving all data at once')
@@ -459,17 +458,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	_log.Log(gmLog.lData, 'chunks to retrieve: [%s]' % needed_chunks)
 	_log.Log(gmLog.lData, 'remainder to retrieve: [%s] bytes' % remainder)
 
-	# a chunk size of 0 means: all at once
-	if  data_size <= chunk_size:
-		# retrieve binary field
-		data_query['args']['start'] = 1
-		data_query['args']['size'] = data_size
-		rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
-		conn.close()
-		file_obj.write(str(rows[0][0]))
-		return True
-
-	# retrieve chunks
+	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
 	# no, since bytea is binary,
 	# yes, since in bytea there are *some* escaped values, still
@@ -490,9 +479,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 
 	# retrieve remainder
 	if remainder > 0:
-#		_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 		chunk_start = (needed_chunks * chunk_size) + 1
-#		cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, remainder)
 		data_query['args']['start'] = chunk_start
 		data_query['args']['size'] = remainder
 		try:
@@ -1201,7 +1188,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.52  2007-07-22 09:03:33  ncq
+# Revision 1.53  2007-08-08 21:25:39  ncq
+# - improve bytea2file()
+#
+# Revision 1.52  2007/07/22 09:03:33  ncq
 # - bytea2file(_object)()
 # - file2bytea()
 #
