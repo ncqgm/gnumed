@@ -4,17 +4,18 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.95 2007-07-11 21:02:27 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmMedDoc.py,v 1.96 2007-08-09 07:58:44 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time
 from cStringIO import StringIO
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject, gmPG2, gmTools, gmMimeLib
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmBusinessDBObject, gmPG2, gmTools
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -163,47 +164,46 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 	# retrieve data
 	#--------------------------------------------------------
 	def export_to_file(self, aTempDir = None, aChunkSize = 0, filename=None):
-		"""Export binary object data into file.
 
-			- returns file name or None
-		"""
 		if self._payload[self._idx['size']] == 0:
 			return None
 
 		if filename is None:
+			suffix = None
+			# preserve original filename extension if available
+			if self._payload[self._idx['filename']] is not None:
+				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
+				suffix = suffix.strip()
+				if suffix == u'':
+					suffix = None
+			# get unique filename
 			filename = gmTools.get_unique_filename (
-				prefix = 'gm-doc_obj-page_%s' % self._payload[self._idx['seq_idx']],
-				dir=aTempDir
+				prefix = 'gm-doc_obj-page_%s-' % self._payload[self._idx['seq_idx']],
+				suffix = suffix,
+				dir = aTempDir
 			)
 
-		# binary, no encoding
-		aFile = open(filename, 'wb+')
+		success = gmPG2.bytea2file (
+			data_query = {
+				'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
+				'args': {'pk': self.pk_obj}
+			},
+			filename = filename,
+			chunk_size = aChunkSize,
+			data_size = self._payload[self._idx['size']]
+		)
 
-		self.__export(aFile, aChunkSize)
-		aFile.close()
-		return filename
-	#--------------------------------------------------------
-	def export_to_string (self, aChunkSize = 0):
-		"""Returns the document as a Python string.
+		if success:
+			return filename
 
-			- WARNING: better have enough RAM for whatever size it is !!
-		"""
-		if self._payload[self._idx['size']] == 0:
-			return None
-		aFile = StringIO()
-		if self.__export(aFile, aChunkSize):
-			r = aFile.getvalue()
-			aFile.close()
-			return r
-		aFile.close()
 		return None
 	#--------------------------------------------------------
-	def __export (self, aFile=None, aChunkSize = 0):
-		"""Export binary object data into <aFile>.
-
-			- internal helper
-			- writes data to the Python file-like object <aFile>
-		"""
+#	def __export (self, aFile=None, aChunkSize = 0):
+#		"""Export binary object data into <aFile>.
+#
+#			- internal helper
+#			- writes data to the Python file-like object <aFile>
+#		"""
 		# If the client sets an encoding other than the default we
 		# will receive encoding-parsed data which isn't the binary
 		# content we want. Hence we need to get our own connection.
@@ -215,61 +215,61 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		# reported to be fixed > v7.4.
 		# further tests reveal that at least on PG 8.0 this bug still
 		# manifests itself
-		conn = gmPG2.get_raw_connection()
+#		conn = gmPG2.get_raw_connection()
 		# this shouldn't actually, really be necessary
-#		if conn.version > '7.4':
-#			print "****************************************************"
-#			print "*** if exporting BLOBs suddenly fails and        ***"
-#			print "*** you are running PostgreSQL >= 8.1 please     ***"
-#			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
-#			print "****************************************************"
+##		if conn.version > '7.4':
+##			print "****************************************************"
+##			print "*** if exporting BLOBs suddenly fails and        ***"
+##			print "*** you are running PostgreSQL >= 8.1 please     ***"
+##			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
+##			print "****************************************************"
 
 		# Windoze sucks: it can't transfer objects of arbitrary size,
 		# or maybe this is due to pyPgSQL ?
 		# anyways, we need to split the transfer,
 		# however, only possible if postgres >= 7.2
-		max_chunk_size = aChunkSize
+#		max_chunk_size = aChunkSize
 
 		# a chunk size of 0 means: all at once
-		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
+#		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
 			# retrieve binary field
-			cmd = u"SELECT data FROM blobs.doc_obj WHERE pk=%s"
-			rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
-			conn.close()
-			aFile.write(str(rows[0][0]))
-			return True
+#			cmd = u"SELECT data FROM blobs.doc_obj WHERE pk=%s"
+#			rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
+#			conn.close()
+#			aFile.write(str(rows[0][0]))
+#			return True
 
 		# retrieve chunks
 		# does this not carry the danger of cutting up multi-byte escape sequences ?
 		# no, since bytea is binary
-		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
-		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
-		for chunk_id in range(needed_chunks):
-			pos = (chunk_id*max_chunk_size) + 1
-			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, max_chunk_size)
-			try:
-				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
-			except:
-				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
-				raise
+#		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
+#		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
+#		for chunk_id in range(needed_chunks):
+#			pos = (chunk_id*max_chunk_size) + 1
+#			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, max_chunk_size)
+#			try:
+#				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
+#			except:
+#				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
+#				raise
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(rows[0][0]))
+#			aFile.write(str(rows[0][0]))
 
 		# retrieve remainder
-		if remainder > 0:
-			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
-			pos = (needed_chunks*max_chunk_size) + 1
-			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, remainder)
-			try:
-				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
-			except:
-				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj))
-				raise
+#		if remainder > 0:
+#			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
+#			pos = (needed_chunks*max_chunk_size) + 1
+#			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, remainder)
+#			try:
+#				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
+#			except:
+#				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj))
+#				raise
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
-			aFile.write(str(rows[0][0]))
+#			aFile.write(str(rows[0][0]))
 
-		conn.close()
-		return True
+#		conn.close()
+#		return True
 	#--------------------------------------------------------
 	def get_reviews(self):
 		cmd = u"""
@@ -302,20 +302,26 @@ order by
 			_log.Log(gmLog.lErr, '[%s] is not a readable file' % fname)
 			return False
 
-		# read from file and convert (escape)
-		aFile = file(fname, "rb")
-		byte_str_img_data = aFile.read()
-		aFile.close()
-		del aFile
-		img_obj = buffer(byte_str_img_data)
-		del(byte_str_img_data)
+		gmPG2.file2bytea (
+			query = u"UPDATE blobs.doc_obj SET data=%(data)s::bytea WHERE pk=%(pk)s",
+			filename = fname,
+			args = {'pk': self.pk_obj}
+		)
 
-		conn = gmPG2.get_raw_connection()
+#		# read from file and convert (escape)
+#		aFile = file(fname, "rb")
+#		byte_str_img_data = aFile.read()
+#		aFile.close()
+#		del aFile
+#		img_obj = buffer(byte_str_img_data)
+#		del(byte_str_img_data)
 
-		# insert the data
-		cmd = u"UPDATE blobs.doc_obj SET data=%s::bytea WHERE pk=%s"
-		gmPG2.run_rw_queries(link_obj=conn, queries = [{'cmd': cmd, 'args': [img_obj, self.pk_obj]}], end_tx=True)
-		conn.close()
+#		conn = gmPG2.get_raw_connection()
+
+#		# insert the data
+#		cmd = u"UPDATE blobs.doc_obj SET data=%s::bytea WHERE pk=%s"
+#		gmPG2.run_rw_queries(link_obj=conn, queries = [{'cmd': cmd, 'args': [img_obj, self.pk_obj]}], end_tx=True)
+#		conn.close()
 
 		# must update XMIN now ...
 		self.refetch_payload()
@@ -388,6 +394,18 @@ where
 		self._payload[self._idx['seq_idx']] = rows[0][0]
 		self._is_modified = True
 		self.save_payload()
+	#--------------------------------------------------------
+	def display_via_mime(self, tmpdir=None, chunksize=0, block=None):
+
+		fname = self.export_to_file(aTempDir = tmpdir, aChunkSize = chunksize)
+		if fname is None:
+			return False, ''
+
+		success, msg = gmMimeLib.call_viewer_on_file(fname, block = block)
+		if not success:
+			return False, msg
+
+		return True, ''
 #============================================================
 class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -743,7 +761,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.95  2007-07-11 21:02:27  ncq
+# Revision 1.96  2007-08-09 07:58:44  ncq
+# - make export_to_file() use gmPG2.bytea2file()
+# - no more export_to_string()
+# - comment out __export()
+# - add display_via_mime()
+#
+# Revision 1.95  2007/07/11 21:02:27  ncq
 # - use gmTools.get_unique_filename()
 #
 # Revision 1.94  2007/05/20 01:27:31  ncq
