@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.134 2007-07-22 10:04:23 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmMedDocWidgets.py,v 1.135 2007-08-09 07:59:42 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1343,26 +1343,18 @@ class cDocTree(wx.TreeCtrl):
 			)
 			return None
 
-		# get export directory for temporary files
-		def_tmp_dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		if not os.path.isdir(def_tmp_dir):
-			try:
-				os.makedirs(def_tmp_dir)
-			except:
-				def_tmp_dir = None
 		cfg = gmCfg.cCfgSQL()
-		tmp_dir = cfg.get2 (
-			option = "horstspace.tmp_dir",
-			workplace = gmPerson.gmCurrentProvider().workplace,
-			bias = 'workplace',
-			default = def_tmp_dir
+
+		# get export directory for temporary files
+		tmp_dir = gmTools.coalesce (
+			cfg.get2 (
+				option = "horstspace.tmp_dir",
+				workplace = gmPerson.gmCurrentProvider().workplace,
+				bias = 'workplace'
+			),
+			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'docs'))
 		)
-		exp_base = os.path.abspath(os.path.expanduser(os.path.join(tmp_dir, 'docs')))
-		if not os.path.isdir(exp_base):
-			_log.Log(gmLog.lWarn, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base)
-			exp_base = None
-		else:
-			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
+		_log.Log(gmLog.lData, "working into directory [%s]" % tmp_dir)
 
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
@@ -1372,48 +1364,42 @@ class cDocTree(wx.TreeCtrl):
 			default = 1 * 1024 * 1024		# 1 MB
 		))
 
-		# retrieve doc part
-		fname = part.export_to_file(aTempDir = exp_base, aChunkSize = chunksize)
-		if fname is None:
-			_log.Log(gmLog.lErr, "cannot export doc part [%s] data from database" % part['pk_obj'])
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot export document part from database to file.'),
-				aTitle = _('showing document')
-			)
-			return None
-
-		# display it
+		# shall we force blocking during view ?
 		block_during_view = bool( cfg.get2 (
 			option = 'horstspace.document_viewer.block_during_view',
 			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = 'user',
 			default = None
 		))
-		(result, msg) = gmMimeLib.call_viewer_on_file(fname, block=block_during_view)
-		if not result:
+
+		# display it
+		successful, msg = part.display_via_mime (
+			tmpdir = tmp_dir,
+			chunksize = chunksize,
+			block = block_during_view
+		)
+		if not successful:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot display document part:\n%s') % msg,
-				aTitle = _('displaying page')
+				aTitle = _('showing document')
 			)
 			return None
 
 		# handle review after display
-		review_after_display = cfg.get2 (
+		review_after_display = int(cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
 			workplace = gmPerson.gmCurrentProvider().workplace,
 			bias = 'user',
 			default = 2
-		)
-		# always review
-		if review_after_display == 1:
+		))
+		if review_after_display == 1:			# always review
 			self.__review_part(part=part)
-		# review if no review by me exists
-		elif review_after_display == 2:
+		elif review_after_display == 2:			# review if no review by me exists
 			review_by_me = filter(lambda rev: rev['is_review_by_you'], part.get_reviews())
 			if len(review_by_me) == 0:
 				self.__review_part(part=part)
 
-		return 1
+		return True
 	#--------------------------------------------------------
 	def __review_part(self, part=None):
 		dlg = cReviewDocPartDlg (
@@ -1427,8 +1413,8 @@ class cDocTree(wx.TreeCtrl):
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __edit_consultation_details(self, evt):
-		print type(self.__curr_node_data)
-		print self.__curr_node_data
+#		print type(self.__curr_node_data)
+#		print self.__curr_node_data
 		enc = gmEMRStructItems.cEncounter(aPK_obj=self.__curr_node_data['pk_encounter'])
 		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
 		if dlg.ShowModal() == wx.ID_OK:
@@ -1448,7 +1434,7 @@ class cDocTree(wx.TreeCtrl):
 		)
 		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', pat['dirname'], dname))
 		gmTools.mkdir(def_dir)
-		
+
 		dlg = wx.DirDialog (
 			parent = self,
 			message = _('Save document into directory ...'),
@@ -1480,7 +1466,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.134  2007-07-22 10:04:23  ncq
+# Revision 1.135  2007-08-09 07:59:42  ncq
+# - streamline __display_part() with part.display_via_mime()
+#
+# Revision 1.134  2007/07/22 10:04:23  ncq
 # - streamline create_new_letter()
 #
 # Revision 1.133  2007/07/22 09:27:28  ncq
