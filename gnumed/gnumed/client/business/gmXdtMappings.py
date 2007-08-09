@@ -1,12 +1,12 @@
 # -*- encoding: utf8 -*-
-"""GnuMed German XDT mapping data.
+"""GnuMed German xDT mapping data.
 
-This maps XDT fields in various ways.
+This maps xDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.42 2007-06-28 12:31:55 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmXdtMappings.py,v 1.43 2007-08-09 09:17:08 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -16,6 +16,7 @@ except NameError:
 	_ = lambda x:x
 
 #==============================================================
+# FIXME: xBDT incorporated only up to (excluding) Satzart 0101 (Do 09 Aug 2007 11:10:16 CEST)
 xdt_id_map = {
 
 	'6295': '??',
@@ -25,7 +26,7 @@ xdt_id_map = {
 	'6299': '??',
 
 	'0101': 'KBV-Prüfnummer',
-	'0102': 'Softwareverantwortlicher',
+	'0102': 'Softwareverantwortlicher /// xBDT: Softwarelizenz',
 	'0103': 'Softwarename',
 	'0104': 'Hardware',
 	'0105': 'KBV-Prüfnummer',
@@ -44,9 +45,9 @@ xdt_id_map = {
 	'0132': 'Release-Stand der Software',
 
 	'0201': 'Arztnummer',
-	'0202': 'Praxistyp',		# 1=EP, 2=GP, 3=FachGP, 4=PG, 5=FaPG
+	'0202': 'Praxistyp',
 	'0203': 'Arztname',
-	'0204': 'Arztgruppe verbal',
+	'0204': 'Fachgebiet',
 	'0205': 'Strasse der Praxisadresse',
 	'0206': 'PLZ Ort der Praxisadresse',
 	'0207': 'Arzt mit Leistungskennzeichen',
@@ -128,6 +129,7 @@ xdt_id_map = {
 	'2782': 'Stationäre Weiterbehandlung erforderlich',
 
 	'3000': 'Patientennummer/-kennung',
+	'3050': 'Kürzel/lfd. Nummer',
 	'3100': 'Namenszusatz/Vorsatzwort',
 	'3101': 'Name des Patienten',
 	'3102': 'Vorname des Patienten',
@@ -323,8 +325,8 @@ xdt_id_map = {
 	'5008': 'Doppelkilometer',
 	'5009': 'freier Begründungstext',
 	'5010': 'Medikament als Begründung',
-	'5011': 'Sachkosten-Bezeichnung',
-	'5012': 'Sachkosten/Materialkosten in Cent',
+	'5011': 'Sachkostenbezeichnung',
+	'5012': 'Sach-/Materialkosten in Cent',
 	'5013': 'Prozent der Leistung',
 	'5015': 'Organ',
 	'5016': 'Name des Arztes',
@@ -341,7 +343,7 @@ xdt_id_map = {
 	'5090': 'Honorarbezeichnung',
 	'5091': 'Gutachtenbezeichnung',
 
-	'6000': 'Abrechnungsdiagnosen',
+	'6000': 'Abrechnungsdiagnosen // xBDT: Diagnose',
 	'6001': 'ICD-Schlüssel',
 	'6003': 'Diagnosensicherheit',
 	'6004': 'Seitenlokalisation',
@@ -394,8 +396,37 @@ xdt_id_map = {
 	'6330': 'freie Kategorie 1: Name',
 	'6331': 'freie Kategorie 1: Inhalt',
 
-	'7201':'AOK-DMP (D.M.): 1.-3. Stelle der Postleitzahl',
-	'7202':'AOK-DMP (D.M.): Nummer des Diabetes-Paß',
+	'7100': 'Namenszusatz',
+	'7101': 'Name',
+	'7102': 'Vorname',
+	'7103': 'Geburtsdatum',
+	'7104': 'Titel',
+	'7106': 'PLZ/Ort',
+	'7107': 'Straße',
+	'7110': 'Geschlecht: 1=männlich, 2=weiblich, 8=gemischt (Gemeinschaftspraxen o.ä.)',
+	'7112': 'PLZ',
+	'7113': 'Wohn-/Praxisort',
+
+	'7200': 'xBDT: Typ Textbaustein/Medikament (0=Medikament, 1=BTM, 2=Heilmittel, 3=Hilfsmittel, 4=Impfstoff, 5=Sprechstundenbedarf)',
+	'7201': 'xBDT: KV-Nummer/Hinweise/Name /// AOK-DMP (D.M.): 1.-3. Stelle der Postleitzahl',
+	'7202': 'xBDT: Fachrichtung/Textbaustein/PZN /// AOK-DMP (D.M.): Nummer des Diabetes-Paß',
+	'7203': 'Telefon/Preis',
+	'7204': 'Funktelefon/Festbetrag',
+	'7205': 'Telefax/Negativliste (1=auf Liste)',
+	'7206': 'E-Mail-Adresse/Packungsgröße',
+	'7207': 'Kurzanrede/Wirkstoff',
+	'7208': 'Briefanrede/Indikation',
+	'7209': 'Briefschluß/Nebenwirkungen',
+	'7210': 'Ansprechpartner/Gegenanzeigen',
+	'7211': 'Vertretung/Wechselwirkungen',
+	'7212': 'Bankname/Hinweise',
+	'7213': 'BLZ/Alternativmedikamente',
+	'7214': 'Kontonummer',
+	'7215': 'Bemerkung',
+	'7216': 'Sonstiges',
+	'7217': 'Gruppenkennzeichen: 1=Arztkollege, 2=Arbeitgeber, 4=Krankenhaus, 5=BG, 6=Sonstige',
+	'7218': 'Internet-Adresse',
+
 	'7210':'AOK-DMP (D.M.): Datum der Erstmeldung',
 	'7212':'AOK-DMP (D.M.): bereits v. SSP mitbetreut; 1=nein, 2=ja',
 	'7215':'AOK-DMP (D.M.): Schulungsstatus; 1=nicht 2=geschult',
@@ -469,13 +500,14 @@ xdt_id_map = {
 	'9100': 'Arztnummer des Absenders',
 	'9102': 'Empfänger',
 	'9103': 'Erstellungsdatum, TTMMJJJJ',
-	'9105': 'laufende Nummer Datenträger im Paket',
+	'9105': 'laufende Nummer Datenträger im Paket (xBDT: immer 1)',
 	'9106': 'verwendeter Zeichensatz, 1=7 / 2=8-bit-Code',
 	'9115': 'Erstellungsdatum ADT-Datenpaket',
 	'9116': 'Erstellungsdatum KADT-Datenpaket',
 	'9117': 'Erstellungsdatum AODT-Datenpaket',
 	'9118': 'Erstellungsdatum STDT-Datenpaket',
 	'9132': 'enthaltene Datenpakete dieser Datei',
+
 	'9202': 'Gesamtlänge Datenpaket (Byte)',
 	'9203': 'Anzahl Datenträger im Paket',
 	'9204': 'Abrechnungsquartal',
@@ -486,28 +518,37 @@ xdt_id_map = {
 	'9213': 'Version BDT',
 	'9218': 'Version GDT',
 	'9233': 'GO-Stammdatei-Version',
+
 	'9600': 'Archivierungsart, 1=Gesamt, 2=Zeitraum, 3=Quartal',
 	'9601': 'Zeitraum der Speicherung, TTMMJJJJTTMMJJJJ',
 	'9602': 'Beginn der Übertragung, HHMMSSCC',
-	'9901': 'Systeminterner Parameter'
+
+	'9901': 'Systeminterner Parameter /// xBDT: Praxishaupttyp bei untergeordneten Praxen'
 
 }
 #--------------------------------------------------------------
 # 8000
 xdt_packet_type_map = {
+	'0010': "========<< Praxisdaten >>========",
 	'0020': "========<< Anfang Datenträger >>========",
 	'0021': "========<< Ende Datenträger >>========",
 	'0022': "========<< Anfang Datenpaket >>========",
 	'0023': "========<< Ende Datenpaket >>========",
-	'0010': "========<< Praxisdaten >>========",
+	'0080': '========<< xBDT: Stammdaten >>========',
+	'0081': '========<< xBDT: Diagnosenliste >>========',
+	'0082': '========<< xBDT: Textbausteine >>========',
+	'0083': '========<< xBDT: Leistungsketten >>========',
+	'0084': '========<< xBDT: Medikamente >>========',
+
 	'0101': "========<< Fall: Primärarzt >>========",
 	'0102': "========<< Fall: Überweisung >>========",
 	'0103': "========<< Fall: Belegarzt  >>========",
 	'0104': "========<< Fall: Notfall/Dienst/Vertretung >>========",
-	'0109': "========<< Kurärztliche Abrechnung >>========",
+	'0109': "========<< Fall: Kurärztliche Abrechnung >>========",
 	'0190': "========<< Fall: Privat >>========",
 	'0191': "========<< Fall: BG >>========",
 	'0199': "========<< Fall: unstrukturiert >>========",
+
 	'6100': "========<< Patientenstamm >>========",
 	'6200': "========<< Behandlungsdaten >>========",
 	'6300': '========>> GDT: Stammdaten anfordern >>========',
@@ -515,6 +556,7 @@ xdt_packet_type_map = {
 	'6302': "========<< GDT: Untersuchung (neue) anfordern >>========",
 	'6310': "========<< GDT: Untersuchung übermitteln >>========",
 	'6311': "========<< GDT: Untersuchung anzeigen >>========",
+
 	'adt0': "========<< ADT-Datenpaket-Header >>========",
 	'adt9': "========<< ADT-Datenpaket-Abschluss >>========",
 	'con0': "========<< Container-Header >>========",
@@ -610,7 +652,7 @@ xdt_Praxistyp_map = {
 	'2': 'Gemeinschaftspraxis',
 	'3': 'Fachübergreifende GP',
 	'4': 'Praxisgemeinschaft',
-	'5': 'Fachübergreifende GP ohne Kennzeichen Leistung',
+	'5': 'Fachübergreifende GP ohne Leistungskennzeichnung',
 	'6': 'ermächtigter Arzt',
 	'7': 'Krankenhaus oder ärztlich geleitete Einrichtung'
 }
@@ -651,12 +693,14 @@ xdt_Ost_West_Status_map = {
 	'A': 'eingeschriebene Versicherte in Disease-Management-Programmen für Brustkrebs - RK West',
 	'C': 'eingeschriebene Versicherte in Disease-Management-Programmen für Brustkrebs - RK Ost',
 }
+
 # Gebührenordnung : 4121
 xdt_Gebuehrenordnung_map = {
-	'1': 'BMA',
+	'1': 'BMÄ',
 	'2': 'E-GO',
-	'3': 'GOA'
+	'3': 'GOÄ'
 }
+
 # Abrechnungsgebiet : 4122
 xdt_Abrechnungsgebiet_map = {
 	'00': 'kein besonderes Abrechnungsgebiet (Defaultwert)',
@@ -1207,7 +1251,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.42  2007-06-28 12:31:55  ncq
+# Revision 1.43  2007-08-09 09:17:08  ncq
+# - map part of xBDT
+#
+# Revision 1.42  2007/06/28 12:31:55  ncq
 # - improved Satzart mappings
 #
 # Revision 1.41  2007/06/15 07:58:01  ncq
