@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.96 2007-08-09 07:58:44 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmMedDoc.py,v 1.97 2007-08-11 23:53:19 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time
@@ -157,9 +157,9 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 		'filename'
 	]
 	#--------------------------------------------------------
-	def __del__(self):
-		if self.__dict__.has_key('__conn'):
-			self.__conn.close()
+#	def __del__(self):
+#		if self.__dict__.has_key('__conn'):
+#			self.__conn.close()
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
@@ -197,79 +197,6 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			return filename
 
 		return None
-	#--------------------------------------------------------
-#	def __export (self, aFile=None, aChunkSize = 0):
-#		"""Export binary object data into <aFile>.
-#
-#			- internal helper
-#			- writes data to the Python file-like object <aFile>
-#		"""
-		# If the client sets an encoding other than the default we
-		# will receive encoding-parsed data which isn't the binary
-		# content we want. Hence we need to get our own connection.
-		# It must be a read-write one so that we don't affect the
-		# encoding for other users of the shared read-only
-		# connections.
-		# Actually, encodings shouldn't be applied to binary data
-		# (eg. bytea types) in the first place but that is only
-		# reported to be fixed > v7.4.
-		# further tests reveal that at least on PG 8.0 this bug still
-		# manifests itself
-#		conn = gmPG2.get_raw_connection()
-		# this shouldn't actually, really be necessary
-##		if conn.version > '7.4':
-##			print "****************************************************"
-##			print "*** if exporting BLOBs suddenly fails and        ***"
-##			print "*** you are running PostgreSQL >= 8.1 please     ***"
-##			print "*** mail a bug report to Karsten.Hilbert@gmx.net ***"
-##			print "****************************************************"
-
-		# Windoze sucks: it can't transfer objects of arbitrary size,
-		# or maybe this is due to pyPgSQL ?
-		# anyways, we need to split the transfer,
-		# however, only possible if postgres >= 7.2
-#		max_chunk_size = aChunkSize
-
-		# a chunk size of 0 means: all at once
-#		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
-			# retrieve binary field
-#			cmd = u"SELECT data FROM blobs.doc_obj WHERE pk=%s"
-#			rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
-#			conn.close()
-#			aFile.write(str(rows[0][0]))
-#			return True
-
-		# retrieve chunks
-		# does this not carry the danger of cutting up multi-byte escape sequences ?
-		# no, since bytea is binary
-#		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
-#		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
-#		for chunk_id in range(needed_chunks):
-#			pos = (chunk_id*max_chunk_size) + 1
-#			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, max_chunk_size)
-#			try:
-#				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
-#			except:
-#				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
-#				raise
-			# it would be a fatal error to see more than one result as ids are supposed to be unique
-#			aFile.write(str(rows[0][0]))
-
-		# retrieve remainder
-#		if remainder > 0:
-#			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
-#			pos = (needed_chunks*max_chunk_size) + 1
-#			cmd = u"SELECT substring(data from %s for %s) FROM blobs.doc_obj WHERE pk=%%s" % (pos, remainder)
-#			try:
-#				rows, idx = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': [self.pk_obj]}])
-#			except:
-#				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj))
-#				raise
-			# it would be a fatal error to see more than one result as ids are supposed to be unique
-#			aFile.write(str(rows[0][0]))
-
-#		conn.close()
-#		return True
 	#--------------------------------------------------------
 	def get_reviews(self):
 		cmd = u"""
@@ -469,7 +396,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 	def add_part(self, file=None):
 		"""Add a part to the document."""
 		# create dummy part
-		cmd1 = u"""
+		cmd = u"""
 			insert into blobs.doc_obj (
 				fk_doc, fk_intended_reviewer, data, seq_idx
 			) VALUES (
@@ -480,7 +407,7 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 			)"""
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
-				{'cmd': cmd1, 'args': {'doc_id': self.pk_obj}},
+				{'cmd': cmd, 'args': {'doc_id': self.pk_obj}},
 				{'cmd': u"select currval('blobs.doc_obj_pk_seq')"}
 			],
 			return_data = True
@@ -761,7 +688,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.96  2007-08-09 07:58:44  ncq
+# Revision 1.97  2007-08-11 23:53:19  ncq
+# - cleanup
+# - use gmPG2.bytea2file()
+#
+# Revision 1.96  2007/08/09 07:58:44  ncq
 # - make export_to_file() use gmPG2.bytea2file()
 # - no more export_to_string()
 # - comment out __export()
