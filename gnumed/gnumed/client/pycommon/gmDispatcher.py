@@ -9,6 +9,20 @@ import sys
 import weakref
 import traceback
 
+
+known_signals = [
+	u'pre_patient_selection',
+	u'post_patient_selection',
+	u'patient_locked',
+	u'patient_unlocked',
+	u'import_document_from_file',
+	u'statustext',				# args: msg=message, beep=whether to beep or not
+	u'display_widget',			# args: name=name of widget, other=widget specific (see receivers)
+	u'application_closing',
+	u'allergy_updated',
+	u'episodes_modified'
+]
+
 connections = {}
 senders = {}
 
@@ -25,7 +39,7 @@ class DispatcherError(exceptions.Exception):
 #=====================================================================
 # external API
 #---------------------------------------------------------------------
-def connect(receiver, signal=Any, sender=Any, weak=1):
+def connect(receiver=None, signal=Any, sender=Any, weak=1):
 	"""Connect receiver to sender for signal.
 	
 	If sender is Any, receiver will receive signal from any sender.
@@ -59,11 +73,17 @@ def connect(receiver, signal=Any, sender=Any, weak=1):
 		Especially if the widget can get a reference to updated data through
 		a global reference, such as via gmCurrentPatient.
 """
-	if signal is None:
-		raise DispatcherError, 'signal cannot be None'
+	if receiver is None:
+		raise ValueError('gmDispatcher.connect(): must define <receiver>')
+
+	if signal not in known_signals:
+		print "DISPATCHER ERROR: connect(): unknown signal [%s]" % signal
+
 	if signal is not Any:
 		signal = str(signal)
-	if weak: receiver = safeRef(receiver)
+
+	if weak:
+		receiver = safeRef(receiver)
 	senderkey = id(sender)
 	signals = {}
 	if connections.has_key(senderkey):
@@ -95,8 +115,9 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	
 	Disconnecting is not required. The use of disconnect is the same as for
 	connect, only in reverse. Think of it as undoing a previous connection."""
-	if signal is None:
-		raise DispatcherError, 'signal cannot be None'
+	if signal not in known_signals:
+		print "DISPATCHER ERROR: disconnect(): unknown signal [%s]" % signal
+
 	if signal is not Any:
 		signal = str(signal)
 	if weak: receiver = safeRef(receiver)
@@ -112,11 +133,15 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 		print "DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender)
 	_cleanupConnections(senderkey, signal)
 #---------------------------------------------------------------------
-def send(signal, sender=None, **kwds):
+def send(signal=None, sender=None, **kwds):
 	"""Send signal from sender to all connected receivers.
 	
 	Return a list of tuple pairs [(receiver, response), ... ].
-	If sender is None, signal is sent anonymously."""
+	If sender is None, signal is sent anonymously.
+	"""
+	if signal not in known_signals:
+		print "DISPATCHER ERROR: send(): unknown signal [%s]" % signal
+
 	signal = str(signal)
 	senderkey = id(sender)
 	anykey = id(Any)
@@ -149,8 +174,7 @@ def send(signal, sender=None, **kwds):
 	# Return a list of tuple pairs [(receiver, response), ... ].
 	responses = []
 	for receiver in receivers:
-		if type(receiver) is weakref.ReferenceType \
-		or isinstance(receiver, BoundMethodWeakref):
+		if (type(receiver) is weakref.ReferenceType) or (isinstance(receiver, BoundMethodWeakref)):
 			# Dereference the weak reference.
 			receiver = receiver()
 			if receiver is None:
@@ -222,18 +246,18 @@ def _call(receiver, **kwds):
 	if hasattr(receiver, 'im_func'):
 		# receiver is a method. Drop the first argument, usually 'self'.
 		fc = receiver.im_func.func_code
-		acceptable = fc.co_varnames[1:fc.co_argcount]
+		acceptable_args = fc.co_varnames[1:fc.co_argcount]
 	elif hasattr(receiver, 'func_code'):
 		# receiver is a function.
 		fc = receiver.func_code
-		acceptable = fc.co_varnames[0:fc.co_argcount]
+		acceptable_args = fc.co_varnames[0:fc.co_argcount]
 	else:
-		print 'DISPATCHER ERROR: <%s> must be instance, method or function' % str(receiver)
+		print 'DISPATCHER ERROR: _call(): <%s> must be instance, method or function' % str(receiver)
 	if not (fc.co_flags & 8):
 		# fc does not have a **kwds type parameter, therefore 
 		# remove unacceptable arguments.
 		for arg in kwds.keys():
-			if arg not in acceptable:
+			if arg not in acceptable_args:
 				del kwds[arg]
 	return receiver(**kwds)
 #---------------------------------------------------------------------
@@ -267,7 +291,11 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.8  2006-09-06 10:26:52  shilbert
+# Revision 1.9  2007-08-11 23:55:07  ncq
+# - register more signals
+# - report unknown signals but still pass them on
+#
+# Revision 1.8  2006/09/06 10:26:52  shilbert
 # - removed some weird EOL via dos2unix
 #
 # Revision 1.7  2005/10/10 18:10:33  ncq
