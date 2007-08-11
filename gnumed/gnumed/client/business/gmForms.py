@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.44 2007-07-22 08:59:19 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmForms.py,v 1.45 2007-08-11 23:44:01 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -23,8 +23,7 @@ from com.sun.star.beans import PropertyValue as oooPropertyValue
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2
-#gmCfg, gmShellAPI
+from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher
 from Gnumed.business import gmPerson
 
 
@@ -42,13 +41,13 @@ known_placeholders = [
 engine_ooo = 'O'
 
 #============================================================
-def get_form_templates(engine=None, all=False):
+def get_form_templates(engine=None, active_only=False):
 	"""OOo forms only for now"""
 	# FIXME: support any engine/all forms
 	engine = engine_ooo
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{
-			'cmd': u"select pk, name_long, revision, in_use from ref.form_defs where in_use is True and engine = %(eng)s",
+			'cmd': u"select pk, name_long, revision, in_use, coalesce(document_type, (select name from ref.form_types where pk=ref.form_defs.fk_type)) as document_type from ref.form_defs where in_use is True and engine = %(eng)s",
 			'args': {'eng': engine}
 		}]
 	)
@@ -141,22 +140,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 #============================================================
 class cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
 
-	def __init__(self):
-		pat = gmPerson.gmCurrentPatient()
-		pat.locked = True
+	"""Listens for events sent by OOo during the document closing
+	   sequence and notifies the GNUmed client GUI so it can
+	   import the closed document into the database.
+	"""
+	def __init__(self, document=None):
+		self.document = document
 
 	def queryClosing(self, evt, owner):
 		# owner is True/False whether I am the owner of the doc
-		print "OOo: queryClosing"
+		pass
 
 	def notifyClosing(self, evt):
-		print "OOo: notifyClosing"
+		pass
 
 	def disposing(self, evt):
-		print "OOo: disposing document"
-		print "GNUmed: unlocking patient"
-		pat = gmPerson.gmCurrentPatient()
-		pat.locked = False
+		self.document.on_disposed_by_ooo()
+		self.document = None
 #------------------------------------------------------------
 class cOOoConnector(gmBorg.cBorg):
 	"""This class handles the connection to OOo.
@@ -204,9 +204,10 @@ class cOOoConnector(gmBorg.cBorg):
 #------------------------------------------------------------
 class cOOoLetter(object):
 
-	def __init__(self, template_file=None):
+	def __init__(self, template_file=None, document_type=None):
 
 		self.template_file = template_file
+		self.document_type = document_type
 		self.ooo_doc = None
 
 	#--------------------------------------------------------
@@ -219,7 +220,9 @@ class cOOoLetter(object):
 		# open doc in OOo
 		self.ooo_doc = ooo_srv.open_document(filename=self.template_file)
 		# listen for close events
-		listener = cOOoDocumentCloseListener()
+		pat = gmPerson.gmCurrentPatient()
+		pat.locked = True
+		listener = cOOoDocumentCloseListener(document=self)
 		self.ooo_doc.addCloseListener(listener)
 	#--------------------------------------------------------
 	def replace_placeholders(self):
@@ -236,19 +239,18 @@ class cOOoLetter(object):
 			if text_field.PlaceHolderType != 0:
 				continue
 
-			handler.debug = True
-			print 'placeholder (type TEXT) <%s> -> %s (%s)' % (
-				text_field.PlaceHolder,
-				handler[text_field.PlaceHolder],
-				text_field.Hint
-			)
-			handler.debug = False
+#			handler.debug = True
+#			print 'placeholder (type TEXT) <%s> -> %s (%s)' % (
+#				text_field.PlaceHolder,
+#				handler[text_field.PlaceHolder],
+#				text_field.Hint
+#			)
+#			handler.debug = False
 			replacement = handler[text_field.PlaceHolder]
 			if replacement is None:
 				continue
 
 			text_field.Anchor.setString(replacement)
-
 	#--------------------------------------------------------
 	def save_in_ooo(self, filename=None):
 		if filename is not None:
@@ -268,6 +270,18 @@ class cOOoLetter(object):
 		self.ooo_doc.dispose()
 		pat = gmPerson.gmCurrentPatient()
 		pat.locked = False
+		self.ooo_doc = None
+	#--------------------------------------------------------
+	def on_disposed_by_ooo(self):
+		# get current file name from OOo, user may have used Save As
+		filename = uno.fileUrlToSystemPath(self.ooo_doc.URL)
+		# tell UI to import the file
+		gmDispatcher.send (
+			signal = u'import_document_from_file',
+			filename = filename,
+			document_type = self.document_type,
+			unlock_patient = True
+		)
 		self.ooo_doc = None
 	#--------------------------------------------------------
 	# internal helpers
@@ -708,8 +722,9 @@ if __name__ == '__main__':
 		doc.open_in_ooo()
 		doc.replace_placeholders()
 		doc.save_in_ooo('~/test_cOOoLetter.odt')
+		doc = None
+#		doc.close_in_ooo()
 		raw_input('press <ENTER> to continue')
-		doc.close_in_ooo()
 	#--------------------------------------------------------
 
 
@@ -723,7 +738,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.44  2007-07-22 08:59:19  ncq
+# Revision 1.45  2007-08-11 23:44:01  ncq
+# - improve document close listener, get_form_templates(), cOOoLetter()
+# - better test suite
+#
+# Revision 1.44  2007/07/22 08:59:19  ncq
 # - get_form_templates()
 # - export_form_template()
 # - absolutize -> os.path.abspath
