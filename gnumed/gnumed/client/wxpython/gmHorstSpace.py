@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.37 2007-02-17 14:13:11 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmHorstSpace.py,v 1.38 2007-08-12 00:09:07 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -151,7 +151,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			bias = u'user',
 			default = u'gmEMRBrowserPlugin'
 		)
-		gmDispatcher.send(gmSignals.display_widget(), name=default_plugin)
+		gmDispatcher.send(signal = 'display_widget', name = default_plugin)
 	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed."""
@@ -311,7 +311,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.37  2007-02-17 14:13:11  ncq
+# Revision 1.38  2007-08-12 00:09:07  ncq
+# - no more gmSignals.py
+#
+# Revision 1.37  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.36  2007/02/15 14:57:49  ncq

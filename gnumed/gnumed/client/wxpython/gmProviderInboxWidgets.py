@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.13 2007-05-14 13:11:25 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmProviderInboxWidgets.py,v 1.14 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -125,7 +125,7 @@ Leaving message in inbox.""") % handler_key,
 	def _on_delete_focussed_msg(self, evt):
 		inbox = gmProviderInbox.cProviderInbox()
 		if not inbox.delete_message(self.__focussed_msg[8]):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot remove message from Inbox.'))
+			gmDispatcher.send(signal='statustext', msg=_('Cannot remove message from Inbox.'))
 			return False
 		self.repopulate_ui()
 		return True
@@ -141,11 +141,14 @@ Leaving message in inbox.""") % handler_key,
 				gmLog.lErr
 			)
 			return False
-		gmDispatcher.send(gmSignals.display_widget(), name='gmShowMedDocs', sort_mode='review')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.13  2007-05-14 13:11:25  ncq
+# Revision 1.14  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.13  2007/05/14 13:11:25  ncq
 # - use statustext() signal
 #
 # Revision 1.12  2007/01/04 22:52:34  ncq

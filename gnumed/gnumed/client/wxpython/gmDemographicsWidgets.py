@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.124 2007-07-22 09:04:44 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmDemographicsWidgets.py,v 1.125 2007-08-12 00:09:07 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1424,7 +1424,7 @@ class cPatContactsPanel(wx.Panel):
 			country = self.PRW_country.GetData()
 		)
 		if not success:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot update patient address.'))
+			gmDispatcher.send(signal='statustext', msg=_('Cannot update patient address.'))
 			return False
 
 		phone = self.TTC_phone.GetValue().strip()
@@ -1435,7 +1435,7 @@ class cPatContactsPanel(wx.Panel):
 				is_confidential = False
 			)
 		if not success:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot update patient phone number.'))
+			gmDispatcher.send(signal='statustext', msg=_('Cannot update patient phone number.'))
 			return False
 
 		return True
@@ -1691,7 +1691,7 @@ def link_contacts_from_dtd(identity, dtd=None):
 			country = dtd['country'].strip()
 		)
 		if not success:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot update patient address.'))
+			gmDispatcher.send(signal='statustext', msg = _('Cannot update patient address.'))
 
 	if len(dtd['phone']) > 0:
 		identity.link_communication (
@@ -1794,7 +1794,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.124  2007-07-22 09:04:44  ncq
+# Revision 1.125  2007-08-12 00:09:07  ncq
+# - no more gmSignals.py
+#
+# Revision 1.124  2007/07/22 09:04:44  ncq
 # - tmp/ now in .gnumed/
 #
 # Revision 1.123  2007/07/10 20:28:36  ncq

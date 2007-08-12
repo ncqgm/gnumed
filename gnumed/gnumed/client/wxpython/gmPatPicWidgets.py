@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.26 2007-08-07 21:42:40 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPatPicWidgets.py,v 1.27 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -87,7 +87,7 @@ class cPatientPicture(wx.StaticBitmap):
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
 		if not self.__pat.is_connected():
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No active patient.'))
+			gmDispatcher.send(signal='statustext', msg=_('No active patient.'))
 			return False
 		self.PopupMenu(self.__photo_menu, event.GetPosition())
 	#-----------------------------------------------------------------
@@ -157,7 +157,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		if photo is None:
 			fname = None
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot get most recent patient photo from database.'))
+			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
 		else:
 			fname = photo.export_to_file()
 
@@ -172,7 +172,7 @@ class cPatientPicture(wx.StaticBitmap):
 			bmp_data = wx.BitmapFromImage(img_data)
 		except:
 			_log.LogException('cannot set patient picture from [%s]' % fname)
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot set patient picture from [%s].') % fname)
+			gmDispatcher.send(signal='statustext', msg=_('Cannot set patient picture from [%s].') % fname)
 			return False
 		del img_data
 		self.SetBitmap(bmp_data)
@@ -191,7 +191,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.26  2007-08-07 21:42:40  ncq
+# Revision 1.27  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.26  2007/08/07 21:42:40  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.25  2007/07/22 09:27:48  ncq

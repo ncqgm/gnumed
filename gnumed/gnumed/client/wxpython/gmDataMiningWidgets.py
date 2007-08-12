@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.2 2007-07-09 11:06:24 ncq Exp $
-__version__ = '$Revision: 1.2 $'
+# $Id: gmDataMiningWidgets.py,v 1.3 2007-08-12 00:07:18 ncq Exp $
+__version__ = '$Revision: 1.3 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -166,12 +166,12 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		# act on text files only
 		mime_type = gmMimeLib.guess_mimetype(fname)
 		if not mime_type.startswith('text/'):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
+			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
 			return False
 		# act on "small" files only
 		stat_val = os.stat(fname)
 		if stat_val.st_size > 2000:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot read SQL from [%s]. File too big (> 2000 bytes).') % fname, beep = True)
+			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. File too big (> 2000 bytes).') % fname, beep = True)
 			return False
 		# all checks passed
 		for line in fileinput.input(fname):
@@ -232,10 +232,10 @@ The GNUmed client.
 """ % (report, query)
 
 		if not gmTools.send_mail(message = msg, auth = auth):
-			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
 			return False
 
-		gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Thank you for your contribution to the GNUmed community !'), beep = False)
+		gmDispatcher.send(signal = 'statustext', msg = _('Thank you for your contribution to the GNUmed community !'), beep = False)
 		return True
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
@@ -250,9 +250,9 @@ The GNUmed client.
 		if gmDataMining.delete_report_definition(name=report):
 			self._PRW_report_name.SetText()
 			self._TCTRL_query.SetValue(u'')
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Deleted report definition [%s].') % report, beep=False)
+			gmDispatcher.send(signal='statustext', msg = _('Deleted report definition [%s].') % report, beep=False)
 			return True
-		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error deleting report definition [%s].') % report, beep=True)
+		gmDispatcher.send(signal='statustext', msg = _('Error deleting report definition [%s].') % report, beep=True)
 		return False
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
@@ -262,17 +262,17 @@ The GNUmed client.
 	def _on_save_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
 		if report == u'':
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without name.'), beep=True)
+			gmDispatcher.send(signal='statustext', msg = _('Cannot save report definition without name.'), beep=True)
 			return False
 		query = self._TCTRL_query.GetValue().strip()
 		if query == u'':
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Cannot save report definition without query.'), beep=True)
+			gmDispatcher.send(signal='statustext', msg = _('Cannot save report definition without query.'), beep=True)
 			return False
 		# FIXME: check for exists and ask for permission
 		if gmDataMining.save_report_definition(name=report, query=query, overwrite=True):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Saved report definition [%s].') % report, beep=False)
+			gmDispatcher.send(signal='statustext', msg = _('Saved report definition [%s].') % report, beep=False)
 			return True
-		gmDispatcher.send(signal=gmSignals.statustext(), msg = _('Error saving report definition [%s].') % report, beep=True)
+		gmDispatcher.send(signal='statustext', msg = _('Error saving report definition [%s].') % report, beep=True)
 		return False
 	#--------------------------------------------------------
 	def _on_run_button_pressed(self, evt):
@@ -303,7 +303,7 @@ The GNUmed client.
 				rows.append([line])
 			self._LCTRL_result.set_string_items(rows)
 			self._LCTRL_result.set_column_widths()
-			gmDispatcher.send(gmSignals.statustext(), msg = _('The query failed.'), beep = True)
+			gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)
 			_log.LogException('report query failed', verbose=True)
 			return False
 
@@ -311,7 +311,7 @@ The GNUmed client.
 			self._LCTRL_result.set_columns([_('Results')])
 			self._LCTRL_result.set_string_items([[_('Report returned no data.')]])
 			self._LCTRL_result.set_column_widths()
-			gmDispatcher.send(gmSignals.statustext(), msg = _('No data returned for this report.'), beep = True)
+			gmDispatcher.send('statustext', msg = _('No data returned for this report.'), beep = True)
 			return True
 
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
@@ -359,7 +359,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.2  2007-07-09 11:06:24  ncq
+# Revision 1.3  2007-08-12 00:07:18  ncq
+# - no more gmSignals.py
+#
+# Revision 1.2  2007/07/09 11:06:24  ncq
 # - missing import
 #
 # Revision 1.1  2007/07/09 11:03:49  ncq

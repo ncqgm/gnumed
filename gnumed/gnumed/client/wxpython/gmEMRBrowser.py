@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.77 2007-06-18 20:31:10 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmEMRBrowser.py,v 1.78 2007-08-12 00:09:07 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -36,7 +36,7 @@ def export_emr_to_ascii(parent=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.is_connected():
-		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot export EMR. No active patient.'))
+		gmDispatcher.send(signal='statustext', msg=_('Cannot export EMR. No active patient.'))
 		return False
 
 	# get file name
@@ -70,7 +70,7 @@ def export_emr_to_ascii(parent=None):
 	exporter.dump_med_docs()
 	output_file.close()
 
-	gmDispatcher.send(gmSignals.statustext(), msg = _('EMR successfully exported to file: %s') % fname, beep = False)
+	gmDispatcher.send('statustext', msg = _('EMR successfully exported to file: %s') % fname, beep = False)
 	return fname
 #============================================================
 class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
@@ -100,7 +100,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot load clinical narrative. No active patient.'),)
+			gmDispatcher.send(signal='statustext', msg=_('Cannot load clinical narrative. No active patient.'),)
 			return False
 
 		if not self.__populate_tree():
@@ -232,7 +232,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		try:
 			gmEMRStructItems.delete_episode(episode = self.__curr_node_data)
 		except gmExceptions.DatabaseObjectInUseError:
-			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 			return
 
 		self.__populate_tree()
@@ -558,7 +558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.77  2007-06-18 20:31:10  ncq
+# Revision 1.78  2007-08-12 00:09:07  ncq
+# - no more gmSignals.py
+#
+# Revision 1.77  2007/06/18 20:31:10  ncq
 # - case insensitively sort health issues
 #
 # Revision 1.76  2007/06/10 09:56:54  ncq

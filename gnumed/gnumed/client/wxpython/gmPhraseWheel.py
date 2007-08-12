@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.107 2007-07-10 20:27:27 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmPhraseWheel.py,v 1.108 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -708,12 +708,12 @@ class cPhraseWheel(wx.TextCtrl):
 		# no exact match found
 		if self.data is None:
 			if self.selection_only:
-				gmDispatcher.send(signal=gmSignals.statustext(), msg=self.selection_only_error_msg)
+				gmDispatcher.send(signal='statustext', msg=self.selection_only_error_msg)
 				self.SetBackgroundColour('pink')
 
 		# check value against final_regex if any given
 		if not self.__final_regex.match(self.GetValue().strip()):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=self.final_regex_error_msg % self.__final_regex.pattern)
+			gmDispatcher.send(signal='statustext', msg=self.final_regex_error_msg % self.__final_regex.pattern)
 			self.SetBackgroundColour('pink')
 
 		# notify interested parties
@@ -847,7 +847,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.107  2007-07-10 20:27:27  ncq
+# Revision 1.108  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.107  2007/07/10 20:27:27  ncq
 # - install_domain() arg consolidation
 #
 # Revision 1.106  2007/07/03 16:03:04  ncq

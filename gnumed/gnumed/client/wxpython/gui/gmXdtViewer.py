@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.27 2007-05-21 13:06:39 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmXdtViewer.py,v 1.28 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -92,7 +92,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		encoding = gmXdtObjects.determine_xdt_encoding(filename = filename)
 		if encoding is None:
 			encoding = 'utf8'
-			gmDispatcher.send(signal = gmSignals.statustext(), msg = _('Encoding missing in xDT file. Assuming [%s].') % encoding)
+			gmDispatcher.send(signal = 'statustext', msg = _('Encoding missing in xDT file. Assuming [%s].') % encoding)
 			_log.Log(gmLog.lWarn, 'xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
 
 		try:
@@ -418,7 +418,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.27  2007-05-21 13:06:39  ncq
+# Revision 1.28  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.27  2007/05/21 13:06:39  ncq
 # - proper chatch-all wildcard * rather than *.*
 #
 # Revision 1.26  2007/05/14 13:11:25  ncq

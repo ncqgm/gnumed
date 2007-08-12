@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.87 2007-07-17 16:00:28 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmPatSearchWidgets.py,v 1.88 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -313,7 +313,7 @@ def load_patient_from_external_sources(parent=None):
 	dtos.extend(load_persons_from_kvks())
 
 	if len(dtos) == 0:
-		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No patients found in external sources.'))
+		gmDispatcher.send(signal='statustext', msg=_('No patients found in external sources.'))
 		return True
 	elif len(dtos) == 1:
 		dto = dtos[0]['dto']
@@ -326,7 +326,7 @@ def load_patient_from_external_sources(parent=None):
 				_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
 				_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
 				if key_dto == key_pat:
-					gmDispatcher.send(signal=gmSignals.statustext(), msg=_('The only external patient is already active in GNUmed.'), beep=False)
+					gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
 					return True
 
 	if parent is None:
@@ -829,7 +829,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.87  2007-07-17 16:00:28  ncq
+# Revision 1.88  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.87  2007/07/17 16:00:28  ncq
 # - check existence of PracSoft import file
 #
 # Revision 1.86  2007/07/11 21:11:08  ncq

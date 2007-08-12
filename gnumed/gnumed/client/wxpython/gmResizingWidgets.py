@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.47 2007-05-21 13:06:12 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmResizingWidgets.py,v 1.48 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -783,7 +783,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		try:
 			create_widget = self.__popup_keywords[kwd]['widget_factory']
 		except KeyError:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('No action configured for keyword [%s].') % kwd)
+			gmDispatcher.send(signal='statustext', msg=_('No action configured for keyword [%s].') % kwd)
 			return False
 
 #		best_pos, best_size = self.__get_best_popup_geom()
@@ -807,7 +807,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 			return False
 
 		if not isinstance(popup, wx.Dialog):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd))
+			gmDispatcher.send(signal='statustext', msg=_('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd))
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
 			_log.Log(gmLog.lErr, 'the result (%s) is not a wx.Dialog subclass instance, however' % str(popup))
 			return False
@@ -1050,7 +1050,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.47  2007-05-21 13:06:12  ncq
+# Revision 1.48  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.47  2007/05/21 13:06:12  ncq
 # - make ENTER start new line in STC rather than appending ;
 #   - user request
 #

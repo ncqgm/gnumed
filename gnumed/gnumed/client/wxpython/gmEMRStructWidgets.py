@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.64 2007-07-13 12:20:48 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmEMRStructWidgets.py,v 1.65 2007-08-12 00:09:07 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -137,7 +137,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 		target_episode = self._PRW_episode_selector.GetData(can_create = False)
 
 		if target_episode is None:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Must select episode to move narrative to first.'))
+			gmDispatcher.send(signal='statustext', msg=_('Must select episode to move narrative to first.'))
 			# FIXME: set to pink
 			self._PRW_episode_selector.SetFocus()
 			return False
@@ -378,7 +378,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		default = 60				# 2 months
 	))
 	if target_issue.close_expired_episode(ttl=epi_ttl) is True:
-		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Closed episodes older than %s days on health issue [%s]') % (epi_ttl, target_issue['description']))
+		gmDispatcher.send(signal='statustext', msg=_('Closed episodes older than %s days on health issue [%s]') % (epi_ttl, target_issue['description']))
 	existing_epi = target_issue.get_open_episode()
 
 	# no more open episode on target issue: should work now
@@ -463,7 +463,7 @@ class cEpisodeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		gmListWidgets.cGenericListSelectorDlg.__init__(self, *args, **kwargs)
 
 		self.SetTitle(_('Select the episodes you are interested in ...'))
-		self._LCTRL_items.set_columns([_('Episode'), u'', _('Health Issue')])
+		self._LCTRL_items.set_columns([_('Episode'), _('Status'), _('Health Issue')])
 		self._LCTRL_items.set_string_items (
 			items = [ [epi['description'], gmTools.bool2str(epi['episode_open'], _('ongoing'), u''), gmTools.coalesce(epi['health_issue'], u'')] for epi in episodes ]
 		)
@@ -661,7 +661,7 @@ class cEpisodeEditAreaPnl(wxgEpisodeEditAreaPnl.wxgEpisodeEditAreaPnl):
 			self.__episode['pk_health_issue'] = self._PRW_issue.GetData(can_create=True)
 			issue = gmEMRStructItems.cHealthIssue(aPK_obj=self.__episode['pk_health_issue'])
 			if not move_episode_to_issue(episode = self.__episode, target_issue = issue, save_to_backend = False):
-				gmDispatcher.send(signal=gmSignals.statustext(), msg=
+				gmDispatcher.send(signal='statustext', msg=
 						_('Cannot attach episode [%s] to health issue [%s] because it already has a running episode.') % (
 						self.__episode['description'],
 						issue['description']
@@ -906,9 +906,9 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
 
 		if age is None:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot parse [%s] into valid interval.') % str_age)
+			gmDispatcher.send(signal='statustext', msg=_('Cannot parse [%s] into valid interval.') % str_age)
 		if age >= max_age:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
+			gmDispatcher.send(signal='statustext', msg=_('Patient is only %s old. Cannot accept age [%s].') % (pat.get_medical_age(), age))
 
 		if (age is None) or (age >= max_age):
 			self._PRW_age_noted.SetBackgroundColour('pink')
@@ -944,7 +944,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 		year_noted = year_noted.get_pydt()
 
 		if year_noted >= pydt.datetime.now(tz=year_noted.tzinfo):
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Condition diagnosed in the future.'))
+			gmDispatcher.send(signal='statustext', msg=_('Condition diagnosed in the future.'))
 			self._PRW_year_noted.SetBackgroundColour('pink')
 			self._PRW_year_noted.Refresh()
 			wx.CallAfter(self._PRW_age_noted.SetText, '')
@@ -1069,7 +1069,7 @@ class cHealthIssueEditAreaPnl(wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPn
 
 		if self.__issue is None:
 			if not can_create:
-				gmDispatcher.send(signal=gmSignals.statustext, msg=_('Creating new health issue not allowed.'))
+				gmDispatcher.send(signal='statustext', msg=_('Creating new health issue not allowed.'))
 				return False
 			pat = gmPerson.gmCurrentPatient()
 			success, self.__issue = gmEMRStructItems.create_health_issue (
@@ -1284,7 +1284,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.64  2007-07-13 12:20:48  ncq
+# Revision 1.65  2007-08-12 00:09:07  ncq
+# - no more gmSignals.py
+#
+# Revision 1.64  2007/07/13 12:20:48  ncq
 # - select_narrative_from_episodes(), related widgets, and test suite
 #
 # Revision 1.63  2007/06/10 10:02:53  ncq

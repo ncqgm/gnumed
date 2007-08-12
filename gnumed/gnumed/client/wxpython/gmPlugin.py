@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.71 2007-08-07 21:42:40 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmPlugin.py,v 1.72 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -184,7 +184,7 @@ class cNotebookPlugin:
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional red backgound here
-			gmDispatcher.send(gmSignals.statustext(), msg = _('Cannot switch to [%s]: no patient selected') % self.name())
+			gmDispatcher.send('statustext', msg = _('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
 		return 1
 	#-----------------------------------------------------
@@ -218,7 +218,7 @@ class cNotebookPlugin:
 		self.register() # register without changing configuration
 	# -----------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(self._on_raise_by_signal, gmSignals.display_widget())
+		gmDispatcher.connect(signal = 'display_widget', receiver = self._on_raise_by_signal)
 #==================================================================
 class cPatientChange_PluginMixin:
 	"""This mixin adds listening to patient change signals."""
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.71  2007-08-07 21:42:40  ncq
+# Revision 1.72  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.71  2007/08/07 21:42:40  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.70  2007/05/08 11:16:32  ncq

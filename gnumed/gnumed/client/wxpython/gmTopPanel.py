@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.84 2007-05-21 17:13:43 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmTopPanel.py,v 1.85 2007-08-12 00:12:41 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -260,7 +260,7 @@ class cMainTopPanel(wx.Panel):
 	def _on_allergies_dclicked(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmDispatcher.send(gmSignals.statustext(), msg = _('Cannot activate Allergy Manager. No active patient.'))
+			gmDispatcher.send('statustext', msg = _('Cannot activate Allergy Manager. No active patient.'))
 			return
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
@@ -432,7 +432,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.84  2007-05-21 17:13:43  ncq
+# Revision 1.85  2007-08-12 00:12:41  ncq
+# - no more gmSignals.py
+#
+# Revision 1.84  2007/05/21 17:13:43  ncq
 # - translate "Allergies" in allergy field tooltip
 #
 # Revision 1.83  2007/04/11 20:47:13  ncq

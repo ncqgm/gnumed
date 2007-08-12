@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.5 2007-07-10 20:51:20 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmHooks.py,v 1.6 2007-08-12 00:06:07 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -36,7 +36,7 @@ import os, sys
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmSignals, gmDispatcher, gmTools
+from Gnumed.pycommon import gmDispatcher, gmTools
 
 # ========================================================================
 known_hooks = [
@@ -75,14 +75,14 @@ def run_script(hook=None):
 
 	if os.path.islink(full_script):
 		gmDispatcher.send (
-			gmSignals.statustext(),
+			signal = 'statustext',
 			msg = _('Script must not be a link: [%s].') % full_script
 		)
 		return False
 
 	if not os.access(full_script, os.R_OK):
 		gmDispatcher.send (
-			gmSignals.statustext(),
+			signal = 'statustext',
 			msg = _('Script must be readable by the calling user: [%s].') % full_script
 		)
 		return False
@@ -91,7 +91,7 @@ def run_script(hook=None):
 #	if stat_val.st_mode != 384:				# octal 0600
 	if stat_val.st_mode != 33152:			# octal 100600
 		gmDispatcher.send (
-			gmSignals.statustext(),
+			signal = 'statustext',
 			msg = _('Script must have permissions "0600": [%s].') % full_script
 		)
 		return False
@@ -108,7 +108,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.5  2007-07-10 20:51:20  ncq
+# Revision 1.6  2007-08-12 00:06:07  ncq
+# - no more gmSignals.py
+#
+# Revision 1.5  2007/07/10 20:51:20  ncq
 # - hooks_registry -> known_hooks
 #
 # Revision 1.4  2007/04/20 08:21:42  ncq

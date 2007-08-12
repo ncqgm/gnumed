@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -141,7 +141,7 @@ where narrative %(fragment_condition)s
 
 		if self.__allergy is None:
 			if not can_create:
-				gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Creating new allergy not allowed.'))
+				gmDispatcher.send(signal='statustext', msg=_('Creating new allergy not allowed.'))
 				return False
 
 			pat = gmPerson.gmCurrentPatient()
@@ -461,7 +461,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.25  2007-07-10 20:28:36  ncq
+# Revision 1.26  2007-08-12 00:06:59  ncq
+# - no more gmSignals.py
+#
+# Revision 1.25  2007/07/10 20:28:36  ncq
 # - consolidate install_domain() args
 #
 # Revision 1.24  2007/04/02 18:39:52  ncq
