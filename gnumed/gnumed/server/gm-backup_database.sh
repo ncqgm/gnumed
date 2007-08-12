@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.11 2007-06-05 14:59:44 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.12 2007-08-12 00:14:39 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -60,13 +60,13 @@ fi
 # create dumps
 if test -z ${GM_HOST} ; then
 	# locally
-	sudo -u postgres pg_dumpall -g -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
-	pg_dump -C -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
+	sudo -u postgres pg_dumpall -g -v -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql
+	pg_dump -C -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
 else
 	# remotely
 	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
-		pg_dumpall -g -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql
-		pg_dump -C -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
+		pg_dumpall -g -v -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql
+		pg_dump -C -v -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql
 	else
 		echo "Cannot ping database host ${GM_HOST}."
 		exit 1
@@ -88,7 +88,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.11  2007-06-05 14:59:44  ncq
+# Revision 1.12  2007-08-12 00:14:39  ncq
+# - us -v on pg_dump to log timestamp etc
+#
+# Revision 1.11  2007/06/05 14:59:44  ncq
 # - improved docstring
 # - better error checking
 # - factor out bzipping and signing
