@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.2 2007-07-22 09:29:53 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: ref-form_tables.sql,v 1.3 2007-08-12 00:19:23 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -31,9 +31,11 @@ create table ref.form_defs (
 	pk serial primary key,
 	fk_type integer
 		not null
-		references form_types(pk)
+		references ref.form_types(pk)
 		on update cascade
 		on delete restrict,
+	document_type text
+		default null,
 	name_short text
 		not null,
 	name_long text
@@ -62,11 +64,14 @@ drop table public.form_types cascade;
 delete from audit.audited_tables where schema = 'public' and table_name = 'form_defs';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.2  2007-07-22 09:29:53  ncq
+-- Revision 1.3  2007-08-12 00:19:23  ncq
+-- - add document_type field
+--
+-- Revision 1.2  2007/07/22 09:29:53  ncq
 -- - need to adjust ref.form_types sequences
 -- - drop audit table of ref.form_defs, too
 --
