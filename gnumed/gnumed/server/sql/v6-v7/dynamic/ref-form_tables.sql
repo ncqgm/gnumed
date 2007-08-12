@@ -1,15 +1,15 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- Source database version: v2
--- Target database version: v3
+-- Source database version: v6
+-- Target database version: v7
 --
 -- License: GPL
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.3 2007-07-22 10:03:28 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: ref-form_tables.sql,v 1.4 2007-08-12 00:18:38 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -24,6 +24,10 @@ select audit.add_table_for_audit('ref', 'form_defs');
 
 comment on table ref.form_defs is
 	'form definitions';
+comment on column ref.form_defs.document_type is
+	'default document type to store documents generated from this form under\n,
+note that this may generate rows in blobs.doc_type if\n
+set to a non-existant document type';
 comment on column ref.form_defs.name_short is
 	'a short name for use in a GUI or some such';
 comment on column ref.form_defs.name_long is
@@ -55,7 +59,7 @@ insert into ref.form_types (name) values (i18n.i18n('physical therapy report'));
 select i18n.upd_tx('de_DE', 'physical therapy report', 'Therapiebericht (PT)');
 
 
-delete from ref.form_defs where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
+--delete from ref.form_defs where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
 
 insert into ref.form_defs (
 	fk_type,
@@ -87,11 +91,14 @@ grant select, insert, update, insert on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.3  2007-07-22 10:03:28  ncq
+-- Revision 1.4  2007-08-12 00:18:38  ncq
+-- - improved comments
+--
+-- Revision 1.3  2007/07/22 10:03:28  ncq
 -- - add example letter template with instructions
 --
 -- Revision 1.2  2007/07/22 09:28:42  ncq
