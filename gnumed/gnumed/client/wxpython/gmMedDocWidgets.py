@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.135 2007-08-09 07:59:42 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmMedDocWidgets.py,v 1.136 2007-08-12 00:10:55 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -25,7 +25,7 @@ _log.Log(gmLog.lInfo, __version__)
 def create_new_letter(parent=None):
 
 	# 1) have user select template
-	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, all = False)
+	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = True)
 	choices = [ [] for t in templates ]
 	template = gmListWidgets.get_choice_from_list (
 		parent = parent,
@@ -36,11 +36,9 @@ def create_new_letter(parent=None):
 		data = templates
 	)
 	if template is None:
-		print "user aborted template selection"
 		return
 
 	# 2) export template to file
-	print "user selected letter template:", template
 	filename = gmForms.export_form_template(pk = template['pk'])
 	if filename is None:
 		gmGuiHelpers.gm_show_error (
@@ -52,18 +50,61 @@ def create_new_letter(parent=None):
 			_('Letter template export')
 		)
 		return
-	print "exported to file:", filename
 
-	doc = gmForms.cOOoLetter(template_file = filename)
+	doc = gmForms.cOOoLetter(template_file = filename, document_type = template['document_type'])
 	doc.open_in_ooo()
 	doc.replace_placeholders()
-	doc.save_in_ooo(filename = filename.replace('.ott', '.odt'))
+	filename = filename.replace('.ott', '.odt').replace('FormTemplate-', 'FormInstance-')
+	doc.save_in_ooo(filename = filename)
+#------------------------------------------------------------
+def save_file_as_new_document(**kwargs):
+	wx.CallAfter(_save_file_as_new_document, **kwargs)
+#----------------------
+def _save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, **kwargs):
 
-	print "now edit the letter in OOo"
-	print "then save the letter in OOo and close it"
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.is_connected():
+		return
 
-#	raw_input('press <ENTER> to continue')
-#	doc.close_in_ooo()
+	emr = pat.get_emr()
+
+	all_epis = emr.get_episodes()
+	# FIXME: what to do here ? probably create dummy episode
+	if len(all_epis) == 0:
+		epi = emr.add_episode(episode_name = _('Documents'), is_open = False)
+	else:
+		# FIXME: parent=None map to toplevel window
+		dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg(parent = parent, id = -1, episodes = all_epis)
+		dlg.SetTitle(_('Select the episode under which to file the document ...'))
+		btn_pressed = dlg.ShowModal()
+		epi = dlg.get_selected_item_data(only_one = True)
+		dlg.Destroy()
+
+		if btn_pressed == wx.ID_CANCEL:
+			if unlock_patient:
+				pat.locked = False
+			return
+
+	doc_type = gmMedDoc.create_document_type(document_type = document_type)
+
+	docs_folder = pat.get_document_folder()
+	doc = docs_folder.add_document (
+		document_type = doc_type['pk_doc_type'],
+		encounter = emr.get_active_encounter()['pk_encounter'],
+		episode = epi['pk_episode']
+	)
+	part = doc.add_part(file = filename)
+	part['filename'] = filename
+	part.save_payload()
+
+	if unlock_patient:
+		pat.locked = False
+
+	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].' % filename), beep = True)
+
+	return
+#----------------------
+gmDispatcher.connect(signal = u'import_document_from_file', receiver = save_file_as_new_document)
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -377,7 +418,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		doc_type = self._PhWheel_doc_type.GetData(can_create = True)
 		if doc_type is None:
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
+			gmDispatcher.send(signal='statustext', msg=_('Cannot change document type to [%s].') % self._PhWheel_doc_type.GetValue().strip())
 			return False
 
 		# since the phrasewheel operates on the active
@@ -471,7 +512,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	def add_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
-			gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Cannot accept new documents. No active patient.'))
+			gmDispatcher.send(signal='statustext', msg=_('Cannot accept new documents. No active patient.'))
 			return
 
 		# dive into folders dropped onto us and extract files (one level deep only)
@@ -479,7 +520,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		for pathname in filenames:
 			try:
 				files = os.listdir(pathname)
-				gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Extracting files from folder [%s] ...') % pathname)
+				gmDispatcher.send(signal='statustext', msg=_('Extracting files from folder [%s] ...') % pathname)
 				for file in files:
 					fullname = os.path.join(pathname, file)
 					if not os.path.isfile(fullname):
@@ -876,7 +917,7 @@ off this message in the GNUmed configuration.""") % ref
 
 		# prepare for next document
 		self.__init_ui_data()
-		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Successfully saved new document.'))
+		gmDispatcher.send(signal='statustext', msg=_('Successfully saved new document.'))
 		return True
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
@@ -1452,7 +1493,7 @@ class cDocTree(wx.TreeCtrl):
 		fnames = self.__curr_node_data.export_parts_to_files(export_dir=dirname)
 		wx.EndBusyCursor()
 
-		gmDispatcher.send(signal=gmSignals.statustext(), msg=_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname))
+		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname))
 
 		return True
 #============================================================
@@ -1466,7 +1507,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.135  2007-08-09 07:59:42  ncq
+# Revision 1.136  2007-08-12 00:10:55  ncq
+# - improve create_new_letter()
+# - (_)save_file_as_new_document() and listen for 'import_document_from_file'
+# - no more gmSignals.py
+#
+# Revision 1.135  2007/08/09 07:59:42  ncq
 # - streamline __display_part() with part.display_via_mime()
 #
 # Revision 1.134  2007/07/22 10:04:23  ncq
