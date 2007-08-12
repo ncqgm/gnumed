@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 
@@ -24,9 +24,6 @@ def popup_notice():
 def popup_alert():
 	"an important notice of general ineterest has been received"
 	return 'popup_alert'
-
-def statustext():
-	return 'statustext'
 
 #-------------------------------------------------------------
 # clinical signals
@@ -133,15 +130,6 @@ def application_closing():
 def application_init():
 	"an application is starting"
 	return "application_init"
-
-#-------------------------------------------------------------
-def display_widget():
-	"""Request a widget to be displayed.
-
-	- name: the widget name
-	- additional keywords: widget specific
-	"""
-	return "display_widget"
 #-------------------------------------------------------------
 def user_error ():
 	"an error of interest to the user"
@@ -230,7 +218,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.16  2007-07-13 12:09:16  ncq
+# Revision 1.17  2007-08-12 00:06:38  ncq
+# - remove signals that aren't used from here anymore
+#
+# Revision 1.16  2007/07/13 12:09:16  ncq
 # - add comment
 #
 # Revision 1.15  2007/03/02 15:30:46  ncq
