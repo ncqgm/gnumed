@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.66 2007-08-13 11:07:41 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmEMRStructWidgets.py,v 1.67 2007-08-13 22:00:48 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -101,7 +101,7 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		# FIXME: date used should be date of encounter, not date_modified
 		# FIXME: translate/sort by soap_cat
 		self._LCTRL_items.set_string_items (
-			items = [ [narr['date'].strftime('%y-%m-%d %H:%M'), narr['provider'], narr['soap_cat'], narr['narrative'].translate('\n', '/').translate('\r', '/')] for narr in narrative ]
+			items = [ [narr['date'].strftime('%Y-%m-%d %H:%M'), narr['provider'], narr['soap_cat'], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)
@@ -1285,7 +1285,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.66  2007-08-13 11:07:41  ncq
+# Revision 1.67  2007-08-13 22:00:48  ncq
+# - proper year format specs
+#
+# Revision 1.66  2007/08/13 11:07:41  ncq
 # - make episode descriptions phrasewheel actually *match*
 #   on input, IOW, add a where clause to the select ;-)
 #
