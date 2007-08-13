@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.136 2007-08-12 00:10:55 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gmMedDocWidgets.py,v 1.137 2007-08-13 22:11:38 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -14,7 +14,7 @@ import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmForms
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets, gmMacro
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 
@@ -26,7 +26,6 @@ def create_new_letter(parent=None):
 
 	# 1) have user select template
 	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = True)
-	choices = [ [] for t in templates ]
 	template = gmListWidgets.get_choice_from_list (
 		parent = parent,
 		msg = u'',
@@ -39,7 +38,8 @@ def create_new_letter(parent=None):
 		return
 
 	# 2) export template to file
-	filename = gmForms.export_form_template(pk = template['pk'])
+	filename = template.export_to_file()
+#	filename = gmForms.export_form_template(pk = template['pk'])
 	if filename is None:
 		gmGuiHelpers.gm_show_error (
 			_(
@@ -53,14 +53,15 @@ def create_new_letter(parent=None):
 
 	doc = gmForms.cOOoLetter(template_file = filename, document_type = template['document_type'])
 	doc.open_in_ooo()
-	doc.replace_placeholders()
-	filename = filename.replace('.ott', '.odt').replace('FormTemplate-', 'FormInstance-')
+	ph_handler = gmMacro.gmPlaceholderHandler()
+	doc.replace_placeholders(handler = ph_handler)
+	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
 	doc.save_in_ooo(filename = filename)
 #------------------------------------------------------------
-def save_file_as_new_document(**kwargs):
-	wx.CallAfter(_save_file_as_new_document, **kwargs)
+def _save_file_as_new_document(**kwargs):
+	wx.CallAfter(save_file_as_new_document, **kwargs)
 #----------------------
-def _save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, **kwargs):
+def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, **kwargs):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.is_connected():
@@ -104,7 +105,7 @@ def _save_file_as_new_document(parent=None, filename=None, document_type=None, u
 
 	return
 #----------------------
-gmDispatcher.connect(signal = u'import_document_from_file', receiver = save_file_as_new_document)
+gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -1507,7 +1508,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.136  2007-08-12 00:10:55  ncq
+# Revision 1.137  2007-08-13 22:11:38  ncq
+# - use cFormTemplate
+# - pass placeholder handler to form instance handler
+#
+# Revision 1.136  2007/08/12 00:10:55  ncq
 # - improve create_new_letter()
 # - (_)save_file_as_new_document() and listen for 'import_document_from_file'
 # - no more gmSignals.py
