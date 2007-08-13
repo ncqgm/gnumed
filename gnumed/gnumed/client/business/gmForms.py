@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.45 2007-08-11 23:44:01 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmForms.py,v 1.46 2007-08-13 22:04:32 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -23,20 +23,13 @@ from com.sun.star.beans import PropertyValue as oooPropertyValue
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher
+from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject
 from Gnumed.business import gmPerson
 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-
-known_placeholders = [
-	'lastname',
-	'firstname',
-	'title',
-	'date_of_birth'
-]
 
 engine_ooo = 'O'
 
@@ -47,94 +40,100 @@ def get_form_templates(engine=None, active_only=False):
 	engine = engine_ooo
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{
-			'cmd': u"select pk, name_long, revision, in_use, coalesce(document_type, (select name from ref.form_types where pk=ref.form_defs.fk_type)) as document_type from ref.form_defs where in_use is True and engine = %(eng)s",
-			'args': {'eng': engine}
-		}]
+			#'cmd': u"select pk, name_long, revision, in_use, coalesce(document_type, (select name from ref.form_types where pk=ref.form_defs.fk_type)) as document_type from ref.form_defs where in_use is True and engine = %(eng)s",
+			'cmd': u"select * from ref.v_form_defs where in_use is %(in_use)s and engine = %(eng)s",
+			'args': {'eng': engine, 'in_use': active_only}
+		}],
+		get_col_idx = True
 	)
-	return rows
+	templates = [ cFormTemplate(row = {'pk_field': 'pk_form_def', 'data': r, 'idx': idx}) for r in rows ]
+	return templates
 #============================================================
-def export_form_template(pk=None, filename=None):
+class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
-	if filename is None:
-		filename = gmTools.get_unique_filename (
-			prefix = 'gmOOoFormTemplate-',
-			suffix = '.ott',
-			dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-	data_query = {
-		'cmd': u'SELECT substring(template from %(start)s for %(size)s) FROM ref.form_defs WHERE pk = %(pk)s',
-		'args': {'pk': pk}
+	_cmd_fetch_payload = u'select * from ref.v_form_defs where pk_form_def = %s'
+
+	_cmds_store_payload = [
+		u"""update ref.form_defs set
+			name_short = %(name_short)s,
+			name_long = %(name_long)s,
+			revision = %(revision)s,
+			fk_type = %(pk_type)s,
+			document_type = %(document_type)s,
+			engine = %(engine)s,
+			in_use = %(in_use)s,
+			filename = %(filename)s
+		where
+			pk = %(pk_form_defs)s and
+			xmin = %(xmin_form_defs)s
+		""",
+		u"""select xmin_form_defs from ref.v_form_defs where pk_form_def = %(pk_form_def)s"""
+	]
+
+	_updatable_fields = [
+		u'name_short',
+		u'name_long',
+		u'revision',
+		u'pk_type',
+		u'document_type',
+		u'engine',
+		u'in_use',
+		u'filename'
+	]
+
+	_suffix4engine = {
+		u'O': u'.ott',
+		u'L': u'.tex',
+		u'T': u'.txt'
 	}
-	data_size_query = {
-		'cmd': u'select octet_length(template) from ref.form_defs where pk=%(pk)s',
-		'args': {'pk': pk}
-	}
 
-	result = gmPG2.bytea2file (
-		data_query = data_query,
-		filename = filename,
-		data_size_query = data_size_query,
-		chunk_size = 0			# FIXME: load config from backend
-	)
-	if result is False:
-		return None
-
-	return filename
-#============================================================
-# Placeholder API, move elsewhere, eventually
-#============================================================
-class gmPlaceholderHandler(gmBorg.cBorg):
-
-	def __init__(self, *args, **kwargs):
-
-		self.debug = False
 	#--------------------------------------------------------
-	# __getitem__ API
-	#--------------------------------------------------------
-	def __getitem__(self, placeholder):
-		"""Map self['placeholder'] to self.placeholder.
+	def export_to_file(self, filename=None, chunksize=0):
+		"""Export form template from database into file."""
 
-		This is useful for replacing placeholders parsed out
-		of documents as strings.
-
-		Unknown placeholders still deliver a result but it will be
-		made glaringly obvious that the placeholder was unknown.
-		"""
-		if placeholder not in known_placeholders:
-			if self.debug:
-				return _('unknown placeholder: <%s>' % placeholder)
+		if filename is None:
+			if self._payload[self._idx['filename']] is None:
+				suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
 			else:
-				return None
+				suffix = os.path.splitext(self._payload[self._idx['filename']].strip()).strip()
+				if suffix in [u'', u'.']:
+					suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
 
-		return getattr(self, placeholder)
-	#--------------------------------------------------------
-	# properties actually handling placeholders
-	#--------------------------------------------------------
-	def _setter_noop(self, val):
-		"""This does nothing, used as a NOOP properties setter."""
-		pass
-	#--------------------------------------------------------
-	def _get_lastname(self):
-		pat = gmPerson.gmCurrentPatient()
-		return pat.get_active_name()['last']
-	#--------------------------------------------------------
-	def _get_firstname(self):
-		pat = gmPerson.gmCurrentPatient()
-		return pat.get_active_name()['first']
-	#--------------------------------------------------------
-	def _get_title(self):
-		pat = gmPerson.gmCurrentPatient()
-		return gmTools.coalesce(pat.get_active_name()['title'], u'')
-	#--------------------------------------------------------
-	def _get_dob(self):
-		pat = gmPerson.gmCurrentPatient()
-		return pat['dob'].strftime('%x')
-	#--------------------------------------------------------
-	lastname = property(_get_lastname, _setter_noop)
-	firstname = property(_get_firstname, _setter_noop)
-	title = property(_get_title, _setter_noop)
-	date_of_birth = property(_get_dob, _setter_noop)
+			filename = gmTools.get_unique_filename (
+				prefix = 'gm-%s-FormTemplate-' % self._payload[self._idx['engine']],
+				suffix = suffix,
+				dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
+			)
 
+		data_query = {
+			'cmd': u'SELECT substring(template from %(start)s for %(size)s) FROM ref.form_defs WHERE pk = %(pk)s',
+			'args': {'pk': self.pk_obj}
+		}
+
+		data_size_query = {
+			'cmd': u'select octet_length(template) from ref.form_defs where pk = %(pk)s',
+			'args': {'pk': self.pk_obj}
+		}
+
+		result = gmPG2.bytea2file (
+			data_query = data_query,
+			filename = filename,
+			data_size_query = data_size_query,
+			chunk_size = chunksize
+		)
+		if result is False:
+			return None
+
+		return filename
+	#--------------------------------------------------------
+	def update_template_from_file(self, filename=None):
+		gmPG2.file2bytea (
+			filename = filename,
+			query = u'update ref.form_defs set template = %(data)s::bytea where pk = %(pk)s and xmin = %(xmin)s',
+			args = {'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_form_defs']]}
+		)
+		# adjust for xmin change
+		self.refetch_payload()
 #============================================================
 # OpenOffice API
 #============================================================
@@ -225,10 +224,9 @@ class cOOoLetter(object):
 		listener = cOOoDocumentCloseListener(document=self)
 		self.ooo_doc.addCloseListener(listener)
 	#--------------------------------------------------------
-	def replace_placeholders(self):
+	def replace_placeholders(self, handler=None):
 
 		text_fields = self.ooo_doc.getTextFields().createEnumeration()
-		handler = gmPlaceholderHandler()
 		while text_fields.hasMoreElements():
 			text_field = text_fields.nextElement()
 
@@ -246,6 +244,7 @@ class cOOoLetter(object):
 #				text_field.Hint
 #			)
 #			handler.debug = False
+
 			replacement = handler[text_field.PlaceHolder]
 			if replacement is None:
 				continue
@@ -690,28 +689,6 @@ if __name__ == '__main__':
 #		doc.close(True)		# closes but leaves open the dedicated OOo window
 		doc.dispose()		# closes and disposes of the OOo window
 	#--------------------------------------------------------
-	def test_open_uri_in_ooo():
-		try:
-			open_uri_in_ooo(filename=sys.argv[1])
-		except:
-			_log.LogException('cannot open [%s] in OOo' % sys.argv[1])
-			raise
-	#--------------------------------------------------------
-	def test_placeholders():
-		handler = gmPlaceholderHandler()
-
-		for placeholder in ['a', 'b', None]:
-			print handler[placeholder]
-
-		pat = gmPerson.ask_for_patient()
-		if pat is None:
-			return
-
-		gmPerson.set_active_patient(patient = pat)
-
-		for placeholder in known_placeholders:
-			print placeholder, "=", handler[placeholder]
-	#--------------------------------------------------------
 	def test_cOOoLetter():
 		pat = gmPerson.ask_for_patient()
 		if pat is None:
@@ -726,19 +703,33 @@ if __name__ == '__main__':
 #		doc.close_in_ooo()
 		raw_input('press <ENTER> to continue')
 	#--------------------------------------------------------
-
-
-	# now run the tests
-	#test_open_uri_in_ooo()
-	#test_au()
-	#test_de()
-	#play_with_ooo()
-	#test_placeholders()
-	test_cOOoLetter()
+	def test_cFormTemplate():
+		template = cFormTemplate(aPK_obj = 1)
+		print template
+		print template.export_to_file()
+	#--------------------------------------------------------
+	def set_template_from_file():
+		template = cFormTemplate(aPK_obj = sys.argv[2])
+		template.update_template_from_file(filename = sys.argv[3])
+	#--------------------------------------------------------
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+		# now run the tests
+		#test_au()
+		#test_de()
+		#play_with_ooo()
+		#test_cOOoLetter()
+		#test_cFormTemplate()
+		set_template_from_file()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.45  2007-08-11 23:44:01  ncq
+# Revision 1.46  2007-08-13 22:04:32  ncq
+# - factor out placeholder handler
+# - use view in get_form_templates()
+# - add cFormTemplate() and test
+# - move export_form_template() to cFormTemplate.export_to_file()
+#
+# Revision 1.45  2007/08/11 23:44:01  ncq
 # - improve document close listener, get_form_templates(), cOOoLetter()
 # - better test suite
 #
