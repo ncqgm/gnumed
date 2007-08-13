@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.4 2007-08-12 00:18:38 ncq Exp $
--- $Revision: 1.4 $
+-- $Id: ref-form_tables.sql,v 1.5 2007-08-13 22:09:00 ncq Exp $
+-- $Revision: 1.5 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -19,6 +19,7 @@ comment on table ref.form_types is
 	'types of forms which are available, generally by purpose
 	 (radiology, pathology, sick leave, Therapiebericht etc.)';
 
+-- --------------------------------------------------------------
 select audit.add_table_for_audit('ref', 'form_defs');
 
 
@@ -49,6 +50,11 @@ comment on column ref.form_defs.engine is
 comment on column ref.form_defs.in_use is
 	'whether this template is currently actively
 	 used in a given practice';
+comment on column ref.form_defs.filename is
+	'the filename from when the template was imported if applicable,
+	 used by some engines (such as OOo) to differentiate what to do
+	 with certain files, such as *.ott vs. *.ods, GNUmed uses it
+	 to derive a file extension when exporting the template';
 
 
 -- example form template
@@ -58,8 +64,7 @@ insert into ref.form_types (name) values (i18n.i18n('physical therapy report'));
 
 select i18n.upd_tx('de_DE', 'physical therapy report', 'Therapiebericht (PT)');
 
-
---delete from ref.form_defs where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
+delete from ref.form_defs where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
 
 insert into ref.form_defs (
 	fk_type,
@@ -82,6 +87,34 @@ then import the ott file into the template field in ref.form_defs'::bytea
 );
 
 
+\unset ON_ERROR_STOP
+drop view ref.v_form_defs cascade;
+\set ON_ERROR_STOP
+
+create view ref.v_form_defs as
+select
+	pk
+		as pk_form_def,
+	name_short,
+	name_long,
+	revision,
+	(select name from ref.form_types where pk = fk_type)
+		as template_type,
+	(select _(name) from ref.form_types where pk = fk_type)
+		as l10n_template_type,
+	coalesce(document_type, (select name from ref.form_types where pk = fk_type))
+		as document_type,
+	coalesce(_(document_type), (select _(name) from ref.form_types where pk = fk_type))
+		as l10n_document_type,
+	engine,
+	in_use,
+	filename,
+	fk_type as pk_type,
+	xmin as xmin_form_defs
+from
+	ref.form_defs
+;
+
 -- --------------------------------------------------------------
 grant select, insert, update, insert on
 	ref.form_types,
@@ -90,12 +123,20 @@ grant select, insert, update, insert on
 	ref.form_defs_pk_seq
 to group "gm-doctors";
 
+grant select on
+	ref.v_form_defs
+to group "gm-doctors";
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.4 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.5 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.4  2007-08-12 00:18:38  ncq
+-- Revision 1.5  2007-08-13 22:09:00  ncq
+-- - ref.form_defs.filename
+-- - ref.v_form_defs
+--
+-- Revision 1.4  2007/08/12 00:18:38  ncq
 -- - improved comments
 --
 -- Revision 1.3  2007/07/22 10:03:28  ncq
