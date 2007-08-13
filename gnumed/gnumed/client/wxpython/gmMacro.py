@@ -4,18 +4,101 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
 
+
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
 from Gnumed.business import gmPerson
-from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmEMRStructWidgets
+
 
 _log = gmLog.gmDefLog
+
+
+known_placeholders = [
+	'lastname',
+	'firstname',
+	'title',
+	'date_of_birth',
+	'progress_notes'
+]
+
+#=====================================================================
+class gmPlaceholderHandler(gmBorg.cBorg):
+	"""Replaces placeholders in forms, fields, etc.
+
+	- patient related placeholders operate on the currently active patient
+	- is passed to the forms handling code, for example
+
+	Note that this cannot be called from a non-gui thread unless
+	wrapped in wx.CallAfter.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		self.debug = False
+	#--------------------------------------------------------
+	# __getitem__ API
+	#--------------------------------------------------------
+	def __getitem__(self, placeholder):
+		"""Map self['placeholder'] to self.placeholder.
+
+		This is useful for replacing placeholders parsed out
+		of documents as strings.
+
+		Unknown placeholders still deliver a result but it will be
+		made glaringly obvious that the placeholder was unknown.
+		"""
+		if placeholder not in known_placeholders:
+			if self.debug:
+				return _('unknown placeholder: <%s>' % placeholder)
+			else:
+				return None
+
+		return getattr(self, placeholder)
+	#--------------------------------------------------------
+	# properties actually handling placeholders
+	#--------------------------------------------------------
+	def _setter_noop(self, val):
+		"""This does nothing, used as a NOOP properties setter."""
+		pass
+	#--------------------------------------------------------
+	def _get_lastname(self):
+		pat = gmPerson.gmCurrentPatient()
+		return pat.get_active_name()['last']
+	#--------------------------------------------------------
+	def _get_firstname(self):
+		pat = gmPerson.gmCurrentPatient()
+		return pat.get_active_name()['first']
+	#--------------------------------------------------------
+	def _get_title(self):
+		pat = gmPerson.gmCurrentPatient()
+		return gmTools.coalesce(pat.get_active_name()['title'], u'')
+	#--------------------------------------------------------
+	def _get_dob(self):
+		pat = gmPerson.gmCurrentPatient()
+		return pat['dob'].strftime('%x')
+	#--------------------------------------------------------
+	def _get_progress_notes(self):
+		narr = gmEMRStructWidgets.select_narrative_from_episodes()
+		if len(narr) == 0:
+			return u''
+		narr = [ n['narrative'] for n in narr ]
+
+		return '\n'.join(narr)
+	#--------------------------------------------------------
+	lastname = property(_get_lastname, _setter_noop)
+	firstname = property(_get_firstname, _setter_noop)
+	title = property(_get_title, _setter_noop)
+	date_of_birth = property(_get_dob, _setter_noop)
+	progress_notes = property(_get_progress_notes, _setter_noop)
 
 #=====================================================================
 class cMacroPrimitives:
@@ -72,7 +155,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.31 $" % self.__class__.__name__
+		return "%s $Revision: 1.32 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -253,38 +336,69 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	from Gnumed.pycommon import gmScriptingListener
-	import xmlrpclib
-	listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
+	#--------------------------------------------------------
+	def test_placeholders():
+		handler = gmPlaceholderHandler()
+		handler.debug = True
 
-	s = xmlrpclib.ServerProxy('http://localhost:9999')
-	print "should fail:", s.attach()
-	print "should fail:", s.attach('wrong cookie')
-	print "should work:", s.version()
-	print "should fail:", s.raise_gnumed()
-	print "should fail:", s.raise_notebook_plugin('test plugin')
-	print "should fail:", s.lock_into_patient('kirk, james')
-	print "should fail:", s.unlock_patient()
-	status, conn_auth = s.attach('unit test')
-	print "should work:", status, conn_auth
-	print "should work:", s.version()
-	print "should work:", s.raise_gnumed(conn_auth)
-	status, pat_auth = s.lock_into_patient(conn_auth, 'kirk, james')
-	print "should work:", status, pat_auth
-	print "should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie')
-	print "should work", s.unlock_patient(conn_auth, pat_auth)
-	data = {'firstname': 'jame', 'lastnames': 'Kirk', 'gender': 'm'}
-	status, pat_auth = s.lock_into_patient(conn_auth, data)
-	print "should work:", status, pat_auth
-	print "should work", s.unlock_patient(conn_auth, pat_auth)
-	print s.detach('bogus detach cookie')
-	print s.detach(conn_auth)
-	del s
+		for placeholder in ['a', 'b', None]:
+			print handler[placeholder]
 
-	listener.tell_thread_to_stop()
+		pat = gmPerson.ask_for_patient()
+		if pat is None:
+			return
+
+		gmPerson.set_active_patient(patient = pat)
+
+		app = wx.PyWidgetTester(size = (200, 50))
+		for placeholder in known_placeholders:
+			print placeholder, "=", handler[placeholder]
+
+	#--------------------------------------------------------
+	def test_scripting():
+		from Gnumed.pycommon import gmScriptingListener
+		import xmlrpclib
+		listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
+
+		s = xmlrpclib.ServerProxy('http://localhost:9999')
+		print "should fail:", s.attach()
+		print "should fail:", s.attach('wrong cookie')
+		print "should work:", s.version()
+		print "should fail:", s.raise_gnumed()
+		print "should fail:", s.raise_notebook_plugin('test plugin')
+		print "should fail:", s.lock_into_patient('kirk, james')
+		print "should fail:", s.unlock_patient()
+		status, conn_auth = s.attach('unit test')
+		print "should work:", status, conn_auth
+		print "should work:", s.version()
+		print "should work:", s.raise_gnumed(conn_auth)
+		status, pat_auth = s.lock_into_patient(conn_auth, 'kirk, james')
+		print "should work:", status, pat_auth
+		print "should fail:", s.unlock_patient(conn_auth, 'bogus patient unlock cookie')
+		print "should work", s.unlock_patient(conn_auth, pat_auth)
+		data = {'firstname': 'jame', 'lastnames': 'Kirk', 'gender': 'm'}
+		status, pat_auth = s.lock_into_patient(conn_auth, data)
+		print "should work:", status, pat_auth
+		print "should work", s.unlock_patient(conn_auth, pat_auth)
+		print s.detach('bogus detach cookie')
+		print s.detach(conn_auth)
+		del s
+
+		listener.tell_thread_to_stop()
+	#--------------------------------------------------------
+
+	if len(sys.argv) > 0 and sys.argv[1] == 'test':
+		test_placeholders()
+		#test_scripting()
+
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.31  2007-07-17 21:44:24  ncq
+# Revision 1.32  2007-08-13 21:59:54  ncq
+# - add placeholder handler
+# - add progress_notes placeholder
+# - improved test suite
+#
+# Revision 1.31  2007/07/17 21:44:24  ncq
 # - use patient.locked properly
 #
 # Revision 1.30  2007/07/11 21:09:54  ncq
