@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.42 2007-05-21 14:47:22 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmBusinessDBObject.py,v 1.43 2007-08-13 21:55:10 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -207,7 +207,7 @@ class cBusinessDBObject:
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
 		if len(self._idx.keys()) != len(self._payload):
 			_log.Log(gmLog.lPanic, 'field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
-			_log.LogException('faulty <row> argument structure: %s' % row, sys.exc_info())
+			_log.Log(gmLog.lPanic, 'faulty <row> argument structure: %s' % row)
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
 		self.original_payload = {}
 		for field in self._idx.keys():
@@ -412,7 +412,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.42  2007-05-21 14:47:22  ncq
+# Revision 1.43  2007-08-13 21:55:10  ncq
+# - fix logging statement
+#
+# Revision 1.42  2007/05/21 14:47:22  ncq
 # - no caching of get_*()ers anymore, but don't deprecate them eiter
 #
 # Revision 1.41  2007/05/19 23:12:28  ncq
