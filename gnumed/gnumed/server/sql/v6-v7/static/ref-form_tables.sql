@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.3 2007-08-12 00:19:23 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: ref-form_tables.sql,v 1.4 2007-08-13 22:07:50 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -42,19 +42,23 @@ create table ref.form_defs (
 		not null,
 	revision text
 		not null,
-	template bytea,
 	engine text
 		default 'T'
 		not null
 		check (engine in ('T', 'L', 'H', 'O')),
-	in_use boolean not null
+	in_use boolean
+		not null
 		default true,
+	filename text
+		default null,
+	template bytea
+		not null,
 	unique (name_long, name_short),
 	unique (name_long, revision)
 ) inherits (audit.audit_fields);
 
-insert into ref.form_defs (fk_type, name_short, name_long, revision, engine, in_use)
-	select fk_type, name_short, name_long, revision, engine, in_use from public.form_defs
+insert into ref.form_defs (fk_type, name_short, name_long, revision, engine, in_use, template)
+	select fk_type, name_short, name_long, revision, engine, in_use, ''::bytea from public.form_defs
 ;
 
 drop table public.form_defs cascade;
@@ -64,11 +68,14 @@ drop table public.form_types cascade;
 delete from audit.audited_tables where schema = 'public' and table_name = 'form_defs';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.3  2007-08-12 00:19:23  ncq
+-- Revision 1.4  2007-08-13 22:07:50  ncq
+-- - add ref.form_defs.filename
+--
+-- Revision 1.3  2007/08/12 00:19:23  ncq
 -- - add document_type field
 --
 -- Revision 1.2  2007/07/22 09:29:53  ncq
