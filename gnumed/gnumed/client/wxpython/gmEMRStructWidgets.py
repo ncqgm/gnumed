@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.65 2007-08-12 00:09:07 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmEMRStructWidgets.py,v 1.66 2007-08-13 11:07:41 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -489,6 +489,7 @@ class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			queries = [u"""
 				select distinct on (description) description, description, 1
 				from clin.episode
+				where description %(fragment_condition)s
 				order by description
 				limit 30"""
 			]
@@ -1284,7 +1285,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.65  2007-08-12 00:09:07  ncq
+# Revision 1.66  2007-08-13 11:07:41  ncq
+# - make episode descriptions phrasewheel actually *match*
+#   on input, IOW, add a where clause to the select ;-)
+#
+# Revision 1.65  2007/08/12 00:09:07  ncq
 # - no more gmSignals.py
 #
 # Revision 1.64  2007/07/13 12:20:48  ncq
