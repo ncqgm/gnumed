@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.35 2007-08-07 21:41:02 ncq Exp $
+# $Id: gmTools.py,v 1.36 2007-08-15 09:18:56 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,6 +17,8 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmBorg
 
+
+_ = lambda x:x
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -338,6 +340,27 @@ def str2interval(str_interval=None):
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
+_kB = 1024
+_MB = 1024 * _kB
+_GB = 1024 * _MB
+_TB = 1024 * _GB
+_PB = 1024 * _TB
+#---------------------------------------------------------------------------
+def size2str(size=0, template='%s'):
+	if size == 1:
+		return template % _('1 Byte')
+	if size < 10 * _kB:
+		return template % _('%s Bytes') % size
+	if size < _MB:
+		return template % u'%.1f kB' % (float(size) / _kB)
+	if size < _GB:
+		return template % u'%.1f MB' % (float(size) / _MB)
+	if size < _TB:
+		return template % u'%.1f GB' % (float(size) / _GB)
+	if size < _PB:
+		return template % u'%.1f TB' % (float(size) / _TB)
+	return template % u'%.1f PB' % (float(size) / _PB)
+#---------------------------------------------------------------------------
 def bool2str(bool=None, true_str='True', false_str='False'):
 	if bool is True:
 		return true_str
@@ -368,6 +391,10 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 	@type template_initial: string or None
 	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s> 
 	@type template_instead: string or None
+
+	Ideas:
+		- list of None-equivalents
+		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
 	"""
 	if initial is None:
 		if template_instead is None:
@@ -608,23 +635,32 @@ This is a test mail from the gmTools.py module.
 		print get_unique_filename(prefix='test-', suffix='tst')
 		print get_unique_filename(dir='/home/ncq/Archiv/')
 	#-----------------------------------------------------------------------
-
-	print __doc__
-
-	#test_str2interval()
-	#test_coalesce()
-	#test_capitalize()
-	#test_import_module()
-	#test_mkdir()
-	#test_send_mail()
-	#test_gmPaths()
-	#test_none_if()
-	test_bool2str()
-	test_get_unique_filename()
+	def test_size2str():
+		print "testing size2str()"
+		print "------------------"
+		tests = [0, 1, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000]
+		for test in tests:
+			print size2str(test)
+	#-----------------------------------------------------------------------
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+		#test_str2interval()
+		#test_coalesce()
+		#test_capitalize()
+		#test_import_module()
+		#test_mkdir()
+		#test_send_mail()
+		#test_gmPaths()
+		#test_none_if()
+		#test_bool2str()
+		#test_get_unique_filename()
+		test_size2str()
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.35  2007-08-07 21:41:02  ncq
+# Revision 1.36  2007-08-15 09:18:56  ncq
+# - size2str() and test
+#
+# Revision 1.35  2007/08/07 21:41:02  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.34  2007/07/13 09:47:38  ncq
