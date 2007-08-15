@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.137 2007-08-13 22:11:38 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmMedDocWidgets.py,v 1.138 2007-08-15 09:20:43 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -39,7 +39,6 @@ def create_new_letter(parent=None):
 
 	# 2) export template to file
 	filename = template.export_to_file()
-#	filename = gmForms.export_form_template(pk = template['pk'])
 	if filename is None:
 		gmGuiHelpers.gm_show_error (
 			_(
@@ -53,10 +52,12 @@ def create_new_letter(parent=None):
 
 	doc = gmForms.cOOoLetter(template_file = filename, document_type = template['document_type'])
 	doc.open_in_ooo()
+	doc.show(False)
 	ph_handler = gmMacro.gmPlaceholderHandler()
 	doc.replace_placeholders(handler = ph_handler)
 	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
 	doc.save_in_ooo(filename = filename)
+	doc.show(True)
 #------------------------------------------------------------
 def _save_file_as_new_document(**kwargs):
 	wx.CallAfter(save_file_as_new_document, **kwargs)
@@ -1086,18 +1087,12 @@ class cDocTree(wx.TreeCtrl):
 		# add our documents as first level nodes
 		intermediate_nodes = {}
 		for doc in docs:
-			if doc['comment'] is not None:
-				cmt = '%s' % doc['comment']
-			else:
-				cmt = _('no comment available')
 
 			parts = doc.get_parts()
-			page_num = len(parts)
 
-			if doc['ext_ref'] is not None:
-				ref = '>%s<' % doc['ext_ref']
-			else:
-				ref = _('no reference ID found')
+			cmt = gmTools.coalesce(doc['comment'], _('no comment available'))
+			page_num = len(parts)
+			ref = gmTools.coalesce(initial = doc['ext_ref'], instead = _('no reference ID found'), template_initial = u'>%s<')
 
 			if doc.has_unreviewed_parts():
 				review = '!'
@@ -1137,18 +1132,13 @@ class cDocTree(wx.TreeCtrl):
 			for part in parts:
 
 				pg = _('page %2s') % part['seq_idx']
-
 				cmt = gmTools.coalesce(part['obj_comment'], _("no comment available"))
-
-				if part['size'] == 0:
-					sz = _('0 bytes - data missing ?')
-				else:
-					sz = _('%s bytes') % part['size']
-
-				if part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer']:
-					rev = ''
-				else:
-					rev = ' [%s]' % _('unreviewed')
+				sz = gmTools.size2str(part['size'])
+				rev = gmTools.bool2str (
+					bool = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
+					true_str = u'',
+					false_str = ' [%s]' % _('unreviewed')
+				)
 
 #				if part['clinically_relevant']:
 #					rel = ' [%s]' % _('Cave')
@@ -1508,7 +1498,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.137  2007-08-13 22:11:38  ncq
+# Revision 1.138  2007-08-15 09:20:43  ncq
+# - use cOOoLetter.show()
+# - cleanup
+# - use gmTools.size2str()
+#
+# Revision 1.137  2007/08/13 22:11:38  ncq
 # - use cFormTemplate
 # - pass placeholder handler to form instance handler
 #
