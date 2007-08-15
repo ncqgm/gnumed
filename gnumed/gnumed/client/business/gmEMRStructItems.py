@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.99 $"
+__version__ = "$Revision: 1.100 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -394,6 +394,19 @@ def create_health_issue(patient_id=None, description=None):
 
 	return (True, h_issue)
 #-----------------------------------------------------------
+def delete_health_issue(health_issue=None):
+	if isinstance(health_issue, cHealthIssue):
+		pk = health_issue['pk']
+	else:
+		pk = int(health_issue)
+
+	try:
+		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.health_issue where pk=%(pk)s', 'args': {'pk': pk}}])
+	except gmPG2.dbapi.IntegrityError:
+		# should be parsing pgcode/and or error message
+		_log.LogException('cannot delete health issue')
+		raise gmExceptions.DatabaseObjectInUseError('cannot delete health issue, it is in use')
+#-----------------------------------------------------------
 def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False):
 	"""Creates a new episode for a given patient's health issue.
 
@@ -565,7 +578,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.99  2007-05-18 13:25:56  ncq
+# Revision 1.100  2007-08-15 14:56:30  ncq
+# - delete_health_issue()
+#
+# Revision 1.99  2007/05/18 13:25:56  ncq
 # - fix cEncounter.transfer_clinical_data()
 #
 # Revision 1.98  2007/05/14 10:32:50  ncq
