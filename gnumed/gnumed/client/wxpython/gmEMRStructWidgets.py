@@ -8,16 +8,18 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.67 2007-08-13 22:00:48 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmEMRStructWidgets.py,v 1.68 2007-08-15 09:19:32 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
 # stdlib
 import sys, re, datetime as pydt
 
+
 # 3rd party
 import wx
+
 
 # GNUmed
 if __name__ == '__main__':
@@ -29,6 +31,7 @@ from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaPnl, wxgEncounterEditAreaDlg
 from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl, wxgEpisodeEditAreaDlg
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -1285,7 +1288,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.67  2007-08-13 22:00:48  ncq
+# Revision 1.68  2007-08-15 09:19:32  ncq
+# - cleanup
+#
+# Revision 1.67  2007/08/13 22:00:48  ncq
 # - proper year format specs
 #
 # Revision 1.66  2007/08/13 11:07:41  ncq
