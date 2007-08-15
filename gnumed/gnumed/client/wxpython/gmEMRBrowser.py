@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.78 2007-08-12 00:09:07 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmEMRBrowser.py,v 1.79 2007-08-15 14:57:52 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -158,36 +158,41 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __make_popup_menus(self):
 
 		# - episodes
-		self.__epi_context_popup = wx.Menu()
+		self.__epi_context_popup = wx.Menu(title = _('Episode Menu'))
 
 		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit episode details')))
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit details')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
 
 		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete episode')))
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
 		# attach all encounters to another episode
 
 		# - encounters
-		self.__enc_context_popup = wx.Menu()
+		self.__enc_context_popup = wx.Menu(title = _('Encounter Menu'))
 		# - move data
 		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('move encounter data to another episode')))
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Move data to another episode')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
 		# - edit encounter details
 		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('edit consultation details')))
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
 		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_consultation_details)
 
 		# - health issues
-		self.__issue_context_popup = wx.Menu()
+		self.__issue_context_popup = wx.Menu(title = _('Health Issue Menu'))
+		# edit
 		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('edit health issue')))
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
 		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
-		
+		# delete
+		menu_id = wx.NewId()
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
+
 		# - root node
-		self.__root_context_popup = wx.Menu()
+		self.__root_context_popup = wx.Menu(title = _('EMR Menu'))
 		# add health issue
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('create health issue')))
@@ -307,6 +312,33 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if ea.ShowModal() == wx.ID_OK:
 			self.__populate_tree()
 		return
+	#--------------------------------------------------------
+	def __delete_issue(self, event):
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			parent = self,
+			id = -1,
+			caption = _('Deleting health issue'),
+			button_defs = [
+				{'label': _('Yes, delete'), 'tooltip': _('Delete the health issue if possible (it must be completely empty).')},
+				{'label': _('No, cancel'), 'tooltip': _('Cancel and do NOT delete the health issue.')}
+			],
+			question = _(
+				'Are you sure you want to delete this health issue ?\n'
+				'\n'
+				' "%s"\n'
+			) % self.__curr_node_data['description']
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_YES:
+			return
+
+		try:
+			gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data)
+		except gmExceptions.DatabaseObjectInUseError:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete health issue. There is still clinical data recorded for it.'))
+			return
+
+		self.__populate_tree()
 	#--------------------------------------------------------
 	# root
 	def __handle_root_context(self, pos=wx.DefaultPosition):
@@ -558,7 +590,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.78  2007-08-12 00:09:07  ncq
+# Revision 1.79  2007-08-15 14:57:52  ncq
+# - pretty up tree popup menus
+# - add deletion of health issues
+#
+# Revision 1.78  2007/08/12 00:09:07  ncq
 # - no more gmSignals.py
 #
 # Revision 1.77  2007/06/18 20:31:10  ncq
