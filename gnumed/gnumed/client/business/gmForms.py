@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.46 2007-08-13 22:04:32 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmForms.py,v 1.47 2007-08-15 09:18:07 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -35,12 +35,9 @@ engine_ooo = 'O'
 
 #============================================================
 def get_form_templates(engine=None, active_only=False):
-	"""OOo forms only for now"""
-	# FIXME: support any engine/all forms
-	engine = engine_ooo
+	"""Load form templates."""
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{
-			#'cmd': u"select pk, name_long, revision, in_use, coalesce(document_type, (select name from ref.form_types where pk=ref.form_defs.fk_type)) as document_type from ref.form_defs where in_use is True and engine = %(eng)s",
 			'cmd': u"select * from ref.v_form_defs where in_use is %(in_use)s and engine = %(eng)s",
 			'args': {'eng': engine, 'in_use': active_only}
 		}],
@@ -224,6 +221,9 @@ class cOOoLetter(object):
 		listener = cOOoDocumentCloseListener(document=self)
 		self.ooo_doc.addCloseListener(listener)
 	#--------------------------------------------------------
+	def show(self, visible=True):
+		self.ooo_doc.CurrentController.Frame.ContainerWindow.setVisible(visible)
+	#--------------------------------------------------------
 	def replace_placeholders(self, handler=None):
 
 		text_fields = self.ooo_doc.getTextFields().createEnumeration()
@@ -236,14 +236,6 @@ class cOOoLetter(object):
 			# placeholder of type text ?
 			if text_field.PlaceHolderType != 0:
 				continue
-
-#			handler.debug = True
-#			print 'placeholder (type TEXT) <%s> -> %s (%s)' % (
-#				text_field.PlaceHolder,
-#				handler[text_field.PlaceHolder],
-#				text_field.Hint
-#			)
-#			handler.debug = False
 
 			replacement = handler[text_field.PlaceHolder]
 			if replacement is None:
@@ -723,7 +715,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.46  2007-08-13 22:04:32  ncq
+# Revision 1.47  2007-08-15 09:18:07  ncq
+# - cleanup
+# - cOOoLetter.show()
+#
+# Revision 1.46  2007/08/13 22:04:32  ncq
 # - factor out placeholder handler
 # - use view in get_form_templates()
 # - add cFormTemplate() and test
