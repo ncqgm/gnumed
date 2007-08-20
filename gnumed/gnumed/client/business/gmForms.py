@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.47 2007-08-15 09:18:07 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmForms.py,v 1.48 2007-08-20 14:19:48 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -32,47 +32,98 @@ _log.Log(gmLog.lInfo, __version__)
 
 
 engine_ooo = 'O'
+engine_names = {
+	u'O': 'OpenOffice',
+	u'L': 'LaTeX'
+}
 
 #============================================================
 def get_form_templates(engine=None, active_only=False):
 	"""Load form templates."""
+	if active_only:
+		query = u"select * from ref.v_paperwork_templates where engine = %(eng)s and in_use is True"
+	else:
+		query = u"select * from ref.v_paperwork_templates where engine = %(eng)s order by in_use desc"
+
 	rows, idx = gmPG2.run_ro_queries (
-		queries = [{
-			'cmd': u"select * from ref.v_form_defs where in_use is %(in_use)s and engine = %(eng)s",
-			'args': {'eng': engine, 'in_use': active_only}
-		}],
+		queries = [{'cmd': query, 'args': {'eng': engine, 'in_use': active_only}}],
 		get_col_idx = True
 	)
-	templates = [ cFormTemplate(row = {'pk_field': 'pk_form_def', 'data': r, 'idx': idx}) for r in rows ]
+	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r, 'idx': idx}) for r in rows ]
+
 	return templates
+#============================================================
+# match providers
+#============================================================
+class cFormTemplateNameLong_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	def __init__(self):
+
+		query = u"""
+			select name_long, name_long
+			from ref.v_paperwork_templates
+			where name_long %(fragment_condition)s
+			order by name_long
+		"""
+		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
+#============================================================
+class cFormTemplateNameShort_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	def __init__(self):
+
+		query = u"""
+			select name_short, name_short
+			from ref.v_paperwork_templates
+			where name_short %(fragment_condition)s
+			order by name_short
+		"""
+		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
+#============================================================
+class cFormTemplateType_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	def __init__(self):
+
+		query = u"""
+			select * from (
+				select pk_template_type, l10n_template_type
+				from ref.v_paperwork_templates
+				where l10n_template_type %(fragment_condition)s
+
+				union
+
+				select pk_template_type, l10n_template_type
+				from ref.v_paperwork_templates
+				where template_type %(fragment_condition)s
+			) as union_result
+			order by l10n_template_type
+		"""
+		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
 #============================================================
 class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u'select * from ref.v_form_defs where pk_form_def = %s'
+	_cmd_fetch_payload = u'select * from ref.v_paperwork_templates where pk_paperwork_template = %s'
 
 	_cmds_store_payload = [
-		u"""update ref.form_defs set
-			name_short = %(name_short)s,
-			name_long = %(name_long)s,
-			revision = %(revision)s,
-			fk_type = %(pk_type)s,
-			document_type = %(document_type)s,
-			engine = %(engine)s,
-			in_use = %(in_use)s,
-			filename = %(filename)s
-		where
-			pk = %(pk_form_defs)s and
-			xmin = %(xmin_form_defs)s
+		u"""update ref.paperwork_templates set
+				name_short = %(name_short)s,
+				name_long = %(name_long)s,
+				fk_template_type = %(pk_template_type)s,
+				instance_type = %(instance_type)s,
+				engine = %(engine)s,
+				in_use = %(in_use)s,
+				filename = %(filename)s
+			where
+				pk = %(pk_paperwork_template)s and
+				xmin = %(paperwork_templatepaperwork_template)s
 		""",
-		u"""select xmin_form_defs from ref.v_form_defs where pk_form_def = %(pk_form_def)s"""
+		u"""select xmin_paperwork_template from ref.v_paperwork_templates where pk_paperwork_template = %(pk_paperwork_template)s"""
 	]
 
 	_updatable_fields = [
 		u'name_short',
 		u'name_long',
-		u'revision',
-		u'pk_type',
-		u'document_type',
+		u'pk_template_type',
+		u'instance_type',
 		u'engine',
 		u'in_use',
 		u'filename'
@@ -92,23 +143,23 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 			if self._payload[self._idx['filename']] is None:
 				suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
 			else:
-				suffix = os.path.splitext(self._payload[self._idx['filename']].strip()).strip()
+				suffix = os.path.splitext(self._payload[self._idx['filename']].strip())[1].strip()
 				if suffix in [u'', u'.']:
 					suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
 
 			filename = gmTools.get_unique_filename (
-				prefix = 'gm-%s-FormTemplate-' % self._payload[self._idx['engine']],
+				prefix = 'gm-%s-Template-' % self._payload[self._idx['engine']],
 				suffix = suffix,
 				dir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
 			)
 
 		data_query = {
-			'cmd': u'SELECT substring(template from %(start)s for %(size)s) FROM ref.form_defs WHERE pk = %(pk)s',
+			'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM ref.paperwork_templates WHERE pk = %(pk)s',
 			'args': {'pk': self.pk_obj}
 		}
 
 		data_size_query = {
-			'cmd': u'select octet_length(template) from ref.form_defs where pk = %(pk)s',
+			'cmd': u'select octet_length(data) from ref.paperwork_templates where pk = %(pk)s',
 			'args': {'pk': self.pk_obj}
 		}
 
@@ -126,16 +177,29 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	def update_template_from_file(self, filename=None):
 		gmPG2.file2bytea (
 			filename = filename,
-			query = u'update ref.form_defs set template = %(data)s::bytea where pk = %(pk)s and xmin = %(xmin)s',
-			args = {'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_form_defs']]}
+			query = u'update ref.paperwork_templates set data = %(data)s::bytea where pk = %(pk)s and xmin = %(xmin)s',
+			args = {'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_paperwork_template']]}
 		)
 		# adjust for xmin change
 		self.refetch_payload()
+	#--------------------------------------------------------
+	def _set_data_modified(self, val):
+		raise AttributeError('Assigment to <%s.data_modified> not allowed.' % self.__class__.__name__)
+
+	def _get_data_modified(self):
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': u'select (not(md5(data) = data_md5)) as modified from ref.paperwork_templates where pk = %(pk)s and xmin = %(xmin)s',
+				'args': {'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_paperwork_template']]}
+			}]
+		)
+		return rows[0][0]
+
+	data_modified = property(_get_data_modified, _set_data_modified)
 #============================================================
 # OpenOffice API
 #============================================================
 class cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
-
 	"""Listens for events sent by OOo during the document closing
 	   sequence and notifies the GNUmed client GUI so it can
 	   import the closed document into the database.
@@ -200,10 +264,10 @@ class cOOoConnector(gmBorg.cBorg):
 #------------------------------------------------------------
 class cOOoLetter(object):
 
-	def __init__(self, template_file=None, document_type=None):
+	def __init__(self, template_file=None, instance_type=None):
 
 		self.template_file = template_file
-		self.document_type = document_type
+		self.instance_type = instance_type
 		self.ooo_doc = None
 
 	#--------------------------------------------------------
@@ -270,7 +334,7 @@ class cOOoLetter(object):
 		gmDispatcher.send (
 			signal = u'import_document_from_file',
 			filename = filename,
-			document_type = self.document_type,
+			document_type = self.instance_type,
 			unlock_patient = True
 		)
 		self.ooo_doc = None
@@ -334,7 +398,7 @@ class gmFormEngine:
 		# FIXME: get_active_episode is no more
 		#episode = patient_clinical.get_active_episode()['pk_episode']
 		# generate "forever unique" name
-		cmd = "select name_short || ': <' || name_long || '::' || revision || '>' from form_defs where pk=%s";
+		cmd = "select name_short || ': <' || name_long || '::' || revision || '>' from paperwork_templates where pk=%s";
 		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
 		form_name = None
 		if rows is None:
@@ -478,27 +542,6 @@ class HL7Form (gmFormEngine):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-
-class FormTypeMP (gmMatchProvider.cMatchProvider_SQL2):
-	def __init__ (self):
-		source = [{
-			'column':'name',
-			'table':'form_types',
-			'service':'reference',
-			'pk':'pk'}]
-		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-
-class FormMP (gmMatchProvider.cMatchProvider_SQL2):
-	def __init__ (self):
-		source = [{
-			'column':'name_long',
-			'table':'form_defs',
-			'service':'reference',
-			'extra conditions':{'type':'fk_type = %s or fk_type is null'},
-			'pk':'pk'}]
-		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
-	
-#------------------------------------------------------------
 def get_form(id):
 	"""
 	Instantiates a FormEngine based on the form ID or name from the backend
@@ -506,11 +549,11 @@ def get_form(id):
 	try:
 		# it's a number: match to form ID
 		id = int (id)
-		cmd = 'select template, engine, pk from form_defs where pk = %s'
+		cmd = 'select template, engine, pk from paperwork_templates where pk = %s'
 	except ValueError:
 		# it's a string, match to the form's name
 		# FIXME: can we somehow OR like this: where name_short=%s OR name_long=%s ?
-		cmd = 'select template, engine, flags, pk from form_defs where name_short = %s'
+		cmd = 'select template, engine, flags, pk from paperwork_templates where name_short = %s'
 	result = gmPG.run_ro_query ('reference', cmd, None, id)
 	if result is None:
 		_log.Log (gmLog.lErr, 'error getting form [%s]' % id)
@@ -696,9 +739,10 @@ if __name__ == '__main__':
 		raw_input('press <ENTER> to continue')
 	#--------------------------------------------------------
 	def test_cFormTemplate():
-		template = cFormTemplate(aPK_obj = 1)
+		template = cFormTemplate(aPK_obj = sys.argv[2])
 		print template
 		print template.export_to_file()
+		print "modified:", template.data_modified
 	#--------------------------------------------------------
 	def set_template_from_file():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
@@ -710,12 +754,19 @@ if __name__ == '__main__':
 		#test_de()
 		#play_with_ooo()
 		#test_cOOoLetter()
-		#test_cFormTemplate()
-		set_template_from_file()
+		test_cFormTemplate()
+		#set_template_from_file()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.47  2007-08-15 09:18:07  ncq
+# Revision 1.48  2007-08-20 14:19:48  ncq
+# - engine_names
+# - match providers
+# - fix active_only logic in get_form_templates() and sort properly
+# - adjust to renamed database fields
+# - cleanup
+#
+# Revision 1.47  2007/08/15 09:18:07  ncq
 # - cleanup
 # - cOOoLetter.show()
 #
