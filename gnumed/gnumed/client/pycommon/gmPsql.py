@@ -5,8 +5,8 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.7 2006-12-06 16:45:37 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPsql.py,v 1.8 2007-08-20 14:22:05 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ import sys, os, string, re, urllib2
 import gmLog
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.7 $')
+_log.Log(gmLog.lInfo, '$Revision: 1.8 $')
 
 #===================================================================
 def shellrun (cmd):
@@ -92,12 +92,10 @@ class Psql:
 
 			# \echo
 			if self.match (r"^\\echo (.*)"):
-#				print self.groups[0]
 				_log.Log (gmLog.lInfo, self.fmt_msg(shell(self.groups[0])))
 				continue
 			# \qecho
 			if self.match (r"^\\qecho (.*)"):
-#				print self.groups[0]
 				_log.Log (gmLog.lInfo, self.fmt_msg(shell (self.groups[0])))
 				continue
 			# \q
@@ -192,7 +190,7 @@ class Psql:
 				if this_char == ')' and not in_string:
 					bracketlevel -= 1
 
-				# found end of command, not inside string, not inside bracket
+				# found end of command, not inside string, not inside bracket ?
 				if not (not in_string and (bracketlevel == 0) and (this_char == ';')):
 					curr_cmd += this_char
 				else:
@@ -216,8 +214,17 @@ class Psql:
 
 #						else:
 						if curr_cmd.strip() != '':
-							curs.execute (curr_cmd)
-#							if not transaction_started:
+							if curr_cmd.find('vacuum'):
+								self.conn.commit();
+								curs.close()
+								old_iso_level = self.conn.isolation_level
+								self.conn.set_isolation_level(0)
+								curs = self.conn.cursor()
+								curs.execute (curr_cmd)
+								self.conn.set_isolation_level(old_iso_level)
+							else:
+								curs.execute (curr_cmd)
+#								if not transaction_started:
 					except StandardError, error:
 						_log.Log (gmLog.lData, curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
@@ -252,7 +259,10 @@ if __name__ == '__main__':
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.7  2006-12-06 16:45:37  ncq
+# Revision 1.8  2007-08-20 14:22:05  ncq
+# - support "vacuum"
+#
+# Revision 1.7  2006/12/06 16:45:37  ncq
 # - remove debugging printk()s
 #
 # Revision 1.6  2006/12/06 16:07:51  ncq
