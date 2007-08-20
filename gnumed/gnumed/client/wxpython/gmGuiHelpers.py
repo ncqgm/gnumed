@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.64 2007-07-18 14:43:01 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmGuiHelpers.py,v 1.65 2007-08-20 14:25:16 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -61,9 +61,14 @@ def handle_uncaught_exception_wx(t, v, tb):
 	dlg.Destroy()
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
+	office = gmSurgery.gmCurrentPractice()
+	global helpdesk
+	helpdesk = office.helpdesk
+
 	global _prev_excepthook
 	_prev_excepthook = sys.excepthook
 	sys.excepthook = handle_uncaught_exception_wx
+
 	return True
 # ------------------------------------------------------------------------
 def uninstall_wx_exception_handler():
@@ -84,8 +89,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
-		office = gmSurgery.gmCurrentPractice()
-		self._TCTRL_helpdesk.SetValue(office.helpdesk)
+		self._TCTRL_helpdesk.SetValue(helpdesk)
 		self._TCTRL_logfile.SetValue(logfile)
 		t, v, tb = exception
 		self._TCTRL_exc_type.SetValue(str(t))
@@ -542,7 +546,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.64  2007-07-18 14:43:01  ncq
+# Revision 1.65  2007-08-20 14:25:16  ncq
+# - factor out bits of code out of the actual top level
+#   exception handler in a bid to make it more resilient
+#
+# Revision 1.64  2007/07/18 14:43:01  ncq
 # - do away with accessing console as it often breaks
 #
 # Revision 1.63  2007/06/18 20:31:58  ncq
