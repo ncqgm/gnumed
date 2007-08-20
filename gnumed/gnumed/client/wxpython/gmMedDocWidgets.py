@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.138 2007-08-15 09:20:43 ncq Exp $
-__version__ = "$Revision: 1.138 $"
+# $Id: gmMedDocWidgets.py,v 1.139 2007-08-20 14:29:31 ncq Exp $
+__version__ = "$Revision: 1.139 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -11,16 +11,19 @@ import os.path, sys, re as regex
 
 import wx
 
-
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets, gmMacro
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg, wxgFormTemplateEditAreaPnl
 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
+#============================================================
+# forms, templates, and letters related widgets
 #============================================================
 def create_new_letter(parent=None):
 
@@ -30,8 +33,8 @@ def create_new_letter(parent=None):
 		parent = parent,
 		msg = u'',
 		caption = _('Select letter template.'),
-		choices = [ [t['name_long'], t['revision']] for t in templates ],
-		columns = [_('Template'), _('Revision')],
+		choices = [ [t['name_long'], t['revision'], gmForms.engine_names[t['engine']]] for t in templates ],
+		columns = [_('Template'), _('Revision'), _('Type')],
 		data = templates
 	)
 	if template is None:
@@ -50,7 +53,7 @@ def create_new_letter(parent=None):
 		)
 		return
 
-	doc = gmForms.cOOoLetter(template_file = filename, document_type = template['document_type'])
+	doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
 	doc.open_in_ooo()
 	doc.show(False)
 	ph_handler = gmMacro.gmPlaceholderHandler()
@@ -107,6 +110,41 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	return
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
+#============================================================
+class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			self.__template = kwargs['template']
+			del kwargs['template']
+		except KeyError:
+			self.__template = None
+
+		wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self._PRW_name_long.matcher = gmForms.cFormTemplateNameLong_MatchProvider()
+		self._PRW_name_short.matcher = gmForms.cFormTemplateNameShort_MatchProvider()
+		self._PRW_template_type.matcher = gmForms.cFormTemplateType_MatchProvider()
+
+		self.refresh()
+	#--------------------------------------------------------
+	def refresh(self, template = None):
+		if template is not None:
+			self.__template = template
+
+		self._PRW_name_long.SetText(self.__template['name_long'])
+		self._PRW_name_short.SetText(self.__template['name_short'])
+		self._PRW_template_type.SetText(self.__template['l10n_template_type'], data = self.__template['pk_template_type'])
+		self._PRW_instance_type.SetText(self.__template['l10n_instance_type'], data = self.__template['instance_type'])
+
+		self._TCTRL_filename.SetValue(self.__template['filename'])
+		self._TCTRL_revision.SetValue(self.__template['revision'])
+		self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%x'))
+
+		self._CHBOX_in_use.SetValue(self.__template['in_use'])
+		self._CHBOX_modified.SetValue(self.__template.data_modified)
+
+		self._PRW_name_long.SetFocus()
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -1492,13 +1530,27 @@ class cDocTree(wx.TreeCtrl):
 #------------------------------------------------------------
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain = 'gnumed')
 
-	print "==> the syntax seems OK"
-	print "==> please write a real unit test"
+	#----------------------------------------
+	def test_cFormTemplateEditAreaPnl():
+		app = wx.PyWidgetTester(size = (400, 300))
+		pnl = cFormTemplateEditAreaPnl(app.frame, -1, template = gmForms.cFormTemplate(aPK_obj=4))
+		app.frame.Show(True)
+		app.MainLoop()
+		return
+	#----------------------------------------
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+		test_cFormTemplateEditAreaPnl()
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.138  2007-08-15 09:20:43  ncq
+# Revision 1.139  2007-08-20 14:29:31  ncq
+# - cleanup, start of test suite
+# - form template edit area
+#
+# Revision 1.138  2007/08/15 09:20:43  ncq
 # - use cOOoLetter.show()
 # - cleanup
 # - use gmTools.size2str()
