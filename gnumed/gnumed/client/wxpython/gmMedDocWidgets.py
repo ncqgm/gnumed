@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.139 2007-08-20 14:29:31 ncq Exp $
-__version__ = "$Revision: 1.139 $"
+# $Id: gmMedDocWidgets.py,v 1.140 2007-08-20 16:23:52 ncq Exp $
+__version__ = "$Revision: 1.140 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets, gmMacro
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg, wxgFormTemplateEditAreaPnl
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg, wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
 
 
 _log = gmLog.gmDefLog
@@ -27,6 +27,11 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 def create_new_letter(parent=None):
 
+	#----------------------------------
+	def edit(template):
+		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
+		dlg.ShowModal()
+	#----------------------------------
 	# 1) have user select template
 	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = True)
 	template = gmListWidgets.get_choice_from_list (
@@ -35,7 +40,8 @@ def create_new_letter(parent=None):
 		caption = _('Select letter template.'),
 		choices = [ [t['name_long'], t['revision'], gmForms.engine_names[t['engine']]] for t in templates ],
 		columns = [_('Template'), _('Revision'), _('Type')],
-		data = templates
+		data = templates,
+		editor_callback = edit
 	)
 	if template is None:
 		return
@@ -126,7 +132,8 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		self._PRW_name_short.matcher = gmForms.cFormTemplateNameShort_MatchProvider()
 		self._PRW_template_type.matcher = gmForms.cFormTemplateType_MatchProvider()
 
-		self.refresh()
+		if self.__template is not None:
+			self.refresh()
 	#--------------------------------------------------------
 	def refresh(self, template = None):
 		if template is not None:
@@ -145,6 +152,27 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		self._CHBOX_modified.SetValue(self.__template.data_modified)
 
 		self._PRW_name_long.SetFocus()
+#============================================================
+class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			template = kwargs['template']
+			del kwargs['template']
+		except KeyError:
+			template = None
+
+		wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg.__init__(self, *args, **kwargs)
+
+		self._PNL_edit_area.refresh(template=template)
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_edit_area.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -1546,7 +1574,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.139  2007-08-20 14:29:31  ncq
+# Revision 1.140  2007-08-20 16:23:52  ncq
+# - support editing form templates from create_new_letter
+# - cFormTemplateEditAreaDlg
+#
+# Revision 1.139  2007/08/20 14:29:31  ncq
 # - cleanup, start of test suite
 # - form template edit area
 #
