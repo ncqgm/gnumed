@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.140 2007-08-20 16:23:52 ncq Exp $
-__version__ = "$Revision: 1.140 $"
+# $Id: gmMedDocWidgets.py,v 1.141 2007-08-20 22:12:49 ncq Exp $
+__version__ = "$Revision: 1.141 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -152,6 +152,20 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		self._CHBOX_modified.SetValue(self.__template.data_modified)
 
 		self._PRW_name_long.SetFocus()
+	#--------------------------------------------------------
+	def _on_load_button_pressed(self, evt):
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Choose a form template file'),
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultFile = '',
+			wildcard = "%s (*.ott)|*.ott|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('all files'), _('all files (Win)')),
+			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			self._TCTRL_filename.SetValue(dlg.GetPath())
+		dlg.Destroy()
 #============================================================
 class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
 
@@ -1574,7 +1588,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.140  2007-08-20 16:23:52  ncq
+# Revision 1.141  2007-08-20 22:12:49  ncq
+# - support _on_load_button_pressed in form template editor
+#
+# Revision 1.140  2007/08/20 16:23:52  ncq
 # - support editing form templates from create_new_letter
 # - cFormTemplateEditAreaDlg
 #
