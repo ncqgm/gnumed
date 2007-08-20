@@ -90,7 +90,7 @@
                         <border>0</border>
                         <option>0</option>
                         <object class="wxButton" name="_BTN_edit" base="EditButton">
-                            <label>Edit</label>
+                            <label>&amp;Edit</label>
                             <tooltip>Edit the (first or only) item selected in the list above.</tooltip>
                             <disabled>1</disabled>
                             <events>
