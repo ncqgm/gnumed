@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.26 2007-03-26 16:48:34 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmAllergy.py,v 1.27 2007-08-20 14:17:59 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -21,7 +21,11 @@ _log.Log(gmLog.lInfo, __version__)
 allergic_states = [None, -1, 0, 1]
 #============================================================
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one allergy event.
+	"""Represents one allergy item.
+
+	Actually, those things are really things to *avoid*.
+	Allergy is just one of several reasons for that.
+	See Adrian's post on gm-dev.
 	"""
 	_cmd_fetch_payload = u"select * from clin.v_pat_allergies where pk_allergy=%s"
 	_cmds_store_payload = [
@@ -156,7 +160,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.26  2007-03-26 16:48:34  ncq
+# Revision 1.27  2007-08-20 14:17:59  ncq
+# - note on what an "allergy" really is to capture Adrian Midgleys input
+#
+# Revision 1.26  2007/03/26 16:48:34  ncq
 # - various id -> pk/fk type fixes
 #
 # Revision 1.25  2007/03/21 08:09:07  ncq
