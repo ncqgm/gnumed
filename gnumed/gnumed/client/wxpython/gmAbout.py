@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.25 2006-10-23 15:48:07 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmAbout.py,v 1.26 2007-08-20 14:22:24 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -174,30 +174,45 @@ class cContributorsDlg(wx.Dialog):
 'address it is sorted under the first character of\n'
 'the user name.\n'
 '%s'
-) % """
+) % u"""
 == F ===========================================
 
 Joachim Fischer
  GP Fischer + Lintz
- Fachärzte Allgemeinmedizin
+ FachÃ¤rzte Allgemeinmedizin
  Wolfschlugen
 
- - Karteieintragsarten passend für Deutschland
+ - Karteieintragsarten passend fÃ¼r Deutschland
+
+== L ===========================================
+
+Steffi Leibner, Leipzig
+
+ - Testen, Fehlerberichte
+ - Dokumentenvorlage
 
 == P ===========================================
 
-Martin Preuss
+Martin Preuss, Hamburg
 
  - Chipkartenansteuerung
+
+== R ===========================================
+
+Thomas Reus, DÃ¼sseldorf
+
+ - Testen, Fehlerberichte
+ - Dokumentenvorlage
 
 == T ===========================================
 
 Andreas Tille
+ Wernigerode
 
  - Debian packages
  - encouragement, wisdom
 
-""".decode('latin1')
+"""
 	#----------------------------------------------
 	def __init__(self, *args, **kwargs):
 		wx.Dialog.__init__(self, *args, **kwargs)
@@ -234,7 +249,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.25  2006-10-23 15:48:07  ncq
+# Revision 1.26  2007-08-20 14:22:24  ncq
+# - add more helpful people
+#
+# Revision 1.25  2006/10/23 15:48:07  ncq
 # - fix unicode/latin1 string issue
 #
 # Revision 1.24  2005/12/27 18:46:20  ncq
