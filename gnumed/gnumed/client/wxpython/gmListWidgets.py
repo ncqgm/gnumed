@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.10 2007-07-22 09:26:25 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmListWidgets.py,v 1.11 2007-08-20 16:22:51 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -23,55 +23,59 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 
 #================================================================
-def get_choice_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None):
+#def get_choice_from_list_old(parent=None, msg=None, caption=None, choices=None):
 
-	choices = get_choices_from_list (
+#	if msg is None:
+#		msg = _('programmer forgot to specify info message')
+
+#	if caption is None:
+#		caption = _('generic single choice dialog')
+
+#	dlg = wx.SingleChoiceDialog (
+#		parent = parent,
+#		message = msg,
+#		caption = caption,
+#		choices = choices,
+#		style = wx.OK | wx.CANCEL | wx.CENTRE
+#	)
+#	btn_pressed = dlg.ShowModal()
+#	sel = dlg.GetSelection()
+#	dlg.Destroy()
+
+#	if btn_pressed == wx.ID_OK:
+#		return sel
+
+#	return False
+#================================================================
+def get_choice_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, editor_callback=None):
+
+	choice = get_choices_from_list (
 		parent = parent,
 		msg = msg,
 		caption = caption,
 		choices = choices,
 		selections = selections,
 		columns = columns,
-		data = data
+		data = data,
+		editor_callback = editor_callback,
+		single_selection = True
 	)
-	if choices is None:
-		return None
+#	if choice is None:
+#		return None
 
-	return choices[0]
-#================================================================
-def get_choice_from_list_old(parent=None, msg=None, caption=None, choices=None):
-
-	if msg is None:
-		msg = _('programmer forgot to specify info message')
-
-	if caption is None:
-		caption = _('generic single choice dialog')
-
-	dlg = wx.SingleChoiceDialog (
-		parent = parent,
-		message = msg,
-		caption = caption,
-		choices = choices,
-		style = wx.OK | wx.CANCEL | wx.CENTRE
-	)
-	btn_pressed = dlg.ShowModal()
-	sel = dlg.GetSelection()
-	dlg.Destroy()
-
-	if btn_pressed == wx.ID_OK:
-		return sel
-
-	return False
-#================================================================
-def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None):
-
-	if msg is None:
-		msg = _('programmer forgot to specify info message')
+#	return choice[0]
+	return choice
+#----------------------------------------------------------------
+def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, editor_callback=None, single_selection=False):
 
 	if caption is None:
 		caption = _('generic multi choice dialog')
 
-	dlg = cGenericListSelectorDlg(parent, -1, title = caption)
+	if single_selection:
+		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
+	else:
+		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
+	dlg.editor_callback = editor_callback
 	dlg.set_columns(columns = columns)
 	dlg.set_string_items(items = choices)
 	if selections is not None:
@@ -92,10 +96,20 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	def __init__(self, *args, **kwargs):
 
-#		try: msg = kwargs['msg']
-#		except KeyError: msg = None
+		try:
+			msg = kwargs['msg']
+			del kwargs['msg']
+		except KeyError: msg = None
 
 		wxgGenericListSelectorDlg.wxgGenericListSelectorDlg.__init__(self, *args, **kwargs)
+
+		if msg is None:
+			self._LBL_message.Hide()
+		else:
+			self._LBL_message.SetLabel(msg)
+		self.Fit()
+
+		self.editor_callback = None
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -119,11 +133,19 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _on_list_item_selected(self, event):
 		self._BTN_ok.Enable(True)
 		self._BTN_ok.SetDefault()
+		if self.editor_callback is not None:
+			self._BTN_edit.Enable(True)
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
 			self._BTN_ok.Enable(False)
 			self._BTN_cancel.SetDefault()
+			self._BTN_edit.Enable(False)
+	#------------------------------------------------------------
+	def _on_edit_button_pressed(self, event):
+		# if the edit button *can* be pressed there are *supposed*
+		# to be both an item selected and an editor configured
+		self.editor_callback(self._LCTRL_items.get_selected_item_data(only_one=True))
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
@@ -245,22 +267,34 @@ if __name__ == '__main__':
 			print sel
 	#------------------------------------------------------------
 	def test_get_choices_from_list():
+
+		def edit(argument):
+			print "editor called with:"
+			print argument
+
 		app = wx.PyWidgetTester(size = (200, 50))
 		chosen = get_choices_from_list (
+#			msg = 'select a health issue\nfrom the list below\n',
 			caption = 'select health issues',
 			choices = [['D.M.II', '4'], ['MS', '3'], ['Fraktur', '2']],
-			columns = ['issue', 'no of episodes']
+			columns = ['issue', 'no of episodes'],
+			editor_callback = edit
 		)
 		print "chosen:"
 		print chosen
 	#------------------------------------------------------------
-
-#	test_get_choices_from_list()
-#	test_wxMultiChoiceDialog()
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+		test_get_choices_from_list()
+		#test_wxMultiChoiceDialog()
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.10  2007-07-22 09:26:25  ncq
+# Revision 1.11  2007-08-20 16:22:51  ncq
+# - make get_choice(s)_from_list() more generic
+# - cleanup, improved test
+# - support edit button and message in generic list selector
+#
+# Revision 1.10  2007/07/22 09:26:25  ncq
 # - new get_choice_from_list()
 #
 # Revision 1.9  2007/07/09 12:45:47  ncq
