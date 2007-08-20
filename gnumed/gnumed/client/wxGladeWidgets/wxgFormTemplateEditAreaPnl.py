@@ -26,6 +26,8 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self._on_load_button_pressed, self._BTN_load)
         # end wxGlade
 
     def __set_properties(self):
@@ -96,6 +98,10 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         __gzsr_main.Fit(self)
         __gzsr_main.AddGrowableCol(1)
         # end wxGlade
+
+    def _on_load_button_pressed(self, event): # wxGlade: wxgFormTemplateEditAreaPnl.<event_handler>
+        print "Event handler `_on_load_button_pressed' not implemented"
+        event.Skip()
 
 # end of class wxgFormTemplateEditAreaPnl
 
