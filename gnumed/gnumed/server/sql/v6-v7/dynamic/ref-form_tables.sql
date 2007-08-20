@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.5 2007-08-13 22:09:00 ncq Exp $
--- $Revision: 1.5 $
+-- $Id: ref-form_tables.sql,v 1.6 2007-08-20 14:35:32 ncq Exp $
+-- $Revision: 1.6 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -20,119 +20,177 @@ comment on table ref.form_types is
 	 (radiology, pathology, sick leave, Therapiebericht etc.)';
 
 -- --------------------------------------------------------------
-select audit.add_table_for_audit('ref', 'form_defs');
+select audit.add_table_for_audit('ref', 'paperwork_templates');
 
 
-comment on table ref.form_defs is
-	'form definitions';
-comment on column ref.form_defs.document_type is
-	'default document type to store documents generated from this form under\n,
-note that this may generate rows in blobs.doc_type if\n
-set to a non-existant document type';
-comment on column ref.form_defs.name_short is
+comment on table ref.paperwork_templates is
+	'form and letter template definitions';
+comment on column ref.paperwork_templates.instance_type is
+	'default document type to store documents generated from
+	 this form under, note that this may generate rows in
+	 blobs.doc_type if set to a non-existant document type';
+comment on column ref.paperwork_templates.name_short is
 	'a short name for use in a GUI or some such';
-comment on column ref.form_defs.name_long is
+comment on column ref.paperwork_templates.name_long is
 	'a long name unambigously describing the form';
-comment on column ref.form_defs.revision is
+comment on column ref.paperwork_templates.revision is
 	'GnuMed internal form def version, may
 	 occur if we rolled out a faulty form def';
-comment on column ref.form_defs.template is
+comment on column ref.paperwork_templates.data is
 	'the template complete with placeholders in
 	 the format accepted by the engine defined in
-	 ref.form_defs.engine';
-comment on column ref.form_defs.engine is
+	 ref.paperwork_templates.engine';
+comment on column ref.paperwork_templates.engine is
 	'the business layer forms engine used
 	 to process this form, currently:
 	 - T: plain text
 	 - L: LaTeX
 	 - H: Health Layer 7
 	 - O: OpenOffice';
-comment on column ref.form_defs.in_use is
+comment on column ref.paperwork_templates.in_use is
 	'whether this template is currently actively
 	 used in a given practice';
-comment on column ref.form_defs.filename is
-	'the filename from when the template was imported if applicable,
+comment on column ref.paperwork_templates.filename is
+	'the filename from when the template data was imported if applicable,
 	 used by some engines (such as OOo) to differentiate what to do
 	 with certain files, such as *.ott vs. *.ods, GNUmed uses it
-	 to derive a file extension when exporting the template';
+	 to derive a file extension when exporting the template data';
+comment on column ref.paperwork_templates.data_md5 is
+	'The original md5 sum of the data column when the row was inserted.';
+
+
+-- INSERT
+create or replace function ref.trf_set_md5_on_insert()
+	returns trigger
+	language 'plpgsql'
+	as '
+BEGIN
+	select into NEW.data_md5 md5(NEW.data);
+	return NEW;
+END;';
+
+comment on function ref.trf_set_md5_on_insert() is
+	'trigger function to set data_md5 on INSERT';
+
+create trigger tr_set_md5_on_insert
+	before insert on ref.paperwork_templates
+	for each row execute procedure ref.trf_set_md5_on_insert()
+;
+
+
+-- UPDATE
+create or replace function ref.trf_protect_md5_revision()
+	returns trigger
+	language 'plpgsql'
+	as '
+BEGIN
+	if NEW.revision != OLD.revision then
+		raise exception ''Updating ref.paperwork_templates.revision not allowed.'';
+	end if;
+
+	if md5(NEW.data) != OLD.data_md5 then
+		raise exception ''Updating ref.paperwork_templates.data not allowed.'';
+	end if;
+
+	if NEW.engine != OLD.engine then
+		raise exception ''Updating ref.paperwork_templates.engine not allowed.'';
+	end if;
+
+	return NEW;
+END;';
+
+comment on function ref.trf_protect_md5_revision() is
+	'Do not allow updates to the revision or the template.';
 
 
 -- example form template
 \unset ON_ERROR_STOP
 insert into ref.form_types (name) values (i18n.i18n('physical therapy report'));
-\set ON_ERROR_STOP
+\set ON_ERROR_STOP 1
 
 select i18n.upd_tx('de_DE', 'physical therapy report', 'Therapiebericht (PT)');
 
-delete from ref.form_defs where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
+delete from ref.paperwork_templates where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
 
-insert into ref.form_defs (
-	fk_type,
+insert into ref.paperwork_templates (
+	fk_template_type,
 	name_short,
 	name_long,
 	revision,
 	engine,
-	template
+	filename,
+	data
 ) values (
 	(select pk from ref.form_types where name = 'physical therapy report'),
 	'Therapiebericht PT (GNUmed)',
 	'Therapiebericht Physiotherapie (GNUmed-Standard)',
 	'1.0',
 	'O',
+	'template.ott',
 	'real template missing,
 to create one save an OOo document as a template (.ott) file,
 the template can contain "field" -> "placeholders",
 the list of known placeholders is in business/gmForms.py::known_placeholders
-then import the ott file into the template field in ref.form_defs'::bytea
+then import the ott file into the template field in ref.paperwork_templates'::bytea
 );
 
 
 \unset ON_ERROR_STOP
-drop view ref.v_form_defs cascade;
-\set ON_ERROR_STOP
+drop view ref.v_paperwork_templates cascade;
+\set ON_ERROR_STOP 1
 
-create view ref.v_form_defs as
+create view ref.v_paperwork_templates as
 select
 	pk
-		as pk_form_def,
+		as pk_paperwork_template,
 	name_short,
 	name_long,
 	revision,
-	(select name from ref.form_types where pk = fk_type)
+	(select name from ref.form_types where pk = fk_template_type)
 		as template_type,
-	(select _(name) from ref.form_types where pk = fk_type)
+	(select _(name) from ref.form_types where pk = fk_template_type)
 		as l10n_template_type,
-	coalesce(document_type, (select name from ref.form_types where pk = fk_type))
-		as document_type,
-	coalesce(_(document_type), (select _(name) from ref.form_types where pk = fk_type))
-		as l10n_document_type,
+	coalesce(instance_type, (select name from ref.form_types where pk = fk_template_type))
+		as instance_type,
+	coalesce(_(instance_type), (select _(name) from ref.form_types where pk = fk_template_type))
+		as l10n_instance_type,
 	engine,
 	in_use,
 	filename,
-	fk_type as pk_type,
-	xmin as xmin_form_defs
+	data_md5,
+	modified_when
+		as last_modified,
+	fk_template_type
+		as pk_template_type,
+	xmin
+		as xmin_paperwork_template
 from
-	ref.form_defs
+	ref.paperwork_templates
 ;
 
 -- --------------------------------------------------------------
 grant select, insert, update, insert on
 	ref.form_types,
 	ref.form_types_pk_seq,
-	ref.form_defs,
-	ref.form_defs_pk_seq
+	ref.paperwork_templates,
+	ref.paperwork_templates_pk_seq
 to group "gm-doctors";
 
 grant select on
-	ref.v_form_defs
+	ref.v_paperwork_templates
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.5 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.6 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.5  2007-08-13 22:09:00  ncq
+-- Revision 1.6  2007-08-20 14:35:32  ncq
+-- - form_defs -> paperwork_templates
+-- - rename columns, add triggers on insert/update
+-- - enhanced v_paperwork_templates
+--
+-- Revision 1.5  2007/08/13 22:09:00  ncq
 -- - ref.form_defs.filename
 -- - ref.v_form_defs
 --
