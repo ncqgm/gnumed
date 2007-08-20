@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.27 $
+$Revision: 1.28 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -15,13 +15,15 @@ GnuMed forms concept
 ====================
 Overview
 --------
-Forms consist of two parts: the template and the data. The template
-is stored in the table form_defs along with some metadata about the
-form. The template contains placeholders which will be replaced by
-data. Placeholders may appear more than once per template and their
-exact format is template format specific. GnuMed proper is agnostic
-of the placeholder format. The templates are stored in the service
-"reference". They can be refreshed from files any time.
+Forms consist of two parts: the template and the data. The
+template is stored in the table paperwork_templates along
+with some metadata about the form. The template contains
+placeholders which will be replaced by data. Placeholders
+may appear more than once per template and their exact
+format is template format specific. GnuMed proper is
+agnostic of the placeholder format. The templates are stored
+in the service "reference". They can be refreshed from files
+any time.
 
 Some part of GnuMed, usually a widget, will collect the data
 needed to fill in a form. Data may come directly from the database,
