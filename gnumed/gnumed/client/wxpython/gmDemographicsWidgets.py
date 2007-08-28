@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.125 2007-08-12 00:09:07 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmDemographicsWidgets.py,v 1.126 2007-08-28 14:18:12 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -761,7 +761,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# name fields
 		if _pnl_form.PRW_lastname.GetValue().strip() == '':
 			error = True
-			wx.CallAfter(gmGuiHelpers.gm_statustext, _('Must enter lastname.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Must enter lastname.'))
 			_pnl_form.PRW_lastname.SetBackgroundColour('pink')
 			_pnl_form.PRW_lastname.Refresh()
 		else:
@@ -770,7 +770,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 
 		if _pnl_form.PRW_firstname.GetValue().strip() == '':
 			error = True
-			wx.CallAfter(gmGuiHelpers.gm_statustext, _('Must enter first name.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Must enter first name.'))
 			_pnl_form.PRW_firstname.SetBackgroundColour('pink')
 			_pnl_form.PRW_firstname.Refresh()
 		else:
@@ -780,7 +780,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# gender
 		if _pnl_form.PRW_gender.GetData() is None:
 			error = True
-			wx.CallAfter(gmGuiHelpers.gm_statustext, _('Must select gender.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Must select gender.'))
 			_pnl_form.PRW_gender.SetBackgroundColour('pink')
 			_pnl_form.PRW_gender.Refresh()
 		else:
@@ -791,7 +791,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		if not _pnl_form.PRW_dob.is_valid_timestamp():
 			error = True
 			msg = _('Cannot parse <%s> into proper timestamp.') % _pnl_form.PRW_dob.GetValue()
-			wx.CallAfter(gmGuiHelpers.gm_statustext, msg)
+			gmDispatcher.send(signal = 'statustext', msg = msg)
 			_pnl_form.PRW_dob.SetBackgroundColour('pink')
 			_pnl_form.PRW_dob.Refresh()
 		else:
@@ -1794,7 +1794,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.125  2007-08-12 00:09:07  ncq
+# Revision 1.126  2007-08-28 14:18:12  ncq
+# - no more gm_statustext()
+#
+# Revision 1.125  2007/08/12 00:09:07  ncq
 # - no more gmSignals.py
 #
 # Revision 1.124  2007/07/22 09:04:44  ncq

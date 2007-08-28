@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.88 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmPatSearchWidgets.py,v 1.89 2007-08-28 14:18:13 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -475,8 +475,8 @@ class cPatientSelector(wx.TextCtrl):
 		if pat.dob_in_range(dob_distance, dob_distance):
 			now = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
 			enc = gmI18N.get_encoding()
-			gmGuiHelpers.gm_statustext (
-				_('%(pat)s was born on %(dow)s, %(month)s %(day)s ! (today is %(dow_now)s, %(month_now)s %(day_now)s)') % {
+			gmDispatcher.send(signal = 'statustext', msg = _(
+				'%(pat)s was born on %(dow)s, %(month)s %(day)s ! (today is %(dow_now)s, %(month_now)s %(day_now)s)') % {
 					'pat': pat.get_description(),
 					'dow': pat['dob'].strftime('%A').decode(enc),
 					'month': pat['dob'].strftime('%B').decode(enc),
@@ -829,7 +829,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.88  2007-08-12 00:12:41  ncq
+# Revision 1.89  2007-08-28 14:18:13  ncq
+# - no more gm_statustext()
+#
+# Revision 1.88  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.87  2007/07/17 16:00:28  ncq

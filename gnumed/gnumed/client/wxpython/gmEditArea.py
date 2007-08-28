@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.110 2007-02-22 17:41:13 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmEditArea.py,v 1.111 2007-08-28 14:18:13 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -333,7 +333,7 @@ class cEditAreaPopup(wx.Dialog):
 				'message in [%s].'
 			) % self.__editarea.__class__.__name__
 		if short_err is not None:
-			gmGuiHelpers.gm_statustext(short_err, gmLog.lErr)
+			gmDispatcher.send(signal = 'statustext', msg = short_err)
 		if long_err is not None:
 			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'), gmLog.lErr)
 	#--------------------------------------------------------
@@ -2338,7 +2338,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.110  2007-02-22 17:41:13  ncq
+# Revision 1.111  2007-08-28 14:18:13  ncq
+# - no more gm_statustext()
+#
+# Revision 1.110  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.109  2007/02/05 12:15:23  ncq

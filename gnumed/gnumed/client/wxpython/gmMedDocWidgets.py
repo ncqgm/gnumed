@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.141 2007-08-20 22:12:49 ncq Exp $
-__version__ = "$Revision: 1.141 $"
+# $Id: gmMedDocWidgets.py,v 1.142 2007-08-28 14:18:13 ncq Exp $
+__version__ = "$Revision: 1.142 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -25,24 +25,35 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 # forms, templates, and letters related widgets
 #============================================================
-def create_new_letter(parent=None):
+def let_user_select_form_template(parent=None):
 
-	#----------------------------------
-	def edit(template):
+	def edit(template=None):
 		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
 		dlg.ShowModal()
-	#----------------------------------
-	# 1) have user select template
-	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = True)
-	template = gmListWidgets.get_choice_from_list (
+
+	def delete(template):
+		print "form template deletion not yet implemented"
+		pass
+
+	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
+	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = u'',
-		caption = _('Select letter template.'),
-		choices = [ [t['name_long'], t['revision'], gmForms.engine_names[t['engine']]] for t in templates ],
+		caption = _('Select letter or form template.'),
+		choices = [ [t['name_long'], t['external_revision'], gmForms.engine_names[t['engine']]] for t in templates ],
 		columns = [_('Template'), _('Revision'), _('Type')],
 		data = templates,
-		editor_callback = edit
+		editor_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		single_selection = True
 	)
+
+	return template
+#------------------------------------------------------------
+def create_new_letter(parent=None):
+
+	# 1) have user select template
+	template = let_user_select_form_template(parent = parent)
 	if template is None:
 		return
 
@@ -54,7 +65,7 @@ def create_new_letter(parent=None):
 				'Error exporting form template\n'
 				'\n'
 				' "%s" (%s)'
-			) % (template['name_long'], template['revision']),
+			) % (template['name_long'], template['external_revision']),
 			_('Letter template export')
 		)
 		return
@@ -132,24 +143,40 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		self._PRW_name_short.matcher = gmForms.cFormTemplateNameShort_MatchProvider()
 		self._PRW_template_type.matcher = gmForms.cFormTemplateType_MatchProvider()
 
-		if self.__template is not None:
-			self.refresh()
+		self.refresh()
 	#--------------------------------------------------------
 	def refresh(self, template = None):
 		if template is not None:
 			self.__template = template
 
-		self._PRW_name_long.SetText(self.__template['name_long'])
-		self._PRW_name_short.SetText(self.__template['name_short'])
-		self._PRW_template_type.SetText(self.__template['l10n_template_type'], data = self.__template['pk_template_type'])
-		self._PRW_instance_type.SetText(self.__template['l10n_instance_type'], data = self.__template['instance_type'])
+		if self.__template is None:
+			self._PRW_name_long.SetText(u'')
+			self._PRW_name_short.SetText(u'')
+			self._TCTRL_external_version.SetValue(u'')
+			self._PRW_template_type.SetText(u'')
+			self._PRW_instance_type.SetText(u'')
+			self._TCTRL_filename.SetValue(u'')
+			# FIXME: add engine handling
+			self._CHBOX_active.SetValue(True)
+			
+			self._TCTRL_date_modified.SetValue(u'')
+			self._TCTRL_modified_by.SetValue(u'')
 
-		self._TCTRL_filename.SetValue(self.__template['filename'])
-		self._TCTRL_revision.SetValue(self.__template['revision'])
-		self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%x'))
+		else:
+			self._PRW_name_long.SetText(self.__template['name_long'])
+			self._PRW_name_short.SetText(self.__template['name_short'])
+			self._TCTRL_external_version.SetValue(self.__template['external_version'])
+			self._PRW_template_type.SetText(self.__template['l10n_template_type'], data = self.__template['pk_template_type'])
+			self._PRW_instance_type.SetText(self.__template['l10n_instance_type'], data = self.__template['instance_type'])
+			self._TCTRL_filename.SetValue(self.__template['filename'])
+			# FIXME: add engine handling
+			self._CHBOX_active.SetValue(self.__template['in_use'])
+			
+			self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%x'))
+			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
 
-		self._CHBOX_in_use.SetValue(self.__template['in_use'])
-		self._CHBOX_modified.SetValue(self.__template.data_modified)
+			self._TCTRL_filename.Enable(True)
+			self._BTN_load.Enable(False)
 
 		self._PRW_name_long.SetFocus()
 	#--------------------------------------------------------
@@ -164,8 +191,12 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
-			self._TCTRL_filename.SetValue(dlg.GetPath())
+			fname = os.path.split(dlg.GetPath())[1]
+			self._TCTRL_filename.SetValue(fname)
 		dlg.Destroy()
+	#--------------------------------------------------------
+	def save(self):
+		print "saving form template not yet implemented"
 #============================================================
 class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
 
@@ -186,7 +217,6 @@ class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAre
 				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
-
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -725,8 +755,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			devices = self.scan_module.get_devices()
 		except:
 			_log.LogException('cannot retrieve list of image sources')
-			gmGuiHelpers.gm_statustext (
-				_('There is no scanner support installed on this machine.'),
+			gmDispatcher.send(signal = 'statustext', msg = _('There is no scanner support installed on this machine.'),
 				gmLog.lInfo
 			)
 			return None
@@ -737,8 +766,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return None
 
 		if len(devices) == 0:
-			gmGuiHelpers.gm_statustext (
-				_('Cannot find an active scanner.'),
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot find an active scanner.'),
 				gmLog.lWarn
 			)
 			return None
@@ -747,13 +775,14 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 #		for device in devices:
 #			device_names.append('%s (%s)' % (device[2], device[0]))
 
-		device = gmListWidgets.get_choice_from_list (
+		device = gmListWidgets.get_choices_from_list (
 			parent = self,
 			msg = _('Select an image capture device'),
 			caption = _('device selection'),
 			choices = [ '%s (%s)' % (d[2], d[0]) for d in devices ],
 			columns = [_('Device')],
-			data = devices
+			data = devices,
+			single_selection = True
 		)
 		if device is None:
 			return None
@@ -1094,8 +1123,7 @@ class cDocTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
-			gmGuiHelpers.gm_statustext (
-				_('Cannot load documents. No active patient.'),
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot load documents. No active patient.'),
 				gmLog.lErr
 			)
 			return False
@@ -1588,7 +1616,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.141  2007-08-20 22:12:49  ncq
+# Revision 1.142  2007-08-28 14:18:13  ncq
+# - no more gm_statustext()
+#
+# Revision 1.141  2007/08/20 22:12:49  ncq
 # - support _on_load_button_pressed in form template editor
 #
 # Revision 1.140  2007/08/20 16:23:52  ncq

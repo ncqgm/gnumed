@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.32 2007-07-09 12:47:17 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmVaccWidgets.py,v 1.33 2007-08-28 14:18:13 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -162,7 +162,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			# create new vaccination
 			successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue(), episode=episode)
 			if not successfull:
-				gmGuiHelpers.gm_statustext(_('Cannot save vaccination: %s') % data)
+				gmDispatcher.send(signal = 'statustext', msg =_('Cannot save vaccination: %s') % data)
 				return False
 			# update it with known data
 			data['pk_provider'] = gmPerson.gmCurrentProvider()['pk_staff']
@@ -172,9 +172,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			data['batch_no'] = self.fld_batch_no.GetValue()
 			successful, err = data.save_payload()
 			if not successful:
-				gmGuiHelpers.gm_statustext(_('Cannot save new vaccination: %s') % err)
+				gmDispatcher.send(signal = 'statustext', msg =_('Cannot save new vaccination: %s') % err)
 				return False
-			gmGuiHelpers.gm_statustext(_('Vaccination saved.'))
+			gmDispatcher.send(signal = 'statustext', msg =_('Vaccination saved.'))
 			self.data = data
 			return True
 		else:
@@ -194,9 +194,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 				desc = _('shot: %s, %s, %s') % (data['date'], data['vaccine'], data['site'])
 			)
 			if not successful:
-				gmGuiHelpers.gm_statustext(_('Cannot queue new vaccination.'))
+				gmDispatcher.send(signal = 'statustext', msg =_('Cannot queue new vaccination.'))
 				return False
-			gmGuiHelpers.gm_statustext(_('Vaccination queued for saving.'))
+			gmDispatcher.send(signal = 'statustext', msg =_('Vaccination queued for saving.'))
 			return True
 	#----------------------------------------------------
 	def _save_modified_entry(self):
@@ -209,9 +209,9 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 		self.data['narrative'] = self.fld_progress_note.GetValue()
 		successfull, data = self.data.save_payload()
 		if not successfull:
-			gmGuiHelpers.gm_statustext(_('Cannot update vaccination: %s') % err)
+			gmDispatcher.send(signal = 'statustext', msg =_('Cannot update vaccination: %s') % err)
 			return False
-		gmGuiHelpers.gm_statustext(_('Vaccination updated.'))
+		gmDispatcher.send(signal = 'statustext', msg =_('Vaccination updated.'))
 		return True
 	#----------------------------------------------------
 	def save_data(self, episode=None):
@@ -548,7 +548,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.32  2007-07-09 12:47:17  ncq
+# Revision 1.33  2007-08-28 14:18:13  ncq
+# - no more gm_statustext()
+#
+# Revision 1.32  2007/07/09 12:47:17  ncq
 # - cleanup
 #
 # Revision 1.31  2007/02/05 12:15:23  ncq
