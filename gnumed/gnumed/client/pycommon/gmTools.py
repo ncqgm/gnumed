@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.36 2007-08-15 09:18:56 ncq Exp $
+# $Id: gmTools.py,v 1.37 2007-08-28 21:47:19 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -138,8 +138,9 @@ class gmPaths(gmBorg.cBorg):
 		return True
 	#--------------------------------------
 	def __log_paths(self):
-		_log.Log(gmLog.lData, 'local base dir: %s' % self.local_base_dir)
-		_log.Log(gmLog.lData, 'working dir: %s' % self.working_dir)
+		_log.Log(gmLog.lData, 'local application base dir: %s' % self.local_base_dir)
+		_log.Log(gmLog.lData, 'current working dir: %s' % self.working_dir)
+		_log.Log(gmLog.lData, 'user home dir: %s' % os.path.expanduser('~'))
 		_log.Log(gmLog.lData, 'user-specific config dir: %s' % self.user_config_dir)
 		_log.Log(gmLog.lData, 'system-wide config dir: %s' % self.system_config_dir)
 		_log.Log(gmLog.lData, 'system-wide application data dir: %s' % self.system_app_data_dir)
@@ -657,7 +658,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.36  2007-08-15 09:18:56  ncq
+# Revision 1.37  2007-08-28 21:47:19  ncq
+# - log user home dir
+#
+# Revision 1.36  2007/08/15 09:18:56  ncq
 # - size2str() and test
 #
 # Revision 1.35  2007/08/07 21:41:02  ncq
