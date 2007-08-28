@@ -5,8 +5,8 @@ This maps xDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.43 2007-08-09 09:17:08 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmXdtMappings.py,v 1.44 2007-08-28 21:47:00 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -160,10 +160,12 @@ xdt_id_map = {
 	'3209': 'Wohnort des Hauptversicherten',
 	'3210': 'Geschlecht des Hauptversicherten',	# nur bei header 0191
 
-	# Quelle: mediSYS GmbH
-	'3301': '?? Name Patient',
-	'3302': '?? Vorname Patient',
-	'3303': '?? Patient geb.',
+	# scheinbar alter BDT ? (Quelle: mediSYS GmbH)
+	'3301': u'Name des Patienten',
+	'3302': u'Vorname des Patienten',
+	'3303': u'Geburtsdatum des Patienten (TTMMJJ)',
+	'3306': u'PLZ/Wohnort des Patienten',
+	'3307': u'Straße/Hausnummer des Patienten',
 	'3308': '?? Status Patient',
 
 	'3600': 'Patientennummer (alter BDT ?, beobachtet bei Medistar)',
@@ -173,6 +175,7 @@ xdt_id_map = {
 	'3610': 'Datum Patient seit',							# nur bei header 6100
 	'3612': 'Datum Versichertenbeginn bei Kassenwechsel',	# nur bei header 6100
 	'3620': 'Beruf des Patienten',							# nur bei header 6100
+	'3621': u'Geschlecht des Patienten (Hilfsfeld, gestrichen)',
 	'3622': 'Grösse des Patienten',							# nur bei header 6100
 	'3623': 'Gewicht des Patienten',						# nur bei header 6100
 	'3625': 'Arbeitgeber des Patienten',					# nur bei header 6100
@@ -1251,7 +1254,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.43  2007-08-09 09:17:08  ncq
+# Revision 1.44  2007-08-28 21:47:00  ncq
+# - improve mappings based on some DocConcept info
+#
+# Revision 1.43  2007/08/09 09:17:08  ncq
 # - map part of xBDT
 #
 # Revision 1.42  2007/06/28 12:31:55  ncq
