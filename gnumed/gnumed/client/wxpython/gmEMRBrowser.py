@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.79 2007-08-15 14:57:52 ncq Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmEMRBrowser.py,v 1.80 2007-08-29 22:09:10 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ import wx
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets, gmNarrativeWidgets
 from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl, wxgSplittedEMRTreeBrowserPnl
 
 _log = gmLog.gmDefLog
@@ -257,7 +257,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		node_parent = self.GetItemParent(self.__curr_node)
 		owning_episode = self.GetPyData(node_parent)
 
-		episode_selector = gmEMRStructWidgets.cMoveNarrativeDlg (
+		episode_selector = gmNarrativeWidgets.cMoveNarrativeDlg (
 			self,
 			-1,
 			episode = owning_episode,
@@ -590,7 +590,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.79  2007-08-15 14:57:52  ncq
+# Revision 1.80  2007-08-29 22:09:10  ncq
+# - narrative widgets factored out
+#
+# Revision 1.79  2007/08/15 14:57:52  ncq
 # - pretty up tree popup menus
 # - add deletion of health issues
 #

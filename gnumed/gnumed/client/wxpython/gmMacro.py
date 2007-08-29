@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions, gmBorg, gmTools
 from Gnumed.business import gmPerson
-from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmEMRStructWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmPatSearchWidgets, gmNarrativeWidgets
 
 
 _log = gmLog.gmDefLog
@@ -87,7 +87,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return pat['dob'].strftime('%x')
 	#--------------------------------------------------------
 	def _get_progress_notes(self):
-		narr = gmEMRStructWidgets.select_narrative_from_episodes()
+		narr = gmNarrativeWidgets.select_narrative_from_episodes()
 		if len(narr) == 0:
 			return u''
 		narr = [ n['narrative'] for n in narr ]
@@ -155,7 +155,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.32 $" % self.__class__.__name__
+		return "%s $Revision: 1.33 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -393,7 +393,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.32  2007-08-13 21:59:54  ncq
+# Revision 1.33  2007-08-29 22:09:32  ncq
+# - narrative widgets factored out
+#
+# Revision 1.32  2007/08/13 21:59:54  ncq
 # - add placeholder handler
 # - add progress_notes placeholder
 # - improved test suite
