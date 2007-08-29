@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.47 2007-08-08 21:26:39 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmScanBackend.py,v 1.48 2007-08-29 14:33:38 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -313,8 +313,8 @@ class cSaneScanner:
 class cXSaneScanner:
 
 	_filetype = '.png'					# FIXME: configurable, TIFF ?
-	_xsanerc = os.path.expanduser(os.path.join('~',".sane","xsane","xsane.rc"))
-	_xsanerc_backup = os.path.expanduser(os.path.join('~',".sane","xsane","xsane.rc.gnumed.bak"))
+	_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
+	_xsanerc_backup = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc.gnumed.bak'))
 
 	#----------------------------------------------
 	def __init__(self):
@@ -477,7 +477,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.47  2007-08-08 21:26:39  ncq
+# Revision 1.48  2007-08-29 14:33:38  ncq
+# - a bit more readability
+#
+# Revision 1.47  2007/08/08 21:26:39  ncq
 # - tiny improvements re file extension in XSane scanner driver
 #
 # Revision 1.46  2007/07/17 13:40:31  ncq
