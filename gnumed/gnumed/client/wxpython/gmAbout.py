@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.26 2007-08-20 14:22:24 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmAbout.py,v 1.27 2007-08-29 14:37:00 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -191,6 +191,12 @@ Steffi Leibner, Leipzig
  - Testen, Fehlerberichte
  - Dokumentenvorlage
 
+== N ===========================================
+
+Clemens Nietfeld, Oldenburg
+
+ - Information zur Anbindung von DocConcept
+
 == P ===========================================
 
 Martin Preuss, Hamburg
@@ -206,8 +212,7 @@ Thomas Reus, Düsseldorf
 
 == T ===========================================
 
-Andreas Tille
- Wernigerode
+Andreas Tille, Wernigerode
 
  - Debian packages
  - encouragement, wisdom
@@ -249,7 +254,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.26  2007-08-20 14:22:24  ncq
+# Revision 1.27  2007-08-29 14:37:00  ncq
+# - add Clemens Nietfeld
+#
+# Revision 1.26  2007/08/20 14:22:24  ncq
 # - add more helpful people
 #
 # Revision 1.25  2006/10/23 15:48:07  ncq
