@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.68 2007-08-15 09:19:32 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmEMRStructWidgets.py,v 1.69 2007-08-29 14:38:39 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -239,8 +239,8 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_problems.InsertColumn(0, _('Episode'))
-		self._LCTRL_problems.InsertColumn(1, _('Foundational Issue'))
-		self._LCTRL_problems.InsertColumn(2, _('Assessment'))
+#		self._LCTRL_problems.InsertColumn(1, _('Foundational Issue'))
+#		self._LCTRL_problems.InsertColumn(2, _('Assessment'))
 		self._LCTRL_problems.InsertColumn(3, _('Narrative'))
 	#--------------------------------------------------------
 	# external API
@@ -260,10 +260,10 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self._LCTRL_problems.DeleteAllItems()
 		for episode in episodes:
 			row_num = self._LCTRL_problems.InsertStringItem(pos, label = episode['description'])
-			self._LCTRL_problems.SetStringItem(index = row_num, col = 1, label = gmTools.coalesce(episode['health_issue'], ''))
+#			self._LCTRL_problems.SetStringItem(index = row_num, col = 1, label = gmTools.coalesce(episode['health_issue'], ''))
 		if len(episodes) > 0:
 			self._LCTRL_problems.SetColumnWidth(col=0, width=wx.LIST_AUTOSIZE)
-			self._LCTRL_problems.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)		# wx.LIST_AUTOSIZE_USEHEADER
+#			self._LCTRL_problems.SetColumnWidth(col=1, width=wx.LIST_AUTOSIZE)		# wx.LIST_AUTOSIZE_USEHEADER
 
 		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
 
@@ -339,7 +339,9 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 
 		self._PNL_edit_area.refresh(encounter=encounter)
 
-		self.Refresh()		# needed ?
+#		self.Refresh()		# needed ?
+
+		self.Fit()
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_edit_area.save():
@@ -1288,7 +1290,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.68  2007-08-15 09:19:32  ncq
+# Revision 1.69  2007-08-29 14:38:39  ncq
+# - improve encounter details dialog
+#
+# Revision 1.68  2007/08/15 09:19:32  ncq
 # - cleanup
 #
 # Revision 1.67  2007/08/13 22:00:48  ncq
