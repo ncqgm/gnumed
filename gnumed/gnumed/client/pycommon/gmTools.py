@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.37 2007-08-28 21:47:19 ncq Exp $
+# $Id: gmTools.py,v 1.38 2007-08-29 14:33:56 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -225,8 +225,11 @@ def mkdir(directory=None):
 	return True
 #---------------------------------------------------------------------------
 def get_unique_filename(prefix=None, suffix=None, dir=None):
-	"""This instroduces a race condition between the file.close() and actually using the filename."""
+	"""This introduces a race condition between the file.close() and
+	actually using the filename.
 
+	The file will not exist after calling this function.
+	"""
 	kwargs = {'dir': dir}
 
 	if prefix is None:
@@ -658,7 +661,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.37  2007-08-28 21:47:19  ncq
+# Revision 1.38  2007-08-29 14:33:56  ncq
+# - better document get_unique_filename()
+#
+# Revision 1.37  2007/08/28 21:47:19  ncq
 # - log user home dir
 #
 # Revision 1.36  2007/08/15 09:18:56  ncq
