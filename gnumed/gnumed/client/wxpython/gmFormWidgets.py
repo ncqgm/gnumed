@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.1 2007-08-28 14:40:12 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmFormWidgets.py,v 1.2 2007-08-29 14:38:55 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys
@@ -15,7 +15,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business import gmForms,
+from Gnumed.business import gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmMacro
 from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
 
@@ -40,8 +40,8 @@ def let_user_select_form_template(parent=None):
 	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Select letter or form template.'),
-		choices = [ [t['name_long'], t['external_revision'], gmForms.engine_names[t['engine']]] for t in templates ],
-		columns = [_('Template'), _('Revision'), _('Type')],
+		choices = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ],
+		columns = [_('Template'), _('Version'), _('Type')],
 		data = templates,
 		editor_callback = edit,
 		new_callback = edit,
@@ -62,11 +62,10 @@ def create_new_letter(parent=None):
 	filename = template.export_to_file()
 	if filename is None:
 		gmGuiHelpers.gm_show_error (
-			_(
-				'Error exporting form template\n'
+			_(	'Error exporting form template\n'
 				'\n'
 				' "%s" (%s)'
-			) % (template['name_long'], template['external_revision']),
+			) % (template['name_long'], template['external_version']),
 			_('Letter template export')
 		)
 		return
@@ -190,7 +189,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.1  2007-08-28 14:40:12  ncq
+# Revision 1.2  2007-08-29 14:38:55  ncq
+# - remove spurious ,
+#
+# Revision 1.1  2007/08/28 14:40:12  ncq
 # - factored out from gmMedDocWidgets.py
 #
 #
