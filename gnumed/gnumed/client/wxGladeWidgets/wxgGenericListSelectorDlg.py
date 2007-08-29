@@ -16,27 +16,35 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         self._LCTRL_items = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.NO_BORDER)
         self._BTN_ok = wx.Button(self, wx.ID_OK, "")
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+        self._BTN_new = wx.Button(self, wx.ID_NEW, "")
         self._BTN_edit = wx.Button(self, -1, _("&Edit"))
+        self._BTN_delete = wx.Button(self, -1, _("&Delete"))
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_list_item_deselected, self._LCTRL_items)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_items)
+        self.Bind(wx.EVT_BUTTON, self._on_new_button_pressed, self._BTN_new)
         self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
+        self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgGenericListSelectorDlg.__set_properties
-        self.SetSize((400, 500))
+        self.SetSize((516, 500))
         self._LCTRL_items.SetToolTipString(_("Mark the items you want to work on with <SPACE>."))
         self._LCTRL_items.SetFocus()
         self._BTN_ok.SetToolTipString(_("Act on the items selected in the above list."))
         self._BTN_ok.Enable(False)
         self._BTN_cancel.SetToolTipString(_("Cancel this dialog."))
         self._BTN_cancel.SetDefault()
+        self._BTN_new.SetToolTipString(_("Add a new item to the list above."))
+        self._BTN_new.Enable(False)
         self._BTN_edit.SetToolTipString(_("Edit the (first or only) item selected in the list above."))
         self._BTN_edit.Enable(False)
+        self._BTN_delete.SetToolTipString(_("Delete the (first or only) item selected in the list above."))
+        self._BTN_delete.Enable(False)
         # end wxGlade
 
     def __do_layout(self):
@@ -50,7 +58,9 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
         __szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 0)
         __szr_buttons.Add((20, 20), 2, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
-        __szr_buttons.Add(self._BTN_edit, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_new, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_edit, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
         __szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 3)
         self.SetSizer(__szr_main)
@@ -72,6 +82,14 @@ class wxgGenericListSelectorDlg(wx.Dialog):
 
     def _on_edit_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
         print "Event handler `_on_edit_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_new_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
+        print "Event handler `_on_new_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_delete_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
+        print "Event handler `_on_delete_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgGenericListSelectorDlg
