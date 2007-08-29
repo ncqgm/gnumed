@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.48 2007-08-20 14:19:48 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmForms.py,v 1.49 2007-08-29 14:32:25 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -182,20 +182,6 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		)
 		# adjust for xmin change
 		self.refetch_payload()
-	#--------------------------------------------------------
-	def _set_data_modified(self, val):
-		raise AttributeError('Assigment to <%s.data_modified> not allowed.' % self.__class__.__name__)
-
-	def _get_data_modified(self):
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': u'select (not(md5(data) = data_md5)) as modified from ref.paperwork_templates where pk = %(pk)s and xmin = %(xmin)s',
-				'args': {'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_paperwork_template']]}
-			}]
-		)
-		return rows[0][0]
-
-	data_modified = property(_get_data_modified, _set_data_modified)
 #============================================================
 # OpenOffice API
 #============================================================
@@ -398,7 +384,7 @@ class gmFormEngine:
 		# FIXME: get_active_episode is no more
 		#episode = patient_clinical.get_active_episode()['pk_episode']
 		# generate "forever unique" name
-		cmd = "select name_short || ': <' || name_long || '::' || revision || '>' from paperwork_templates where pk=%s";
+		cmd = "select name_short || ': <' || name_long || '::' || external_version || '>' from paperwork_templates where pk=%s";
 		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
 		form_name = None
 		if rows is None:
@@ -742,7 +728,6 @@ if __name__ == '__main__':
 		template = cFormTemplate(aPK_obj = sys.argv[2])
 		print template
 		print template.export_to_file()
-		print "modified:", template.data_modified
 	#--------------------------------------------------------
 	def set_template_from_file():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
@@ -759,7 +744,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.48  2007-08-20 14:19:48  ncq
+# Revision 1.49  2007-08-29 14:32:25  ncq
+# - remove data_modified property
+# - adjust to external_version
+#
+# Revision 1.48  2007/08/20 14:19:48  ncq
 # - engine_names
 # - match providers
 # - fix active_only logic in get_form_templates() and sort properly
