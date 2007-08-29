@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.6 2007-08-20 14:35:32 ncq Exp $
--- $Revision: 1.6 $
+-- $Id: ref-form_tables.sql,v 1.7 2007-08-29 14:46:23 ncq Exp $
+-- $Revision: 1.7 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -33,7 +33,7 @@ comment on column ref.paperwork_templates.name_short is
 	'a short name for use in a GUI or some such';
 comment on column ref.paperwork_templates.name_long is
 	'a long name unambigously describing the form';
-comment on column ref.paperwork_templates.revision is
+comment on column ref.paperwork_templates.gnumed_revision is
 	'GnuMed internal form def version, may
 	 occur if we rolled out a faulty form def';
 comment on column ref.paperwork_templates.data is
@@ -55,52 +55,32 @@ comment on column ref.paperwork_templates.filename is
 	 used by some engines (such as OOo) to differentiate what to do
 	 with certain files, such as *.ott vs. *.ods, GNUmed uses it
 	 to derive a file extension when exporting the template data';
-comment on column ref.paperwork_templates.data_md5 is
-	'The original md5 sum of the data column when the row was inserted.';
-
-
--- INSERT
-create or replace function ref.trf_set_md5_on_insert()
-	returns trigger
-	language 'plpgsql'
-	as '
-BEGIN
-	select into NEW.data_md5 md5(NEW.data);
-	return NEW;
-END;';
-
-comment on function ref.trf_set_md5_on_insert() is
-	'trigger function to set data_md5 on INSERT';
-
-create trigger tr_set_md5_on_insert
-	before insert on ref.paperwork_templates
-	for each row execute procedure ref.trf_set_md5_on_insert()
-;
 
 
 -- UPDATE
-create or replace function ref.trf_protect_md5_revision()
+create or replace function ref.trf_protect_template_data()
 	returns trigger
 	language 'plpgsql'
 	as '
 BEGIN
-	if NEW.revision != OLD.revision then
-		raise exception ''Updating ref.paperwork_templates.revision not allowed.'';
+	if NEW.data != OLD.data then
+		-- look for references in public.form_fields
+		select * from public.form_fields where fk_form = NEW.pk;
+		if FOUND then
+			raise exception ''Updating ref.paperwork_templates.data not allowed because it is referenced from existing forms.'';
+		end if;
 	end if;
-
-	if md5(NEW.data) != OLD.data_md5 then
-		raise exception ''Updating ref.paperwork_templates.data not allowed.'';
-	end if;
-
-	if NEW.engine != OLD.engine then
-		raise exception ''Updating ref.paperwork_templates.engine not allowed.'';
-	end if;
-
 	return NEW;
 END;';
 
-comment on function ref.trf_protect_md5_revision() is
-	'Do not allow updates to the revision or the template.';
+comment on function ref.trf_protect_template_data() is
+	'Do not allow updates to the template data if
+	 any forms already use this template.';
+
+create trigger tr_protect_template_data
+	before update on ref.paperwork_templates
+	for each row execute procedure ref.trf_protect_template_data()
+;
 
 
 -- example form template
@@ -116,7 +96,7 @@ insert into ref.paperwork_templates (
 	fk_template_type,
 	name_short,
 	name_long,
-	revision,
+	external_version,
 	engine,
 	filename,
 	data
@@ -145,7 +125,7 @@ select
 		as pk_paperwork_template,
 	name_short,
 	name_long,
-	revision,
+	external_version,
 	(select name from ref.form_types where pk = fk_template_type)
 		as template_type,
 	(select _(name) from ref.form_types where pk = fk_template_type)
@@ -157,7 +137,6 @@ select
 	engine,
 	in_use,
 	filename,
-	data_md5,
 	modified_when
 		as last_modified,
 	fk_template_type
@@ -181,11 +160,16 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.6 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.7 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.6  2007-08-20 14:35:32  ncq
+-- Revision 1.7  2007-08-29 14:46:23  ncq
+-- - revision -> gnumed_revision, version -> external_version
+-- - remove data_md5
+-- - adjust triggers on ref.paperwork_templates
+--
+-- Revision 1.6  2007/08/20 14:35:32  ncq
 -- - form_defs -> paperwork_templates
 -- - rename columns, add triggers on insert/update
 -- - enhanced v_paperwork_templates
