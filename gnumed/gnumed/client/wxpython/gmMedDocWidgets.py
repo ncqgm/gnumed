@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.142 2007-08-28 14:18:13 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gmMedDocWidgets.py,v 1.143 2007-08-29 14:43:06 ncq Exp $
+__version__ = "$Revision: 1.143 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -14,71 +14,15 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
-from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmForms
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets, gmMacro
-from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg, wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
+from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems
+from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
+from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #============================================================
-# forms, templates, and letters related widgets
-#============================================================
-def let_user_select_form_template(parent=None):
-
-	def edit(template=None):
-		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
-		dlg.ShowModal()
-
-	def delete(template):
-		print "form template deletion not yet implemented"
-		pass
-
-	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
-	template = gmListWidgets.get_choices_from_list (
-		parent = parent,
-		caption = _('Select letter or form template.'),
-		choices = [ [t['name_long'], t['external_revision'], gmForms.engine_names[t['engine']]] for t in templates ],
-		columns = [_('Template'), _('Revision'), _('Type')],
-		data = templates,
-		editor_callback = edit,
-		new_callback = edit,
-		delete_callback = delete,
-		single_selection = True
-	)
-
-	return template
-#------------------------------------------------------------
-def create_new_letter(parent=None):
-
-	# 1) have user select template
-	template = let_user_select_form_template(parent = parent)
-	if template is None:
-		return
-
-	# 2) export template to file
-	filename = template.export_to_file()
-	if filename is None:
-		gmGuiHelpers.gm_show_error (
-			_(
-				'Error exporting form template\n'
-				'\n'
-				' "%s" (%s)'
-			) % (template['name_long'], template['external_revision']),
-			_('Letter template export')
-		)
-		return
-
-	doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
-	doc.open_in_ooo()
-	doc.show(False)
-	ph_handler = gmMacro.gmPlaceholderHandler()
-	doc.replace_placeholders(handler = ph_handler)
-	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
-	doc.save_in_ooo(filename = filename)
-	doc.show(True)
-#------------------------------------------------------------
 def _save_file_as_new_document(**kwargs):
 	wx.CallAfter(save_file_as_new_document, **kwargs)
 #----------------------
@@ -127,96 +71,6 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	return
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
-#============================================================
-class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl):
-
-	def __init__(self, *args, **kwargs):
-		try:
-			self.__template = kwargs['template']
-			del kwargs['template']
-		except KeyError:
-			self.__template = None
-
-		wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl.__init__(self, *args, **kwargs)
-
-		self._PRW_name_long.matcher = gmForms.cFormTemplateNameLong_MatchProvider()
-		self._PRW_name_short.matcher = gmForms.cFormTemplateNameShort_MatchProvider()
-		self._PRW_template_type.matcher = gmForms.cFormTemplateType_MatchProvider()
-
-		self.refresh()
-	#--------------------------------------------------------
-	def refresh(self, template = None):
-		if template is not None:
-			self.__template = template
-
-		if self.__template is None:
-			self._PRW_name_long.SetText(u'')
-			self._PRW_name_short.SetText(u'')
-			self._TCTRL_external_version.SetValue(u'')
-			self._PRW_template_type.SetText(u'')
-			self._PRW_instance_type.SetText(u'')
-			self._TCTRL_filename.SetValue(u'')
-			# FIXME: add engine handling
-			self._CHBOX_active.SetValue(True)
-			
-			self._TCTRL_date_modified.SetValue(u'')
-			self._TCTRL_modified_by.SetValue(u'')
-
-		else:
-			self._PRW_name_long.SetText(self.__template['name_long'])
-			self._PRW_name_short.SetText(self.__template['name_short'])
-			self._TCTRL_external_version.SetValue(self.__template['external_version'])
-			self._PRW_template_type.SetText(self.__template['l10n_template_type'], data = self.__template['pk_template_type'])
-			self._PRW_instance_type.SetText(self.__template['l10n_instance_type'], data = self.__template['instance_type'])
-			self._TCTRL_filename.SetValue(self.__template['filename'])
-			# FIXME: add engine handling
-			self._CHBOX_active.SetValue(self.__template['in_use'])
-			
-			self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%x'))
-			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
-
-			self._TCTRL_filename.Enable(True)
-			self._BTN_load.Enable(False)
-
-		self._PRW_name_long.SetFocus()
-	#--------------------------------------------------------
-	def _on_load_button_pressed(self, evt):
-		dlg = wx.FileDialog (
-			parent = self,
-			message = _('Choose a form template file'),
-			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-			defaultFile = '',
-			wildcard = "%s (*.ott)|*.ott|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
-		)
-		result = dlg.ShowModal()
-		if result != wx.ID_CANCEL:
-			fname = os.path.split(dlg.GetPath())[1]
-			self._TCTRL_filename.SetValue(fname)
-		dlg.Destroy()
-	#--------------------------------------------------------
-	def save(self):
-		print "saving form template not yet implemented"
-#============================================================
-class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
-
-	def __init__(self, *args, **kwargs):
-		try:
-			template = kwargs['template']
-			del kwargs['template']
-		except KeyError:
-			template = None
-
-		wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg.__init__(self, *args, **kwargs)
-
-		self._PNL_edit_area.refresh(template=template)
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		if self._PNL_edit_area.save():
-			if self.IsModal():
-				self.EndModal(wx.ID_OK)
-			else:
-				self.Close()
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -755,9 +609,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			devices = self.scan_module.get_devices()
 		except:
 			_log.LogException('cannot retrieve list of image sources')
-			gmDispatcher.send(signal = 'statustext', msg = _('There is no scanner support installed on this machine.'),
-				gmLog.lInfo
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('There is no scanner support installed on this machine.'))
 			return None
 
 		if devices is None:
@@ -766,9 +618,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return None
 
 		if len(devices) == 0:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot find an active scanner.'),
-				gmLog.lWarn
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot find an active scanner.'))
 			return None
 
 #		device_names = []
@@ -1123,9 +973,7 @@ class cDocTree(wx.TreeCtrl):
 	#--------------------------------------------------------
 	def refresh(self):
 		if not self.__pat.is_connected():
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot load documents. No active patient.'),
-				gmLog.lErr
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot load documents. No active patient.'))
 			return False
 
 		if not self.__populate_tree():
@@ -1604,19 +1452,18 @@ if __name__ == '__main__':
 	gmI18N.install_domain(domain = 'gnumed')
 
 	#----------------------------------------
-	def test_cFormTemplateEditAreaPnl():
-		app = wx.PyWidgetTester(size = (400, 300))
-		pnl = cFormTemplateEditAreaPnl(app.frame, -1, template = gmForms.cFormTemplate(aPK_obj=4))
-		app.frame.Show(True)
-		app.MainLoop()
-		return
 	#----------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		test_cFormTemplateEditAreaPnl()
+#		test_*()
+		pass
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.142  2007-08-28 14:18:13  ncq
+# Revision 1.143  2007-08-29 14:43:06  ncq
+# - factor out forms/letters related code
+# - fix syntax error re stray, gmLog.L* consts
+#
+# Revision 1.142  2007/08/28 14:18:13  ncq
 # - no more gm_statustext()
 #
 # Revision 1.141  2007/08/20 22:12:49  ncq
