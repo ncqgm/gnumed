@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.5 2007-08-20 14:38:42 ncq Exp $
--- $Revision: 1.5 $
+-- $Id: ref-form_tables.sql,v 1.6 2007-08-29 14:47:17 ncq Exp $
+-- $Revision: 1.6 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -40,8 +40,10 @@ create table ref.paperwork_templates (
 		not null,
 	name_long text
 		not null,
-	revision text
+	external_version text
 		not null,
+	gnumed_revision float
+		default null,
 	engine text
 		default 'T'
 		not null
@@ -51,17 +53,15 @@ create table ref.paperwork_templates (
 		default true,
 	filename text
 		default null,
-	data_md5 text
-		not null,
 	data bytea
 		not null,
-	-- a certain revision of any given template can only exist once
-	unique (revision, name_long),
+	-- a certain GNUmed internal revision of any given external version of a template can only exist once
+	unique (gnumed_revision, external_version, name_long),
 	-- a certain form can only ever have one short alias, regardless of revision
 	unique (name_long, name_short)
 ) inherits (audit.audit_fields);
 
-insert into ref.paperwork_templates (fk_template_type, name_short, name_long, revision, engine, in_use, data, data_md5)
+insert into ref.paperwork_templates (fk_template_type, name_short, name_long, external_version, engine, in_use, data)
 select
 	fk_type,
 	name_short,
@@ -69,8 +69,7 @@ select
 	revision,
 	engine,
 	in_use,
-	decode(replace(template, '\\', '\\\\'), 'escape'),
-	md5(decode(replace(template, '\\', '\\\\'), 'escape'))
+	decode(replace(template, '\\', '\\\\'), 'escape')
 from public.form_defs;
 
 drop table public.form_defs cascade;
@@ -80,11 +79,21 @@ drop table public.form_types cascade;
 delete from audit.audited_tables where schema = 'public' and table_name = 'form_defs';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.5 $');
+-- '
+alter table public.form_fields add foreign key (fk_form) references ref.paperwork_templates(pk);
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.6 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.5  2007-08-20 14:38:42  ncq
+-- Revision 1.6  2007-08-29 14:47:17  ncq
+-- - revision -> external_version
+-- - add gnumed_revision
+-- - fix UNIQUE constraints
+-- - add foreign key to public.form_fields
+--
+-- Revision 1.5  2007/08/20 14:38:42  ncq
 -- - public.form_defs -> ref.paperwork_templates, move full data
 -- - rename cols
 --
