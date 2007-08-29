@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.11 2007-08-20 16:22:51 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmListWidgets.py,v 1.12 2007-08-29 14:41:54 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -47,26 +47,7 @@ from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 
 #	return False
 #================================================================
-def get_choice_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, editor_callback=None):
-
-	choice = get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = caption,
-		choices = choices,
-		selections = selections,
-		columns = columns,
-		data = data,
-		editor_callback = editor_callback,
-		single_selection = True
-	)
-#	if choice is None:
-#		return None
-
-#	return choice[0]
-	return choice
-#----------------------------------------------------------------
-def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, editor_callback=None, single_selection=False):
+def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, editor_callback=None, new_callback=None, delete_callback=None, single_selection=False):
 
 	if caption is None:
 		caption = _('generic multi choice dialog')
@@ -76,6 +57,8 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 	else:
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
 	dlg.editor_callback = editor_callback
+	dlg.new_callback = new_callback
+	dlg.delete_callback = delete_callback
 	dlg.set_columns(columns = columns)
 	dlg.set_string_items(items = choices)
 	if selections is not None:
@@ -109,7 +92,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._LBL_message.SetLabel(msg)
 		self.Fit()
 
+		self.__new_callback = None
 		self.editor_callback = None
+		self.delete_callback = None
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -135,17 +120,39 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._BTN_ok.SetDefault()
 		if self.editor_callback is not None:
 			self._BTN_edit.Enable(True)
+		if self.delete_callback is not None:
+			self._BTN_delete.Enable(True)
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
 			self._BTN_ok.Enable(False)
 			self._BTN_cancel.SetDefault()
 			self._BTN_edit.Enable(False)
+			self._BTN_delete.Enable(False)
+	#------------------------------------------------------------
+	def _on_new_button_pressed(self, event):
+		self.new_callback()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
 		self.editor_callback(self._LCTRL_items.get_selected_item_data(only_one=True))
+	#------------------------------------------------------------
+	def _on_delete_button_pressed(self, event):
+		# if the delete button *can* be pressed there are *supposed*
+		# to be both an item selected and an deletor configured
+		self.delete_callback(self._LCTRL_items.get_selected_item_data(only_one=True))
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _get_noop(self):
+		return self.__new_callback
+
+	def _set_new_callback(self, callback):
+		self.__new_callback = callback
+		self._BTN_new.Enable(callback is not None)
+
+	new_callback = property(_get_noop, _set_new_callback)
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
@@ -289,7 +296,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.11  2007-08-20 16:22:51  ncq
+# Revision 1.12  2007-08-29 14:41:54  ncq
+# - no more singular get_choice_from_list()
+# - support add/delete callbacks in generic list selector
+#
+# Revision 1.11  2007/08/20 16:22:51  ncq
 # - make get_choice(s)_from_list() more generic
 # - cleanup, improved test
 # - support edit button and message in generic list selector
