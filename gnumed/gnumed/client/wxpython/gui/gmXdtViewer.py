@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.28 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmXdtViewer.py,v 1.29 2007-08-29 14:43:43 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -37,7 +37,8 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 
 		self.__cols = [
 			_('xDT field'),
-			_('field content')
+			_('field content'),
+			_('xDT field ID')
 		]
 		self.__init_ui()
 	#--------------------------------------------------------------
@@ -130,6 +131,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 
 			self._LCTRL_xdt.InsertStringItem(index=idx, label=left)
 			self._LCTRL_xdt.SetStringItem(index=idx, col=1, label=right)
+			self._LCTRL_xdt.SetStringItem(index=idx, col=2, label=field)
 			idx += 1
 
 		xdt_file.close()
@@ -418,7 +420,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.28  2007-08-12 00:12:41  ncq
+# Revision 1.29  2007-08-29 14:43:43  ncq
+# - show xDT field ID in third column to enable more comfortable debugging
+#
+# Revision 1.28  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.27  2007/05/21 13:06:39  ncq
