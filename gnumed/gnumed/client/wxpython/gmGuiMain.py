@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.348 2007-08-12 00:09:07 ncq Exp $
-__version__ = "$Revision: 1.348 $"
+# $Id: gmGuiMain.py,v 1.349 2007-08-29 14:40:41 ncq Exp $
+__version__ = "$Revision: 1.349 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,7 +52,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord
 from Gnumed.exporters import gmPatientExporter
 
@@ -192,18 +192,18 @@ class gmTopLevelFrame(wx.Frame):
 
 		# set window title via template
 		if self.__gb['main.slave_mode']:
-			self.__title_template = _('Enslaved GNUmed [%s%s.%s@%s] %s: %s')
+			self.__title_template = _('Enslaved GNUmed [%s%s.%s@%s] %s')
 		else:
-			self.__title_template = 'GNUmed [%s%s.%s@%s] %s: %s'
-		self.updateTitle(anActivity = _("idle"))
-		#  let others have access, too
-		self.__gb['main.SetWindowTitle'] = self.updateTitle
+			self.__title_template = 'GNUmed [%s%s.%s@%s] %s'
+
 		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
+
 		# set window icon
 		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
 		icon = wx.EmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
+
 		self.acctbl = []
 		self.__gb['main.accelerators'] = self.acctbl
 		self.__register_events()
@@ -462,6 +462,11 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
 
+		menu_paperwork.AppendSeparator()
+
+		item = menu_paperwork.Append(-1, _('Manage templates'), _('Manage templates for forms and letters.'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_templates, item)
+
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
 
 		# menu "View" ---------------------------
@@ -623,7 +628,10 @@ class gmTopLevelFrame(wx.Frame):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
-		gmMedDocWidgets.create_new_letter()
+		gmFormWidgets.create_new_letter(parent = self)
+	#----------------------------------------------
+	def __on_edit_templates(self, evt):
+		gmFormWidgets.let_user_select_form_template(parent = self)
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------
@@ -662,7 +670,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		langs = [ row[0] for row in rows ]
 
-		language = gmListWidgets.get_choice_from_list (
+		language = gmListWidgets.get_choices_from_list (
 			parent = self,
 			msg = _(
 				'Please select the database language from the list below.\n\n'
@@ -672,7 +680,8 @@ class gmTopLevelFrame(wx.Frame):
 			caption = _('configuring database language'),
 			choices = langs,
 			columns = [_('Language')],
-			data = langs
+			data = langs,
+			single_selection = True
 		)
 
 		if language is None:
@@ -800,6 +809,7 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		emr = pat.get_emr()
 		emr.start_new_encounter()
+		gmDispatcher.send(signal = 'statustext', msg = _('Started a new encounter for the active patient.'))
 	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -1091,7 +1101,7 @@ Search results:
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
-	def updateTitle(self, anActivity = None):
+	def updateTitle(self):
 		"""Update title of main window based on template.
 
 		This gives nice tooltips on iconified GNUmed instances.
@@ -1099,9 +1109,6 @@ Search results:
 		the date of birth, not the age, so please stick to this
 		convention.
 		"""
-		if anActivity is not None:
-			self.title_activity = str(anActivity)
-
 		pat = gmPerson.gmCurrentPatient()
 		if pat.is_connected():
 			title = pat['title']
@@ -1118,7 +1125,6 @@ Search results:
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
 			_provider.workplace,
-			self.title_activity,
 			pat_str
 		)
 		self.SetTitle(title)
@@ -1471,7 +1477,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.348  2007-08-12 00:09:07  ncq
+# Revision 1.349  2007-08-29 14:40:41  ncq
+# - remove "activity" part from window title - we never started using it
+# - add menu item for managing paperwork templates
+# - no more singular get_choice_from_list()
+# - feedback on starting new encounter
+#
+# Revision 1.348  2007/08/12 00:09:07  ncq
 # - no more gmSignals.py
 #
 # Revision 1.347  2007/08/07 21:42:40  ncq
