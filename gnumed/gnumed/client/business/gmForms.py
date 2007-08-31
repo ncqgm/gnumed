@@ -1,24 +1,18 @@
 # -*- coding: latin-1 -*-
 """GNUmed forms classes
+
 Business layer for printing all manners of forms, letters, scripts etc.
  
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.49 2007-08-29 14:32:25 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmForms.py,v 1.50 2007-08-31 14:29:52 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
 import os, sys, time, os.path
-# string, re as regex, cStringIO, types
-
-
-import uno, unohelper
-from com.sun.star.util import XCloseListener as oooXCloseListener
-from com.sun.star.connection import NoConnectException as oooNoConnectException
-from com.sun.star.beans import PropertyValue as oooPropertyValue
 
 
 if __name__ == '__main__':
@@ -29,7 +23,6 @@ from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
 
 engine_ooo = 'O'
 engine_names = {
@@ -183,26 +176,66 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		# adjust for xmin change
 		self.refetch_payload()
 #============================================================
+def create_form_template(template_type=None, name_short=None, name_long=None):
+
+	cmd = u'insert into ref.paperwork_templates (fk_template_type, name_short, name_long) values (%(type)s, %(nshort)s, %(nlong)s)'
+	rows, idx = gmPG2.run_rw_queries (
+		queries = [
+			{'cmd': cmd, 'args': {'type': template_type, 'nshort': name_short, 'nlong': name_long}},
+			{'cmd': u"select currval(pg_get_serial_sequence('ref.paperwork_templates', 'pk'))"}
+		],
+		return_data = True
+	)
+	template = cFormTemplate(aPK_obj = rows[0][0])
+	return template
+#------------------------------------------------------------
+def delete_form_template(template=None):
+	pass
+#============================================================
 # OpenOffice API
 #============================================================
-class cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
-	"""Listens for events sent by OOo during the document closing
-	   sequence and notifies the GNUmed client GUI so it can
-	   import the closed document into the database.
-	"""
-	def __init__(self, document=None):
-		self.document = document
+uno = None
+cOOoDocumentCloseListener = None
 
-	def queryClosing(self, evt, owner):
-		# owner is True/False whether I am the owner of the doc
-		pass
+def init_ooo():
 
-	def notifyClosing(self, evt):
-		pass
+	global uno
+	if uno is not None:
+		return
 
-	def disposing(self, evt):
-		self.document.on_disposed_by_ooo()
-		self.document = None
+	global unohelper, oooXCloseListener, oooNoConnectException, oooPropertyValue
+
+	import uno, unohelper
+	from com.sun.star.util import XCloseListener as oooXCloseListener
+	from com.sun.star.connection import NoConnectException as oooNoConnectException
+	from com.sun.star.beans import PropertyValue as oooPropertyValue
+
+	#----------------------------------
+	class _cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
+		"""Listens for events sent by OOo during the document closing
+		   sequence and notifies the GNUmed client GUI so it can
+		   import the closed document into the database.
+		"""
+		def __init__(self, document=None):
+			self.document = document
+
+		def queryClosing(self, evt, owner):
+			# owner is True/False whether I am the owner of the doc
+			pass
+
+		def notifyClosing(self, evt):
+			pass
+
+		def disposing(self, evt):
+			self.document.on_disposed_by_ooo()
+			self.document = None
+	#----------------------------------
+
+	global cOOoDocumentCloseListener
+	cOOoDocumentCloseListener = _cOOoDocumentCloseListener
+
+	_log.Log(gmLog.lData, 'python UNO bridge successfully initialized')
+
 #------------------------------------------------------------
 class cOOoConnector(gmBorg.cBorg):
 	"""This class handles the connection to OOo.
@@ -211,6 +244,8 @@ class cOOoConnector(gmBorg.cBorg):
 	"""
 	# FIXME: need to detect closure of OOo !
 	def __init__(self):
+
+		init_ooo()
 
 		self.ooo_start_cmd = 'oowriter -accept="socket,host=localhost,port=2002;urp;"'
 		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
@@ -744,7 +779,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.49  2007-08-29 14:32:25  ncq
+# Revision 1.50  2007-08-31 14:29:52  ncq
+# - optionalized UNO import
+# - create_form_template()
+#
+# Revision 1.49  2007/08/29 14:32:25  ncq
 # - remove data_modified property
 # - adjust to external_version
 #
