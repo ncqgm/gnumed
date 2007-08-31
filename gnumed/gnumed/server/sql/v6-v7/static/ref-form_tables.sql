@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.6 2007-08-29 14:47:17 ncq Exp $
--- $Revision: 1.6 $
+-- $Id: ref-form_tables.sql,v 1.7 2007-08-31 14:31:04 ncq Exp $
+-- $Revision: 1.7 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -45,7 +45,7 @@ create table ref.paperwork_templates (
 	gnumed_revision float
 		default null,
 	engine text
-		default 'T'
+		default 'O'
 		not null
 		check (engine in ('T', 'L', 'H', 'O')),
 	in_use boolean
@@ -54,7 +54,7 @@ create table ref.paperwork_templates (
 	filename text
 		default null,
 	data bytea
-		not null,
+		default null,
 	-- a certain GNUmed internal revision of any given external version of a template can only exist once
 	unique (gnumed_revision, external_version, name_long),
 	-- a certain form can only ever have one short alias, regardless of revision
@@ -83,11 +83,15 @@ delete from audit.audited_tables where schema = 'public' and table_name = 'form_
 alter table public.form_fields add foreign key (fk_form) references ref.paperwork_templates(pk);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.6 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.7 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.6  2007-08-29 14:47:17  ncq
+-- Revision 1.7  2007-08-31 14:31:04  ncq
+-- - set engine default to the currently only sane value "O"
+-- - default data to NULL
+--
+-- Revision 1.6  2007/08/29 14:47:17  ncq
 -- - revision -> external_version
 -- - add gnumed_revision
 -- - fix UNIQUE constraints
