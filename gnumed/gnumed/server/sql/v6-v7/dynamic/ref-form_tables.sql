@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.8 2007-08-31 14:31:41 ncq Exp $
--- $Revision: 1.8 $
+-- $Id: ref-form_tables.sql,v 1.9 2007-08-31 23:05:47 ncq Exp $
+-- $Revision: 1.9 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -85,6 +85,10 @@ comment on function ref.trf_protect_template_data() is
 	'Do not allow updates to the template data if
 	 any forms already use this template.';
 
+\unset ON_ERROR_STOP
+drop trigger tr_protect_template_data on ref.paperwork_templates cascade;
+\set ON_ERROR_STOP 1
+
 create trigger tr_protect_template_data
 	before update on ref.paperwork_templates
 	for each row execute procedure ref.trf_protect_template_data()
@@ -147,6 +151,7 @@ select
 	filename,
 	modified_when
 		as last_modified,
+	modified_by,
 	fk_template_type
 		as pk_template_type,
 	xmin
@@ -168,11 +173,15 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.8 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.9 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.8  2007-08-31 14:31:41  ncq
+-- Revision 1.9  2007-08-31 23:05:47  ncq
+-- - ref.v_paperwork_templates.modified_by
+-- - drop trigger before creation
+--
+-- Revision 1.8  2007/08/31 14:31:41  ncq
 -- - allow UPDATE of .data if NULL since that's the first update after INSERT
 --
 -- Revision 1.7  2007/08/29 14:46:23  ncq
