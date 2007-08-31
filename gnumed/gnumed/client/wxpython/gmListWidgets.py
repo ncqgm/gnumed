@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.12 2007-08-29 14:41:54 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmListWidgets.py,v 1.13 2007-08-31 23:05:05 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -67,7 +67,7 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 		dlg.set_data(data=data)
 
 	btn_pressed = dlg.ShowModal()
-	sels = dlg.get_selected_item_data()
+	sels = dlg.get_selected_item_data(only_one = single_selection)
 	dlg.Destroy()
 
 	if btn_pressed == wx.ID_OK:
@@ -163,7 +163,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		except KeyError:
 			kwargs['style'] = wx.LC_REPORT
 
-		self.__is_single_selection = ((kwargs['style'] & wx.LC_SINGLE_SEL) != 0)
+		self.__is_single_selection = ((kwargs['style'] & wx.LC_SINGLE_SEL) == 8192)
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
@@ -296,7 +296,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.12  2007-08-29 14:41:54  ncq
+# Revision 1.13  2007-08-31 23:05:05  ncq
+# - fix single selection list
+#
+# Revision 1.12  2007/08/29 14:41:54  ncq
 # - no more singular get_choice_from_list()
 # - support add/delete callbacks in generic list selector
 #
