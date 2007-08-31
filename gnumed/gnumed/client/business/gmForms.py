@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.50 2007-08-31 14:29:52 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmForms.py,v 1.51 2007-08-31 23:03:45 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -198,7 +198,17 @@ uno = None
 cOOoDocumentCloseListener = None
 
 def init_ooo():
+	"""FIXME: consider this:
 
+	try:
+	    import uno
+	except:
+	    print "This Script needs to be run with the python from OpenOffice.org"
+	    print "Example: /opt/OpenOffice.org/program/python %s" % (
+	        os.path.basename(sys.argv[0]))
+	    print "Or you need to insert the right path at the top, where uno.py is."
+	    print "Default: %s" % default_path
+	"""
 	global uno
 	if uno is not None:
 		return
@@ -779,7 +789,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.50  2007-08-31 14:29:52  ncq
+# Revision 1.51  2007-08-31 23:03:45  ncq
+# - improved docs
+#
+# Revision 1.50  2007/08/31 14:29:52  ncq
 # - optionalized UNO import
 # - create_form_template()
 #
