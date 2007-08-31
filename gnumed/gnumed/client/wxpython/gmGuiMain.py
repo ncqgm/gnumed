@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.349 2007-08-29 14:40:41 ncq Exp $
-__version__ = "$Revision: 1.349 $"
+# $Id: gmGuiMain.py,v 1.350 2007-08-31 23:04:40 ncq Exp $
+__version__ = "$Revision: 1.350 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -453,10 +453,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		# submenu "Documents"
 #		menu_docs = wx.Menu()
-
 #		item = menu_docs.Append(-1, _('&Show docs'), _('Switch to document collection'))
 #		self.Bind(wx.EVT_MENU, self__on_show_docs, item)
-
 #		item = menu_docs.Append(-1, _('&Add document'), _('Add a new document'))
 
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
@@ -627,6 +625,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_new_letter(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		gmFormWidgets.create_new_letter(parent = self)
 	#----------------------------------------------
@@ -1477,7 +1476,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.349  2007-08-29 14:40:41  ncq
+# Revision 1.350  2007-08-31 23:04:40  ncq
+# - feedback on failing to write letter w/o active patient
+#
+# Revision 1.349  2007/08/29 14:40:41  ncq
 # - remove "activity" part from window title - we never started using it
 # - add menu item for managing paperwork templates
 # - no more singular get_choice_from_list()
