@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -634,6 +634,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		  transaction is properly finalized
 		- if link_obj is a cursor we CANNOT finalize the
 		  transaction because we would need the connection for that
+		- if link_obj is None <end_tx> will, of course, always be True
 
 	<return_data>
 		- if true, the returned data will include the rows
@@ -1188,7 +1189,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.53  2007-08-08 21:25:39  ncq
+# Revision 1.54  2007-08-31 14:28:29  ncq
+# - improved docs
+#
+# Revision 1.53  2007/08/08 21:25:39  ncq
 # - improve bytea2file()
 #
 # Revision 1.52  2007/07/22 09:03:33  ncq
