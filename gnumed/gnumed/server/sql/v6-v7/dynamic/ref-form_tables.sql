@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.7 2007-08-29 14:46:23 ncq Exp $
--- $Revision: 1.7 $
+-- $Id: ref-form_tables.sql,v 1.8 2007-08-31 14:31:41 ncq Exp $
+-- $Revision: 1.8 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -64,12 +64,20 @@ create or replace function ref.trf_protect_template_data()
 	as '
 BEGIN
 	if NEW.data != OLD.data then
+
+		-- allow initial insert
+		if OLD.data is NULL then
+			return NEW;
+		end if;
+
 		-- look for references in public.form_fields
 		select * from public.form_fields where fk_form = NEW.pk;
 		if FOUND then
 			raise exception ''Updating ref.paperwork_templates.data not allowed because it is referenced from existing forms.'';
 		end if;
+
 	end if;
+
 	return NEW;
 END;';
 
@@ -160,11 +168,14 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.7 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.7  2007-08-29 14:46:23  ncq
+-- Revision 1.8  2007-08-31 14:31:41  ncq
+-- - allow UPDATE of .data if NULL since that's the first update after INSERT
+--
+-- Revision 1.7  2007/08/29 14:46:23  ncq
 -- - revision -> gnumed_revision, version -> external_version
 -- - remove data_md5
 -- - adjust triggers on ref.paperwork_templates
