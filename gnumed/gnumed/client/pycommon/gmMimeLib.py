@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.12 2007-08-08 21:23:20 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmMimeLib.py,v 1.13 2007-08-31 23:04:04 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -146,19 +146,51 @@ def guess_ext_for_file(aFile=None):
 
 	return f_ext
 #-----------------------------------------------------------------------------------
+kfmclient = None
+
+def __detect_kfmclient():
+	global kfmclient
+
+	if kfmclient is not None:
+		return
+
+	kfmclient = ''
+	cmd = 'which kfmclient'
+	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), 'r')
+	tmp = pipe.readline()
+	ret_code = pipe.close()
+	_log.Log(gmLog.lData, 'which kfmclient: [%s]' % tmp)
+
+	if tmp == '':
+		_log.Log(gmLog.lData, 'kfmclient not found')
+		return
+
+	tmp = tmp.split('\n')[0]
+	if not (os.path.isfile(tmp) and os.access(tmp, os.X_OK)):
+		_log.Log(gmLog.lData, 'kfmclient not detectable')
+		return
+
+	kfmclient = tmp
+	return
+#-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
 	"""Try to find an appropriate viewer with all tricks and call it.
 
 	block: try to detach from viewer or not, None means to use mailcap default
 	"""
-
 	# does this file exist, actually ?
 	if not (os.path.isfile(aFile) and os.access(aFile, os.R_OK)):
 		msg = '[%s] is not a readable file' % aFile
 		_log.Log(gmLog.lErr, msg)
 		raise IOError(msg)
 
-	# sigh ! let's be off to work
+	# well, maybe we are on KDE, so try to detect kfmclient
+	__detect_kfmclient()
+	if kfmclient != '':
+		cmd = 'kfmclient exec %s' % aFile
+		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
+			return True, ''
+
 	mime_type = guess_mimetype(aFile)
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
 
@@ -223,7 +255,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.12  2007-08-08 21:23:20  ncq
+# Revision 1.13  2007-08-31 23:04:04  ncq
+# - on KDE support kfmclient
+#
+# Revision 1.12  2007/08/08 21:23:20  ncq
 # - improve wording
 #
 # Revision 1.11  2007/08/07 21:40:36  ncq
