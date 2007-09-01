@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.2 2007-08-29 14:38:55 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmFormWidgets.py,v 1.3 2007-09-01 23:33:04 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys
@@ -14,7 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N
+from Gnumed.pycommon import gmLog, gmI18N, gmTools, gmDispatcher
 from Gnumed.business import gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmMacro
 from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
@@ -28,14 +28,14 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 def let_user_select_form_template(parent=None):
 
+	#-------------------------
 	def edit(template=None):
 		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
 		dlg.ShowModal()
-
+	#-------------------------
 	def delete(template):
-		print "form template deletion not yet implemented"
-		pass
-
+		gmForms.delete_form_template(template = template)
+	#-------------------------
 	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
 	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -95,6 +95,8 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		self._PRW_template_type.matcher = gmForms.cFormTemplateType_MatchProvider()
 
 		self.refresh()
+
+		self.full_filename = None
 	#--------------------------------------------------------
 	def refresh(self, template = None):
 		if template is not None:
@@ -131,6 +133,73 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 
 		self._PRW_name_long.SetFocus()
 	#--------------------------------------------------------
+	def __valid_for_save(self):
+		error = False
+
+		if gmTools.coalesce(self._PRW_name_long.GetValue(), u'').strip() == u'':
+			error = True
+			self._PRW_name_long.SetBackgroundColour('pink')
+		else:
+			self._PRW_name_long.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		if gmTools.coalesce(self._PRW_name_short.GetValue(), u'').strip() == u'':
+			error = True
+			self._PRW_name_short.SetBackgroundColour('pink')
+		else:
+			self._PRW_name_short.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		if gmTools.coalesce(self._TCTRL_external_version.GetValue(), u'').strip() == u'':
+			error = True
+			self._TCTRL_external_version.SetBackgroundColour('pink')
+		else:
+			self._TCTRL_external_version.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		if gmTools.coalesce(self._PRW_template_type.GetValue(), u'').strip() == u'':
+			error = True
+			self._PRW_template_type.SetBackgroundColour('pink')
+		else:
+			self._PRW_template_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		if gmTools.coalesce(self._PRW_instance_type.GetValue(), u'').strip() == u'':
+			error = True
+			self._PRW_instance_type.SetBackgroundColour('pink')
+		else:
+			self._PRW_instance_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+
+		if self.__template is None and self.full_filename is None:
+			error = True
+			gmDispatcher.send(signal = 'statustext', msg = _('You must select a template file before saving.'), beep = True)
+
+		return not error
+	#--------------------------------------------------------
+	def save(self):
+		if not self.__valid_for_save():
+			return False
+
+		if self.__template is None:
+			self.__template = gmForms.create_form_template (
+				template_type = self._PRW_template_type.GetData(),
+				name_short = self._PRW_name_short.GetValue().strip(),
+				name_long = self._PRW_name_long.GetValue().strip()
+			)
+			self.__template.update_template_from_file(filename = self.full_filename)
+		else:
+			self.__template['template_type'] = self._PRW_template_type.GetData()
+			self.__template['name_short'] = self._PRW_name_short.GetValue().strip()
+			self.__template['name_long'] = self._PRW_name_long.GetValue().strip()
+
+		self.__template['external_version'] = self._TCTRL_external_version.GetValue()
+		tmp = self._PRW_instance_type.GetValue().strip()
+		if tmp not in [self.__template['instance_type'], self.__template['l10n_instance_type']]:
+			self.__template['instance_type'] = tmp
+		self.__template['filename'] = self._TCTRL_filename.GetValue()
+		self.__template['in_use'] = self._CHBOX_active.GetValue()
+
+		self.__template.save_payload()
+		return True
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
 	def _on_load_button_pressed(self, evt):
 		dlg = wx.FileDialog (
 			parent = self,
@@ -142,12 +211,10 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
-			fname = os.path.split(dlg.GetPath())[1]
+			self.full_filename = dlg.GetPath()
+			fname = os.path.split(self.full_filename)[1]
 			self._TCTRL_filename.SetValue(fname)
 		dlg.Destroy()
-	#--------------------------------------------------------
-	def save(self):
-		print "saving form template not yet implemented"
 #============================================================
 class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
 
@@ -189,7 +256,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.2  2007-08-29 14:38:55  ncq
+# Revision 1.3  2007-09-01 23:33:04  ncq
+# - implement save()/delete on form templates
+#
+# Revision 1.2  2007/08/29 14:38:55  ncq
 # - remove spurious ,
 #
 # Revision 1.1  2007/08/28 14:40:12  ncq
