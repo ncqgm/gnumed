@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.7 2007-08-31 14:31:04 ncq Exp $
--- $Revision: 1.7 $
+-- $Id: ref-form_tables.sql,v 1.8 2007-09-01 23:34:54 ncq Exp $
+-- $Revision: 1.8 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -45,8 +45,8 @@ create table ref.paperwork_templates (
 	gnumed_revision float
 		default null,
 	engine text
-		default 'O'
 		not null
+		default 'O'
 		check (engine in ('T', 'L', 'H', 'O')),
 	in_use boolean
 		not null
@@ -83,11 +83,14 @@ delete from audit.audited_tables where schema = 'public' and table_name = 'form_
 alter table public.form_fields add foreign key (fk_form) references ref.paperwork_templates(pk);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.7 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.7  2007-08-31 14:31:04  ncq
+-- Revision 1.8  2007-09-01 23:34:54  ncq
+-- - cleanup
+--
+-- Revision 1.7  2007/08/31 14:31:04  ncq
 -- - set engine default to the currently only sane value "O"
 -- - default data to NULL
 --
