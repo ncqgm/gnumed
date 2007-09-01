@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.51 2007-08-31 23:03:45 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmForms.py,v 1.52 2007-09-01 23:31:36 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -78,17 +78,15 @@ class cFormTemplateType_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		query = u"""
 			select * from (
-				select pk_template_type, l10n_template_type
-				from ref.v_paperwork_templates
-				where l10n_template_type %(fragment_condition)s
+				select pk, _(name) as l10n_name from ref.form_types
+				where _(name) %(fragment_condition)s
 
 				union
 
-				select pk_template_type, l10n_template_type
-				from ref.v_paperwork_templates
-				where template_type %(fragment_condition)s
+				select pk, _(name) as l10n_name from ref.form_types
+				where name %(fragment_condition)s
 			) as union_result
-			order by l10n_template_type
+			order by l10n_name
 		"""
 		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
 #============================================================
@@ -104,10 +102,11 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 				instance_type = %(instance_type)s,
 				engine = %(engine)s,
 				in_use = %(in_use)s,
-				filename = %(filename)s
+				filename = %(filename)s,
+				external_version = %(external_version)s
 			where
 				pk = %(pk_paperwork_template)s and
-				xmin = %(paperwork_templatepaperwork_template)s
+				xmin = %(xmin_paperwork_template)s
 		""",
 		u"""select xmin_paperwork_template from ref.v_paperwork_templates where pk_paperwork_template = %(pk_paperwork_template)s"""
 	]
@@ -115,6 +114,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		u'name_short',
 		u'name_long',
+		u'external_version',
 		u'pk_template_type',
 		u'instance_type',
 		u'engine',
@@ -178,10 +178,10 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 def create_form_template(template_type=None, name_short=None, name_long=None):
 
-	cmd = u'insert into ref.paperwork_templates (fk_template_type, name_short, name_long) values (%(type)s, %(nshort)s, %(nlong)s)'
+	cmd = u'insert into ref.paperwork_templates (fk_template_type, name_short, name_long, external_version) values (%(type)s, %(nshort)s, %(nlong)s, %(ext_version)s)'
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
-			{'cmd': cmd, 'args': {'type': template_type, 'nshort': name_short, 'nlong': name_long}},
+			{'cmd': cmd, 'args': {'type': template_type, 'nshort': name_short, 'nlong': name_long, 'ext_version': 'new'}},
 			{'cmd': u"select currval(pg_get_serial_sequence('ref.paperwork_templates', 'pk'))"}
 		],
 		return_data = True
@@ -190,7 +190,12 @@ def create_form_template(template_type=None, name_short=None, name_long=None):
 	return template
 #------------------------------------------------------------
 def delete_form_template(template=None):
-	pass
+	rows, idx = gmPG2.run_rw_queries (
+		queries = [
+			{'cmd': u'delete from ref.paperwork_templates where pk=%(pk)s', 'args': {'pk': template['pk_paperwork_template']}}
+		]
+	)
+	return True
 #============================================================
 # OpenOffice API
 #============================================================
@@ -789,7 +794,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.51  2007-08-31 23:03:45  ncq
+# Revision 1.52  2007-09-01 23:31:36  ncq
+# - fix form template type phrasewheel query
+# - settable of external_version
+# - delete_form_template()
+#
+# Revision 1.51  2007/08/31 23:03:45  ncq
 # - improved docs
 #
 # Revision 1.50  2007/08/31 14:29:52  ncq
