@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.9 2007-08-31 23:05:47 ncq Exp $
--- $Revision: 1.9 $
+-- $Id: ref-form_tables.sql,v 1.10 2007-09-01 23:34:39 ncq Exp $
+-- $Revision: 1.10 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -98,9 +98,11 @@ create trigger tr_protect_template_data
 -- example form template
 \unset ON_ERROR_STOP
 insert into ref.form_types (name) values (i18n.i18n('physical therapy report'));
+insert into ref.form_types (name) values (i18n.i18n('other letter'));
 \set ON_ERROR_STOP 1
 
 select i18n.upd_tx('de_DE', 'physical therapy report', 'Therapiebericht (PT)');
+select i18n.upd_tx('de_DE', 'other letter', 'sonstiger Brief');
 
 delete from ref.paperwork_templates where name_long = 'Therapiebericht Physiotherapie (GNUmed-Standard)';
 
@@ -161,7 +163,7 @@ from
 ;
 
 -- --------------------------------------------------------------
-grant select, insert, update, insert on
+grant select, insert, update, delete on
 	ref.form_types,
 	ref.form_types_pk_seq,
 	ref.paperwork_templates,
@@ -173,11 +175,14 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.9 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.10 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.9  2007-08-31 23:05:47  ncq
+-- Revision 1.10  2007-09-01 23:34:39  ncq
+-- - add "other letter" to template types
+--
+-- Revision 1.9  2007/08/31 23:05:47  ncq
 -- - ref.v_paperwork_templates.modified_by
 -- - drop trigger before creation
 --
