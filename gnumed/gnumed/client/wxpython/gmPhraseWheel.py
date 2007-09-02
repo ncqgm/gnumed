@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.108 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmPhraseWheel.py,v 1.109 2007-09-02 20:56:30 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -251,7 +251,7 @@ class cPhraseWheel(wx.TextCtrl):
 		self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		return True
 	#---------------------------------------------------------
-	def GetData (self):
+	def GetData(self):
 		"""
 		Retrieve the data associated with the displayed string.
 		"""
@@ -847,7 +847,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.108  2007-08-12 00:12:41  ncq
+# Revision 1.109  2007-09-02 20:56:30  ncq
+# - cleanup
+#
+# Revision 1.108  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.107  2007/07/10 20:27:27  ncq
