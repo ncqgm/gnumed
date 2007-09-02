@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.13 2007-08-31 23:05:05 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmListWidgets.py,v 1.14 2007-09-02 20:54:26 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -23,31 +23,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 
 #================================================================
-#def get_choice_from_list_old(parent=None, msg=None, caption=None, choices=None):
-
-#	if msg is None:
-#		msg = _('programmer forgot to specify info message')
-
-#	if caption is None:
-#		caption = _('generic single choice dialog')
-
-#	dlg = wx.SingleChoiceDialog (
-#		parent = parent,
-#		message = msg,
-#		caption = caption,
-#		choices = choices,
-#		style = wx.OK | wx.CANCEL | wx.CENTRE
-#	)
-#	btn_pressed = dlg.ShowModal()
-#	sel = dlg.GetSelection()
-#	dlg.Destroy()
-
-#	if btn_pressed == wx.ID_OK:
-#		return sel
-
-#	return False
-#================================================================
-def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, editor_callback=None, new_callback=None, delete_callback=None, single_selection=False):
+def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False):
 
 	if caption is None:
 		caption = _('generic multi choice dialog')
@@ -56,9 +32,10 @@ def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, sel
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg, style = wx.LC_SINGLE_SEL)
 	else:
 		dlg = cGenericListSelectorDlg(parent, -1, title = caption, msg = msg)
-	dlg.editor_callback = editor_callback
+	dlg.edit_callback = edit_callback
 	dlg.new_callback = new_callback
 	dlg.delete_callback = delete_callback
+	dlg.refresh_callback = refresh_callback
 	dlg.set_columns(columns = columns)
 	dlg.set_string_items(items = choices)
 	if selections is not None:
@@ -92,9 +69,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._LBL_message.SetLabel(msg)
 		self.Fit()
 
-		self.__new_callback = None
-		self.editor_callback = None
-		self.delete_callback = None
+		self.__new_callback = None				# called when NEW button pressed, no argument passed in
+		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
+		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
+		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -118,7 +96,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _on_list_item_selected(self, event):
 		self._BTN_ok.Enable(True)
 		self._BTN_ok.SetDefault()
-		if self.editor_callback is not None:
+		if self.edit_callback is not None:
 			self._BTN_edit.Enable(True)
 		if self.delete_callback is not None:
 			self._BTN_delete.Enable(True)
@@ -131,17 +109,29 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._BTN_delete.Enable(False)
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
-		self.new_callback()
+		if not self.new_callback():
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
-		self.editor_callback(self._LCTRL_items.get_selected_item_data(only_one=True))
+		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
 		# to be both an item selected and an deletor configured
-		self.delete_callback(self._LCTRL_items.get_selected_item_data(only_one=True))
+		if not self.delete_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -285,7 +275,7 @@ if __name__ == '__main__':
 			caption = 'select health issues',
 			choices = [['D.M.II', '4'], ['MS', '3'], ['Fraktur', '2']],
 			columns = ['issue', 'no of episodes'],
-			editor_callback = edit
+			edit_callback = edit
 		)
 		print "chosen:"
 		print chosen
@@ -296,7 +286,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.13  2007-08-31 23:05:05  ncq
+# Revision 1.14  2007-09-02 20:54:26  ncq
+# - remove cruft
+# - support refresh_callback
+#
+# Revision 1.13  2007/08/31 23:05:05  ncq
 # - fix single selection list
 #
 # Revision 1.12  2007/08/29 14:41:54  ncq
