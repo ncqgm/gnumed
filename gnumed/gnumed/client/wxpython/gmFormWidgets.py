@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.3 2007-09-01 23:33:04 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmFormWidgets.py,v 1.4 2007-09-02 20:57:28 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys
@@ -31,10 +31,31 @@ def let_user_select_form_template(parent=None):
 	#-------------------------
 	def edit(template=None):
 		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
-		dlg.ShowModal()
+		result = dlg.ShowModal()
+		return (result == wx.ID_OK)
 	#-------------------------
 	def delete(template):
-		gmForms.delete_form_template(template = template)
+		delete = gmGuiHelpers.gm_show_question (
+			aTitle = _('Deleting form template.'),
+			aMessage = _(
+				'Are you sure you want to delete\n'
+				'the following form template ?\n\n'
+				' "%s (%s)"\n\n'
+				'You can only delete templates which\n'
+				'have not yet been used to generate\n'
+				'any forms from.'
+			) % (template['name_long'], template['external_version'])
+		)
+		if delete:
+			# FIXME: make this a priviledged operation ?
+			gmForms.delete_form_template(template = template)
+			return True
+		return False
+	#-------------------------
+	def refresh(lctrl):
+		templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
+		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ])
+		lctrl.set_data(data = templates)
 	#-------------------------
 	templates = gmForms.get_form_templates(engine = gmForms.engine_ooo, active_only = False)
 	template = gmListWidgets.get_choices_from_list (
@@ -43,9 +64,10 @@ def let_user_select_form_template(parent=None):
 		choices = [ [t['name_long'], t['external_version'], gmForms.engine_names[t['engine']]] for t in templates ],
 		columns = [_('Template'), _('Version'), _('Type')],
 		data = templates,
-		editor_callback = edit,
+		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
+		refresh_callback = refresh,
 		single_selection = True
 	)
 
@@ -184,7 +206,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			)
 			self.__template.update_template_from_file(filename = self.full_filename)
 		else:
-			self.__template['template_type'] = self._PRW_template_type.GetData()
+			self.__template['pk_template_type'] = self._PRW_template_type.GetData()
 			self.__template['name_short'] = self._PRW_name_short.GetValue().strip()
 			self.__template['name_long'] = self._PRW_name_long.GetValue().strip()
 
@@ -256,7 +278,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.3  2007-09-01 23:33:04  ncq
+# Revision 1.4  2007-09-02 20:57:28  ncq
+# - improve edit/delete callbacks
+# - add refresh callback
+#
+# Revision 1.3  2007/09/01 23:33:04  ncq
 # - implement save()/delete on form templates
 #
 # Revision 1.2  2007/08/29 14:38:55  ncq
