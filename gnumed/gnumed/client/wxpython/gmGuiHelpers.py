@@ -11,21 +11,23 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.65 2007-08-20 14:25:16 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmGuiHelpers.py,v 1.66 2007-09-03 11:03:20 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os, shutil, datetime as pyDT, traceback
-
+import sys, os, shutil, datetime as pyDT, traceback, exceptions
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
 
+
 import wx
+
 
 from Gnumed.business import gmSurgery
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -37,28 +39,45 @@ def handle_uncaught_exception_wx(t, v, tb):
 
 	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
 
-	for target in _log.get_targets():
-		if not isinstance(target, gmLog.cLogTargetFile):
-			continue
-		name = os.path.basename(target.ID)
-		name, ext = os.path.splitext(name)
-		new_name = os.path.expanduser(os.path.join (
-			'~',
-			'gnumed',
-			'logs',
-			'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-		))
-		_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-		_log.flush()
-		shutil.copy2(target.ID, new_name)
+	if t != exceptions.ImportError:
+		for target in _log.get_targets():
+			if not isinstance(target, gmLog.cLogTargetFile):
+				continue
+			name = os.path.basename(target.ID)
+			name, ext = os.path.splitext(name)
+			new_name = os.path.expanduser(os.path.join (
+				'~',
+				'gnumed',
+				'logs',
+				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+			))
+			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
+			_log.flush()
+			shutil.copy2(target.ID, new_name)
 
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
 	except: pass
 
-	dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
-	dlg.ShowModal()
-	dlg.Destroy()
+	if t == exceptions.ImportError:
+		gm_show_error (
+			aTitle = _('Missing GNUmed module'),
+			aMessage = _(
+				'GNUmed detected that parts of it are not\n'
+				'properly insalled. The following message\n'
+				'names the missing part:\n'
+				'\n'
+				' "%s"\n'
+				'\n'
+				'Please make sure to get the missing\n'
+				'parts installed. Otherwise some of the\n'
+				'functionality will not be accessible.'
+			) % v
+		)
+	else:
+		dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
+		dlg.ShowModal()
+		dlg.Destroy()
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	office = gmSurgery.gmCurrentPractice()
@@ -546,7 +565,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.65  2007-08-20 14:25:16  ncq
+# Revision 1.66  2007-09-03 11:03:20  ncq
+# - teach top level wx exception handler about ImportError
+#
+# Revision 1.65  2007/08/20 14:25:16  ncq
 # - factor out bits of code out of the actual top level
 #   exception handler in a bid to make it more resilient
 #
