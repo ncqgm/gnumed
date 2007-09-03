@@ -35,9 +35,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.11 2007-06-15 08:10:40 ncq Exp $
+# $Id: gmDateTime.py,v 1.12 2007-09-03 12:56:00 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -822,7 +822,10 @@ class cFuzzyTimestamp:
 		return self.timestamp
 	#-----------------------------------------------------------------------
 	def get_pydt(self):
-		tz = cFixedOffsetTimezone(self.timestamp.gmtoffset().minutes, self.timestamp.tz)
+		gmtoffset = self.timestamp.gmtoffset()
+		gmtoffset_minutes = gmtoffset.minutes
+		ts_tz = self.timestamp.tz
+		tz = cFixedOffsetTimezone(gmtoffset_minutes, ts_tz)
 		secs, msecs = divmod(self.timestamp.second, 1)
 		ts = pyDT.datetime (
 			year = self.timestamp.year,
@@ -901,20 +904,32 @@ if __name__ == '__main__':
 			print "  str()            :", str(fts)
 			print "  repr()           :", repr(fts)
 			raw_input('press ENTER to continue')
-
 	#-------------------------------------------------
-	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	def test_get_pydt():
+		print "testing platform for handling dates before 1970"
+		print "-----------------------------------------------"
+		ts = mxDT.DateTime(1935, 4, 2)
+		fts = cFuzzyTimestamp(timestamp=ts)
+		print "fts           :", fts
+		print "fts.get_pydt():", fts.get_pydt()
+	#-------------------------------------------------
+	if len(sys.argv) > 0 and sys.argv[1] == "test":
+		gmI18N.activate_locale()
+		gmI18N.install_domain('gnumed')
 
-	init()
+		init()
 
-#	test_date_time()
-	test_str2fuzzy_timestamp_matches()
-#	test_cFuzzyTimeStamp()
+		#test_date_time()
+		#test_str2fuzzy_timestamp_matches()
+		#test_cFuzzyTimeStamp()
+		test_get_pydt()
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.11  2007-06-15 08:10:40  ncq
+# Revision 1.12  2007-09-03 12:56:00  ncq
+# - test for dates before 1970
+#
+# Revision 1.11  2007/06/15 08:10:40  ncq
 # - improve test suite
 #
 # Revision 1.10  2007/06/15 08:01:09  ncq
