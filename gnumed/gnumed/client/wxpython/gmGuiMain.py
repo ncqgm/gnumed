@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.350 2007-08-31 23:04:40 ncq Exp $
-__version__ = "$Revision: 1.350 $"
+# $Id: gmGuiMain.py,v 1.351 2007-09-03 11:03:59 ncq Exp $
+__version__ = "$Revision: 1.351 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -779,6 +779,7 @@ class gmTopLevelFrame(wx.Frame):
 		evt.Skip()
 	#----------------------------------------------
 	def __on_test_exception(self, evt):
+		#import nonexistant_module
 		raise ValueError('raised ValueError to test exception handling')
 	#----------------------------------------------
 	def OnClose(self, event):
@@ -1476,7 +1477,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.350  2007-08-31 23:04:40  ncq
+# Revision 1.351  2007-09-03 11:03:59  ncq
+# - enhanced error handling testing
+#
+# Revision 1.350  2007/08/31 23:04:40  ncq
 # - feedback on failing to write letter w/o active patient
 #
 # Revision 1.349  2007/08/29 14:40:41  ncq
