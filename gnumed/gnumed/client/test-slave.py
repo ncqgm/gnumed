@@ -2,10 +2,10 @@
 
 This script demonstrates how to script a GNUmed client.
 
-To run the test you must have a GNUmed client running with
+To run the test you must have a GNUmed client running
+with --slave and
 
  [workplace]
-  slave mode = 1
   slave personality = slave-test
   xml-rpc port = 9999 (the default)
 
@@ -13,7 +13,7 @@ in the config file.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/test-slave.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time
@@ -100,7 +100,10 @@ del srv
 
 #=====================================================================
 # $Log: test-slave.py,v $
-# Revision 1.4  2005-11-29 18:56:05  ncq
+# Revision 1.5  2007-09-04 23:27:12  ncq
+# - improve docs
+#
+# Revision 1.4  2005/11/29 18:56:05  ncq
 # - general polishing
 #
 # Revision 1.3  2004/06/25 13:28:00  ncq
