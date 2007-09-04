@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.351 2007-09-03 11:03:59 ncq Exp $
-__version__ = "$Revision: 1.351 $"
+# $Id: gmGuiMain.py,v 1.352 2007-09-04 23:29:03 ncq Exp $
+__version__ = "$Revision: 1.352 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1210,13 +1210,23 @@ class gmApp(wx.App):
 		self.__setup_platform()
 
 		# check for slave mode
-		tmp = self.user_prefs_cfg_file.get('workplace', 'slave mode')
-		if tmp == "1":
-			self.__guibroker['main.slave_mode'] = True
-			_log.Log(gmLog.lInfo, 'slave mode is ON')
-		else:
-			self.__guibroker['main.slave_mode'] = False
-			_log.Log(gmLog.lInfo, 'slave mode is OFF')
+#		tmp = self.user_prefs_cfg_file.get('workplace', 'slave mode')
+#		if tmp == "1":
+#			self.__guibroker['main.slave_mode'] = True
+#			_log.Log(gmLog.lInfo, 'slave mode is ON')
+#		else:
+#			self.__guibroker['main.slave_mode'] = False
+#			_log.Log(gmLog.lInfo, 'slave mode is OFF')
+
+		# connect to backend (implicitely runs login dialog)
+		from Gnumed.wxpython import gmLogin
+		if not gmLogin.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
+			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
+			return False
+
+		if gmCLI.has_arg('--debug'):
+			self.RedirectStdio()
+
 		if self.__guibroker['main.slave_mode']:
 			self.__guibroker['main.slave_personality'] = self.user_prefs_cfg_file.get('workplace', 'slave personality')
 			if not self.__guibroker['main.slave_personality']:
@@ -1229,15 +1239,6 @@ class gmApp(wx.App):
 				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
 				return False
 			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % self.__guibroker['main.slave_personality'])
-
-		# connect to backend (implicitely runs login dialog)
-		from Gnumed.wxpython import gmLogin
-		if not gmLogin.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
-			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
-			return False
-
-		if gmCLI.has_arg('--debug'):
-			self.RedirectStdio()
 
 		# check account <-> staff member association
 		try:
@@ -1477,7 +1478,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.351  2007-09-03 11:03:59  ncq
+# Revision 1.352  2007-09-04 23:29:03  ncq
+# - slave mode now set via --slave inside login dialog
+#
+# Revision 1.351  2007/09/03 11:03:59  ncq
 # - enhanced error handling testing
 #
 # Revision 1.350  2007/08/31 23:04:40  ncq
