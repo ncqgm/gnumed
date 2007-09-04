@@ -6,7 +6,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 
 [backend]
@@ -56,6 +56,11 @@ XDT profiles = $XDT profiles$
 generic XDT connector
 $XDT profiles$
 
+slave personality = slave-test
+# use default 9999
+#xml-rpc port = 7777
+
+
 
 [XDT profile generic XDT connector]
 
@@ -68,10 +73,15 @@ source = xDT allgemein
 # the patient data in xDT format
 filename = patient.xdt
 
+DOB format =
+encoding = 
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.8  2007-07-02 16:05:31  ncq
+# Revision 1.9  2007-09-04 23:22:32  ncq
+# - added slave options
+#
+# Revision 1.8  2007/07/02 16:05:31  ncq
 # - better docs
 #
 # Revision 1.7  2007/04/19 13:11:39  ncq
