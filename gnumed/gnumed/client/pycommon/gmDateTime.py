@@ -35,9 +35,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.13 2007-09-04 21:59:30 ncq Exp $
+# $Id: gmDateTime.py,v 1.14 2007-09-04 23:28:06 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -825,6 +825,8 @@ class cFuzzyTimestamp:
 		try:
 			gmtoffset = self.timestamp.gmtoffset()
 		except mxDT.Error:
+			# Windows cannot deal with dates < 1970, so
+			# when that happens switch to now()
 			now = mxDT.now()
 			gmtoffset = now.gmtoffset()
 		tz = cFixedOffsetTimezone(gmtoffset.minutes, self.timestamp.tz)
@@ -928,7 +930,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.13  2007-09-04 21:59:30  ncq
+# Revision 1.14  2007-09-04 23:28:06  ncq
+# - document what's happening
+#
+# Revision 1.13  2007/09/04 21:59:30  ncq
 # - try to work around Windows breakage before 1970
 #
 # Revision 1.12  2007/09/03 12:56:00  ncq
