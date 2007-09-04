@@ -1,4 +1,4 @@
-.TH GNUMED 1 "2007 January 23" "Manual for GNUmed"
+.TH GNUMED 1 "2007 September 5th" "Manual for GNUmed"
 
 .SH NAME
 .B GNUmed
@@ -10,6 +10,7 @@ You have been warned.
 .SH SYNOPSIS
 .B gnumed
 .RB [--quiet|debug]
+.RB [--slave]
 .RB [--text-domain=TEXTDOMAIN]
 .RB [--log-file=FILE]
 .RB [--conf-file=FILE]
@@ -39,6 +40,10 @@ Pre-set the [debug mode] checkbox in the login dialog
 which controls increased verbosity in the log file.
 
 Useful for, well, debugging :-)  Slower, too.
+.TP
+.B --slave
+Pre-set the [enable remote control] checkbox in the login
+dialog to enable the XML-RPC remote control feature.
 .TP
 .B \--text-domain=TEXTDOMAIN
 Set this to change the name of the language file to be loaded.
@@ -119,4 +124,4 @@ Use at your own risk. You have been warned. Take proper backups !
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.17 2007-05-07 12:29:18 ncq Exp $
+$Id: gnumed.1,v 1.18 2007-09-04 23:27:30 ncq Exp $
