@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-from-cvs.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 # maybe force some locale setting here
 #export LANG=fr
@@ -19,4 +19,5 @@ rm -vf $LOG
 
 # run
 python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --override-schema-check --debug
+# --slave
 # --profile=gm-from-cvs.prof
