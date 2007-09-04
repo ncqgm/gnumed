@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.86 2007-08-07 21:42:40 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmLoginDialog.py,v 1.87 2007-09-04 23:30:28 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -100,7 +100,8 @@ class LoginPanel(wx.Panel):
 				border = 10
 			)
 
-		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
+#		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
+		if gmCLI.has_arg('--slave'):
 			paramsbox_caption = _("Slave Login - %s" % gmPerson.gmCurrentProvider().workplace)
 		else:
 			paramsbox_caption = _("Login - %s" % gmPerson.gmCurrentProvider().workplace)
@@ -167,6 +168,14 @@ class LoginPanel(wx.Panel):
 		self._CHBOX_debug = wx.CheckBox(self, -1, _('debug mode'))
 		self._CHBOX_debug.SetToolTipString(_('Check this to run GNUmed client in debugging mode.'))
 		self.pboxgrid.Add(self._CHBOX_debug, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+		# --slave checkbox
+		label = wx.StaticText(self, -1, '', wx.DefaultPosition, wx.DefaultSize, 0)
+		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+		self._CHBOX_slave = wx.CheckBox(self, -1, _('enable remote control'))
+		self._CHBOX_slave.SetToolTipString(_('Check this to run GNUmed client in slave mode for remote control.'))
+		self.pboxgrid.Add(self._CHBOX_slave, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
 		#----------------------------------------------------------------------
 		#new button code inserted rterry 06Sept02
@@ -356,6 +365,7 @@ class LoginPanel(wx.Panel):
 		)
 
 		self._CHBOX_debug.SetValue(gmCLI.has_arg('--debug'))
+		self._CHBOX_slave.SetValue(gmCLI.has_arg('--slave'))
 	#----------------------------------------------------
 	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
@@ -430,6 +440,13 @@ For assistance on using GnuMed please contact:
 			else:
 				_log.SetAllLogLevels(gmLog.lInfo)
 
+		if self._CHBOX_slave.GetValue():	
+			_log.Log(gmLog.lInfo, 'slave mode enabled')
+			self.gb['main.slave_mode'] = True
+		else:
+			_log.Log(gmLog.lInfo, 'slave mode disabled')
+			self.gb['main.slave_mode'] = False
+
 		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
 #		self.user = self._CBOX_user.GetValue().strip()
 #		self.password = self.GetPassword()
@@ -486,7 +503,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.86  2007-08-07 21:42:40  ncq
+# Revision 1.87  2007-09-04 23:30:28  ncq
+# - support --slave and slave mode checkbox
+#
+# Revision 1.86  2007/08/07 21:42:40  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.85  2007/06/14 21:55:49  ncq
