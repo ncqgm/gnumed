@@ -13,6 +13,9 @@ care of all the pre- and post-GUI runtime environment setup.
 --debug
  Pre-set the [debug mode] checkbox in the login dialog to
  increase verbosity in the log file. Useful for, well, debugging :-)
+--slave
+ Pre-set the [enable remote control] checkbox in the login
+ dialog to enable the XML-RPC remote control feature.
 --profile=<file>
  Activate profiling and write profile data to <file>.
 --text-domain=<text domain>
@@ -39,8 +42,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.121 2007-08-07 21:42:40 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gnumed.py,v 1.122 2007-09-04 23:30:42 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -292,7 +295,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.121  2007-08-07 21:42:40  ncq
+# Revision 1.122  2007-09-04 23:30:42  ncq
+# - explain --slave
+#
+# Revision 1.121  2007/08/07 21:42:40  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.120  2007/07/22 09:28:13  ncq
