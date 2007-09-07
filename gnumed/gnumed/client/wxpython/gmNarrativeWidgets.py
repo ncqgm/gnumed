@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.1 2007-08-29 22:06:15 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmNarrativeWidgets.py,v 1.2 2007-09-07 10:59:17 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -23,7 +23,6 @@ from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
@@ -32,48 +31,79 @@ def select_narrative_from_episodes():
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
 
-	selected_soap = []
+	selected_soap = {}
+	selected_issue_pks = []
+	selected_episode_pks = []
+	selected_narrative_pks = []
 
 	while 1:
 		# 1) select health issues to select episodes from
 		all_issues = emr.get_health_issues()
+		all_issues.insert(0, gmEMRStructItems.get_dummy_health_issue())
 		dlg = gmEMRStructWidgets.cIssueListSelectorDlg(parent = None, id = -1, issues = all_issues)
+		selection_idxs = []
+		for idx in range(len(all_issues)):
+			if all_issues[idx]['pk'] in selected_issue_pks:
+				selection_idxs.append(idx)
+		if len(selection_idxs) != 0:
+			dlg.set_selections(selections = selection_idxs)
 		btn_pressed = dlg.ShowModal()
 		selected_issues = dlg.get_selected_item_data()
 		dlg.Destroy()
 
 		if btn_pressed == wx.ID_CANCEL:
-			return selected_soap
+			return selected_soap.values()
 
-		# 2) select episodes to select items from
-		issue_pks = [ i['pk'] for i in selected_issues ].append(None)
-		all_epis = emr.get_episodes(issues = issue_pks)
-		if len(all_epis) == 0:
-			continue
+		selected_issue_pks = [ i['pk'] for i in selected_issues ]
 
-		dlg = cEpisodeListSelectorDlg(parent = None, id = -1, episodes = all_epis)
-		btn_pressed = dlg.ShowModal()
-		selected_epis = dlg.get_selected_item_data()
-		dlg.Destroy()
+		while 1:
+			# 2) select episodes to select items from
+			all_epis = emr.get_episodes(issues = selected_issue_pks)
 
-		if btn_pressed == wx.ID_CANCEL:
-			continue
+			if len(all_epis) == 0:
+				gmDispatcher.send(signal = 'statustext', msg = _('No episodes recorded for the health issues selected.'))
+				break
 
-		# 3) select narrative corresponding to the above constraints
-		epi_pks = [ epi['pk_episode'] for epi in selected_epis ]
-		all_narr = emr.get_clin_narrative(episodes = epi_pks)
-		if len(all_narr) == 0:
-			continue
+			dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg(parent = None, id = -1, episodes = all_epis)
+			selection_idxs = []
+			for idx in range(len(all_epis)):
+				if all_epis[idx]['pk_episode'] in selected_episode_pks:
+					selection_idxs.append(idx)
+			if len(selection_idxs) != 0:
+				dlg.set_selections(selections = selection_idxs)
+			btn_pressed = dlg.ShowModal()
+			selected_epis = dlg.get_selected_item_data()
+			dlg.Destroy()
 
-		dlg = cNarrativeListSelectorDlg(parent = None, id = -1, narrative = all_narr)
-		btn_pressed = dlg.ShowModal()
-		selected_narr = dlg.get_selected_item_data()
-		dlg.Destroy()
+			if btn_pressed == wx.ID_CANCEL:
+				break
 
-		if btn_pressed == wx.ID_CANCEL:
-			continue
+			selected_episode_pks = [ i['pk_episode'] for i in selected_epis ]
 
-		selected_soap.extend(selected_narr)
+			# 3) select narrative corresponding to the above constraints
+			all_narr = emr.get_clin_narrative(episodes = selected_episode_pks)
+
+			if len(all_narr) == 0:
+				gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episodes.'))
+				continue
+
+			dlg = cNarrativeListSelectorDlg(parent = None, id = -1, narrative = all_narr)
+			selection_idxs = []
+			for idx in range(len(all_narr)):
+				if all_narr[idx]['pk_narrative'] in selected_narrative_pks:
+					selection_idxs.append(idx)
+			if len(selection_idxs) != 0:
+				dlg.set_selections(selections = selection_idxs)
+			btn_pressed = dlg.ShowModal()
+			selected_narr = dlg.get_selected_item_data()
+			dlg.Destroy()
+
+			if btn_pressed == wx.ID_CANCEL:
+				continue
+
+			selected_narrative_pks = [ i['pk_narrative'] for i in selected_narr ]
+			for narr in selected_narr:
+				selected_soap[narr['pk_narrative']] = narr
 #------------------------------------------------------------
 class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
@@ -96,6 +126,8 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)
+
+		self.Fit()
 #------------------------------------------------------------
 class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
@@ -155,7 +187,9 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
-		app = wx.PyWidgetTester(size = (200, 50))
+		pat = gmPerson.ask_for_patient()
+		gmPerson.set_active_patient(patient = pat)
+		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes()
 		print "selected:"
 		for sel in sels:
@@ -173,7 +207,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.1  2007-08-29 22:06:15  ncq
+# Revision 1.2  2007-09-07 10:59:17  ncq
+# - greatly improve select_narrative_by_episodes
+#   - remember selections
+#   - properly levelled looping
+# - fix test suite
+#
+# Revision 1.1  2007/08/29 22:06:15  ncq
 # - factored out narrative widgets
 #
 #
