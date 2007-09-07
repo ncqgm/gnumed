@@ -2,19 +2,37 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
 import sys
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmBusinessDBObject
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+_ = lambda x:x
+
+soap_cat2l10n = {
+	's': _('soap_S').strip(u'soap_'),
+	'o': _('soap_O').strip(u'soap_'),
+	'a': _('soap_A').strip(u'soap_'),
+	'p': _('soap_P').strip(u'soap_')
+}
+
+l10n2soap_cat = {
+	_('soap_S').strip(u'soap_'): 's',
+	_('soap_O').strip(u'soap_'): 'o',
+	_('soap_A').strip(u'soap_'): 'a',
+	_('soap_P').strip(u'soap_'): 'p'
+}
+
 #============================================================
 class cDiag(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one real diagnosis.
@@ -202,7 +220,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.24  2006-11-20 15:55:12  ncq
+# Revision 1.25  2007-09-07 22:36:44  ncq
+# - soap_cat2l10n and back
+#
+# Revision 1.24  2006/11/20 15:55:12  ncq
 # - gmPG2.run_ro_queries *always* returns (rows, idx) so be aware of that
 #
 # Revision 1.23  2006/10/08 15:02:14  ncq
