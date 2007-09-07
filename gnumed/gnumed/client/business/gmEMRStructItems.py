@@ -3,20 +3,20 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.100 $"
+__version__ = "$Revision: 1.101 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.pycommon import gmLog, gmPG2, gmExceptions, gmNull, gmBusinessDBObject, gmDateTime
 from Gnumed.business import gmClinNarrative
 
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-
 #============================================================
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue.
@@ -120,6 +120,20 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if len(rows) == 0:
 			return None
 		return cEpisode(aPK_obj=rows[0][0])
+#============================================================
+# use as dummy for unassociated episodes
+def get_dummy_health_issue():
+	issue = {
+		'pk': None,
+		'description': _('free-standing episodes'),
+		'age_noted': None,
+		'laterality': u'na',
+		'is_active': True,
+		'clinically_relevant': True,
+		'is_confidential': None,
+		'is_cause_of_death': False
+	}
+	return issue
 #============================================================
 class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical episode.
@@ -578,7 +592,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.100  2007-08-15 14:56:30  ncq
+# Revision 1.101  2007-09-07 10:55:55  ncq
+# - get_dummy_health_issue()
+#
+# Revision 1.100  2007/08/15 14:56:30  ncq
 # - delete_health_issue()
 #
 # Revision 1.99  2007/05/18 13:25:56  ncq
