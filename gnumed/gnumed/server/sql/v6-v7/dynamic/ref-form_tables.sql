@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.10 2007-09-01 23:34:39 ncq Exp $
--- $Revision: 1.10 $
+-- $Id: ref-form_tables.sql,v 1.11 2007-09-07 22:47:56 ncq Exp $
+-- $Revision: 1.11 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -153,13 +153,16 @@ select
 	filename,
 	modified_when
 		as last_modified,
-	modified_by,
+	coalesce (
+		(select short_alias from dem.staff where db_user = rpt.modified_by),
+		'<' || rpt.modified_by || '>'
+	) as modified_by,
 	fk_template_type
 		as pk_template_type,
 	xmin
 		as xmin_paperwork_template
 from
-	ref.paperwork_templates
+	ref.paperwork_templates rpt
 ;
 
 -- --------------------------------------------------------------
@@ -175,11 +178,14 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.10 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.11 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.10  2007-09-01 23:34:39  ncq
+-- Revision 1.11  2007-09-07 22:47:56  ncq
+-- - improve view
+--
+-- Revision 1.10  2007/09/01 23:34:39  ncq
 -- - add "other letter" to template types
 --
 -- Revision 1.9  2007/08/31 23:05:47  ncq
