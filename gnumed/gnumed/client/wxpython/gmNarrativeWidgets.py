@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.2 2007-09-07 10:59:17 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmNarrativeWidgets.py,v 1.3 2007-09-07 22:45:58 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -15,7 +15,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher
-from Gnumed.business import gmPerson, gmEMRStructItems
+from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets
 #gmGuiHelpers, gmMacro
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg
@@ -26,7 +26,7 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
-def select_narrative_from_episodes():
+def select_narrative_from_episodes(parent = None):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
@@ -40,7 +40,12 @@ def select_narrative_from_episodes():
 		# 1) select health issues to select episodes from
 		all_issues = emr.get_health_issues()
 		all_issues.insert(0, gmEMRStructItems.get_dummy_health_issue())
-		dlg = gmEMRStructWidgets.cIssueListSelectorDlg(parent = None, id = -1, issues = all_issues)
+		dlg = gmEMRStructWidgets.cIssueListSelectorDlg (
+			parent = parent,
+			id = -1,
+			issues = all_issues,
+			msg = _('\n In the list below mark the health issues you want to report on.\n')
+		)
 		selection_idxs = []
 		for idx in range(len(all_issues)):
 			if all_issues[idx]['pk'] in selected_issue_pks:
@@ -64,7 +69,15 @@ def select_narrative_from_episodes():
 				gmDispatcher.send(signal = 'statustext', msg = _('No episodes recorded for the health issues selected.'))
 				break
 
-			dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg(parent = None, id = -1, episodes = all_epis)
+			dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg (
+				parent = parent,
+				id = -1,
+				episodes = all_epis,
+				msg = _(
+					'\n These are the episodes known for the health issues just selected.\n\n'
+					' Now, mark the the episodes you want to report on.\n'
+				)
+			)
 			selection_idxs = []
 			for idx in range(len(all_epis)):
 				if all_epis[idx]['pk_episode'] in selected_episode_pks:
@@ -87,7 +100,15 @@ def select_narrative_from_episodes():
 				gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episodes.'))
 				continue
 
-			dlg = cNarrativeListSelectorDlg(parent = None, id = -1, narrative = all_narr)
+			dlg = cNarrativeListSelectorDlg (
+				parent = parent,
+				id = -1,
+				narrative = all_narr,
+				msg = _(
+					'\n This is the clinical narrative for the chosen episodes.\n\n'
+					' Now, mark the entries you want to include in your report.\n'
+				)
+			)
 			selection_idxs = []
 			for idx in range(len(all_narr)):
 				if all_narr[idx]['pk_narrative'] in selected_narrative_pks:
@@ -107,8 +128,6 @@ def select_narrative_from_episodes():
 #------------------------------------------------------------
 class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
-	# FIXME: support pre-selection
-
 	def __init__(self, *args, **kwargs):
 
 		narrative = kwargs['narrative']
@@ -120,14 +139,11 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		# FIXME: add epi/issue
 		self._LCTRL_items.set_columns([_('when'), _('who'), _('type'), _('entry')]) #, _('Episode'), u'', _('Health Issue')])
 		# FIXME: date used should be date of encounter, not date_modified
-		# FIXME: translate/sort by soap_cat
 		self._LCTRL_items.set_string_items (
-			items = [ [narr['date'].strftime('%Y-%m-%d %H:%M'), narr['provider'], narr['soap_cat'], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
+			items = [ [narr['date'].strftime('%Y-%m-%d %H:%M'), narr['provider'], gmClinNarrative.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)
-
-		self.Fit()
 #------------------------------------------------------------
 class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
@@ -207,7 +223,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.2  2007-09-07 10:59:17  ncq
+# Revision 1.3  2007-09-07 22:45:58  ncq
+# - much improved select_narrative_from_episodes()
+#
+# Revision 1.2  2007/09/07 10:59:17  ncq
 # - greatly improve select_narrative_by_episodes
 #   - remember selections
 #   - properly levelled looping
