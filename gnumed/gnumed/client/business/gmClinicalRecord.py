@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.245 2007-06-28 12:30:05 ncq Exp $
-__version__ = "$Revision: 1.245 $"
+# $Id: gmClinicalRecord.py,v 1.246 2007-09-07 10:55:40 ncq Exp $
+__version__ = "$Revision: 1.246 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -218,7 +218,12 @@ select fk_encounter from
 			soap_cats
 				- list of SOAP categories of the narrative to be retrieved
 		"""
-		cmd = u"select * from clin.v_pat_narrative where pk_patient=%s order by date"
+		cmd = u"""
+			select cvpn.*, (select rank from clin.soap_cat_ranks where soap_cat = cvpn.soap_cat) as soap_rank
+			from clin.v_pat_narrative cvpn
+			where pk_patient = %s
+			order by date, soap_rank
+		"""
 		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
 
 		filtered_narrative = [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
@@ -1612,7 +1617,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.245  2007-06-28 12:30:05  ncq
+# Revision 1.246  2007-09-07 10:55:40  ncq
+# - order by in get_clin_narrative()
+#
+# Revision 1.245  2007/06/28 12:30:05  ncq
 # - uncache get_clin_narrative access
 #
 # Revision 1.244  2007/06/19 12:40:40  ncq
