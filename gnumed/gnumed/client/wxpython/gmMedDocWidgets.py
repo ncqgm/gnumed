@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.143 2007-08-29 14:43:06 ncq Exp $
-__version__ = "$Revision: 1.143 $"
+# $Id: gmMedDocWidgets.py,v 1.144 2007-09-07 10:57:54 ncq Exp $
+__version__ = "$Revision: 1.144 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1374,6 +1374,9 @@ class cDocTree(wx.TreeCtrl):
 			return None
 
 		# handle review after display
+		# 0: never
+		# 1: always
+		# 2: if no review by myself exists yet
 		review_after_display = int(cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
 			workplace = gmPerson.gmCurrentProvider().workplace,
@@ -1459,7 +1462,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.143  2007-08-29 14:43:06  ncq
+# Revision 1.144  2007-09-07 10:57:54  ncq
+# - document review_after_display
+#
+# Revision 1.143  2007/08/29 14:43:06  ncq
 # - factor out forms/letters related code
 # - fix syntax error re stray, gmLog.L* consts
 #
