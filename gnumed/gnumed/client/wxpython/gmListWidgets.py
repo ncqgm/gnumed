@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.14 2007-09-02 20:54:26 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmListWidgets.py,v 1.15 2007-09-07 22:38:04 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -67,7 +67,6 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._LBL_message.Hide()
 		else:
 			self._LBL_message.SetLabel(msg)
-		self.Fit()
 
 		self.__new_callback = None				# called when NEW button pressed, no argument passed in
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
@@ -286,7 +285,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.14  2007-09-02 20:54:26  ncq
+# Revision 1.15  2007-09-07 22:38:04  ncq
+# - remove Fit() call since it's counterproductive for the list
+#
+# Revision 1.14  2007/09/02 20:54:26  ncq
 # - remove cruft
 # - support refresh_callback
 #
