@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.80 2007-08-29 22:09:10 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmEMRBrowser.py,v 1.81 2007-09-07 10:56:57 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -269,38 +269,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		if result == wx.ID_YES:
 			self.__populate_tree()
-	#--------------------------------------------------------
-#	def __find_node(self, root, data_object):
-#		nodes = []
-#		id , cookie = self.GetFirstChild(root)
-
-		#print "DEBUG id , cookie", id, cookie
-		#print "DEBUG id dict is ", id.__dict__.keys()
-#		while id.IsOk():
-#			nodes.append(id)
-#			id, cookie = self.GetNextChild( root, cookie)
-
-#		l = [x for x in nodes if self.GetPyData(x) == data_object]
-#		if l == []:
-#			print "DEBUG looking further in ", nodes
-#			if nodes == []:
-#				return None
-#			else:
-#				for x in nodes:
-#					val = self.__find_node(x, data_object)
-#					if val:
-#						return val
-#		else:
-#			return l[0]
-	#--------------------------------------------------------
-#	def __move_node(self, node, target_node):
-#		new_node = self.AppendItem(target_node, self.GetItemText(node))
-#		self.SetPyData(new_node, self.GetPyData(node))
-#		id, cookie = self.GetFirstChild(node)
-#		while id.IsOk():
-#			self.__move_node(id, new_node)
-#			id, cookie = self.GetNextChild(node)
-#		self.Delete(node)
 	#--------------------------------------------------------
 	# health issues
 	def __handle_issue_context(self, pos=wx.DefaultPosition):
@@ -590,7 +558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.80  2007-08-29 22:09:10  ncq
+# Revision 1.81  2007-09-07 10:56:57  ncq
+# - cleanup
+#
+# Revision 1.80  2007/08/29 22:09:10  ncq
 # - narrative widgets factored out
 #
 # Revision 1.79  2007/08/15 14:57:52  ncq
