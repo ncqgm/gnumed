@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.3 2007-09-07 22:45:58 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmNarrativeWidgets.py,v 1.4 2007-09-09 19:21:04 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -26,10 +26,13 @@ _log.Log(gmLog.lInfo, __version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
-def select_narrative_from_episodes(parent = None):
+def select_narrative_from_episodes(parent=None, soap_cats=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
 
 	selected_soap = {}
 	selected_issue_pks = []
@@ -94,7 +97,7 @@ def select_narrative_from_episodes(parent = None):
 			selected_episode_pks = [ i['pk_episode'] for i in selected_epis ]
 
 			# 3) select narrative corresponding to the above constraints
-			all_narr = emr.get_clin_narrative(episodes = selected_episode_pks)
+			all_narr = emr.get_clin_narrative(episodes = selected_episode_pks, soap_cats = soap_cats)
 
 			if len(all_narr) == 0:
 				gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episodes.'))
@@ -223,7 +226,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.3  2007-09-07 22:45:58  ncq
+# Revision 1.4  2007-09-09 19:21:04  ncq
+# - get top level wx.App window if parent is None
+# - support filtering by soap_cats
+#
+# Revision 1.3  2007/09/07 22:45:58  ncq
 # - much improved select_narrative_from_episodes()
 #
 # Revision 1.2  2007/09/07 10:59:17  ncq
