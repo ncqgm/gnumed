@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -28,7 +28,12 @@ known_placeholders = [
 	'firstname',
 	'title',
 	'date_of_birth',
-	'progress_notes'
+	'progress_notes',
+	'soap',
+	'soap_s',
+	'soap_o',
+	'soap_a',
+	'soap_p'
 ]
 
 #=====================================================================
@@ -66,6 +71,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# properties actually handling placeholders
 	#--------------------------------------------------------
+	# property helpers
+	#--------------------------------------------------------
 	def _setter_noop(self, val):
 		"""This does nothing, used as a NOOP properties setter."""
 		pass
@@ -87,19 +94,38 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return pat['dob'].strftime('%x')
 	#--------------------------------------------------------
 	def _get_progress_notes(self):
-		narr = gmNarrativeWidgets.select_narrative_from_episodes()
-		if len(narr) == 0:
-			return u''
-		narr = [ n['narrative'] for n in narr ]
-
-		return '\n'.join(narr)
+		return self.__get_progress_notes()
+	#--------------------------------------------------------
+	def _get_soap_s(self):
+		return self.__get_progress_notes(soap_cats = [u's'])
+	#--------------------------------------------------------
+	def _get_soap_o(self):
+		return self.__get_progress_notes(soap_cats = [u'o'])
+	#--------------------------------------------------------
+	def _get_soap_a(self):
+		return self.__get_progress_notes(soap_cats = [u'a'])
+	#--------------------------------------------------------
+	def _get_soap_p(self):
+		return self.__get_progress_notes(soap_cats = [u'p'])
+	#--------------------------------------------------------
+	# property definitions
 	#--------------------------------------------------------
 	lastname = property(_get_lastname, _setter_noop)
 	firstname = property(_get_firstname, _setter_noop)
 	title = property(_get_title, _setter_noop)
 	date_of_birth = property(_get_dob, _setter_noop)
 	progress_notes = property(_get_progress_notes, _setter_noop)
+	soap = property(_get_progress_notes, _setter_noop)
 
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __get_progress_notes(self, soap_cat=None):
+		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cat=soap_cat)
+		if len(narr) == 0:
+			return u''
+		narr = [ n['narrative'] for n in narr ]
+		return u'\n'.join(narr)
 #=====================================================================
 class cMacroPrimitives:
 	"""Functions a macro can legally use.
@@ -155,7 +181,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.33 $" % self.__class__.__name__
+		return "%s $Revision: 1.34 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -393,7 +419,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.33  2007-08-29 22:09:32  ncq
+# Revision 1.34  2007-09-09 19:17:44  ncq
+# - add a bunch of placeholders regarding SOAP notes
+#
+# Revision 1.33  2007/08/29 22:09:32  ncq
 # - narrative widgets factored out
 #
 # Revision 1.32  2007/08/13 21:59:54  ncq
