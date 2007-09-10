@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -185,6 +185,10 @@ if __name__ == '__main__':
 	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
 
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain = 'gnumed')
+
 	def test_diag():
 		print "\nDiagnose test"
 		print  "-------------"
@@ -220,7 +224,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.25  2007-09-07 22:36:44  ncq
+# Revision 1.26  2007-09-10 12:31:55  ncq
+# - improve test suite
+#
+# Revision 1.25  2007/09/07 22:36:44  ncq
 # - soap_cat2l10n and back
 #
 # Revision 1.24  2006/11/20 15:55:12  ncq
