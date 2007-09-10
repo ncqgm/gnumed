@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.352 2007-09-04 23:29:03 ncq Exp $
-__version__ = "$Revision: 1.352 $"
+# $Id: gmGuiMain.py,v 1.353 2007-09-10 12:35:32 ncq Exp $
+__version__ = "$Revision: 1.353 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1309,7 +1309,6 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _do_after_init(self):
 		# - setup GUI callback in clinical record
-#		gmClinicalRecord.set_func_ask_user(a_func = gmGuiHelpers.gm_show_question)
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
 
 		# - raise startup-default plugin (done in cTopLevelFrame)
@@ -1478,7 +1477,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.352  2007-09-04 23:29:03  ncq
+# Revision 1.353  2007-09-10 12:35:32  ncq
+# - cleanup
+#
+# Revision 1.352  2007/09/04 23:29:03  ncq
 # - slave mode now set via --slave inside login dialog
 #
 # Revision 1.351  2007/09/03 11:03:59  ncq
