@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.27 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPatPicWidgets.py,v 1.28 2007-09-10 12:37:37 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -157,7 +157,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		if photo is None:
 			fname = None
-			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
+#			gmDispatcher.send(signal='statustext', msg=_('Cannot get most recent patient photo from database.'))
 		else:
 			fname = photo.export_to_file()
 
@@ -191,7 +191,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.27  2007-08-12 00:12:41  ncq
+# Revision 1.28  2007-09-10 12:37:37  ncq
+# - don't send signal on not finding patient pic
+#   a) it's quite obvious
+#   b) it might obscure more important messages
+#
+# Revision 1.27  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.26  2007/08/07 21:42:40  ncq
