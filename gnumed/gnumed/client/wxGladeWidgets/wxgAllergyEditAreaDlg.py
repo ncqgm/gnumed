@@ -13,14 +13,14 @@ class wxgAllergyEditAreaDlg(wx.Dialog):
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
         self._PNL_edit_area = gmAllergyWidgets.cAllergyEditAreaPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self._BTN_save = wx.Button(self, wx.ID_OK, _("Save/Update"))
-        self._BTN_clear = wx.Button(self, -1, _("Clear/Reset"))
-        self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
+        self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
+        self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
+        self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, id=wx.ID_OK)
+        self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
         self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
         # end wxGlade
 
@@ -44,7 +44,6 @@ class wxgAllergyEditAreaDlg(wx.Dialog):
         __szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 15)
-        self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
         self.Layout()
         self.Centre()

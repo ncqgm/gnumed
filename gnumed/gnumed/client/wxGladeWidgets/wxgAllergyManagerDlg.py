@@ -12,15 +12,15 @@ class wxgAllergyManagerDlg(wx.Dialog):
         # begin wxGlade: wxgAllergyManagerDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
-        self._LCTRL_allergies = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.NO_BORDER)
+        self._LCTRL_allergies = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.NO_BORDER)
         self._PNL_edit_area = gmAllergyWidgets.cAllergyEditAreaPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self._BTN_save = wx.Button(self, -1, _("Save"), style=wx.BU_EXACTFIT)
-        self._BTN_clear = wx.Button(self, -1, _("Clear"), style=wx.BU_EXACTFIT)
-        self._BTN_delete = wx.Button(self, -1, _("Delete"), style=wx.BU_EXACTFIT)
+        self._BTN_save = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
+        self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "", style=wx.BU_EXACTFIT)
+        self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
         self._BTN_undisclosed = wx.Button(self, -1, _("Undisclosed"), style=wx.BU_EXACTFIT)
         self._BTN_unknown = wx.Button(self, -1, _("Unknown"), style=wx.BU_EXACTFIT)
         self._BTN_none = wx.Button(self, -1, _("None"), style=wx.BU_EXACTFIT)
-        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, _("Close"), style=wx.BU_EXACTFIT)
+        self._BTN_dismiss = wx.Button(self, wx.ID_CANCEL, "", style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -32,6 +32,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._on_undisclosed_button_pressed, self._BTN_undisclosed)
         self.Bind(wx.EVT_BUTTON, self._on_unknown_button_pressed, self._BTN_unknown)
         self.Bind(wx.EVT_BUTTON, self._on_none_button_pressed, self._BTN_none)
+        self.Bind(wx.EVT_BUTTON, self._on_dismiss_button_pressed, self._BTN_dismiss)
         # end wxGlade
 
     def __set_properties(self):
@@ -70,7 +71,6 @@ class wxgAllergyManagerDlg(wx.Dialog):
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_dismiss, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 3)
-        self.SetAutoLayout(True)
         self.SetSizer(__szr_main)
         self.Layout()
         self.Centre()
@@ -114,6 +114,10 @@ class wxgAllergyManagerDlg(wx.Dialog):
 
     def _on_none_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
         print "Event handler `_on_none_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_dismiss_button_pressed(self, event): # wxGlade: wxgAllergyManagerDlg.<event_handler>
+        print "Event handler `_on_dismiss_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgAllergyManagerDlg
