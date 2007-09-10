@@ -3,17 +3,18 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, datetime as pyDT
 
+
 import wx
+
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmI18N, gmDateTime, gmTools, gmMatchProvider
 from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPerson, gmAllergy
@@ -73,6 +74,9 @@ where narrative %(fragment_condition)s
 		self._PRW_reaction.matcher = mp
 		self._PRW_reaction.enable_default_spellchecker()
 
+#		self._RBTN_type_sensitivity.MoveAfterInTabOrder(self._RBTN_type_allergy)
+#		self._ChBOX_definite.MoveAfterInTabOrder(self._RBTN_type_sensitivity)
+
 		self.refresh()
 	#--------------------------------------------------------
 	# external API
@@ -104,7 +108,7 @@ where narrative %(fragment_condition)s
 			return True
 
 		if not isinstance(self.__allergy, gmAllergy.cAllergy):
-			raise ValueError('[%s].refresh(): expected gmAllergy.cAllergy instance, got [%s] instead' % (self.__class__.__name__, self.__issue))
+			raise ValueError('[%s].refresh(): expected gmAllergy.cAllergy instance, got [%s] instead' % (self.__class__.__name__, self.__allergy))
 
 		ts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__allergy['date'],
@@ -185,11 +189,11 @@ class cAllergyEditAreaDlg(wxgAllergyEditAreaDlg.wxgAllergyEditAreaDlg):
 		wxgAllergyEditAreaDlg.wxgAllergyEditAreaDlg.__init__(self, *args, **kwargs)
 
 		if allergy is None:
-			self._BTN_save.SetLabel(_('Save'))
-			self._BTN_clear.SetLabel(_('Clear'))
+#			self._BTN_save.SetLabel(_('&Save'))
+			self._BTN_clear.SetLabel(_('&Clear'))
 		else:
-			self._BTN_save.SetLabel(_('Update'))
-			self._BTN_clear.SetLabel(_('Restore'))
+#			self._BTN_save.SetLabel(_('Update'))
+			self._BTN_clear.SetLabel(_('&Restore'))
 
 		self._PNL_edit_area.refresh(allergy = allergy)
 	#--------------------------------------------------------
@@ -209,8 +213,8 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		wxgAllergyManagerDlg.wxgAllergyManagerDlg.__init__(self, *args, **kwargs)
 
 		self.__set_columns()
+		self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
 		self.__refresh_ui()
-
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -276,14 +280,14 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		self._BTN_delete.Enable(False)
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
-		allergy = self._LCTRL_allergies.get_selected_item_data()
+		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
 		emr.delete_allergy(pk_allergy = allergy['pk_allergy'])
 		self.__refresh_ui()
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, evt):
-		allergy = self._LCTRL_allergies.get_selected_item_data()
+		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		self._PNL_edit_area.refresh(allergy=allergy)
 		self._BTN_delete.Enable(True)
 	#--------------------------------------------------------
@@ -429,7 +433,7 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 if __name__ == "__main__":
 
 	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed-en')
+	gmI18N.install_domain(domain='gnumed')
 
 	#-----------------------------------------------
 	def test_allergy_edit_area_dlg():
@@ -448,20 +452,27 @@ if __name__ == "__main__":
 		dlg.ShowModal()
 		return
 	#-----------------------------------------------
-	pat = gmPerson.ask_for_patient()
-	if pat is None:
-		sys.exit(0)
-	gmPerson.set_active_patient(pat)
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-	#test_allergy_edit_area_dlg()
-	test_allergy_manager_dlg()
+		pat = gmPerson.ask_for_patient()
+		if pat is None:
+			sys.exit(0)
+		gmPerson.set_active_patient(pat)
 
-#	app = wxPyWidgetTester(size = (600, 600))
-#	app.SetWidget(cAllergyPanel, -1)
-#	app.MainLoop()
+		#test_allergy_edit_area_dlg()
+		test_allergy_manager_dlg()
+
+#		app = wxPyWidgetTester(size = (600, 600))
+#		app.SetWidget(cAllergyPanel, -1)
+#		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.26  2007-08-12 00:06:59  ncq
+# Revision 1.27  2007-09-10 18:35:27  ncq
+# - help wxPython a bit with tab order
+# - fix a faulty variable access
+# - improve test suite
+#
+# Revision 1.26  2007/08/12 00:06:59  ncq
 # - no more gmSignals.py
 #
 # Revision 1.25  2007/07/10 20:28:36  ncq
