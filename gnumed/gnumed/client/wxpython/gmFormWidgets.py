@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.4 2007-09-02 20:57:28 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmFormWidgets.py,v 1.5 2007-09-10 18:40:19 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys
@@ -151,7 +151,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
 
 			self._TCTRL_filename.Enable(True)
-			self._BTN_load.Enable(False)
+			self._BTN_load.Enable(not self.__template['has_template_data'])
 
 		self._PRW_name_long.SetFocus()
 	#--------------------------------------------------------
@@ -204,11 +204,13 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 				name_short = self._PRW_name_short.GetValue().strip(),
 				name_long = self._PRW_name_long.GetValue().strip()
 			)
-			self.__template.update_template_from_file(filename = self.full_filename)
 		else:
 			self.__template['pk_template_type'] = self._PRW_template_type.GetData()
 			self.__template['name_short'] = self._PRW_name_short.GetValue().strip()
 			self.__template['name_long'] = self._PRW_name_long.GetValue().strip()
+
+		if not self.__template['has_template_data']:
+			self.__template.update_template_from_file(filename = self.full_filename)
 
 		self.__template['external_version'] = self._TCTRL_external_version.GetValue()
 		tmp = self._PRW_instance_type.GetValue().strip()
@@ -278,7 +280,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.4  2007-09-02 20:57:28  ncq
+# Revision 1.5  2007-09-10 18:40:19  ncq
+# - allow setting data on existing templates if it hasn't been set before
+#
+# Revision 1.4  2007/09/02 20:57:28  ncq
 # - improve edit/delete callbacks
 # - add refresh callback
 #
