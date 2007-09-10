@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.3 2007-08-12 00:07:18 ncq Exp $
-__version__ = '$Revision: 1.3 $'
+# $Id: gmDataMiningWidgets.py,v 1.4 2007-09-10 13:50:05 ncq Exp $
+__version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -19,7 +19,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmSignals, gmPG2, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmSignals, gmPG2, gmMatchProvider, gmI18N
 from Gnumed.business import gmPerson, gmDataMining
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
@@ -359,7 +359,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.3  2007-08-12 00:07:18  ncq
+# Revision 1.4  2007-09-10 13:50:05  ncq
+# - missing import
+#
+# Revision 1.3  2007/08/12 00:07:18  ncq
 # - no more gmSignals.py
 #
 # Revision 1.2  2007/07/09 11:06:24  ncq
