@@ -3,14 +3,16 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.27 2007-08-29 14:37:00 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmAbout.py,v 1.28 2007-09-10 12:35:08 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
-import zlib, cPickle
+import zlib, cPickle, sys
+
 
 import wx
+
 
 try:
 	_('dummy-no-need-to-translate')
@@ -248,13 +250,17 @@ if __name__ == '__main__':
 			frame.Show(1)
 			return 1
 	#---------------------
-	_ = lambda x:x
-	app = TestApp ()
-	app.MainLoop ()
+#	_ = lambda x:x
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+		app = TestApp()
+		app.MainLoop()
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.27  2007-08-29 14:37:00  ncq
+# Revision 1.28  2007-09-10 12:35:08  ncq
+# - make accessible to epydoc
+#
+# Revision 1.27  2007/08/29 14:37:00  ncq
 # - add Clemens Nietfeld
 #
 # Revision 1.26  2007/08/20 14:22:24  ncq
