@@ -2,14 +2,14 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.48 2007-08-29 14:33:38 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmScanBackend.py,v 1.49 2007-09-10 20:27:40 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
 #==================================================
 # stdlib
-import sys, os.path, os, string, time, shutil, codecs, glob, locale, errno
+import sys, os.path, os, string, time, shutil, codecs, glob, locale, errno, stat
 
 
 # 3rd party
@@ -332,17 +332,16 @@ class cXSaneScanner:
 	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
 		"""Call XSane.
 
-		<filename name part must have format name-###.ext>
+		<filename name part must have format name-001.ext>
 		"""
 		if filename is None:
 			filename = gmTools.get_unique_filename (
 				prefix = 'gmScannedObj-',
-				suffix = '-###%s' % cXSaneScanner._filetype,
+				suffix = cXSaneScanner._filetype,
 				dir = tmpdir
 			)
-		else:
-			name, ext = os.path.splitext(filename)
-			filename = '%s-###%s' % (name, cXSaneScanner._filetype)
+		name, ext = os.path.splitext(filename)
+		filename = '%s-001%s' % (name, cXSaneScanner._filetype)
 
 		filename = os.path.abspath(os.path.expanduser(filename))
 		path, name = os.path.split(filename)
@@ -359,7 +358,9 @@ class cXSaneScanner:
 		self.__restore_xsanerc()
 
 		if normal_exit:
-			return glob.glob(filename.replace('###', '*'))
+			flist = glob.glob(filename.replace('001', '*'))
+			flist.sort()
+			return flist
 
 		raise OSError(-1, 'cannot start XSane', cmd)
 	#---------------------------------------------------
@@ -370,9 +371,9 @@ class cXSaneScanner:
 	#----------------------------------------------
 	def __prepare_xsanerc(self, tmpdir=None):
 
-		shutil.copy2(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_backup)
+		shutil.move(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_backup)
 
-		# our closest bet, might contain umalauts
+		# our closest bet, might contain umlauts
 		enc = gmI18N.get_encoding()
 		fread = codecs.open(cXSaneScanner._xsanerc_backup, mode = "rU", encoding = enc)
 		fwrite = codecs.open(cXSaneScanner._xsanerc, mode = "w", encoding = enc)
@@ -381,6 +382,7 @@ class cXSaneScanner:
 			'filetype': cXSaneScanner._filetype,
 			'tmp-path': tmpdir,
 			'working-directory': tmpdir,
+			'skip-existing-numbers': '1',
 			'filename-counter-step': '1',
 			'filename-counter-len': '3'
 		}
@@ -390,21 +392,25 @@ class cXSaneScanner:
 
 			if idx % 2 == 0:			# even lines are keys
 				key = line.strip('"')
+				fwrite.write('"%s"%s' % (key, fread.newlines))
 			else: 						# odd lines are corresponding values
 				try:
 					value = val_dict[key]
 				except KeyError:
 					value = line
-				fwrite.write('"%s"%s' % (key, fread.newlines))
 				fwrite.write('%s%s' % (value, fread.newlines))
 
+		fwrite.flush()
 		fwrite.close()
 		fread.close()
+
+		#os.chmod(cXSaneScanner._xsanerc, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
 		return True
 	#----------------------------------------------
 	def __restore_xsanerc(self):
 		shutil.copy2(cXSaneScanner._xsanerc_backup, cXSaneScanner._xsanerc)
+		#os.chmod(cXSaneScanner._xsanerc, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 #==================================================
 def get_devices():
 	try:
@@ -477,7 +483,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.48  2007-08-29 14:33:38  ncq
+# Revision 1.49  2007-09-10 20:27:40  ncq
+# - eventually find out how xsane handles counter filenames
+#
+# Revision 1.48  2007/08/29 14:33:38  ncq
 # - a bit more readability
 #
 # Revision 1.47  2007/08/08 21:26:39  ncq
