@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.11 2007-09-07 22:47:56 ncq Exp $
--- $Revision: 1.11 $
+-- $Id: ref-form_tables.sql,v 1.12 2007-09-10 18:42:53 ncq Exp $
+-- $Revision: 1.12 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -151,6 +151,11 @@ select
 	engine,
 	in_use,
 	filename,
+	case
+		when data is not NULL then True
+		else False
+	end
+		as has_template_data,
 	modified_when
 		as last_modified,
 	coalesce (
@@ -178,11 +183,14 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.11 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.12 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.11  2007-09-07 22:47:56  ncq
+-- Revision 1.12  2007-09-10 18:42:53  ncq
+-- - add has_template_data
+--
+-- Revision 1.11  2007/09/07 22:47:56  ncq
 -- - improve view
 --
 -- Revision 1.10  2007/09/01 23:34:39  ncq
