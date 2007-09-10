@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.4 2007-09-09 19:21:04 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmNarrativeWidgets.py,v 1.5 2007-09-10 12:36:02 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -14,10 +14,9 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmTools
 from Gnumed.business import gmPerson, gmEMRStructItems, gmClinNarrative
 from Gnumed.wxpython import gmListWidgets, gmEMRStructWidgets
-#gmGuiHelpers, gmMacro
 from Gnumed.wxGladeWidgets import wxgMoveNarrativeDlg
 
 
@@ -103,14 +102,15 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episodes.'))
 				continue
 
+			
 			dlg = cNarrativeListSelectorDlg (
 				parent = parent,
 				id = -1,
 				narrative = all_narr,
 				msg = _(
-					'\n This is the clinical narrative for the chosen episodes.\n\n'
+					'\n This is the narrative (type %s) for the chosen episodes.\n\n'
 					' Now, mark the entries you want to include in your report.\n'
-				)
+				) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soap')) ])
 			)
 			selection_idxs = []
 			for idx in range(len(all_narr)):
@@ -226,7 +226,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.4  2007-09-09 19:21:04  ncq
+# Revision 1.5  2007-09-10 12:36:02  ncq
+# - improved wording in narrative selector at SOAP level
+#
+# Revision 1.4  2007/09/09 19:21:04  ncq
 # - get top level wx.App window if parent is None
 # - support filtering by soap_cats
 #
