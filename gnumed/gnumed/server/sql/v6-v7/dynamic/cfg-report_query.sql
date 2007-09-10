@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: cfg-report_query.sql,v 1.1 2007-08-24 15:59:57 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: cfg-report_query.sql,v 1.2 2007-09-10 13:49:32 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -56,12 +56,33 @@ order by clin_when'
 );
 
 
+delete from cfg.report_query where label = 'Happy Birthday list (1 week back and forth from today)';
+insert into cfg.report_query (label, cmd) values (
+	'Happy Birthday list (1 week back and forth from today)',
+'select
+	to_char(p.dob, ''DD.TMMonth'') as birthday,
+	extract(year from age(dob) - ''10 days''::interval) as age,
+	p.lastnames || '', '' || p.firstnames as name,
+	p.preferred as preferred_name,
+	p.pk_identity as pk_patient
+from
+	dem.v_basic_person p
+where
+	dem.dob_is_in_range(p.dob, ''1 week''::interval, ''1 week''::interval) is True
+order by
+	dob,
+	name
+');
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: cfg-report_query.sql,v $
--- Revision 1.1  2007-08-24 15:59:57  ncq
+-- Revision 1.2  2007-09-10 13:49:32  ncq
+-- - add birthday list report
+--
+-- Revision 1.1  2007/08/24 15:59:57  ncq
 -- - fix example queries to allow for patient callup
 --
 -- Revision 1.3  2007/05/07 16:33:06  ncq
