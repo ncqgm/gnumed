@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.128 2007-08-07 21:34:18 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmPerson.py,v 1.129 2007-09-10 12:34:02 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -490,7 +490,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		return dob2medical_age(dob)
 	#----------------------------------------------------------------------
 	def dob_in_range(self, min_distance=u'1 week', max_distance=u'1 week'):
-		cmd = u'select (%(dob)s - now()) between (-1 * %(min)s::interval) and %(max)s::interval'
+		cmd = u'select dem.dob_is_in_range(%(dob)s, %(min)s, %(max)s)'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
 				'cmd': cmd,
@@ -1920,8 +1920,8 @@ if __name__ == '__main__':
 	def test_dob2medical_age():
 		pass
 	#--------------------------------------------------------
-	test_patient_search_queries()
-#	test_ask_for_patient()
+#	test_patient_search_queries()
+	test_ask_for_patient()
 #	test_dto_person()
 #	test_staff()
 #	test_identity()
@@ -1940,7 +1940,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.128  2007-08-07 21:34:18  ncq
+# Revision 1.129  2007-09-10 12:34:02  ncq
+# - fix dob_in_range()
+#
+# Revision 1.128  2007/08/07 21:34:18  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.127  2007/07/17 21:43:29  ncq
