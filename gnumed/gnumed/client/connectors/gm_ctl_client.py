@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.3 2007-07-17 13:39:46 ncq Exp $
-__version__ = '$Revision: 1.3 $'
+# $Id: gm_ctl_client.py,v 1.4 2007-09-14 11:47:22 ncq Exp $
+__version__ = '$Revision: 1.4 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -56,24 +56,51 @@ class cBaseConnector:
 			# - no use trying to start GNUmed if wx cannot be imported
 			import wx
 			startup_cmd = _cfg.get('GNUmed instance', 'startup command')
+			if startup_cmd is None:
+				_log.Log(gmLog.lErr, 'cannot start GNUmed slave, no startup command defined')
+				return False
 			os.system(startup_cmd)	# better be non-blocking, use gmShellAPI
 			_log.Log(gmLog.lInfo, 'trying to start one with [%s]' % startup_cmd)
 			app = wx.PySimpleApp()
-			retry = gmGuiHelpers.gm_show_question (
-				aMessage = _(
-					'GNUmed has been started with the command:\n'
+			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+				caption = _('gm_ctl_client: starting slave GNUmed client'),
+				question = _(
+					'A GNUmed slave client has been started because\n'
+					'no running client could be found. You will now\n'
+					'have to enter your user name and password into\n'
+					'the login dialog as usual.\n'
 					'\n'
-					' [%s]\n'
-					'\n'
-					'Please enter user name and password\n'
-					'into the GNUmed login dialog.\n'
-					'\n'
-					'Has GNUmed started up successfully ?'
-				) % startup_cmd,
-				aTitle = _('GNUmed client controller')
+					'Switch to the GNUmed login dialog now and proceed\n'
+					'with the login procedure. Once GNUmed has started\n'
+					'up successfully switch back to this window.\n'
+				),
+				button_defs = [
+					{'label': _('Connect to GNUmed'), 'tooltip': _('Proceed and try to connect to the newly started GNUmed client.'), 'default': True},
+					{'label': _('Abort'), 'tooltip': _('Abort and do NOT connect to GNUmed.')}
+				]
 			)
+			retry = (dlg.ShowModal() == wx.ID_YES)
+
+#			retry = gmGuiHelpers.gm_show_question (
+#				aMessage = _(
+#					'GNUmed has been started with the command:\n'
+#					'\n'
+#					' [%s]\n'
+#					'\n'
+#					'Please enter user name and password\n'
+#					'into the GNUmed login dialog.\n'
+#					'\n'
+#					'Has GNUmed started up successfully ?'
+#				) % startup_cmd,
+#				aTitle = _('GNUmed client controller')
+#			)
 			if not retry:
 				return False
+
+			alt_port = _cfg.get('GNUmed instance', 'startup port')
+			if alt_port is not None:
+				port = alt_port
+
 			try:
 				_log.Log(gmLog.lInfo, self.__gm_server.version())
 			except socket.error, e:
@@ -167,7 +194,12 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.3  2007-07-17 13:39:46  ncq
+# Revision 1.4  2007-09-14 11:47:22  ncq
+# - support alternate port for started GNUmed slave
+# - make alternate port and startup command optional
+# - improve docs
+#
+# Revision 1.3  2007/07/17 13:39:46  ncq
 # - support starting up GNUmed client on demand
 #
 # Revision 1.2  2007/07/10 20:33:41  ncq
