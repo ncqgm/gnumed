@@ -8,8 +8,8 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.12 2007-09-10 18:42:53 ncq Exp $
--- $Revision: 1.12 $
+-- $Id: ref-form_tables.sql,v 1.13 2007-09-16 01:02:42 ncq Exp $
+-- $Revision: 1.13 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -64,20 +64,15 @@ create or replace function ref.trf_protect_template_data()
 	as '
 BEGIN
 	if NEW.data != OLD.data then
-
-		-- allow initial insert
-		if OLD.data is NULL then
-			return NEW;
-		end if;
-
 		-- look for references in public.form_fields
+		-- if there are any we fail this update no matter what
 		select * from public.form_fields where fk_form = NEW.pk;
 		if FOUND then
 			raise exception ''Updating ref.paperwork_templates.data not allowed because it is referenced from existing forms.'';
 		end if;
-
 	end if;
 
+	-- otherwise let it happen
 	return NEW;
 END;';
 
@@ -183,11 +178,14 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.12 $');
+select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.13 $');
 
 -- ==============================================================
 -- $Log: ref-form_tables.sql,v $
--- Revision 1.12  2007-09-10 18:42:53  ncq
+-- Revision 1.13  2007-09-16 01:02:42  ncq
+-- - allow template update whenever no dependant forms exist
+--
+-- Revision 1.12  2007/09/10 18:42:53  ncq
 -- - add has_template_data
 --
 -- Revision 1.11  2007/09/07 22:47:56  ncq
