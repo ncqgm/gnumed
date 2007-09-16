@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 echo "-------------------------------------------------------------"
 echo "Please make sure to also read the INSTALL and README files."
@@ -19,7 +19,7 @@ echo "If you don't you can still use our public database"
 echo "at salaam.homeunix.com for testing."
 echo ""
 echo "-------------------------------------------------------------------------"
-ps axww | grep postmaster | grep -v "grep"
+ps axww | grep post | grep -v "grep"
 echo "-------------------------------------------------------------------------"
 echo ""
 
@@ -96,10 +96,22 @@ else
 	echo "=> found"
 fi
 
+echo "=> checking for konsolekalender KOrganizer controller ..."
+BIN=`which konsolekalendar`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'konsolekalendar' command installed."
+	echo "INFO : It is available with your OS."
+else
+	echo "=> found"
+fi
+
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.9  2007-03-31 20:11:52  ncq
+# Revision 1.10  2007-09-16 01:01:16  ncq
+# - check for konsolekalendar
+#
+# Revision 1.9  2007/03/31 20:11:52  ncq
 # - check for aspeller
 #
 # Revision 1.8  2007/01/29 11:55:31  ncq
