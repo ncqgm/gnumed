@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -93,7 +93,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		pat = gmPerson.gmCurrentPatient()
 		return pat['dob'].strftime('%x')
 	#--------------------------------------------------------
-	def _get_progress_notes(self):
+	def _get_progress_notes(self, soap_cats=None):
 		return self.__get_progress_notes()
 	#--------------------------------------------------------
 	def _get_soap_s(self):
@@ -114,14 +114,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	firstname = property(_get_firstname, _setter_noop)
 	title = property(_get_title, _setter_noop)
 	date_of_birth = property(_get_dob, _setter_noop)
+
 	progress_notes = property(_get_progress_notes, _setter_noop)
 	soap = property(_get_progress_notes, _setter_noop)
-
+	soap_s = property(_get_soap_s, _setter_noop)
+	soap_o = property(_get_soap_o, _setter_noop)
+	soap_a = property(_get_soap_a, _setter_noop)
+	soap_p = property(_get_soap_p, _setter_noop)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __get_progress_notes(self, soap_cat=None):
-		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cat=soap_cat)
+	def __get_progress_notes(self, soap_cats=None):
+		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats=soap_cats)
 		if len(narr) == 0:
 			return u''
 		narr = [ n['narrative'] for n in narr ]
@@ -181,7 +185,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.34 $" % self.__class__.__name__
+		return "%s $Revision: 1.35 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -419,7 +423,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.34  2007-09-09 19:17:44  ncq
+# Revision 1.35  2007-09-16 22:40:46  ncq
+# - fix soap_* placeholder handling
+#
+# Revision 1.34  2007/09/09 19:17:44  ncq
 # - add a bunch of placeholders regarding SOAP notes
 #
 # Revision 1.33  2007/08/29 22:09:32  ncq
