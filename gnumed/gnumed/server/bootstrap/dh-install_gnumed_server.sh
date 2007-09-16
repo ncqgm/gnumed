@@ -2,13 +2,18 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/dh-install_gnumed_server.sh,v $
-# $Id: dh-install_gnumed_server.sh,v 1.2 2007-09-16 00:45:40 ncq Exp $
+# $Id: dh-install_gnumed_server.sh,v 1.3 2007-09-16 01:01:57 ncq Exp $
 # ============================================
+
+DEPS="gnumed-common postgresql-8.1 postgresql-client-8.1 cron anacron tar hostname coreutils mailx openssl bzip2 gpg2 mc rsync"
 
 echo ""
 echo "================================================"
 echo "This GNUmed helper will download and install the"
 echo "latest GNUmed server onto your Debian machine."
+echo ""
+echo "It will also take care to also install the"
+echo "dependancies needed to operate GNUmed smoothly."
 echo "================================================"
 
 # prepare environment
@@ -22,6 +27,12 @@ wget -q http://www.gnumed.de/downloads/server/GNUmed-server.latest.tgz
 tar -xzf GNUmed-server.latest.tgz
 BASEDIR=`ls -1 -d GNUmed-v?`
 mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
+
+# install dependancies
+echo ""
+echo "Package dependancies are about to be installed."
+echo "You may need to enter your password now:"
+sudo apt-get install ${DEPS}
 
 # run bootstrapper
 cd ${BASEDIR}/server/bootstrap/
@@ -37,7 +48,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: dh-install_gnumed_server.sh,v $
-# Revision 1.2  2007-09-16 00:45:40  ncq
+# Revision 1.3  2007-09-16 01:01:57  ncq
+# - install dependancies
+#
+# Revision 1.2  2007/09/16 00:45:40  ncq
 # - prettified output
 #
 # Revision 1.1  2007/09/16 00:44:03  ncq
