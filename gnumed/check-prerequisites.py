@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 import sys
 
@@ -110,6 +110,17 @@ except ImportError:
 	print "INFO : GNUmed will work but you will be unable to scan"
 	print "INFO : if you are on a Windows machine"
 
+print "=> checking for Python module 'uno' ..."
+try:
+	import uno
+	print "=> found"
+except ImportError:
+	print "ERROR: uno not installed"
+	print "INFO : this is needed for form and letter handling"
+	print "INFO : GNUmed will work but you will be unable"
+	print "INFO : to use OpenOffice to write letters and"
+	print "INFO : fill in forms"
+
 print "=> checking for GNUmed's own Python modules ..."
 try:
 	from Gnumed.pycommon import gmNull
@@ -130,7 +141,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.15  2007-03-31 20:10:13  ncq
+# Revision 1.16  2007-09-16 01:01:03  ncq
+# - check for python-uno
+#
+# Revision 1.15  2007/03/31 20:10:13  ncq
 # - check for enchant Python module
 #
 # Revision 1.14  2007/01/29 11:55:05  ncq
