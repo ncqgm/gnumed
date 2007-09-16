@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/dh-install_gnumed_server.sh,v $
-# $Id: dh-install_gnumed_server.sh,v 1.1 2007-09-16 00:44:03 ncq Exp $
+# $Id: dh-install_gnumed_server.sh,v 1.2 2007-09-16 00:45:40 ncq Exp $
 # ============================================
 
 echo ""
@@ -26,7 +26,7 @@ mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
 # run bootstrapper
 cd ${BASEDIR}/server/bootstrap/
 echo ""
-echo "The GNUmed server version ${BASEDIR} has been"
+echo "The GNUmed server version \"${BASEDIR}\" has been"
 echo "prepared for installation in the directory"
 echo ""
 echo " ["`pwd`"]"
@@ -37,7 +37,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: dh-install_gnumed_server.sh,v $
-# Revision 1.1  2007-09-16 00:44:03  ncq
+# Revision 1.2  2007-09-16 00:45:40  ncq
+# - prettified output
+#
+# Revision 1.1  2007/09/16 00:44:03  ncq
 # - first version
 #
 #
