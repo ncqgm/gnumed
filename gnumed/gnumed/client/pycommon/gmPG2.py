@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -96,7 +96,8 @@ known_schema_hashes = {
 	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
 	'v4': '4428ccf2e54c289136819e701bb095ea',
 	'v5': '7e7b093af57aea48c288e76632a382e5',	# old (v1) style hash
-	'v6': '90e2026ac2efd236da9c8608b8685b2d'	# new (v2) style hash
+	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hash
+	'v7': '6c9f6d3981483f8e9433df99d1947b27'
 }
 
 map_schema_hash2version = {
@@ -104,7 +105,8 @@ map_schema_hash2version = {
 	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
 	'4428ccf2e54c289136819e701bb095ea': 'v4',
 	'7e7b093af57aea48c288e76632a382e5': 'v5',
-	'90e2026ac2efd236da9c8608b8685b2d': 'v6'
+	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
+	'6c9f6d3981483f8e9433df99d1947b27': 'v7'
 }
 
 # get columns and data types for a given table
@@ -289,7 +291,6 @@ def set_default_login(login=None):
 # =======================================================================
 def database_schema_compatible(link_obj=None, version=None):
 	expected_hash = known_schema_hashes[version]
-#	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': u'select md5(gm_concat_table_structure()) as md5'}])
 	if version == 'devel':
 		args = {'ver': '9999'}
 	else:
@@ -1189,7 +1190,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.54  2007-08-31 14:28:29  ncq
+# Revision 1.55  2007-09-17 21:46:28  ncq
+# - make hash for v7 known
+#
+# Revision 1.54  2007/08/31 14:28:29  ncq
 # - improved docs
 #
 # Revision 1.53  2007/08/08 21:25:39  ncq
