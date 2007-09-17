@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.353 2007-09-10 12:35:32 ncq Exp $
-__version__ = "$Revision: 1.353 $"
+# $Id: gmGuiMain.py,v 1.354 2007-09-17 21:46:51 ncq Exp $
+__version__ = "$Revision: 1.354 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -299,9 +299,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_config.Append(ID, _('Database language'), _('Configure the database language.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
 
-		ID = wx.NewId()
-		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
-		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
+#		ID = wx.NewId()
+#		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
+#		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
 		menu_gnumed.AppendSeparator()
 
@@ -690,8 +690,8 @@ class gmTopLevelFrame(wx.Frame):
 			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}]
 		)
 	#----------------------------------------------
-	def __on_configure_workplace(self, evt):
-		pass
+#	def __on_configure_workplace(self, evt):
+#		pass
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
@@ -1477,7 +1477,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.353  2007-09-10 12:35:32  ncq
+# Revision 1.354  2007-09-17 21:46:51  ncq
+# - comment out unimplemented menu item
+#
+# Revision 1.353  2007/09/10 12:35:32  ncq
 # - cleanup
 #
 # Revision 1.352  2007/09/04 23:29:03  ncq
