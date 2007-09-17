@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.98 $
+# $Revision: 1.99 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-09-10 22:28+CEST\n"
-"PO-Revision-Date: 2007-09-10 20:28+0100\n"
+"POT-Creation-Date: 2007-09-17 23:47+CEST\n"
+"PO-Revision-Date: 2007-09-17 21:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -388,27 +388,46 @@ msgstr "fehlt/folgt"
 msgid "Cannot find config file. Option syntax: --conf-file=<file>"
 msgstr "Kann Konfigurationsdatei nicht finden. Syntax: --conf-file=<file>"
 
-#: ../connectors/gm_ctl_client.py:63
-msgid ""
-"GNUmed has been started with the command:\n"
-"\n"
-" [%s]\n"
-"\n"
-"Please enter user name and password\n"
-"into the GNUmed login dialog.\n"
-"\n"
-"Has GNUmed started up successfully ?"
-msgstr ""
-"GNUmed wurde folgendermaßen gestartet:\n"
-"\n"
-" [%s]\n"
-"\n"
-"Geben Sie nun Nuternamen und Paßwort\n"
-"im Anmeldedialog von GNUmed ein.\\nLäuft GNUmed jetzt ?"
+#: ../connectors/gm_ctl_client.py:66
+msgid "gm_ctl_client: starting slave GNUmed client"
+msgstr "gm_ctl_client: Starte ferngesteuertes GNUmed"
 
-#: ../connectors/gm_ctl_client.py:73
-msgid "GNUmed client controller"
-msgstr "GNUmed-Fernbedienung"
+#: ../connectors/gm_ctl_client.py:67
+msgid ""
+"A GNUmed slave client has been started because\n"
+"no running client could be found. You will now\n"
+"have to enter your user name and password into\n"
+"the login dialog as usual.\n"
+"\n"
+"Switch to the GNUmed login dialog now and proceed\n"
+"with the login procedure. Once GNUmed has started\n"
+"up successfully switch back to this window.\n"
+msgstr ""
+"Ein ferngesteuertes GNUmed wurde gestartet, weil\n"
+"noch kein laufendes gefunden wurde. Sie müssen\n"
+"nun - wie sonst auch - Nutzername und Passwort\n"
+"im Anmeldefenster von GNUmed eingeben.\n"
+"\n"
+"Wechseln Sie nun zum GNUmed-Fenster und setzen\n"
+"Sie den Anmeldevorgang fort. Wenn GNUmed ordnungs-\n"
+"gemäß läuft, wechseln sie zurück zu diesem Fenster.\n"
+
+#: ../connectors/gm_ctl_client.py:78
+msgid "Connect to GNUmed"
+msgstr "GNUmed kontaktieren"
+
+#: ../connectors/gm_ctl_client.py:78
+msgid "Proceed and try to connect to the newly started GNUmed client."
+msgstr ""
+"Mit dem GNUmed verbinden, bei welchem Sie sich soeben angemeldet haben."
+
+#: ../connectors/gm_ctl_client.py:79
+msgid "Abort"
+msgstr "Abbrechen"
+
+#: ../connectors/gm_ctl_client.py:79
+msgid "Abort and do NOT connect to GNUmed."
+msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #: ../doc/hook_script_example.py:23
 msgid "no hook specified, please report bug"
@@ -825,17 +844,17 @@ msgstr "SQL: %s"
 msgid "cannot connect to service [%s]"
 msgstr "kann keine Verbindung zum Dienst [%s] herstellen"
 
-#: ../pycommon/gmPG.py:1433 ../pycommon/gmPG.py:1463 ../pycommon/gmPG2.py:213
+#: ../pycommon/gmPG.py:1433 ../pycommon/gmPG.py:1463 ../pycommon/gmPG2.py:215
 msgid "Can't connect to database without login information!"
 msgstr ""
 "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut "
 "werden!"
 
-#: ../pycommon/gmPG.py:1449 ../pycommon/gmPG2.py:200
+#: ../pycommon/gmPG.py:1449 ../pycommon/gmPG2.py:202
 msgid "The wxPython GUI framework hasn't been initialized yet!"
 msgstr "Die wxPython-GUI ist noch nicht initialisiert."
 
-#: ../pycommon/gmPG2.py:187
+#: ../pycommon/gmPG2.py:189
 msgid "Cannot connect to database without login information!"
 msgstr ""
 "Ohne Login-Informationen kann keine Verbindung zur Datenbank hergestellt "
@@ -3252,7 +3271,7 @@ msgstr "Krankheitsbezeichnung eingeben"
 msgid "Cannot export EMR. No active patient."
 msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
 
-#: ../wxpython/gmEMRBrowser.py:43 ../wxpython/gmFormWidgets.py:233
+#: ../wxpython/gmEMRBrowser.py:43 ../wxpython/gmFormWidgets.py:234
 #: ../wxpython/gmGuiMain.py:910 ../wxpython/gmGuiMain.py:958
 #: ../wxpython/gmMedDocWidgets.py:692 ../wxpython/gui/gmXdtViewer.py:63
 msgid "all files"
@@ -3726,7 +3745,7 @@ msgstr ""
 
 #: ../wxpython/gmEditArea.py:238
 msgid "Company"
-msgstr ""
+msgstr "Firma"
 
 #: ../wxpython/gmEditArea.py:242
 msgid "Notes on form"
@@ -3892,7 +3911,7 @@ msgstr ""
 
 #: ../wxpython/gmEditArea.py:1534
 msgid "E-MAIL"
-msgstr ""
+msgstr "E-Mail"
 
 #: ../wxpython/gmEditArea.py:1541
 msgid "must have a recipient"
@@ -3988,15 +4007,15 @@ msgstr "Export einer Briefvorlage"
 msgid "You must select a template file before saving."
 msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
 
-#: ../wxpython/gmFormWidgets.py:230
+#: ../wxpython/gmFormWidgets.py:231
 msgid "Choose a form template file"
 msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage."
 
-#: ../wxpython/gmFormWidgets.py:233
+#: ../wxpython/gmFormWidgets.py:234
 msgid "OOo templates"
 msgstr "OOo-Vorlagen"
 
-#: ../wxpython/gmFormWidgets.py:233 ../wxpython/gmMedDocWidgets.py:692
+#: ../wxpython/gmFormWidgets.py:234 ../wxpython/gmMedDocWidgets.py:692
 #: ../wxpython/gui/gmXdtViewer.py:63
 msgid "all files (Win)"
 msgstr "alle Dateien (Win)"
@@ -4172,14 +4191,6 @@ msgstr "Einstellen der Datenbanksprache."
 #: ../wxpython/gmGuiMain.py:299
 msgid "Database language"
 msgstr "Datenbanksprache"
-
-#: ../wxpython/gmGuiMain.py:303
-msgid "Choose the plugins to load in the current workplace."
-msgstr "Die Plugins für den aktuellen Arbeitsplatz wählen."
-
-#: ../wxpython/gmGuiMain.py:303
-msgid "Workplace plugins"
-msgstr "Plugins für den Arbeitsplatz"
 
 #: ../wxpython/gmGuiMain.py:308
 msgid "Close this GNUmed client"
@@ -5116,60 +5127,60 @@ msgstr ""
 "Sie haben versucht, sich als Nutzer [%s] mit Passwort [%s] anzumelden.\n"
 "Rechner: %s, DB: %s, Port: %s"
 
-#: ../wxpython/gmMacro.py:158
+#: ../wxpython/gmMacro.py:162
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
 
-#: ../wxpython/gmMacro.py:161
+#: ../wxpython/gmMacro.py:165
 msgid "attach to personality [%s] rejected"
 msgstr "Verbindung zu [%s]-Instanz abgewiesen"
 
-#: ../wxpython/gmMacro.py:234 ../wxpython/gmMacro.py:248
-#: ../wxpython/gmMacro.py:262 ../wxpython/gmMacro.py:291
+#: ../wxpython/gmMacro.py:238 ../wxpython/gmMacro.py:252
+#: ../wxpython/gmMacro.py:266 ../wxpython/gmMacro.py:295
 msgid "request rejected, you are not attach()ed"
 msgstr "Aktion abgewiesen, Client nicht verbunden"
 
-#: ../wxpython/gmMacro.py:237
+#: ../wxpython/gmMacro.py:241
 msgid "rejected load_patient_from_external_source(), not authenticated"
 msgstr "load_patient_from_external_source() abgewiesen, nicht authentifiziert"
 
-#: ../wxpython/gmMacro.py:240
+#: ../wxpython/gmMacro.py:244
 msgid "current patient is locked"
 msgstr "aktuellen Patienten einrasten"
 
-#: ../wxpython/gmMacro.py:251
+#: ../wxpython/gmMacro.py:255
 msgid "rejected lock_load_patient(), not authenticated"
 msgstr "lock_load_patient() abgewiesen, nicht authentifiziert"
 
-#: ../wxpython/gmMacro.py:265
+#: ../wxpython/gmMacro.py:269
 msgid "rejected lock_into_patient(), not authenticated"
 msgstr "lock_into_patient() abgewiesen, nicht authentifiziert"
 
-#: ../wxpython/gmMacro.py:268
+#: ../wxpython/gmMacro.py:272
 msgid "already locked into a patient"
 msgstr "schon auf einen Patienten eingerastet"
 
-#: ../wxpython/gmMacro.py:277
+#: ../wxpython/gmMacro.py:281
 msgid "error searching for patient with [%s]/%s"
 msgstr "Fehler bei Patientensuche anhand von [%s]/%s"
 
-#: ../wxpython/gmMacro.py:279
+#: ../wxpython/gmMacro.py:283
 msgid "no patient found for [%s]/%s"
 msgstr "kein Patient gefunden anhand von [%s]/%s"
 
-#: ../wxpython/gmMacro.py:282
+#: ../wxpython/gmMacro.py:286
 msgid "several matching patients found for [%s]/%s"
 msgstr "mehrere passende Patienten für [%s]/%s gefunden"
 
-#: ../wxpython/gmMacro.py:284
+#: ../wxpython/gmMacro.py:288
 msgid "cannot activate patient [%s] (%s/%s)"
 msgstr "kann Patienten [%s] (%s/%s) nicht aktivieren"
 
-#: ../wxpython/gmMacro.py:294
+#: ../wxpython/gmMacro.py:298
 msgid "rejected unlock_patient, not authenticated"
 msgstr "unlock_patient abgewiesen, nicht authentifiziert"
 
-#: ../wxpython/gmMacro.py:322
+#: ../wxpython/gmMacro.py:326
 msgid ""
 "Someone tries to forcibly break the existing\n"
 "controlling connection. This may or may not\n"
@@ -5183,7 +5194,7 @@ msgstr ""
 "\n"
 "Wollen Sie den Verbindungsabbruch zulassen ?"
 
-#: ../wxpython/gmMacro.py:330
+#: ../wxpython/gmMacro.py:334
 msgid "forced detach attempt"
 msgstr "Versuch erzwungenen Verbindungsabbruchs"
 
@@ -7186,11 +7197,11 @@ msgstr "     Angewohnheiten       Risikofaktoren"
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:82
 msgid "   Alerts   "
-msgstr " Alarm"
+msgstr " Caveat"
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:151
 msgid "&Summary"
-msgstr ""
+msgstr "&Zusammenfassung"
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:155
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:160
@@ -7414,6 +7425,32 @@ msgstr "&Verschrieben fuer"
 #: ../wxpython/patient/gmGP_TabbedLists.py:277
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Choose the plugins to load in the current workplace."
+#~ msgstr "Die Plugins für den aktuellen Arbeitsplatz wählen."
+
+#~ msgid "Workplace plugins"
+#~ msgstr "Plugins für den Arbeitsplatz"
+
+#~ msgid ""
+#~ "GNUmed has been started with the command:\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "Please enter user name and password\n"
+#~ "into the GNUmed login dialog.\n"
+#~ "\n"
+#~ "Has GNUmed started up successfully ?"
+#~ msgstr ""
+#~ "GNUmed wurde folgendermaßen gestartet:\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "Geben Sie nun Nuternamen und Paßwort\n"
+#~ "im Anmeldedialog von GNUmed ein.\\nLäuft GNUmed jetzt ?"
+
+#~ msgid "GNUmed client controller"
+#~ msgstr "GNUmed-Fernbedienung"
 
 #~ msgid "Clear/Reset"
 #~ msgstr "Leeren/Zurücksetzen"
