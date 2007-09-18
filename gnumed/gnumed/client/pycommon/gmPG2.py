@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -495,7 +495,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	conn.close()
 	return True
 #------------------------------------------------------------------------
-def file2bytea(query=None, filename=None, args=None):
+def file2bytea(query=None, filename=None, args=None, conn=None):
 	"""Store data from a file into a bytea field.
 
 	The query must:
@@ -507,11 +507,14 @@ def file2bytea(query=None, filename=None, args=None):
 	infile = file(filename, "rb")
 	data_as_byte_string = infile.read()
 	infile.close()
+	if args is None:
+		args = {}
 	args['data'] = buffer(data_as_byte_string)
 	del(data_as_byte_string)
 
 	# insert the data
-	conn = get_raw_connection()
+	if conn is None:
+		conn = get_raw_connection()
 	run_rw_queries(link_obj=conn, queries = [{'cmd': query, 'args': args}], end_tx=True)
 	conn.close()
 
@@ -1190,7 +1193,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.55  2007-09-17 21:46:28  ncq
+# Revision 1.56  2007-09-18 22:53:26  ncq
+# - enhance file2bytea to accept conn argument
+#
+# Revision 1.55  2007/09/17 21:46:28  ncq
 # - make hash for v7 known
 #
 # Revision 1.54  2007/08/31 14:28:29  ncq
