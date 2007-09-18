@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -42,7 +42,7 @@ try:
 except ImportError:
 	print """Please make sure the GNUmed Python modules are in the Python path !"""
 	raise
-from Gnumed.pycommon import gmCfg, gmPsql, gmPG2
+from Gnumed.pycommon import gmCfg, gmPsql, gmPG2, gmTools
 from Gnumed.pycommon.gmExceptions import ConstructorError
 
 # local imports
@@ -769,10 +769,26 @@ class database:
 
 		return True
 	#--------------------------------------------------------------
+	def import_data(self):
+		print "==> importing/upgrading data ..."
+
+		import_scripts = _cfg.get(self.section, "data import scripts")
+		if len(import_scripts) == 0:
+			_log.Log(gmLog.lInfo, 'skipped data import: no scripts to run')
+			print "    ... skipped (no scripts to run)"
+			return True
+
+		script_base_dir = _cfg.get(self.section, "script base directory")
+
+		for import_script in import_scripts:
+			script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
+			script.run(conn=self.conn)
+
+		return True
+	#--------------------------------------------------------------
 	def verify_result_hash(self):
 		# verify template database hash
 		print "==> verifying target database schema ..."
-
 		target_version = _cfg.get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
 			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
@@ -1206,7 +1222,10 @@ if __name__ == "__main__":
 		exit_with_msg("Bootstrapping failed: wrong result hash")
 
 	if not db.check_data_plausibility():
-		exit_with_msg("Bootstrapping failed: plausibility checks failed")
+		exit_with_msg("Bootstrapping failed: plausibility checks inconsistent")
+
+	if not db.import_data():
+		exit_with_msg("Bootstrapping failed: unable to import data")
 
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We very likely succeeded."
@@ -1240,7 +1259,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.57  2007-07-13 20:54:05  ncq
+# Revision 1.58  2007-09-18 22:54:00  ncq
+# - implement running data import scripts
+#
+# Revision 1.57  2007/07/13 20:54:05  ncq
 # - fix missing %
 #
 # Revision 1.56  2007/07/03 15:51:47  ncq
