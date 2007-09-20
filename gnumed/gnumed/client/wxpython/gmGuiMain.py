@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.354 2007-09-17 21:46:51 ncq Exp $
-__version__ = "$Revision: 1.354 $"
+# $Id: gmGuiMain.py,v 1.355 2007-09-20 19:35:14 ncq Exp $
+__version__ = "$Revision: 1.355 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -176,7 +176,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		#initialize the gui broker
 		self.__gb = gmGuiBroker.GuiBroker()
-		self.__gb['EmergencyExit'] = self._clean_exit
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _provider.workplace)
@@ -306,7 +305,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_gnumed.AppendSeparator()
 
 		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
-		wx.EVT_MENU(self, wx.ID_EXIT, self.OnFileExit)
+		wx.EVT_MENU(self, wx.ID_EXIT, self.__on_exit_gnumed)
 
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
@@ -657,7 +656,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# GNUmed menu
 	#----------------------------------------------
-	def OnFileExit(self, event):
+	def __on_exit_gnumed(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
 		# calls wx.EVT_CLOSE handler
 		self.Close()
@@ -783,13 +782,14 @@ class gmTopLevelFrame(wx.Frame):
 		raise ValueError('raised ValueError to test exception handling')
 	#----------------------------------------------
 	def OnClose(self, event):
-		"""wx.EVT_CLOSE handler.
+		"""This is the wx.EVT_CLOSE handler.
 
 		- framework still functional
 		"""
 		# FIXME: ask user whether to *really* close and save all data
 		# call cleanup helper
 		self._clean_exit()
+		self.Destroy()
 	#----------------------------------------------
 	def OnExportEMR(self, event):
 		"""
@@ -1079,10 +1079,9 @@ Search results:
 		except KeyError:
 			pass
 		except:
-			_log.LogException('cannot stop scripting listener thread', sys.exc_info(), verbose=0)
+			_log.LogException('cannot stop scripting listener thread', verbose=0)
 		self.timer.Stop()
-		self.mainmenu = None
-		self.Destroy()
+#		self.mainmenu = None
 	#----------------------------------------------
 #	def OnIdle(self, event):
 #		"""Here we can process any background tasks
@@ -1477,7 +1476,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.354  2007-09-17 21:46:51  ncq
+# Revision 1.355  2007-09-20 19:35:14  ncq
+# - somewhat cleanup exit code
+#
+# Revision 1.354  2007/09/17 21:46:51  ncq
 # - comment out unimplemented menu item
 #
 # Revision 1.353  2007/09/10 12:35:32  ncq
