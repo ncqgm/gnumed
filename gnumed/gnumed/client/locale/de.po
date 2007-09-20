@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.99 $
+# $Revision: 1.100 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-09-17 23:47+CEST\n"
+"POT-Creation-Date: 2007-09-20 21:00+CEST\n"
 "PO-Revision-Date: 2007-09-17 21:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -4453,8 +4453,8 @@ msgid ""
 "This setting will not affect the language the user\n"
 "interface is displayed in."
 msgstr ""
-"Wählen Sie die Spracheinstellung für die Datenbank aus\n"
-"der Liste unten.\n"
+"Wählen Sie die Spracheinstellung für die Datenbank aus der Liste unten.\n"
+"\n"
 "Diese Einstellung beeinflußt nicht die Spracheinstellung\n"
 "der Benutzeroberfläche."
 
