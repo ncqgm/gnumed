@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.355 2007-09-20 19:35:14 ncq Exp $
-__version__ = "$Revision: 1.355 $"
+# $Id: gmGuiMain.py,v 1.356 2007-09-20 21:30:39 ncq Exp $
+__version__ = "$Revision: 1.356 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -53,7 +53,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets
-from Gnumed.business import gmPerson, gmClinicalRecord
+from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
 from Gnumed.exporters import gmPatientExporter
 
 try:
@@ -297,6 +297,10 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_config.Append(ID, _('Database language'), _('Configure the database language.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
+
+		ID = wx.NewId()
+		menu_config.Append(ID, _('Database message'), _('Configure the database welcome message.'))
+		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
 
 #		ID = wx.NewId()
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
@@ -688,6 +692,10 @@ class gmTopLevelFrame(wx.Frame):
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [{'cmd': u'select i18n.set_curr_lang(%(lang)s)', 'args': {'lang': language}}]
 		)
+	#----------------------------------------------
+	def __on_set_db_welcome(self, event):
+		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
+		dlg.ShowModal()
 	#----------------------------------------------
 #	def __on_configure_workplace(self, evt):
 #		pass
@@ -1208,15 +1216,6 @@ class gmApp(wx.App):
 
 		self.__setup_platform()
 
-		# check for slave mode
-#		tmp = self.user_prefs_cfg_file.get('workplace', 'slave mode')
-#		if tmp == "1":
-#			self.__guibroker['main.slave_mode'] = True
-#			_log.Log(gmLog.lInfo, 'slave mode is ON')
-#		else:
-#			self.__guibroker['main.slave_mode'] = False
-#			_log.Log(gmLog.lInfo, 'slave mode is OFF')
-
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
 		if not gmLogin.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
@@ -1262,11 +1261,10 @@ class gmApp(wx.App):
 		self.__set_db_lang()
 
 		# display database banner
-		rows, idx = gmPG2.run_ro_queries(link_obj = None, queries = [{'cmd': u'select _(message) as message from cfg.db_logon_banner'}])
-		if len(rows) > 0:
-			msg = rows[0]['message'].strip()
-			if msg != u'':
-				gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
+		surgery = gmSurgery.gmCurrentPractice()
+		msg = surgery.db_logon_banner
+		if msg != u'':
+			gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
 
 		# create the main window
 		cli_layout = gmCLI.arg.get('--layout', None)
@@ -1476,7 +1474,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.355  2007-09-20 19:35:14  ncq
+# Revision 1.356  2007-09-20 21:30:39  ncq
+# - cleanup
+# - allow setting db logon banner
+#
+# Revision 1.355  2007/09/20 19:35:14  ncq
 # - somewhat cleanup exit code
 #
 # Revision 1.354  2007/09/17 21:46:51  ncq
