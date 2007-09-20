@@ -8,8 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: cfg-report_query.sql,v 1.2 2007-09-10 13:49:32 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: cfg-report_query.sql,v 1.3 2007-09-20 21:30:52 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -75,11 +75,17 @@ order by
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.2 $');
+grant update, insert, delete on cfg.db_logon_banner to group "gm-doctors";
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('$RCSfile: cfg-report_query.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: cfg-report_query.sql,v $
--- Revision 1.2  2007-09-10 13:49:32  ncq
+-- Revision 1.3  2007-09-20 21:30:52  ncq
+-- - grants for cfg.db_logon_banner
+--
+-- Revision 1.2  2007/09/10 13:49:32  ncq
 -- - add birthday list report
 --
 -- Revision 1.1  2007/08/24 15:59:57  ncq
