@@ -3,8 +3,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.28 2007-09-10 12:35:08 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmAbout.py,v 1.29 2007-09-20 19:34:04 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -250,14 +250,16 @@ if __name__ == '__main__':
 			frame.Show(1)
 			return 1
 	#---------------------
-#	_ = lambda x:x
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		app = TestApp()
 		app.MainLoop()
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.28  2007-09-10 12:35:08  ncq
+# Revision 1.29  2007-09-20 19:34:04  ncq
+# - cleanup
+#
+# Revision 1.28  2007/09/10 12:35:08  ncq
 # - make accessible to epydoc
 #
 # Revision 1.27  2007/08/29 14:37:00  ncq
