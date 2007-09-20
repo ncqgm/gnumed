@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.87 2007-09-04 23:30:28 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmLoginDialog.py,v 1.88 2007-09-20 19:07:38 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -338,7 +338,7 @@ class LoginPanel(wx.Panel):
 			profiles[label] = cBackendProfile()
 			profiles[label].name = label
 			profiles[label].host = host
-			profiles[label].port = 5433
+			profiles[label].port = 5432
 			profiles[label].database = curr_db
 			profiles[label].encoding = 'UTF8'
 			
@@ -503,7 +503,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.87  2007-09-04 23:30:28  ncq
+# Revision 1.88  2007-09-20 19:07:38  ncq
+# - port 5432 on salaam again
+#
+# Revision 1.87  2007/09/04 23:30:28  ncq
 # - support --slave and slave mode checkbox
 #
 # Revision 1.86  2007/08/07 21:42:40  ncq
