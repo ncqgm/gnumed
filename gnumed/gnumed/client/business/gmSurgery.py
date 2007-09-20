@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.3 2007-08-07 21:34:19 ncq Exp $
+# $Id: gmSurgery.py,v 1.4 2007-09-20 21:29:38 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -66,6 +66,21 @@ class gmCurrentPractice(gmBorg.cBorg):
 		return self.__helpdesk
 
 	helpdesk = property(_get_helpdesk, _set_helpdesk)
+	#--------------------------------------------------------
+	def _get_db_logon_banner(self):
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u'select _(message) from cfg.db_logon_banner'}])
+		if len(rows) == 0:
+			return u''
+		return gmTools.coalesce(rows[0][0], u'').strip()
+
+	def _set_db_logon_banner(self, banner):
+		queries = [
+			{'cmd': u'delete from cfg.db_logon_banner'},
+			{'cmd': u'insert into cfg.db_logon_banner (message) values (%(msg)s)', 'args': {'msg': banner.strip()}}
+		]
+		rows, idx = gmPG2.run_rw_queries(queries = queries, end_tx = True)
+
+	db_logon_banner = property(_get_db_logon_banner, _set_db_logon_banner)
 #============================================================
 class cSurgery(object):
 
@@ -91,17 +106,20 @@ class cSurgery(object):
 		]
 		rows, idx = gmPG2.run_rw_queries(queries=queries)
 		return True
-	#--------------------------------------------------------
 
 #============================================================
 if __name__ == '__main__':
 
 	prac = gmCurrentPractice()
 	print "help desk:", prac.helpdesk
+	print prac.db_logon_banner
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.3  2007-08-07 21:34:19  ncq
+# Revision 1.4  2007-09-20 21:29:38  ncq
+# - add db_logon_banner handling
+#
+# Revision 1.3  2007/08/07 21:34:19  ncq
 # - cPaths -> gmPaths
 #
 # Revision 1.2  2007/05/11 14:11:20  ncq
