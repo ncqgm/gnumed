@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.66 2007-09-03 11:03:20 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmGuiHelpers.py,v 1.67 2007-09-20 21:30:06 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -25,8 +25,8 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals
-from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals, gmTools
+from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
 
 
 _log = gmLog.gmDefLog
@@ -210,6 +210,23 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 	def _on_BTN_2_pressed(self, evt):
 		if self.IsModal():
 			self.EndModal(wx.ID_NO)
+		else:
+			self.Close()
+# ========================================================================
+class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgGreetingEditorDlg.wxgGreetingEditorDlg.__init__(self, *args, **kwargs)
+
+		self.surgery = gmSurgery.gmCurrentPractice()
+		self._TCTRL_message.SetValue(self.surgery.db_logon_banner)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		self.surgery.db_logon_banner = self._TCTRL_message.GetValue().strip()
+		if self.IsModal():
+			self.EndModal(wx.ID_SAVE)
 		else:
 			self.Close()
 # ========================================================================
@@ -565,7 +582,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.66  2007-09-03 11:03:20  ncq
+# Revision 1.67  2007-09-20 21:30:06  ncq
+# - cGreetingEditorDlg
+#
+# Revision 1.66  2007/09/03 11:03:20  ncq
 # - teach top level wx exception handler about ImportError
 #
 # Revision 1.65  2007/08/20 14:25:16  ncq
