@@ -10,7 +10,7 @@ import pyPgSQL.PgSQL as dbapi
 
 __license__ = "GPL"
 dsn = "::gnumed_v2:any-doc:any-doc"
-#dsn = "salaam.homeunix.com:5433:gnumed_v2:any-doc:any-doc"
+#dsn = "salaam.homeunix.com:5432:gnumed_v2:any-doc:any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
 
@@ -96,7 +96,10 @@ log.close()
 
 #=======================================================================
 # $Log: test-bytea-import.py,v $
-# Revision 1.4  2007-05-22 13:34:49  ncq
+# Revision 1.5  2007-09-20 19:07:10  ncq
+# - port 5432, again
+#
+# Revision 1.4  2007/05/22 13:34:49  ncq
 # - port 5433 on salaam
 #
 # Revision 1.3  2006/09/01 15:23:13  ncq
