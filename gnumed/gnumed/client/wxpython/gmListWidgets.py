@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.15 2007-09-07 22:38:04 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmListWidgets.py,v 1.16 2007-09-20 19:10:15 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys
+import sys, types
 
 
 import wx
@@ -186,14 +186,18 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		if items is None:
 			return
-
 		for item in items:
-			# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
-			col_val = unicode(item[0])
-			row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-			for col_idx in range(1, len(item)):
-				col_val = unicode(item[col_idx])
-				self.SetStringItem(index = row_num, col = col_idx, label = col_val)
+			if type(item) == types.ListType:
+				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
+				col_val = unicode(item[0])
+				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+				for col_idx in range(1, len(item)):
+					col_val = unicode(item[col_idx])
+					self.SetStringItem(index = row_num, col = col_idx, label = col_val)
+			else:
+				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
+				col_val = unicode(item)
+				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
 
 		self.__data = items
 	#------------------------------------------------------------
@@ -285,7 +289,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.15  2007-09-07 22:38:04  ncq
+# Revision 1.16  2007-09-20 19:10:15  ncq
+# - carefully handle list item insertion - handle both list
+#   of lists and list of strings
+#
+# Revision 1.15  2007/09/07 22:38:04  ncq
 # - remove Fit() call since it's counterproductive for the list
 #
 # Revision 1.14  2007/09/02 20:54:26  ncq
