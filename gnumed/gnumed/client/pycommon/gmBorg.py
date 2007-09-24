@@ -1,8 +1,8 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.3 2007-05-11 14:14:59 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmBorg.py,v 1.4 2007-09-24 22:05:23 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -27,7 +27,6 @@ class cBorg(object):
 	"""A generic Borg mixin for new-style classes.
 
 	- mixin this class with your class' ancestors to borg it
-	- call cBorg.__init__(self) right away in your own __init__()
 
 	- there may be many instances of this - PER CHILD CLASS - but they all share state
 	"""
@@ -71,7 +70,10 @@ if __name__ == '__main__':
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.3  2007-05-11 14:14:59  ncq
+# Revision 1.4  2007-09-24 22:05:23  ncq
+# - improved docs
+#
+# Revision 1.3  2007/05/11 14:14:59  ncq
 # - make borg per-sublcass
 #
 # Revision 1.2  2007/05/07 12:30:05  ncq
