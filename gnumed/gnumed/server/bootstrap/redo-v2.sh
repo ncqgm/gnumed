@@ -49,7 +49,7 @@ echo "not disturb the operation of the GNUmed client in your"
 echo "country in any way."
 echo "==========================================================="
 echo "Dropping old database if there is any."
-dropdb -U gm-dbo -i ${PORT_DEF} $GM_CORE_DB
+sudo -u postgres dropdb -i ${PORT_DEF} $GM_CORE_DB
 rm -rf ${LOG}
 echo "======================="
 echo "bootstrapping database"
