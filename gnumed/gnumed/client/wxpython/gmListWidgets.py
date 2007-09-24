@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.16 2007-09-20 19:10:15 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmListWidgets.py,v 1.17 2007-09-24 18:37:08 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -152,7 +152,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		except KeyError:
 			kwargs['style'] = wx.LC_REPORT
 
-		self.__is_single_selection = ((kwargs['style'] & wx.LC_SINGLE_SEL) == 8192)
+		self.__is_single_selection = ((kwargs['style'] & wx.LC_SINGLE_SEL) == wx.LC_SINGLE_SEL)
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
@@ -210,6 +210,13 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			self.Select(idx = idx, on = 1)
 	#------------------------------------------------------------
 	# getters
+	#------------------------------------------------------------
+	def get_column_labels(self):
+		labels = []
+		for col_idx in self.GetColumnCount():
+			col = self.GetColumn(col = col_idx)
+			labels.append(col.GetText())
+		return labels
 	#------------------------------------------------------------
 	def get_item_data(self, item_idx = None):
 		return self.__data[item_idx]
@@ -289,7 +296,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.16  2007-09-20 19:10:15  ncq
+# Revision 1.17  2007-09-24 18:37:08  ncq
+# - get_column_labels()
+#
+# Revision 1.16  2007/09/20 19:10:15  ncq
 # - carefully handle list item insertion - handle both list
 #   of lists and list of strings
 #
