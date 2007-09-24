@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.4 2007-09-10 13:50:05 ncq Exp $
-__version__ = '$Revision: 1.4 $'
+# $Id: gmDataMiningWidgets.py,v 1.5 2007-09-24 18:31:16 ncq Exp $
+__version__ = '$Revision: 1.5 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -275,7 +275,53 @@ The GNUmed client.
 		gmDispatcher.send(signal='statustext', msg = _('Error saving report definition [%s].') % report, beep=True)
 		return False
 	#--------------------------------------------------------
+	def _on_visualize_button_pressed(self, evt):
+
+		try:
+			# better fail early
+			import Gnuplot
+		except ImportError:
+			gmGuiHelpers.gm_show_info (
+				aMessage = _('Cannot import GNUplot python module.'),
+				aTitle = _('Query result visualizer')
+			)
+			return
+
+		x_col = gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _('Choose a column to be used as the X-Axis:'),
+			caption = _('Choose column from query results ...'),
+			choices = self.query_results[0].keys(),
+			columns = [_('column name')],
+			single_selection = True
+		)
+		if x_col is None:
+			return
+
+		y_col = gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _('Choose a column to be used as the Y-Axis:'),
+			caption = _('Choose column from query results ...'),
+			choices = self.query_results[0].keys(),
+			columns = [_('column name')],
+			single_selection = True
+		)
+		if y_col is None:
+			return
+
+		# FIXME: support debugging (debug=1) depending on --debug
+		gp = Gnuplot.Gnuplot(persist=1)
+		gp.title(_('GNUmed report results:'))
+		gp.xlabel(x_col)
+		gp.ylabel(y_col)
+		gp.plot([ [r[x_col], r[y_col]] for r in self.query_results ])
+
+		return
+	#--------------------------------------------------------
 	def _on_run_button_pressed(self, evt):
+
+		self._BTN_visualize.Enable(False)
+
 		query = self._TCTRL_query.GetValue().strip().strip(';')
 		if query == u'':
 			return True
@@ -286,7 +332,7 @@ The GNUmed client.
 		# FIXME: make configurable
 		query = u'select * from (' + query + u') as real_query limit 1024'
 		try:
-			# read-only only for safety reasons
+			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
 		except:
 			self._LCTRL_result.set_columns([_('Error')])
@@ -316,9 +362,9 @@ The GNUmed client.
 
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
 		# set_columns() and sort them according to position-in-query
-		cols = [(value, key) for key, value in idx.items()]
+		cols = [ (value, key) for key, value in idx.items() ]
 		cols.sort()
-		cols = [pair[1] for pair in cols]
+		cols = [ pair[1] for pair in cols ]
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
 			label = unicode(gmTools.coalesce(row[0], u''))
@@ -327,8 +373,14 @@ The GNUmed client.
 				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = unicode(gmTools.coalesce(row[col_idx], u'')))
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
-		try: self._LCTRL_result.patient_key = idx['pk_patient']
-		except KeyError: pass
+		try:
+			self._LCTRL_result.patient_key = idx['pk_patient']
+		except KeyError:
+			pass
+
+		self.query_results = rows
+		self._BTN_visualize.Enable(True)
+
 		return True
 #================================================================
 # main
@@ -359,7 +411,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.4  2007-09-10 13:50:05  ncq
+# Revision 1.5  2007-09-24 18:31:16  ncq
+# - support visualizing data mining results
+#
+# Revision 1.4  2007/09/10 13:50:05  ncq
 # - missing import
 #
 # Revision 1.3  2007/08/12 00:07:18  ncq
