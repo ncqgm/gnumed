@@ -11,14 +11,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: cfg-set_option.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: cfg-set_option.sql,v 1.2 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-
--- --------------------------------------------------------------
-begin;
 
 -- --------------------------------------------------------------
 create or replace function cfg.create_cfg_item(text, text, text, text, text)
@@ -145,14 +142,14 @@ comment on function cfg.set_option(text, anyelement, text, text, text) is
 	'set option, owner = NULL means CURRENT_USER';
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-set_option.sql,v $', '$Revision: 1.1 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: cfg-set_option.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: cfg-set_option.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.3  2006/09/21 19:54:47  ncq

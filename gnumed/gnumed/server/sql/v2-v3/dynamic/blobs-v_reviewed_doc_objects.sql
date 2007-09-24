@@ -11,11 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_reviewed_doc_objects.sql,v 1.2 2006-12-11 17:01:28 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
-begin;
+-- $Id: blobs-v_reviewed_doc_objects.sql,v 1.3 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 -- remember to handle dependant objects possibly dropped by CASCADE
@@ -60,14 +57,14 @@ from
 grant select on blobs.v_reviewed_doc_objects to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_reviewed_doc_objects.sql,v $', '$Revision: 1.2 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: blobs-v_reviewed_doc_objects.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: blobs-v_reviewed_doc_objects.sql,v $
--- Revision 1.2  2006-12-11 17:01:28  ncq
+-- Revision 1.3  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.2  2006/12/11 17:01:28  ncq
 -- - use coalesce to detect reviewer
 --
 -- Revision 1.1  2006/09/25 10:55:01  ncq

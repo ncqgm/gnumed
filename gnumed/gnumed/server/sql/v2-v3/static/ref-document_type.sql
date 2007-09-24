@@ -11,14 +11,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: ref-document_type.sql,v 1.1 2006-09-26 14:47:53 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: ref-document_type.sql,v 1.2 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-
--- --------------------------------------------------------------
-begin;
 
 -- --------------------------------------------------------------
 create table ref.document_type (
@@ -36,14 +33,14 @@ insert into ref.document_type(description)
 insert into ref.document_type(scope, description) values ('AU', i18n.i18n('referral report PIT (AU)'));
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: ref-document_type.sql,v $', '$Revision: 1.1 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: ref-document_type.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: ref-document_type.sql,v $
--- Revision 1.1  2006-09-26 14:47:53  ncq
+-- Revision 1.2  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.1  2006/09/26 14:47:53  ncq
 -- - those live here now
 --
 -- Revision 1.1  2006/09/18 17:30:43  ncq

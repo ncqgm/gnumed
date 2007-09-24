@@ -11,14 +11,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-doc_type.sql,v 1.1 2006-09-26 14:47:53 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-doc_type.sql,v 1.2 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-
--- --------------------------------------------------------------
-begin;
 
 -- --------------------------------------------------------------
 -- sanity check
@@ -35,14 +32,14 @@ alter table blobs.doc_type drop column is_user cascade;
 grant select, insert, update, delete on blobs.doc_type to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-doc_type.sql,v $', '$Revision: 1.1 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: blobs-doc_type.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: blobs-doc_type.sql,v $
--- Revision 1.1  2006-09-26 14:47:53  ncq
+-- Revision 1.2  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.1  2006/09/26 14:47:53  ncq
 -- - those live here now
 --
 -- Revision 1.1  2006/09/18 17:29:14  ncq

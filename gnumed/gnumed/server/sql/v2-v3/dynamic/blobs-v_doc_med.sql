@@ -11,11 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_doc_med.sql,v 1.3 2006-10-24 13:10:04 ncq Exp $
--- $Revision: 1.3 $
-
--- --------------------------------------------------------------
-begin;
+-- $Id: blobs-v_doc_med.sql,v 1.4 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -58,13 +55,14 @@ comment on index blobs.idx_docs_by_patient is
 GRANT SELECT ON blobs.v_doc_med TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_doc_med.sql,v $', '$Revision: 1.3 $');
-
-commit;
+select public.log_script_insertion('$RCSfile: blobs-v_doc_med.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: blobs-v_doc_med.sql,v $
--- Revision 1.3  2006-10-24 13:10:04  ncq
+-- Revision 1.4  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.3  2006/10/24 13:10:04  ncq
 -- - type -> fk_type
 --
 -- Revision 1.2  2006/09/28 14:40:37  ncq

@@ -11,14 +11,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: ref-document_type-dynamic.sql,v 1.1 2006-09-25 10:55:01 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: ref-document_type-dynamic.sql,v 1.2 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-
--- --------------------------------------------------------------
-begin;
 
 -- --------------------------------------------------------------
 comment on table ref.document_type is
@@ -36,14 +33,14 @@ grant select, insert, update, delete
 	to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: ref-document_type-dynamic.sql,v $', '$Revision: 1.1 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: ref-document_type-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: ref-document_type-dynamic.sql,v $
--- Revision 1.1  2006-09-25 10:55:01  ncq
+-- Revision 1.2  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.1  2006/09/25 10:55:01  ncq
 -- - added here
 --
 -- Revision 1.1  2006/09/18 17:30:43  ncq

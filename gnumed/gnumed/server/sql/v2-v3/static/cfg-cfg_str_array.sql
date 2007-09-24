@@ -11,13 +11,11 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: cfg-cfg_str_array.sql,v 1.3 2006-12-29 11:33:19 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: cfg-cfg_str_array.sql,v 1.4 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-
-begin;
 
 -- --------------------------------------------------------------
 insert into cfg.cfg_str_array
@@ -31,13 +29,14 @@ values (
 --	'';
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-cfg_str_array.sql,v $', '$Revision: 1.3 $');
-
-commit;
+select public.log_script_insertion('$RCSfile: cfg-cfg_str_array.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: cfg-cfg_str_array.sql,v $
--- Revision 1.3  2006-12-29 11:33:19  ncq
+-- Revision 1.4  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.3  2006/12/29 11:33:19  ncq
 -- - Release 0.2.3 default workplace is called just that, "Release 0.2.3"
 --
 -- Revision 1.2  2006/10/30 16:49:53  ncq

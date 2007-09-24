@@ -11,11 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_doc_desc.sql,v 1.2 2006-10-08 09:13:36 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
-begin;
+-- $Id: blobs-v_doc_desc.sql,v 1.3 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -47,14 +44,14 @@ comment on view blobs.v_doc_desc is
 grant select on blobs.v_doc_desc to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: blobs-v_doc_desc.sql,v $', '$Revision: 1.2 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: blobs-v_doc_desc.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: blobs-v_doc_desc.sql,v $
--- Revision 1.2  2006-10-08 09:13:36  ncq
+-- Revision 1.3  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.2  2006/10/08 09:13:36  ncq
 -- - doc_id now fk_doc
 --
 -- Revision 1.1  2006/09/25 10:55:01  ncq

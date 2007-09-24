@@ -11,11 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-v_narrative4search.sql,v 1.3 2006-12-11 17:03:58 ncq Exp $
--- $Revision: 1.3 $
-
--- --------------------------------------------------------------
-begin;
+-- $Id: clin-v_narrative4search.sql,v 1.4 2007-09-24 23:31:17 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -186,13 +183,14 @@ comment on view clin.v_narrative4search is
 grant select on clin.v_narrative4search to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.3 $');
-
-commit;
+select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: clin-v_narrative4search.sql,v $
--- Revision 1.3  2006-12-11 17:03:58  ncq
+-- Revision 1.4  2007-09-24 23:31:17  ncq
+-- - remove begin; commit; as it breaks the bootstrapper
+--
+-- Revision 1.3  2006/12/11 17:03:58  ncq
 -- - dem.v_staff -> dem.staff
 --
 -- Revision 1.2  2006/10/24 13:10:30  ncq
