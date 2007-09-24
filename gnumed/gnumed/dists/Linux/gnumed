@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.8 2007-05-22 13:49:52 ncq Exp $
+# $Id: gnumed,v 1.9 2007-09-24 18:37:45 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -59,7 +59,7 @@ if [ -r /etc/gnumed/gnumed-startup-local.sh ] ; then
 fi
 
 # source local startup extension shell script if it exists
-if [ -r ${HOME}/.gnumed/gnumed-startup-local.sh ] ; then
+if [ -r ${HOME}/.gnumed/scripts/gnumed-startup-local.sh ] ; then
 	. ${HOME}/.gnumed/scripts/gnumed-startup-local.sh
 fi
 
@@ -68,7 +68,10 @@ python ${GNUMEDDIR}/gnumed.py ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.8  2007-05-22 13:49:52  ncq
+# Revision 1.9  2007-09-24 18:37:45  ncq
+# - fix startup script directory error as noticed by Andreas
+#
+# Revision 1.8  2007/05/22 13:49:52  ncq
 # - exit with 1 when something goes wrong
 #
 # Revision 1.7  2007/04/27 13:30:07  ncq
