@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.246 2007-09-07 10:55:40 ncq Exp $
-__version__ = "$Revision: 1.246 $"
+# $Id: gmClinicalRecord.py,v 1.247 2007-09-24 22:07:32 ncq Exp $
+__version__ = "$Revision: 1.247 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1418,6 +1418,7 @@ where
 		cmd = u"""
 delete from clin.encounter where 
 	fk_patient = %(pat)s and
+	age(last_affirmed) > '1 week'::interval and
 	pk not in (select fk_encounter from clin.clin_root_item) and
 	pk not in (select fk_encounter from blobs.doc_med) and
 	pk not in (select fk_encounter from clin.operation)
@@ -1617,7 +1618,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.246  2007-09-07 10:55:40  ncq
+# Revision 1.247  2007-09-24 22:07:32  ncq
+# - be careful about deleting empty encounters - make sure they are at least 1 week old
+#
+# Revision 1.246  2007/09/07 10:55:40  ncq
 # - order by in get_clin_narrative()
 #
 # Revision 1.245  2007/06/28 12:30:05  ncq
