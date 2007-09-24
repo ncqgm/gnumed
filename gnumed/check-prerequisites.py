@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 import sys
 
@@ -107,8 +107,8 @@ try:
 except ImportError:
 	print "ERROR: twain not installed"
 	print "INFO : this is needed to access scanners on Windows"
-	print "INFO : GNUmed will work but you will be unable to scan"
-	print "INFO : if you are on a Windows machine"
+	print "INFO : GNUmed will work but you will be unable to"
+	print "INFO : scan if you are on a Windows machine"
 
 print "=> checking for Python module 'uno' ..."
 try:
@@ -120,6 +120,16 @@ except ImportError:
 	print "INFO : GNUmed will work but you will be unable"
 	print "INFO : to use OpenOffice to write letters and"
 	print "INFO : fill in forms"
+
+print "=> checking for Python module 'Gnuplot' ..."
+try:
+	import Gnuplot
+	print "=> found"
+except ImportError:
+	print "ERROR: Gnuplot python binding not installed"
+	print "INFO : this is needed for data visualization"
+	print "INFO : GNUmed will work but you will be unable"
+	print "INFO : to visualize search results and lab data"
 
 print "=> checking for GNUmed's own Python modules ..."
 try:
@@ -141,7 +151,10 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.16  2007-09-16 01:01:03  ncq
+# Revision 1.17  2007-09-24 18:25:12  ncq
+# - gnuplot.py
+#
+# Revision 1.16  2007/09/16 01:01:03  ncq
 # - check for python-uno
 #
 # Revision 1.15  2007/03/31 20:10:13  ncq
