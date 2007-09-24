@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.36 2007-08-15 09:21:21 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.37 2007-09-24 18:40:49 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -210,6 +210,7 @@ echo "============"
 mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-restore_from_backup.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
@@ -278,6 +279,17 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
 cp -R ../../server/sql/v5-v6/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
 cp -R ../../server/sql/v5-v6/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
 
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/data
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/python
+
+cp -R ../../server/sql/v6-v7/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v6-v7/dynamic
+cp -R ../../server/sql/v6-v7/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v6-v7/static
+cp -R ../../server/sql/v6-v7/data/* ./GNUmed-$CLIENTREV/server/sql/v6-v7/data
+cp -R ../../server/sql/v6-v7/python/*.py ./GNUmed-$CLIENTREV/server/sql/v6-v7/python
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
@@ -314,7 +326,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.36  2007-08-15 09:21:21  ncq
+# Revision 1.37  2007-09-24 18:40:49  ncq
+# - include v7 sql scripts
+# - include zip+sign script
+#
+# Revision 1.36  2007/08/15 09:21:21  ncq
 # - we do need gmForms.py now
 #
 # Revision 1.35  2007/05/22 14:03:43  ncq
