@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -367,8 +367,15 @@ def get_col_indices(cursor = None):
 	col_indices = {}
 	col_index = 0
 	for col_desc in cursor.description:
-		col_indices[col_desc[0]] = col_index
+		col_name = col_desc[0]
+		# a query like "select 1,2;" will return two columns of the same name !
+		# hence adjust to that, note, however, that dict-style access won't work
+		# on results of such queries ...
+		if col_indices.has_key(col_name):
+			col_name = '%s_%s' % (col_name, col_index)
+		col_indices[col_name] = col_index
 		col_index += 1
+
 	return col_indices
 #------------------------------------------------------------------------
 def get_col_defs(link_obj=None, schema='public', table=None):
@@ -1193,7 +1200,12 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.56  2007-09-18 22:53:26  ncq
+# Revision 1.57  2007-09-24 18:29:42  ncq
+# - select 1,2; will return two columns with the same name !
+#   hence, mapping names to column indices in a dict will not work :-(
+#   fix breakage but don't really support it, either
+#
+# Revision 1.56  2007/09/18 22:53:26  ncq
 # - enhance file2bytea to accept conn argument
 #
 # Revision 1.55  2007/09/17 21:46:28  ncq
