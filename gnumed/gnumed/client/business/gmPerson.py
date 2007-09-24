@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.129 2007-09-10 12:34:02 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmPerson.py,v 1.130 2007-09-24 22:08:56 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1281,7 +1281,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 					})
 					# name parts anywhere in name - third order query ...
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames || n.lastnames) ~* lower(%s) AND lower(firstnames || n.lastnames) ~* lower(%s)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames || n.lastnames) ~* lower(%s) AND lower(n.firstnames || n.lastnames) ~* lower(%s)",
 						'args': [_('name'), name_parts[0], name_parts[1]]
 					})
 					return queries
@@ -1299,7 +1299,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 						'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(u',', u'.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day', dob) = dem.date_trunc_utc('day', %s::timestamp with time zone)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text as match_type from dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day', dob) = dem.date_trunc_utc('day', %s::timestamp with time zone)",
 						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(u',', u'.')]
 					})
 					# assumption: last, first, dob - second order query
@@ -1940,7 +1940,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.129  2007-09-10 12:34:02  ncq
+# Revision 1.130  2007-09-24 22:08:56  ncq
+# - table-qualify ambigous column defs
+#
+# Revision 1.129  2007/09/10 12:34:02  ncq
 # - fix dob_in_range()
 #
 # Revision 1.128  2007/08/07 21:34:18  ncq
