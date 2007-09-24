@@ -14,7 +14,7 @@
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.8 2007-06-11 20:14:59 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.9 2007-09-24 18:25:45 ncq Exp $
 
 #------------------------------------------------------------
 # those need to be changed in most if not all cases
@@ -50,6 +50,11 @@ GM_HOST=""
 # file permissions mask to set the backup file to
 BACKUP_MASK="0600"
 
+# whether or not to verify that TAR archive,
+# verification may be very time consuming,
+# empty means: do not verify
+VERIFY_TAR=""
+
 # the compression level to use with bzip2 (1-9) (see: man bzip2)
 COMPRESSION_LEVEL="9"
 
@@ -70,7 +75,10 @@ GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.8  2007-06-11 20:14:59  ncq
+# Revision 1.9  2007-09-24 18:25:45  ncq
+# - VERIFY_TAR
+#
+# Revision 1.8  2007/06/11 20:14:59  ncq
 # - bump database version
 #
 # Revision 1.7  2007/06/05 14:57:03  ncq
