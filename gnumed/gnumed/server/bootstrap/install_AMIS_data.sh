@@ -7,7 +7,7 @@
 
 SQL_DIR=../sql
 MODULES_DIR=../../client/pycommon/
-GNUMED_DB=gnumed_v5
+GNUMED_DB=gnumed_v7
 
 read -p "Please enter path to amis-data:" AMIS_DIR;
 echo "You may have to type in the password for gm-dbo."
@@ -24,7 +24,10 @@ echo "You will have to login to the GnuMed database to write these data."
 env PYTHONPATH=$MODULES_DIR $MODULES_DIR/tools/transferDBset.py -i ./amis-config.set
 
 # $Log: install_AMIS_data.sh,v $
-# Revision 1.6  2007-03-18 23:50:13  ncq
+# Revision 1.7  2007-09-24 18:39:06  ncq
+# - work on v7
+#
+# Revision 1.6  2007/03/18 23:50:13  ncq
 # - some fixes by Ruthard Baudach
 #
 # Revision 1.5  2005/01/12 14:47:49  ncq
