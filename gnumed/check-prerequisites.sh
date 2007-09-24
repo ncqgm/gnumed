@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.sh,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 echo "-------------------------------------------------------------"
 echo "Please make sure to also read the INSTALL and README files."
@@ -78,6 +78,15 @@ else
 	echo "=> found"
 fi
 
+echo "=> checking for AMIDE DICOM viewer ..."
+BIN=`which amide`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'amide' command installed."
+	echo "INFO : It is available with your OS. On Windows it is not needed."
+else
+	echo "=> found"
+fi
+
 echo "=> checking for XSane scanner frontend ..."
 BIN=`which xsane`
 if [ "x${BIN}x" == "xx" ]; then
@@ -105,10 +114,22 @@ else
 	echo "=> found"
 fi
 
+echo "=> checking for GNUplot ..."
+BIN=`which gnuplot`
+if [ "x${BIN}x" == "xx" ]; then
+	echo "INFO : You don't seem to have the 'gnuplot' command installed."
+	echo "INFO : It is available with your OS or can be downloaded from the web."
+else
+	echo "=> found"
+fi
+
 
 #=================================================================
 # $Log: check-prerequisites.sh,v $
-# Revision 1.10  2007-09-16 01:01:16  ncq
+# Revision 1.11  2007-09-24 18:24:51  ncq
+# - check for Gnuplot.py
+#
+# Revision 1.10  2007/09/16 01:01:16  ncq
 # - check for konsolekalendar
 #
 # Revision 1.9  2007/03/31 20:11:52  ncq
