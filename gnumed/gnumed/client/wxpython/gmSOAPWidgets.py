@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.94 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmSOAPWidgets.py,v 1.95 2007-09-24 22:05:57 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -603,12 +603,12 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
 		# fill progress_note for import
 		progress_note = []
-		aoe = ''
-		rfe = ''
+		aoe = u''
+		rfe = u''
 		has_rfe = False
 		soap_lines_contents = self.GetValue()
 		for line_content in soap_lines_contents.values():
-			if line_content.text.strip() == '':
+			if line_content.text.strip() == u'':
 				continue
 			progress_note.append ({
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: line_content.data.soap_cat,
@@ -618,7 +618,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			if line_content.data.is_rfe:
 				has_rfe = True
 				rfe += line_content.text.rstrip()
-			if line_content.data.soap_cat == 'a':
+			if line_content.data.soap_cat == u'a':
 				aoe += line_content.text.rstrip()
 
 		emr = self.__pat.get_emr()
@@ -626,10 +626,24 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# - new episode, must get name from narrative (or user)
 		if (self.__problem is None) or (self.__problem['type'] == 'issue'):
 			# work out episode name
+			epic_name = u''
 			if len(aoe) != 0:
 				epi_name = aoe
 			else:
 				epi_name = rfe
+
+			dlg = wx.TextEntryDialog (
+				parent = self,
+				message = _('Enter a descriptive name for the new episode:'),
+				caption = _('Adding a new episode'),
+				defaultValue = epi_name.replace('\r', '//').replace('\n', '//'),
+				style = wx.OK | wx.CENTRE
+			)
+			dlg.ShowModal()
+			epi_name = dlg.GetValue().strip()
+			if epi_name == u'':
+				gmGuiHelpers.gm_show_error(_('Cannot save a new episode without a name.'), _('saving progress note'), gmLog.lErr)
+				return False
 
 			# new unassociated episode
 			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
@@ -1062,7 +1076,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.94  2007-08-12 00:12:41  ncq
+# Revision 1.95  2007-09-24 22:05:57  ncq
+# - ask user for episode name when needed
+#
+# Revision 1.94  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.93  2007/05/14 13:11:25  ncq
