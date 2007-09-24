@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -646,6 +646,7 @@ class database:
 			drop_existing = bool(_cfg.get(self.section, 'drop target database'))
 			if drop_existing:
 				print "==> dropping pre-existing *target* database [%s] ..." % self.name
+				_log.Log(gmLog.lInfo, 'trying to drop target database')
 				cmd = 'drop database "%s"' % self.name
 				self.conn.set_isolation_level(0)
 				cursor = self.conn.cursor()
@@ -1259,7 +1260,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.59  2007-09-24 21:15:17  ncq
+# Revision 1.60  2007-09-24 22:04:25  ncq
+# - improved logging
+#
+# Revision 1.59  2007/09/24 21:15:17  ncq
 # - cope with missing "data import scripts" option
 #
 # Revision 1.58  2007/09/18 22:54:00  ncq
