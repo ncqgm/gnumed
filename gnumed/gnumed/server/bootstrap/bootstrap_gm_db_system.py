@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -773,7 +773,7 @@ class database:
 		print "==> importing/upgrading data ..."
 
 		import_scripts = _cfg.get(self.section, "data import scripts")
-		if len(import_scripts) == 0:
+		if (import_scripts is None) or (len(import_scripts) == 0):
 			_log.Log(gmLog.lInfo, 'skipped data import: no scripts to run')
 			print "    ... skipped (no scripts to run)"
 			return True
@@ -1259,7 +1259,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.58  2007-09-18 22:54:00  ncq
+# Revision 1.59  2007-09-24 21:15:17  ncq
+# - cope with missing "data import scripts" option
+#
+# Revision 1.58  2007/09/18 22:54:00  ncq
 # - implement running data import scripts
 #
 # Revision 1.57  2007/07/13 20:54:05  ncq
