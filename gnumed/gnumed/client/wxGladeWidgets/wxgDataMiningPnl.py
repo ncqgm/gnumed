@@ -18,6 +18,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self._PRW_report_name = gmPhraseWheel.cPhraseWheel(self.splitter_top_panel, -1, "", style=wx.NO_BORDER)
         self._TCTRL_query = wx.TextCtrl(self.splitter_top_panel, -1, "", style=wx.TE_MULTILINE|wx.TE_WORDWRAP|wx.NO_BORDER)
         self._BTN_run = wx.Button(self.splitter_top_panel, -1, _("Run"), style=wx.BU_EXACTFIT)
+        self._BTN_visualize = wx.Button(self.splitter_top_panel, -1, _("Visualize"), style=wx.BU_EXACTFIT)
         self._BTN_clear = wx.Button(self.splitter_top_panel, -1, _("Clear"), style=wx.BU_EXACTFIT)
         self._BTN_save = wx.Button(self.splitter_top_panel, -1, _("Save"), style=wx.BU_EXACTFIT)
         self._BTN_delete = wx.Button(self.splitter_top_panel, -1, _("Delete"), style=wx.BU_EXACTFIT)
@@ -29,6 +30,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_run_button_pressed, self._BTN_run)
+        self.Bind(wx.EVT_BUTTON, self._on_visualize_button_pressed, self._BTN_visualize)
         self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
         self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
@@ -41,6 +43,8 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._BTN_run.SetToolTipString(_("Run the query and present the results below."))
         self._BTN_run.SetDefault()
+        self._BTN_visualize.SetToolTipString(_("Visualize data from the result list below."))
+        self._BTN_visualize.Enable(False)
         self._BTN_clear.SetToolTipString(_("Clear all fields."))
         self._BTN_save.SetToolTipString(_("Save the report definition."))
         self._BTN_delete.SetToolTipString(_("Delete this report definition."))
@@ -62,6 +66,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         _fgszr_top.Add(self._TCTRL_query, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _fgszr_top.Add((20, 20), 0, wx.ADJUST_MINSIZE, 0)
         _szr_buttons.Add(self._BTN_run, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        _szr_buttons.Add(self._BTN_visualize, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
         _szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _szr_buttons.Add((20, 20), 1, wx.EXPAND|wx.ADJUST_MINSIZE, 0)
         _szr_buttons.Add(self._BTN_save, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
@@ -107,6 +112,10 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
 
     def _on_schema_button_pressed(self, event): # wxGlade: wxgDataMiningPnl.<event_handler>
         print "Event handler `_on_schema_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_visualize_button_pressed(self, event): # wxGlade: wxgDataMiningPnl.<event_handler>
+        print "Event handler `_on_visualize_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgDataMiningPnl
