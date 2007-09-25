@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.101 $
+# $Revision: 1.101.2.1 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-09-20 23:33+CEST\n"
+"POT-Creation-Date: 2007-09-25 20:26+CEST\n"
 "PO-Revision-Date: 2007-09-17 21:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -584,13 +584,13 @@ msgstr "Anamnese"
 msgid "Objective"
 msgstr "Befund"
 
-#: ../exporters/gmPatientExporter.py:734 ../wxpython/gmProgressNoteSTC.py:61
-#: ../wxpython/gmSOAPWidgets.py:743 ../wxpython/gmSOAPWidgets.py:935
+#: ../exporters/gmPatientExporter.py:734 ../wxpython/gmSOAPWidgets.py:756
+#: ../wxpython/gmSOAPWidgets.py:948
 msgid "Assessment"
 msgstr "Bewertung"
 
-#: ../exporters/gmPatientExporter.py:735 ../wxpython/gmProgressNoteSTC.py:62
-#: ../wxpython/gmSOAPWidgets.py:748 ../wxpython/gmSOAPWidgets.py:936
+#: ../exporters/gmPatientExporter.py:735 ../wxpython/gmSOAPWidgets.py:761
+#: ../wxpython/gmSOAPWidgets.py:949
 msgid "Plan"
 msgstr "Therapie"
 
@@ -620,23 +620,19 @@ msgstr ""
 "Beim Exportieren der Personalien ist ein Fehler aufgetreten.\n"
 "Genaue Fehlerbeschreibung in der Logdatei."
 
-#: ../exporters/gmPatientExporter.py:955 ../wxpython/gmProgressNoteSTC.py:44
-#: ../wxpython/gmProgressNoteSTC.py:51
+#: ../exporters/gmPatientExporter.py:955
 msgid "S"
 msgstr "A"
 
-#: ../exporters/gmPatientExporter.py:956 ../wxpython/gmProgressNoteSTC.py:45
-#: ../wxpython/gmProgressNoteSTC.py:52
+#: ../exporters/gmPatientExporter.py:956
 msgid "O"
 msgstr "B"
 
-#: ../exporters/gmPatientExporter.py:957 ../wxpython/gmProgressNoteSTC.py:46
-#: ../wxpython/gmProgressNoteSTC.py:53 ../wxpython/gmProgressNoteSTC.py:61
+#: ../exporters/gmPatientExporter.py:957
 msgid "A"
 msgstr "D"
 
-#: ../exporters/gmPatientExporter.py:958 ../wxpython/gmProgressNoteSTC.py:47
-#: ../wxpython/gmProgressNoteSTC.py:54 ../wxpython/gmProgressNoteSTC.py:62
+#: ../exporters/gmPatientExporter.py:958
 msgid "P"
 msgstr "T"
 
@@ -1289,39 +1285,6 @@ msgstr ""
 "\n"
 "Befehl\n"
 "(SQL)"
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:15
-msgid "right list"
-msgstr "rechte Liste"
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:16
-msgid "left list"
-msgstr "linke Liste"
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:17
-msgid "Do something with the two lists below."
-msgstr "Tue etwas mit den zwei Listen unten."
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:20
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:25
-msgid "Refresh"
-msgstr "Auffrischen"
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:21
-msgid "= selected =>"
-msgstr "= markierte =>"
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:22
-msgid "= all =>"
-msgstr "= alle =>"
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:23
-msgid "<= all ="
-msgstr "<= alle ="
-
-#: ../wxGladeWidgets/wxgDoubleListSplitterPnl.py:24
-msgid "<= selected ="
-msgstr "<= markierte ="
 
 #: ../wxGladeWidgets/wxgEditDocumentTypesDlg.py:23
 msgid "Edit Document Types"
@@ -5986,28 +5949,6 @@ msgstr "Woche"
 msgid "weeks"
 msgstr "Wochen"
 
-#: ../wxpython/gmProgressNoteSTC.py:59
-msgid "Hx"
-msgstr "Ana"
-
-#: ../wxpython/gmProgressNoteSTC.py:59 ../wxpython/gmSOAPWidgets.py:733
-#: ../wxpython/gmSOAPWidgets.py:933
-msgid "History Taken"
-msgstr "Anamnese"
-
-#: ../wxpython/gmProgressNoteSTC.py:60
-msgid "Obj"
-msgstr "Bef"
-
-#: ../wxpython/gmProgressNoteSTC.py:60 ../wxpython/gmSOAPWidgets.py:738
-#: ../wxpython/gmSOAPWidgets.py:934
-msgid "Findings"
-msgstr "Befund"
-
-#: ../wxpython/gmProgressNoteSTC.py:248
-msgid "xxxSOAPxxx"
-msgstr "xxxABDTxxx"
-
 #: ../wxpython/gmProviderInboxWidgets.py:40
 msgid "category"
 msgstr "Kategorie"
@@ -6167,39 +6108,60 @@ msgstr "Feldname fehlt"
 msgid "soap cat missing"
 msgstr "SOAP-Kategorie fehlt"
 
-#: ../wxpython/gmSOAPWidgets.py:660
-msgid "Error saving progress note."
-msgstr "Fehler beim Speichern der Verlaufsnotiz."
+#: ../wxpython/gmSOAPWidgets.py:636
+msgid "Enter a descriptive name for the new episode:"
+msgstr "Geben Sie eine prägnante Bezeichnung der neuen Episode ein:"
 
-#: ../wxpython/gmSOAPWidgets.py:660 ../wxpython/gmSOAPWidgets.py:667
+#: ../wxpython/gmSOAPWidgets.py:637
+msgid "Adding a new episode"
+msgstr "Neue Episode hinzufügen"
+
+#: ../wxpython/gmSOAPWidgets.py:644
+msgid "Cannot save a new episode without a name."
+msgstr "Kann neue Episode nicht ohne Namen speichern."
+
+#: ../wxpython/gmSOAPWidgets.py:644 ../wxpython/gmSOAPWidgets.py:673
+#: ../wxpython/gmSOAPWidgets.py:680
 msgid "saving progress note"
 msgstr "speichere Verlaufsnotiz"
 
-#: ../wxpython/gmSOAPWidgets.py:666
+#: ../wxpython/gmSOAPWidgets.py:673
+msgid "Error saving progress note."
+msgstr "Fehler beim Speichern der Verlaufsnotiz."
+
+#: ../wxpython/gmSOAPWidgets.py:679
 msgid "Error saving embedded data."
 msgstr "Fehler beim Speichern der eingebetteten Daten."
 
-#: ../wxpython/gmSOAPWidgets.py:727
+#: ../wxpython/gmSOAPWidgets.py:740
 msgid "Patient Request"
 msgstr "Beratungsanlaß"
 
-#: ../wxpython/gmSOAPWidgets.py:836
+#: ../wxpython/gmSOAPWidgets.py:746 ../wxpython/gmSOAPWidgets.py:946
+msgid "History Taken"
+msgstr "Anamnese"
+
+#: ../wxpython/gmSOAPWidgets.py:751 ../wxpython/gmSOAPWidgets.py:947
+msgid "Findings"
+msgstr "Befund"
+
+#: ../wxpython/gmSOAPWidgets.py:849
 msgid "save"
 msgstr "speichern"
 
-#: ../wxpython/gmSOAPWidgets.py:837
+#: ../wxpython/gmSOAPWidgets.py:850
 msgid "save clinical note in EMR"
 msgstr "Karteieintrag abspeichern"
 
-#: ../wxpython/gmSOAPWidgets.py:838
+#: ../wxpython/gmSOAPWidgets.py:851
 msgid "discard"
 msgstr "verwerfen"
 
-#: ../wxpython/gmSOAPWidgets.py:839
+#: ../wxpython/gmSOAPWidgets.py:852
 msgid "discard clinical note"
 msgstr "Karteieintrag verwerfen"
 
-#: ../wxpython/gmSOAPWidgets.py:844
+#: ../wxpython/gmSOAPWidgets.py:857
 msgid "clinical progress note"
 msgstr "klinische Verlaufsnotiz"
 
@@ -7449,6 +7411,39 @@ msgstr "&Verschrieben fuer"
 #: ../wxpython/patient/gmGP_TabbedLists.py:277
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "right list"
+#~ msgstr "rechte Liste"
+
+#~ msgid "left list"
+#~ msgstr "linke Liste"
+
+#~ msgid "Do something with the two lists below."
+#~ msgstr "Tue etwas mit den zwei Listen unten."
+
+#~ msgid "Refresh"
+#~ msgstr "Auffrischen"
+
+#~ msgid "= selected =>"
+#~ msgstr "= markierte =>"
+
+#~ msgid "= all =>"
+#~ msgstr "= alle =>"
+
+#~ msgid "<= all ="
+#~ msgstr "<= alle ="
+
+#~ msgid "<= selected ="
+#~ msgstr "<= markierte ="
+
+#~ msgid "Hx"
+#~ msgstr "Ana"
+
+#~ msgid "Obj"
+#~ msgstr "Bef"
+
+#~ msgid "xxxSOAPxxx"
+#~ msgstr "xxxABDTxxx"
 
 #~ msgid "Choose the plugins to load in the current workplace."
 #~ msgstr "Die Plugins für den aktuellen Arbeitsplatz wählen."
