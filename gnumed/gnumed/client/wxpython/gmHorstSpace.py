@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.39 2007-08-28 14:18:13 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmHorstSpace.py,v 1.39.2.1 2007-09-25 23:42:17 ncq Exp $
+__version__ = "$Revision: 1.39.2.1 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -254,6 +254,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		return
 	#----------------------------------------------
 	def _on_right_click(self, evt):
+		evt.Skip()
+		return
+
 		load_menu = wx.Menu()
 		any_loadable = 0
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
@@ -311,7 +314,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.39  2007-08-28 14:18:13  ncq
+# Revision 1.39.2.1  2007-09-25 23:42:17  ncq
+# - fix crash on right-clicking notebook tabs
+#
+# Revision 1.39  2007/08/28 14:18:13  ncq
 # - no more gm_statustext()
 #
 # Revision 1.38  2007/08/12 00:09:07  ncq
