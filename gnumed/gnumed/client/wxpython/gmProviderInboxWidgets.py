@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.14.2.1 2007-09-25 23:42:53 ncq Exp $
-__version__ = "$Revision: 1.14.2.1 $"
+# $Id: gmProviderInboxWidgets.py,v 1.14.2.2 2007-09-25 23:43:15 ncq Exp $
+__version__ = "$Revision: 1.14.2.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -125,7 +125,7 @@ Leaving message in inbox.""") % handler_key,
 		menu = wx.Menu(title = _('Inbox Message menu'))
 		# - delete message
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, 'delete message'))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('delete message')))
 		wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
 		# show menu
 		self.PopupMenu(menu, wx.DefaultPosition)
@@ -156,7 +156,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.14.2.1  2007-09-25 23:42:53  ncq
+# Revision 1.14.2.2  2007-09-25 23:43:15  ncq
+# - translate forgotten message
+#
+# Revision 1.14.2.1  2007/09/25 23:42:53  ncq
 # - fix crash on right clicking empty provider inbox
 #
 # Revision 1.14  2007/08/12 00:12:41  ncq
