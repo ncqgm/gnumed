@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.14 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmProviderInboxWidgets.py,v 1.14.2.1 2007-09-25 23:42:53 ncq Exp $
+__version__ = "$Revision: 1.14.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #import os.path, sys, re, time
@@ -58,6 +58,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 
 		inbox = gmProviderInbox.cProviderInbox()
 		self.__msgs = inbox.get_messages()
+		if len(self.__msgs) == 0:
+			return
 		msgs = self.__msgs[0:]
 		msgs.reverse()
 		for msg in msgs:
@@ -76,6 +78,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
 	# event handlers
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
+		if len(self.__msgs) == 0:
+			return
+
 		msg = self.__msgs[evt.m_itemIndex]
 		handler_key = '%s.%s' % (msg[4], msg[5])
 		try:
@@ -101,6 +106,9 @@ Leaving message in inbox.""") % handler_key,
 		return True
 	#--------------------------------------------------------
 	def _lst_item_focused(self, evt):
+		if len(self.__msgs) == 0:
+			return
+
 		msg = self.__msgs[evt.m_itemIndex]
 		if msg[7] is None:
 			tmp = _('Message: %s') % msg[3]
@@ -109,6 +117,9 @@ Leaving message in inbox.""") % handler_key,
 		self._TXT_inbox_item_comment.SetValue(tmp)
 	#--------------------------------------------------------
 	def _lst_item_right_clicked(self, evt):
+		if len(self.__msgs) == 0:
+			return
+
 		self.__focussed_msg = self.__msgs[evt.m_itemIndex]
 		# build menu
 		menu = wx.Menu(title = _('Inbox Message menu'))
@@ -145,7 +156,10 @@ Leaving message in inbox.""") % handler_key,
 		return True
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.14  2007-08-12 00:12:41  ncq
+# Revision 1.14.2.1  2007-09-25 23:42:53  ncq
+# - fix crash on right clicking empty provider inbox
+#
+# Revision 1.14  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.13  2007/05/14 13:11:25  ncq
