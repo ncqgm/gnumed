@@ -2,10 +2,10 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.36.2.1 2007-09-20 22:12:00 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.36.2.2 2007-09-25 18:24:30 ncq Exp $
 # license: GPL
 #====================================================
-CLIENTREV="0.2.7.0"
+CLIENTREV="0.2.7.1"
 CLIENTARCH="GNUmed-client.$CLIENTREV.tgz"
 SRVREV="7"
 SRVARCH="GNUmed-server.v$SRVREV.tgz"
@@ -210,6 +210,7 @@ echo "============"
 mkdir -p ./GNUmed-$CLIENTREV/server
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-backup_database.sh ./GNUmed-$CLIENTREV/server/
+cp -R ../../server/gm-zip+sign_backups.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-move_backups_offsite.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../server/gm-restore_from_backup.sh ./GNUmed-$CLIENTREV/server/
 cp -R ../../client/__init__.py ./GNUmed-$CLIENTREV/server/
@@ -325,7 +326,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.36.2.1  2007-09-20 22:12:00  ncq
+# Revision 1.36.2.2  2007-09-25 18:24:30  ncq
+# - bump version
+# - include zip+sign script for backup
+#
+# Revision 1.36.2.1  2007/09/20 22:12:00  ncq
 # - v7/v0.2.7
 # - include v7 sql scripts
 #
