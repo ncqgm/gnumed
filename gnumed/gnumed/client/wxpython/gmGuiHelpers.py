@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.67 2007-09-20 21:30:06 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmGuiHelpers.py,v 1.68 2007-09-25 20:44:23 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -39,22 +39,6 @@ def handle_uncaught_exception_wx(t, v, tb):
 
 	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
 
-	if t != exceptions.ImportError:
-		for target in _log.get_targets():
-			if not isinstance(target, gmLog.cLogTargetFile):
-				continue
-			name = os.path.basename(target.ID)
-			name, ext = os.path.splitext(name)
-			new_name = os.path.expanduser(os.path.join (
-				'~',
-				'gnumed',
-				'logs',
-				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-			))
-			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-			_log.flush()
-			shutil.copy2(target.ID, new_name)
-
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
 	except: pass
@@ -75,9 +59,30 @@ def handle_uncaught_exception_wx(t, v, tb):
 			) % v
 		)
 	else:
+		for target in _log.get_targets():
+			if not isinstance(target, gmLog.cLogTargetFile):
+				continue
+			original_name = target.ID
+			name = os.path.basename(target.ID)
+			name, ext = os.path.splitext(name)
+			new_name = os.path.expanduser(os.path.join (
+				'~',
+				'gnumed',
+				'logs',
+				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+			))
+
 		dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
 		dlg.ShowModal()
+		comment = dlg._TCTRL_comment.GetValue()
+		if comment is not None:
+			_log.Log(gmLog.lErr, u'user comment: %s' % comment.strip())
 		dlg.Destroy()
+
+		_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
+		_log.flush()
+		shutil.copy2(original_name, new_name)
+
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	office = gmSurgery.gmCurrentPractice()
@@ -582,7 +587,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.67  2007-09-20 21:30:06  ncq
+# Revision 1.68  2007-09-25 20:44:23  ncq
+# - support saving user comment in log file rescued on error
+#
+# Revision 1.67  2007/09/20 21:30:06  ncq
 # - cGreetingEditorDlg
 #
 # Revision 1.66  2007/09/03 11:03:20  ncq
