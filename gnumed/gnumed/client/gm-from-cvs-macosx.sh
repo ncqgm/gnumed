@@ -1,22 +1,22 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/Attic/gm-from-cvs-macosx.sh,v $
-# $Revision: 1.5 $
-
-# start kvkd
-# FIXME: needs logic to prevent more than one kvkd from running
+# $Revision: 1.6 $
 
 # maybe force some locale setting here
 #export LANG=fr
+
+# if there are unicode troubles you can force to ASCII with this:
+#export LANG=en
 
 cd ../
 ln -vfsn client Gnumed
 cd -
 export PYTHONPATH="${PYTHONPATH}:../"
 
-LOG="~/Library/Logs/gm-from-cvs-macosx.log"
+LOG="gm-from-cvs-macosx.log"
 rm -vf $LOG
 
 # run
-python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --debug --override-schema-check
+python wxpython/gnumed.py --log-file=$LOG --conf-file=gm-from-cvs.conf --override-schema-check --debug
 # --profile=gm-from-cvs-macosx.prof
