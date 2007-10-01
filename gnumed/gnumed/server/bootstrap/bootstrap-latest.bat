@@ -52,3 +52,9 @@ SET LOG=bootstrap-latest-v6.log
 SET CONF=update_db-v5_v6.conf
 python bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
 dropdb -U gm-dbo gnumed_v5
+
+COLOR 0E
+SET LOG=bootstrap-latest-v7.log
+SET CONF=update_db-v6_v7.conf
+python bootstrap_gm_db_system.py --log-file=%LOG% --conf-file=%CONF%
+dropdb -U gm-dbo gnumed_v6
