@@ -2,10 +2,10 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/dh-install_gnumed_server.sh,v $
-# $Id: dh-install_gnumed_server.sh,v 1.3 2007-09-16 01:01:57 ncq Exp $
+# $Id: dh-install_gnumed_server.sh,v 1.4 2007-10-02 19:13:42 shilbert Exp $
 # ============================================
 
-DEPS="gnumed-common postgresql-8.1 postgresql-client-8.1 cron anacron tar hostname coreutils mailx openssl bzip2 gpg2 mc rsync"
+DEPS="gnumed-common postgresql-8.1 postgresql-client-8.1 cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2"
 
 echo ""
 echo "================================================"
@@ -48,7 +48,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: dh-install_gnumed_server.sh,v $
-# Revision 1.3  2007-09-16 01:01:57  ncq
+# Revision 1.4  2007-10-02 19:13:42  shilbert
+# - fix for wrong dependency, gpg2 --> gnupg, added python-psycopg2
+#
+# Revision 1.3  2007/09/16 01:01:57  ncq
 # - install dependancies
 #
 # Revision 1.2  2007/09/16 00:45:40  ncq
