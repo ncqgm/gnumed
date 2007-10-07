@@ -4,13 +4,17 @@
 # Upgrade GNUmed database from version to version.
 #
 # usage:
-#  upgrade-db.sh vX vX+1
+#  upgrade-db.sh vX vX+1 <secret>
 #
 # limitation:
 #  Only works from version to version sequentially.
 #
 # prerequisites:
 #  update_db-vX_vX+1.conf must exist
+#
+# <secret> command line options:
+#  no-backup
+#  no-compression
 #
 # ========================================================
 
@@ -23,10 +27,11 @@ export PYTHONPATH="../../:${PYTHONPATH}"
 PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
+BZIP_BACKUP="$3"
 LOG_BASE="."
 LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
 CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
-BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${NEXT_VER}-"`hostname`".sql.bz2"
+BAK_FILE="backup-upgrade-v${PREV_VER}-to-v${NEXT_VER}-"`hostname`".sql"
 
 
 if test ! -f $CONF ; then
@@ -85,7 +90,11 @@ echo "1) creating backup of existing database ..."
 if test "$SKIP_BACKUP" != "no-backup" ; then
 	echo "   Note that this may take a substantial amount of time and disk space!"
 	echo "   You may need to type in the password for gm-dbo."
-	pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} | bzip2 -z9 > ${BAK_FILE}
+	if test "$BZIP_BACKUP" != "no-compression" ; then
+		pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} | bzip2 -z9 > ${BAK_FILE}.bz2
+	else
+		pg_dump -C -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ${BAK_FILE}
+	fi ;
 else
 	echo ""
 	echo "   !!! SKIPPED backup !!!"
