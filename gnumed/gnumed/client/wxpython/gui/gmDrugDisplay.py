@@ -24,20 +24,14 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	#from wxPython.stc import *
-	#from wxPython.html import *
-	#import wxPython.lib.wxpTag
-	#from wxPython.lib.splashscreen import SplashScreen
-
 import string
+
+
+import wx
+
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -49,8 +43,10 @@ if __name__ == "__main__":
 	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
+
 from Gnumed.pycommon import gmDrugView, gmCfg, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.business import gmSurgery
 
 _cfg = gmCfg.gmDefCfgFile
 #============================================================
@@ -97,7 +93,7 @@ class DrugDisplay(wx.Panel):
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		# this is necessary to enable stand alone use of the drug browser
-		currworkplace = gmPerson.gmCurrentProvider().workplace
+		currworkplace = gmSurgery.gmCurrentPractice().active_workplace
 		if currworkplace is None:
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
@@ -644,7 +640,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.32  2007-02-17 14:13:11  ncq
+# Revision 1.33  2007-10-07 12:33:27  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.32  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.31  2006/10/25 07:23:30  ncq

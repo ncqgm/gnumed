@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.70 2007-08-29 22:08:57 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmEMRStructWidgets.py,v 1.71 2007-10-07 12:32:41 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -25,7 +25,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmDateTime, gmCfg
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
 from Gnumed.wxGladeWidgets import wxgHealthIssueEditAreaPnl, wxgHealthIssueEditAreaDlg
@@ -257,7 +257,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	db_cfg = gmCfg.cCfgSQL()
 	epi_ttl = int(db_cfg.get2 (
 		option = u'episode.ttl',
-		workplace = gmPerson.gmCurrentProvider().workplace,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'user',
 		default = 60				# 2 months
 	))
@@ -1161,7 +1161,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.70  2007-08-29 22:08:57  ncq
+# Revision 1.71  2007-10-07 12:32:41  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.70  2007/08/29 22:08:57  ncq
 # - narrative widgets factored out
 #
 # Revision 1.69  2007/08/29 14:38:39  ncq

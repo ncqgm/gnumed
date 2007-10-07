@@ -1,7 +1,10 @@
 #========================================================
 import sys, string, re, types
 
+
 from Gnumed.pycommon import gmLog, gmCfg, gmDrugObject, gmExceptions
+from Gnumed.business import gmSurgery
+
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -29,8 +32,7 @@ class DrugView:
 		# who and where we are. in this case try to get config source 
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
-		
-		currWorkplace = gmPerson.gmCurrentProvider().workplace
+		currWorkplace = gmSurgery.gmCurrentPractice().active_workplace
 		if currWorkplace is None:
 			# assume we are outside gnumed
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
@@ -394,7 +396,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.10  2007-02-17 14:13:11  ncq
+# Revision 1.11  2007-10-07 12:29:12  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.10  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.9  2006/10/25 07:19:03  ncq

@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.247 2007-09-24 22:07:32 ncq Exp $
-__version__ = "$Revision: 1.247 $"
+# $Id: gmClinicalRecord.py,v 1.248 2007-10-07 12:22:51 ncq Exp $
+__version__ = "$Revision: 1.248 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -44,6 +44,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 
 _me = None
+_here = None
 
 _func_ask_user = None
 #============================================================
@@ -57,10 +58,13 @@ class cClinicalRecord(object):
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
+		from Gnumed.business import gmSurgery
 		global _me
 		if _me is None:
-			from Gnumed.business import gmPerson
 			_me = gmPerson.gmCurrentProvider()
+		global _here
+		if _here is None:
+			_here = gmSurgery.gmCurrentPractice()
 
 		# ...........................................
 		# this is a hack to speed up get_encounters()
@@ -1171,7 +1175,7 @@ where
 		cfg_db = gmCfg.cCfgSQL()
 		min_ttl = cfg_db.get2 (
 			option = u'encounter.minimum_ttl',
-			workplace = _me.workplace,
+			workplace = _here.active_workplace,
 			bias = u'user',
 			default = u'1 hour 30 minutes'
 		)
@@ -1203,13 +1207,13 @@ where
 		cfg_db = gmCfg.cCfgSQL()
 		min_ttl = cfg_db.get2 (
 			option = u'encounter.minimum_ttl',
-			workplace = _me.workplace,
+			workplace = _here.active_workplace,
 			bias = u'user',
 			default = u'1 hour 30 minutes'
 		)
 		max_ttl = cfg_db.get2 (
 			option = u'encounter.maximum_ttl',
-			workplace = _me.workplace,
+			workplace = _here.active_workplace,
 			bias = u'user',
 			default = u'6 hours'
 		)
@@ -1618,7 +1622,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.247  2007-09-24 22:07:32  ncq
+# Revision 1.248  2007-10-07 12:22:51  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.247  2007/09/24 22:07:32  ncq
 # - be careful about deleting empty encounters - make sure they are at least 1 week old
 #
 # Revision 1.246  2007/09/07 10:55:40  ncq

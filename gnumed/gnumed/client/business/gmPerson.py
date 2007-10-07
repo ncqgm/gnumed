@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.130 2007-09-24 22:08:56 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmPerson.py,v 1.131 2007-10-07 12:28:09 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -586,8 +586,6 @@ class gmCurrentProvider(gmBorg.cBorg):
 		* None: get currently logged on provider
 		* cStaff instance: change logged on provider (role)
 		"""
-#		gmBorg.cBorg.__init__(self)
-
 		# make sure we do have a provider pointer
 		try:
 			tmp = self.__provider
@@ -618,55 +616,6 @@ class gmCurrentProvider(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def get_staff(self):
 		return self.__provider
-	#--------------------------------------------------------
-	# workplace property
-	#--------------------------------------------------------
-	def _set_workplace(self, workplace):
-		# do nothing
-		return True
-	#--------------------------------------------------------
-	def _get_workplace(self):
-		"""Return the current workplace (client profile) definition.
-
-		- from the command line config file
-		- from the config file in the working directory
-		- from the config file in the binary install directory
-		- from the user config file
-		- from the system-wide config file
-
-		The first occurrence counts.
-		"""
-		if self.__workplace is not None:
-			return self.__workplace
-
-		candidates = []
-		if gmCLI.has_arg('--conf-file'):
-			candidates.append(gmCLI.arg['--conf-file'])
-		paths = gmTools.gmPaths()
-		candidates.extend ([
-			os.path.join(paths.working_dir, 'gnumed.conf'),
-			os.path.join(paths.local_base_dir, 'gnumed.conf'),
-			os.path.join(paths.user_config_dir, 'gnumed.conf'),
-			os.path.join(paths.system_config_dir, 'gnumed-client.conf')
-		])
-
-		self.__workplace = None
-		for candidate in candidates:
-			try:
-				cfg = gmCfg.cCfgFile(aFile = candidate)
-			except IOError:
-				continue
-			tmp = cfg.get('workplace', 'name')
-			if tmp is not None:
-				self.__workplace = tmp
-				break
-
-		if self.__workplace is None:
-			self.__workplace = 'GNUmed Default'
-
-		return self.__workplace
-	#--------------------------------------------------------
-	workplace = property(_get_workplace, _set_workplace)
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -1940,7 +1889,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.130  2007-09-24 22:08:56  ncq
+# Revision 1.131  2007-10-07 12:28:09  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.130  2007/09/24 22:08:56  ncq
 # - table-qualify ambigous column defs
 #
 # Revision 1.129  2007/09/10 12:34:02  ncq

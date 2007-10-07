@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.90 2007-09-10 12:38:12 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmPatSearchWidgets.py,v 1.91 2007-10-07 12:32:42 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -22,7 +22,7 @@ import wx
 
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
-from Gnumed.business import gmPerson, gmKVK
+from Gnumed.business import gmPerson, gmKVK, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
 
@@ -294,7 +294,7 @@ def load_persons_from_kvks():
 	db_cfg = gmCfg.cCfgSQL()
 	kvk_dir = os.path.abspath(os.path.expanduser(db_cfg.get2 (
 		option = 'DE.KVK.spool_dir',
-		workplace = gmPerson.gmCurrentProvider().workplace,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
 		default = u'/var/spool/kvkd/'
 	)))
@@ -440,7 +440,7 @@ class cPatientSelector(wx.TextCtrl):
 		self.__always_dismiss_after_search = bool ( 
 			cfg.get2 (
 				option = 'patient_search.always_dismiss_previous_patient',
-				workplace = gmPerson.gmCurrentProvider().workplace,
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = 'user',
 				default = 0
 			)
@@ -449,7 +449,7 @@ class cPatientSelector(wx.TextCtrl):
 		self.__always_reload_after_search = bool (
 			cfg.get2 (
 				option = 'patient_search.always_reload_new_patient',
-				workplace = gmPerson.gmCurrentProvider().workplace,
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = 'user',
 				default = 0
 			)
@@ -467,7 +467,7 @@ class cPatientSelector(wx.TextCtrl):
 		dbcfg = gmCfg.cCfgSQL()
 		dob_distance = dbcfg.get2 (
 			option = u'patient_search.dob_warn_interval',
-			workplace = gmPerson.gmCurrentProvider().workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = u'user',
 			default = u'1 week'
 		)
@@ -828,7 +828,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.90  2007-09-10 12:38:12  ncq
+# Revision 1.91  2007-10-07 12:32:42  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.90  2007/09/10 12:38:12  ncq
 # - improve wording on announcing upcoming patient birthday
 #
 # Revision 1.89  2007/08/28 14:18:13  ncq

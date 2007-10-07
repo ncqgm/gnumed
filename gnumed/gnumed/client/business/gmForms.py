@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.52 2007-09-01 23:31:36 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmForms.py,v 1.53 2007-10-07 12:27:08 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -18,7 +18,7 @@ import os, sys, time, os.path
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmSurgery
 
 
 _log = gmLog.gmDefLog
@@ -389,8 +389,8 @@ class gmFormEngine:
 
 	def __init__ (self, pk_def=None, template=None):
 		self.template = template
-		self.patient = gmPerson.gmCurrentPatient ()
-		self.workplace = gmPerson.gmCurrentProvider().workplace
+		self.patient = gmPerson.gmCurrentPatient()
+		self.workplace = gmSurgery.gmCurrentPractice().active_workplace
 
 	def process (self):
 		"""Merge values into the form template.
@@ -794,7 +794,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.52  2007-09-01 23:31:36  ncq
+# Revision 1.53  2007-10-07 12:27:08  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.52  2007/09/01 23:31:36  ncq
 # - fix form template type phrasewheel query
 # - settable of external_version
 # - delete_form_template()

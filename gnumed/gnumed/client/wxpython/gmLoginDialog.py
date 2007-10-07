@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.88 2007-09-20 19:07:38 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmLoginDialog.py,v 1.89 2007-10-07 12:32:41 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,7 +18,7 @@ import wx
 
 from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmI18N, gmNull, gmTools, gmCLI
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.business import gmPerson
+from Gnumed.business import gmSurgery
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -102,9 +102,9 @@ class LoginPanel(wx.Panel):
 
 #		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
 		if gmCLI.has_arg('--slave'):
-			paramsbox_caption = _("Slave Login - %s" % gmPerson.gmCurrentProvider().workplace)
+			paramsbox_caption = _("Slave Login - %s" % gmSurgery.gmCurrentPractice().active_workplace)
 		else:
-			paramsbox_caption = _("Login - %s" % gmPerson.gmCurrentProvider().workplace)
+			paramsbox_caption = _("Login - %s" % gmSurgery.gmCurrentPractice().active_workplace)
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -503,7 +503,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.88  2007-09-20 19:07:38  ncq
+# Revision 1.89  2007-10-07 12:32:41  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.88  2007/09/20 19:07:38  ncq
 # - port 5432 on salaam again
 #
 # Revision 1.87  2007/09/04 23:30:28  ncq

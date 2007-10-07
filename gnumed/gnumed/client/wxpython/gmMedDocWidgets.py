@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.144 2007-09-07 10:57:54 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gmMedDocWidgets.py,v 1.145 2007-10-07 12:32:41 ncq Exp $
+__version__ = "$Revision: 1.145 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -14,7 +14,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
-from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems
+from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
 
@@ -596,7 +596,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			dbcfg = gmCfg.cCfgSQL()
 			device = dbcfg.get2 (
 				option =  'external.xsane.default_device',
-				workplace = gmPerson.gmCurrentProvider().workplace,
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = 'workplace',
 				default = ''
 			)
@@ -855,7 +855,7 @@ from your computer.""") % page_fname,
 		show_id = bool (
 			cfg.get2 (
 				option = 'horstspace.scan_index.show_doc_id',
-				workplace = gmPerson.gmCurrentProvider().workplace,
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = 'user'
 			)
 		)
@@ -1337,7 +1337,7 @@ class cDocTree(wx.TreeCtrl):
 		tmp_dir = gmTools.coalesce (
 			cfg.get2 (
 				option = "horstspace.tmp_dir",
-				workplace = gmPerson.gmCurrentProvider().workplace,
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = 'workplace'
 			),
 			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'docs'))
@@ -1347,7 +1347,7 @@ class cDocTree(wx.TreeCtrl):
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = gmPerson.gmCurrentProvider().workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = 1 * 1024 * 1024		# 1 MB
 		))
@@ -1355,7 +1355,7 @@ class cDocTree(wx.TreeCtrl):
 		# shall we force blocking during view ?
 		block_during_view = bool( cfg.get2 (
 			option = 'horstspace.document_viewer.block_during_view',
-			workplace = gmPerson.gmCurrentProvider().workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user',
 			default = None
 		))
@@ -1379,7 +1379,7 @@ class cDocTree(wx.TreeCtrl):
 		# 2: if no review by myself exists yet
 		review_after_display = int(cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
-			workplace = gmPerson.gmCurrentProvider().workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user',
 			default = 2
 		))
@@ -1462,7 +1462,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.144  2007-09-07 10:57:54  ncq
+# Revision 1.145  2007-10-07 12:32:41  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.144  2007/09/07 10:57:54  ncq
 # - document review_after_display
 #
 # Revision 1.143  2007/08/29 14:43:06  ncq

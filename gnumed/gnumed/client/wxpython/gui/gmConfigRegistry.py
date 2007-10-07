@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmCfg, gmConfigCommon, gmI18N
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmSurgery
 
 import wx
 
@@ -521,7 +521,7 @@ else:
 
 		def GetWidget (self, parent):
 			# get current workplace name
-			workplace = gmPerson.gmCurrentProvider().workplace
+			workplace = gmSurgery.gmCurrentPractice().active_workplace
 			currUser = gmPerson.gmCurrentProvider()['db_user']
 			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
 			self._widget = gmConfigEditorPanel(parent,currUser,workplace)
@@ -534,12 +534,15 @@ else:
 		"""Wrapper to load this module from an environment that wants a panel
 		"""
 		currUser = gmPerson.gmCurrentProvider()['db_user']
-		workplace = gmPerson.gmCurrentProvider().workplace
+		workplace = gmSurgery.gmCurrentPractice().active_workplace
 		return gmConfigEditorPanel(parent,currUser,workplace)
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.41  2007-02-17 14:13:11  ncq
+# Revision 1.42  2007-10-07 12:33:27  ncq
+# - workplace property now on gmSurgery.gmCurrentPractice() borg
+#
+# Revision 1.41  2007/02/17 14:13:11  ncq
 # - gmPerson.gmCurrentProvider().workplace now property
 #
 # Revision 1.40  2006/12/13 14:58:03  ncq
