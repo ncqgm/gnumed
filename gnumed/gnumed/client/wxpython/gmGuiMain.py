@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.356 2007-09-20 21:30:39 ncq Exp $
-__version__ = "$Revision: 1.356 $"
+# $Id: gmGuiMain.py,v 1.357 2007-10-08 12:49:48 ncq Exp $
+__version__ = "$Revision: 1.357 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -96,7 +96,7 @@ def jump_to_ifap(import_drugs=False):
 	if import_drugs:
 		transfer_file = os.path.expanduser(dbcfg.get2 (
 			option = 'external.ifap-win.transfer_file',
-			workplace = _provider.workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
 		))
@@ -108,7 +108,7 @@ def jump_to_ifap(import_drugs=False):
 	# FIXME: (windows, linux, mac) until one succeeds or all fail
 	ifap_cmd = dbcfg.get2 (
 		option = 'external.ifap-win.shell_command',
-		workplace = _provider.workplace,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
 		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
 	)
@@ -178,7 +178,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__gb['main.frame'] = self
 		self.bar_width = -1
-		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _provider.workplace)
+		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % gmSurgery.gmCurrentPractice().active_workplace)
 		self.__setup_main_menu()
 		self.SetupStatusBar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
@@ -229,7 +229,7 @@ class gmTopLevelFrame(wx.Frame):
 		# width
 		width = int(cfg.get2 (
 			option = 'main.window.width',
-			workplace = _provider.workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = 800
 		))
@@ -237,7 +237,7 @@ class gmTopLevelFrame(wx.Frame):
 		# height
 		height = int(cfg.get2 (
 			option = 'main.window.height',
-			workplace = _provider.workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = 600
 		))
@@ -294,13 +294,25 @@ class gmTopLevelFrame(wx.Frame):
 		menu_config = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('Options ...'), menu_config)
 
+		# -- submenu gnumed-config-db
+		menu_cfg_db = wx.Menu()
+		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
+
 		ID = wx.NewId()
-		menu_config.Append(ID, _('Database language'), _('Configure the database language.'))
+		menu_cfg_db.Append(ID, _('Language'), _('Configure the database language.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
 
 		ID = wx.NewId()
-		menu_config.Append(ID, _('Database message'), _('Configure the database welcome message.'))
+		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
+
+		# -- submenu gnumed-config-ui
+		menu_cfg_ui = wx.Menu()
+		menu_config.AppendMenu(wx.NewId(), _('User Interface ...'), menu_cfg_ui)
+
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
+		wx.EVT_MENU(self, ID, self.__on_set_ifap_cmd)
 
 #		ID = wx.NewId()
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
@@ -697,6 +709,51 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
 		dlg.ShowModal()
 	#----------------------------------------------
+	# submenu GNUmed - config - UI
+	#----------------------------------------------
+	def __on_set_ifap_cmd(self, event):
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		ifap_cmd = dbcfg.get2 (
+			option = 'external.ifap-win.shell_command',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'workplace',
+			default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+		)
+
+		dlg = wx.TextEntryDialog (
+			parent = self,
+			message = _('Enter the shell command with which to start the IFAP drug database:'),
+			caption = _('Configuration'),
+			defaultValue = ifap_cmd,
+			style = wx.OK | wx.CANCEL | wx.CENTRE
+		)
+		result = dlg.ShowModal()
+		if result == wx.CANCEL:
+			return
+
+		new_ifap_cmd = dlg.GetValue().strip()
+		dlg.Destroy()
+
+		if new_ifap_cmd == ifap_cmd:
+			return
+
+		if not os.access(new_ifap_cmd, os.X_OK):
+			gmDispatcher.send (
+				signal = 'statustext',
+				msg = _('The command [%s] is not executable. This may or may not be a problem.') % new_ifap_cmd,
+				beep = True
+			)
+
+		dbcfg.set (
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			option = 'external.ifap-win.shell_command',
+			value = new_ifap_cmd
+		)
+
+		return
+	#----------------------------------------------
 #	def __on_configure_workplace(self, evt):
 #		pass
 	#----------------------------------------------
@@ -1074,12 +1131,12 @@ Search results:
 		dbcfg.set (
 			option = 'main.window.width',
 			value = curr_width,
-			workplace = _provider.workplace
+			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
 		dbcfg.set (
 			option = 'main.window.height',
 			value = curr_height,
-			workplace = _provider.workplace
+			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
 		# handle our own stuff
 		try:
@@ -1131,7 +1188,7 @@ Search results:
 			gmTools.coalesce(_provider['title'], ''),
 			_provider['firstnames'][:1],
 			_provider['lastnames'],
-			_provider.workplace,
+			gmSurgery.gmCurrentPractice().active_workplace,
 			pat_str
 		)
 		self.SetTitle(title)
@@ -1474,7 +1531,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.356  2007-09-20 21:30:39  ncq
+# Revision 1.357  2007-10-08 12:49:48  ncq
+# - active_workplace now property of gmPractice
+# - rearrange options manage
+# - allow editing ifap startup command
+#
+# Revision 1.356  2007/09/20 21:30:39  ncq
 # - cleanup
 # - allow setting db logon banner
 #
