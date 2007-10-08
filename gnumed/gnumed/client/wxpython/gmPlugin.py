@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.72 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmPlugin.py,v 1.73 2007-10-08 13:07:19 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -14,7 +14,7 @@ import os, sys, re
 import wx
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmSignals, gmTools
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmSurgery
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -24,7 +24,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 	def __init__(self, nr_plugins):
 		wx.ProgressDialog.__init__(
 			self,
-			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPerson.gmCurrentProvider().workplace, nr_plugins),
+			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmSurgery.gmCurrentPractice().active_workplace, nr_plugins),
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
@@ -335,67 +335,73 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 
 	return plugin
 #------------------------------------------------------------------
+def get_installed_plugins(plugin_dir=''):
+	_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
+
+	# parse plugin directory
+	candidates = []
+	# find candidate plugins directories
+	for path in sys.path:
+		# make sure it's a system path, not a user defined one
+		if path.find(sys.prefix) == -1:
+			continue
+		if path.find('site-packages') == -1:
+			continue
+		candidates.append(path)
+	if len(candidates) == 0:
+		_log.Log(gmLog.lErr, 'no candidate directories to scan for plugins found among the following')
+		_log.Log(gmLog.lErr, str(sys.path))
+		return []
+	# among them find (the) one holding plugins
+	search_path = None
+	for candidate in candidates:
+		tmp = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
+		if os.path.exists(tmp):
+			search_path = tmp
+			break
+	if search_path is None:
+		_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
+		_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
+		return []
+	# now scan it
+	files = os.listdir(search_path)
+	_log.Log(gmLog.lData, "plugin set: %s" % plugin_dir)
+	_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
+	_log.Log(gmLog.lData, "files found: %s" % str(files))
+	p_list = []
+	for file in files:
+		if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
+			p_list.append(file[:-3])
+	return p_list
+#------------------------------------------------------------------
 def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	"""Get a list of plugins to load.
 
-	1) from database
+	1) from database if option is not None
 	2) from list of defaults
 	3) if 2 is None, from source directory (then stored in database)
 
 	FIXME: look at gmRichardSpace to see how to load plugins
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
-	curr_workplace = gmPerson.gmCurrentProvider().workplace
+	curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
 
-	dbcfg = gmCfg.cCfgSQL()
-	p_list = dbcfg.get2 (
-		option = option,
-		workplace = curr_workplace,
-		bias = 'workplace',
-		default = defaults
-	)
+	p_list = None
+
+	if option is not None:
+		dbcfg = gmCfg.cCfgSQL()
+		p_list = dbcfg.get2 (
+			option = option,
+			workplace = curr_workplace,
+			bias = 'workplace',
+			default = defaults
+		)
 
 	if p_list is not None:
 		return p_list
 
 	if defaults is None:
-		_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
-
-		# parse plugin directory
-		gb = gmGuiBroker.GuiBroker()
-		candidates = []
-		# find candidate plugins directories
-		for path in sys.path:
-			# make sure it's a system path, not a user defined one
-			if path.find(sys.prefix) == -1:
-				continue
-			if path.find('site-packages') == -1:
-				continue
-			candidates.append(path)
-		if len(candidates) == 0:
-			_log.Log(gmLog.lErr, 'no candidate directories to scan for plugins found among the following')
-			_log.Log(gmLog.lErr, str(sys.path))
-			return defaults
-		# among them find (the) one holding plugins
-		search_path = None
-		for candidate in candidates:
-			tmp = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
-			if os.path.exists(tmp):
-				search_path = tmp
-				break
-		if search_path is None:
-			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
-			_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
-			return defaults
-		# now scan it
-		files = os.listdir(search_path)
-		_log.Log(gmLog.lData, "plugin set: %s" % plugin_dir)
-		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
-		_log.Log(gmLog.lData, "files found: %s" % str(files))
-		p_list = []
-		for file in files:
-			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
-				p_list.append(file[:-3])
+		p_list = get_installed_plugins(plugin_dir = plugin_dir)
 		if (len(p_list) == 0):
 			_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
 			return defaults
@@ -427,7 +433,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.72  2007-08-12 00:12:41  ncq
+# Revision 1.73  2007-10-08 13:07:19  ncq
+# - factor out get_installed_plugins() even though it doesn't work yet
+#
+# Revision 1.72  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.71  2007/08/07 21:42:40  ncq
