@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -708,7 +708,7 @@ class database:
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
-		print "==> checking transferred data for plausibility ..."
+		print "==> checking migrated data for plausibility ..."
 
 		plausibility_queries = _cfg.get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
@@ -771,7 +771,7 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def import_data(self):
-		print "==> importing/upgrading data ..."
+		print "==> upgrading reference data set ..."
 
 		import_scripts = _cfg.get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
@@ -1260,7 +1260,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.60  2007-09-24 22:04:25  ncq
+# Revision 1.61  2007-10-08 12:57:24  ncq
+# - improved info messages
+#
+# Revision 1.60  2007/09/24 22:04:25  ncq
 # - improved logging
 #
 # Revision 1.59  2007/09/24 21:15:17  ncq
