@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.249 2007-10-08 13:17:55 ncq Exp $
-__version__ = "$Revision: 1.249 $"
+# $Id: gmClinicalRecord.py,v 1.250 2007-10-08 13:22:42 ncq Exp $
+__version__ = "$Revision: 1.250 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -38,7 +38,7 @@ import mx.DateTime as mxDT, psycopg2
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG2, gmSignals, gmDispatcher, gmI18N, gmCfg, gmTools
-from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative, gmPerson
+from Gnumed.business import gmAllergy, gmEMRStructItems, gmClinNarrative
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -58,7 +58,7 @@ class cClinicalRecord(object):
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
-		from Gnumed.business import gmSurgery
+		from Gnumed.business import gmSurgery, gmPerson
 		global _me
 		if _me is None:
 			_me = gmPerson.gmCurrentProvider()
@@ -1622,7 +1622,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.249  2007-10-08 13:17:55  ncq
+# Revision 1.250  2007-10-08 13:22:42  ncq
+# - avoid circular import
+#
+# Revision 1.249  2007/10/08 13:17:55  ncq
 # - missing gmPerson import
 #
 # Revision 1.248  2007/10/07 12:22:51  ncq
