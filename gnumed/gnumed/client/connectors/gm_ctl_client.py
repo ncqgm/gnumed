@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.4 2007-09-14 11:47:22 ncq Exp $
-__version__ = '$Revision: 1.4 $'
+# $Id: gm_ctl_client.py,v 1.4.2.1 2007-10-08 18:14:08 ncq Exp $
+__version__ = '$Revision: 1.4.2.1 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -125,6 +125,8 @@ class cBaseConnector:
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot attach: %s' % self.__conn_auth)
 				return False
+
+		return True
 	#--------------------------------------------------------------
 	def setup(self):
 		# load external patient
@@ -194,7 +196,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.4  2007-09-14 11:47:22  ncq
+# Revision 1.4.2.1  2007-10-08 18:14:08  ncq
+# - when connect() succeeds better return True ;-)
+#
+# Revision 1.4  2007/09/14 11:47:22  ncq
 # - support alternate port for started GNUmed slave
 # - make alternate port and startup command optional
 # - improve docs
