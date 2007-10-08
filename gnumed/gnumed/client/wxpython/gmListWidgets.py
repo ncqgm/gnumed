@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.17 2007-09-24 18:37:08 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmListWidgets.py,v 1.18 2007-10-08 12:56:02 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -24,7 +24,13 @@ from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 
 #================================================================
 def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False):
+	"""Let user select item(s) from a list.
 
+	- edit_callback: (item data)
+	- new_callback: ()
+	- delete_callback: (item data)
+	- refresh_callback: (listctrl)
+	"""
 	if caption is None:
 		caption = _('generic multi choice dialog')
 
@@ -183,9 +189,11 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		"""All item members must be unicode()able or None."""
 
 		self.DeleteAllItems()
+		self.__data = items
 
 		if items is None:
 			return
+
 		for item in items:
 			if type(item) == types.ListType:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
@@ -198,8 +206,6 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-
-		self.__data = items
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		"""<data must be a list corresponding to the item indices>"""
@@ -219,6 +225,9 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		return labels
 	#------------------------------------------------------------
 	def get_item_data(self, item_idx = None):
+		if self.__data is None:	# this isn't entirely clean
+			return None
+
 		return self.__data[item_idx]
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
@@ -237,9 +246,16 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def get_selected_item_data(self, only_one=False):
 
 		if self.__is_single_selection or only_one:
-			return self.__data[self.GetFirstSelected()]
+			if self.__data is None:
+				return None
+			idx = self.GetFirstSelected()
+			if idx == -1:
+				return None
+			return self.__data[idx]
 
 		data = []
+		if self.__data is None:
+			return data
 		idx = self.GetFirstSelected()
 		while idx != -1:
 			data.append(self.__data[idx])
@@ -296,7 +312,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.17  2007-09-24 18:37:08  ncq
+# Revision 1.18  2007-10-08 12:56:02  ncq
+# - document callbacks
+# - protect against self.__data being None in get(_selected)_item_data()
+#
+# Revision 1.17  2007/09/24 18:37:08  ncq
 # - get_column_labels()
 #
 # Revision 1.16  2007/09/20 19:10:15  ncq
