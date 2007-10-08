@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.39 2007-08-28 14:18:13 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmHorstSpace.py,v 1.40 2007-10-08 12:50:54 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -21,11 +21,14 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 
 import os.path, os, sys
 
+
 import wx
+
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmSignals, gmCfg
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmSurgery
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -144,10 +147,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		db_cfg = gmCfg.cCfgSQL()
-		me = gmPerson.gmCurrentProvider()
 		default_plugin = db_cfg.get2 (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = me.workplace,
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = u'user',
 			default = u'gmEMRBrowserPlugin'
 		)
@@ -254,6 +256,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		return
 	#----------------------------------------------
 	def _on_right_click(self, evt):
+		evt.Skip()
+		return
+
 		load_menu = wx.Menu()
 		any_loadable = 0
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
@@ -311,7 +316,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.39  2007-08-28 14:18:13  ncq
+# Revision 1.40  2007-10-08 12:50:54  ncq
+# - active_workplace now in gmPractice()
+#
+# Revision 1.39  2007/08/28 14:18:13  ncq
 # - no more gm_statustext()
 #
 # Revision 1.38  2007/08/12 00:09:07  ncq
