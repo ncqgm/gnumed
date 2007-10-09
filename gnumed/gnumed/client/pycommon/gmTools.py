@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.39 2007-10-08 12:48:17 ncq Exp $
+# $Id: gmTools.py,v 1.40 2007-10-09 10:29:02 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -253,9 +253,6 @@ def get_unique_filename(prefix=None, suffix=None, dir=None):
 def import_module_from_directory(module_path=None, module_name=None):
 	"""Import a module from any location."""
 
-	# equalize / and \
-	module_path = os.path.normcase(module_path)
-
 	if module_path not in sys.path:
 		_log.Log(gmLog.lInfo, 'appending to sys.path: [%s]' % module_path)
 		sys.path.append(module_path)
@@ -270,7 +267,7 @@ def import_module_from_directory(module_path=None, module_name=None):
 		module = __import__(module_name)
 		_log.Log(gmLog.lInfo, 'imported module [%s] as [%s]' % (module_name, module))
 	except StandardError:
-		_log.LogException('cannot __import__() module [%s] from [%s]' % (module_name, module_path), exc_info=sys.exc_info(), verbose=0)
+		_log.LogException('cannot __import__() module [%s] from [%s]' % (module_name, module_path), verbose=0)
 		if remove_path:
 			sys.path.remove(module_path)
 		raise
@@ -665,7 +662,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.39  2007-10-08 12:48:17  ncq
+# Revision 1.40  2007-10-09 10:29:02  ncq
+# - clean up import_module_from_directory()
+#
+# Revision 1.39  2007/10/08 12:48:17  ncq
 # - normalize / and \ in import_module_from_directory() so it works on Windows
 #
 # Revision 1.38  2007/08/29 14:33:56  ncq
