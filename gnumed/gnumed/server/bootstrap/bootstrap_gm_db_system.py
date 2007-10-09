@@ -28,7 +28,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -805,7 +805,7 @@ class database:
 		target_version = _cfg.get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
 			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
-			print 'The identity hash of the database "%s" is [%s].' % (self.name, gmPG2.known_schema_hashes[target_version])
+			print '    identity hash of "%s": %s' % (self.name, gmPG2.known_schema_hashes[target_version])
 			return True
 		_log.Log(gmLog.lErr, 'target database identity hash invalid')
 		if target_version == 'devel':
@@ -1272,7 +1272,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.62  2007-10-09 10:26:52  ncq
+# Revision 1.63  2007-10-09 11:22:48  ncq
+# - improved wording
+#
+# Revision 1.62  2007/10/09 10:26:52  ncq
 # - improved wording
 # - improved logging
 # - improved error handling during data set upgrade
