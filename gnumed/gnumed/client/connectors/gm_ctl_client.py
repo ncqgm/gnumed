@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.4 2007-09-14 11:47:22 ncq Exp $
-__version__ = '$Revision: 1.4 $'
+# $Id: gm_ctl_client.py,v 1.5 2007-10-09 09:55:44 ncq Exp $
+__version__ = '$Revision: 1.5 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -48,7 +48,7 @@ class cBaseConnector:
 		self.__gm_server = xmlrpclib.ServerProxy('http://localhost:%s' % int(port))
 
 		try:
-			_log.Log(gmLog.lInfo, self.__gm_server.version())
+			_log.Log(gmLog.lInfo, 'GNUmed slave XML-RPC server version: %s' % self.__gm_server.version())
 		except socket.error, e:
 			# FIXME: differentiate between already-attached and not-there
 			_log.LogException('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
@@ -108,6 +108,8 @@ class cBaseConnector:
 				_log.LogException('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
 				return False
 
+		_log.Log(gmLog.lInfo, 'enslaveable GNUmed client found, testing suitability')
+
 		target_personality = _cfg.get('GNUmed instance', 'personality')
 		success, self.__conn_auth = self.__gm_server.attach(target_personality)
 		if not success:
@@ -125,6 +127,8 @@ class cBaseConnector:
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot attach: %s' % self.__conn_auth)
 				return False
+
+		return True
 	#--------------------------------------------------------------
 	def setup(self):
 		# load external patient
@@ -194,7 +198,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.4  2007-09-14 11:47:22  ncq
+# Revision 1.5  2007-10-09 09:55:44  ncq
+# - better logging
+# - fix connect error
+#
+# Revision 1.4  2007/09/14 11:47:22  ncq
 # - support alternate port for started GNUmed slave
 # - make alternate port and startup command optional
 # - improve docs
