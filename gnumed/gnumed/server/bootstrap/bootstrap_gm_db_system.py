@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.58.2.1 $"
+__version__ = "$Revision: 1.58.2.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -707,7 +707,7 @@ class database:
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
-		print "==> checking transferred data for plausibility ..."
+		print "==> checking migrated data for plausibility ..."
 
 		plausibility_queries = _cfg.get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
@@ -770,7 +770,7 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def import_data(self):
-		print "==> importing/upgrading data ..."
+		print "==> upgrading reference data sets ..."
 
 		import_scripts = _cfg.get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
@@ -779,10 +779,22 @@ class database:
 			return True
 
 		script_base_dir = _cfg.get(self.section, "script base directory")
+		script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
 
 		for import_script in import_scripts:
-			script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
-			script.run(conn=self.conn)
+			try:
+				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
+			except ImportError:
+				print "    ... failed (cannot load script [%s])" % import_script
+				_log.Log(gmLog.lErr, 'cannot load data set import script [%s/%s]' % (script_base_dir, import_script))
+				return False
+
+			try:
+				script.run(conn=self.conn)
+			except:
+				print "    ... failed (cannot run script [%s])" % import_script
+				_log.LogException('cannot run import script [%s]' % import_script)
+				return False
 
 		return True
 	#--------------------------------------------------------------
@@ -1259,7 +1271,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.58.2.1  2007-09-24 22:14:24  ncq
+# Revision 1.58.2.2  2007-10-09 10:40:40  ncq
+# - improved wording
+# - improved error handling in data set script handling
+#
+# Revision 1.58.2.1  2007/09/24 22:14:24  ncq
 # - deal with missing "data import scripts" option
 #
 # Revision 1.58  2007/09/18 22:54:00  ncq
