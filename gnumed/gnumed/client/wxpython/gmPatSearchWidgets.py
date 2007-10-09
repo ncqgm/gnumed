@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.90 2007-09-10 12:38:12 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmPatSearchWidgets.py,v 1.90.2.1 2007-10-09 14:47:50 ncq Exp $
+__version__ = "$Revision: 1.90.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -77,7 +77,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			else:
 				label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
-			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = ident['match_type'])
+			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
 			except: pass
 
 		for col in range(len(self.__cols)):
@@ -828,7 +828,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.90  2007-09-10 12:38:12  ncq
+# Revision 1.90.2.1  2007-10-09 14:47:50  ncq
+# - fix masqueraded 'match_type' error
+#
+# Revision 1.90  2007/09/10 12:38:12  ncq
 # - improve wording on announcing upcoming patient birthday
 #
 # Revision 1.89  2007/08/28 14:18:13  ncq
