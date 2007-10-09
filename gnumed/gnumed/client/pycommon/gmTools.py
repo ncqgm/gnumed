@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.38.2.1 2007-10-08 12:40:59 ncq Exp $
+# $Id: gmTools.py,v 1.38.2.2 2007-10-09 10:32:51 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.38.2.1 $"
+__version__ = "$Revision: 1.38.2.2 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -252,9 +252,6 @@ def get_unique_filename(prefix=None, suffix=None, dir=None):
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None):
 	"""Import a module from any location."""
-
-	# equalize / and \
-	module_path = os.path.normcase(module_path)
 
 	if module_path not in sys.path:
 		_log.Log(gmLog.lInfo, 'appending to sys.path: [%s]' % module_path)
@@ -665,7 +662,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.38.2.1  2007-10-08 12:40:59  ncq
+# Revision 1.38.2.2  2007-10-09 10:32:51  ncq
+# - clean up import_module_from_directory()
+#
+# Revision 1.38.2.1  2007/10/08 12:40:59  ncq
 # - normalize path in import_module_from_directory()
 #
 # Revision 1.38  2007/08/29 14:33:56  ncq
