@@ -24,17 +24,17 @@ further details.
 #==================================================================
 # TODO
 # - warn if empty password
-# - option to drop databases
 # - verify that pre-created database is owned by "gm-dbo"
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # standard library
 import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile
+
 
 # GNUmed imports
 try:
@@ -771,7 +771,7 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def import_data(self):
-		print "==> upgrading reference data set ..."
+		print "==> upgrading reference data sets ..."
 
 		import_scripts = _cfg.get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
@@ -780,10 +780,22 @@ class database:
 			return True
 
 		script_base_dir = _cfg.get(self.section, "script base directory")
+		script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
 
 		for import_script in import_scripts:
-			script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
-			script.run(conn=self.conn)
+			try:
+				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
+			except ImportError:
+				print "    ... failed (cannot load script [%s])" % import_script
+				_log.Log(gmLog.lErr, 'cannot load data set import script [%s/%s]' % (script_base_dir, import_script))
+				return False
+
+			try:
+				script.run(conn=self.conn)
+			except:
+				print "    ... failed (cannot run script [%s])" % import_script
+				_log.LogException('cannot run import script [%s]' % import_script)
+				return False
 
 		return True
 	#--------------------------------------------------------------
@@ -1260,7 +1272,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.61  2007-10-08 12:57:24  ncq
+# Revision 1.62  2007-10-09 10:26:52  ncq
+# - improved wording
+# - improved logging
+# - improved error handling during data set upgrade
+#
+# Revision 1.61  2007/10/08 12:57:24  ncq
 # - improved info messages
 #
 # Revision 1.60  2007/09/24 22:04:25  ncq
