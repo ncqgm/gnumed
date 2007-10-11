@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.357 2007-10-08 12:49:48 ncq Exp $
-__version__ = "$Revision: 1.357 $"
+# $Id: gmGuiMain.py,v 1.358 2007-10-11 12:10:52 ncq Exp $
+__version__ = "$Revision: 1.358 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -195,6 +195,8 @@ class gmTopLevelFrame(wx.Frame):
 		else:
 			self.__title_template = 'GNUmed [%s%s.%s@%s] %s'
 
+		self.updateTitle()
+
 		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
 
 		# set window icon
@@ -259,37 +261,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu = wx.MenuBar()
 		self.__gb['main.mainmenu'] = self.mainmenu
 
-		# menu "GNUmed"
+		# -- menu "GNUmed" -----------------
 		menu_gnumed = wx.Menu()
-
-		menu_debugging = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
-
-		ID_SCREENSHOT = wx.NewId()
-		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
-		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
-
-		ID = wx.NewId()
-		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
-		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
-
-		ID = wx.NewId()
-		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
-		wx.EVT_MENU(self, ID, self.__on_display_bugtracker)
-
-		ID_UNBLOCK = wx.NewId()
-		menu_debugging.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
-		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
-
-		if gmCLI.has_arg('--debug'):
-
-			ID_TOGGLE_PAT_LOCK = wx.NewId()
-			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient'), _('Lock/unlock patient - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
-			wx.EVT_MENU(self, ID_TOGGLE_PAT_LOCK, self.__on_toggle_patient_lock)
-
-			ID_TEST_EXCEPTION = wx.NewId()
-			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
-			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
 
 		menu_config = wx.Menu()
 		menu_gnumed.AppendMenu(wx.NewId(), _('Options ...'), menu_config)
@@ -318,6 +291,19 @@ class gmTopLevelFrame(wx.Frame):
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
 #		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
+		# -- submenu gnumed / config / emr
+		menu_cfg_emr = wx.Menu()
+		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
+
+		# -- submenu gnumed / config / emr / encounter
+		menu_cfg_encounter = wx.Menu()
+		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ..'), menu_cfg_encounter)
+
+		ID = wx.NewId()
+		menu_cfg_encounter.Append(ID, _('Edit on patient change'), _('Edit encounter details on changing of patients.'))
+		wx.EVT_MENU(self, ID, self.__on_cfg_enc_pat_change)
+
+		# -- 
 		menu_gnumed.AppendSeparator()
 
 		menu_gnumed.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
@@ -529,22 +515,56 @@ class gmTopLevelFrame(wx.Frame):
 		menu_knowledge.Append(ID_MEDICAL_LINKS, _('medical links (WWW)'), _('Show a page of links to useful medical content.'))
 		wx.EVT_MENU(self, ID_MEDICAL_LINKS, self.__on_medical_links)
 
-		# menu "Help" -------------------------
+		# -- menu "Help" --------------
 		help_menu = wx.Menu()
 
-		# - about
 		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
 		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
 
-		# - contributors
 		ID_CONTRIBUTORS = wx.NewId()
 		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
 		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
+
+		menu_debugging = wx.Menu()
+		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
+
+#		ID = wx.NewId()
+#		menu_debugging.Append(ID, _('System information'), _('Collect and show system information.'))
+#		wx.EVT_MENU(self, ID, self.__on_show_sys_info)
+
+		ID_SCREENSHOT = wx.NewId()
+		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
+		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
+
+		ID = wx.NewId()
+		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
+		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
+
+		ID = wx.NewId()
+		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
+		wx.EVT_MENU(self, ID, self.__on_display_bugtracker)
+
+		ID_UNBLOCK = wx.NewId()
+		menu_debugging.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
+
+		if gmCLI.has_arg('--debug'):
+
+			ID_TOGGLE_PAT_LOCK = wx.NewId()
+			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient'), _('Lock/unlock patient - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
+			wx.EVT_MENU(self, ID_TOGGLE_PAT_LOCK, self.__on_toggle_patient_lock)
+
+			ID_TEST_EXCEPTION = wx.NewId()
+			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
+			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
+
 
 		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
 		self.__gb['main.helpmenu'] = help_menu
 		self.mainmenu.Append(help_menu, _("&Help"))
+
+
 
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
@@ -607,28 +627,63 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.is_connected():
 			return True
 
-		# did we add anything to the EMR ?
+		self.__sanity_check_encounter()
+
+		return True
+	#----------------------------------------------
+	def __sanity_check_encounter(self):
+
+		dbcfg = gmCfg.cCfgSQL()
+		check_enc = bool(dbcfg.get2 (
+			option = 'encounter.show_editor_before_patient_change',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user',
+			default = True					# True: if needed, not always unconditionally
+		))
+
+		if not check_enc:
+			return True
+
+		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
 		enc = emr.get_active_encounter()
-		if enc.has_clinical_data():
 
-			empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == '')
-			zero_duration = (enc['last_affirmed'] == enc['started'])
+		# did we add anything to the EMR ?
+		has_narr = enc.has_narrative()
+		has_docs = enc.has_documents()
 
-			if empty_aoe or zero_duration:
-				if empty_aoe:
-					# - work out suitable default
-					epis = emr.get_episodes_by_encounter()
-					if len(epis) > 0:
-						enc_summary = ''
-						for epi in epis:
-							enc_summary += '%s; ' % epi['description']
-						enc['assessment_of_encounter'] = enc_summary
-				if zero_duration:
-					enc['last_affirmed'] = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
+		if (not has_narr) and (not has_docs):
+			return True
 
-				dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
-				dlg.ShowModal()
+		empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == u'')
+		zero_duration = (enc['last_affirmed'] == enc['started'])
+
+		# all is well anyway
+		if (not empty_aoe) and (not zero_duration):
+			return True
+
+		if zero_duration:
+			enc['last_affirmed'] = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
+
+		# no narrative, presumably only import of docs and done
+		if not has_narr:
+			if zero_duration:
+				# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
+				enc.save_payload()
+			return True
+
+		# does have narrative
+		if empty_aoe:
+			# - work out suitable default
+			epis = emr.get_episodes_by_encounter()
+			if len(epis) > 0:
+				enc_summary = ''
+				for epi in epis:
+					enc_summary += '%s; ' % epi['description']
+				enc['assessment_of_encounter'] = enc_summary
+
+		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
+		dlg.ShowModal()
 
 		return True
 	#----------------------------------------------
@@ -754,8 +809,92 @@ class gmTopLevelFrame(wx.Frame):
 
 		return
 	#----------------------------------------------
+	# submenu GNUmed / config / encounter
+	#----------------------------------------------
+	def __on_cfg_enc_pat_change(self, event):
+
+		dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+			self,
+			-1,
+			caption = _('Configuration'),
+			question = _(
+				'Do you want GNUmed to show the consultation\n'
+				'details editor when changing the active patient ?'
+			),
+			button_defs = [
+				{'label': _('Yes'), 'tooltip': _('Yes, show the consultation editor if it seems appropriate.')},
+				{'label': _('No'), 'tooltip': _('No, never show the consultation editor even if it would seem useful.')},
+				{'label': _('Cancel'), 'tooltip': _('Abort the dialog and do not change the current setting.'), 'default': True}
+			]
+		)
+
+		decision = dlg.ShowModal()
+		if decision == wx.ID_YES:
+			dbcfg.set (
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				option = 'encounter.show_editor_before_patient_change',
+				value = True
+			)
+
+		return
+	#----------------------------------------------
 #	def __on_configure_workplace(self, evt):
 #		pass
+	#----------------------------------------------
+	def __on_dicom_viewer(self, evt):
+		# raw check for OsiriX binary
+		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
+			return
+
+		if os.access('/usr/bin/amide', os.X_OK):
+			# FIXME: search for DICOMDIR and add that to AMIDE call
+			gmShellAPI.run_command_in_shell('/usr/bin/amide', blocking=False)
+			return
+
+		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
+		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
+		# FIXME: scan CD for *.dcm files, put them into list and
+		# FIXME: let user call viewer for each
+		# FIXME: parse DICOMDIR file
+		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+	#----------------------------------------------
+	#----------------------------------------------
+	def __on_medical_links(self, evt):
+		webbrowser.open (
+			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'],
+			new = False,
+			autoraise = True
+		)
+	#----------------------------------------------
+	def __on_ifap(self, evt):
+		jump_to_ifap()
+	#----------------------------------------------
+	# Help / Debugging
+	#----------------------------------------------
+	def __on_save_screenshot(self, evt):
+		w, h = self.GetSize()
+		wdc = wx.WindowDC(self)
+		mdc = wx.MemoryDC()
+		img = wx.EmptyBitmap(w, h)
+		mdc.SelectObject(img)
+		mdc.Blit(0, 0, w, h, wdc, 0, 0)
+		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
+		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
+		evt.Skip()
+	#----------------------------------------------
+	def __on_test_exception(self, evt):
+		#import nonexistant_module
+		raise ValueError('raised ValueError to test exception handling')
+	#----------------------------------------------
+	def __on_display_bugtracker(self, evt):
+		webbrowser.open (
+			url = 'http://savannah.gnu.org/bugs/?group=gnumed',
+			new = False,
+			autoraise = True
+		)
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
@@ -792,59 +931,17 @@ class gmTopLevelFrame(wx.Frame):
 				shutil.copy2(target.ID, new_name)
 				gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
 	#----------------------------------------------
-	def __on_display_bugtracker(self, evt):
-		webbrowser.open (
-			url = 'http://savannah.gnu.org/bugs/?group=gnumed',
-			new = False,
-			autoraise = True
-		)
+#	def __on_show_sys_info(self, event):
+#
+#		msg = _(
+#			'System information for GNUmed client\n'
+#			'====================================\n'
+#			'\n'
+#			'Collected: %s\n'
+#		)
+#
 	#----------------------------------------------
-	def __on_dicom_viewer(self, evt):
-		# raw check for OsiriX binary
-		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
-			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
-			return
-
-		if os.access('/usr/bin/amide', os.X_OK):
-			# FIXME: search for DICOMDIR and add that to AMIDE call
-			gmShellAPI.run_command_in_shell('/usr/bin/amide', blocking=False)
-			return
-
-		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
-		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
-		# FIXME: scan CD for *.dcm files, put them into list and
-		# FIXME: let user call viewer for each
-		# FIXME: parse DICOMDIR file
-		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
-	#----------------------------------------------
-	#----------------------------------------------
-	def __on_medical_links(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'],
-			new = False,
-			autoraise = True
-		)
-	#----------------------------------------------
-	def __on_ifap(self, evt):
-		jump_to_ifap()
-	#----------------------------------------------
-	#----------------------------------------------
-	def __on_save_screenshot(self, evt):
-		w, h = self.GetSize()
-		wdc = wx.WindowDC(self)
-		mdc = wx.MemoryDC()
-		img = wx.EmptyBitmap(w, h)
-		mdc.SelectObject(img)
-		mdc.Blit(0, 0, w, h, wdc, 0, 0)
-		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
-		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
-		evt.Skip()
-	#----------------------------------------------
-	def __on_test_exception(self, evt):
-		#import nonexistant_module
-		raise ValueError('raised ValueError to test exception handling')
+	# GNUmed /
 	#----------------------------------------------
 	def OnClose(self, event):
 		"""This is the wx.EVT_CLOSE handler.
@@ -1142,11 +1239,12 @@ Search results:
 		try:
 			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
 		except KeyError:
+			_log.LogException('no access to scripting listener thread', verbose=0)
 			pass
 		except:
 			_log.LogException('cannot stop scripting listener thread', verbose=0)
+
 		self.timer.Stop()
-#		self.mainmenu = None
 	#----------------------------------------------
 #	def OnIdle(self, event):
 #		"""Here we can process any background tasks
@@ -1531,7 +1629,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.357  2007-10-08 12:49:48  ncq
+# Revision 1.358  2007-10-11 12:10:52  ncq
+# - add initial updateTitle() call
+# - reorganize menus a bit
+# - add gnumed / config / emr / encounter / edit-before-patient-change
+# - improve logic in encounter editor showing before patient change
+#
+# Revision 1.357  2007/10/08 12:49:48  ncq
 # - active_workplace now property of gmPractice
 # - rearrange options manage
 # - allow editing ifap startup command
