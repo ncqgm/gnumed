@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.144 2007-09-07 10:57:54 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gmMedDocWidgets.py,v 1.144.2.1 2007-10-11 16:42:04 ncq Exp $
+__version__ = "$Revision: 1.144.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -466,6 +466,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# make me a file drop target
 		dt = gmGuiHelpers.cFileDropTarget(self)
 		self.SetDropTarget(dt)
+		dt = gmGuiHelpers.cFileDropTarget(self._LBOX_doc_pages)
 		self._LBOX_doc_pages.SetDropTarget(dt)
 
 		# do not import globally since we might want to use
@@ -1462,7 +1463,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.144  2007-09-07 10:57:54  ncq
+# Revision 1.144.2.1  2007-10-11 16:42:04  ncq
+# - list ctrl needs to be its own drop target
+#
+# Revision 1.144  2007/09/07 10:57:54  ncq
 # - document review_after_display
 #
 # Revision 1.143  2007/08/29 14:43:06  ncq
