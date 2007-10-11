@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.91 2007-10-07 12:32:42 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmPatSearchWidgets.py,v 1.92 2007-10-11 12:15:09 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -77,8 +77,10 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			else:
 				label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
-			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = ident['match_type'])
-			except: pass
+			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
+			except:
+				_log.LogException('cannot set match_type field')
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = u'??')
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
@@ -828,7 +830,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.91  2007-10-07 12:32:42  ncq
+# Revision 1.92  2007-10-11 12:15:09  ncq
+# - make filling patient selector list more robust in absence of match_type field
+#
+# Revision 1.91  2007/10/07 12:32:42  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.90  2007/09/10 12:38:12  ncq
