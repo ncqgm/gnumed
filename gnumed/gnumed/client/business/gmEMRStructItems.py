@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.101 $"
+__version__ = "$Revision: 1.102 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -331,6 +331,40 @@ select exists (
 			}]
 		)
 		return rows[0][0]
+	#--------------------------------------------------------
+	def has_narrative(self):
+		cmd = u"""
+select exists (
+	select 1 from clin.v_pat_items where pk_patient=%(pat)s and pk_encounter=%(enc)s
+)"""
+		args = {
+			'pat': self._payload[self._idx['pk_patient']],
+			'enc': self.pk_obj
+		}
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': args
+			}]
+		)
+		return rows[0][0]
+	#--------------------------------------------------------
+	def has_documents(self):
+		cmd = u"""
+select exists (
+	select 1 from blobs.doc_med where fk_identity=%(pat)s and fk_encounter=%(enc)s
+)"""
+		args = {
+			'pat': self._payload[self._idx['pk_patient']],
+			'enc': self.pk_obj
+		}
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': args
+			}]
+		)
+		return rows[0][0]
 #============================================================		
 class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one problem.
@@ -592,7 +626,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.101  2007-09-07 10:55:55  ncq
+# Revision 1.102  2007-10-11 12:00:17  ncq
+# - add has_narrative() and has_documents()
+#
+# Revision 1.101  2007/09/07 10:55:55  ncq
 # - get_dummy_health_issue()
 #
 # Revision 1.100  2007/08/15 14:56:30  ncq
