@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.68 2007-09-25 20:44:23 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmGuiHelpers.py,v 1.69 2007-10-11 12:01:51 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -199,8 +199,11 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 		for idx in range(len(button_defs)):
 			buttons[idx].SetLabel(label = button_defs[idx]['label'])
 			buttons[idx].SetToolTipString(button_defs[idx]['tooltip'])
-			if button_defs[idx]['default']:
-				buttons[idx].SetDefault()
+			try:
+				if button_defs[idx]['default']:
+					buttons[idx].SetDefault()
+			except KeyError:
+				pass
 
 		self.Fit()
 	#--------------------------------------------------------
@@ -587,7 +590,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.68  2007-09-25 20:44:23  ncq
+# Revision 1.69  2007-10-11 12:01:51  ncq
+# - make c3ButtonQuestionDlg() more robust in the face of no-default button def
+#
+# Revision 1.68  2007/09/25 20:44:23  ncq
 # - support saving user comment in log file rescued on error
 #
 # Revision 1.67  2007/09/20 21:30:06  ncq
