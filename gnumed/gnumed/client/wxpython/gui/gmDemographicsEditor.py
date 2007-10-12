@@ -2,12 +2,10 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.17 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmDemographicsEditor.py,v 1.18 2007-10-12 07:28:24 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
-
-import sys
 
 from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
@@ -42,11 +40,7 @@ class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	try:
-		import wxversion
-		import wx
-	except ImportError:
-		from wxPython import wx
+	import wx
 
 	# catch all remaining exceptions
 	try:
@@ -60,7 +54,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.17  2005-09-28 21:27:30  ncq
+# Revision 1.18  2007-10-12 07:28:24  ncq
+# - lots of import related cleanup
+#
+# Revision 1.17  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.16  2005/09/26 18:01:52  ncq

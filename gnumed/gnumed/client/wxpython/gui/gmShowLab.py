@@ -2,19 +2,15 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
 import os.path, sys
 
 # 3rd party
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	from wxPython import grid
+import wx
+import wx.grid
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
 from Gnumed.business import gmPerson
@@ -231,7 +227,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.22  2007-03-08 11:54:44  ncq
+# Revision 1.23  2007-10-12 07:28:25  ncq
+# - lots of import related cleanup
+#
+# Revision 1.22  2007/03/08 11:54:44  ncq
 # - cleanup
 #
 # Revision 1.21  2007/01/21 12:22:02  ncq

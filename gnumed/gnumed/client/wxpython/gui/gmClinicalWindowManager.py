@@ -18,18 +18,14 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.24 2005-09-28 21:27:30 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.25 2007-10-12 07:28:24 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ =	"I.Haywood"
 
 import sys
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmDispatcher
 from Gnumed.wxpython import gmPlugin, gmShadow
@@ -244,7 +240,10 @@ class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.24  2005-09-28 21:27:30  ncq
+# Revision 1.25  2007-10-12 07:28:24  ncq
+# - lots of import related cleanup
+#
+# Revision 1.24  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.23  2005/09/26 18:01:52  ncq

@@ -11,11 +11,7 @@ Status: blank screen
 from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmPlugin
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 class gmOffice (gmPlugin.cNotebookPluginOld):
 

@@ -6,18 +6,14 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.19 2007-01-20 22:53:32 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmSnellen.py,v 1.20 2007-10-12 07:28:25 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import math, random
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.pycommon import gmLog, gmI18N
 #from Gnumed.wxpython import gmPlugin
@@ -541,7 +537,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.19  2007-01-20 22:53:32  ncq
+# Revision 1.20  2007-10-12 07:28:25  ncq
+# - lots of import related cleanup
+#
+# Revision 1.19  2007/01/20 22:53:32  ncq
 # - .KeyCode -> .GetKeyCode()
 #
 # Revision 1.18  2007/01/18 22:09:18  ncq

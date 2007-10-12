@@ -5,16 +5,12 @@
 # @copyright: author
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.6 2007-05-21 14:50:05 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmAllergiesPlugin.py,v 1.7 2007-10-12 07:28:24 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.wxpython import gmPlugin, gmAllergyWidgets
 from Gnumed.pycommon import gmLog
@@ -62,7 +58,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.6  2007-05-21 14:50:05  ncq
+# Revision 1.7  2007-10-12 07:28:24  ncq
+# - lots of import related cleanup
+#
+# Revision 1.6  2007/05/21 14:50:05  ncq
 # - cleanup
 #
 # Revision 1.5  2005/09/28 21:27:30  ncq

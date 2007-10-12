@@ -1,14 +1,10 @@
 # a simple wrapper for the cryptowidget
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  someone before me :-)>"
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 from Gnumed.wxpython import gmPlugin
 
@@ -36,7 +32,10 @@ class gmPython (gmPlugin.cNotebookPluginOld):
 
 #======================================================
 # $Log: gmPython.py,v $
-# Revision 1.12  2005-09-28 21:27:30  ncq
+# Revision 1.13  2007-10-12 07:28:25  ncq
+# - lots of import related cleanup
+#
+# Revision 1.12  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.11  2005/09/26 18:01:52  ncq

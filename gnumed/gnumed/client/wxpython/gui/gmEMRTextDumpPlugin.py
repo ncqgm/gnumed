@@ -2,17 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.wxpython import gmEMRTextDump, gmPlugin
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -58,7 +54,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.13  2005-09-28 21:27:30  ncq
+# Revision 1.14  2007-10-12 07:28:25  ncq
+# - lots of import related cleanup
+#
+# Revision 1.13  2005/09/28 21:27:30  ncq
 # - a lot of wx2.6-ification
 #
 # Revision 1.12  2005/09/26 18:01:52  ncq

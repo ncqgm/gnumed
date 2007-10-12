@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -46,11 +46,7 @@ if __name__ == "__main__":
 
     import sys
 
-	try:
-		import wxversion
-		import wx
-	except ImportError:
-		from wxPython import wx
+	import wx
 
     from Gnumed.pycommon import gmCfg
     from Gnumed.business import gmPerson
@@ -101,7 +97,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.10  2007-03-08 11:54:44  ncq
+# Revision 1.11  2007-10-12 07:28:25  ncq
+# - lots of import related cleanup
+#
+# Revision 1.10  2007/03/08 11:54:44  ncq
 # - cleanup
 #
 # Revision 1.9  2006/10/25 07:23:30  ncq

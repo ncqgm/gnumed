@@ -2,20 +2,12 @@
 # GNUmed scan and index plugin
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmScanIdxMedDocsPlugin.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-try:
-    import wxversion
-    import wx
-except ImportError:
-    from wxPython import wx
-
 from Gnumed.wxpython import gmPlugin, gmMedDocWidgets
-from Gnumed.pycommon import gmLog
-_log = gmLog.gmDefLog
 
 #====================================
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
@@ -40,7 +32,10 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		return 1
 #======================================================================
 # $Log: gmScanIdxMedDocsPlugin.py,v $
-# Revision 1.4  2005-11-27 12:46:42  ncq
+# Revision 1.5  2007-10-12 07:28:25  ncq
+# - lots of import related cleanup
+#
+# Revision 1.4  2005/11/27 12:46:42  ncq
 # - cleanup
 #
 #
