@@ -54,20 +54,22 @@ Concurrency handling
 GnuMed connections always run transactions in isolation level
 "serializable". This prevents transactions happening at the
 *very same time* to overwrite each other's data. All but one
-of them will abort with a concurrency error (eg if a transaction
-runs a select-for-update later than another one it will hang
-until the first transaction ends. Then it will suceed or fail
-depending on what the first transaction did).
+of them will abort with a concurrency error (eg if a
+transaction runs a select-for-update later than another one
+it will hang until the first transaction ends. Then it will
+succeed or fail depending on what the first transaction
+did). This is standard transactional behaviour.
 
-However, another transaction may have updated our row between
-the time we first fetched the data and the time we start the
-update transaction. This is noticed by getting the XMIN system
-column for the row when initially fetching the data and using
-that value as a where condition value when locking the row for
-update. If the row had been updated (xmin changed) or deleted
-(primary key disappeared) in the meantime then getting the row
-lock will touch zero rows even if the query itself formally
-succeeds.
+However, another transaction may have updated our row
+between the time we first fetched the data and the time we
+start the update transaction. This is noticed by getting the
+XMIN system column for the row when initially fetching the
+data and using that value as a where condition value when
+updating the row later. If the row had been updated (xmin
+changed) or deleted (primary key disappeared) in the
+meantime the update will touch zero rows (as no row with
+both PK and XMIN matching is found) even if the query itself
+syntactically succeeds.
 
 When detecting a change in a row due to XMIN being different
 one needs to be careful how to represent that to the user.
@@ -84,7 +86,8 @@ self.original_payload
 
 self.modified_payload
 - contains the modified payload just before the last
-  failure of save_payload()
+  failure of save_payload() - IOW what is currently
+  in the database
 
 self._payload
 - contains the currently active payload which may or
@@ -96,8 +99,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.43 2007-08-13 21:55:10 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmBusinessDBObject.py,v 1.44 2007-10-12 07:26:25 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -412,7 +415,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.43  2007-08-13 21:55:10  ncq
+# Revision 1.44  2007-10-12 07:26:25  ncq
+# - somewhat improved docs
+#
+# Revision 1.43  2007/08/13 21:55:10  ncq
 # - fix logging statement
 #
 # Revision 1.42  2007/05/21 14:47:22  ncq
