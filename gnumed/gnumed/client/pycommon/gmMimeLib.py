@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.13 2007-08-31 23:04:04 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmMimeLib.py,v 1.14 2007-10-12 14:19:18 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -213,7 +213,7 @@ def call_viewer_on_file(aFile = None, block=None):
 	# does the file already have an extension ?
 	(path_name, f_ext) = os.path.splitext(aFile)
 	# no
-	if f_ext == '':
+	if f_ext in ['', '.tmp']:
 		# try to guess one
 		f_ext = guess_ext_by_mimetype(mime_type)
 		if f_ext is None:
@@ -255,7 +255,11 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.13  2007-08-31 23:04:04  ncq
+# Revision 1.14  2007-10-12 14:19:18  ncq
+# - if file ext is ".tmp" and we were unable to run a viewer on that
+#   file - try to replace the extension based on the mime type
+#
+# Revision 1.13  2007/08/31 23:04:04  ncq
 # - on KDE support kfmclient
 #
 # Revision 1.12  2007/08/08 21:23:20  ncq
