@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.93 2007-10-12 13:33:06 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmPatSearchWidgets.py,v 1.94 2007-10-12 14:20:09 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -306,8 +306,7 @@ def load_persons_from_kvks():
 
 	return dtos
 #============================================================
-def load_patient_from_external_sources(parent=None):
-
+def load_patient_from_external_sources(parent=None, activate_immediately=False):
 	# get DTOs from interfaces
 	dtos = []
 	dtos.extend(load_persons_from_xdt())
@@ -335,6 +334,8 @@ def load_patient_from_external_sources(parent=None):
 				if key_dto == key_pat:
 					gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
 					return True
+
+	# FIXME: support activate_immediately, useful for F2 etc
 
 	# several external patients
 	else:
@@ -837,7 +838,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.93  2007-10-12 13:33:06  ncq
+# Revision 1.94  2007-10-12 14:20:09  ncq
+# - prepare "activate_immediately" in load_patient_from_external_sources()
+#
+# Revision 1.93  2007/10/12 13:33:06  ncq
 # - if only one external patient available - activate it right away
 #
 # Revision 1.92  2007/10/11 12:15:09  ncq
