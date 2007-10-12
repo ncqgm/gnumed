@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.97 2007-08-11 23:53:19 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmMedDoc.py,v 1.98 2007-10-12 14:15:55 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time
@@ -234,21 +234,6 @@ order by
 			filename = fname,
 			args = {'pk': self.pk_obj}
 		)
-
-#		# read from file and convert (escape)
-#		aFile = file(fname, "rb")
-#		byte_str_img_data = aFile.read()
-#		aFile.close()
-#		del aFile
-#		img_obj = buffer(byte_str_img_data)
-#		del(byte_str_img_data)
-
-#		conn = gmPG2.get_raw_connection()
-
-#		# insert the data
-#		cmd = u"UPDATE blobs.doc_obj SET data=%s::bytea WHERE pk=%s"
-#		gmPG2.run_rw_queries(link_obj=conn, queries = [{'cmd': cmd, 'args': [img_obj, self.pk_obj]}], end_tx=True)
-#		conn.close()
 
 		# must update XMIN now ...
 		self.refetch_payload()
@@ -688,7 +673,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.97  2007-08-11 23:53:19  ncq
+# Revision 1.98  2007-10-12 14:15:55  ncq
+# - cleanup
+#
+# Revision 1.97  2007/08/11 23:53:19  ncq
 # - cleanup
 # - use gmPG2.bytea2file()
 #
