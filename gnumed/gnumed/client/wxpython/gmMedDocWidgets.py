@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.145 2007-10-07 12:32:41 ncq Exp $
-__version__ = "$Revision: 1.145 $"
+# $Id: gmMedDocWidgets.py,v 1.146 2007-10-12 07:27:02 ncq Exp $
+__version__ = "$Revision: 1.146 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -463,9 +463,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.__init_ui_data()
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
-		# make me a file drop target
+		# make me and listctrl a file drop target
 		dt = gmGuiHelpers.cFileDropTarget(self)
 		self.SetDropTarget(dt)
+		dt = gmGuiHelpers.cFileDropTarget(self._LBOX_doc_pages)
 		self._LBOX_doc_pages.SetDropTarget(dt)
 
 		# do not import globally since we might want to use
@@ -1462,7 +1463,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.145  2007-10-07 12:32:41  ncq
+# Revision 1.146  2007-10-12 07:27:02  ncq
+# - check in drop target fix
+#
+# Revision 1.145  2007/10/07 12:32:41  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.144  2007/09/07 10:57:54  ncq
