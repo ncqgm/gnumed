@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.92 2007-10-11 12:15:09 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmPatSearchWidgets.py,v 1.93 2007-10-12 13:33:06 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -314,12 +314,17 @@ def load_patient_from_external_sources(parent=None):
 	dtos.extend(load_persons_from_pracsoft_au())
 	dtos.extend(load_persons_from_kvks())
 
+	# no external patients
 	if len(dtos) == 0:
 		gmDispatcher.send(signal='statustext', msg=_('No patients found in external sources.'))
 		return True
+
+	# one external patient
 	elif len(dtos) == 1:
 		dto = dtos[0]['dto']
+		# must have DOB else we don't take any chances
 		if dto.dob is not None:
+			# is it already the current patient ?
 			curr_pat = gmPerson.gmCurrentPatient()
 			if curr_pat.is_connected():
 				key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
@@ -331,15 +336,17 @@ def load_patient_from_external_sources(parent=None):
 					gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
 					return True
 
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
-	dlg.set_dtos(dtos=dtos)
-	result = dlg.ShowModal()
-	if result == wx.ID_CANCEL:
-		return True
-	dto = dlg.get_selected_dto()['dto']
-	dlg.Destroy()
+	# several external patients
+	else:
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
+		dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
+		dlg.set_dtos(dtos=dtos)
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			return True
+		dto = dlg.get_selected_dto()['dto']
+		dlg.Destroy()
 
 	# FIXME: config: delete DTO source after selection, eg KVK
 
@@ -830,7 +837,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.92  2007-10-11 12:15:09  ncq
+# Revision 1.93  2007-10-12 13:33:06  ncq
+# - if only one external patient available - activate it right away
+#
+# Revision 1.92  2007/10/11 12:15:09  ncq
 # - make filling patient selector list more robust in absence of match_type field
 #
 # Revision 1.91  2007/10/07 12:32:42  ncq
