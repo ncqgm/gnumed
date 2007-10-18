@@ -2,11 +2,11 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.101.2.1 $
+# $Revision: 1.101.2.2 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-09-25 20:26+CEST\n"
+"POT-Creation-Date: 2007-10-18 11:38+CEST\n"
 "PO-Revision-Date: 2007-09-17 21:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -856,11 +856,11 @@ msgstr ""
 "Ohne Login-Informationen kann keine Verbindung zur Datenbank hergestellt "
 "werden!"
 
-#: ../pycommon/gmTools.py:355
+#: ../pycommon/gmTools.py:356
 msgid "1 Byte"
 msgstr "1 Byte"
 
-#: ../pycommon/gmTools.py:357
+#: ../pycommon/gmTools.py:358
 msgid "%s Bytes"
 msgstr "%s Byte"
 
@@ -3252,7 +3252,7 @@ msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
 
 #: ../wxpython/gmEMRBrowser.py:43 ../wxpython/gmFormWidgets.py:234
 #: ../wxpython/gmGuiMain.py:918 ../wxpython/gmGuiMain.py:966
-#: ../wxpython/gmMedDocWidgets.py:692 ../wxpython/gui/gmXdtViewer.py:63
+#: ../wxpython/gmMedDocWidgets.py:693 ../wxpython/gui/gmXdtViewer.py:63
 msgid "all files"
 msgstr "alle Dateien"
 
@@ -3994,7 +3994,7 @@ msgstr "Wählen Sie eine Datei als Schriftstück-Vorlage."
 msgid "OOo templates"
 msgstr "OOo-Vorlagen"
 
-#: ../wxpython/gmFormWidgets.py:234 ../wxpython/gmMedDocWidgets.py:692
+#: ../wxpython/gmFormWidgets.py:234 ../wxpython/gmMedDocWidgets.py:693
 #: ../wxpython/gui/gmXdtViewer.py:63
 msgid "all files (Win)"
 msgstr "alle Dateien (Win)"
@@ -4721,7 +4721,7 @@ msgstr "einstellen der Datenbanksprache"
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Kann Modul nicht aufrufen. Kein Patient aktiv."
 
-#: ../wxpython/gmHorstSpace.py:284
+#: ../wxpython/gmHorstSpace.py:287
 msgid "add plugin ..."
 msgstr "lade Modul ..."
 
@@ -5290,38 +5290,38 @@ msgstr "Fehler beim Abzeichnen dieser Seite."
 msgid "Error saving page properties."
 msgstr "Fehler beim Speichern der Seiteneigenschaften."
 
-#: ../wxpython/gmMedDocWidgets.py:481
+#: ../wxpython/gmMedDocWidgets.py:482
 msgid "Cannot accept new documents. No active patient."
 msgstr "Kann Dokumente nicht zuordnen. Kein Patient aktiv."
 
-#: ../wxpython/gmMedDocWidgets.py:489
+#: ../wxpython/gmMedDocWidgets.py:490
 msgid "Extracting files from folder [%s] ..."
 msgstr "Extrahiere Dateien aus dem Verzeichnis [%s] ..."
 
-#: ../wxpython/gmMedDocWidgets.py:553 ../wxpython/gmMedDocWidgets.py:790
-#: ../wxpython/gmMedDocWidgets.py:802 ../wxpython/gmMedDocWidgets.py:822
-#: ../wxpython/gmMedDocWidgets.py:832 ../wxpython/gmMedDocWidgets.py:842
-#: ../wxpython/gmMedDocWidgets.py:876
+#: ../wxpython/gmMedDocWidgets.py:554 ../wxpython/gmMedDocWidgets.py:791
+#: ../wxpython/gmMedDocWidgets.py:803 ../wxpython/gmMedDocWidgets.py:823
+#: ../wxpython/gmMedDocWidgets.py:833 ../wxpython/gmMedDocWidgets.py:843
+#: ../wxpython/gmMedDocWidgets.py:877
 msgid "saving document"
 msgstr "speichere Dokument"
 
-#: ../wxpython/gmMedDocWidgets.py:557
+#: ../wxpython/gmMedDocWidgets.py:558
 msgid "No pages to save. Aquire some pages first."
 msgstr "Keine Seiten zu speichern. Sie müssen zuerst Seiten hinzufügen."
 
-#: ../wxpython/gmMedDocWidgets.py:565
+#: ../wxpython/gmMedDocWidgets.py:566
 msgid "No document type applied. Choose a document type"
 msgstr "Sie müssen einen Typ für das Dokument wählen."
 
-#: ../wxpython/gmMedDocWidgets.py:572
+#: ../wxpython/gmMedDocWidgets.py:573
 msgid "No document comment supplied. Add a comment for this document."
 msgstr "Sie müssen einen Kommentar für das Dokument eingeben."
 
-#: ../wxpython/gmMedDocWidgets.py:579
+#: ../wxpython/gmMedDocWidgets.py:580
 msgid "You must select an episode to save this document under."
 msgstr "Sie müssen die Episode zum Speichern des Dokuments wählen."
 
-#: ../wxpython/gmMedDocWidgets.py:586
+#: ../wxpython/gmMedDocWidgets.py:587
 msgid ""
 "You need to select the doctor who must review the document from the list of "
 "staff members."
@@ -5329,27 +5329,27 @@ msgstr ""
 "Sie müssen den Arzt, der das Dokument abzeichnen soll, aus der "
 "Mitarbeiterliste wählen."
 
-#: ../wxpython/gmMedDocWidgets.py:612
+#: ../wxpython/gmMedDocWidgets.py:613
 msgid "There is no scanner support installed on this machine."
 msgstr "Das Betriebssystem hat keinen Scannertreiber."
 
-#: ../wxpython/gmMedDocWidgets.py:621
+#: ../wxpython/gmMedDocWidgets.py:622
 msgid "Cannot find an active scanner."
 msgstr "Kann keinen aktiven Scanner finden."
 
-#: ../wxpython/gmMedDocWidgets.py:630
+#: ../wxpython/gmMedDocWidgets.py:631
 msgid "Select an image capture device"
 msgstr "Wählen Sie die Bildquelle."
 
-#: ../wxpython/gmMedDocWidgets.py:631
+#: ../wxpython/gmMedDocWidgets.py:632
 msgid "device selection"
 msgstr "Auswahl des Geräts"
 
-#: ../wxpython/gmMedDocWidgets.py:633
+#: ../wxpython/gmMedDocWidgets.py:634
 msgid "Device"
 msgstr "Gerät"
 
-#: ../wxpython/gmMedDocWidgets.py:666
+#: ../wxpython/gmMedDocWidgets.py:667
 msgid ""
 "No pages could be acquired from the source.\n"
 "\n"
@@ -5367,23 +5367,23 @@ msgstr ""
 "Unter Windows müssen Sie das TWAIN Python-Modul installieren.\n"
 "Unter Linux und MacOSX wird das Paket XSane empfohlen."
 
-#: ../wxpython/gmMedDocWidgets.py:673
+#: ../wxpython/gmMedDocWidgets.py:674
 msgid "acquiring page"
 msgstr "hole Seite"
 
-#: ../wxpython/gmMedDocWidgets.py:689
+#: ../wxpython/gmMedDocWidgets.py:690
 msgid "Choose a file"
 msgstr "Eine Datei wählen"
 
-#: ../wxpython/gmMedDocWidgets.py:708
+#: ../wxpython/gmMedDocWidgets.py:709
 msgid "You must select a page before you can view it."
 msgstr "Zum Anzeigen muß eine Seite markiert sein."
 
-#: ../wxpython/gmMedDocWidgets.py:709 ../wxpython/gmMedDocWidgets.py:718
+#: ../wxpython/gmMedDocWidgets.py:710 ../wxpython/gmMedDocWidgets.py:719
 msgid "displaying page"
 msgstr "zeige Seite"
 
-#: ../wxpython/gmMedDocWidgets.py:717 ../wxpython/gmMedDocWidgets.py:1371
+#: ../wxpython/gmMedDocWidgets.py:718 ../wxpython/gmMedDocWidgets.py:1372
 msgid ""
 "Cannot display document part:\n"
 "%s"
@@ -5391,16 +5391,16 @@ msgstr ""
 "Kann Dokumententeil nicht anzeigen:\n"
 "%s"
 
-#: ../wxpython/gmMedDocWidgets.py:727
+#: ../wxpython/gmMedDocWidgets.py:728
 msgid "You must select a page before you can delete it."
 msgstr "Zum Löschen muß eine Seite markiert sein."
 
-#: ../wxpython/gmMedDocWidgets.py:728 ../wxpython/gmMedDocWidgets.py:754
-#: ../wxpython/gmMedDocWidgets.py:763
+#: ../wxpython/gmMedDocWidgets.py:729 ../wxpython/gmMedDocWidgets.py:755
+#: ../wxpython/gmMedDocWidgets.py:764
 msgid "deleting page"
 msgstr "lösche Seite"
 
-#: ../wxpython/gmMedDocWidgets.py:741
+#: ../wxpython/gmMedDocWidgets.py:742
 msgid ""
 "Do you want to permanently delete the file\n"
 "\n"
@@ -5428,7 +5428,7 @@ msgstr ""
 "Durch Drücken von [JA] wird die Datei endgültig von\n"
 "Ihrem Computer gelöscht."
 
-#: ../wxpython/gmMedDocWidgets.py:762
+#: ../wxpython/gmMedDocWidgets.py:763
 msgid ""
 "Cannot delete page in file [%s].\n"
 "\n"
@@ -5438,27 +5438,27 @@ msgstr ""
 "\n"
 "Sie haben möglicherweise kein Schreibrecht dafür."
 
-#: ../wxpython/gmMedDocWidgets.py:789
+#: ../wxpython/gmMedDocWidgets.py:790
 msgid "Cannot start episode [%s]."
 msgstr "Kann Episode [%s] nicht eröffnen."
 
-#: ../wxpython/gmMedDocWidgets.py:801
+#: ../wxpython/gmMedDocWidgets.py:802
 msgid "Cannot create new document."
 msgstr "Kann kein neues Dokument anlegen."
 
-#: ../wxpython/gmMedDocWidgets.py:821
+#: ../wxpython/gmMedDocWidgets.py:822
 msgid "Cannot update document metadata."
 msgstr "Kann Metadaten zum Dokument nicht aktualisieren."
 
-#: ../wxpython/gmMedDocWidgets.py:831
+#: ../wxpython/gmMedDocWidgets.py:832
 msgid "Cannot add document description."
 msgstr "Kann Dokumentenbeschreibung nicht hinzufügen."
 
-#: ../wxpython/gmMedDocWidgets.py:852
+#: ../wxpython/gmMedDocWidgets.py:853
 msgid "Error setting \"reviewed\" status of new document."
 msgstr "Fehler beim Abzeichnen des neuen Dokuments."
 
-#: ../wxpython/gmMedDocWidgets.py:864
+#: ../wxpython/gmMedDocWidgets.py:865
 msgid ""
 "The reference ID for the new document is:\n"
 "\n"
@@ -5480,35 +5480,35 @@ msgstr ""
 "Falls Sie ohne Referenznummern arbeiten, können Sie\n"
 "diesen Hinweis in der Konfiguration von GNUmed abschalten."
 
-#: ../wxpython/gmMedDocWidgets.py:881
+#: ../wxpython/gmMedDocWidgets.py:882
 msgid "Successfully saved new document."
 msgstr "Neues Dokument erfolgreich gespeichert."
 
-#: ../wxpython/gmMedDocWidgets.py:957
+#: ../wxpython/gmMedDocWidgets.py:958
 msgid "available documents (%s)"
 msgstr "archivierte Dokumente (%s)"
 
-#: ../wxpython/gmMedDocWidgets.py:959
+#: ../wxpython/gmMedDocWidgets.py:960
 msgid "most recent on top"
 msgstr "neueste zuoberst"
 
-#: ../wxpython/gmMedDocWidgets.py:960
+#: ../wxpython/gmMedDocWidgets.py:961
 msgid "unreviewed on top"
 msgstr "unbewertete zuoberst"
 
-#: ../wxpython/gmMedDocWidgets.py:961
+#: ../wxpython/gmMedDocWidgets.py:962
 msgid "sorted by episode"
 msgstr "sortiert nach Episode"
 
-#: ../wxpython/gmMedDocWidgets.py:962
+#: ../wxpython/gmMedDocWidgets.py:963
 msgid "sorted by type"
 msgstr "sortiert nach Typ"
 
-#: ../wxpython/gmMedDocWidgets.py:976
+#: ../wxpython/gmMedDocWidgets.py:977
 msgid "Cannot load documents. No active patient."
 msgstr "Kann Dokumente nicht laden. Kein Patient aktiv."
 
-#: ../wxpython/gmMedDocWidgets.py:1029
+#: ../wxpython/gmMedDocWidgets.py:1030
 msgid ""
 "Error searching documents for patient\n"
 "[%s %s]."
@@ -5516,75 +5516,75 @@ msgstr ""
 "Fehler beim Suchen nach Dokumenten für:\n"
 "[%s %s]."
 
-#: ../wxpython/gmMedDocWidgets.py:1030
+#: ../wxpython/gmMedDocWidgets.py:1031
 msgid "loading document list"
 msgstr "Dokumentenliste laden"
 
-#: ../wxpython/gmMedDocWidgets.py:1049 ../wxpython/gmMedDocWidgets.py:1091
+#: ../wxpython/gmMedDocWidgets.py:1050 ../wxpython/gmMedDocWidgets.py:1092
 msgid "no comment available"
 msgstr "kein Kommentar verfügbar"
 
-#: ../wxpython/gmMedDocWidgets.py:1051
+#: ../wxpython/gmMedDocWidgets.py:1052
 msgid "no reference ID found"
 msgstr "keine Referenznummer gefunden"
 
-#: ../wxpython/gmMedDocWidgets.py:1058
+#: ../wxpython/gmMedDocWidgets.py:1059
 msgid "%s%7s %s: %s (%s page(s), %s)"
 msgstr "%s%7s %s: %s (%s Seite(n), %s)"
 
-#: ../wxpython/gmMedDocWidgets.py:1090
+#: ../wxpython/gmMedDocWidgets.py:1091
 msgid "page %2s"
 msgstr "Seite %2s"
 
-#: ../wxpython/gmMedDocWidgets.py:1096
+#: ../wxpython/gmMedDocWidgets.py:1097
 msgid "unreviewed"
 msgstr "nicht abgezeichnet"
 
-#: ../wxpython/gmMedDocWidgets.py:1265
+#: ../wxpython/gmMedDocWidgets.py:1266
 msgid "document menu"
 msgstr "Dokumentenmenü"
 
-#: ../wxpython/gmMedDocWidgets.py:1269 ../wxpython/gmMedDocWidgets.py:1311
+#: ../wxpython/gmMedDocWidgets.py:1270 ../wxpython/gmMedDocWidgets.py:1312
 msgid "Review/Edit properties"
 msgstr "Abzeichnen/Eigenschaften editieren"
 
-#: ../wxpython/gmMedDocWidgets.py:1274
+#: ../wxpython/gmMedDocWidgets.py:1275
 msgid "Export to disk"
 msgstr "In Dateien exportieren"
 
-#: ../wxpython/gmMedDocWidgets.py:1279
+#: ../wxpython/gmMedDocWidgets.py:1280
 msgid "Edit corresponding consultation"
 msgstr "Zugehörige Konsultation bearbeiten"
 
-#: ../wxpython/gmMedDocWidgets.py:1296
+#: ../wxpython/gmMedDocWidgets.py:1297
 msgid "descriptions ..."
 msgstr "Beschreibungen ..."
 
-#: ../wxpython/gmMedDocWidgets.py:1304
+#: ../wxpython/gmMedDocWidgets.py:1305
 msgid "page menu"
 msgstr "Seitenmenü"
 
-#: ../wxpython/gmMedDocWidgets.py:1307
+#: ../wxpython/gmMedDocWidgets.py:1308
 msgid "Display page"
 msgstr "Zeige Seite"
 
-#: ../wxpython/gmMedDocWidgets.py:1316
+#: ../wxpython/gmMedDocWidgets.py:1317
 msgid "Activate as current photo"
 msgstr "Als aktives Photo aktivieren"
 
-#: ../wxpython/gmMedDocWidgets.py:1329
+#: ../wxpython/gmMedDocWidgets.py:1330
 msgid "Document part does not seem to exist in database !"
 msgstr "Dieser Teil des Dokuments scheint in der Datenbank zu fehlen !"
 
-#: ../wxpython/gmMedDocWidgets.py:1330 ../wxpython/gmMedDocWidgets.py:1372
+#: ../wxpython/gmMedDocWidgets.py:1331 ../wxpython/gmMedDocWidgets.py:1373
 msgid "showing document"
 msgstr "Dokument zeigen"
 
-#: ../wxpython/gmMedDocWidgets.py:1431
+#: ../wxpython/gmMedDocWidgets.py:1432
 msgid "Save document into directory ..."
 msgstr "Dokument speichern in das Verzeichnis ..."
 
-#: ../wxpython/gmMedDocWidgets.py:1446
+#: ../wxpython/gmMedDocWidgets.py:1447
 msgid "Successfully exported %s pages into the directory [%s]."
 msgstr "Erfolgreich %s Seiten in das Verzeichnis [%s] gespeichert."
 
@@ -5724,7 +5724,7 @@ msgstr ""
 "Überprüfen Sie die Konfiguration."
 
 #: ../wxpython/gmPatSearchWidgets.py:223 ../wxpython/gmPatSearchWidgets.py:245
-#: ../wxpython/gmPatSearchWidgets.py:362 ../wxpython/gmPatSearchWidgets.py:387
+#: ../wxpython/gmPatSearchWidgets.py:361 ../wxpython/gmPatSearchWidgets.py:386
 msgid "Activating xDT patient"
 msgstr "XDT-Patienten aktivieren"
 
@@ -5746,7 +5746,7 @@ msgstr "Keine Patienten in den externen Quellen gefunden."
 msgid "The only external patient is already active in GNUmed."
 msgstr "Der einzige extern verfügbare Patient ist schon in GNUmed aktiv."
 
-#: ../wxpython/gmPatSearchWidgets.py:358
+#: ../wxpython/gmPatSearchWidgets.py:357
 msgid ""
 "Cannot create new patient:\n"
 "\n"
@@ -5756,7 +5756,7 @@ msgstr ""
 "\n"
 " [%s %s (%s), %s]"
 
-#: ../wxpython/gmPatSearchWidgets.py:382
+#: ../wxpython/gmPatSearchWidgets.py:381
 msgid ""
 "Cannot activate patient:\n"
 "\n"
@@ -5764,7 +5764,7 @@ msgid ""
 "%s"
 msgstr "kann Patienten [%s] (%s/%s) nicht aktivieren"
 
-#: ../wxpython/gmPatSearchWidgets.py:410
+#: ../wxpython/gmPatSearchWidgets.py:409
 msgid ""
 "Patient search field.                             \n"
 "\n"
@@ -5796,7 +5796,7 @@ msgstr ""
 "<F2>\n"
 " - Liste der extern verfügbaren Patienten\n"
 
-#: ../wxpython/gmPatSearchWidgets.py:478
+#: ../wxpython/gmPatSearchWidgets.py:477
 msgid ""
 "%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %"
 "(day_now)s)"
@@ -5804,11 +5804,11 @@ msgstr ""
 "%(pat)s wird am %(day)s. %(month)s %(age)s Jahre alt ! (Heute ist der %"
 "(day_now)s. %(month_now)s.)"
 
-#: ../wxpython/gmPatSearchWidgets.py:499
+#: ../wxpython/gmPatSearchWidgets.py:498
 msgid "%(name)s (locked)"
 msgstr "%(name)s (fixiert)"
 
-#: ../wxpython/gmPatSearchWidgets.py:665
+#: ../wxpython/gmPatSearchWidgets.py:664
 msgid ""
 "Error searching for matching patients.\n"
 "\n"
@@ -5818,11 +5818,11 @@ msgstr ""
 "\n"
 "Suchbegriff: \"%s\""
 
-#: ../wxpython/gmPatSearchWidgets.py:668 ../wxpython/gmPatSearchWidgets.py:682
+#: ../wxpython/gmPatSearchWidgets.py:667 ../wxpython/gmPatSearchWidgets.py:681
 msgid "selecting patient"
 msgstr "Patienten wählen"
 
-#: ../wxpython/gmPatSearchWidgets.py:677
+#: ../wxpython/gmPatSearchWidgets.py:676
 msgid ""
 "Cannot find any matching patients.\n"
 "You may want to try a shorter search term.\n"
@@ -5969,7 +5969,7 @@ msgstr ""
 "\n"
 "\tUntenstehend finden Sie die eingegangenen Nachrichten.\n"
 
-#: ../wxpython/gmProviderInboxWidgets.py:85
+#: ../wxpython/gmProviderInboxWidgets.py:90
 msgid ""
 "Unknown message type:\n"
 "\n"
@@ -5985,16 +5985,16 @@ msgstr ""
 "GNUmed kann diesen Typ nicht verarbeiten.\n"
 "Nachricht verbleibt im Posteingang."
 
-#: ../wxpython/gmProviderInboxWidgets.py:92
-#: ../wxpython/gmProviderInboxWidgets.py:140
+#: ../wxpython/gmProviderInboxWidgets.py:97
+#: ../wxpython/gmProviderInboxWidgets.py:151
 msgid "handling provider inbox item"
 msgstr "Nachrichtenverarbeitung aus dem Posteingang"
 
-#: ../wxpython/gmProviderInboxWidgets.py:106
+#: ../wxpython/gmProviderInboxWidgets.py:114
 msgid "Message: %s"
 msgstr "Nachricht: %s"
 
-#: ../wxpython/gmProviderInboxWidgets.py:108
+#: ../wxpython/gmProviderInboxWidgets.py:116
 msgid ""
 "Message: %s\n"
 "Data: %s"
@@ -6002,15 +6002,19 @@ msgstr ""
 "Nachricht: %s\n"
 "Daten: %s"
 
-#: ../wxpython/gmProviderInboxWidgets.py:114
+#: ../wxpython/gmProviderInboxWidgets.py:125
 msgid "Inbox Message menu"
 msgstr "Menü Posteingang"
 
 #: ../wxpython/gmProviderInboxWidgets.py:128
+msgid "delete message"
+msgstr "Nachricht löschen"
+
+#: ../wxpython/gmProviderInboxWidgets.py:139
 msgid "Cannot remove message from Inbox."
 msgstr "Kann Nachricht nicht aus dem Posteingang löschen."
 
-#: ../wxpython/gmProviderInboxWidgets.py:136
+#: ../wxpython/gmProviderInboxWidgets.py:147
 msgid ""
 "Supposedly there are unreviewed documentsfor patient [%s]. However, I cannot "
 "findthat patient in the GNUmed database."
@@ -6931,11 +6935,11 @@ msgstr "SQL-Suche"
 msgid "&SQL Search"
 msgstr "S&QL-Suche"
 
-#: ../wxpython/gui/gmScanIdxMedDocsPlugin.py:24
+#: ../wxpython/gui/gmScanIdxMedDocsPlugin.py:16
 msgid "Import Documents"
 msgstr "Dokumente importieren"
 
-#: ../wxpython/gui/gmScanIdxMedDocsPlugin.py:34
+#: ../wxpython/gui/gmScanIdxMedDocsPlugin.py:26
 msgid "import documents"
 msgstr "Dokumente importieren"
 
