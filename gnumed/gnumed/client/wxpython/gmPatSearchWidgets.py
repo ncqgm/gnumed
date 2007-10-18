@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.90.2.1 2007-10-09 14:47:50 ncq Exp $
-__version__ = "$Revision: 1.90.2.1 $"
+# $Id: gmPatSearchWidgets.py,v 1.90.2.2 2007-10-18 09:32:55 ncq Exp $
+__version__ = "$Revision: 1.90.2.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -328,7 +328,6 @@ def load_patient_from_external_sources(parent=None):
 				if key_dto == key_pat:
 					gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
 					return True
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	dlg = cSelectPersonDTOFromListDlg(parent=parent, id=-1)
@@ -828,7 +827,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.90.2.1  2007-10-09 14:47:50  ncq
+# Revision 1.90.2.2  2007-10-18 09:32:55  ncq
+# - whitespace change
+#
+# Revision 1.90.2.1  2007/10/09 14:47:50  ncq
 # - fix masqueraded 'match_type' error
 #
 # Revision 1.90  2007/09/10 12:38:12  ncq
