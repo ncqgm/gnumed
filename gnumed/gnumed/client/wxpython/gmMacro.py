@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -185,7 +185,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.35 $" % self.__class__.__name__
+		return "%s $Revision: 1.36 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -351,7 +351,7 @@ class cMacroPrimitives:
 			top_win.Close()
 	#-----------------------------------------------------------------
 	def _load_patient_from_external_source(self):
-		if gmPatSearchWidgets.load_patient_from_external_sources():
+		if gmPatSearchWidgets.load_patient_from_external_sources(search_immediately = True):
 			self.__user_answer = 1
 		else:
 			self.__user_answer = 0
@@ -423,7 +423,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.35  2007-09-16 22:40:46  ncq
+# Revision 1.36  2007-10-19 12:52:00  ncq
+# - immediately search for patient matches
+#
+# Revision 1.35  2007/09/16 22:40:46  ncq
 # - fix soap_* placeholder handling
 #
 # Revision 1.34  2007/09/09 19:17:44  ncq
