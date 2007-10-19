@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.94 2007-10-12 14:20:09 ncq Exp $
-__version__ = "$Revision: 1.94 $"
+# $Id: gmPatSearchWidgets.py,v 1.95 2007-10-19 12:52:34 ncq Exp $
+__version__ = "$Revision: 1.95 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -306,7 +306,20 @@ def load_persons_from_kvks():
 
 	return dtos
 #============================================================
-def load_patient_from_external_sources(parent=None, activate_immediately=False):
+def load_patient_from_external_sources(parent=None, search_immediately=False):
+	"""Load patient from external source.
+
+	- scan external sources for candidates
+	- let user select source
+	  - if > 1 available: always
+	  - if only 1 available: depending on search_immediately
+	- search for patients matching info from external source
+	- if more than one match:
+	  - let user select patient
+	- if no match:
+	  - create patient
+	- activate patient
+	"""
 	# get DTOs from interfaces
 	dtos = []
 	dtos.extend(load_persons_from_xdt())
@@ -318,24 +331,24 @@ def load_patient_from_external_sources(parent=None, activate_immediately=False):
 		gmDispatcher.send(signal='statustext', msg=_('No patients found in external sources.'))
 		return True
 
-	# one external patient
-	elif len(dtos) == 1:
+	# one external patient with DOB - already active ?
+	if (len(dtos) == 1) and (dtos[0]['dto'].dob is not None):
 		dto = dtos[0]['dto']
-		# must have DOB else we don't take any chances
-		if dto.dob is not None:
-			# is it already the current patient ?
-			curr_pat = gmPerson.gmCurrentPatient()
-			if curr_pat.is_connected():
-				key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
-				names = curr_pat.get_active_name()
-				key_pat = names['first'] + names['last'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
-				_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
-				_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
-				if key_dto == key_pat:
-					gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
-					return True
+		# is it already the current patient ?
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.is_connected():
+			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
+			names = curr_pat.get_active_name()
+			key_pat = names['first'] + names['last'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
+			_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
+			_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
+			if key_dto == key_pat:
+				gmDispatcher.send(signal='statustext', msg=_('The only external patient is already active in GNUmed.'), beep=False)
+				return True
 
-	# FIXME: support activate_immediately, useful for F2 etc
+	# one external patient - activate immediately ?
+	if (len(dtos) == 1) and search_immediately:
+		dto = dtos[0]['dto']
 
 	# several external patients
 	else:
@@ -636,7 +649,14 @@ class cPatientSelector(wx.TextCtrl):
 		# invoke external patient sources
 		if keycode == wx.WXK_F2:
 			evt.Skip()
-			load_patient_from_external_sources(parent=wx.GetTopLevelParent(self))
+			dbcfg = gmCfg.cCfgSQL()
+			search_immediately = bool(dbcfg.get2 (
+				option = 'patient_search.external_sources.immediately_search_if_single_source',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = 0
+			))
+			load_patient_from_external_sources(parent=wx.GetTopLevelParent(self), search_immediately=search_immediately)
 			return True
 
 		# FIXME: invoke add new patient
@@ -838,7 +858,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.94  2007-10-12 14:20:09  ncq
+# Revision 1.95  2007-10-19 12:52:34  ncq
+# - implement search_immediately in load_patient_from_external_source()
+#
+# Revision 1.94  2007/10/12 14:20:09  ncq
 # - prepare "activate_immediately" in load_patient_from_external_sources()
 #
 # Revision 1.93  2007/10/12 13:33:06  ncq
