@@ -95,12 +95,39 @@ self._payload
 
 For discussion on this see the thread starting at:
 
-http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
+	http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
+
+and here
+
+	http://groups.google.com/group/pgsql.general/browse_thread/thread/e3566ba76173d0bf/6cf3c243a86d9233
+	(google for "XMIN semantic at peril")
+
+Problem cases with XMIN:
+
+1) not unlikely
+- a very old row is read with XMIN
+- vacuum comes along and sets XMIN to FrozenTransactionId
+  - now XMIN changed but the row actually didn't !
+- an update with "... where xmin = old_xmin ..." fails
+  although there is no need to fail
+
+2) quite unlikely
+- a row is read with XMIN
+- a long time passes
+- the original XMIN gets frozen to FrozenTransactionId
+- another writer comes along and changes the row
+- incidentally the exact same old row gets the old XMIN *again*
+  - now XMIN is (again) the same but the data changed !
+- a later update fails to detect the concurrent change !!
+
+TODO:
+The solution is to use our own column for optimistic locking
+which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.44 2007-10-12 07:26:25 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmBusinessDBObject.py,v 1.45 2007-10-19 12:49:39 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -415,7 +442,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.44  2007-10-12 07:26:25  ncq
+# Revision 1.45  2007-10-19 12:49:39  ncq
+# - much improved XMIN docs, TODO for XMIN removal
+#
+# Revision 1.44  2007/10/12 07:26:25  ncq
 # - somewhat improved docs
 #
 # Revision 1.43  2007/08/13 21:55:10  ncq
