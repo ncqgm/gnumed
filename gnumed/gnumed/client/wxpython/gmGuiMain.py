@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.359 2007-10-19 12:51:39 ncq Exp $
-__version__ = "$Revision: 1.359 $"
+# $Id: gmGuiMain.py,v 1.360 2007-10-19 21:20:17 ncq Exp $
+__version__ = "$Revision: 1.360 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1646,9 +1646,10 @@ class gmApp(wx.App):
 		return False
 #==============================================================================
 def main():
-	wx.Image_AddHandler(wx.PNGHandler())
-	wx.Image_AddHandler(wx.JPEGHandler())
-	wx.Image_AddHandler(wx.GIFHandler())
+#	wx.Image_AddHandler(wx.PNGHandler())
+#	wx.Image_AddHandler(wx.JPEGHandler())
+#	wx.Image_AddHandler(wx.GIFHandler())
+	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
@@ -1673,7 +1674,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.359  2007-10-19 12:51:39  ncq
+# Revision 1.360  2007-10-19 21:20:17  ncq
+# - init *all* image handler
+#
+# Revision 1.359  2007/10/19 12:51:39  ncq
 # - configure/do quick external patient search
 # - add Snellen chart
 #
