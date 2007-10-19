@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.37 2007-09-24 18:40:49 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.38 2007-10-19 12:53:00 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -67,7 +67,6 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmPython.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmRequest.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmShowLab.py "\
-"./GNUmed-$CLIENTREV/client/wxpython/gui/gmSnellen.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmSQL.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmVaccinationsPlugin.py "\
 "./GNUmed-$CLIENTREV/server/bootstrap/xxx-upgrade-instructions.txt "\
@@ -326,7 +325,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.37  2007-09-24 18:40:49  ncq
+# Revision 1.38  2007-10-19 12:53:00  ncq
+# - include Snellen
+#
+# Revision 1.37  2007/09/24 18:40:49  ncq
 # - include v7 sql scripts
 # - include zip+sign script
 #
