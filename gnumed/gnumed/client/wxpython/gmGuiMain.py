@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.358 2007-10-11 12:10:52 ncq Exp $
-__version__ = "$Revision: 1.358 $"
+# $Id: gmGuiMain.py,v 1.359 2007-10-19 12:51:39 ncq Exp $
+__version__ = "$Revision: 1.359 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,7 +52,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
 from Gnumed.exporters import gmPatientExporter
 
@@ -279,7 +279,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
 
-		# -- submenu gnumed-config-ui
+		# -- submenu gnumed / config / ui
 		menu_cfg_ui = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('User Interface ...'), menu_cfg_ui)
 
@@ -290,6 +290,10 @@ class gmTopLevelFrame(wx.Frame):
 #		ID = wx.NewId()
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
 #		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
+
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('Quick search'), _('Configure immediate external patient serach.'))
+		wx.EVT_MENU(self, ID, self.__on_set_quick_pat_search)
 
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
@@ -495,6 +499,10 @@ class gmTopLevelFrame(wx.Frame):
 #		ID_DERMTOOL = wx.NewId()
 #		self.menu_tools.Append(ID_DERMTOOL, _("Dermatology"), _("A tool to aid dermatology diagnosis"))
 #		wx.EVT_MENU (self, ID_DERMTOOL, self.__dermtool)
+
+		ID = wx.NewId()
+		self.menu_tools.Append(ID, _('Snellen chart'), _('Display fullscreen snellen chart.'))
+		wx.EVT_MENU(self, ID, self.__on_snellen)
 
 		self.menu_tools.AppendSeparator()
 
@@ -809,33 +817,39 @@ class gmTopLevelFrame(wx.Frame):
 
 		return
 	#----------------------------------------------
+	def __on_set_quick_pat_search(self, evt):
+		gmGuiHelpers.configure_boolean_option (
+			parent = self,
+			question = _(
+				'If there is only one external patient\n'
+				'source available do you want GNUmed\n'
+				'to immediately go ahead and search for\n'
+				'matching patient records ?\n\n'
+				'If not GNUmed will let you confirm the source.'
+			),
+			option = 'patient_search.external_sources.immediately_search_if_single_source',
+			button_tooltips = [
+				_('Yes, search for matches immediately.'),
+				_('No, let me confirm the external patient first.')
+			]
+		)
+		return
+	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
 	def __on_cfg_enc_pat_change(self, event):
-
-		dlg = gmGuiHelpers.c3ButtonQuestionDlg (
-			self,
-			-1,
-			caption = _('Configuration'),
+		gmGuiHelpers.configure_boolean_option (
+			parent = self,
 			question = _(
 				'Do you want GNUmed to show the consultation\n'
 				'details editor when changing the active patient ?'
 			),
-			button_defs = [
-				{'label': _('Yes'), 'tooltip': _('Yes, show the consultation editor if it seems appropriate.')},
-				{'label': _('No'), 'tooltip': _('No, never show the consultation editor even if it would seem useful.')},
-				{'label': _('Cancel'), 'tooltip': _('Abort the dialog and do not change the current setting.'), 'default': True}
+			option = 'encounter.show_editor_before_patient_change',
+			button_tooltips = [
+				_('Yes, show the consultation editor if it seems appropriate.'),
+				_('No, never show the consultation editor even if it would seem useful.')
 			]
 		)
-
-		decision = dlg.ShowModal()
-		if decision == wx.ID_YES:
-			dbcfg.set (
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				option = 'encounter.show_editor_before_patient_change',
-				value = True
-			)
-
 		return
 	#----------------------------------------------
 #	def __on_configure_workplace(self, evt):
@@ -858,6 +872,23 @@ class gmTopLevelFrame(wx.Frame):
 		# FIXME: let user call viewer for each
 		# FIXME: parse DICOMDIR file
 		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+	#----------------------------------------------
+	def __on_snellen(self, evt):
+		cfg = gmSnellen.cSnellenCfgDlg()
+		if cfg.ShowModal() != 0:
+			return
+
+		frame = gmSnellen.cSnellenChart (
+			width = cfg.vals[0],
+			height = cfg.vals[1],
+			alpha = cfg.vals[2],
+			mirr = cfg.vals[3],
+			parent = None
+		)
+		frame.CentreOnScreen(wx.BOTH)
+#		self.SetTopWindow(frame)
+#		frame.Destroy = frame.DestroyWhenApp
+		frame.Show(True)
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
@@ -1161,7 +1192,14 @@ Search results:
 		return True
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
-		gmPatSearchWidgets.load_patient_from_external_sources(parent=self)
+		dbcfg = gmCfg.cCfgSQL()
+		search_immediately = bool(dbcfg.get2 (
+			option = 'patient_search.external_sources.immediately_search_if_single_source',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user',
+			default = 0
+		))
+		gmPatSearchWidgets.load_patient_from_external_sources(parent=self, search_immediately=search_immediately)
 	#----------------------------------------------
 	def __on_export_as_gdt(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -1464,8 +1502,14 @@ class gmApp(wx.App):
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
 
 		# - raise startup-default plugin (done in cTopLevelFrame)
-
-		gmPatSearchWidgets.load_patient_from_external_sources(self.GetTopWindow())
+		dbcfg = gmCfg.cCfgSQL()
+		search_immediately = bool(dbcfg.get2 (
+			option = 'patient_search.external_sources.immediately_search_if_single_source',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user',
+			default = 0
+		))
+		gmPatSearchWidgets.load_patient_from_external_sources(parent = self.GetTopWindow(), search_immediately = search_immediately)
 
 		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
 
@@ -1629,7 +1673,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.358  2007-10-11 12:10:52  ncq
+# Revision 1.359  2007-10-19 12:51:39  ncq
+# - configure/do quick external patient search
+# - add Snellen chart
+#
+# Revision 1.358  2007/10/11 12:10:52  ncq
 # - add initial updateTitle() call
 # - reorganize menus a bit
 # - add gnumed / config / emr / encounter / edit-before-patient-change
