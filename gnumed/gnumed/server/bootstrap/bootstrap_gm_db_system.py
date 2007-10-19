@@ -23,12 +23,13 @@ further details.
 """
 #==================================================================
 # TODO
+# - perhaps create PGPASSFILE
 # - warn if empty password
 # - verify that pre-created database is owned by "gm-dbo"
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1272,7 +1273,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.63  2007-10-09 11:22:48  ncq
+# Revision 1.64  2007-10-19 12:54:47  ncq
+# - add TODO
+#
+# Revision 1.63  2007/10/09 11:22:48  ncq
 # - improved wording
 #
 # Revision 1.62  2007/10/09 10:26:52  ncq
