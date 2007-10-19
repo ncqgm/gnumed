@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.69 2007-10-11 12:01:51 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmGuiHelpers.py,v 1.70 2007-10-19 12:50:31 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -25,7 +25,7 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals, gmTools
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals, gmTools, gmCfg
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
 
 
@@ -126,6 +126,49 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
 		evt.Skip()
+# ========================================================================
+def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	tooltips = [
+		_('Set option to <True>.'),
+		_('Set option to <False>.'),
+		_('Abort the dialog and do not change the current setting.')
+	]
+	if button_tooltips is not None:
+		for idx in range(len(button_tooltips)):
+			tooltips[idx] = button_tooltips[idx]
+
+	dlg = c3ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Configuration'),
+		question = question,
+		button_defs = [
+			{'label': _('Yes'), 'tooltip': tooltips[0]},
+			{'label': _('No'), 'tooltip': tooltips[1]},
+			{'label': _('Cancel'), 'tooltip': tooltips[2], 'default': True}
+		]
+	)
+
+	decision = dlg.ShowModal()
+	dbcfg = gmCfg.cCfgSQL()
+	if decision == wx.ID_YES:
+		dbcfg.set (
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			option = option,
+			value = True
+		)
+	elif decision == wx.ID_NO:
+		dbcfg.set (
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			option = option,
+			value = False
+		)
+
+	return
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
@@ -590,7 +633,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.69  2007-10-11 12:01:51  ncq
+# Revision 1.70  2007-10-19 12:50:31  ncq
+# - add configure_boolean_option()
+#
+# Revision 1.69  2007/10/11 12:01:51  ncq
 # - make c3ButtonQuestionDlg() more robust in the face of no-default button def
 #
 # Revision 1.68  2007/09/25 20:44:23  ncq
