@@ -11,14 +11,11 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: dem-v_provider_inbox.sql,v 1.1 2007-03-08 15:10:52 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: dem-v_provider_inbox.sql,v 1.2 2007-10-19 12:55:01 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-
--- --------------------------------------------------------------
-begin;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -90,14 +87,14 @@ comment on view dem.v_provider_inbox is
 grant select on dem.v_provider_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: dem-v_provider_inbox.sql,v $', '$Revision: 1.1 $');
-
--- --------------------------------------------------------------
-commit;
+select public.log_script_insertion('$RCSfile: dem-v_provider_inbox.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: dem-v_provider_inbox.sql,v $
--- Revision 1.1  2007-03-08 15:10:52  ncq
+-- Revision 1.2  2007-10-19 12:55:01  ncq
+-- - remove begin/commit
+--
+-- Revision 1.1  2007/03/08 15:10:52  ncq
 -- - add filename to blobs object view
 --
 -- Revision 1.1  2006/10/08 08:53:24  ncq

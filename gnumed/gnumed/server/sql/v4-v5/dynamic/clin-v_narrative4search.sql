@@ -11,11 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-v_narrative4search.sql,v 1.1 2007-03-08 15:10:52 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
-begin;
+-- $Id: clin-v_narrative4search.sql,v 1.2 2007-10-19 12:55:01 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -186,13 +183,14 @@ comment on view clin.v_narrative4search is
 grant select on clin.v_narrative4search to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.1 $');
-
-commit;
+select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-v_narrative4search.sql,v $
--- Revision 1.1  2007-03-08 15:10:52  ncq
+-- Revision 1.2  2007-10-19 12:55:01  ncq
+-- - remove begin/commit
+--
+-- Revision 1.1  2007/03/08 15:10:52  ncq
 -- - add filename to blobs object view
 --
 -- Revision 1.3  2006/12/11 17:03:58  ncq
