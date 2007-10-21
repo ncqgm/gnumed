@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.70 2007-10-19 12:50:31 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmGuiHelpers.py,v 1.71 2007-10-21 20:18:32 ncq Exp $
+__version__ = "$Revision: 1.71 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -127,14 +127,73 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		wx.CallAfter(top_win.Close)
 		evt.Skip()
 # ========================================================================
+def configure_string_option(parent=None, message=None, option=None, bias=u'user', default_value=u'', validator=None):
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	current_value = dbcfg.get2 (
+		option = option,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = bias,
+		default = default_value
+	)
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	while True:
+		dlg = wx.TextEntryDialog (
+			parent = parent,
+			message = message,
+			caption = _('Configuration'),
+			defaultValue = u'%s' % current_value,
+			style = wx.OK | wx.CANCEL | wx.CENTRE
+		)
+		result = dlg.ShowModal()
+		if result == wx.ID_CANCEL:
+			dlg.Destroy()
+			return
+
+		user_val = dlg.GetValue().strip()
+		dlg.Destroy()
+
+		if user_val == current_value:
+			return
+
+#		user_val = wx.GetTextFromUser (
+#			message = message,
+#			caption = _('Configuration'),
+#			default_value = default_value,
+#			parent = parent
+#		)
+
+		validated, user_val = validator(user_val)
+		if validated:
+			break
+
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
+			beep = True
+		)
+
+	dbcfg = gmCfg.cCfgSQL()
+	dbcfg.set (
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		option = option,
+		value = user_val
+	)
+
+	return
+# ========================================================================
 def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	tooltips = [
-		_('Set option to <True>.'),
-		_('Set option to <False>.'),
+		_('Set "%s" to <True>.') % option,
+		_('Set "%s" to <False>.') % option,
 		_('Abort the dialog and do not change the current setting.')
 	]
 	if button_tooltips is not None:
@@ -633,7 +692,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.70  2007-10-19 12:50:31  ncq
+# Revision 1.71  2007-10-21 20:18:32  ncq
+# - configure_string_option()
+#
+# Revision 1.70  2007/10/19 12:50:31  ncq
 # - add configure_boolean_option()
 #
 # Revision 1.69  2007/10/11 12:01:51  ncq
