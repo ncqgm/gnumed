@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     import sys
 
-	import wx
+    import wx
 
     from Gnumed.pycommon import gmCfg
     from Gnumed.exporters import gmPatientExporter
@@ -88,7 +88,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.9  2007-10-12 07:28:24  ncq
+# Revision 1.10  2007-10-21 20:25:43  ncq
+# - fix syntax error
+#
+# Revision 1.9  2007/10/12 07:28:24  ncq
 # - lots of import related cleanup
 #
 # Revision 1.8  2006/10/31 16:06:19  ncq
