@@ -63,7 +63,6 @@ mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}
 
 ########################################################################################
 sourcedir1=/usr/src/packages/BUILD/GNUmed-%{version}
-sourcedir2=/home/basti/sources/gnumed-%{version}/gnumed/gnumed
 
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon

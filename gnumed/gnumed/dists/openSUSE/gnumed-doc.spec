@@ -1,5 +1,5 @@
 #
-# spec file for package gnumed-client (Version 0.2.6.2)
+# spec file for package gnumed-doc (Version 0.2.7.1)
 #
 # Copyright (c) 2007 Sebastian Hilbert, Leipzig, Germany
 # This file and all modifications and additions to the pristine
@@ -23,7 +23,6 @@ Source:         http://www.gnumed.de/downloads/client/0.2/GNUmed-client.%{versio
 Requires:  	file
 PreReq:         filesystem /usr/bin/touch
 Provides:       gnumed-common
-#Obsoletes:      pybliog
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 URL:            http://wiki.gnumed.de/
 
@@ -63,8 +62,6 @@ mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}
 
 ########################################################################################
 sourcedir1=/usr/src/packages/BUILD/GNUmed-%{version}
-sourcedir2=/home/basti/sources/gnumed-%{version}/gnumed/gnumed
-
 
 mkdir -p $RPM_BUILD_ROOT/usr/share/doc/gnumed/user-manual
 #/usr/share/doc/gnumed-doc/README.Debian
