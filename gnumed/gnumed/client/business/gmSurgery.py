@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.5 2007-10-07 12:28:09 ncq Exp $
+# $Id: gmSurgery.py,v 1.6 2007-10-21 20:16:29 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -78,9 +78,13 @@ class gmCurrentPractice(gmBorg.cBorg):
 
 	def _set_db_logon_banner(self, banner):
 		queries = [
-			{'cmd': u'delete from cfg.db_logon_banner'},
-			{'cmd': u'insert into cfg.db_logon_banner (message) values (%(msg)s)', 'args': {'msg': banner.strip()}}
+			{'cmd': u'delete from cfg.db_logon_banner'}
 		]
+		if banner.strip() != u'':
+			queries.append ({
+				'cmd': u'insert into cfg.db_logon_banner (message) values (%(msg)s)',
+				'args': {'msg': banner.strip()}
+			})
 		rows, idx = gmPG2.run_rw_queries(queries = queries, end_tx = True)
 
 	db_logon_banner = property(_get_db_logon_banner, _set_db_logon_banner)
@@ -169,14 +173,37 @@ class cSurgery(object):
 #============================================================
 if __name__ == '__main__':
 
-	prac = gmCurrentPractice()
-	print "help desk:", prac.helpdesk
-	print "active workplace:", prac.active_workplace
-	print prac.db_logon_banner
+	def run_tests():
+		prac = gmCurrentPractice()
+#		print "help desk:", prac.helpdesk
+#		print "active workplace:", prac.active_workplace
+
+		old_banner = prac.db_logon_banner
+		test_banner = u'a test banner'
+		prac.db_logon_banner = test_banner
+		if prac.db_logon_banner != test_banner:
+			print 'Cannot set logon banner to', test_banner
+			return False
+		prac.db_logon_banner = u''
+		if prac.db_logon_banner != u'':
+			print 'Cannot set logon banner to ""'
+			return False
+		prac.db_logon_banner = old_banner
+
+		return True
+
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+		if not run_tests():
+			print "regression tests failed"
+		print "regression tests succeeded"
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.5  2007-10-07 12:28:09  ncq
+# Revision 1.6  2007-10-21 20:16:29  ncq
+# - fix setting db logon banner
+# - add test suite
+#
+# Revision 1.5  2007/10/07 12:28:09  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.4  2007/09/20 21:29:38  ncq
