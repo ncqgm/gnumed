@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.360 2007-10-19 21:20:17 ncq Exp $
-__version__ = "$Revision: 1.360 $"
+# $Id: gmGuiMain.py,v 1.361 2007-10-21 20:19:26 ncq Exp $
+__version__ = "$Revision: 1.361 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -283,10 +283,6 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ui = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('User Interface ...'), menu_cfg_ui)
 
-		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
-		wx.EVT_MENU(self, ID, self.__on_set_ifap_cmd)
-
 #		ID = wx.NewId()
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
 #		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
@@ -294,6 +290,18 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_ui.Append(ID, _('Quick search'), _('Configure immediate external patient serach.'))
 		wx.EVT_MENU(self, ID, self.__on_set_quick_pat_search)
+
+		# -- submenu gnumed / config / external tools
+		menu_cfg_ext_tools = wx.Menu()
+		menu_config.AppendMenu(wx.NewId(), _('External Tools ...'), menu_cfg_ext_tools)
+
+		ID = wx.NewId()
+		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
+		wx.EVT_MENU(self, ID, self.__on_set_ifap_cmd)
+
+		ID = wx.NewId()
+		menu_cfg_ext_tools.Append(ID, _('OOo settle time'), _('Set the time to wait for OpenOffice to settle after startup.'))
+		wx.EVT_MENU(self, ID, self.__on_set_ooo_settle_time)
 
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
@@ -772,7 +780,29 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
 		dlg.ShowModal()
 	#----------------------------------------------
-	# submenu GNUmed - config - UI
+	# submenu GNUmed - config - external tools
+	#----------------------------------------------
+	def __on_set_ooo_settle_time(self, event):
+
+		def is_valid(value):
+			try:
+				return True, float(value)
+			except:
+				return False, value
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'When GNUmed cannot find an OpenOffice server it\n'
+				'will try to start one. OpenOffice, however, needs\n'
+				'some time to fully start up.\n'
+				'\n'
+				'Here you can set the time for GNUmed to wait for OOo.\n'
+			),
+			option = 'external.ooo.startup_settle_time',
+			bias = 'workplace',
+			default_value = 2.0,
+			validator = is_valid
+		)
 	#----------------------------------------------
 	def __on_set_ifap_cmd(self, event):
 
@@ -781,8 +811,8 @@ class gmTopLevelFrame(wx.Frame):
 		ifap_cmd = dbcfg.get2 (
 			option = 'external.ifap-win.shell_command',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = 'workplace',
-			default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+			bias = u'workplace',
+			default = u'wine "C:\Ifapwin\WIAMDB.EXE"'
 		)
 
 		dlg = wx.TextEntryDialog (
@@ -794,6 +824,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		result = dlg.ShowModal()
 		if result == wx.CANCEL:
+			dlg.Destroy()
 			return
 
 		new_ifap_cmd = dlg.GetValue().strip()
@@ -1674,7 +1705,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.360  2007-10-19 21:20:17  ncq
+# Revision 1.361  2007-10-21 20:19:26  ncq
+# - add more config options
+#
+# Revision 1.360  2007/10/19 21:20:17  ncq
 # - init *all* image handler
 #
 # Revision 1.359  2007/10/19 12:51:39  ncq
