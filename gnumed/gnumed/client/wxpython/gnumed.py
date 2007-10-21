@@ -42,8 +42,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.122 2007-09-04 23:30:42 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gnumed.py,v 1.123 2007-10-21 20:21:17 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -80,7 +80,7 @@ warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWa
 
 
 _log = None
-_cfg = None
+#_cfg = None
 _email_logger = None
 gmLog = None
 _old_sig_hup = None
@@ -269,7 +269,7 @@ _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.na
 
 setup_paths()
 setup_date_time()
-setup_cfg_files()
+#setup_cfg_files()
 
 # import more of our stuff
 from Gnumed.pycommon import gmGuiBroker, gmHooks
@@ -295,7 +295,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.122  2007-09-04 23:30:42  ncq
+# Revision 1.123  2007-10-21 20:21:17  ncq
+# - no more mandatory global config file
+#
+# Revision 1.122  2007/09/04 23:30:42  ncq
 # - explain --slave
 #
 # Revision 1.121  2007/08/07 21:42:40  ncq
