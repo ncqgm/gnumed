@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.132 2007-10-09 11:22:05 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmPerson.py,v 1.133 2007-10-21 20:54:51 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1676,6 +1676,8 @@ def get_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 #============================================================
 if __name__ == '__main__':
 
+	import datetime
+
 	_log.SetAllLogLevels(gmLog.lData)
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -1718,6 +1720,20 @@ if __name__ == '__main__':
 
 		for key in dto.keys():
 			print key
+	#--------------------------------------------------------
+	def test_search_by_dto():
+		dto = cDTO_person()
+		dto.firstnames = 'Sigrid'
+		dto.lastnames = 'Kiesewetter'
+		dto.gender = 'female'
+#		dto.dob = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
+		dto.dob = datetime.datetime(1939,6,24,23,0,0,0,gmDateTime.gmCurrentLocalTimezone)
+		print dto
+
+		searcher = cPatientSearcher_SQL()
+		pats = searcher.get_patients(dto = dto)
+		print pats
+
 	#--------------------------------------------------------
 	def test_staff():
 		me = cStaff()
@@ -1871,11 +1887,12 @@ if __name__ == '__main__':
 		pass
 	#--------------------------------------------------------
 #	test_patient_search_queries()
-	test_ask_for_patient()
+#	test_ask_for_patient()
 #	test_dto_person()
 #	test_staff()
 #	test_identity()
 #	test_set_active_pat()
+	test_search_by_dto()
 
 #	map_gender2salutation('m')
 
@@ -1890,7 +1907,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.132  2007-10-09 11:22:05  ncq
+# Revision 1.133  2007-10-21 20:54:51  ncq
+# - add test case
+#
+# Revision 1.132  2007/10/09 11:22:05  ncq
 # - explicit casts for a whole bunch of queries
 #
 # Revision 1.131  2007/10/07 12:28:09  ncq
