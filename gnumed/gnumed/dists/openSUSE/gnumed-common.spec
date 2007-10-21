@@ -1,5 +1,5 @@
 #
-# spec file for package gnumed-client (Version 0.2.6.2)
+# spec file for package gnumed-common (Version 0.2.7.1)
 #
 # Copyright (c) 2007 Sebastian Hilbert, Leipzig, Germany
 # This file and all modifications and additions to the pristine
@@ -23,7 +23,6 @@ Source:         http://www.gnumed.de/downloads/client/0.2/GNUmed-client.%{versio
 Requires:  	python >= 2.3 python-devel python-psycopg2 python-egenix-mx-base
 PreReq:         filesystem /usr/bin/touch
 Provides:       gnumed-common
-#Obsoletes:      pybliog
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 URL:            http://wiki.gnumed.de/
 
