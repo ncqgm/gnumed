@@ -55,6 +55,7 @@ Authors:
 #%build
 
 %install
+
 [ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"
 mkdir -p "$RPM_BUILD_ROOT"
 
@@ -63,17 +64,15 @@ mkdir -p "$RPM_BUILD_ROOT"
 
 mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}
 
-sourcedir1=/usr/src/packages/BUILD/GNUmed-%{version}
-
 
 mkdir -p $RPM_BUILD_ROOT/etc/gnumed
-cp $sourcedir1/client/connectors/gm_ctl_client.conf $RPM_BUILD_ROOT/etc/gnumed/gm_ctl_client.conf
-cp $sourcedir1/client/doc/gnumed.conf.example $RPM_BUILD_ROOT/etc/gnumed/gnumed.conf
-cp $sourcedir1/client/doc/gnumed.conf.example $RPM_BUILD_ROOT/etc/gnumed/gnumed-client.conf
+cp client/connectors/gm_ctl_client.conf $RPM_BUILD_ROOT/etc/gnumed/gm_ctl_client.conf
+cp client/doc/gnumed.conf.example $RPM_BUILD_ROOT/etc/gnumed/gnumed.conf
+cp client/doc/gnumed.conf.example $RPM_BUILD_ROOT/etc/gnumed/gnumed-client.conf
 
 #cp gnumed/usr/bin/gm_ctl_client /usr/bin/gm_ctl_client
 mkdir -p $RPM_BUILD_ROOT/usr/bin
-cp $sourcedir1/client/gnumed $RPM_BUILD_ROOT/usr/bin/gnumed
+cp client/gnumed $RPM_BUILD_ROOT/usr/bin/gnumed
     
 #/usr/share/applications/gnumed-client.desktop
 #/usr/share/doc/gnumed-client/README.Debian
@@ -81,53 +80,53 @@ cp $sourcedir1/client/gnumed $RPM_BUILD_ROOT/usr/bin/gnumed
 #/usr/share/doc/gnumed-client/copyright
 
 mkdir -p $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps
-cp $sourcedir1/client/bitmaps/empty-face-in-bust.png $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps/empty-face-in-bust.png
-cp $sourcedir1/client/bitmaps/gnumedlogo.png $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps/gnumedlogo.png
-cp $sourcedir1/client/bitmaps/serpent.png $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps/serpent.png
+cp client/bitmaps/empty-face-in-bust.png $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps/empty-face-in-bust.png
+cp client/bitmaps/gnumedlogo.png $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps/gnumedlogo.png
+cp client/bitmaps/serpent.png $RPM_BUILD_ROOT/usr/share/gnumed/bitmaps/serpent.png
 
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale/de/LC_MESSAGES
-cp $sourcedir1/client/locale/de-gnumed.mo $RPM_BUILD_ROOT/usr/share/locale/de/LC_MESSAGES/gnumed.mo
+cp client/locale/de-gnumed.mo $RPM_BUILD_ROOT/usr/share/locale/de/LC_MESSAGES/gnumed.mo
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale/es/LC_MESSAGES
-cp $sourcedir1/client/locale/es-gnumed.mo $RPM_BUILD_ROOT/usr/share/locale/es/LC_MESSAGES/gnumed.mo
+cp client/locale/es-gnumed.mo $RPM_BUILD_ROOT/usr/share/locale/es/LC_MESSAGES/gnumed.mo
 mkdir -p $RPM_BUILD_ROOT/usr/share/locale/fr/LC_MESSAGES
-cp $sourcedir1/client/locale/fr-gnumed.mo $RPM_BUILD_ROOT/usr/share/locale/fr/LC_MESSAGES/gnumed.mo
+cp client/locale/fr-gnumed.mo $RPM_BUILD_ROOT/usr/share/locale/fr/LC_MESSAGES/gnumed.mo
 
 mkdir -p $RPM_BUILD_ROOT/usr/share/pixmaps
-cp $sourcedir1/client/bitmaps/gnumed.xpm $RPM_BUILD_ROOT/usr/share/pixmaps/gnumed.xpm
+cp client/bitmaps/gnumed.xpm $RPM_BUILD_ROOT/usr/share/pixmaps/gnumed.xpm
 
 mkdir -p -m 755  $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/business
-cp -r $sourcedir1/client/business $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
+cp -r client/business $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
 
 mkdir -p -m755 $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/exporters
-cp -r $sourcedir1/client/exporters $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
+cp -r client/exporters $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
 
 mkdir -p -m 755 $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmBorg.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmBusinessDBObject.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmConfigCommon.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmDateTime.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmGuiBroker.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmHooks.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmMatchProvider.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmMimeLib.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmMimeMagic.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmPG2.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmPsql.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmScanBackend.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmScriptingListener.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmShellAPI.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmSignals.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmTools.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmBorg.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmBusinessDBObject.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmConfigCommon.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmDateTime.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmGuiBroker.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmHooks.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmMatchProvider.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmMimeLib.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmMimeMagic.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmPG2.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmPsql.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmScanBackend.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmScriptingListener.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmShellAPI.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmSignals.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmTools.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 
 mkdir -p -m 755 $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/wxGladeWidgets
-cp -r $sourcedir1/client/wxGladeWidgets  $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
+cp -r client/wxGladeWidgets  $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
 
 mkdir -p -m 755 $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/wxpython/gui
-cp -r $sourcedir1/client/wxpython $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
-cp -r $sourcedir1/client/wxpython/gui $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/wxpython
+cp -r client/wxpython $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
+cp -r client/wxpython/gui $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/wxpython
 
-cp /home/basti/rpm/INSTALLED_FILES_CLIENT $sourcedir1/INSTALLED_FILES
+find -P $RPM_BUILD_ROOT -type f | sed s#$RPM_BUILD_ROOT##g > INSTALLED_FILES 
 
 #cp -p COPYING INSTALL PKG-INFO TODO README $RPM_BUILD_ROOT/%{_defaultdocdir}/%{name}/
 #cp -pr examples doc  $RPM_BUILD_ROOT/%{_defaultdocdir}/%{name}/
@@ -136,9 +135,8 @@ cp /home/basti/rpm/INSTALLED_FILES_CLIENT $sourcedir1/INSTALLED_FILES
 #/usr/share/man/man1/gnumed.1.gz
 #/usr/share/menu/gnumed-client
 
-
 %clean
-[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"
+#[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"
 
 
 %files -f INSTALLED_FILES
@@ -161,5 +159,8 @@ chmod 755 /usr/lib/python/site-packages/Gnumed/wxpython/gui
 chmod 755 /usr/bin/gnumed
 
 %changelog -n gnumed-client
+* Sun Oct 21 2007 - sebastian.hilbert@gmx.net
+- usable version, some weird hacks removed
+
 * Sun Jun 03 2007 - sebastian.hilbert@gmx.net
 - Initial creation of package gnumed-client (GNUmed).
