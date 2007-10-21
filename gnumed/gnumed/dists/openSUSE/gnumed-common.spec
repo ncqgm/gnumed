@@ -60,30 +60,27 @@ mkdir -p "$RPM_BUILD_ROOT"
 
 mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}
 
-########################################################################################
-sourcedir1=/usr/src/packages/BUILD/GNUmed-%{version}
-
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 #/usr/share/doc/gnumed-common/README.Debian
 #/usr/share/doc/gnumed-common/changelog.Debian.gz
 #/usr/share/doc/gnumed-common/copyright
 #/usr/share/python-support/gnumed-common/.version
-cp -r $sourcedir1/client/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
-cp -r $sourcedir1/client/pycommon/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmBackendListener.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmCLI.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmCfg.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmDispatcher.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmExceptions.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmI18N.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmLog.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmLoginInfo.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmNull.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r $sourcedir1/client/pycommon/gmPG.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
+cp -r client/pycommon/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmBackendListener.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmCLI.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmCfg.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmDispatcher.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmExceptions.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmI18N.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmLog.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmLoginInfo.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmNull.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmPG.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
     
 
-cp /home/basti/rpm/INSTALLED_FILES_COMMON $sourcedir1/INSTALLED_FILES
+find -P $RPM_BUILD_ROOT -type f | sed s#$RPM_BUILD_ROOT##g > INSTALLED_FILES 
 
 #cp -p COPYING INSTALL PKG-INFO TODO README $RPM_BUILD_ROOT/%{_defaultdocdir}/%{name}/
 #cp -pr examples doc  $RPM_BUILD_ROOT/%{_defaultdocdir}/%{name}/
@@ -100,5 +97,8 @@ cp /home/basti/rpm/INSTALLED_FILES_COMMON $sourcedir1/INSTALLED_FILES
 %doc %{_defaultdocdir}/%{name}
 
 %changelog -n gnumed-common
+* Sun Oct 21 2007 - sebastian.hilbert@gmx.net
+- usable version, some weird hacks removed
+
 * Sun Jun 03 2007 - sebastian.hilbert@gmx.net
 - Initial creation of package gnumed-common (GNUmed).
