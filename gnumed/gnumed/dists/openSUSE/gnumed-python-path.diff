@@ -1,0 +1,11 @@
+--- gnumed.orig	2007-10-21 10:38:22.000000000 +0200
++++ gnumed.suse	2007-10-21 10:57:16.000000000 +0200
+@@ -39,7 +39,7 @@
+ PYVER=`python -c 'import sys; print sys.version[:3]'`
+ 
+ # this is where the gnumed.py Python script actually lives
+-GNUMEDDIR=/var/lib/python-support/python${PYVER}/Gnumed/wxpython
++GNUMEDDIR=/usr/lib/python${PYVER}/site-packages/Gnumed/wxpython
+ 
+ # check for explicit --conf-file option
+ CONFFILE=""
