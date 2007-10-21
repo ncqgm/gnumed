@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.53 2007-10-07 12:27:08 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmForms.py,v 1.54 2007-10-21 20:12:42 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -17,7 +17,7 @@ import os, sys, time, os.path
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject
+from Gnumed.pycommon import gmLog, gmTools, gmBorg, gmMatchProvider, gmExceptions, gmPG2, gmDispatcher, gmBusinessDBObject, gmCfg
 from Gnumed.business import gmPerson, gmSurgery
 
 
@@ -287,7 +287,14 @@ class cOOoConnector(gmBorg.cBorg):
 			except oooNoConnectException:
 				_log.LogException('Cannot connect to OOo server. Trying to start one with: [%s]' % self.ooo_start_cmd)
 				os.system(self.ooo_start_cmd)
-				time.sleep(0.5)			# OOo sometimes needs a bit
+				dbcfg = gmCfg.cCfgSQL()
+				ooo_wait_time = dbcfg.get2 (
+					option = 'external.ooo.startup_settle_time',
+					workplace = gmSurgery.gmCurrentPractice().active_workplace,
+					bias = 'workplace',
+					default = 2.0
+				)
+				time.sleep(ooo_wait_time)	# OOo sometimes needs a bit
 				self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
 			self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
 
@@ -794,7 +801,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.53  2007-10-07 12:27:08  ncq
+# Revision 1.54  2007-10-21 20:12:42  ncq
+# - make OOo startup settle time configurable
+#
+# Revision 1.53  2007/10/07 12:27:08  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.52  2007/09/01 23:31:36  ncq
