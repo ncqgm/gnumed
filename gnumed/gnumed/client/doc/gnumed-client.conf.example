@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.6 2007-09-20 19:05:47 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.7 2007-10-22 12:37:02 ncq Exp $
 
 
 
@@ -39,7 +39,7 @@ $profiles$
 [profile public GNUmed database]
 host = salaam.homeunix.com
 port = 5432
-database = gnumed_v7
+database = gnumed_v8
 #encoding = UTF8
 
 
@@ -47,7 +47,7 @@ database = gnumed_v7
 [profile local GNUmed database (Linux)]
 host = 
 port = 5432
-database = gnumed_v7
+database = gnumed_v8
 #encoding = UTF8
 
 
@@ -55,14 +55,17 @@ database = gnumed_v7
 [profile local GNUmed database (Windows)]
 host = 127.0.0.1
 port = 5432
-database = gnumed_v7
+database = gnumed_v8
 #encoding = cp1252
 
 
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.6  2007-09-20 19:05:47  ncq
+# Revision 1.7  2007-10-22 12:37:02  ncq
+# - default database change
+#
+# Revision 1.6  2007/09/20 19:05:47  ncq
 # - 5432 again
 #
 # Revision 1.5  2007/06/11 20:14:59  ncq

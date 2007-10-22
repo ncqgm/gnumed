@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB=gnumed_v7
+DB=gnumed_v8
 
 export PGUSER="gm-dbo"
 postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t html
@@ -19,7 +19,10 @@ dot -Tpng -o ~/gm-schemadocs/gnumed-schema.png ~/gm-schemadocs/gnumed-schema-no_
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.14  2007-09-24 18:26:20  ncq
+# Revision 1.15  2007-10-22 12:37:02  ncq
+# - default database change
+#
+# Revision 1.14  2007/09/24 18:26:20  ncq
 # - v5 -> v7
 #
 # Revision 1.13  2007/03/31 21:19:07  ncq

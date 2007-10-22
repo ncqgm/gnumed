@@ -14,7 +14,7 @@
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.9 2007-09-24 18:25:45 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.10 2007-10-22 12:37:02 ncq Exp $
 
 #------------------------------------------------------------
 # those need to be changed in most if not all cases
@@ -29,7 +29,7 @@ INSTANCE_OWNER="GNUmed_Team"
 BACKUP_DIR="${HOME}/.gnumed/backup/"
 
 # which database to backup
-GM_DATABASE="gnumed_v7"
+GM_DATABASE="gnumed_v8"
 
 # user/group the backup is eventually owned by
 BACKUP_OWNER="$USER.$USER"
@@ -75,7 +75,10 @@ GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.9  2007-09-24 18:25:45  ncq
+# Revision 1.10  2007-10-22 12:37:02  ncq
+# - default database change
+#
+# Revision 1.9  2007/09/24 18:25:45  ncq
 # - VERIFY_TAR
 #
 # Revision 1.8  2007/06/11 20:14:59  ncq
