@@ -87,3 +87,11 @@ LOG="${LOG_BASE}/bootstrap-latest-v7.log"
 rm -rf ${LOG}
 CONF="update_db-v6_v7.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+echo "Dropping obsoleted staging database gnumed_v6 ..."
+sudo -u postgres dropdb ${PORT_DEF} gnumed_v6
+
+# v7 -> v8
+LOG="${LOG_BASE}/bootstrap-latest-v8.log"
+rm -rf ${LOG}
+CONF="update_db-v7_v8.conf"
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
