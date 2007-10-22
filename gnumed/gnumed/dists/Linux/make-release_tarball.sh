@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.38 2007-10-19 12:53:00 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.39 2007-10-22 12:31:53 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -278,6 +278,7 @@ mkdir -p ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
 cp -R ../../server/sql/v5-v6/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/dynamic
 cp -R ../../server/sql/v5-v6/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v5-v6/static
 
+
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v6-v7/static
@@ -288,6 +289,18 @@ cp -R ../../server/sql/v6-v7/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v6-v7/
 cp -R ../../server/sql/v6-v7/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v6-v7/static
 cp -R ../../server/sql/v6-v7/data/* ./GNUmed-$CLIENTREV/server/sql/v6-v7/data
 cp -R ../../server/sql/v6-v7/python/*.py ./GNUmed-$CLIENTREV/server/sql/v6-v7/python
+
+
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/data
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/python
+
+cp -R ../../server/sql/v7-v8/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
+#cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
+#cp -R ../../server/sql/v7-v8/data/* ./GNUmed-$CLIENTREV/server/sql/v7-v8/data
+#cp -R ../../server/sql/v7-v8/python/*.py ./GNUmed-$CLIENTREV/server/sql/v7-v8/python
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -325,7 +338,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.38  2007-10-19 12:53:00  ncq
+# Revision 1.39  2007-10-22 12:31:53  ncq
+# - include v8 stuff
+#
+# Revision 1.38  2007/10/19 12:53:00  ncq
 # - include Snellen
 #
 # Revision 1.37  2007/09/24 18:40:49  ncq
