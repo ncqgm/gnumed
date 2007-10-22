@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -179,7 +179,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v7]: ", 'gnumed_v7')
+		login.database = __prompted_input("database [gnumed_v8]: ", 'gnumed_v8')
 		login.user = __prompted_input("user name: ", '')
 		login.password = getpass.getpass("password (not shown): ")
 		login.port = __prompted_input("port [5432]: ", 5432)
@@ -987,7 +987,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v7'
+		dsn = 'dbname=gnumed_v8'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -996,7 +996,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v7 user=abc'
+		dsn = 'dbname=gnumed_v8 user=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1005,7 +1005,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v7 user=any-doc'
+		dsn = 'dbname=gnumed_v8 user=any-doc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1014,7 +1014,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v7 user=any-doc password=abc'
+		dsn = 'dbname=gnumed_v8 user=any-doc password=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1023,13 +1023,13 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v7 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
 
-		dsn = 'dbname=gnumed_v7 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=False)
 
-		dsn = 'dbname=gnumed_v7 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
 		encoding = 'foo'
 		try:
 			conn = get_connection(dsn=dsn, encoding=encoding)
@@ -1061,7 +1061,7 @@ if __name__ == "__main__":
 	def test_ro_queries():
 		print "testing run_ro_queries()"
 
-		dsn = 'dbname=gnumed_v7 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
 		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
@@ -1200,7 +1200,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.57  2007-09-24 18:29:42  ncq
+# Revision 1.58  2007-10-22 12:37:59  ncq
+# - default db change
+#
+# Revision 1.57  2007/09/24 18:29:42  ncq
 # - select 1,2; will return two columns with the same name !
 #   hence, mapping names to column indices in a dict will not work :-(
 #   fix breakage but don't really support it, either
