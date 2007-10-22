@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -692,7 +692,7 @@ class database:
 		self.conn.set_isolation_level(0)
 		cursor = self.conn.cursor()
 		print "==> creating new target database [%s] ..." % self.name
-		print "    (this can take a while if the source database is large)"
+		print "    (this can take a while if [%s] is large)" % self.template_db
 		try:
 			cursor.execute(cmd)
 		except:
@@ -1273,7 +1273,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.64  2007-10-19 12:54:47  ncq
+# Revision 1.65  2007-10-22 12:33:48  ncq
+# - improve output
+#
+# Revision 1.64  2007/10/19 12:54:47  ncq
 # - add TODO
 #
 # Revision 1.63  2007/10/09 11:22:48  ncq
