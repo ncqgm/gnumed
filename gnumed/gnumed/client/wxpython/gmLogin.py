@@ -6,14 +6,16 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.34 2007-06-11 20:25:18 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmLogin.py,v 1.35 2007-10-23 21:24:39 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "H.Herb"
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2
+
+from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG2, gmBackendListener, gmDispatcher
 from Gnumed.wxpython import gmLoginDialog, gmGuiHelpers
+
 
 try:
 	_('do-not-translate-but-make-epydoc-happy')
@@ -89,7 +91,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 		try:
 			# try getting a connection to verify the DSN works
-			gmPG2.get_raw_connection(dsn = dsn, verbose = True)
+			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True)
 			gmPG2.set_default_login(login = login)
 			gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
@@ -108,6 +110,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 					gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'), None)
 					continue
 				gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'), None)
+
+			listener = gmBackendListener.gmBackendListener(conn=conn)
 
 			connected = True
 			break
@@ -141,7 +145,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.34  2007-06-11 20:25:18  ncq
+# Revision 1.35  2007-10-23 21:24:39  ncq
+# - start backend listener on login
+#
+# Revision 1.34  2007/06/11 20:25:18  ncq
 # - better logging
 #
 # Revision 1.33  2007/04/27 13:29:31  ncq
