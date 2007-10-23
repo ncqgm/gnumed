@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.361 2007-10-21 20:19:26 ncq Exp $
-__version__ = "$Revision: 1.361 $"
+# $Id: gmGuiMain.py,v 1.362 2007-10-23 21:25:32 ncq Exp $
+__version__ = "$Revision: 1.362 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,7 +51,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
 from Gnumed.exporters import gmPatientExporter
@@ -1287,9 +1287,23 @@ Search results:
 		  regular shutdown should go in here
 		- framework still functional
 		"""
+		# shut down backend notifications listener
+		listener = gmBackendListener.gmBackendListener()
+		listener.stop_thread()
+
+		# shutdown application scripting listener
+		try:
+			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
+		except KeyError:
+			_log.LogException('no access to scripting listener thread', verbose=0)
+		except:
+			_log.LogException('cannot stop scripting listener thread', verbose=0)
+
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
+
 		# signal imminent demise to plugins
 		gmDispatcher.send(gmSignals.application_closing())
+
 		# remember GUI size
 		curr_width, curr_height = self.GetClientSizeTuple()
 		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
@@ -1304,14 +1318,6 @@ Search results:
 			value = curr_height,
 			workplace = gmSurgery.gmCurrentPractice().active_workplace
 		)
-		# handle our own stuff
-		try:
-			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
-		except KeyError:
-			_log.LogException('no access to scripting listener thread', verbose=0)
-			pass
-		except:
-			_log.LogException('cannot stop scripting listener thread', verbose=0)
 
 		self.timer.Stop()
 	#----------------------------------------------
@@ -1705,7 +1711,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.361  2007-10-21 20:19:26  ncq
+# Revision 1.362  2007-10-23 21:25:32  ncq
+# - shutdown backend notification listener on exit
+#
+# Revision 1.361  2007/10/21 20:19:26  ncq
 # - add more config options
 #
 # Revision 1.360  2007/10/19 21:20:17  ncq
