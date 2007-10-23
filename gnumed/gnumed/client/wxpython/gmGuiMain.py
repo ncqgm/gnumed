@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.362 2007-10-23 21:25:32 ncq Exp $
-__version__ = "$Revision: 1.362 $"
+# $Id: gmGuiMain.py,v 1.363 2007-10-23 21:41:42 ncq Exp $
+__version__ = "$Revision: 1.363 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1454,6 +1454,7 @@ class gmApp(wx.App):
 
 		if gmCLI.has_arg('--debug'):
 			self.RedirectStdio()
+			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
 
 		if self.__guibroker['main.slave_mode']:
 			self.__guibroker['main.slave_personality'] = self.user_prefs_cfg_file.get('workplace', 'slave personality')
@@ -1570,6 +1571,15 @@ class gmApp(wx.App):
 		_log.Log(gmLog.lWarn, 'unhandled event detected: END_SESSION')
 	#----------------------------------------------
 	# internal helpers
+	#----------------------------------------------
+	def _signal_debugging_monitor(*args, **kwargs):
+		if kwargs['signal'].endswith('_db'):
+			print '==> got notification from database "%s":' % kwargs['signal']
+		else:
+			print '==> received signal from client: "%s"' % kwargs['signal']
+		del kwargs['signal']
+		for key in kwargs.keys():
+			print '    [%s]: %s' % (key, kwargs[key])
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
@@ -1711,7 +1721,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.362  2007-10-23 21:25:32  ncq
+# Revision 1.363  2007-10-23 21:41:42  ncq
+# - on --debug monitor signals
+#
+# Revision 1.362  2007/10/23 21:25:32  ncq
 # - shutdown backend notification listener on exit
 #
 # Revision 1.361  2007/10/21 20:19:26  ncq
