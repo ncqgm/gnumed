@@ -5,88 +5,178 @@ This module creates notification triggers on tables.
 Theory of operation:
 
 Any table that should send notifies must be recorded in
-the table "notifying_tables".
+the table "gm.notifying_tables".
 
 FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, os.path, string
 
-from Gnumed.pycommon import gmLog, gmPG2
-_log = gmLog.gmDefLog
-if __name__ == "__main__" :
-	_log.SetAllLogLevels(gmLog.lData)
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmPG2
+
+
+_log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #==================================================================
 # SQL statements for notification triggers
 #------------------------------------------------------------------
-trigger_ddl = """
+trigger_ddl_without_pk = """
+-- ----------------------------------------------
 \unset ON_ERROR_STOP
-drop function clin.trf_announce_%(sig)s_mod() cascade;
+drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
 \set ON_ERROR_STOP 1
 
-create function clin.trf_announce_%(sig)s_mod() returns trigger as '
-declare
-	episode_id integer;
-	patient_id integer;
+create function %(schema)s.trf_announce_%(sig)s_mod() returns trigger as '
 begin
-	-- get episode ID
-	if TG_OP = ''DELETE'' then
-		episode_id := OLD.fk_episode;
-	else
-		episode_id := NEW.fk_episode;
-	end if;
-	-- backtrack to patient ID
-	select into patient_id pk_patient
-		from clin.v_pat_episodes vpep
-		where vpep.pk_episode = episode_id
-		limit 1;
-	if not found then
-		raise exception ''clin.trf_announce_%(sig)s_mod(): cannot find patient for episode [%%]'', episode_id;
-	end if;
-	-- now, execute() the NOTIFY
-	execute ''notify "%(sig)s_mod_db:'' || patient_id || ''"'';
+	execute ''notify "%(sig)s_mod_db:"'';
 	return NULL;
 end;
 ' language 'plpgsql';
 
 create constraint trigger tr_%(sig)s_mod
 	after insert or delete or update
-	on clin.%(tbl)s
+	on %(schema)s.%(tbl)s
 	deferrable
 	for each row
-		execute procedure clin.trf_announce_%(sig)s_mod()
+		execute procedure %(schema)s.trf_announce_%(sig)s_mod()
+;
+"""
+
+trigger_ddl_with_pk = """
+-- ----------------------------------------------
+\unset ON_ERROR_STOP
+drop function %(schema)s.trf_announce_%(sig)s_mod() cascade;
+\set ON_ERROR_STOP 1
+
+create function %(schema)s.trf_announce_%(sig)s_mod() returns trigger as '
+declare
+	_pk_identity integer;
+begin
+	_pk_identity := NULL;
+
+	-- find out identity pk:
+	-- 1) by fk_encounter
+	select 1 from information_schema.columns where
+		table_schema = %(schema)s and
+		table_name = %(tbl)s and
+		column_name = ''fk_encounter'';
+	if found then
+		if TG_OP = ''DELETE'' then
+			select into _pk_identity fk_patient from clin.encounter where pk = OLD.fk_encounter limit 1;
+		else
+			select into _pk_identity fk_patient from clin.encounter where pk = NEW.fk_encounter limit 1;
+		end if;
+	end if;
+
+	-- 2) by fk_doc
+	if _pk_identity is NULL then
+		select 1 from information_schema.columns where
+			table_schema = %(schema)s and
+			table_name = %(tbl)s and
+			column_name = ''fk_doc'';
+		if found then
+			if TG_OP = ''DELETE'' then
+				select into _pk_identity fk_identity from blobs.doc_med where pk = OLD.fk_doc limit 1;
+			else
+				select into _pk_identity fk_identity from blobs.doc_med where pk = NEW.fk_doc limit 1;
+			end if;
+		end if;
+	end if;
+
+	-- 3) by fk_identity
+	if _pk_identity is NULL then
+		select 1 from information_schema.columns where
+			table_schema = %(schema)s and
+			table_name = %(tbl)s and
+			column_name = ''fk_identity'';
+		if found then
+			if TG_OP = ''DELETE'' then
+				_pk_identity := OLD.fk_identity;
+			else
+				_pk_identity := NEW.fk_identity;
+			end if;
+		end if;
+	end if;
+
+	-- 4) by fk_patient
+	if _pk_identity is NULL then
+		select 1 from information_schema.columns where
+			table_schema = %(schema)s and
+			table_name = %(tbl)s and
+			column_name = ''fk_patient'';
+		if found then
+			if TG_OP = ''DELETE'' then
+				_pk_identity := OLD.fk_patient;
+			else
+				_pk_identity := NEW.fk_patient;
+			end if;
+		end if;
+	end if;
+
+	-- error out if not found
+	if _pk_identity is NULL then
+		raise exception ''%(schema)s.trf_announce_%(sig)s_mod(): cannot determine identity PK on table <%(schema)s.%(tbl)s>'';
+	end if;
+	-- now, execute() the NOTIFY
+	execute ''notify "%(sig)s_mod_db:'' || _pk_identity || ''"'';
+	return NULL;
+end;
+' language 'plpgsql';
+
+create constraint trigger tr_%(sig)s_mod
+	after insert or delete or update
+	on %(schema)s.%(tbl)s
+	deferrable
+	for each row
+		execute procedure %(schema)s.trf_announce_%(sig)s_mod()
 ;
 """
 #------------------------------------------------------------------
-def create_notification_schema(aCursor):
-	cmd = u"select table_name, notification_name from notifying_tables"
-	rows, idx = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'cmd': cmd}])
+def create_notification_schema(cursor):
+	cmd = u"select schema_name, table_name, signal, attach_identity_pk from gm.notifying_tables"
+	rows, idx = gmPG2.run_ro_queries(link_obj = cursor, queries = [{'cmd': cmd}])
+
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no notifying tables')
 		return None
-	_log.Log(gmLog.lData, rows)
+
 	# for each notifying table
 	schema = []
 	for notifying_def in rows:
-		tbl = notifying_def['table_name']
-		sig = notifying_def['notification_name']
-		schema.append(trigger_ddl % {'sig': sig, 'tbl': tbl})
-		schema.append('-- ----------------------------------------------')
+		_log.Log(gmLog.lInfo, 'creating notification DDL for: %s' % notifying_def)
+		if notifying_def['attach_identity_pk']:
+			schema.append(trigger_ddl_with_pk % {
+				'schema': notifying_def['schema_name'],
+				'tbl': notifying_def['table_name'],
+				'sig': notifying_def['signal']
+			})
+		else:
+			schema.append(trigger_ddl_without_pk % {
+				'schema': notifying_def['schema_name'],
+				'tbl': notifying_def['table_name'],
+				'sig': notifying_def['signal']
+			})
+
+	schema.append('-- ----------------------------------------------')
+
 	return schema
 #==================================================================
 # main
 #------------------------------------------------------------------
 if __name__ == "__main__" :
 
-	conn = gmGP2.get_connection(readonly=False, pooled=False)
+	_log.SetAllLogLevels(gmLog.lData)
+
+	conn = gmPG2.get_connection(readonly=False, pooled=False)
 	curs = conn.cursor()
 
 	schema = create_notification_schema(curs)
@@ -98,14 +188,19 @@ if __name__ == "__main__" :
 		print "error creating schema"
 		sys.exit(-1)
 
-	file = open ('notification-schema.sql', 'wb')
+	file = open('notification-schema.sql', 'wb')
 	for line in schema:
-		file.write("%s;\n" % line)
+#		file.write("%s;\n" % line)
+		file.write("%s\n" % line)
 	file.close()
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.17  2006-12-18 17:38:19  ncq
+# Revision 1.18  2007-10-23 21:32:54  ncq
+# - fix test suite
+# - improve generated triggers
+#
+# Revision 1.17  2006/12/18 17:38:19  ncq
 # - u''ify 2 queries
 #
 # Revision 1.16  2006/12/06 16:11:25  ncq
