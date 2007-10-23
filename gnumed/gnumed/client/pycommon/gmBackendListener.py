@@ -1,108 +1,91 @@
-"""GnuMed database backend listener.
+"""GNUmed database backend listener.
 
 This module implements threaded listening for asynchronuous
 notifications from the database backend.
-
-NOTE !  This is specific to the DB adapter pyPgSQL and
-        not DB-API compliant !
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
 
-from pyPgSQL import libpq
 
-import gmDispatcher, gmLog, gmExceptions
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmDispatcher, gmLog, gmExceptions, gmBorg
+
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 #=====================================================================
-class BackendListener:
-	def __init__(self, service, database, user, password, host, port=5432, poll_interval=3):
-		# listener thread will regularly try to acquire this
-		# lock, when it succeeds it will quit
+class gmBackendListener(gmBorg.cBorg):
+
+	def __init__(self, conn=None, poll_interval=3, patient=None):
+
+		try:
+			self.already_inited
+			return
+		except AttributeError:
+			pass
+
+		_log.Log(gmLog.lInfo, 'starting backend notifications listener thread')
+
+		# the listener thread will regularly try to acquire
+		# this lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
+		# take the lock now so it cannot be taken by the worker
+		# thread until it is released in stop_thread()
 		if not self._quit_lock.acquire(0):
 			_log.Log(gmLog.lErr, 'cannot acquire thread quit lock !?! aborting')
 			raise gmExceptions.ConstructorError, "cannot acquire thread quit-lock"
+
 		# remember what signals we are listening for; no need to listen twice to the same signal
-		self._intercepted_notifications = []
-		# remember what service we are representing
-		self._service = service
-		#check for messages every 'poll_interval' seconds
+#		self._intercepted_notifications = []
+
+		self._conn = conn
+		self._conn.set_isolation_level(0)
+		self._cursor = self._conn.cursor()
+		self._conn_lock = threading.Lock()		# lock for access to connection object
+
+		self.curr_patient_pk = None
+		if patient is not None:
+			if patient.is_connected():
+				self.curr_patient_pk = patient.ID
+		self.__register_interests()
+
+		# check for messages every 'poll_interval' seconds
 		self._poll_interval = poll_interval
-		#connect to the backend
-		self._conn = self.__connect(database, user, password, host, port)
-		# lock for access to connection object
-		self._conn_lock = threading.Lock()
 		self._listener_thread = None
+		self.__start_thread()
+
+		self.already_inited = True
 	#-------------------------------
-	def __del__(self):
-		if self._listener_thread is None:
-			return 1
-		try:
-			self.__unlisten_notification()
-		except: pass
-		try:
-			self._quit_lock.release()
-			# give the thread time to terminate
-			self._listener_thread.join(self._poll_interval+2.0)
-		except: pass
-		try:
-			if self._listener_thread.isAlive():
-				print '__del__(): listener thread still alive after join()'
-				print '__del__(): active threads:', threading.enumerate()
-		except:	pass
+#	def __del__(self):
+#		if self._listener_thread is None:
+#			return 1
+#		try:
+#			self.__unlisten_notification()
+#		except: pass
+#		try:
+#			self._quit_lock.release()
+#			# give the thread time to terminate
+#			self._listener_thread.join(self._poll_interval+2.0)
+#		except: pass
+#		try:
+#			if self._listener_thread.isAlive():
+#				print '__del__(): listener thread still alive after join()'
+#				print '__del__(): active threads:', threading.enumerate()
+#		except:	pass
 	#-------------------------------
 	# public API
 	#-------------------------------
-	def register_callback(self, aSignal, aCallback):
-		# if not listening to that signal yet, do so now
-		if aSignal not in self._intercepted_notifications:
-			cmd = 'LISTEN "%s";' % aSignal
-			self._conn_lock.acquire(1)
-			try:
-				res = self._conn.query(cmd)
-			except StandardError:
-				try:
-					self._conn_lock.release()
-				except StandardError:
-					_log.LogException('this should never happen: we have the lock but cannot release it', verbose=1)
-				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-				_log.LogException('cannot register backend callback', sys.exc_info(), verbose=0)
-				return None
-			self._conn_lock.release()
-			if res.resultType == libpq.RESULT_ERROR:
-				_log.Log(gmLog.lErr, 'cannot register backend callback')
-				_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
-				_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
-				_log.Log(gmLog.lData, libpq.Error)
-				return None
-			self._intercepted_notifications.append(aSignal)
-		# connect signal with callback function
-		gmDispatcher.connect(receiver = aCallback, signal = aSignal, sender = self._service)
-		if self._listener_thread is None:
-			if not self.__start_thread():
-				return None
-		return 1
-	#-------------------------------
-	def unregister_callback(self, aSignal, aCallback):
-		# unlisten to signal
-		self.__unlisten_notification([aSignal])
-		# don't deliver the backend signal anymore,
-		# this isn't strictly required but helps to prevent
-		# accumulation of dead receivers in gmDispatcher
-		gmDispatcher.disconnect(receiver = aCallback, signal = aSignal, sender = self._service)
-		return 1
-	#-------------------------------
 	def stop_thread(self):
 		if self._listener_thread is None:
-			return 1
-		self.__unlisten_notification()
+			return
+		_log.Log(gmLog.lInfo, 'stopping backend notifications listener thread')
 		self._quit_lock.release()
-		# give the thread time to terminate
+		# give the worker thread time to terminate
 		self._listener_thread.join(self._poll_interval+2.0)
 		try:
 			if self._listener_thread.isAlive():
@@ -110,76 +93,174 @@ class BackendListener:
 				_log.Log(gmLog.lData, 'active threads: %s' % threading.enumerate())
 		except:
 			pass
-		return 1
+
+		self.__unregister_patient_notifications()
+		self.__unregister_unspecific_notifications()
+
+		return
+	#-------------------------------
+#	def register_callback(self, aSignal, aCallback):
+#		# if not listening to that signal yet, do so now
+#		if aSignal not in self._intercepted_notifications:
+#			cmd = 'LISTEN "%s";' % aSignal
+#			self._conn_lock.acquire(1)
+#			try:
+#				self._cursor.execute(cmd)
+#			except StandardError:
+#				self._conn_lock.release()
+#				return None
+#			self._conn_lock.release()
+#			self._intercepted_notifications.append(aSignal)
+#		# connect signal with callback function
+#		gmDispatcher.connect(receiver = aCallback, signal = aSignal)
+#		return 1
+	#-------------------------------
+#	def unregister_callback(self, aSignal, aCallback):
+#		# unlisten to signal
+#		self.__unlisten_notification([aSignal])
+#		# don't deliver the backend signal anymore,
+#		# this isn't strictly required but helps to prevent
+#		# accumulation of dead receivers in gmDispatcher
+#		gmDispatcher.disconnect(receiver = aCallback, signal = aSignal)
+#		return 1
+	#-------------------------------
+	# event handlers
+	#-------------------------------
+	def _on_pre_patient_selection(self, *args, **kwargs):
+		self.__unregister_patient_notifications()
+		self.curr_patient_pk = None
+	#-------------------------------
+	def _on_post_patient_selection(self, *args, **kwargs):
+		self.curr_patient_pk = kwargs['patient'].ID
+		self.__register_patient_notifications()
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
-	def __unlisten_notification(self, notifications=None):
-		if notifications is None:
-			notifications = self._intercepted_notifications
-		for notify in notifications:
-			# are we listening at all ?
-			if notify not in notifications:
-				_log.Log(gmLog.lWarn, 'not listening to [%s]' % notify)
-				continue
-			# stop listening
-			cmd = 'UNLISTEN "%s";' % notify
-			try:
-				self._conn_lock.acquire(1)
-				res = self._conn.query(cmd)
-				self._conn_lock.release()
-			except StandardError:
-				self._conn_lock.release()
-				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-				_log.LogException('cannot unlisten notification [%s]' % notify, sys.exc_info())
-				return None
-			if res.resultType == libpq.RESULT_ERROR:
-				_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
-				_log.Log(gmLog.lErr, 'cannot unlisten notification [%s]' % notify)
-				_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
-				_log.Log(gmLog.lData, libpq.Error)
-				return None
-			# remove from list of intercepted signals
-			try:
-				self._intercepted_notifications.remove(notify)
-			except ValueError:
-				pass
-		return 1
+	def __register_interests(self):
+
+		# determine patient-specific notifications
+		cmd = u'select distinct on (signal) signal from gm.notifying_tables where attach_identity_pk is True'
+		self._conn_lock.acquire(1)
+		self._cursor.execute(cmd)
+		self._conn_lock.release()
+		rows = self._cursor.fetchall()
+		self.patient_specific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
+		_log.Log(gmLog.lInfo, 'configured patient specific notifications:')
+		_log.Log(gmLog.lInfo, '%s' % self.patient_specific_notifications)
+		gmDispatcher.known_signals.extend(self.patient_specific_notifications)
+
+		# determine unspecific notifications
+		cmd = u'select distinct on (signal) signal from gm.notifying_tables where attach_identity_pk is False'
+		self._conn_lock.acquire(1)
+		self._cursor.execute(cmd)
+		self._conn_lock.release()
+		rows = self._cursor.fetchall()
+		self.unspecific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
+		_log.Log(gmLog.lInfo, 'configured unspecific notifications:')
+		_log.Log(gmLog.lInfo, '%s' % self.unspecific_notifications)
+		gmDispatcher.known_signals.extend(self.unspecific_notifications)
+
+		# listen to patient changes inside the local client
+		# so we can re-register patient specific notifications
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+
+		# do we need to start listening to patient specific
+		# notifications right away because we missed an
+		# earlier patient activation ?
+		self.__register_patient_notifications()
+
+		# listen to unspecific (non-patient related) notifications
+		self.__register_unspecific_notifications()
 	#-------------------------------
-	def __connect(self, database, user, password, host, port=5432):
-		try:
-#			if host in ['', 'localhost']:
-#				host = '' # use local connexions for localhost as it is more secure
-			auth = "dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
-			cnx = libpq.PQconnectdb(auth)
-		except libpq.Error, msg:
-			_log.LogException("Connection to database '%s' failed: %s" % (database, msg), sys.exc_info())
-			return None
-		return cnx
+	def __register_patient_notifications(self):
+		if self.curr_patient_pk is None:
+			return
+		for notification in self.patient_specific_notifications:
+			notification = '%s:%s' % (notification, self.curr_patient_pk)
+			_log.Log(gmLog.lData, 'starting to listen for [%s]' % notification)
+			cmd = 'LISTEN "%s"' % notification
+			self._conn_lock.acquire(1)
+			self._cursor.execute(cmd)
+			self._conn_lock.release()
+	#-------------------------------
+	def __unregister_patient_notifications(self):
+		if self.curr_patient_pk is None:
+			return
+		for notification in self.patient_specific_notifications:
+			notification = '%s:%s' % (notification, self.curr_patient_pk)
+			_log.Log(gmLog.lData, 'stopping to listen for [%s]' % notification)
+			cmd = 'UNLISTEN "%s"' % notification
+			self._conn_lock.acquire(1)
+			self._cursor.execute(cmd)
+			self._conn_lock.release()
+	#-------------------------------
+	def __register_unspecific_notifications(self):
+		for sig in self.unspecific_notifications:
+			sig = '%s:' % sig
+			_log.Log(gmLog.lInfo, 'starting to listen for [%s]' % sig)
+			cmd = 'LISTEN "%s"' % sig
+			self._conn_lock.acquire(1)
+			self._cursor.execute(cmd)
+			self._conn_lock.release()
+	#-------------------------------
+	def __unregister_unspecific_notifications(self):
+		for sig in self.unspecific_notifications:
+			sig = '%s:' % sig
+			_log.Log(gmLog.lInfo, 'stopping to listen for [%s]' % sig)
+			cmd = 'UNLISTEN "%s"' % sig
+			self._conn_lock.acquire(1)
+			self._cursor.execute(cmd)
+			self._conn_lock.release()
+	#-------------------------------
+	#-------------------------------
+#	def __unlisten_notification(self, notifications=None):
+#		if notifications is None:
+#			notifications = self._intercepted_notifications
+#		for notify in notifications:
+#			# are we listening at all ?
+#			if notify not in notifications:
+#				continue
+#			# stop listening
+#			cmd = u'UNLISTEN "%s";' % notify
+#			self._conn_lock.acquire(1)
+#			try:
+#				self._cursor.execute(cmd)
+#			except StandardError:
+#				self._conn_lock.release()
+#				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+#				_log.LogException('cannot unlisten notification [%s]' % notify)
+#				return None
+#			self._conn_lock.release()
+#			# remove from list of intercepted signals
+#			try:
+#				self._intercepted_notifications.remove(notify)
+#			except ValueError:
+#				pass
+#		return 1
 	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
-			_log.Log(gmLog.lErr, "no connection to backend available, cannot start thread")
-			return None
-		try:
-			self._listener_thread = threading.Thread(target = self._process_notifications)
-			self._listener_thread.start()
-		except StandardError:
-			_log.LogException("Can't start thread.", sys.exc_info())
-			return None
-		return 1
+			raise ValueError("no connection to backend available, useless to start thread")
+
+		self._listener_thread = threading.Thread (
+			target = self._process_notifications,
+			name = self.__class__.__name__
+		)
+		self._listener_thread.setDaemon(True)
+		_log.Log(gmLog.lInfo, 'starting listener thread')
+		self._listener_thread.start()
 	#-------------------------------
 	# the actual thread code
 	#-------------------------------
 	def _process_notifications(self):
-		notification = None
 		_have_quit_lock = None
 		while not _have_quit_lock:
 			if self._quit_lock.acquire(0):
 				break
 			# wait at most self._poll_interval for new data
 			self._conn_lock.acquire(1)
-			ready_input_sockets = select.select([self._conn.socket], [], [], self._poll_interval)[0]
+			ready_input_sockets = select.select([self._cursor], [], [], self._poll_interval)[0]
 			self._conn_lock.release()
 			# any input available ?
 			if len(ready_input_sockets) == 0:
@@ -187,114 +268,179 @@ class BackendListener:
 				# give others a chance to grab the conn lock (eg listen/unlisten)
 				time.sleep(0.3)
 				continue
-			# grab what came in
-			self._conn_lock.acquire(1)
-			self._conn.consumeInput()
-			notification = self._conn.notifies()
-			self._conn_lock.release()
+			# data available, wait for it to fully arrive
+			while not self._cursor.isready():
+				pass
 			# any notifications ?
-			while notification is not None:
+			while len(self._conn.notifies) > 0:
 				# if self._quit_lock can be acquired we may be in
 				# __del__ in which case gmDispatcher is not
 				# guarantueed to exist anymore
 				if self._quit_lock.acquire(0):
 					_have_quit_lock = 1
 					break
+
+				self._conn_lock.acquire(1)
+				notification = self._conn.notifies.pop()
+				self._conn_lock.release()
 				# try sending intra-client signal
+				pid, full_signal = notification
+				signal_name, pk = full_signal.split(':')
 				try:
-					results = gmDispatcher.send(signal = notification.relname, sender = self._service, sending_backend_pid = notification.be_pid)
+					results = gmDispatcher.send (
+						signal = signal_name,
+						originated_in_database = True,
+						sending_backend_pid = pid,
+						pk_identity = pk
+					)
 				except:
-					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.relname, notification.be_pid)
+					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (full_signal, pid)
 					print sys.exc_info()
+
 				# there *may* be more pending notifications but do we care ?
 				if self._quit_lock.acquire(0):
 					_have_quit_lock = 1
 					break
-				self._conn_lock.acquire(1)
-				self._conn.consumeInput()
-				notification = self._conn.notifies()
-				self._conn_lock.release()
 
 		self._listener_thread = None
 #=====================================================================
 # main
 #=====================================================================
 notifies = 0
+
 if __name__ == "__main__":
+
 	_log.SetAllLogLevels(gmLog.lData)
 
-if __name__ == "__main__":
 	import time
+
+	from Gnumed.pycommon import gmPG2, gmI18N
+	from Gnumed.business import gmPerson
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
 	#-------------------------------
-	def dummy(n):
-		return float(n)*n/float(1+n)
-	#-------------------------------
-	def OnPatientModified():
-		global notifies
-		notifies += 1
-		sys.stdout.flush()
-		print "\nBackend says: patient data has been modified (%s. notification)" % notifies
-	#-------------------------------
-	try:
-		n = int(sys.argv[1])
-	except:
-		print "You can set the number of iterations\nwith the first command line argument"
-		n= 100000
+	def run_test():
 
-	# try loop without backend listener
-	print "Looping",n,"times through dummy function"
-	i=0
-	t1 = time.time()
-	while i<n:
-		r = dummy(i)
-		i+=1
-	t2=time.time()
-	t_nothreads=t2-t1
-	print "Without backend thread, it took", t_nothreads, "seconds"
-
-	# now try with listener to measure impact
-	print "Now in a new shell connect psql to the"
-	print "database <gnumed> on localhost, return"
-	print "here and hit <enter> to continue."
-	try:
-		raw_input('hit <enter> when done starting psql')
-	except:
-		pass
-	print "You now have about 30 seconds to go"
-	print "to the psql shell and type"
-	print " notify patient_changed<enter>"
-	print "several times."
-	print "This should trigger our backend listening callback."
-	print "You can also try to stop the demo with Ctrl-C!"
-
-	listener = BackendListener(service='default', database='gnumed', user='gm-dbo', password='')
-	listener.register_callback('patient_changed', OnPatientModified)
-
-	try:
-		counter = 0
-		while counter<20:
-			counter += 1
-			time.sleep(1)
+		#-------------------------------
+		def dummy(n):
+			return float(n)*n/float(1+n)
+		#-------------------------------
+		def OnPatientModified():
+			global notifies
+			notifies += 1
 			sys.stdout.flush()
-			print '.',
-		print "Looping",n,"times through dummy function"
-		i=0
-		t1 = time.time()
-		while i<n:
-			r = dummy(i)
-			i+=1
-		t2=time.time()
-		t_threaded = t2-t1
-		print "With backend thread, it took", t_threaded, "seconds"
-		print "Difference:", t_threaded-t_nothreads
-	except KeyboardInterrupt:
-		print "cancelled by user"
+			print "\nBackend says: patient data has been modified (%s. notification)" % notifies
+		#-------------------------------
+		try:
+			n = int(sys.argv[2])
+		except:
+			print "You can set the number of iterations\nwith the second command line argument"
+			n = 100000
 
-	listener.stop_thread()
-	listener.unregister_callback('patient_changed', OnPatientModified)
+		# try loop without backend listener
+		print "Looping", n, "times through dummy function"
+		i = 0
+		t1 = time.time()
+		while i < n:
+			r = dummy(i)
+			i += 1
+		t2 = time.time()
+		t_nothreads = t2-t1
+		print "Without backend thread, it took", t_nothreads, "seconds"
+
+		listener = gmBackendListener(conn = gmPG2.get_raw_connection())
+
+		# now try with listener to measure impact
+		print "Now in a new shell connect psql to the"
+		print "database <gnumed_v8> on localhost, return"
+		print "here and hit <enter> to continue."
+		raw_input('hit <enter> when done starting psql')
+		print "You now have about 30 seconds to go"
+		print "to the psql shell and type"
+		print " notify patient_changed<enter>"
+		print "several times."
+		print "This should trigger our backend listening callback."
+		print "You can also try to stop the demo with Ctrl-C !"
+
+		listener.register_callback('patient_changed', OnPatientModified)
+
+		try:
+			counter = 0
+			while counter<20:
+				counter += 1
+				time.sleep(1)
+				sys.stdout.flush()
+				print '.',
+			print "Looping",n,"times through dummy function"
+			i=0
+			t1 = time.time()
+			while i<n:
+				r = dummy(i)
+				i+=1
+			t2=time.time()
+			t_threaded = t2-t1
+			print "With backend thread, it took", t_threaded, "seconds"
+			print "Difference:", t_threaded-t_nothreads
+		except KeyboardInterrupt:
+			print "cancelled by user"
+
+		listener.stop_thread()
+		listener.unregister_callback('patient_changed', OnPatientModified)
+	#-------------------------------
+	def run_monitor():
+
+		print "starting up backend notifications monitor"
+
+		def monitoring_callback(*args, **kwargs):
+			if kwargs['signal'].endswith('_db'):
+				print '==> got notification from database "%s":' % kwargs['signal']
+			else:
+				print '==> received signal from client: "%s"' % kwargs['signal']
+			del kwargs['signal']
+			for key in kwargs.keys():
+				print '    [%s]: %s' % (key, kwargs[key])
+
+		gmDispatcher.connect(receiver = monitoring_callback)
+
+		listener = gmBackendListener(conn = gmPG2.get_raw_connection())
+		print "listening for the following notifications:"
+		print "1) patient specific (patient #%s):" % listener.curr_patient_pk
+		for sig in listener.patient_specific_notifications:
+			print '   - %s' % sig
+		print "1) unspecific:"
+		for sig in listener.unspecific_notifications:
+			print '   - %s' % sig
+
+		while True:
+			pat = gmPerson.ask_for_patient()
+			if pat is None:
+				break
+			print "found patient", pat
+			gmPerson.set_active_patient(patient=pat)
+			print "now waiting for notifications, hit <ENTER> to select another patient"
+			raw_input()
+
+		print "cleanup"
+		listener.stop_thread()
+
+		print "shutting down backend notifications monitor"
+	#-------------------------------
+	if len(sys.argv) > 1:
+		if sys.argv[1] == 'test':
+			run_test()
+		if sys.argv[1] == 'monitor':
+			run_monitor()
+
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.9  2006-05-24 12:50:21  ncq
+# Revision 1.10  2007-10-23 21:22:42  ncq
+# - completely redone:
+#   - use psycopg2
+#   - handle signals based on backend metadata
+#   - add monitor to test cases
+#
+# Revision 1.9  2006/05/24 12:50:21  ncq
 # - now only empty string '' means use local UNIX domain socket connections
 #
 # Revision 1.8  2005/01/27 17:23:14  ncq
