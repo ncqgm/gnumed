@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.6 2007-10-21 20:16:29 ncq Exp $
+# $Id: gmSurgery.py,v 1.7 2007-10-23 21:20:24 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -18,8 +18,6 @@ from Gnumed.pycommon import gmPG2, gmTools, gmBorg, gmCLI, gmCfg
 class gmCurrentPractice(gmBorg.cBorg):
 
 	def __init__(self):
-		gmBorg.cBorg.__init__(self)
-
 		try:
 			self.already_inited
 			return
@@ -199,7 +197,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.6  2007-10-21 20:16:29  ncq
+# Revision 1.7  2007-10-23 21:20:24  ncq
+# - cleanup
+#
+# Revision 1.6  2007/10/21 20:16:29  ncq
 # - fix setting db logon banner
 # - add test suite
 #

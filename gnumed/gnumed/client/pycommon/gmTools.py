@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.40 2007-10-09 10:29:02 ncq Exp $
+# $Id: gmTools.py,v 1.41 2007-10-23 21:23:30 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -66,8 +66,6 @@ def handle_uncaught_exception(t, v, tb):
 class gmPaths(gmBorg.cBorg):
 
 	def __init__(self, app_name=None, wx=None):
-		gmBorg.cBorg.__init__(self)
-
 		try:
 			self.already_inited
 			return
@@ -662,7 +660,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.40  2007-10-09 10:29:02  ncq
+# Revision 1.41  2007-10-23 21:23:30  ncq
+# - cleanup
+#
+# Revision 1.40  2007/10/09 10:29:02  ncq
 # - clean up import_module_from_directory()
 #
 # Revision 1.39  2007/10/08 12:48:17  ncq

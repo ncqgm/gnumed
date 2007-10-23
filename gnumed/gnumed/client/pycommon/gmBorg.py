@@ -1,8 +1,8 @@
 #===================================================
 # Thanks to Python Patterns !
 # ---------------------------
-# $Id: gmBorg.py,v 1.4 2007-09-24 22:05:23 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmBorg.py,v 1.5 2007-10-23 21:23:30 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -33,7 +33,7 @@ class cBorg(object):
 	_instances = {}
 
 	def __new__(cls, *args, **kargs):
-		# look up sublcass instance cache
+		# look up subclass instance cache
 		if cBorg._instances.get(cls) is None:
 			cBorg._instances[cls] = object.__new__(cls, *args, **kargs)
 		return cBorg._instances[cls]
@@ -70,7 +70,10 @@ if __name__ == '__main__':
 
 #===================================================
 # $Log: gmBorg.py,v $
-# Revision 1.4  2007-09-24 22:05:23  ncq
+# Revision 1.5  2007-10-23 21:23:30  ncq
+# - cleanup
+#
+# Revision 1.4  2007/09/24 22:05:23  ncq
 # - improved docs
 #
 # Revision 1.3  2007/05/11 14:14:59  ncq

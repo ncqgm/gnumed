@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.133 2007-10-21 20:54:51 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmPerson.py,v 1.134 2007-10-23 21:20:23 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1525,7 +1525,7 @@ def create_dummy_identity():
 	)
 	return gmDemographicRecord.cIdentity(aPK_obj = rows[0][0])
 #============================================================
-def set_active_patient(patient = None, forced_reload=False):
+def set_active_patient(patient=None, forced_reload=False):
 	"""Set active patient.
 
 	If patient is -1 the active patient will be UNset.
@@ -1907,7 +1907,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.133  2007-10-21 20:54:51  ncq
+# Revision 1.134  2007-10-23 21:20:23  ncq
+# - cleanup
+#
+# Revision 1.133  2007/10/21 20:54:51  ncq
 # - add test case
 #
 # Revision 1.132  2007/10/09 11:22:05  ncq
