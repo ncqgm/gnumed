@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.250 2007-10-08 13:22:42 ncq Exp $
-__version__ = "$Revision: 1.250 $"
+# $Id: gmClinicalRecord.py,v 1.251 2007-10-25 12:15:39 ncq Exp $
+__version__ = "$Revision: 1.251 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -132,10 +132,6 @@ select fk_encounter from
 #		if not self._conn_pool.Listen('historica', sig, self.db_callback_vaccs_modified):
 #			return None
 
-#		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
-#		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
-#			return None
-
 #		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.pk_patient)
 #		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
 #			return None
@@ -153,14 +149,6 @@ select fk_encounter from
 			pass
 		gmDispatcher.send(signal = gmSignals.vaccinations_updated(), sender = self.__class__.__name__)
 		return True
-	#--------------------------------------------------------
-	def _db_callback_allg_modified(self):
-		try:
-			del self.__db_cache['allergies']
-		except KeyError:
-			pass
-		gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
-		return 1
 	#--------------------------------------------------------
 	def _health_issues_modified(self):
 		try:
@@ -646,15 +634,12 @@ where
 			episode_id = episode_id
 		)
 
-		gmDispatcher.send(signal = gmSignals.allergy_updated())
-
 		return new_allergy
 	#--------------------------------------------------------
 	def delete_allergy(self, pk_allergy=None):
 		cmd = u'delete from clin.allergy where pk=%(pk_allg)s'
 		args = {'pk_allg': pk_allergy}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		gmDispatcher.send(signal = gmSignals.allergy_updated())
 	#--------------------------------------------------------
 	def ensure_has_allergic_state(self):
 		cmd = u'insert into clin.allergy_state (fk_patient, has_allergy) values (%(pat)s, %(state)s)'
@@ -671,7 +656,6 @@ where
 		cmd = u'update clin.allergy_state set has_allergy = %(state)s where fk_patient = %(pat)s'
 		args = {'pat': self.pk_patient, 'state': state}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		gmDispatcher.send(signal = gmSignals.allergy_updated())
 		return True
 
 	def _get_allergic_state(self):
@@ -1622,7 +1606,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.250  2007-10-08 13:22:42  ncq
+# Revision 1.251  2007-10-25 12:15:39  ncq
+# - we don't send allergy_updated() signal anymore, the backend does it for us
+#
+# Revision 1.250  2007/10/08 13:22:42  ncq
 # - avoid circular import
 #
 # Revision 1.249  2007/10/08 13:17:55  ncq
