@@ -14,23 +14,14 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 print "gmPG phased out, please replace with gmPG2"
 
-# python standard modules
-import string, copy, os, sys, time, locale
-
-# gnumed specific modules
-import gmLog
-_log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lInfo, __version__)
-
-import gmLoginInfo, gmExceptions, gmI18N
+import sys
+sys.exit
 
 import gmCLI
 if gmCLI.has_arg("--debug"):
@@ -38,21 +29,6 @@ if gmCLI.has_arg("--debug"):
 else:
 	_query_logging_verbosity = 0
 del gmCLI
-
-# 3rd party dependencies
-
-# first, do we have the preferred postgres-python library available ?
-try:
-	import pyPgSQL
-	_log.Log(gmLog.lData, 'pyPgSQL version: %s' % pyPgSQL.__version__)
-	del pyPgSQL
-	import pyPgSQL.PgSQL as dbapi # try preferred backend library
-except ImportError:
-	_log.LogException("No Python database adapter found.", sys.exc_info(), verbose=1)
-	print "CRITICAL ERROR: Cannot find module pyPgSQL for connecting to the database server."
-	raise
-
-_log.Log(gmLog.lInfo, 'PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 
 # check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
@@ -76,9 +52,6 @@ _default_client_timezone = "%+.1f" % (-tz / 3600.0)
 
 _serialize_failure = "serialize access due to concurrent update"
 
-#_v2_schema_hash = 'not released, testing only'
-#_v2_schema_hash = 'a4ac8b074432a7b5541d28c991e34dbd'
-_v2_schema_hash = 'b09d50d7ed3f91ddf4c4ddb8ea507720'
 #======================================================================
 # a bunch of useful queries
 #----------------------------------------------------------------------
@@ -1360,7 +1333,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.85 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.86 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1379,108 +1352,8 @@ def add_housekeeping_todo(
 	return (1, result[0][0])
 #---------------------------------------------------
 #---------------------------------------------------
-def set_default_client_encoding(encoding = None):
-	encoding['string']
-	encoding['wire']
-	_log.Log(gmLog.lInfo, 'setting default client encoding to [%s]' % str(encoding))
-	global _default_client_encoding
-	_default_client_encoding = encoding
-	return 1
 #---------------------------------------------------
-def set_default_client_timezone(timezone = None):
-	if timezone is None:
-		return None
-	# FIXME: verify against database before setting
-	_log.Log(gmLog.lInfo, 'setting default client time zone to [%s]' % timezone)
-	global _default_client_timezone
-	_default_client_timezone = timezone
-	return 1
-#---------------------------------------------------
-def database_schema_compatible():
-	rows = run_ro_query('default', 'select md5(gm_concat_table_structure())')
-	if rows is None:
-		_log.Log(gmLog.lErr, 'cannot hash database structure')
-		return False
-	if rows[0][0] != _v2_schema_hash:
-		_log.Log(gmLog.lErr, 'incompatible database structure')
-		_log.Log(gmLog.lErr, 'expected hash  : [%s]' % _v2_schema_hash)
-		_log.Log(gmLog.lErr, 'calculated hash: [%s]' % rows[0][0])
-		return False
-	return True
 #===================================================
-def __prompted_input(prompt, default=None):
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-#---------------------------------------------------
-def __request_login_params_tui():
-	"""text mode request of database login parameters
-	"""
-	import getpass
-	login = gmLoginInfo.LoginInfo('', '', '')
-
-	print "\nPlease enter the required login parameters:"
-	try:
-		host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		database = __prompted_input("database [gnumed_v5]: ", 'gnumed_v5')
-		user = __prompted_input("user name: ", '')
-		password = getpass.getpass("password (not shown): ")
-		port = __prompted_input("port [5432]: ", 5432)
-	except KeyboardInterrupt:
-		_log.Log(gmLog.lWarn, "user cancelled text mode login dialog")
-		print "user cancelled text mode login dialog"
-		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
-
-	login.SetInfo(user, password, dbname=database, host=host, port=port)
-	return login
-#---------------------------------------------------
-def __request_login_params_gui_wx():
-	"""GUI (wx) input request for database login parameters.
-
-	Returns gmLoginInfo.LoginInfo object
-	"""
-	import wx
-	# the next statement will raise an exception if wxPython is not loaded yet
-	sys.modules['wx']
-	# OK, wxPython was already loaded. But has the main Application instance
-	# been initialized yet ? if not, the exception will kick us out
-	if wx.GetApp() is None:
-		raise gmExceptions.NoGuiError(_("The wxPython GUI framework hasn't been initialized yet!"))
-
-	# Let's launch the login dialog
-	# if wx was not initialized /no main App loop, an exception should be raised anyway
-	import gmLoginDialog
-#	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
-	dlg = gmLoginDialog.LoginDialog(None, -1)
-	dlg.ShowModal()
-	login = dlg.panel.GetLoginInfo()
-	dlg.Destroy()
-	del gmLoginDialog
-
-	#if user cancelled or something else went wrong, raise an exception
-	if login is None:
-		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
-
-	return login
-#---------------------------------------------------
-def request_login_params():
-	"""Request login parameters for database connection.
-	"""
-	# are we inside X ?
-	# (if we aren't wxGTK will crash hard at
-	# C-level with "can't open Display")
-	if os.environ.has_key('DISPLAY'):
-		# try GUI
-		try:
-			login = __request_login_params_gui_wx()
-			return login
-		except:
-			pass
-	# well, either we are on the console or
-	# wxPython does not work, use text mode
-	login = __request_login_params_tui()
-	return login
 #==================================================================
 def __run_notifications_debugger():
 	#-------------------------------
@@ -1597,7 +1470,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.85  2007-02-06 12:11:25  ncq
+# Revision 1.86  2007-10-25 16:41:47  ncq
+# - cleanup
+#
+# Revision 1.85  2007/02/06 12:11:25  ncq
 # - gnumed_v5
 #
 # Revision 1.84  2006/12/06 16:04:48  ncq
