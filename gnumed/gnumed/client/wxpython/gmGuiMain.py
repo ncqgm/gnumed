@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.364 2007-10-25 12:20:36 ncq Exp $
-__version__ = "$Revision: 1.364 $"
+# $Id: gmGuiMain.py,v 1.365 2007-10-25 16:41:04 ncq Exp $
+__version__ = "$Revision: 1.365 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -287,8 +287,16 @@ class gmTopLevelFrame(wx.Frame):
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
 #		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
+		# -- submenu gnumed / config / ui / patient search
+		menu_cfg_pat_search = wx.Menu()
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Patient Search ...'), menu_cfg_pat_search)
+
 		ID = wx.NewId()
-		menu_cfg_ui.Append(ID, _('Quick search'), _('Configure immediate external patient serach.'))
+		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
+		wx.EVT_MENU(self, ID, self.__on_set_dob_reminder_proximity)
+
+		ID = wx.NewId()
+		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external patient.'))
 		wx.EVT_MENU(self, ID, self.__on_set_quick_pat_search)
 
 		# -- submenu gnumed / config / external tools
@@ -300,7 +308,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID, self.__on_set_ifap_cmd)
 
 		ID = wx.NewId()
-		menu_cfg_ext_tools.Append(ID, _('OOo settle time'), _('Set the time to wait for OpenOffice to settle after startup.'))
+		menu_cfg_ext_tools.Append(ID, _('OOo startup time'), _('Set the time to wait for OpenOffice to settle after startup.'))
 		wx.EVT_MENU(self, ID, self.__on_set_ooo_settle_time)
 
 		# -- submenu gnumed / config / emr
@@ -314,6 +322,22 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_encounter.Append(ID, _('Edit on patient change'), _('Edit encounter details on changing of patients.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_enc_pat_change)
+
+		ID = wx.NewId()
+		menu_cfg_encounter.Append(ID, _('Minimum duration'), _('Minimum duration of an encounter.'))
+		wx.EVT_MENU(self, ID, self.__on_cfg_enc_min_ttl)
+
+		ID = wx.NewId()
+		menu_cfg_encounter.Append(ID, _('Maximum duration'), _('Maximum duration of an encounter.'))
+		wx.EVT_MENU(self, ID, self.__on_cfg_enc_max_ttl)
+
+		# -- submenu gnumed / config / emr / episode
+		menu_cfg_episode = wx.Menu()
+		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ..'), menu_cfg_episode)
+
+		ID = wx.NewId()
+		menu_cfg_episode.Append(ID, _('Dormancy'), _('Maximum length of dormancy after which an episode will be considered closed.'))
+		wx.EVT_MENU(self, ID, self.__on_cfg_epi_ttl)
 
 		# -- 
 		menu_gnumed.AppendSeparator()
@@ -806,47 +830,34 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_set_ifap_cmd(self, event):
 
-		dbcfg = gmCfg.cCfgSQL()
+		def is_valid(value):
+			if not os.access(value, os.X_OK):
+				gmDispatcher.send (
+					signal = 'statustext',
+					msg = _('The command [%s] is not executable. This may or may not be a problem.') % value,
+					beep = True
+				)
+			# return True anyways or else we cannot configure Wine properly
+			return True, value
 
-		ifap_cmd = dbcfg.get2 (
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'Enter the shell command with which to start the\n'
+				'the IFAP drug database.\n'
+				'\n'
+				'GNUmed will try to verify the path which may,\n'
+				'however, fail if you are using an emulator such\n'
+				'as Wine. Nevertheless, starting IFAP will work\n'
+				'as long as the shell command is correct despite\n'
+				'the failing test.'
+			),
 			option = 'external.ifap-win.shell_command',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = u'workplace',
-			default = u'wine "C:\Ifapwin\WIAMDB.EXE"'
+			bias = 'workpace',
+			default_value = 'C:\Ifapwin\WIAMDB.EXE', # MS/Windows, not Wine
+			validator = is_valid
 		)
-
-		dlg = wx.TextEntryDialog (
-			parent = self,
-			message = _('Enter the shell command with which to start the IFAP drug database:'),
-			caption = _('Configuration'),
-			defaultValue = ifap_cmd,
-			style = wx.OK | wx.CANCEL | wx.CENTRE
-		)
-		result = dlg.ShowModal()
-		if result == wx.CANCEL:
-			dlg.Destroy()
-			return
-
-		new_ifap_cmd = dlg.GetValue().strip()
-		dlg.Destroy()
-
-		if new_ifap_cmd == ifap_cmd:
-			return
-
-		if not os.access(new_ifap_cmd, os.X_OK):
-			gmDispatcher.send (
-				signal = 'statustext',
-				msg = _('The command [%s] is not executable. This may or may not be a problem.') % new_ifap_cmd,
-				beep = True
-			)
-
-		dbcfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			option = 'external.ifap-win.shell_command',
-			value = new_ifap_cmd
-		)
-
-		return
+	#----------------------------------------------
+	# submenu GNUmed / config / ui / patient search
 	#----------------------------------------------
 	def __on_set_quick_pat_search(self, evt):
 		gmGuiHelpers.configure_boolean_option (
@@ -866,6 +877,27 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		return
 	#----------------------------------------------
+	def __on_set_dob_reminder_proximity(self, evt):
+
+		def is_valid(value):
+			return gmPG2.is_pg_interval(candidate=value), value
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'When a patient is activated GNUmed checks the\n'
+				"proximity of the patient's birthday.\n"
+				'\n'
+				'If the birthday falls within the range of\n'
+				' "today %s <the interval you set here>"\n'
+				'GNUmed will remind you of the recent or\n'
+				'imminent anniversary.'
+			) % u'\u2213',
+			option = u'patient_search.dob_warn_interval',
+			bias = 'user',
+			default_value = '1 week',
+			validator = is_valid
+		)
+	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
 	def __on_cfg_enc_pat_change(self, event):
@@ -882,6 +914,82 @@ class gmTopLevelFrame(wx.Frame):
 			]
 		)
 		return
+	#----------------------------------------------
+	def __on_cfg_enc_min_ttl(self, evt):
+
+		def is_valid(value):
+			return gmPG2.is_pg_interval(candidate=value), value
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'When a patient is activated GNUmed checks the\n'
+				'age of the most recent consultation.\n'
+				'\n'
+				'If that consultation is younger than this age\n'
+				'the existing consultation will be continued.\n'
+				'\n'
+				'(If it is really old a new consultation is\n'
+				' started, or else GNUmed will ask you.)\n'
+			),
+			option = 'encounter.minimum_ttl',
+			bias = 'user',
+			default_value = '1 hour 30 minutes',
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_cfg_enc_max_ttl(self, evt):
+
+		def is_valid(value):
+			return gmPG2.is_pg_interval(candidate=value), value
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'When a patient is activated GNUmed checks the\n'
+				'age of the most recent consultation.\n'
+				'\n'
+				'If that consultation is older than this age\n'
+				'GNUmed will always start a new consultation.\n'
+				'\n'
+				'(If it is very recent the existing consultation\n'
+				' is continued, or else GNUmed will ask you.)\n'
+			),
+			option = 'encounter.maximum_ttl',
+			bias = 'user',
+			default_value = '6 hours',
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_cfg_epi_ttl(self, evt):
+
+		def is_valid(value):
+			try:
+				value = int(value)
+			except:
+				return False, value
+			return gmPG2.is_pg_interval(candidate=value), value
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'At any time there can only be one open (ongoing) episode\n'
+				'for each foundational health issue.\n'
+				'\n'
+				'When you try to open (add data to) an episode on a health\n'
+				'issue GNUmed will check for an existing open episode on\n'
+				'that issue. If there is any it will check the age of that\n'
+				'episode. The episode is closed if it has been dormant (no\n'
+				'data added, that is) for the period of time (in days) you\n'
+				'set here.\n'
+				'\n'
+				"If the existing episode hasn't been dormant long enough\n"
+				'GNUmed will consult you what to do.\n'
+				'\n'
+				'Enter maximum episode dormancy in DAYS:'
+			),
+			option = 'episode.ttl',
+			bias = 'user',
+			default_value = 60,
+			validator = is_valid
+		)
 	#----------------------------------------------
 #	def __on_configure_workplace(self, evt):
 #		pass
@@ -1723,7 +1831,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.364  2007-10-25 12:20:36  ncq
+# Revision 1.365  2007-10-25 16:41:04  ncq
+# - a whole bunch of config options
+#
+# Revision 1.364  2007/10/25 12:20:36  ncq
 # - improve db origination detection for signals in signal monitor
 #
 # Revision 1.363  2007/10/23 21:41:42  ncq
