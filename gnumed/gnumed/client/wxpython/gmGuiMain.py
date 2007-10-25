@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.365 2007-10-25 16:41:04 ncq Exp $
-__version__ = "$Revision: 1.365 $"
+# $Id: gmGuiMain.py,v 1.366 2007-10-25 20:11:29 ncq Exp $
+__version__ = "$Revision: 1.366 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -299,6 +299,10 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external patient.'))
 		wx.EVT_MENU(self, ID, self.__on_set_quick_pat_search)
 
+		ID = wx.NewId()
+		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after patient activation.'))
+		wx.EVT_MENU(self, ID, self.__on_set_initial_pat_plugin)
+
 		# -- submenu gnumed / config / external tools
 		menu_cfg_ext_tools = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('External Tools ...'), menu_cfg_ext_tools)
@@ -317,7 +321,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- submenu gnumed / config / emr / encounter
 		menu_cfg_encounter = wx.Menu()
-		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ..'), menu_cfg_encounter)
+		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
 
 		ID = wx.NewId()
 		menu_cfg_encounter.Append(ID, _('Edit on patient change'), _('Edit encounter details on changing of patients.'))
@@ -333,7 +337,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- submenu gnumed / config / emr / episode
 		menu_cfg_episode = wx.Menu()
-		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ..'), menu_cfg_episode)
+		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ...'), menu_cfg_episode)
 
 		ID = wx.NewId()
 		menu_cfg_episode.Append(ID, _('Dormancy'), _('Maximum length of dormancy after which an episode will be considered closed.'))
@@ -603,7 +607,6 @@ class gmTopLevelFrame(wx.Frame):
 		help_menu.AppendSeparator()
 		self.__gb['main.helpmenu'] = help_menu
 		self.mainmenu.Append(help_menu, _("&Help"))
-
 
 
 		# and activate menu structure
@@ -896,6 +899,52 @@ class gmTopLevelFrame(wx.Frame):
 			bias = 'user',
 			default_value = '1 week',
 			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_set_initial_pat_plugin(self, evt):
+
+		dbcfg = gmCfg.cCfgSQL()
+		# get list of possible plugins
+		plugin_list = gmTools.coalesce(dbcfg.get2 (
+			option = u'horstspace.notebook.plugin_load_order',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user'
+		), [])
+
+		# get current setting
+		initial_plugin = gmTools.coalesce(dbcfg.get2 (
+			option = u'patient_search.plugin_to_raise_after_search',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user'
+		), u'gmEMRBrowserPlugin')
+		try:
+			selections = [plugin_list.index(initial_plugin)]
+		except ValueError:
+			selections = None
+
+		# now let user decide
+		plugin = gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _(
+				'When a patient is activated GNUmed can\n'
+				'be told to switch to a specific plugin.\n'
+				'\n'
+				'Select the desired plugin below:'
+			),
+			caption = _('Configuration'),
+			choices = plugin_list,
+			selections = selections,
+			columns = [_('GNUmed Plugin')],
+			single_selection = True
+		)
+
+		if plugin is None:
+			return
+
+		dbcfg.set (
+			option = u'patient_search.plugin_to_raise_after_search',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			value = plugin
 		)
 	#----------------------------------------------
 	# submenu GNUmed / config / encounter
@@ -1831,7 +1880,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.365  2007-10-25 16:41:04  ncq
+# Revision 1.366  2007-10-25 20:11:29  ncq
+# - configure initial plugin after patient search
+#
+# Revision 1.365  2007/10/25 16:41:04  ncq
 # - a whole bunch of config options
 #
 # Revision 1.364  2007/10/25 12:20:36  ncq
