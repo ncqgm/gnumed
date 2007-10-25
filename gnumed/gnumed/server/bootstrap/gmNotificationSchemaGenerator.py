@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -65,9 +65,9 @@ begin
 
 	-- find out identity pk:
 	-- 1) by fk_encounter
-	select 1 from information_schema.columns where
-		table_schema = %(schema)s and
-		table_name = %(tbl)s and
+	perform 1 from information_schema.columns where
+		table_schema = ''%(schema)s'' and
+		table_name = ''%(tbl)s'' and
 		column_name = ''fk_encounter'';
 	if found then
 		if TG_OP = ''DELETE'' then
@@ -79,9 +79,9 @@ begin
 
 	-- 2) by fk_doc
 	if _pk_identity is NULL then
-		select 1 from information_schema.columns where
-			table_schema = %(schema)s and
-			table_name = %(tbl)s and
+		perform 1 from information_schema.columns where
+			table_schema = ''%(schema)s'' and
+			table_name = ''%(tbl)s'' and
 			column_name = ''fk_doc'';
 		if found then
 			if TG_OP = ''DELETE'' then
@@ -94,9 +94,9 @@ begin
 
 	-- 3) by fk_identity
 	if _pk_identity is NULL then
-		select 1 from information_schema.columns where
-			table_schema = %(schema)s and
-			table_name = %(tbl)s and
+		perform 1 from information_schema.columns where
+			table_schema = ''%(schema)s'' and
+			table_name = ''%(tbl)s'' and
 			column_name = ''fk_identity'';
 		if found then
 			if TG_OP = ''DELETE'' then
@@ -109,9 +109,9 @@ begin
 
 	-- 4) by fk_patient
 	if _pk_identity is NULL then
-		select 1 from information_schema.columns where
-			table_schema = %(schema)s and
-			table_name = %(tbl)s and
+		perform 1 from information_schema.columns where
+			table_schema = ''%(schema)s'' and
+			table_name = ''%(tbl)s'' and
 			column_name = ''fk_patient'';
 		if found then
 			if TG_OP = ''DELETE'' then
@@ -196,7 +196,11 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.18  2007-10-23 21:32:54  ncq
+# Revision 1.19  2007-10-25 12:28:30  ncq
+# - need to PERFORM, not SELECT when throwing away results
+# - proper quoting
+#
+# Revision 1.18  2007/10/23 21:32:54  ncq
 # - fix test suite
 # - improve generated triggers
 #
