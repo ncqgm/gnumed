@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -99,31 +99,6 @@ class gmBackendListener(gmBorg.cBorg):
 
 		return
 	#-------------------------------
-#	def register_callback(self, aSignal, aCallback):
-#		# if not listening to that signal yet, do so now
-#		if aSignal not in self._intercepted_notifications:
-#			cmd = 'LISTEN "%s";' % aSignal
-#			self._conn_lock.acquire(1)
-#			try:
-#				self._cursor.execute(cmd)
-#			except StandardError:
-#				self._conn_lock.release()
-#				return None
-#			self._conn_lock.release()
-#			self._intercepted_notifications.append(aSignal)
-#		# connect signal with callback function
-#		gmDispatcher.connect(receiver = aCallback, signal = aSignal)
-#		return 1
-	#-------------------------------
-#	def unregister_callback(self, aSignal, aCallback):
-#		# unlisten to signal
-#		self.__unlisten_notification([aSignal])
-#		# don't deliver the backend signal anymore,
-#		# this isn't strictly required but helps to prevent
-#		# accumulation of dead receivers in gmDispatcher
-#		gmDispatcher.disconnect(receiver = aCallback, signal = aSignal)
-#		return 1
-	#-------------------------------
 	# event handlers
 	#-------------------------------
 	def _on_pre_patient_selection(self, *args, **kwargs):
@@ -159,6 +134,15 @@ class gmBackendListener(gmBorg.cBorg):
 		_log.Log(gmLog.lInfo, 'configured unspecific notifications:')
 		_log.Log(gmLog.lInfo, '%s' % self.unspecific_notifications)
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
+
+		# determine our backend PID
+		cmd = u'select pg_backend_pid()'
+		self._conn_lock.acquire(1)
+		self._cursor.execute(cmd)
+		self._conn_lock.release()
+		rows = self._cursor.fetchall()
+		self.backend_pid = rows[0][0]
+		_log.Log(gmLog.lInfo, 'listener process PID: [%s]' % self.backend_pid)
 
 		# listen to patient changes inside the local client
 		# so we can re-register patient specific notifications
@@ -213,32 +197,6 @@ class gmBackendListener(gmBorg.cBorg):
 			self._cursor.execute(cmd)
 			self._conn_lock.release()
 	#-------------------------------
-	#-------------------------------
-#	def __unlisten_notification(self, notifications=None):
-#		if notifications is None:
-#			notifications = self._intercepted_notifications
-#		for notify in notifications:
-#			# are we listening at all ?
-#			if notify not in notifications:
-#				continue
-#			# stop listening
-#			cmd = u'UNLISTEN "%s";' % notify
-#			self._conn_lock.acquire(1)
-#			try:
-#				self._cursor.execute(cmd)
-#			except StandardError:
-#				self._conn_lock.release()
-#				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-#				_log.LogException('cannot unlisten notification [%s]' % notify)
-#				return None
-#			self._conn_lock.release()
-#			# remove from list of intercepted signals
-#			try:
-#				self._intercepted_notifications.remove(notify)
-#			except ValueError:
-#				pass
-#		return 1
-	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
 			raise ValueError("no connection to backend available, useless to start thread")
@@ -290,6 +248,7 @@ class gmBackendListener(gmBorg.cBorg):
 					results = gmDispatcher.send (
 						signal = signal_name,
 						originated_in_database = True,
+						listener_pid = self.backend_pid,
 						sending_backend_pid = pid,
 						pk_identity = pk
 					)
@@ -306,9 +265,9 @@ class gmBackendListener(gmBorg.cBorg):
 #=====================================================================
 # main
 #=====================================================================
-notifies = 0
-
 if __name__ == "__main__":
+
+	notifies = 0
 
 	_log.SetAllLogLevels(gmLog.lData)
 
@@ -393,10 +352,15 @@ if __name__ == "__main__":
 		print "starting up backend notifications monitor"
 
 		def monitoring_callback(*args, **kwargs):
-			if kwargs['signal'].endswith('_db'):
+			try:
+				kwargs['originated_in_database']
 				print '==> got notification from database "%s":' % kwargs['signal']
-			else:
+			except KeyError:
 				print '==> received signal from client: "%s"' % kwargs['signal']
+#			if kwargs['signal'].endswith('_db'):
+#				print '==> got notification from database "%s":' % kwargs['signal']
+#			else:
+#				print '==> received signal from client: "%s"' % kwargs['signal']
 			del kwargs['signal']
 			for key in kwargs.keys():
 				print '    [%s]: %s' % (key, kwargs[key])
@@ -434,7 +398,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.10  2007-10-23 21:22:42  ncq
+# Revision 1.11  2007-10-25 12:18:37  ncq
+# - cleanup
+# - include listener backend pid in signal data
+#
+# Revision 1.10  2007/10/23 21:22:42  ncq
 # - completely redone:
 #   - use psycopg2
 #   - handle signals based on backend metadata
