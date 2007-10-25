@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.27 2007-08-20 14:17:59 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmAllergy.py,v 1.28 2007-10-25 12:17:28 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -131,6 +131,7 @@ def allergic_state2str(state=None):
 		return _('no known allergies')
 	if state == 1:
 		return _('does have allergies')
+	return _('ERROR: unknown allergic state [%s]') % state
 
 #============================================================
 # main - unit testing
@@ -160,7 +161,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.27  2007-08-20 14:17:59  ncq
+# Revision 1.28  2007-10-25 12:17:28  ncq
+# - robustify stringification of allergic state
+#
+# Revision 1.27  2007/08/20 14:17:59  ncq
 # - note on what an "allergy" really is to capture Adrian Midgleys input
 #
 # Revision 1.26  2007/03/26 16:48:34  ncq
