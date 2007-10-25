@@ -19,7 +19,6 @@ known_signals = [
 	u'statustext',				# args: msg=message, beep=whether to beep or not
 	u'display_widget',			# args: name=name of widget, other=widget specific (see receivers)
 	u'application_closing',
-	u'allergy_updated',
 	u'episodes_modified'
 ]
 
@@ -32,6 +31,8 @@ class _Any:
 	pass
 
 Any = _Any()
+
+known_signals.append(Any)
 #=====================================================================
 class DispatcherError(exceptions.Exception):
 	def __init__(self, args=None):
@@ -291,7 +292,11 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.9  2007-08-11 23:55:07  ncq
+# Revision 1.10  2007-10-25 12:19:18  ncq
+# - allergy_updated is no more
+# - by default know signal "Any"
+#
+# Revision 1.9  2007/08/11 23:55:07  ncq
 # - register more signals
 # - report unknown signals but still pass them on
 #
