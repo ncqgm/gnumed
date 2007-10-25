@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -268,7 +268,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_dismiss_button_pressed(self, evt):
-		wx.CallAfter(gmDispatcher.send, signal = gmSignals.allergy_updated())
+#		wx.CallAfter(gmDispatcher.send, signal = gmSignals.allergy_updated())
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
@@ -467,7 +467,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.27  2007-09-10 18:35:27  ncq
+# Revision 1.28  2007-10-25 12:19:53  ncq
+# - no more useless allergy update
+#
+# Revision 1.27  2007/09/10 18:35:27  ncq
 # - help wxPython a bit with tab order
 # - fix a faulty variable access
 # - improve test suite
