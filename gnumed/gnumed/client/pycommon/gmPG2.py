@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -404,6 +404,19 @@ def get_col_names(link_obj=None, schema='public', table=None):
 # =======================================================================
 # query runners and helpers
 # =======================================================================
+def is_pg_interval(candidate=None):
+	cmd = u'select %(candidate)s::interval'
+	try:
+		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
+		return True
+	except:
+		cmd = u'select %(candidate)s::text::interval'
+		try:
+			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
+			return True
+		except:
+			return False
+#------------------------------------------------------------------------
 def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None):
 	outfile = file(filename, 'wb')
 	result = bytea2file_object(data_query=data_query, file_obj=outfile, chunk_size=chunk_size, data_size=data_size, data_size_query=data_size_query)
@@ -1187,6 +1200,27 @@ if __name__ == "__main__":
 			if result != test[1]:
 				print 'ERROR: sanitize_pg_regex(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
 	#--------------------------------------------------------------------
+	def test_is_pg_interval():
+		status = True
+		tests = [
+			[None, True],		# None == NULL == succeeds !
+			[1, True],
+			['1', True],
+			['abc', False]
+		]
+
+		if not is_pg_interval():
+			print 'ERROR: is_pg_interval() returned "False", expected "True"'
+			status = False
+
+		for test in tests:
+			result = is_pg_interval(test[0])
+			if result != test[1]:
+				print 'ERROR: is_pg_interval(%s) returned "%s", expected "%s"' % (test[0], result, test[1])
+				status = False
+
+		return status
+	#--------------------------------------------------------------------
 	# run tests
 #	test_get_connection()
 #	test_exceptions()
@@ -1195,12 +1229,15 @@ if __name__ == "__main__":
 #	test_set_encoding()
 #	test_connection_pool()
 #	test_list_args()
-	test_sanitize_pg_regex()
-	print "tests ran successfully"
+#	test_sanitize_pg_regex()
+	test_is_pg_interval()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.58  2007-10-22 12:37:59  ncq
+# Revision 1.59  2007-10-25 16:41:30  ncq
+# - is_pg_interval() + test
+#
+# Revision 1.58  2007/10/22 12:37:59  ncq
 # - default db change
 #
 # Revision 1.57  2007/09/24 18:29:42  ncq
