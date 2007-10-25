@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.251 2007-10-25 12:15:39 ncq Exp $
-__version__ = "$Revision: 1.251 $"
+# $Id: gmClinicalRecord.py,v 1.252 2007-10-25 12:26:05 ncq Exp $
+__version__ = "$Revision: 1.252 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -118,9 +118,6 @@ select fk_encounter from
 
 #		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.pk_patient)
 #		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
-
-#		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.pk_patient)
-#		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
 
 		return True
 	#--------------------------------------------------------
@@ -1606,7 +1603,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.251  2007-10-25 12:15:39  ncq
+# Revision 1.252  2007-10-25 12:26:05  ncq
+# - cleanup
+#
+# Revision 1.251  2007/10/25 12:15:39  ncq
 # - we don't send allergy_updated() signal anymore, the backend does it for us
 #
 # Revision 1.250  2007/10/08 13:22:42  ncq

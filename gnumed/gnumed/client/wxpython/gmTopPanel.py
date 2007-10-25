@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.86 2007-10-25 12:21:39 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmTopPanel.py,v 1.87 2007-10-25 12:27:29 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -250,7 +250,6 @@ class cMainTopPanel(wx.Panel):
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
-#		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
 		gmDispatcher.connect(signal = u'allg_mod_db', receiver = self._update_allergies)
 		gmDispatcher.connect(signal = u'allg_state_mod_db', receiver = self._update_allergies)
 	#----------------------------------------------
@@ -434,7 +433,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.86  2007-10-25 12:21:39  ncq
+# Revision 1.87  2007-10-25 12:27:29  ncq
+# - cleanup
+#
+# Revision 1.86  2007/10/25 12:21:39  ncq
 # - listen to the proper signals for allergy changes
 #
 # Revision 1.85  2007/08/12 00:12:41  ncq
