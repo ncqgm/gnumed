@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.13 2007-09-24 18:40:04 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.14 2007-10-25 12:27:46 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -73,7 +73,7 @@ else
 	fi ;
 fi ;
 
-# compress and test it
+# tar and test it
 if test -z ${VERIFY_TAR} ; then
 	tar -cf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
 else
@@ -93,7 +93,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.13  2007-09-24 18:40:04  ncq
+# Revision 1.14  2007-10-25 12:27:46  ncq
+# - we don't compress so don't say so
+#
+# Revision 1.13  2007/09/24 18:40:04  ncq
 # - commit VERIFY_TAR flag
 # - redirect stderror progress output when -v used on pg_dump(all)
 #
