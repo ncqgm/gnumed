@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 
@@ -28,16 +28,6 @@ def popup_alert():
 #-------------------------------------------------------------
 # clinical signals
 #-------------------------------------------------------------
-# allergies
-def allg_mod_db():
-	"""Announce modification of allergy row into/from backend."""
-	return 'allg_mod_db'
-
-def allergy_updated():
-	"""Announce allergy cache update to interested parties."""
-	return 'allergy_updated'
-
-#------------------------------------------
 # vaccinations
 def vacc_mod_db():
 	"""table vaccination"""
@@ -218,7 +208,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.17  2007-08-12 00:06:38  ncq
+# Revision 1.18  2007-10-25 12:26:47  ncq
+# - allergy signals are gone
+#
+# Revision 1.17  2007/08/12 00:06:38  ncq
 # - remove signals that aren't used from here anymore
 #
 # Revision 1.16  2007/07/13 12:09:16  ncq
