@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.39 2007-10-22 12:31:53 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.40 2007-10-25 12:22:04 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -109,6 +109,7 @@ cp -R ../../client/gm-from-cvs.conf ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/gm-from-cvs.sh ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/gm-from-cvs.bat ./GNUmed-$CLIENTREV/client/
 cp -R ./gnumed ./GNUmed-$CLIENTREV/client/
+cp -R ./gnumed-client.desktop ./GNUmed-$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./GNUmed-$CLIENTREV/client/
 cp -R ../../../check-prerequisites.* ./GNUmed-$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./GNUmed-$CLIENTREV/client/
@@ -338,7 +339,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.39  2007-10-22 12:31:53  ncq
+# Revision 1.40  2007-10-25 12:22:04  ncq
+# - include desktop file
+#
+# Revision 1.39  2007/10/22 12:31:53  ncq
 # - include v8 stuff
 #
 # Revision 1.38  2007/10/19 12:53:00  ncq
