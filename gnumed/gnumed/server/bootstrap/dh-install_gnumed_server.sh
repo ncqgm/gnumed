@@ -2,10 +2,14 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/dh-install_gnumed_server.sh,v $
-# $Id: dh-install_gnumed_server.sh,v 1.5 2007-10-07 12:35:02 ncq Exp $
+# $Id: dh-install_gnumed_server.sh,v 1.6 2007-10-28 01:02:24 shilbert Exp $
 # ============================================
 
-DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2"
+# try to determine distribution of target system
+
+if [ -f /etc/SuSE-release ]; then DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2" install_helper=zypper\ install; fi
+if [ -f /etc/debian_version ]; then DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2" install_helper=apt-get\ install; fi
+if [ -f /etc/mandriva-release ]; then DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2" install_helper=urpmi; fi
 
 echo ""
 echo "================================================"
@@ -32,7 +36,7 @@ mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
 echo ""
 echo "Package dependancies are about to be installed."
 echo "You may need to enter your password now:"
-sudo apt-get install ${DEPS}
+sudo $install_helper ${DEPS}
 
 # run bootstrapper
 cd ${BASEDIR}/server/bootstrap/
@@ -48,7 +52,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: dh-install_gnumed_server.sh,v $
-# Revision 1.5  2007-10-07 12:35:02  ncq
+# Revision 1.6  2007-10-28 01:02:24  shilbert
+# - introduce install_helper to make it usable for openSUSE and Mandriva
+#
+# Revision 1.5  2007/10/07 12:35:02  ncq
 # - depend on latest version of postgresql
 #
 # Revision 1.4  2007/10/02 19:13:42  shilbert
