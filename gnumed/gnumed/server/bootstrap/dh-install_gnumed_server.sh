@@ -2,19 +2,33 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/dh-install_gnumed_server.sh,v $
-# $Id: dh-install_gnumed_server.sh,v 1.6 2007-10-28 01:02:24 shilbert Exp $
+# $Id: dh-install_gnumed_server.sh,v 1.7 2007-10-28 09:16:49 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
-
-if [ -f /etc/SuSE-release ]; then DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2" install_helper=zypper\ install; fi
-if [ -f /etc/debian_version ]; then DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2" install_helper=apt-get\ install; fi
-if [ -f /etc/mandriva-release ]; then DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2" install_helper=urpmi; fi
+# SUSE
+if [ -f /etc/SuSE-release ]; then
+	DEPS="gnumed-common postgresql postgresql-plpython cron tar coreutils mailx openssl bzip2 gpg2 mc rsync python-psycopg2"
+	PKG_INSTALLER="zypper install"
+	SYS_TYPE="SuSE"
+fi
+# Debian
+if [ -f /etc/debian_version ]; then
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2"
+	PKG_INSTALLER="apt-get install"
+	SYS_TYPE="Debian"
+fi
+# Mandriva
+if [ -f /etc/mandriva-release ]; then
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2"
+	PKG_INSTALLER="urpmi"
+	SYS_TYPE="Mandriva"
+fi
 
 echo ""
 echo "================================================"
 echo "This GNUmed helper will download and install the"
-echo "latest GNUmed server onto your Debian machine."
+echo "latest GNUmed server onto your ${SYS_TYPE} machine."
 echo ""
 echo "It will also take care to also install the"
 echo "dependancies needed to operate GNUmed smoothly."
@@ -36,7 +50,7 @@ mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
 echo ""
 echo "Package dependancies are about to be installed."
 echo "You may need to enter your password now:"
-sudo $install_helper ${DEPS}
+sudo ${PKG_INSTALLER} ${DEPS}
 
 # run bootstrapper
 cd ${BASEDIR}/server/bootstrap/
@@ -52,7 +66,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: dh-install_gnumed_server.sh,v $
-# Revision 1.6  2007-10-28 01:02:24  shilbert
+# Revision 1.7  2007-10-28 09:16:49  ncq
+# - slightly improved
+#
+# Revision 1.6  2007/10/28 01:02:24  shilbert
 # - introduce install_helper to make it usable for openSUSE and Mandriva
 #
 # Revision 1.5  2007/10/07 12:35:02  ncq
