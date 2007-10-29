@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.146 2007-10-12 07:27:02 ncq Exp $
-__version__ = "$Revision: 1.146 $"
+# $Id: gmMedDocWidgets.py,v 1.147 2007-10-29 13:22:32 ncq Exp $
+__version__ = "$Revision: 1.147 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -897,54 +897,36 @@ off this message in the GNUmed configuration.""") % ref
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
-class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl, gmRegetMixin.cRegetOnPaintMixin):
-	"""A document tree that can be sorted."""
-	def __init__(self, *args, **kwds):
-		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, *args, **kwds)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__register_interests()
-	#-------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-	def __register_interests(self):
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
-	#-------------------------------------------------------
-	def _populate_with_data(self):
-		"""Fills UI with data."""
-		if not self._doc_tree.refresh():
-			_log.Log(gmLog.lErr, "cannot update document tree")
-			return False
-		self._doc_tree.SelectItem(self._doc_tree.root)
-		return True
+class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
+	"""A panel with a document tree which can be sorted."""
 	#--------------------------------------------------------
 	# inherited event handlers
 	#--------------------------------------------------------
 	def _on_sort_by_age_selected(self, evt):
-		self._doc_tree.set_sort_mode(mode = 'age')
-		self._doc_tree.refresh()
+		self._doc_tree.sort_mode = 'age'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_age.SetValue(True)
 	#--------------------------------------------------------
 	def _on_sort_by_review_selected(self, evt):
-		self._doc_tree.set_sort_mode(mode = 'review')
-		self._doc_tree.refresh()
+		self._doc_tree.sort_mode = 'review'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_review.SetValue(True)
 	#--------------------------------------------------------
 	def _on_sort_by_episode_selected(self, evt):
-		self._doc_tree.set_sort_mode(mode = 'episode')
-		self._doc_tree.refresh()
+		self._doc_tree.sort_mode = 'episode'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_episode.SetValue(True)
 	#--------------------------------------------------------
 	def _on_sort_by_type_selected(self, evt):
-		self._doc_tree.set_sort_mode(mode = 'type')
-		self._doc_tree.refresh()
+		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_type.SetValue(True)
 #============================================================
-class cDocTree(wx.TreeCtrl):
+class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
+	# FIXME: handle expansion state
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
+
+	It listens to document and patient changes and updated itself accordingly.
 	"""
 	_sort_modes = ['age', 'review', 'episode', 'type']
 	_root_node_labels = None
@@ -955,6 +937,8 @@ class cDocTree(wx.TreeCtrl):
 		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
 		tmp = _('available documents (%s)')
 		cDocTree._root_node_labels = {
 			'age': tmp % _('most recent on top'),
@@ -964,30 +948,12 @@ class cDocTree(wx.TreeCtrl):
 		}
 
 		self.root = None
-		self.__sort_mode = None
-		self.set_sort_mode()
-		self.__pat = gmPerson.gmCurrentPatient()
+		self.__sort_mode = 'age'
 
-		self.__register_events()
+		self.__register_interests()
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	# external API
-	#--------------------------------------------------------
-	def refresh(self):
-		if not self.__pat.is_connected():
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot load documents. No active patient.'))
-			return False
-
-		if not self.__populate_tree():
-			return False
-
-		return True
-	#--------------------------------------------------------
-	def set_sort_mode(self, mode='age'):
-		if mode not in cDocTree._sort_modes:
-			_log.Log(gmLog.Err, 'invalid document tree sort mode [%s], valid modes: %s' % (mode, cDocTree._sort_modes))
-		if self.__sort_mode == mode:
-			return True
-		self.__sort_mode = mode
 	#--------------------------------------------------------
 	def display_selected_part(self, *args, **kwargs):
 
@@ -1000,14 +966,57 @@ class cDocTree(wx.TreeCtrl):
 		self.__display_part(part = node_data)
 		return True
 	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_sort_mode(self):
+		return self.__sort_mode
+	#-----
+	def _set_sort_mode(self, mode):
+		if mode is None:
+			mode = 'age'
+
+		if mode == self.__sort_mode:
+			return
+
+		if mode not in cDocTree._sort_modes:
+			raise ValueError('invalid document tree sort mode [%s], valid modes: %s' % (mode, cDocTree._sort_modes))
+
+		self.__sort_mode = mode
+
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.is_connected():
+			return
+
+		self._schedule_data_reget()
+	#-----
+	sort_mode = property(_get_sort_mode, _set_sort_mode)
+	#--------------------------------------------------------
+	# reget-on-paint API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.is_connected():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot load documents. No active patient.'))
+			return False
+
+		if not self.__populate_tree():
+			return False
+
+		return True
+	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __register_events(self):
+	def __register_interests(self):
 		# connect handlers
 		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
 
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
+
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = u'doc_page_mod_db', receiver = self._on_doc_page_mod_db)
 	#--------------------------------------------------------
 	def __populate_tree(self):
 
@@ -1022,10 +1031,11 @@ class cDocTree(wx.TreeCtrl):
 		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
-		docs_folder = self.__pat.get_document_folder()
+		curr_pat = gmPerson.gmCurrentPatient()
+		docs_folder = curr_pat.get_document_folder()
 		docs = docs_folder.get_documents()
 		if docs is None:
-			name = self.__pat.get_names()
+			name = curr_pat.get_names()
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
@@ -1110,7 +1120,8 @@ class cDocTree(wx.TreeCtrl):
 		self.SortChildren(self.root)
 		self.SelectItem(self.root)
 
-		# and uncollapse
+		# FIXME: apply expansion state if available or else ...
+		# FIXME: ... uncollapse to default state
 		self.Expand(self.root)
 		if self.__sort_mode in ['episode', 'type']:
 			for key in intermediate_nodes.keys():
@@ -1207,6 +1218,26 @@ class cDocTree(wx.TreeCtrl):
 	#------------------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------------------
+	def _on_doc_mod_db(self, *args, **kwargs):
+		# FIXME: remember current expansion state
+		wx.CallAfter(self._schedule_data_reget)
+	#------------------------------------------------------------------------
+	def _on_doc_page_mod_db(self, *args, **kwargs):
+		# FIXME: remember current expansion state
+		wx.CallAfter(self._schedule_data_reget)
+	#------------------------------------------------------------------------
+	def _on_pre_patient_selection(self, *args, **kwargs):
+		# FIXME: self.__store_expansion_history_in_db
+
+		# empty out tree
+		if self.root is not None:
+			self.DeleteAllItems()
+		self.root = None
+	#------------------------------------------------------------------------
+	def _on_post_patient_selection(self, *args, **kwargs):
+		# FIXME: self.__load_expansion_history_from_db (but not apply it !)
+		self._schedule_data_reget()
+	#------------------------------------------------------------------------
 	def _on_activate(self, event):
 		node = event.GetItem()
 		node_data = self.GetPyData(node)
@@ -1229,6 +1260,7 @@ class cDocTree(wx.TreeCtrl):
 		return True
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
+
 		node = evt.GetItem()
 		self.__curr_node_data = self.GetPyData(node)
 
@@ -1399,18 +1431,14 @@ class cDocTree(wx.TreeCtrl):
 			id = -1,
 			part = part
 		)
-		if dlg.ShowModal() == wx.ID_OK:
-			self.__populate_tree()
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __edit_consultation_details(self, evt):
-#		print type(self.__curr_node_data)
-#		print self.__curr_node_data
 		enc = gmEMRStructItems.cEncounter(aPK_obj=self.__curr_node_data['pk_encounter'])
 		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
-		if dlg.ShowModal() == wx.ID_OK:
-			self.__populate_tree()
+		dlg.ShowModal()
 	#--------------------------------------------------------
 	def __export_doc_to_disk(self, evt):
 		"""Export document into directory.
@@ -1463,7 +1491,16 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.146  2007-10-12 07:27:02  ncq
+# Revision 1.147  2007-10-29 13:22:32  ncq
+# - make cDocTree a lot more self contained:
+#   - make it a reget mixin child
+#   - make sort_mode a property scheduling reload on set
+#   - listen to patient changes
+#     - empty tree on pre_sel
+# 	- schedule reload on post_sel
+#   - listen to doc and page changes and schedule appropriate reloads
+#
+# Revision 1.146  2007/10/12 07:27:02  ncq
 # - check in drop target fix
 #
 # Revision 1.145  2007/10/07 12:32:41  ncq
