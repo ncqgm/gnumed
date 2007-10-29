@@ -23,16 +23,12 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.26 2006-05-31 09:48:14 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmRegetMixin.py,v 1.27 2007-10-29 13:19:07 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+import wx
 
 #===========================================================================
 class cRegetOnPaintMixin:
@@ -137,7 +133,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.26  2006-05-31 09:48:14  ncq
+# Revision 1.27  2007-10-29 13:19:07  ncq
+# - cleanup
+#
+# Revision 1.26  2006/05/31 09:48:14  ncq
 # - cleanup
 #
 # Revision 1.25  2006/05/28 16:14:18  ncq
