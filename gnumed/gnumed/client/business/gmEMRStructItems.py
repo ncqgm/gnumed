@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.102 $"
+__version__ = "$Revision: 1.103 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -160,7 +160,10 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None):
 		pk = aPK_obj
 		if pk is None and row is None:
-			cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s and pk_health_issue=%s"
+			if health_issue is None:
+				cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s and pk_health_issue is %s"
+			else:
+				cmd = u"select * from clin.v_pat_episodes where pk_patient=%s and description=%s and pk_health_issue=%s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{
 					'cmd': cmd,
 					'args': [id_patient, name, health_issue]
@@ -455,20 +458,21 @@ def delete_health_issue(health_issue=None):
 		_log.LogException('cannot delete health issue')
 		raise gmExceptions.DatabaseObjectInUseError('cannot delete health issue, it is in use')
 #-----------------------------------------------------------
-def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False):
+def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False):
 	"""Creates a new episode for a given patient's health issue.
 
 	pk_health_issue - given health issue PK
 	episode_name - name of episode
 	"""
-	try:
-		episode = cEpisode(id_patient=patient_id, name=episode_name, health_issue=pk_health_issue)
-		if episode['episode_open'] != is_open:
-			episode['episode_open'] = is_open
-			episode.save_payload()
-		return episode
-	except gmExceptions.ConstructorError:
-		pass
+	if not allow_dupes:
+		try:
+			episode = cEpisode(id_patient=patient_id, name=episode_name, health_issue=pk_health_issue)
+			if episode['episode_open'] != is_open:
+				episode['episode_open'] = is_open
+				episode.save_payload()
+			return episode
+		except gmExceptions.ConstructorError:
+			pass
 
 	queries = []
 	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
@@ -626,7 +630,14 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.102  2007-10-11 12:00:17  ncq
+# Revision 1.103  2007-10-29 11:04:11  ncq
+# - properly handle NULL pk_health_issue in create_apisode() thereby
+#   finding dupes in free-standing episodes, too
+# - this then asks for an explicit allow_dupes (defaulted to False)
+#   in create_episode() as we may, indeed, wish to allow dupes
+#   sometimes
+#
+# Revision 1.102  2007/10/11 12:00:17  ncq
 # - add has_narrative() and has_documents()
 #
 # Revision 1.101  2007/09/07 10:55:55  ncq
