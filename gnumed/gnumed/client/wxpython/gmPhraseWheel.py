@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.109 2007-09-02 20:56:30 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmPhraseWheel.py,v 1.110 2007-10-29 11:30:21 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -58,7 +58,69 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 	def get_selected_item_label(self):
 		return self.__data[self.GetFirstSelected()]['label']
 #============================================================
-# FIXME: cols in pick list, snap_to_basename+set selection, learn() -> PWL
+# FIXME: cols in pick list
+# FIXME: snap_to_basename+set selection
+# FIXME: learn() -> PWL
+# FIXME: up-arrow: show recent (in-memory) history
+#----------------------------------------------------------
+# ideas
+#----------------------------------------------------------
+#- display possible completion but highlighted for deletion
+#(- cycle through possible completions)
+#- pre-fill selection with SELECT ... LIMIT 25
+#- async threads for match retrieval instead of timer
+#  - on truncated results return item "..." -> selection forcefully retrieves all matches
+
+#- generators/yield()
+#- OnChar() - process a char event
+
+# split input into words and match components against known phrases
+
+# make special list window:
+# - deletion of items
+# - highlight matched parts
+# - faster scrolling
+# - wxEditableListBox ?
+
+# - if non-learning (i.e. fast select only): autocomplete with match
+#   and move cursor to end of match
+#-----------------------------------------------------------------------------------------------
+# darn ! this clever hack won't work since we may have crossed a search location threshold
+#----
+#	#self.__prevFragment = "XXXXXXXXXXXXXXXXXX-very-unlikely--------------XXXXXXXXXXXXXXX"
+#	#self.__prevMatches = []		# a list of tuples (ID, listbox name, weight)
+#
+#	# is the current fragment just a longer version of the previous fragment ?
+#	if string.find(aFragment, self.__prevFragment) == 0:
+#	    # we then need to search in the previous matches only
+#	    for prevMatch in self.__prevMatches:
+#		if string.find(prevMatch[1], aFragment) == 0:
+#		    matches.append(prevMatch)
+#	    # remember current matches
+#	    self.__prefMatches = matches
+#	    # no matches found
+#	    if len(matches) == 0:
+#		return [(1,_('*no matching items found*'),1)]
+#	    else:
+#		return matches
+#----
+#TODO:
+# - see spincontrol for list box handling
+# stop list (list of negatives): "an" -> "animal" but not "and"
+#-----
+#> > remember, you should be searching on  either weighted data, or in some
+#> > situations a start string search on indexed data
+#>
+#> Can you be a bit more specific on this ?
+
+#seaching ones own previous text entered  would usually be instring but
+#weighted (ie the phrases you use the most auto filter to the top)
+
+#Searching a drug database for a   drug brand name is usually more
+#functional if it does a start string search, not an instring search which is
+#much slower and usually unecesary.  There are many other examples but trust
+#me one needs both
+#-----
 class cPhraseWheel(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
@@ -847,7 +909,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.109  2007-09-02 20:56:30  ncq
+# Revision 1.110  2007-10-29 11:30:21  ncq
+# - rephrase TODOs
+#
+# Revision 1.109  2007/09/02 20:56:30  ncq
 # - cleanup
 #
 # Revision 1.108  2007/08/12 00:12:41  ncq
@@ -1250,66 +1315,3 @@ if __name__ == '__main__':
 # - cleanup
 #
 #
-#==================================================
-
-#----------------------------------------------------------
-# ideas
-#----------------------------------------------------------
-#- display possible completion but highlighted for deletion
-#(- cycle through possible completions)
-#- pre-fill selection with SELECT ... LIMIT 25
-#- async threads for match retrieval instead of timer
-#  - on truncated results return item "..." -> selection forcefully retrieves all matches
-
-#- generators/yield()
-#- OnChar() - process a char event
-
-# split input into words and match components against known phrases
-
-# make special list window:
-# - deletion of items
-# - highlight matched parts
-# - faster scrolling
-# - wxEditableListBox ?
-
-# - if non-learning (i.e. fast select only): autocomplete with match
-#   and move cursor to end of match
-#-----------------------------------------------------------------------------------------------
-# darn ! this clever hack won't work since we may have crossed a search location threshold
-#----
-#	#self.__prevFragment = "XXXXXXXXXXXXXXXXXX-very-unlikely--------------XXXXXXXXXXXXXXX"
-#	#self.__prevMatches = []		# a list of tuples (ID, listbox name, weight)
-#
-#	# is the current fragment just a longer version of the previous fragment ?
-#	if string.find(aFragment, self.__prevFragment) == 0:
-#	    # we then need to search in the previous matches only
-#	    for prevMatch in self.__prevMatches:
-#		if string.find(prevMatch[1], aFragment) == 0:
-#		    matches.append(prevMatch)
-#	    # remember current matches
-#	    self.__prefMatches = matches
-#	    # no matches found
-#	    if len(matches) == 0:
-#		return [(1,_('*no matching items found*'),1)]
-#	    else:
-#		return matches
-#----
-#TODO:
-# - see spincontrol for list box handling
-# stop list (list of negatives): "an" -> "animal" but not "and"
-
-# maybe store fixed list matches as balanced tree if otherwise to slow
-#-----
-#> > remember, you should be searching on  either weighted data, or in some
-#> > situations a start string search on indexed data
-#>
-#> Can you be a bit more specific on this ?
-
-#seaching ones own previous text entered  would usually be instring but
-#weighted (ie the phrases you use the most auto filter to the top)
-
-#Searching a drug database for a   drug brand name is usually more
-#functional if it does a start string search, not an instring search which is
-#much slower and usually unecesary.  There are many other examples but trust
-#me one needs both
-#-----
