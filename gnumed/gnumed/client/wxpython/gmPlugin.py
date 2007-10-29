@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.73 2007-10-08 13:07:19 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmPlugin.py,v 1.74 2007-10-29 13:18:35 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -172,7 +172,9 @@ class cNotebookPlugin:
 
 		This can be used to populate the plugin widget on receiving focus.
 		"""
-		self._widget.repopulate_ui()
+		if hasattr(self._widget, 'repopulate_ui'):
+			self._widget.repopulate_ui()
+		# else apparently it doesn't need it
 		return True
 	#-----------------------------------------------------
 	def _verify_patient_avail(self):
@@ -433,7 +435,11 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.73  2007-10-08 13:07:19  ncq
+# Revision 1.74  2007-10-29 13:18:35  ncq
+# - only call repopulate_ui on widgets if they have one as some
+#   won't need it as they update ON_PAINT
+#
+# Revision 1.73  2007/10/08 13:07:19  ncq
 # - factor out get_installed_plugins() even though it doesn't work yet
 #
 # Revision 1.72  2007/08/12 00:12:41  ncq
