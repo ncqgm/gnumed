@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.15 2007-10-08 13:05:10 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmProviderInboxWidgets.py,v 1.16 2007-10-30 12:51:45 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -15,8 +15,8 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmTools
-from Gnumed.business import gmProviderInbox, gmPerson, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin
+from Gnumed.business import gmPerson, gmSurgery
+from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
 
 
@@ -85,40 +85,58 @@ def configure_workplace_plugins(parent=None):
 	)
 
 #============================================================
-class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl):
+class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	_item_handlers = {}
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
 		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
+
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.provider = gmPerson.gmCurrentProvider()
 		self.__init_ui()
-		self.repopulate_ui()
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
+	#--------------------------------------------------------
+	# reget-on-paint API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		self.__populate_inbox()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'provider_inbox_mod_db', receiver = self._on_provider_inbox_mod_db)
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.set_columns([u'', _('category'), _('type'), _('message')])
 
-		_me = gmPerson.gmCurrentProvider()
 		msg = _("""
 		Welcome %(title)s %(lname)s !
 
 	Below find the new messages in your Inbox.
-""") % {'title': gmTools.coalesce(_me['title'], gmPerson.map_gender2salutation(_me['gender'])), 'lname': _me['lastnames']}
+""") % {
+			'title': gmTools.coalesce (
+				self.provider['title'],
+				gmPerson.map_gender2salutation(self.provider['gender'])
+			),
+			'lname': self.provider['lastnames']
+		}
 
 		self._msg_welcome.SetLabel(msg)
 	#--------------------------------------------------------
-	# gmPlugin.cNotebookPlugin API
-	#--------------------------------------------------------
-	def repopulate_ui(self):
+	def __populate_inbox(self):
 		"""Fill UI with data."""
-		inbox = gmProviderInbox.cProviderInbox()
-		self.__msgs = inbox.get_messages()
+		self.__msgs = self.provider.inbox.messages
 
 		self._LCTRL_provider_inbox.set_string_items(items = [ [_indicator[m[0]], m[1], m[2], m[3]] for m in self.__msgs ])
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
 	#--------------------------------------------------------
 	# event handlers
+	#--------------------------------------------------------
+	def _on_provider_inbox_mod_db(self, *args, **kwargs):
+		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
 		msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
@@ -177,11 +195,9 @@ Leaving message in inbox.""") % handler_key,
 	# item handlers
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
-		inbox = gmProviderInbox.cProviderInbox()
-		if not inbox.delete_message(self.__focussed_msg[8]):
+		if not self.provider.inbox.delete_message(self.__focussed_msg[8]):
 			gmDispatcher.send(signal='statustext', msg=_('Cannot remove message from Inbox.'))
 			return False
-		self.repopulate_ui()
 		return True
 	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None):
@@ -213,7 +229,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.15  2007-10-08 13:05:10  ncq
+# Revision 1.16  2007-10-30 12:51:45  ncq
+# - make it a reget mixin child
+# - cleanup
+# - listen on backend changes
+#
+# Revision 1.15  2007/10/08 13:05:10  ncq
 # - use gmListWidgets.cReportListCtrl
 # - fix right-click on empty message list crashes
 # - start test suite
