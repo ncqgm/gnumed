@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -114,8 +114,16 @@ create constraint trigger tr_%(sig)s_mod
 	on %(schema)s.%(tbl)s
 	deferrable
 	for each row
-		execute procedure %(schema)s.trf_announce_%(sig)s_mod()
-;
+		execute procedure %(schema)s.trf_announce_%(sig)s_mod();
+
+-- tell backend listener to listen for patient-specific signals on this table
+update
+	gm.notifying_tables
+set
+	carries_identity_pk = True
+where
+	schema_name = '%(schema)s' and
+	table_name = '%(tbl)s';
 """
 #------------------------------------------------------------------
 def create_notification_schema(cursor):
@@ -205,7 +213,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.20  2007-10-30 08:30:17  ncq
+# Revision 1.21  2007-10-30 12:53:07  ncq
+# - if a table attaches the patient pk document that fact for the backend listener
+#
+# Revision 1.20  2007/10/30 08:30:17  ncq
 # - greatly smarten up notification trigger generation
 #   - now determine identity column at bootstrap time
 #     rather than trigger runtime
