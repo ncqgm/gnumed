@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -114,7 +114,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __register_interests(self):
 
 		# determine patient-specific notifications
-		cmd = u'select distinct on (signal) signal from gm.notifying_tables where attach_identity_pk is True'
+		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is True'
 		self._conn_lock.acquire(1)
 		self._cursor.execute(cmd)
 		self._conn_lock.release()
@@ -125,7 +125,7 @@ class gmBackendListener(gmBorg.cBorg):
 		gmDispatcher.known_signals.extend(self.patient_specific_notifications)
 
 		# determine unspecific notifications
-		cmd = u'select distinct on (signal) signal from gm.notifying_tables where attach_identity_pk is False'
+		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is False'
 		self._conn_lock.acquire(1)
 		self._cursor.execute(cmd)
 		self._conn_lock.release()
@@ -398,7 +398,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.11  2007-10-25 12:18:37  ncq
+# Revision 1.12  2007-10-30 12:48:17  ncq
+# - attach_identity_pk -> carries_identity_pk
+#
+# Revision 1.11  2007/10/25 12:18:37  ncq
 # - cleanup
 # - include listener backend pid in signal data
 #
