@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.135 2007-10-30 12:43:42 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmPerson.py,v 1.136 2007-10-30 12:46:21 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1917,29 +1917,33 @@ if __name__ == '__main__':
 	def test_dob2medical_age():
 		pass
 	#--------------------------------------------------------
-#	test_patient_search_queries()
-#	test_ask_for_patient()
-#	test_dto_person()
-#	test_identity()
-#	test_set_active_pat()
-#	test_search_by_dto()
-	test_staff()
-	test_current_provider()
+	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
+		#test_patient_search_queries()
+		#test_ask_for_patient()
+		#test_dto_person()
+		#test_identity()
+		#test_set_active_pat()
+		#test_search_by_dto()
+		test_staff()
+		test_current_provider()
 
-#	map_gender2salutation('m')
+		#map_gender2salutation('m')
 
-	# module functions
-#	genders, idx = get_gender_list()
-#	print "\n\nRetrieving gender enum (tag, label, weight):"	
-#	for gender in genders:
-#		print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
-	
-#	comms = get_comm_list()
-#	print "\n\nRetrieving communication media enum (id, description): %s" % comms
+		# module functions
+		#genders, idx = get_gender_list()
+		#print "\n\nRetrieving gender enum (tag, label, weight):"	
+		#for gender in genders:
+		#	print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
+
+		#comms = get_comm_list()
+		#print "\n\nRetrieving communication media enum (id, description): %s" % comms
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.135  2007-10-30 12:43:42  ncq
+# Revision 1.136  2007-10-30 12:46:21  ncq
+# - test on "test"
+#
+# Revision 1.135  2007/10/30 12:43:42  ncq
 # - make inbox a property on cStaff
 # - teach gmCurrentProvider about __getattr__
 # - improved testing
