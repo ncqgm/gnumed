@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -29,6 +29,39 @@ _log.Log(gmLog.lInfo, __version__)
 #==================================================================
 # SQL statements for notification triggers
 #------------------------------------------------------------------
+
+# this map defines how table columns can be used in SQL to
+# access the identity PK related to a row in that table
+col2identity_accessor = {
+	'fk_encounter': u"""-- retrieve identity PK via fk_encounter
+	if TG_OP = ''DELETE'' then
+		select into _pk_identity fk_patient from clin.encounter where pk = OLD.fk_encounter limit 1;
+	else
+		select into _pk_identity fk_patient from clin.encounter where pk = NEW.fk_encounter limit 1;
+	end if;""",
+
+	'fk_doc': u"""-- retrieve identity PK via fk_doc
+	if TG_OP = ''DELETE'' then
+		select into _pk_identity fk_identity from blobs.doc_med where pk = OLD.fk_doc limit 1;
+	else
+		select into _pk_identity fk_identity from blobs.doc_med where pk = NEW.fk_doc limit 1;
+	end if;""",
+
+	'fk_identity': u"""-- retrieve identity PK via fk_identity
+	if TG_OP = ''DELETE'' then
+		_pk_identity := OLD.fk_identity;
+	else
+		_pk_identity := NEW.fk_identity;
+	end if;""",
+
+	'fk_patient': u"""-- retrieve identity PK via fk_patient
+	if TG_OP = ''DELETE'' then
+		_pk_identity := OLD.fk_patient;
+	else
+		_pk_identity := NEW.fk_patient;
+	end if;"""
+}
+
 trigger_ddl_without_pk = """
 -- ----------------------------------------------
 \unset ON_ERROR_STOP
@@ -63,69 +96,13 @@ declare
 begin
 	_pk_identity := NULL;
 
-	-- find out identity pk:
-	-- 1) by fk_encounter
-	perform 1 from information_schema.columns where
-		table_schema = ''%(schema)s'' and
-		table_name = ''%(tbl)s'' and
-		column_name = ''fk_encounter'';
-	if found then
-		if TG_OP = ''DELETE'' then
-			select into _pk_identity fk_patient from clin.encounter where pk = OLD.fk_encounter limit 1;
-		else
-			select into _pk_identity fk_patient from clin.encounter where pk = NEW.fk_encounter limit 1;
-		end if;
-	end if;
-
-	-- 2) by fk_doc
-	if _pk_identity is NULL then
-		perform 1 from information_schema.columns where
-			table_schema = ''%(schema)s'' and
-			table_name = ''%(tbl)s'' and
-			column_name = ''fk_doc'';
-		if found then
-			if TG_OP = ''DELETE'' then
-				select into _pk_identity fk_identity from blobs.doc_med where pk = OLD.fk_doc limit 1;
-			else
-				select into _pk_identity fk_identity from blobs.doc_med where pk = NEW.fk_doc limit 1;
-			end if;
-		end if;
-	end if;
-
-	-- 3) by fk_identity
-	if _pk_identity is NULL then
-		perform 1 from information_schema.columns where
-			table_schema = ''%(schema)s'' and
-			table_name = ''%(tbl)s'' and
-			column_name = ''fk_identity'';
-		if found then
-			if TG_OP = ''DELETE'' then
-				_pk_identity := OLD.fk_identity;
-			else
-				_pk_identity := NEW.fk_identity;
-			end if;
-		end if;
-	end if;
-
-	-- 4) by fk_patient
-	if _pk_identity is NULL then
-		perform 1 from information_schema.columns where
-			table_schema = ''%(schema)s'' and
-			table_name = ''%(tbl)s'' and
-			column_name = ''fk_patient'';
-		if found then
-			if TG_OP = ''DELETE'' then
-				_pk_identity := OLD.fk_patient;
-			else
-				_pk_identity := NEW.fk_patient;
-			end if;
-		end if;
-	end if;
+	%(identity_accessor)s
 
 	-- error out if not found
 	if _pk_identity is NULL then
 		raise exception ''%(schema)s.trf_announce_%(sig)s_mod(): cannot determine identity PK on table <%(schema)s.%(tbl)s>'';
 	end if;
+
 	-- now, execute() the NOTIFY
 	execute ''notify "%(sig)s_mod_db:'' || _pk_identity || ''"'';
 	return NULL;
@@ -142,24 +119,56 @@ create constraint trigger tr_%(sig)s_mod
 """
 #------------------------------------------------------------------
 def create_notification_schema(cursor):
-	cmd = u"select schema_name, table_name, signal, attach_identity_pk from gm.notifying_tables"
+	cmd = u"select schema_name, table_name, signal from gm.notifying_tables"
 	rows, idx = gmPG2.run_ro_queries(link_obj = cursor, queries = [{'cmd': cmd}])
 
 	if len(rows) == 0:
 		_log.Log(gmLog.lInfo, 'no notifying tables')
 		return None
 
+	_log.Log(gmLog.lInfo, 'known identity accessor columns: %s' % col2identity_accessor.keys())
+
 	# for each notifying table
 	schema = []
 	for notifying_def in rows:
 		_log.Log(gmLog.lInfo, 'creating notification DDL for: %s' % notifying_def)
-		if notifying_def['attach_identity_pk']:
+
+		# does table have a known patient-related column ?
+		identity_access_col = None
+		for key in col2identity_accessor.keys():
+			cmd = u"""select exists (
+				select 1 from information_schema.columns where
+					table_schema = %(schema)s and
+					table_name = %(tbl)s and
+					column_name = %(col)s
+				)"""
+			args = {
+				'schema': notifying_def['schema_name'],
+				'tbl': notifying_def['table_name'],
+				'col': key
+			}
+			rows, idx = gmPG2.run_ro_queries(link_obj = cursor, queries = [{'cmd': cmd, 'args': args}])
+			if rows[0][0] is True:
+				identity_access_col = key
+				break
+
+		if identity_access_col is not None:
+			_log.Log(gmLog.lInfo, 'identity accessor on table [%s.%s] is column [%s]' % (
+				notifying_def['schema_name'],
+				notifying_def['table_name'],
+				identity_access_col
+			))
 			schema.append(trigger_ddl_with_pk % {
 				'schema': notifying_def['schema_name'],
 				'tbl': notifying_def['table_name'],
-				'sig': notifying_def['signal']
+				'sig': notifying_def['signal'],
+				'identity_accessor': col2identity_accessor[identity_access_col]
 			})
 		else:
+			_log.Log(gmLog.lInfo, 'no known identity accessor found on table [%s.%s]' % (
+				notifying_def['schema_name'],
+				notifying_def['table_name']
+			))
 			schema.append(trigger_ddl_without_pk % {
 				'schema': notifying_def['schema_name'],
 				'tbl': notifying_def['table_name'],
@@ -196,7 +205,13 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.19  2007-10-25 12:28:30  ncq
+# Revision 1.20  2007-10-30 08:30:17  ncq
+# - greatly smarten up notification trigger generation
+#   - now determine identity column at bootstrap time
+#     rather than trigger runtime
+#   - autodetect patient related tables
+#
+# Revision 1.19  2007/10/25 12:28:30  ncq
 # - need to PERFORM, not SELECT when throwing away results
 # - proper quoting
 #
