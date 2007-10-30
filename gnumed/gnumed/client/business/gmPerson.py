@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.134 2007-10-23 21:20:23 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmPerson.py,v 1.135 2007-10-30 12:43:42 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -566,6 +566,8 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 
 		# are we SELF ?
 		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
+
+		self.__inbox = None
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'db_user':
@@ -573,6 +575,16 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				_log.Log(gmLog.lData, 'will not modify database account association of CURRENT_USER staff member')
 				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+	#--------------------------------------------------------
+	def _get_inbox(self):
+		if self.__inbox is None:
+			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
+		return self.__inbox
+
+	def _set_inbox(self, inbox):
+		return
+
+	inbox = property(_get_inbox, _set_inbox)
 #============================================================
 class gmCurrentProvider(gmBorg.cBorg):
 	"""Staff member Borg to hold currently logged on provider.
@@ -588,10 +600,9 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""
 		# make sure we do have a provider pointer
 		try:
-			tmp = self.__provider
+			tmp = self.provider
 		except AttributeError:
-			self.__provider = gmNull.cNull()
-			self.__workplace = None
+			self.provider = gmNull.cNull()
 
 		# user wants copy of currently logged on provider
 		if provider is None:
@@ -602,27 +613,36 @@ class gmCurrentProvider(gmBorg.cBorg):
 			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
 
 		# same ID, no change needed
-		if self.__provider['pk_staff'] == provider['pk_staff']:
+		if self.provider['pk_staff'] == provider['pk_staff']:
 			return None
 
 		# first invocation
-		if isinstance(self.__provider, gmNull.cNull):
-			self.__provider = provider
+		if isinstance(self.provider, gmNull.cNull):
+			self.provider = provider
 			return None
 
 		# user wants different provider
-		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.__provider['pk_staff'], provider['pk_staff'])
+		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff'])
 
 	#--------------------------------------------------------
 	def get_staff(self):
-		return self.__provider
+		return self.provider
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
-	def __getitem__(self, aVar = None):
+	def __getitem__(self, aVar):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		return self.__provider[aVar]
+		return self.provider[aVar]
+	#--------------------------------------------------------
+	# __getattr__ handling
+	#--------------------------------------------------------
+	def __getattr__(self, attribute):
+		if attribute == 'provider':			# so we can __init__ ourselves
+			raise AttributeError
+		if not isinstance(self.provider, gmNull.cNull):
+			return getattr(self.provider, attribute)
+#		raise AttributeError
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
@@ -805,7 +825,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			raise AttributeError
 		if not isinstance(self.patient, gmNull.cNull):
 			return getattr(self.patient, attribute)
-		return self.patient
+#		return self.patient
 	#--------------------------------------------------------
 	# __get/setitem__ handling
 	#--------------------------------------------------------
@@ -1736,8 +1756,19 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_staff():
-		me = cStaff()
-		print me
+		staff = cStaff()
+		print staff
+		print staff.inbox
+		print staff.inbox.messages
+
+	#--------------------------------------------------------
+	def test_current_provider():
+		staff = cStaff()
+		provider = gmCurrentProvider(provider = staff)
+		print provider
+		print provider.inbox
+		print provider.inbox.messages
+
 	#--------------------------------------------------------
 	def test_identity():
 		# create patient
@@ -1889,10 +1920,11 @@ if __name__ == '__main__':
 #	test_patient_search_queries()
 #	test_ask_for_patient()
 #	test_dto_person()
-#	test_staff()
 #	test_identity()
 #	test_set_active_pat()
-	test_search_by_dto()
+#	test_search_by_dto()
+	test_staff()
+	test_current_provider()
 
 #	map_gender2salutation('m')
 
@@ -1907,7 +1939,12 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.134  2007-10-23 21:20:23  ncq
+# Revision 1.135  2007-10-30 12:43:42  ncq
+# - make inbox a property on cStaff
+# - teach gmCurrentProvider about __getattr__
+# - improved testing
+#
+# Revision 1.134  2007/10/23 21:20:23  ncq
 # - cleanup
 #
 # Revision 1.133  2007/10/21 20:54:51  ncq
