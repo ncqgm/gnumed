@@ -8,21 +8,24 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: clin-allergy_state.sql,v 1.1 2007-10-25 12:03:27 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-allergy_state.sql,v 1.2 2007-10-30 08:32:15 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-select gm.add_table_for_notifies('clin'::name, 'allergy_state'::name, 'allg_state'::name, True);
+select gm.add_table_for_notifies('clin'::name, 'allergy_state'::name, 'allg_state'::name);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: clin-allergy_state.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: clin-allergy_state.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-allergy_state.sql,v $
--- Revision 1.1  2007-10-25 12:03:27  ncq
+-- Revision 1.2  2007-10-30 08:32:15  ncq
+-- - no more attach_identity_pk needed
+--
+-- Revision 1.1  2007/10/25 12:03:27  ncq
 -- - add notification for clin.allergy_state
 --
 -- Revision 1.7  2007/05/07 16:32:09  ncq
