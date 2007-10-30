@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: gm-notify_functions.sql,v 1.2 2007-10-30 08:32:15 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: gm-notify_functions.sql,v 1.3 2007-10-30 12:53:55 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -25,6 +25,10 @@ comment on column gm.notifying_tables.signal is
 	'The name of the signal to send via NOTIFY.
 	 The actual name of the signal will be "<signal>_mod_db:<identity_pk>"
 	 where the :<identity_pk> is only added if the notify trigger knows how.';
+
+comment on column gm.notifying_tables.carries_identity_pk is
+	'Whether or not the signal delivers the PK of the
+	 related identity. Set during bootstrapping.'
 
 -- ==============================================================
 \unset ON_ERROR_STOP
@@ -91,11 +95,14 @@ comment on function gm.add_table_for_notifies (name, name) is
 grant select on gm.notifying_tables to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: gm-notify_functions.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: gm-notify_functions.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: gm-notify_functions.sql,v $
--- Revision 1.2  2007-10-30 08:32:15  ncq
+-- Revision 1.3  2007-10-30 12:53:55  ncq
+-- - reintroduce attach_identity_pk as carries_identity_pk
+--
+-- Revision 1.2  2007/10/30 08:32:15  ncq
 -- - no more attach_identity_pk needed
 --
 -- Revision 1.1  2007/10/23 21:18:12  ncq

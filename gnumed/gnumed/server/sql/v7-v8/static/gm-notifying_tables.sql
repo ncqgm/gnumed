@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: gm-notifying_tables.sql,v 1.2 2007-10-30 08:32:41 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: gm-notifying_tables.sql,v 1.3 2007-10-30 12:53:55 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -25,6 +25,8 @@ create table gm.notifying_tables (
 		not null,
 	signal name
 		default null,
+	carries_identity_pk boolean
+		default False,
 	unique(schema_name, table_name)
 );
 
@@ -34,11 +36,14 @@ insert into gm.notifying_tables (schema_name, table_name, signal)
 drop table public.notifying_tables cascade;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: gm-notifying_tables.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: gm-notifying_tables.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: gm-notifying_tables.sql,v $
--- Revision 1.2  2007-10-30 08:32:41  ncq
+-- Revision 1.3  2007-10-30 12:53:55  ncq
+-- - reintroduce attach_identity_pk as carries_identity_pk
+--
+-- Revision 1.2  2007/10/30 08:32:41  ncq
 -- - no more attach_identity_pk needed
 --
 -- Revision 1.1  2007/10/23 21:19:36  ncq
