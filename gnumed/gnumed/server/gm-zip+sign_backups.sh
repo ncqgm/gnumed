@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-zip+sign_backups.sh,v $
-# $Id: gm-zip+sign_backups.sh,v 1.3 2007-07-13 12:12:08 ncq Exp $
+# $Id: gm-zip+sign_backups.sh,v 1.4 2007-10-30 13:54:53 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -56,50 +56,64 @@ shopt -s -q nullglob
 
 # zip up any backups
 for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
-	# but only if there isn't already a corresponding *.bz2
-	if test ! -f ${BACKUP}.bz2 ; then
 
-		bzip2 -zq -${COMPRESSION_LEVEL} ${BACKUP}
-		bzip2 -tq ${BACKUP}.bz2
-		# FIXME: add check for exit code
-
-		chmod ${BACKUP_MASK} ${BACKUP}.bz2
-		chown ${BACKUP_OWNER} ${BACKUP}.bz2
-
-		# GNotary support
-		if test ! -z ${GNOTARY_TAN} ; then
-
-			LOCAL_MAILER=`which mail`
-
-			#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-			SHA512=`openssl dgst -sha512 -hex ${BACKUP}.bz2`
-			RMD160=`openssl dgst -ripemd160 -hex ${BACKUP}.bz2`
-
-			export REPLYTO=${SIG_RECEIVER}
-
-			# send mail
-			(
-				echo " "
-				echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
-				echo "<message>"
-				echo "	<tan>$GNOTARY_TAN</tan>"
-				echo "	<action>notarize</action>"
-				echo "	<hashes number=\"2\">"
-				echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
-				echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
-				echo "	</hashes>"
-				echo "</message>"
-				echo " "
-			) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
-		fi
+	# are either the backup or ...
+	TAR_OPEN=`lsof ${BACKUP}`
+	# ... a corresponding  bz2 open at the moment ?
+	BZ2_OPEN=`lsof ${BACKUP}.bz2`
+	# ORing - better safe than sorry
+	if test -z ${TAR_OPEN} -o -z ${BZ2_OPEN"} ; then
+		# yes: skip to next backup
+		continue
+	else
+		# no: remove the bz2 and start over compressing
+		rm -f ${BACKUP}.bz2
 	fi
+
+	bzip2 -zq -${COMPRESSION_LEVEL} ${BACKUP}
+	bzip2 -tq ${BACKUP}.bz2
+	# FIXME: add check for exit code
+
+	chmod ${BACKUP_MASK} ${BACKUP}.bz2
+	chown ${BACKUP_OWNER} ${BACKUP}.bz2
+
+	# GNotary support
+	if test -z ${GNOTARY_TAN} ; then
+		continue
+	fi
+
+	LOCAL_MAILER=`which mail`
+
+	#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
+	SHA512=`openssl dgst -sha512 -hex ${BACKUP}.bz2`
+	RMD160=`openssl dgst -ripemd160 -hex ${BACKUP}.bz2`
+
+	export REPLYTO=${SIG_RECEIVER}
+
+	# send mail
+	(
+		echo " "
+		echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
+		echo "<message>"
+		echo "	<tan>$GNOTARY_TAN</tan>"
+		echo "	<action>notarize</action>"
+		echo "	<hashes number=\"2\">"
+		echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
+		echo "		<hash file=\"${BACKUP}.bz2\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
+		echo "	</hashes>"
+		echo "</message>"
+		echo " "
+	) | $LOCAL_MAILER -s "gnotarize" $GNOTARY_SERVER
 done
 
 exit 0
 
 #==============================================================
 # $Log: gm-zip+sign_backups.sh,v $
-# Revision 1.3  2007-07-13 12:12:08  ncq
+# Revision 1.4  2007-10-30 13:54:53  ncq
+# - improve robustness against incomplete bz2's
+#
+# Revision 1.3  2007/07/13 12:12:08  ncq
 # - cleanup
 #
 # Revision 1.2  2007/06/12 13:21:53  ncq
