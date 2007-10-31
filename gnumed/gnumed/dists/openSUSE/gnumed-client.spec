@@ -23,8 +23,8 @@ Patch0:         gnumed-python-path.diff
 Requires:  	aspell file gnumed-common = 0.2.7.1-0.0 gnumed-doc = 0.2.7.1-0.0 python >= 2.3 python-devel python-psycopg2 python-egenix-mx-base python-wxGTK > 2.6.3
 # suggested MozillaFirefox libextractor xntp xmedcon xsane python-enchant
 PreReq:         filesystem /usr/bin/touch
-Provides:       GNUmed client
-#Obsoletes:      pybliog
+Provides:       gnumed-client
+#Obsoletes:     
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 URL:            http://wiki.gnumed.de/
 
@@ -136,7 +136,7 @@ find -P $RPM_BUILD_ROOT -type f | sed s#$RPM_BUILD_ROOT##g > INSTALLED_FILES
 #/usr/share/menu/gnumed-client
 
 %clean
-#[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"
+[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"
 
 
 %files -f INSTALLED_FILES
