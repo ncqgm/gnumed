@@ -22,7 +22,7 @@ Source:         http://www.gnumed.de/downloads/client/0.2/GNUmed-client.%{versio
 #Patch2:         
 Requires:  	file
 PreReq:         filesystem /usr/bin/touch
-Provides:       gnumed-common
+Provides:       gnumed-doc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 URL:            http://wiki.gnumed.de/
 
