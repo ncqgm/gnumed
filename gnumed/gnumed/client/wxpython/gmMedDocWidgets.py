@@ -2,14 +2,15 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.147 2007-10-29 13:22:32 ncq Exp $
-__version__ = "$Revision: 1.147 $"
+# $Id: gmMedDocWidgets.py,v 1.148 2007-10-31 11:26:18 ncq Exp $
+__version__ = "$Revision: 1.148 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
 
 
 import wx
+
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
@@ -662,7 +663,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				tmpdir = tmpdir,
 				calling_window = self
 			)
-		except:
+		except ImportError:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _(
 					'No pages could be acquired from the source.\n\n'
@@ -1491,7 +1492,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.147  2007-10-29 13:22:32  ncq
+# Revision 1.148  2007-10-31 11:26:18  ncq
+# - hide less exceptions
+#
+# Revision 1.147  2007/10/29 13:22:32  ncq
 # - make cDocTree a lot more self contained:
 #   - make it a reget mixin child
 #   - make sort_mode a property scheduling reload on set
