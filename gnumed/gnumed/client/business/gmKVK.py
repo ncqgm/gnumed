@@ -7,19 +7,20 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.12 2007-05-11 14:10:19 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmKVK.py,v 1.13 2007-10-31 11:27:02 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, fileinput, codecs, time, datetime as pyDT, glob
 
+
 # our modules
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.business import gmPerson
 from Gnumed.pycommon import gmLog, gmExceptions, gmDateTime, gmTools
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -93,7 +94,10 @@ class cDTO_KVK(gmPerson.cDTO_person):
 				tmp = time.strptime(content, self.dob_format)
 				content = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 
-			setattr(self, map_kvkd_tags2dto[tag], content)
+			try:
+				setattr(self, map_kvkd_tags2dto[tag], content)
+			except KeyError:
+				_log.LogException('unknown KVKd file key [%s]' % tag)
 
 		# last_read_date and last_read_time -> last_read_timestamp
 		ts = time.strptime (
@@ -217,17 +221,27 @@ def get_available_kvks_as_dtos(spool_dir = None):
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-	if len(sys.argv) < 2:
-		print "give name of KVKd file as first argument"
-		sys.exit(-1)
 
-	# test cKVKd_file object
-	kvkd_file = sys.argv[1]
-	print "reading KVK data from KVKd file", kvkd_file
-	dto = cDTO_KVK(filename = kvkd_file)
-	print dto
+	def test_kvk_dto():
+		# test cKVKd_file object
+		kvkd_file = sys.argv[2]
+		print "reading KVK data from KVKd file", kvkd_file
+		dto = cDTO_KVK(filename = kvkd_file)
+		print dto
 
-#	tmp = cKVKd_file(aFile = kvkd_file)
+	def test_get_available_kvks_as_dto():
+		dtos = get_available_kvks_as_dtos(spool_dir = sys.argv[2])
+		for dto in dtos:
+			print dto
+
+	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
+		if len(sys.argv) < 3:
+			print "give name of KVKd file as first argument"
+			sys.exit(-1)
+
+		#test_kvk_dto()
+		#tmp = cKVKd_file(aFile = kvkd_file)
+		test_get_available_kvks_as_dto()
 
 #============================================================
 # docs
@@ -253,7 +267,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.12  2007-05-11 14:10:19  ncq
+# Revision 1.13  2007-10-31 11:27:02  ncq
+# - fix it again
+# - test suite
+#
+# Revision 1.12  2007/05/11 14:10:19  ncq
 # - latin1 -> utf8
 #
 # Revision 1.11  2007/02/17 13:55:26  ncq
