@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.98 2007-10-12 14:15:55 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmMedDoc.py,v 1.99 2007-10-31 22:06:44 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time
@@ -548,6 +548,12 @@ def search_for_document(patient_id=None, type_id=None):
 		docs.append(cMedDoc(row[0]))
 	return docs
 #------------------------------------------------------------
+def delete_document(document_id=None):
+	# will cascade to doc_obj and doc_desc
+	cmd = u"delete from blobs.doc_med where pk=%(pk)s"
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': document_id}}])
+	return
+#------------------------------------------------------------
 def get_document_types():
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': u"SELECT * FROM blobs.v_doc_type"}],
@@ -673,7 +679,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.98  2007-10-12 14:15:55  ncq
+# Revision 1.99  2007-10-31 22:06:44  ncq
+# - delete_document()
+#
+# Revision 1.98  2007/10/12 14:15:55  ncq
 # - cleanup
 #
 # Revision 1.97  2007/08/11 23:53:19  ncq
