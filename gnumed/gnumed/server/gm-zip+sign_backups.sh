@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-zip+sign_backups.sh,v $
-# $Id: gm-zip+sign_backups.sh,v 1.4 2007-10-30 13:54:53 ncq Exp $
+# $Id: gm-zip+sign_backups.sh,v 1.5 2007-10-31 11:25:39 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -57,17 +57,16 @@ shopt -s -q nullglob
 # zip up any backups
 for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 
-	# are either the backup or ...
-	TAR_OPEN=`lsof ${BACKUP}`
-	# ... a corresponding  bz2 open at the moment ?
-	BZ2_OPEN=`lsof ${BACKUP}.bz2`
-	# ORing - better safe than sorry
-	if test -z ${TAR_OPEN} -o -z ${BZ2_OPEN"} ; then
-		# yes: skip to next backup
-		continue
-	else
+	# are the backup and ...
+	TAR_OPEN=`lsof | grep ${BACKUP}`
+	# ... the corresponding bz2 both open at the moment ?
+	BZ2_OPEN=`lsof | grep ${BACKUP}.bz2`
+	if test -z "${TAR_OPEN}" -a -z "${BZ2_OPEN}" ; then
 		# no: remove the bz2 and start over compressing
 		rm -f ${BACKUP}.bz2
+	else
+		# yes: skip to next backup
+		continue
 	fi
 
 	bzip2 -zq -${COMPRESSION_LEVEL} ${BACKUP}
@@ -110,7 +109,12 @@ exit 0
 
 #==============================================================
 # $Log: gm-zip+sign_backups.sh,v $
-# Revision 1.4  2007-10-30 13:54:53  ncq
+# Revision 1.5  2007-10-31 11:25:39  ncq
+# - needs quoting
+# - had inverted logic
+# - lsof acts weird on filename arguments sometimes so use grep
+#
+# Revision 1.4  2007/10/30 13:54:53  ncq
 # - improve robustness against incomplete bz2's
 #
 # Revision 1.3  2007/07/13 12:12:08  ncq
