@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.148 2007-10-31 11:26:18 ncq Exp $
-__version__ = "$Revision: 1.148 $"
+# $Id: gmMedDocWidgets.py,v 1.149 2007-10-31 22:07:18 ncq Exp $
+__version__ = "$Revision: 1.149 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1313,6 +1313,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		menu.AppendItem(wx.MenuItem(menu, ID, _('Edit corresponding consultation')))
 		wx.EVT_MENU(menu, ID, self.__edit_consultation_details)
 
+		# delete for good
+		ID = wx.NewId()
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Delete')))
+		wx.EVT_MENU(menu, ID, self.__delete_document)
+
 		# show descriptions
 		descriptions = self.__curr_node_data.get_descriptions()
 		desc_menu = wx.Menu()
@@ -1476,6 +1481,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname))
 
 		return True
+	#--------------------------------------------------------
+	def __delete_document(self, evt):
+		gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1492,7 +1500,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.148  2007-10-31 11:26:18  ncq
+# Revision 1.149  2007-10-31 22:07:18  ncq
+# - delete document from context menu
+#
+# Revision 1.148  2007/10/31 11:26:18  ncq
 # - hide less exceptions
 #
 # Revision 1.147  2007/10/29 13:22:32  ncq
