@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.13 2007-10-31 11:27:02 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmKVK.py,v 1.14 2007-10-31 22:06:17 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -47,15 +47,17 @@ true_kvk_fields = [
 
 
 map_kvkd_tags2dto = {
-	'Version': 'version',
+	'Version': 'libchipcard_version',
 	'Datum': 'last_read_date',
 	'Zeit': 'last_read_time',
+	'Lesertyp': 'reader_type',
 	'KK-Name': 'insurance_company',
 	'KK-Nummer': 'insurance_number',
 	'KVK-Nummer': 'kvk_number',
 	'V-Nummer': 'insuree_number',
 	'V-Status': 'insuree_status',
 	'V-Statusergaenzung': 'insuree_status_detail',
+	'V-Status-Erlaeuterung', 'insuree_status_comment',
 	'Titel': 'title',
 	'Vorname': 'firstnames',
 	'Namenszusatz': 'name_affix',
@@ -79,9 +81,18 @@ class cDTO_KVK(gmPerson.cDTO_person):
 		self.last_read_time_format = '%H:%M:%S'
 		self.last_read_date_format = '%d.%m.%Y'
 		self.filename = filename
-		self.parse_kvk_file()
+		self.__find_me_sql = None
+
+		self.__parse_kvk_file()
 	#--------------------------------------------------------
-	def parse_kvk_file(self):
+	def _get_find_me_sql(self):
+		return u''
+
+	find_me_sql = property(_get_find_me_sql, lambda x:x)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __parse_kvk_file(self):
 
 		kvk_file = codecs.open(filename = self.filename, mode = 'rU', encoding = 'utf8')
 
@@ -108,6 +119,8 @@ class cDTO_KVK(gmPerson.cDTO_person):
 
 		# guess gender from firstname
 		self.gender = gmTools.coalesce(gmPerson.map_firstnames2gender(firstnames=self.firstnames), 'f')
+
+
 #============================================================
 class cKVK_data:
 	"""Abstract KVK data class.
@@ -267,7 +280,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.13  2007-10-31 11:27:02  ncq
+# Revision 1.14  2007-10-31 22:06:17  ncq
+# - teach about more fields in file
+# - start find_me_sql property
+#
+# Revision 1.13  2007/10/31 11:27:02  ncq
 # - fix it again
 # - test suite
 #
