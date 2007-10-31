@@ -20,7 +20,7 @@ Source:         http://www.gnumed.de/downloads/client/0.2/GNUmed-client.%{versio
 Patch0:         gnumed-python-path.diff
 #Patch1:         
 #Patch2:         
-Requires:  	aspell file gnumed-common = 0.2.7.1-0.0 gnumed-doc = 0.2.7.1-0.0 python >= 2.3 python-devel python-psycopg2 python-egenix-mx-base python-wxGTK > 2.6.3
+Requires:  	aspell file gnumed-common = %{version} gnumed-doc = %{version} python >= 2.3 python-devel python-psycopg2 python-egenix-mx-base python-wxGTK > 2.6.3
 # suggested MozillaFirefox libextractor xntp xmedcon xsane python-enchant
 PreReq:         filesystem /usr/bin/touch
 Provides:       gnumed-client
