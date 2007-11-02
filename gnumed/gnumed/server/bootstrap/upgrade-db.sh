@@ -6,13 +6,13 @@
 # usage:
 #  upgrade-db.sh vX vX+1 <secret>
 #
-# limitation:
+# limitations:
 #  Only works from version to version sequentially.
 #
 # prerequisites:
 #  update_db-vX_vX+1.conf must exist
 #
-# <secret> command line options:
+# "secret" command line options:
 #  no-backup
 #  no-compression
 #
@@ -115,6 +115,10 @@ rm -rf ${LOG}
 #echo "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
 #psql -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully. Aborting."
+	exit 1
+fi
 
 
 #echo ""
