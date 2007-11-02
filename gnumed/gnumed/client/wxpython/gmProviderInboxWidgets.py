@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.16 2007-10-30 12:51:45 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmProviderInboxWidgets.py,v 1.17 2007-11-02 13:59:33 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -137,6 +137,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def _on_provider_inbox_mod_db(self, *args, **kwargs):
 		wx.CallAfter(self._schedule_data_reget)
+		gmDispatcher.send(signal = u'request_user_attention', msg = _('Please check your GNUmed Inbox !'))
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
 		msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
@@ -229,7 +230,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.16  2007-10-30 12:51:45  ncq
+# Revision 1.17  2007-11-02 13:59:33  ncq
+# - request user attention when new item arrives
+#
+# Revision 1.16  2007/10/30 12:51:45  ncq
 # - make it a reget mixin child
 # - cleanup
 # - listen on backend changes
