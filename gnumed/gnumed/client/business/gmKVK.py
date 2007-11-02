@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.14 2007-10-31 22:06:17 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmKVK.py,v 1.15 2007-11-02 10:55:37 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -57,7 +57,7 @@ map_kvkd_tags2dto = {
 	'V-Nummer': 'insuree_number',
 	'V-Status': 'insuree_status',
 	'V-Statusergaenzung': 'insuree_status_detail',
-	'V-Status-Erlaeuterung', 'insuree_status_comment',
+	'V-Status-Erlaeuterung': 'insuree_status_comment',
 	'Titel': 'title',
 	'Vorname': 'firstnames',
 	'Namenszusatz': 'name_affix',
@@ -280,7 +280,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.14  2007-10-31 22:06:17  ncq
+# Revision 1.15  2007-11-02 10:55:37  ncq
+# - syntax error fix
+#
+# Revision 1.14  2007/10/31 22:06:17  ncq
 # - teach about more fields in file
 # - start find_me_sql property
 #
