@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1095,12 +1095,9 @@ def exit_with_msg(aMsg = None):
 	if aMsg is not None:
 		print aMsg
 	print "Please check the log file for details."
-	try:
-		dbconn.close()
-	except:
-		pass
+
 	_log.Log(gmLog.lErr, aMsg)
-	_log.Log(gmLog.lInfo, "shutdown")
+ 	_log.Log(gmLog.lInfo, "shutdown")
 	sys.exit(1)
 #------------------------------------------------------------------
 def show_msg(aMsg = None):
@@ -1196,8 +1193,7 @@ def handle_cfg():
 		_keep_temp_files = True
 
 	if not ask_for_confirmation():
-		print "Bootstrapping aborted by user."
-		return
+		exit_with_msg("Bootstrapping aborted by user.")
 
 	if not bootstrap_bundles():
 		exit_with_msg("Cannot bootstrap bundles.")
@@ -1210,6 +1206,7 @@ def handle_cfg():
 
 #==================================================================
 if __name__ == "__main__":
+
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
 	if _cfg is None:
 		_log.Log(gmLog.lInfo, "No config file specified on command line. Switching to nice mode.")
@@ -1243,6 +1240,9 @@ if __name__ == "__main__":
 
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We very likely succeeded."
+
+	sys.exit(0)
+
 else:
 	print "This currently is not intended to be used as a module."
 
@@ -1273,7 +1273,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.65  2007-10-22 12:33:48  ncq
+# Revision 1.66  2007-11-02 14:01:23  ncq
+# - signal non-successful bootstrap on user abort which, after all, it is
+# - signal explicit success in exit code on normal shutdown
+#
+# Revision 1.65  2007/10/22 12:33:48  ncq
 # - improve output
 #
 # Revision 1.64  2007/10/19 12:54:47  ncq
