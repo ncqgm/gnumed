@@ -47,14 +47,22 @@ LOG="${LOG_BASE}/bootstrap-latest-v2.log"
 rm -rf ${LOG}
 CONF="redo-v2.conf"
 export GM_CORE_DB="gnumed_v2"
-./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+./abootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 unset GM_CORE_DB
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v2\" did not finish successfully. Aborting."
+	exit 1
+fi
 
 # v2 -> v3
 LOG="${LOG_BASE}/bootstrap-latest-v3.log"
 rm -rf ${LOG}
 CONF="update_db-v2_v3.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v3\" did not finish successfully. Aborting."
+	exit 1
+fi
 echo "Dropping obsoleted staging database gnumed_v2 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v2
 
@@ -63,6 +71,10 @@ LOG="${LOG_BASE}/bootstrap-latest-v4.log"
 rm -rf ${LOG}
 CONF="update_db-v3_v4.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v4\" did not finish successfully. Aborting."
+	exit 1
+fi
 echo "Dropping obsoleted staging database gnumed_v3 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v3
 
@@ -71,6 +83,10 @@ LOG="${LOG_BASE}/bootstrap-latest-v5.log"
 rm -rf ${LOG}
 CONF="update_db-v4_v5.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v5\" did not finish successfully. Aborting."
+	exit 1
+fi
 echo "Dropping obsoleted staging database gnumed_v4 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v4
 
@@ -79,6 +95,10 @@ LOG="${LOG_BASE}/bootstrap-latest-v6.log"
 rm -rf ${LOG}
 CONF="update_db-v5_v6.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v6\" did not finish successfully. Aborting."
+	exit 1
+fi
 echo "Dropping obsoleted staging database gnumed_v5 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v5
 
@@ -87,6 +107,10 @@ LOG="${LOG_BASE}/bootstrap-latest-v7.log"
 rm -rf ${LOG}
 CONF="update_db-v6_v7.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v7\" did not finish successfully. Aborting."
+	exit 1
+fi
 echo "Dropping obsoleted staging database gnumed_v6 ..."
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v6
 
@@ -95,3 +119,7 @@ LOG="${LOG_BASE}/bootstrap-latest-v8.log"
 rm -rf ${LOG}
 CONF="update_db-v7_v8.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v8\" did not finish successfully. Aborting."
+	exit 1
+fi
