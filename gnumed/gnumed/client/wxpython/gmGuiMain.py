@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.366 2007-10-25 20:11:29 ncq Exp $
-__version__ = "$Revision: 1.366 $"
+# $Id: gmGuiMain.py,v 1.367 2007-11-02 13:59:04 ncq Exp $
+__version__ = "$Revision: 1.367 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,6 +75,10 @@ if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'devel'
+current_client_ver = u'CVS HEAD'
+
+_log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
+_log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
 
 #==============================================================================
 
@@ -279,9 +283,17 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message.'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
 
+		ID = wx.NewId()
+		menu_cfg_db.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
+		wx.EVT_MENU(self, ID, self.__on_set_export_chunk_size)
+
 		# -- submenu gnumed / config / ui
 		menu_cfg_ui = wx.Menu()
 		menu_config.AppendMenu(wx.NewId(), _('User Interface ...'), menu_cfg_ui)
+
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after client startup.'))
+		wx.EVT_MENU(self, ID, self.__on_set_startup_plugin)
 
 #		ID = wx.NewId()
 #		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
@@ -294,6 +306,10 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
 		wx.EVT_MENU(self, ID, self.__on_set_dob_reminder_proximity)
+
+		ID = wx.NewId()
+		menu_cfg_pat_search.Append(ID, _('Startup search'), _('Configure immediate checking of external sources on client startup.'))
+		wx.EVT_MENU(self, ID, self.__on_set_startup_pat_search)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external patient.'))
@@ -629,7 +645,8 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
 		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
 
-		gmDispatcher.connect(self._on_set_statustext, 'statustext')
+		gmDispatcher.connect(self._on_set_statustext, u'statustext')
+		gmDispatcher.connect(self._on_request_user_attention, u'request_user_attention')
 	#-----------------------------------------------
 	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
 
@@ -639,12 +656,30 @@ class gmTopLevelFrame(wx.Frame):
 		if loglevel is not None:
 			_log.Log(loglevel, msg.replace('\015', ' ').replace('\012', ' '))
 
-		if beep:
-			wx.Bell()
-
 		wx.CallAfter(self.SetStatusText, msg)
 
-		return True
+		if beep:
+			wx.Bell()
+	#-----------------------------------------------
+	def _on_request_user_attention(self, msg=None, urgent=False):
+		wx.CallAfter(self.__on_request_user_attention, msg, urgent)
+	#-----------------------------------------------
+	def __on_request_user_attention(self, msg=None, urgent=False):
+		# already in the foreground ?
+		if not wx.GetApp().IsActive():
+			print "app in background"
+			if urgent:
+				self.RequestUserAttention(flags = wx.USER_ATTENTION_ERROR)
+			else:
+				self.RequestUserAttention(flags = wx.USER_ATTENTION_INFO)
+		else:
+			print "app in foreground"
+
+		if msg is not None:
+			self.SetStatusText(msg)
+
+		if urgent:
+			wx.Bell()
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
@@ -774,6 +809,41 @@ class gmTopLevelFrame(wx.Frame):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
 		# calls wx.EVT_CLOSE handler
 		self.Close()
+
+	#----------------------------------------------
+	# submenu GNUmed / database
+	#----------------------------------------------
+	def __on_set_export_chunk_size(self, evt):
+
+		def is_valid(value):
+			try:
+				i = int(value)
+			except:
+				return False, value
+			if i < 0:
+				return False, value
+			if i > (1024 * 1024 * 1024 * 10): 		# 10 GB
+				return False, value
+			return True, i
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'Some network installations cannot cope with loading\n'
+				'documents of arbitrary size in one piece from the\n'
+				'database (mainly observed on older Windows versions)\n.'
+				'\n'
+				'Under such circumstances documents need to be retrieved\n'
+				'in chunks and reassembled on the client.\n'
+				'\n'
+				'Here you can set the size (in Bytes) above which\n'
+				'GNUmed will retrieve documents in chunks. Setting this\n'
+				'value to 0 will disable the chunking protocol.'
+			),
+			option = 'horstspace.blob_export_chunk_size',
+			bias = 'workplace',
+			default_value = 1024 * 1024,
+			validator = is_valid
+		)
 	#----------------------------------------------
 	def __on_set_db_lang(self, event):
 
@@ -860,7 +930,75 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
+	# submenu GNUmed / config / ui
+	#----------------------------------------------
+	def __on_set_startup_plugin(self, evt):
+
+		dbcfg = gmCfg.cCfgSQL()
+		# get list of possible plugins
+		plugin_list = gmTools.coalesce(dbcfg.get2 (
+			option = u'horstspace.notebook.plugin_load_order',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user'
+		), [])
+
+		# get current setting
+		initial_plugin = gmTools.coalesce(dbcfg.get2 (
+			option = u'horstspace.plugin_to_raise_after_startup',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user'
+		), u'gmEMRBrowserPlugin')
+		try:
+			selections = [plugin_list.index(initial_plugin)]
+		except ValueError:
+			selections = None
+
+		# now let user decide
+		plugin = gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _(
+				'Here you can choose which plugin you want\n'
+				'GNUmed to display after initial startup.\n'
+				'\n'
+				'Note that the plugin must not require any\n'
+				'patient to be activated.\n'
+				'\n'
+				'Select the desired plugin below:'
+			),
+			caption = _('Configuration'),
+			choices = plugin_list,
+			selections = selections,
+			columns = [_('GNUmed Plugin')],
+			single_selection = True
+		)
+
+		if plugin is None:
+			return
+
+		dbcfg.set (
+			option = u'patient_search.plugin_to_raise_after_startup',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			value = plugin
+		)
+	#----------------------------------------------
 	# submenu GNUmed / config / ui / patient search
+	#----------------------------------------------
+	def __on_set_startup_pat_search(self, evt):
+		gmGuiHelpers.configure_boolean_option (
+			parent = self,
+			question = _(
+				'GNUmed can check the external patient sources\n'
+				'directly during client startup. If it finds\n'
+				'any patients it will offer them for activation.\n'
+				'\n'
+				'Do you want that to happen ?'
+			),
+			option = 'patient_search.external_sources.immediately_search_on_startup',
+			button_tooltips = [
+				_('Yes, check external patient sources immediately on client startup.'),
+				_('No, do not check external patient sources on client startup.')
+			]
+		)
 	#----------------------------------------------
 	def __on_set_quick_pat_search(self, evt):
 		gmGuiHelpers.configure_boolean_option (
@@ -878,7 +1016,6 @@ class gmTopLevelFrame(wx.Frame):
 				_('No, let me confirm the external patient first.')
 			]
 		)
-		return
 	#----------------------------------------------
 	def __on_set_dob_reminder_proximity(self, evt):
 
@@ -1092,12 +1229,26 @@ class gmTopLevelFrame(wx.Frame):
 	# Help / Debugging
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
+
+#		src_rect = self.GetRect()
+#		sdc = wx.ScreenDC()						# whole screen area
+#		mdc = wx.MemoryDC()
+#		img = wx.EmptyBitmap(src_rect.width, src_rect.height)	# must be large enough for snapshot
+#		mdc.SelectObject(img)
+#		mdc.Blit (								# copy ...
+#			0, 0,								# ... to here in the target ...
+#			src_rect.width, src_rect.height,	# ... that much in ...
+#			sdc,								# ... the source (the screen) ...
+#			0, 0								# ... starting at
+#		)
+
 		w, h = self.GetSize()
 		wdc = wx.WindowDC(self)
 		mdc = wx.MemoryDC()
 		img = wx.EmptyBitmap(w, h)
 		mdc.SelectObject(img)
 		mdc.Blit(0, 0, w, h, wdc, 0, 0)
+
 		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
@@ -1574,6 +1725,7 @@ Search results:
 class gmApp(wx.App):
 
 	def OnInit(self):
+
 		gmGuiHelpers.install_wx_exception_handler()
 
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
@@ -1642,8 +1794,16 @@ class gmApp(wx.App):
 			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
 			return False
 
+		self.__starting_up = True
+
 		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		wx.EVT_END_SESSION(self, self._on_end_session)
+		self.Bind(wx.EVT_ACTIVATE_APP, self._on_app_activated)
+
+#You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your app
+#get/looses focus, or you can wx.EVT_ACTIVATE with any of your toplevel
+#windows and call evt.GetActive() in the handler to see whether it is
+#gaining or loosing focus.
 
 		# set up language in database
 		self.__set_db_lang()
@@ -1693,18 +1853,30 @@ class gmApp(wx.App):
 		return True
 	#----------------------------------------------
 	def _do_after_init(self):
+
+		self.__starting_up = False
+
 		# - setup GUI callback in clinical record
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
 
 		# - raise startup-default plugin (done in cTopLevelFrame)
+
+		# - load external patient sources
 		dbcfg = gmCfg.cCfgSQL()
-		search_immediately = bool(dbcfg.get2 (
-			option = 'patient_search.external_sources.immediately_search_if_single_source',
+		search_on_startup = bool(dbcfg.get2 (
+			option = 'patient_search.external_sources.immediately_search_on_startup',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user',
-			default = 0
+			default = 1
 		))
-		gmPatSearchWidgets.load_patient_from_external_sources(parent = self.GetTopWindow(), search_immediately = search_immediately)
+		if search_on_startup:
+			search_immediately = bool(dbcfg.get2 (
+				option = 'patient_search.external_sources.immediately_search_if_single_source',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = 0
+			))
+			gmPatSearchWidgets.load_patient_from_external_sources(parent = self.GetTopWindow(), search_immediately = search_immediately)
 
 		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
 
@@ -1718,14 +1890,26 @@ class gmApp(wx.App):
 		"""
 		gmGuiHelpers.uninstall_wx_exception_handler()
 	#----------------------------------------------
-	def _on_query_end_session(self):
+	def _on_query_end_session(self, *args, **kwargs):
 		print "unhandled event detected: QUERY_END_SESSION"
 		_log.Log(gmLog.lWarn, 'unhandled event detected: QUERY_END_SESSION')
 		_log.Log(gmLog.lInfo, 'we should be saving ourselves from here')
 	#----------------------------------------------
-	def _on_end_session(self):
+	def _on_end_session(self, *args, **kwargs):
 		print "unhandled event detected: END_SESSION"
 		_log.Log(gmLog.lWarn, 'unhandled event detected: END_SESSION')
+	#----------------------------------------------
+	def _on_app_activated(self, evt):
+		if evt.GetActive():
+			print "GNUmed window is activated ..."
+			if self.__starting_up:
+				print "... during startup"
+			else:
+				print "... during operation"
+		else:
+			print "GNUmed window is deactivated"
+
+		evt.Skip()
 	#----------------------------------------------
 	# internal helpers
 	#----------------------------------------------
@@ -1852,9 +2036,6 @@ class gmApp(wx.App):
 		return False
 #==============================================================================
 def main():
-#	wx.Image_AddHandler(wx.PNGHandler())
-#	wx.Image_AddHandler(wx.JPEGHandler())
-#	wx.Image_AddHandler(wx.GIFHandler())
 	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
@@ -1880,7 +2061,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.366  2007-10-25 20:11:29  ncq
+# Revision 1.367  2007-11-02 13:59:04  ncq
+# - teach client about its own version
+# - log client/db version
+# - a bunch of config options
+# - listen to request_user_attention
+# - listen to APP activation/deactivation
+#
+# Revision 1.366  2007/10/25 20:11:29  ncq
 # - configure initial plugin after patient search
 #
 # Revision 1.365  2007/10/25 16:41:04  ncq
