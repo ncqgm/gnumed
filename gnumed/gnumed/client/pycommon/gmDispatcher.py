@@ -19,7 +19,8 @@ known_signals = [
 	u'statustext',				# args: msg=message, beep=whether to beep or not
 	u'display_widget',			# args: name=name of widget, other=widget specific (see receivers)
 	u'application_closing',
-	u'episodes_modified'
+	u'episodes_modified',
+	u'request_user_attention'
 ]
 
 connections = {}
@@ -292,7 +293,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.10  2007-10-25 12:19:18  ncq
+# Revision 1.11  2007-11-02 13:52:52  ncq
+# - add two signals
+#
+# Revision 1.10  2007/10/25 12:19:18  ncq
 # - allergy_updated is no more
 # - by default know signal "Any"
 #
