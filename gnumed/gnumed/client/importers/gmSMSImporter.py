@@ -1,5 +1,5 @@
 
-import sys
+import sys, datetime as dt
 
 
 if __name__ == '__main__':
@@ -14,7 +14,7 @@ idx_date = 1
 idx_gsm = 2
 idx_sms = 3
 soap_cat = u'o'
-weight_template = u'aktuelles Gewicht::%s'
+weight_template = u'aktuelles Gewicht (%s)::%s'
 #==============================================
 class cLogin:
 	pass
@@ -77,7 +77,7 @@ def run_importer():
 
 	# and import our stuff
 	narr = emr.add_clin_narrative (
-		note = weight_template % weight,
+		note = weight_template % (dt.datetime.now().strftime('%X'), weight),
 		soap_cat = soap_cat,
 		episode = epi
 	)
