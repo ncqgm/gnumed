@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.6 2007-08-12 00:06:07 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmHooks.py,v 1.7 2007-11-03 17:54:04 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -43,7 +43,11 @@ known_hooks = [
 	u'post_patient_activation',
 	u'shutdown-post-GUI',
 	u'startup-after-GUI-init',
-	u'startup-before-GUI'
+	u'startup-before-GUI',
+	u'request_user_attention',
+	u'app_activated_startup',
+	u'app_activated',
+	u'app_deactivated'
 ]
 
 # ========================================================================
@@ -108,7 +112,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.6  2007-08-12 00:06:07  ncq
+# Revision 1.7  2007-11-03 17:54:04  ncq
+# - added hooks
+#
+# Revision 1.6  2007/08/12 00:06:07  ncq
 # - no more gmSignals.py
 #
 # Revision 1.5  2007/07/10 20:51:20  ncq
