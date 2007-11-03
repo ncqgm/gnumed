@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.367 2007-11-02 13:59:04 ncq Exp $
-__version__ = "$Revision: 1.367 $"
+# $Id: gmGuiMain.py,v 1.368 2007-11-03 17:57:19 ncq Exp $
+__version__ = "$Revision: 1.368 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -306,10 +306,6 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
 		wx.EVT_MENU(self, ID, self.__on_set_dob_reminder_proximity)
-
-		ID = wx.NewId()
-		menu_cfg_pat_search.Append(ID, _('Startup search'), _('Configure immediate checking of external sources on client startup.'))
-		wx.EVT_MENU(self, ID, self.__on_set_startup_pat_search)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Immediate source activation'), _('Configure immediate activation of single external patient.'))
@@ -667,19 +663,18 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_request_user_attention(self, msg=None, urgent=False):
 		# already in the foreground ?
 		if not wx.GetApp().IsActive():
-			print "app in background"
 			if urgent:
 				self.RequestUserAttention(flags = wx.USER_ATTENTION_ERROR)
 			else:
 				self.RequestUserAttention(flags = wx.USER_ATTENTION_INFO)
-		else:
-			print "app in foreground"
 
 		if msg is not None:
 			self.SetStatusText(msg)
 
 		if urgent:
 			wx.Bell()
+
+		gmHooks.run_hook_script(hook = u'request_user_attention')
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
@@ -982,23 +977,6 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	# submenu GNUmed / config / ui / patient search
-	#----------------------------------------------
-	def __on_set_startup_pat_search(self, evt):
-		gmGuiHelpers.configure_boolean_option (
-			parent = self,
-			question = _(
-				'GNUmed can check the external patient sources\n'
-				'directly during client startup. If it finds\n'
-				'any patients it will offer them for activation.\n'
-				'\n'
-				'Do you want that to happen ?'
-			),
-			option = 'patient_search.external_sources.immediately_search_on_startup',
-			button_tooltips = [
-				_('Yes, check external patient sources immediately on client startup.'),
-				_('No, do not check external patient sources on client startup.')
-			]
-		)
 	#----------------------------------------------
 	def __on_set_quick_pat_search(self, evt):
 		gmGuiHelpers.configure_boolean_option (
@@ -1862,21 +1840,21 @@ class gmApp(wx.App):
 		# - raise startup-default plugin (done in cTopLevelFrame)
 
 		# - load external patient sources
-		dbcfg = gmCfg.cCfgSQL()
-		search_on_startup = bool(dbcfg.get2 (
-			option = 'patient_search.external_sources.immediately_search_on_startup',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = 'user',
-			default = 1
-		))
-		if search_on_startup:
-			search_immediately = bool(dbcfg.get2 (
-				option = 'patient_search.external_sources.immediately_search_if_single_source',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'user',
-				default = 0
-			))
-			gmPatSearchWidgets.load_patient_from_external_sources(parent = self.GetTopWindow(), search_immediately = search_immediately)
+#		dbcfg = gmCfg.cCfgSQL()
+#		search_on_startup = bool(dbcfg.get2 (
+#			option = 'patient_search.external_sources.immediately_search_on_startup',
+#			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#			bias = 'user',
+#			default = 1
+#		))
+#		if search_on_startup:
+#			search_immediately = bool(dbcfg.get2 (
+#				option = 'patient_search.external_sources.immediately_search_if_single_source',
+#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+#				bias = 'user',
+#				default = 0
+#			))
+#			gmPatSearchWidgets.load_patient_from_external_sources(parent = self.GetTopWindow(), search_immediately = search_immediately)
 
 		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
 
@@ -1901,13 +1879,12 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _on_app_activated(self, evt):
 		if evt.GetActive():
-			print "GNUmed window is activated ..."
 			if self.__starting_up:
-				print "... during startup"
+				gmHooks.run_hook_script(hook = u'app_activated_startup')
 			else:
-				print "... during operation"
+				gmHooks.run_hook_script(hook = u'app_activated')
 		else:
-			print "GNUmed window is deactivated"
+			gmHooks.run_hook_script(hook = u'app_deactivated')
 
 		evt.Skip()
 	#----------------------------------------------
@@ -2061,7 +2038,16 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.367  2007-11-02 13:59:04  ncq
+# Revision 1.368  2007-11-03 17:57:19  ncq
+# - call hook on request_user_attention and app window actication/deactivation
+# - call hook on client init startup
+# - hence no more hardcoded checking external sources on startup
+#   as users can do it from the hook if needed, hook example
+#   updated thusly
+# - hence to check-sources-on-startup configuration needed
+#   anymore
+#
+# Revision 1.367  2007/11/02 13:59:04  ncq
 # - teach client about its own version
 # - log client/db version
 # - a bunch of config options
