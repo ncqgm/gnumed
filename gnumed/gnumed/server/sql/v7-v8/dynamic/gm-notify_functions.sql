@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: gm-notify_functions.sql,v 1.3 2007-10-30 12:53:55 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: gm-notify_functions.sql,v 1.4 2007-11-04 23:00:29 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -28,7 +28,7 @@ comment on column gm.notifying_tables.signal is
 
 comment on column gm.notifying_tables.carries_identity_pk is
 	'Whether or not the signal delivers the PK of the
-	 related identity. Set during bootstrapping.'
+	 related identity. Set during bootstrapping.';
 
 -- ==============================================================
 \unset ON_ERROR_STOP
@@ -95,11 +95,14 @@ comment on function gm.add_table_for_notifies (name, name) is
 grant select on gm.notifying_tables to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: gm-notify_functions.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: gm-notify_functions.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: gm-notify_functions.sql,v $
--- Revision 1.3  2007-10-30 12:53:55  ncq
+-- Revision 1.4  2007-11-04 23:00:29  ncq
+-- - add missing ;
+--
+-- Revision 1.3  2007/10/30 12:53:55  ncq
 -- - reintroduce attach_identity_pk as carries_identity_pk
 --
 -- Revision 1.2  2007/10/30 08:32:15  ncq
