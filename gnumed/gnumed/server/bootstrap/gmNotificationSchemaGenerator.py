@@ -6,12 +6,10 @@ Theory of operation:
 
 Any table that should send notifies must be recorded in
 the table "gm.notifying_tables".
-
-FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -213,7 +211,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.21  2007-10-30 12:53:07  ncq
+# Revision 1.22  2007-11-04 22:59:17  ncq
+# - remove completed TODO item
+#
+# Revision 1.21  2007/10/30 12:53:07  ncq
 # - if a table attaches the patient pk document that fact for the backend listener
 #
 # Revision 1.20  2007/10/30 08:30:17  ncq
