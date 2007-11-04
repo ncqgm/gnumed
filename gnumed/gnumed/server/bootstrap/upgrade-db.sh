@@ -116,7 +116,7 @@ rm -rf ${LOG}
 #psql -U gm-dbo -d gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 if test "$?" != "0" ; then
-	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully. Aborting."
+	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
 	exit 1
 fi
 
@@ -126,3 +126,5 @@ fi
 #echo "   If the database is large this may take quite a while!"
 #echo "   You may need to type in the password for gm-dbo."
 #vacuumdb --full --analyze ${PORT_DEF} -U gm-dbo -d gnumed_v${NEXT_VER}
+
+exit 0
