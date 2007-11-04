@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.1 2007-11-04 01:40:45 ncq Exp $
+# $Id: gm-backup_data.sh,v 1.2 2007-11-04 22:58:45 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -13,12 +13,23 @@
 #
 # To restore the data-only dump do this:
 #
-# $> cut -f -5 -d " " <data only dump> | grep -E "^(SET)|(INSERT)" > tmp.sql
-# $> python gmDBPruningDMLGenerator.py tmp.sql
-# $> psql -d gnumed_vX -U gm-dbo -f tmp.sql
-# $> psql -d gnumed_vX -U gm-dbo -f <data only dump>
+# 1) $> python gmDBPruningDMLGenerator.py <data only dump>
+# 2) $> psql -d gnumed_vX -U gm-dbo -f <data only dump>-prune_tables.sql
+# 3) $> psql -d gnumed_vX -U gm-dbo -f <data only dump>
 #
-# Note that this will DELETE ALL DATA in the existing database.
+# Note that this will DELETE ALL DATA in the database
+# you are restoring into.
+#
+# To speed things up you can replace step 1) with:
+#
+# 1a) $> cut -f -5 -d " " <data only dump> | grep -E "^(SET)|(INSERT)" > tmp.sql
+# 1b) $> python gmDBPruningDMLGenerator.py tmp.sql
+#
+# and use that in step 2):
+#
+# 2) $> psql -d gnumed_vX -U gm-dbo -f tmp-prune_tables.sql
+#
+# Note that 1a) will only work on UN*X.
 #
 #==============================================================
 
@@ -53,7 +64,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_data.sh,v $
-# Revision 1.1  2007-11-04 01:40:45  ncq
+# Revision 1.2  2007-11-04 22:58:45  ncq
+# - improved docs
+#
+# Revision 1.1  2007/11/04 01:40:45  ncq
 # - first version
 #
 #
