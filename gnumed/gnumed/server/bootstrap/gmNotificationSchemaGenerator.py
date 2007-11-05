@@ -9,7 +9,7 @@ the table "gm.notifying_tables".
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -96,9 +96,10 @@ begin
 
 	%(identity_accessor)s
 
-	-- error out if not found
+	-- soft error out if not found
 	if _pk_identity is NULL then
-		raise exception ''%(schema)s.trf_announce_%(sig)s_mod(): cannot determine identity PK on table <%(schema)s.%(tbl)s>'';
+		raise notice ''%(schema)s.trf_announce_%(sig)s_mod(): cannot determine identity PK on table <%(schema)s.%(tbl)s>'';
+		return NULL;
 	end if;
 
 	-- now, execute() the NOTIFY
@@ -211,7 +212,12 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.22  2007-11-04 22:59:17  ncq
+# Revision 1.23  2007-11-05 12:11:16  ncq
+# - do not FAIL on not being able to find the pk_identity for
+#   notification, it's likely due to a framing transaction
+#   deleting our parent record
+#
+# Revision 1.22  2007/11/04 22:59:17  ncq
 # - remove completed TODO item
 #
 # Revision 1.21  2007/10/30 12:53:07  ncq
