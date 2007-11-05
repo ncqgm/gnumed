@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.149 2007-10-31 22:07:18 ncq Exp $
-__version__ = "$Revision: 1.149 $"
+# $Id: gmMedDocWidgets.py,v 1.150 2007-11-05 11:41:46 ncq Exp $
+__version__ = "$Revision: 1.150 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1483,7 +1483,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		return True
 	#--------------------------------------------------------
 	def __delete_document(self, evt):
-		gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'])
+		curr_pat = gmPerson.gmCurrentPatient()
+		emr = curr_pat.get_emr()
+		enc = emr.get_active_encounter()
+		gmMedDoc.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1500,7 +1503,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.149  2007-10-31 22:07:18  ncq
+# Revision 1.150  2007-11-05 11:41:46  ncq
+# - use blobs.delete_document()
+#
+# Revision 1.149  2007/10/31 22:07:18  ncq
 # - delete document from context menu
 #
 # Revision 1.148  2007/10/31 11:26:18  ncq
