@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: blobs-delete_document.sql,v 1.1 2007-11-05 11:35:56 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: blobs-delete_document.sql,v 1.2 2007-11-05 11:40:26 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -21,6 +21,7 @@ drop function blobs.delete_document(integer, integer) cascade;
 
 create or replace function blobs.delete_document(integer, integer)
 	returns boolean
+	security definer
 	language 'plpgsql'
 	as E'
 DECLARE
@@ -71,12 +72,19 @@ END;';
 select i18n.i18n('Deletion of document');
 select i18n.upd_tx('de_DE', 'Deletion of document', 'Dokument gelöscht');
 
+
+revoke delete on blobs.doc_med from "gm-doctors";
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: blobs-delete_document.sql,v $
--- Revision 1.1  2007-11-05 11:35:56  ncq
+-- Revision 1.2  2007-11-05 11:40:26  ncq
+-- - revoke delete right on blobs.doc_med and make
+--   delete_document() security definer
+--
+-- Revision 1.1  2007/11/05 11:35:56  ncq
 -- - new
 --
 --
