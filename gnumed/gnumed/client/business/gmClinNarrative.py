@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -23,14 +23,16 @@ soap_cat2l10n = {
 	's': _('soap_S').strip(u'soap_'),
 	'o': _('soap_O').strip(u'soap_'),
 	'a': _('soap_A').strip(u'soap_'),
-	'p': _('soap_P').strip(u'soap_')
+	'p': _('soap_P').strip(u'soap_'),
+	None: _('soap_ADMIN').strip(u'soap_')
 }
 
 l10n2soap_cat = {
 	_('soap_S').strip(u'soap_'): 's',
 	_('soap_O').strip(u'soap_'): 'o',
 	_('soap_A').strip(u'soap_'): 'a',
-	_('soap_P').strip(u'soap_'): 'p'
+	_('soap_P').strip(u'soap_'): 'p',
+	_('soap_ADMIN').strip(u'soap_'): None
 }
 
 #============================================================
@@ -224,7 +226,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.26  2007-09-10 12:31:55  ncq
+# Revision 1.27  2007-11-05 12:09:29  ncq
+# - support admin soap type
+#
+# Revision 1.26  2007/09/10 12:31:55  ncq
 # - improve test suite
 #
 # Revision 1.25  2007/09/07 22:36:44  ncq

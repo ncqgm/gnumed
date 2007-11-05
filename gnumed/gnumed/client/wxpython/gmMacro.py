@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -108,6 +108,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_soap_p(self):
 		return self.__get_progress_notes(soap_cats = [u'p'])
 	#--------------------------------------------------------
+	def _get_soap_admin(self):
+		return self.__get_progress_notes(soap_cats = [None])
+	#--------------------------------------------------------
 	# property definitions
 	#--------------------------------------------------------
 	lastname = property(_get_lastname, _setter_noop)
@@ -121,6 +124,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	soap_o = property(_get_soap_o, _setter_noop)
 	soap_a = property(_get_soap_a, _setter_noop)
 	soap_p = property(_get_soap_p, _setter_noop)
+	soap_admin = property(_get_soap_admin, _setter_noop)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -185,7 +189,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.36 $" % self.__class__.__name__
+		return "%s $Revision: 1.37 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -423,7 +427,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.36  2007-10-19 12:52:00  ncq
+# Revision 1.37  2007-11-05 12:10:21  ncq
+# - support admin soap type
+#
+# Revision 1.36  2007/10/19 12:52:00  ncq
 # - immediately search for patient matches
 #
 # Revision 1.35  2007/09/16 22:40:46  ncq

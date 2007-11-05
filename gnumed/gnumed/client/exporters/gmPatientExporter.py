@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.107 2007-06-18 19:33:19 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmPatientExporter.py,v 1.108 2007-11-05 12:10:05 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -733,6 +733,7 @@ class cEmrExport:
             'o': _('Objective'),
             'a': _('Assessment'),
             'p': _('Plan'),
+            None: _('Administrative')
         }
         eol_w_margin = '\n' + (' ' * (left_margin+3))
         for soap_cat in 'soap':
@@ -955,7 +956,8 @@ class cEMRJournalExporter:
 			u's': _('S'),
 			u'o': _('O'),
 			u'a': _('A'),
-			u'p': _('P')
+			u'p': _('P'),
+			None: u' ',
 		}
 	#--------------------------------------------------------
 	# external API
@@ -1247,7 +1249,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.107  2007-06-18 19:33:19  ncq
+# Revision 1.108  2007-11-05 12:10:05  ncq
+# - support admin soap type
+#
+# Revision 1.107  2007/06/18 19:33:19  ncq
 # - cleanup
 # - show date in narrative, too
 #
