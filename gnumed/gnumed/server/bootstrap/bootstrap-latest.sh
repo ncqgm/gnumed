@@ -47,12 +47,12 @@ LOG="${LOG_BASE}/bootstrap-latest-v2.log"
 rm -rf ${LOG}
 CONF="redo-v2.conf"
 export GM_CORE_DB="gnumed_v2"
-./abootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
-unset GM_CORE_DB
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
 if test "$?" != "0" ; then
 	echo "Bootstrapping \"gnumed_v2\" did not finish successfully. Aborting."
 	exit 1
 fi
+unset GM_CORE_DB
 
 # v2 -> v3
 LOG="${LOG_BASE}/bootstrap-latest-v3.log"
