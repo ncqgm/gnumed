@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.88 2007-03-23 15:01:36 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmDemographicRecord.py,v 1.89 2007-11-07 22:59:31 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -51,14 +51,13 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""update dem.address set
 				aux_street = %(notes_street)s,
-				number = %(number)s,
 				subunit = %(subunit)s,
 				addendum = %(notes_subunit)s,
 				lat_lon = %(lat_lon_street)s
 			where id=%(pk_address)s and xmin=%(xmin_address)s""",
 		u"select xmin as xmin_address from dem.address where id=%(pk_address)s"
 	]
-	_updatable_fields = ['notes_street', 'number', 'subunit', 'notes_subunit', 'lat_lon_address']
+	_updatable_fields = ['notes_street', 'subunit', 'notes_subunit', 'lat_lon_address']
 #===================================================================
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
@@ -502,7 +501,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.88  2007-03-23 15:01:36  ncq
+# Revision 1.89  2007-11-07 22:59:31  ncq
+# - don't allow editing number on address
+#
+# Revision 1.88  2007/03/23 15:01:36  ncq
 # - no more person['id']
 #
 # Revision 1.87  2007/02/22 16:26:54  ncq
