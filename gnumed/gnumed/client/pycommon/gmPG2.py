@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -289,7 +289,7 @@ def set_default_login(login=None):
 # =======================================================================
 # netadata API
 # =======================================================================
-def database_schema_compatible(link_obj=None, version=None):
+def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
 	if version == 'devel':
 		args = {'ver': '9999'}
@@ -306,6 +306,10 @@ def database_schema_compatible(link_obj=None, version=None):
 		_log.Log(gmLog.lErr, 'database schema version mismatch')
 		_log.Log(gmLog.lErr, 'expected: %s (%s)' % (version, expected_hash))
 		_log.Log(gmLog.lErr, 'detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
+		if verbose:
+			_log.Log(gmLog.lData, 'schema dump follows:')
+			for line in get_schema_structure(link_obj=link_obj).split():
+				_log.Log(gmLog.lData, line)
 		return False
 	_log.Log(gmLog.lInfo, 'detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
 	return True
@@ -571,7 +575,6 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		]
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
-		_log.Log(gmLog.lData, 'link object: %s' % link_obj)
 		curs = link_obj
 		curs_close = __noop
 		conn_close = __noop
@@ -1234,7 +1237,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.59  2007-10-25 16:41:30  ncq
+# Revision 1.60  2007-11-09 14:39:10  ncq
+# - log schema dump if verbose on failed version detection
+#
+# Revision 1.59  2007/10/25 16:41:30  ncq
 # - is_pg_interval() + test
 #
 # Revision 1.58  2007/10/22 12:37:59  ncq
