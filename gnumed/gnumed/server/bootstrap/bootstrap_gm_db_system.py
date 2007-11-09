@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -845,6 +845,7 @@ class database:
 		if tmp is not None:
 			# if we don't want auditing on these tables, return without error
 			if int(tmp) == 1:
+				print '    ... skipped (disabled)'
 				return True
 
 		tmp = _cfg.get(self.section, 'audit trail parent table')
@@ -899,6 +900,7 @@ class database:
 		if tmp is not None:
 			# if we don't want notification on these tables, return without error
 			if int(tmp) == 1:
+				print '    ... skipped (disabled)'
 				return True
 
 		# create notification schema
@@ -1203,9 +1205,10 @@ def handle_cfg():
 
 	if not bootstrap_notifications():
 		exit_with_msg("Cannot bootstrap notification tables.")
-
 #==================================================================
-if __name__ == "__main__":
+def main():
+
+	global _cfg
 
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
 	if _cfg is None:
@@ -1241,8 +1244,14 @@ if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We very likely succeeded."
 
-	sys.exit(0)
-
+#==================================================================
+if __name__ == "__main__":
+	try:
+		main()
+		sys.exit(0)
+	except StandardError:
+		_log.LogException('unhandled exception caught')
+		exit_with_msg("Bootstrapping failed: unhandled exception occurred")
 else:
 	print "This currently is not intended to be used as a module."
 
@@ -1273,7 +1282,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.66  2007-11-02 14:01:23  ncq
+# Revision 1.67  2007-11-09 14:42:37  ncq
+# - announce disabled notification and auditing DDL generation
+# - don't consider sys.exit() a fatal exception though it throws SystemExit
+#
+# Revision 1.66  2007/11/02 14:01:23  ncq
 # - signal non-successful bootstrap on user abort which, after all, it is
 # - signal explicit success in exit code on normal shutdown
 #
