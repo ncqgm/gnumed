@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.35 2007-10-23 21:24:39 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmLogin.py,v 1.36 2007-11-09 14:40:33 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "H.Herb"
 
 import wx
@@ -101,9 +101,6 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				dlg.panel.save_state()
 
 			if not compatible:
-				_log.Log(gmLog.lData, 'schema dump follows:')
-				for line in gmPG2.get_schema_structure().split():
-					_log.Log(gmLog.lData, line)
 				connected_db_version = gmPG2.get_schema_version()
 				msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
 				if require_version:
@@ -145,7 +142,10 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.35  2007-10-23 21:24:39  ncq
+# Revision 1.36  2007-11-09 14:40:33  ncq
+# - gmPG2 dumps schema by itself now on hash mismatch
+#
+# Revision 1.35  2007/10/23 21:24:39  ncq
 # - start backend listener on login
 #
 # Revision 1.34  2007/06/11 20:25:18  ncq
