@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.54 2007-10-21 20:12:42 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmForms.py,v 1.55 2007-11-10 20:49:22 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -275,27 +275,39 @@ class cOOoConnector(gmBorg.cBorg):
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
 		document_uri = uno.systemPathToFileUrl(os.path.abspath(os.path.expanduser(filename)))
-		doc = self.desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
+		desktop = self.desktop
+
+		if desktop is None:
+			return None
+
+		doc = desk.loadComponentFromURL(document_uri, "_blank", 0, ())
 		return doc
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_desktop(self):
+		opt_name = 'external.ooo.startup_settle_time'
 		if self.__desktop is None:
 			try:
 				self.remote_context = self.uri_resolver.resolve(self.remote_context_uri)
 			except oooNoConnectException:
-				_log.LogException('Cannot connect to OOo server. Trying to start one with: [%s]' % self.ooo_start_cmd)
+				_log.LogException('Cannot connect to OOo server.')
+				_log.Log(gmLog.lErr, 'Trying to start OOo server with: [%s]' % self.ooo_start_cmd)
 				os.system(self.ooo_start_cmd)
 				dbcfg = gmCfg.cCfgSQL()
 				ooo_wait_time = dbcfg.get2 (
-					option = 'external.ooo.startup_settle_time',
+					option = opt_name,
 					workplace = gmSurgery.gmCurrentPractice().active_workplace,
 					bias = 'workplace',
 					default = 2.0
 				)
 				time.sleep(ooo_wait_time)	# OOo sometimes needs a bit
-				self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
+				try:
+					self.remote_context	= self.uri_resolver.resolve(self.remote_context_uri)
+				except oooNoConnectException:
+					_log.LogException('Cannot start (or connect to started) OOo server. You may need to increase <%s>.' % opt_name)
+					return None
+
 			self.__desktop = self.remote_context.ServiceManager.createInstanceWithContext(self.desktop_uri, self.remote_context)
 
 		return self.__desktop
@@ -317,16 +329,19 @@ class cOOoLetter(object):
 	# external API
 	#--------------------------------------------------------
 	def open_in_ooo(self):
-		# export template from database
 		# connect to OOo
 		ooo_srv = cOOoConnector()
 		# open doc in OOo
 		self.ooo_doc = ooo_srv.open_document(filename=self.template_file)
+		if self.ooo_doc is None:
+			return False
 		# listen for close events
 		pat = gmPerson.gmCurrentPatient()
 		pat.locked = True
 		listener = cOOoDocumentCloseListener(document=self)
 		self.ooo_doc.addCloseListener(listener)
+
+		return True
 	#--------------------------------------------------------
 	def show(self, visible=True):
 		self.ooo_doc.CurrentController.Frame.ContainerWindow.setVisible(visible)
@@ -801,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.54  2007-10-21 20:12:42  ncq
+# Revision 1.55  2007-11-10 20:49:22  ncq
+# - handle failing to connect to OOo much more gracefully
+#
+# Revision 1.54  2007/10/21 20:12:42  ncq
 # - make OOo startup settle time configurable
 #
 # Revision 1.53  2007/10/07 12:27:08  ncq
