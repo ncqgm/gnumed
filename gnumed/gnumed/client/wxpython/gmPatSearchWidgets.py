@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.95 2007-10-19 12:52:34 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmPatSearchWidgets.py,v 1.96 2007-11-10 20:58:59 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -362,29 +362,37 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 		dto = dlg.get_selected_dto()['dto']
 		dlg.Destroy()
 
-	# FIXME: config: delete DTO source after selection, eg KVK
-
 	# search
-	searcher = gmPerson.cPatientSearcher_SQL()
-	idents = searcher.get_identities(dto = dto)
+#	searcher = gmPerson.cPatientSearcher_SQL()
+#	idents = searcher.get_identities(dto = dto)
+	idents = dto.get_candidate_identities(can_create=True)
 
-	ident = None
-	if len(idents) == 0:
-		ident = gmPerson.create_identity (
-			firstnames = dto.firstnames,
-			lastnames = dto.lastnames,
-			gender = dto.gender,
-			dob = dto.dob
+	if idents is None:
+		gmGuiHelpers.gm_show_info (_(
+			'Cannot create new patient:\n\n'
+			' [%s %s (%s), %s]'
+			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
+			_('Activating external patient')
 		)
-		if ident is None:
-			gmGuiHelpers.gm_show_info (
-				_(
-				'Cannot create new patient:\n\n'
-				' [%s %s (%s), %s]'
-				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
-				_('Activating xDT patient')
-			)
-			return False
+		return False
+
+#	ident = None
+#	if len(idents) == 0:
+#		ident = gmPerson.create_identity (
+#			firstnames = dto.firstnames,
+#			lastnames = dto.lastnames,
+#			gender = dto.gender,
+#			dob = dto.dob
+#		)
+#		if ident is None:
+#			gmGuiHelpers.gm_show_info (
+#				_(
+#				'Cannot create new patient:\n\n'
+#				' [%s %s (%s), %s]'
+#				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
+#				_('Activating xDT patient')
+#			)
+#			return False
 
 	if len(idents) == 1:
 		ident = idents[0]
@@ -407,9 +415,11 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 			'%s %s (%s)\n'
 			'%s'
 			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
-			_('Activating xDT patient')
+			_('Activating external patient')
 		)
 		return False
+
+	dto.delete_from_source()
 
 	return True
 #============================================================
@@ -858,7 +868,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.95  2007-10-19 12:52:34  ncq
+# Revision 1.96  2007-11-10 20:58:59  ncq
+# - use dto.get_candidate_identities() and dto.delete_from_source()
+#
+# Revision 1.95  2007/10/19 12:52:34  ncq
 # - implement search_immediately in load_patient_from_external_source()
 #
 # Revision 1.94  2007/10/12 14:20:09  ncq
