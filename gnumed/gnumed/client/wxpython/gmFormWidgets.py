@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.6 2007-09-16 22:40:15 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmFormWidgets.py,v 1.7 2007-11-10 20:57:04 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys
@@ -93,7 +93,20 @@ def create_new_letter(parent=None):
 		return
 
 	doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
-	doc.open_in_ooo()
+	if not doc.open_in_ooo():
+		gmGuiHelpers.gm_show_error (
+			_('Cannot connect to OpenOffice.\n'
+			  '\n'
+			  'You may want to increase the option\n'
+			  '\n'
+			  ' <%s>'
+			) % _('OOo startup time'),
+			_('Letter writer')
+		)
+		try: os.remove(filename)
+		except: pass
+		return
+
 	doc.show(False)
 	ph_handler = gmMacro.gmPlaceholderHandler()
 	doc.replace_placeholders(handler = ph_handler)
@@ -281,7 +294,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.6  2007-09-16 22:40:15  ncq
+# Revision 1.7  2007-11-10 20:57:04  ncq
+# - handle failing OOo connection
+# - cleanup leftover templates on failure
+#
+# Revision 1.6  2007/09/16 22:40:15  ncq
 # - allow editing templates when there are no instances
 #
 # Revision 1.5  2007/09/10 18:40:19  ncq
