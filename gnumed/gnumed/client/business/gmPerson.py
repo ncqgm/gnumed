@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.136 2007-10-30 12:46:21 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gmPerson.py,v 1.137 2007-11-10 21:00:52 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -37,6 +37,85 @@ class cDTO_person(object):
 	# FIXME: make this work as a mapping type, too
 
 	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def keys(self):
+		return 'firstnames lastnames dob gender'.split()
+	#--------------------------------------------------------
+	def delete_from_source(self):
+		pass
+	#--------------------------------------------------------
+	def get_candidate_identities(self, can_create=False):
+		"""Generate generic queries.
+
+		- not locale dependant
+		- data -> firstnames, lastnames, dob, gender
+
+		shall we mogrify name parts ? probably not
+
+		Returns list of matching identities (may be empty)
+		or None if it was told to create an identity but couldn't.
+		"""
+		where_snippets = []
+		args = {}
+
+		where_snippets.append(u'firstnames = %(first)s')
+		args['first'] = self.firstnames
+
+		where_snippets.append(u'lastnames = %(last)s')
+		args['last'] = self.lastnames
+
+		if self.dob is not None:
+			where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s)")
+			args['dob'] = self.dob
+
+		if self.gender is not None:
+			where_snippets.append('gender = %(sex)s')
+			args['sex'] = self.gender
+
+		cmd = u"""
+select *, %s as match_type from dem.v_basic_person
+where pk_identity in (
+	select id_identity from dem.names where %s
+) order by lastnames, firstnames, dob""" % (
+	_('external patient source (name, gender, date of birth)'),
+	' and '.join(where_snippets)
+)
+
+		try:
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+		except:
+			_log.Log(gmLog.lErr, u'cannot get candidate identities for dto "%s"' % self)
+			_log.LogException('query %s' % cmd)
+			rows = []
+
+		if len(rows) == 0:
+			if not can_create:
+				return []
+			ident = self.import_into_database()
+			if ident is None:
+				return None
+			identities = [ident]
+		else:
+			identities = [ cIdentity(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
+
+		return identities
+	#--------------------------------------------------------
+	def import_into_database(self):
+		"""Imports self into the database.
+
+		Child classes can override this to provide more extensive import.
+		"""
+		ident = create_identity (
+			firstnames = self.firstnames,
+			lastnames = self.lastnames,
+			gender = self.gender,
+			dob = self.dob
+		)
+		return ident
+	#--------------------------------------------------------
+	# customizing behaviour
+	#--------------------------------------------------------
 	def __str__(self):
 		return u'<%s @ %s: %s %s (%s) %s>' % (self.__class__.__name__, id(self), self.firstnames, self.lastnames, self.gender, self.dob)
 	#--------------------------------------------------------
@@ -64,9 +143,7 @@ class cDTO_person(object):
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
-	#--------------------------------------------------------
-	def keys(self):
-		return 'firstnames lastnames dob gender'.split()
+
 #============================================================
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
@@ -1940,7 +2017,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.136  2007-10-30 12:46:21  ncq
+# Revision 1.137  2007-11-10 21:00:52  ncq
+# - implement dto.get_candidate_identities() and dto.import_into_database()
+# - stub dto.delete_from_source()
+#
+# Revision 1.136  2007/10/30 12:46:21  ncq
 # - test on "test"
 #
 # Revision 1.135  2007/10/30 12:43:42  ncq
