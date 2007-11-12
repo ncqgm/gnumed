@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.137 2007-11-10 21:00:52 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmPerson.py,v 1.138 2007-11-12 22:56:34 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -74,7 +74,7 @@ class cDTO_person(object):
 			args['sex'] = self.gender
 
 		cmd = u"""
-select *, %s as match_type from dem.v_basic_person
+select *, '%s' as match_type from dem.v_basic_person
 where pk_identity in (
 	select id_identity from dem.names where %s
 ) order by lastnames, firstnames, dob""" % (
@@ -113,6 +113,9 @@ where pk_identity in (
 			dob = self.dob
 		)
 		return ident
+	#--------------------------------------------------------
+	def import_extra_data(self):
+		pass
 	#--------------------------------------------------------
 	# customizing behaviour
 	#--------------------------------------------------------
@@ -289,26 +292,71 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
-	def get_external_ids(self, id_type=None, issuer=None):
-		return []
+	def add_external_id(self, id_type=None, id_value=None, issuer=u'external', comment=None, context=u'p'):
+		cmd = u"""
+select * from dem.v_external_ids4identity where
+	pk_identity = %(pat)s and
+	name = %(name)s and
+	value = %(val)s and
+	issuer = %(issuer)s
+"""
+		args = {
+			'pat': self.ID,
+			'name': id_type,
+			'val': id_value,
+			'issuer': issuer
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
-		{'ext_ids': {
-			'select': u"""
-				select
-					external_id as pk,
-					fk_origin as id_type,
-					comment,
-					external_id,
-					eeid.name as type,
-					eeid.context as context
-				from dem.lnk_identity2ext_id, dem.enum_ext_id_types eeid
-				where id_identity = %s and fk_origin = eeid.pk""",
-			'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s",
-			'insert': u"""
-				insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity)
-				values(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""
-		}
-		}
+		if len(rows) == 0:
+			cmd = u"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values (
+				%(id_val)s,
+				(select dem.add_external_id_type(%(id_type)s, %(issuer)s, %(ctxt)s)),
+				%(comment)s,
+				%(pat)s
+			)"""
+			args = {
+				'pat': self.ID,
+				'id_val': id_value,
+				'id_type': id_type,
+				'issuer': issuer,
+				'ctxt': context,
+				'comment': comment
+			}
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		else:
+			row = rows[0]
+			if comment is not None:
+				# comment not already there
+				if gmTools.coalesce(row['comment'], '').find(comment.strip()) == -1:
+					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
+					cmd = u"update dem.lnk_identity2ext_id set comment = %(comment)s where id=%(pk)s"
+					args = {'comment': comment, 'pk': row['pk_id']}
+					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def get_external_ids(self, id_type=None, issuer=None, context=None):
+		"""{'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s"}"""
+
+		where_parts = ['pk_identity = %(pat)s']
+		args = {'pat': self.ID}
+
+		if id_type is not None:
+			where_parts.append(u'name = %(name)s')
+			args['name'] = id_type.strip()
+
+		if issuer is not None:
+			where_parts.append(u'issuer = %(issuer)s')
+			args['issuer'] = issuer.strip()
+
+		if context is not None:
+			where_parts.append(u'context = %(ctxt)s')
+			args['ctxt'] = context.strip()
+
+		cmd = u"select * from dem.v_external_ids4identity where %s" % ' and '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		return rows
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
@@ -323,12 +371,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 
 		file.write(template % (u'013', u'8000', u'6301'))
 		file.write(template % (u'013', u'9218', u'2.10'))
-#		external_id_type = 'APW Patient ID'
 		if external_id_type is None:
 			file.write(template % (u'%03d' % (9 + len(str(self.ID))), u'3000', self.ID))
 		else:
-			ext_ids = self.get_external_ids(id_type=external_id_type, issuer='this practice')
-			ext_ids = [{'value': u'101071445'}]
+			ext_ids = self.get_external_ids(id_type = external_id_type)
 			if len(ext_ids) > 0:
 				file.write(template % (u'%03d' % (9 + len(ext_ids[0]['value'])), u'3000', ext_ids[0]['value']))
 		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['lastnames']])), u'3101', self._payload[self._idx['lastnames']]))
@@ -2017,7 +2063,12 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.137  2007-11-10 21:00:52  ncq
+# Revision 1.138  2007-11-12 22:56:34  ncq
+# - add missing '' around match_type
+# - get_external_ids() and use in export_as_gdt()
+# - add_external_id()
+#
+# Revision 1.137  2007/11/10 21:00:52  ncq
 # - implement dto.get_candidate_identities() and dto.import_into_database()
 # - stub dto.delete_from_source()
 #
