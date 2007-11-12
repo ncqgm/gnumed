@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.96 2007-11-10 20:58:59 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmPatSearchWidgets.py,v 1.97 2007-11-12 23:05:55 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -201,7 +201,6 @@ def load_persons_from_xdt():
 		dob_format = _cfg.get('XDT profile %s' % profile, 'DOB format')
 		if dob_format is None:
 			_log.Log(gmLog.lWarn, 'XDT profile [%s] does not define a date of birth format in <DOB format>' % profile)
-#			continue
 		bdt_files.append({'file': name, 'source': source, 'encoding': encoding, 'dob_format': dob_format})
 
 	dtos = []
@@ -226,18 +225,6 @@ def load_persons_from_xdt():
 			)
 			_log.LogException('cannot access xDT file [%s]' % bdt_file['file'])
 			continue
-
-#		except ValueError:
-#			gmGuiHelpers.gm_show_info (
-#				_(
-#				'Cannot load patient from BDT file\n\n'
-#				' [%s]'
-#				) % bdt_file,
-#				_('Activating xDT patient')
-#			)
-#			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
-#			continue
-
 		except:
 			gmGuiHelpers.gm_show_error (
 				_(
@@ -419,6 +406,7 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 		)
 		return False
 
+	dto.import_extra_data(identity = ident)
 	dto.delete_from_source()
 
 	return True
@@ -868,7 +856,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.96  2007-11-10 20:58:59  ncq
+# Revision 1.97  2007-11-12 23:05:55  ncq
+# - import extra data from DTOs
+#
+# Revision 1.96  2007/11/10 20:58:59  ncq
 # - use dto.get_candidate_identities() and dto.delete_from_source()
 #
 # Revision 1.95  2007/10/19 12:52:34  ncq
