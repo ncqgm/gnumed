@@ -8,11 +8,13 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: blobs-delete_document.sql,v 1.3 2007-11-12 23:11:24 ncq Exp $
--- $Revision: 1.3 $
+-- $Id: blobs-delete_document.sql,v 1.4 2007-11-12 23:22:22 ncq Exp $
+-- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
+
+set check_function_bodies to "on";
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -33,13 +35,7 @@ DECLARE
 	tmp text;
 BEGIN
 
-	BEGIN
-		select * into _doc_row from blobs.doc_med where pk = _pk_doc;
-	EXCEPTION
-		when NO_DATA_FOUND then
-			return True;
-		return FALSE;
-	END;
+	select * into _doc_row from blobs.doc_med where pk = _pk_doc;
 
 	_del_note := _(''Deletion of document'') || E'':\n''
 		|| '' '' || to_char(_doc_row.date, ''YYYY-MM-DD HH24:MI'') || '' "''
@@ -76,11 +72,14 @@ select i18n.upd_tx('de_DE', 'Deletion of document', 'Dokument gelöscht');
 revoke delete on blobs.doc_med from "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.3 $');
+select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.4 $');
 
 -- ==============================================================
 -- $Log: blobs-delete_document.sql,v $
--- Revision 1.3  2007-11-12 23:11:24  ncq
+-- Revision 1.4  2007-11-12 23:22:22  ncq
+-- - remove exception handling
+--
+-- Revision 1.3  2007/11/12 23:11:24  ncq
 -- - remove strict
 --
 -- Revision 1.2  2007/11/05 11:40:26  ncq
