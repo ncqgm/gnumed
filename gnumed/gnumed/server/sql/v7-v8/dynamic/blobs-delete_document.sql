@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: blobs-delete_document.sql,v 1.2 2007-11-05 11:40:26 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: blobs-delete_document.sql,v 1.3 2007-11-12 23:11:24 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -34,7 +34,7 @@ DECLARE
 BEGIN
 
 	BEGIN
-		select * into STRICT _doc_row from blobs.doc_med where pk = _pk_doc;
+		select * into _doc_row from blobs.doc_med where pk = _pk_doc;
 	EXCEPTION
 		when NO_DATA_FOUND then
 			return True;
@@ -76,11 +76,14 @@ select i18n.upd_tx('de_DE', 'Deletion of document', 'Dokument gelöscht');
 revoke delete on blobs.doc_med from "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: blobs-delete_document.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: blobs-delete_document.sql,v $
--- Revision 1.2  2007-11-05 11:40:26  ncq
+-- Revision 1.3  2007-11-12 23:11:24  ncq
+-- - remove strict
+--
+-- Revision 1.2  2007/11/05 11:40:26  ncq
 -- - revoke delete right on blobs.doc_med and make
 --   delete_document() security definer
 --
