@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.89 2007-11-07 22:59:31 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmDemographicRecord.py,v 1.90 2007-11-12 22:52:01 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -350,8 +350,9 @@ def address_exists(country=None, state=None, urb=None, suburb=None, postcode=Non
 		return None
 	return rows[0][0]
 #------------------------------------------------------------
-def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
-	# FIXME: if country/state/urb are None pull them from address of practice
+#def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
+def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
+
 	pk_address = address_exists (
 		country=country,
 		state=state,
@@ -360,9 +361,9 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 		postcode=postcode,
 		street=street,
 		number=number,
-		subunit=subunit,
-		notes_street=notes_street,
-		notes_subunit=notes_subunit
+		subunit=subunit
+#		,notes_street=notes_street,
+#		notes_subunit=notes_subunit
 	)
 	if pk_address is not None:
 		return cAddress(aPK_obj=pk_address)
@@ -397,12 +398,12 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 			'args': {'suburb': suburb, 'pk_street': adr['pk_street']}
 		}]
 
-	if notes_street is not None:
-		adr['notes_street'] = notes_street
-	if notes_subunit is not None:
-		adr['notes_subunit'] = notes_subunit
+#	if notes_street is not None:
+#		adr['notes_street'] = notes_street
+#	if notes_subunit is not None:
+#		adr['notes_subunit'] = notes_subunit
 
-	adr.save_payload()
+#	adr.save_payload()
 
 	return adr
 #------------------------------------------------------------
@@ -443,8 +444,8 @@ if __name__ == "__main__":
 			suburb ='Sellerhausen',
 			postcode ='04318',
 			street = u'Cunnersdorfer Strasse',
-			number = '11',
-			notes_subunit = '4.Stock rechts'
+			number = '11'
+#			,notes_subunit = '4.Stock rechts'
 		)
 		print "created existing address"
 		print address
@@ -459,7 +460,7 @@ if __name__ == "__main__":
 			postcode ='04318',
 			street = u'Cunnersdorfer Strasse',
 			number = '11',
-			notes_subunit = '4.Stock rechts',
+#			notes_subunit = '4.Stock rechts',
 			subunit = su
 		)
 		print "created new address with subunit", su
@@ -501,7 +502,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.89  2007-11-07 22:59:31  ncq
+# Revision 1.90  2007-11-12 22:52:01  ncq
+# - create_address() now doesn't care about non-changing fields
+#
+# Revision 1.89  2007/11/07 22:59:31  ncq
 # - don't allow editing number on address
 #
 # Revision 1.88  2007/03/23 15:01:36  ncq
