@@ -7,19 +7,19 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.15 2007-11-02 10:55:37 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmKVK.py,v 1.16 2007-11-12 22:54:26 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, fileinput, codecs, time, datetime as pyDT, glob
+import sys, os, os.path, fileinput, codecs, time, datetime as pyDT, glob, re as regex
 
 
 # our modules
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmLog, gmExceptions, gmDateTime, gmTools
+from Gnumed.pycommon import gmLog, gmExceptions, gmDateTime, gmTools, gmPG2
 
 
 _log = gmLog.gmDefLog
@@ -29,7 +29,7 @@ _log.Log(gmLog.lInfo, __version__)
 true_kvk_fields = [
 	'insurance_company',
 	'insurance_number',
-	'kvk_number',
+	'insurance_number_vknr',
 	'insuree_number',
 	'insuree_status',
 	'insuree_status_detail',
@@ -53,7 +53,7 @@ map_kvkd_tags2dto = {
 	'Lesertyp': 'reader_type',
 	'KK-Name': 'insurance_company',
 	'KK-Nummer': 'insurance_number',
-	'KVK-Nummer': 'kvk_number',
+	'KVK-Nummer': 'insurance_number_vknr',
 	'V-Nummer': 'insuree_number',
 	'V-Status': 'insuree_status',
 	'V-Statusergaenzung': 'insuree_status_detail',
@@ -72,6 +72,9 @@ map_kvkd_tags2dto = {
 	'Kommentar': 'comment'
 }
 
+issuer_template = u'%s (%s)'
+insurance_number_external_id_type = u'Versichertennummer'
+
 #============================================================
 class cDTO_KVK(gmPerson.cDTO_person):
 
@@ -81,14 +84,76 @@ class cDTO_KVK(gmPerson.cDTO_person):
 		self.last_read_time_format = '%H:%M:%S'
 		self.last_read_date_format = '%d.%m.%Y'
 		self.filename = filename
-		self.__find_me_sql = None
 
 		self.__parse_kvk_file()
-	#--------------------------------------------------------
-	def _get_find_me_sql(self):
-		return u''
 
-	find_me_sql = property(_get_find_me_sql, lambda x:x)
+		# if we need to interpret KBV requirements by the
+		# letter we have to delete the file right here
+		#self.delete_from_source()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def get_candidate_identities(self, can_create = False):
+		old_idents = gmPerson.cDTO_person.get_candidate_identities(self, can_create = can_create)
+
+		cmd = u"""
+select pk_identity from dem.v_external_ids4identity where
+	value = %(val)s and
+	name = %(name)s and
+	issuer = %(kk)s
+"""
+		args = {
+			'val': self.insuree_number,
+			'name': insurance_number_external_id_type,
+			'kk': issuer_template % (self.insurance_company, self.insurance_number)
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		# weed out duplicates
+		new_idents = []
+		for r in rows:
+			for oid in old_idents:
+				if r[0] == oid.ID:
+					break
+			new_idents.append(gmPerson.cIdentity(aPK_obj = r['pk_identity']))
+
+		old_idents.extend(new_idents)
+
+		return old_idents
+	#--------------------------------------------------------
+	def import_extra_data(self, identity=None):
+		# Versicherungsnummer
+		identity.add_external_id (
+			id_type = insurance_number_external_id_type,
+			id_value = self.insuree_number,
+			issuer = issuer_template % (self.insurance_company, self.insurance_number),
+			comment = u'Nummer des Versicherten bei der Krankenkasse',
+			context = u'p'
+		)
+		# address
+		street = self.street
+		number = regex.findall(' \d+.*', street)
+		if len(number) == 0:
+			number = None
+		else:
+			street = street.replace(number[0], '')
+			number = number[0].strip()
+		identity.link_address (
+			number = number,
+			street = street,
+			postcode = self.zip,
+			urb = self.urb,
+			state = u'??',
+			country = u'DE'
+		)
+		# FIXME: kvk itself
+	#--------------------------------------------------------
+	def delete_from_source(self):
+		try:
+			os.remove(self.filename)
+			self.filename = None
+		except:
+			_log.LogException('cannot delete kvkd file [%s]' % self.filename, verbose = False)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -119,103 +184,6 @@ class cDTO_KVK(gmPerson.cDTO_person):
 
 		# guess gender from firstname
 		self.gender = gmTools.coalesce(gmPerson.map_firstnames2gender(firstnames=self.firstnames), 'f')
-
-
-#============================================================
-class cKVK_data:
-	"""Abstract KVK data class.
-
-	"""
-	#--------------------------------------------------------
-	def __init__(self):
-		for field in true_kvk_fields:
-			self.__dict__[field] = None
-	#--------------------------------------------------------
-	def __setitem__(self, key, value):
-		# this will kick us out on KeyError
-		tmp = self.__dict__[key]
-		self.__dict__[key] = value
-	#--------------------------------------------------------
-	def __getitem__(self, key):
-		return self.__dict__[key]
-#============================================================
-class cKVKd_file:
-	"""KVKd file handler.
-
-	Encapsulates logic around libchipcard kvkd files.
-	"""
-	#--------------------------------------------------------
-	_lst_kvkd_file_fields = [
-		'Version',
-		'Datum',
-		'Zeit',
-		'Pruefsumme-gueltig',
-		'Kommentar'
-	]
-	#--------------------------------------------------------
-	def __init__(self, aFile = None):
-		self.filename = os.path.abspath(os.path.expanduser(aFile))
-
-		if not self.__parse_file():
-			raise gmExceptions.ConstructorError, "cannot parse kvkd file [%s]" % self.filename
-
-		if not self.__verify_data():
-			raise gmExceptions.ConstructorError, "cannot verify data in kvkd file [%s]" % self.filename
-
-		return None
-	#--------------------------------------------------------
-	def __parse_file(self):
-		self.kvk = cKVK_data()
-		try:
-			for line in fileinput.input(self.filename):
-				tmp = line.replace('\012', '')
-				tmp = tmp.replace('\015', '')
-				name, content = tmp.split(':', 1)
-				# now, either it's a true KVK field
-				try:
-					self.kvk[self.map_kvkd_tags2dto[name]] = content
-				# or an auxiliary field from libchipcard's kvkd :-)
-				except KeyError:
-					# or maybe not, after all ?
-					if not name in self._lst_kvkd_file_fields:
-						raise KeyError, "invalid self.__dict__ key [%s]" % name
-					self.__dict__[name] = content
-
-			fileinput.close()
-		except StandardError:
-			_log.LogException('cannot access or parse kvkd file [%s]' % self.filename, sys.exc_info())
-			fileinput.close()
-			return None
-
-		return 1
-	#--------------------------------------------------------
-	def __verify_data(self):
-		# "be generous in what you accept and strict on what you emit"
-		return 1
-	#--------------------------------------------------------
-	#--------------------------------------------------------
-	def __getitem__(self, key):
-		try:
-			return self.kvk[key]
-		except KeyError:
-			if not self.__dict__.has_key(key):
-				raise KeyError, "invalid self.__dict__ key [%s]" % key
-			else:
-				return self.__dict__[key]
-	#--------------------------------------------------------
-	# public methods
-	#--------------------------------------------------------
-	def delete_file(self):
-		"""Remove the underlying file.
-
-		Yes, this is needed. It is a requirement by the KBV.
-		"""
-		try:
-			os.remove(self.filename)
-		except StandardError:
-			_log.LogException('cannot remove kvkd file [%s]' % self.filename, sys.exc_info())
-			return None
-		return 1
 #============================================================
 def get_available_kvks_as_dtos(spool_dir = None):
 
@@ -251,9 +219,7 @@ if __name__ == "__main__":
 		if len(sys.argv) < 3:
 			print "give name of KVKd file as first argument"
 			sys.exit(-1)
-
 		#test_kvk_dto()
-		#tmp = cKVKd_file(aFile = kvkd_file)
 		test_get_available_kvks_as_dto()
 
 #============================================================
@@ -263,13 +229,13 @@ if __name__ == "__main__":
 #	--------------------------------------------
 #	Name Kasse |  x     | str  | 2-28
 #	Nr. Kasse  |  x     | int  | 7
-#	Nr. KVK    |        | int  | 5
+#	   VKNR    |        | int  | 5						# MUST be derived from Stammdaten-file, not from KVK
 #	Nr. Pat    |  x     | int  | 6-12
 #	Status Pat |  x     | str  | 1 or 4
 #	Statuserg. |        | str  | 1-3
 #	Titel Pat  |        | str  | 3-15
 #	Vorname    |        | str  | 2-28
-#	Adelspräd. |        | str  | 1-15
+#	Adelspraed.|        | str  | 1-15
 #	Nachname   |  x     | str  | 2-28
 #	geboren    |  x     | int  | 8      | DDMMYYYY
 #	Straße     |        | str  | 1-28
@@ -280,7 +246,15 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.15  2007-11-02 10:55:37  ncq
+# Revision 1.16  2007-11-12 22:54:26  ncq
+# - fix longstanding semantic bug ! KVK-Nummmer really is VKNR
+# - delete KVKd file after importing it
+# - improve get_candidate_identities()
+# - improve import_extra_data()
+# - implement delete_from_source()
+# - cleanup, improve docs
+#
+# Revision 1.15  2007/11/02 10:55:37  ncq
 # - syntax error fix
 #
 # Revision 1.14  2007/10/31 22:06:17  ncq
