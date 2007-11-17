@@ -3,12 +3,11 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.111 2007-08-28 14:18:13 ncq Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmEditArea.py,v 1.112 2007-11-17 16:37:46 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
-
 import sys, traceback, time
 
 import wx
@@ -16,6 +15,7 @@ import wx
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
 
 _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
@@ -119,141 +119,48 @@ richards_coloured_gray = wx.Color(131,129,131)
 
 CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wx.SpinCtrl', 'gmPhraseWheel', 'wx.ComboBox'] 
 
-basicPrescriptionExtra = [
-	None,
-	None,
-	None,
-	("qty", _("Quantity"), wx.TextCtrl),
-	("rpts", _("Repeats"), wx.TextCtrl) ,
-	("usual", _("Usual"), wx.CheckBox)
-	]	
-
-auPrescriptionExtra = [
-	None, 
-	("vet", _("Veteran"), wx.CheckBox) ,
-	("reg24", _("Reg 24"), wx.CheckBox) ,
-	("qty", _("Quantity"), wx.SpinCtrl),
-	("rpts", _("Repeats"), wx.SpinCtrl) ,
-	("usual", _("Usual"), wx.CheckBox)
-	]
-
-
-
-auBillingChoices =  [_("bulk bill"), _("private"),  _("concession"), _("workcover") ] 
-
-
-referralColumn2 = [
-	("isByFirstname", _("chums"), wx.CheckBox),
-	("isHeadOffice", _("head office"), wx.CheckBox),
-	("W Phone", _("W Phone"), wx.TextCtrl),
-	("W Fax", _("W Fax  "), wx.TextCtrl),
-	("W Email", _("W Email"), wx.TextCtrl),
-	None 
-	] 
-
-
-recallColumn2 = [
-	None,
-	None,
-	None,
-	("appt", _("Appointment Type"), wx.ComboBox),
-	("for", _("request for"), wx.TextCtrl)
-	 ]
-
-requestColumn2 = [
-	None,	None, None,
-	("phone", _("Phone"), wx.TextCtrl ),
-	None, None,
-	("all meds", _("Include All Meds"), wx.CheckBox)
-	]
-
-
-_prompt_defs = {
-	'vaccination': [],
-	'allergy': [],
-
-	'family history': [
-		_("Name"),
-		_("Relationship"),
-		_("Condition"),
-		_("Comment"),
-		_("Significance"),
-		_("Progress Notes"),
-		""
-	],
-	'past history': [
-		_("Condition"),
-		_("Notes"),
-		_("More Notes"),
-		_("Age"),
-		_("Year"),
-		"" ,
-		_("Progress Notes") ,
-		""
-	]
-	,'measurement': [
-		_("Type"),
-		_("Date"),
-		_("Value"),
-		_("Comment"),
-		_("Progress Notes"), ""
-	]
-	,"prescription": [
-		_("Condition"),
-		_("Class"),
-		_("Generic"),
-		_("Brand"),
-		_("Strength"),
-		_("Directions"),
-		_("For"),
-		_("Progress Notes"),
-		""
-	]
-	, "referral": [
-		_("Name"),
-		_("Organization"),
-		_("Street1"),
-		_("Street2"),
-		_("Suburb"),
-		_("Postcode"),
-		_("For"),
-		_("Include"),
-		"",
-		""
-	]
-	, "recall" : [
-		_("To See"),
-		_("For"),
-		_("Date"),
-		_("Contact By"),
-		_("Include"),
-		"",
-		_("Include List"),
-		_("Instructions"),
-		_("Progress Notes"),
-		""
-	]
-	, "request" : [
-		_("Type"),
-		_("Company"),
-		_("Street"),
-		_("Suburb"),
-		_("Request"),
-		_("Notes on form"),
-		_("Medications"),
-		_("Copy To"),
-		_("Progress Notes")	,
-		""
-	]
-}
-
-_known_edit_area_types = []
-_known_edit_area_types.extend(_prompt_defs.keys())
-
 def _decorate_editarea_field(widget):
 	widget.SetForegroundColour(wx.Color(255, 0, 0))
 	widget.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 
+#====================================================================
+class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		ea = kwargs['edit_area']
+		del kwargs['edit_area']
+
+		wxgGenericEditAreaDlg.wxgGenericEditAreaDlg.__init__(self, *args, **kwargs)
+
+		szr = self._PNL_ea.GetContainingSizer()
+		szr.Remove(self._PNL_ea)
+		ea.Reparent(self)
+		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
+		self._PNL_ea = ea
+		self.Layout()
+		szr = self.GetSizer()
+		szr.Fit(self)
+		self.Refresh()
+
+#		if allergy is None:
+#			self._BTN_save.SetLabel(_('&Save'))
+#			self._BTN_clear.SetLabel(_('&Clear'))
+#		else:
+#			self._BTN_save.SetLabel(_('Update'))
+#			self._BTN_clear.SetLabel(_('&Restore'))
+
+		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		if self._PNL_ea.save():
+			if self.IsModal():
+				self.EndModal(wx.ID_OK)
+			else:
+				self.Close()
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, evt):
+		self._PNL_ea.refresh()
 #====================================================================
 class cEditAreaPopup(wx.Dialog):
 	def __init__ (
@@ -1678,153 +1585,6 @@ class gmPrescriptionEditArea(gmEditArea):
 		return 1
 
 #====================================================================
-class gmRecallEditArea(gmEditArea):
-	extraColumns = [recallColumn2	]
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'recall')
-		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.LogExceptions('cannot instantiate recall edit area', sys.exc_info(),4)
-			raise
-	
-	
-
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making recall lines")
-		lines = []
-		self.txt_tosee = cEditAreaField(parent)
-		self.txt_for = cEditAreaField(parent)
-		self.txt_date = cEditAreaField(parent)
-		self.txt_contactBy = wx.ComboBox(parent, -1)
-		self.txt_testType= wx.ComboBox(parent , -1)
-		self.txt_includeList = cEditAreaField(parent)
-		self.txt_instructions = cEditAreaField(parent)
-		self.txt_progress = cEditAreaField(parent)
-		buttonAddTest = wx.Button(parent, -1, _("add tests") )
-		buttonDelTest = wx.Button(parent, -1, _("delete tests") )
-		lines.append(self.txt_tosee)
-		lines.append(self.txt_for)
-		lines.append(self.txt_date)
-		lines.append(self.txt_contactBy)
-		lines.append(self.txt_testType)
-
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add( buttonAddTest, 0, 0)
-		szr.Add( buttonDelTest, 0, 0)
-		lines.append( szr)
-		
-		lines.append(self.txt_includeList)
-		lines.append(self.txt_instructions)
-		lines.append(self.txt_progress)
-		lines.append(self._make_standard_buttons(parent))
-		self.input_fields = {
-		        "providers": self.txt_tosee
-			,"for"	 :self.txt_for
-			, "date"	: self.txt_date
-			,"contact": self.txt_contactBy
-			, "testType": self.txt_testType
-			, "addTest" : buttonAddTest
-			, "delTest" : buttonDelTest
-			, "includeList": self.txt_includeList
-			, "instructions": self.txt_instructions
-			, "progress" : self.txt_progress
-
-		}
-
-		weightMap = {self.txt_testType : ( 1, 2) }
-
-		return self._makeExtraColumns( parent, lines, weightMap)
-
-	def _save_data(self):
-		return 1
-
-
-class gmRequestEditArea(gmEditArea):
-	extraColumns = [requestColumn2	]
-
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'request')
-		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.LogExceptions('cannot instantiate request edit area', sys.exc_info(),4)
-			raise
-
-	def _makeRadioButtons( self, parent, choices):
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		
-		for x in choices:
-			w = wx.RadioButton(parent, -1, x)
-			szr.Add(w)
-			self.input_fields[x] = w
-		return szr	
-
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making request lines")
-		lines = []
-		atype = cEditAreaField(parent)
-		company = cEditAreaField(parent)
-		street = cEditAreaField(parent)
-		urb = cEditAreaField(parent)
-		#phone = cEditAreaField(parent)
-		request = cEditAreaField(parent)
-		notes = cEditAreaField(parent)
-		meds = cEditAreaField(parent)
-		#all_meds = self._makeCheckBox(parent,"Include All Meds")
-		copyto = cEditAreaField(parent)
-		progress = cEditAreaField(parent)
-		if not self.__class__.__dict__.has_key('billingChoices'):
-			self.__class__.__dict__['billingChoices'] = auBillingChoices
-		billings = self._makeRadioButtons( parent,  choices = self.__class__.billingChoices)
-		#lines.append(self.fld_disease_sched)
-
-		
-		lines.append(atype)
-
-		lines.append(company)
-		lines.append(street)
- 		lines.append(urb)
-
-		lines.append(request)
-		lines.append(notes)
-		
-
-		lines.append(meds)
-		lines.append(copyto)
-		lines.append(progress)
-		#lines.append(billings)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(billings, 2, wx.EXPAND)
-		
-		szr.Add(self._make_standard_buttons(parent), 1, wx.EXPAND)
-		lines.append(szr)
-		#lines.append(self._make_standard_buttons(parent))
-		self.input_fields = {
-			"type":  atype,
-			"company":company,
-			"street": street,
-			"urb": urb,
-			"request": request,
-			"notes": notes,
-			"meds" : meds,
-			"copyto" : copyto,
-			"progress" : progress
-		}
-
-		return self._makeExtraColumns( parent, lines )
-
-#gmRequestEditArea.billingChoices = auBillingChoices
-	
-	
-	def _save_data(self):
-		return 1
-
-#====================================================================
 # old style stuff below
 #====================================================================
 #Class which shows a blue bold label left justified
@@ -2338,7 +2098,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.111  2007-08-28 14:18:13  ncq
+# Revision 1.112  2007-11-17 16:37:46  ncq
+# - cleanup
+# - cGenericEditAreaDlg
+#
+# Revision 1.111  2007/08/28 14:18:13  ncq
 # - no more gm_statustext()
 #
 # Revision 1.110  2007/02/22 17:41:13  ncq
