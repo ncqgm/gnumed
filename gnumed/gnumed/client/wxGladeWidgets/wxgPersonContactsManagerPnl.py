@@ -7,99 +7,32 @@ import wx
 class wxgPersonContactsManagerPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmListWidgets
+        from Gnumed.wxpython import gmDemographicsWidgets
 
         # begin wxGlade: wxgPersonContactsManagerPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._LCTRL_addresses = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_HRULES|wx.NO_BORDER)
-        self._BTN_add_address = wx.Button(self, wx.ID_ADD, "")
-        self._BTN_edit_address = wx.Button(self, -1, _("Edit"))
-        self._BTN_remove_address = wx.Button(self, wx.ID_REMOVE, "")
-        self.static_line_1 = wx.StaticLine(self, -1)
-        self._LCTRL_comms = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_HRULES|wx.NO_BORDER)
-        self._BTN_add_comm = wx.Button(self, wx.ID_ADD, "")
-        self._BTN_edit_address_copy = wx.Button(self, -1, _("Edit"))
-        self._BTN_remove_comm = wx.Button(self, wx.ID_REMOVE, "")
+        self._PNL_addresses = gmDemographicsWidgets.cPersonAddressesManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._PNL_comms = gmDemographicsWidgets.cPersonCommsManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
 
         self.__set_properties()
         self.__do_layout()
-
-        self.Bind(wx.EVT_BUTTON, self._on_add_address_button_pressed, self._BTN_add_address)
-        self.Bind(wx.EVT_BUTTON, self._on_edit_address_button_pressed, self._BTN_edit_address)
-        self.Bind(wx.EVT_BUTTON, self._on_remove_address_button_pressed, self._BTN_remove_address)
-        self.Bind(wx.EVT_BUTTON, self._on_add_comm_button_pressed, self._BTN_add_comm)
-        self.Bind(wx.EVT_BUTTON, self._on_edit_comm_button_pressed, self._BTN_edit_address_copy)
-        self.Bind(wx.EVT_BUTTON, self._on_remove_comm_button_pressed, self._BTN_remove_comm)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: wxgPersonContactsManagerPnl.__set_properties
+        self.SetFocus()
         self.SetScrollRate(10, 10)
-        self._LCTRL_addresses.SetToolTipString(_("The addresses known for this patient."))
-        self._BTN_add_address.SetToolTipString(_("Add an address for this patient."))
-        self._BTN_edit_address.SetToolTipString(_("Edit the selected address."))
-        self._BTN_edit_address.Enable(False)
-        self._BTN_remove_address.SetToolTipString(_("The address is no longer associated with this patient."))
-        self._BTN_remove_address.Enable(False)
-        self._LCTRL_comms.SetToolTipString(_("The communication paths known for this patient."))
-        self._BTN_add_comm.SetToolTipString(_("Add a communications path for this patient."))
-        self._BTN_edit_address_copy.SetToolTipString(_("Edit the selected communication path."))
-        self._BTN_edit_address_copy.Enable(False)
-        self._BTN_remove_comm.SetToolTipString(_("The communications path is no longer associated with this patient."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgPersonContactsManagerPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __szr_buttons_comms = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_buttons_addresses = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._LCTRL_addresses, 1, wx.EXPAND, 0)
-        __szr_buttons_addresses.Add((20, 20), 2, wx.ADJUST_MINSIZE, 0)
-        __szr_buttons_addresses.Add(self._BTN_add_address, 0, 0, 0)
-        __szr_buttons_addresses.Add((20, 20), 1, wx.ADJUST_MINSIZE, 0)
-        __szr_buttons_addresses.Add(self._BTN_edit_address, 0, 0, 0)
-        __szr_buttons_addresses.Add((20, 20), 1, wx.ADJUST_MINSIZE, 0)
-        __szr_buttons_addresses.Add(self._BTN_remove_address, 0, 0, 0)
-        __szr_buttons_addresses.Add((20, 20), 2, wx.ADJUST_MINSIZE, 0)
-        __szr_main.Add(__szr_buttons_addresses, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
-        __szr_main.Add(self.static_line_1, 0, wx.EXPAND, 0)
-        __szr_main.Add(self._LCTRL_comms, 1, wx.TOP|wx.EXPAND, 5)
-        __szr_buttons_comms.Add((20, 20), 2, wx.ADJUST_MINSIZE, 0)
-        __szr_buttons_comms.Add(self._BTN_add_comm, 0, 0, 0)
-        __szr_buttons_comms.Add((20, 20), 1, wx.ADJUST_MINSIZE, 0)
-        __szr_buttons_comms.Add(self._BTN_edit_address_copy, 0, 0, 0)
-        __szr_buttons_comms.Add((20, 20), 1, wx.ADJUST_MINSIZE, 0)
-        __szr_buttons_comms.Add(self._BTN_remove_comm, 0, 0, 0)
-        __szr_buttons_comms.Add((20, 20), 2, wx.ADJUST_MINSIZE, 0)
-        __szr_main.Add(__szr_buttons_comms, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
+        __szr_main.Add(self._PNL_addresses, 1, wx.ALL|wx.EXPAND, 5)
+        __szr_main.Add(self._PNL_comms, 1, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
-
-    def _on_add_address_button_pressed(self, event): # wxGlade: wxgPersonContactsManagerPnl.<event_handler>
-        print "Event handler `_on_add_address_button_pressed' not implemented!"
-        event.Skip()
-
-    def _on_remove_address_button_pressed(self, event): # wxGlade: wxgPersonContactsManagerPnl.<event_handler>
-        print "Event handler `_on_remove_address_button_pressed' not implemented!"
-        event.Skip()
-
-    def _on_add_comm_button_pressed(self, event): # wxGlade: wxgPersonContactsManagerPnl.<event_handler>
-        print "Event handler `_on_add_comm_button_pressed' not implemented!"
-        event.Skip()
-
-    def _on_remove_comm_button_pressed(self, event): # wxGlade: wxgPersonContactsManagerPnl.<event_handler>
-        print "Event handler `_on_remove_comm_button_pressed' not implemented!"
-        event.Skip()
-
-    def _on_edit_address_button_pressed(self, event): # wxGlade: wxgPersonContactsManagerPnl.<event_handler>
-        print "Event handler `_on_edit_address_button_pressed' not implemented"
-        event.Skip()
-
-    def _on_edit_comm_button_pressed(self, event): # wxGlade: wxgPersonContactsManagerPnl.<event_handler>
-        print "Event handler `_on_edit_comm_button_pressed' not implemented"
-        event.Skip()
 
 # end of class wxgPersonContactsManagerPnl
 
