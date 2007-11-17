@@ -7,22 +7,24 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.90 2007-11-12 22:52:01 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmDemographicRecord.py,v 1.91 2007-11-17 16:10:53 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
 import sys, os.path, time, string
 
+
 # 3rd party
 import mx.DateTime as mxDT
 
-if __name__ == '__main__':
-	sys.path.insert(0, '../../')
 
 # GNUmed
-from Gnumed.pycommon import gmLog, gmExceptions, gmSignals, gmDispatcher, gmMatchProvider, gmI18N, gmBusinessDBObject, gmPG2
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmLog, gmDispatcher, gmBusinessDBObject, gmPG2, gmTools
 from Gnumed.business import gmMedDoc
+
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -67,7 +69,7 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 			where id=%(pk_lnk_person_org_address)s and xmin=%(xmin_lnk_person_org_address)s""",
 		u"""select xmin from dem.lnk_person_org_address where id=%(pk_lnk_person_org_address)s"""
 	]
-	_updatable_fields = ['id_type']
+	_updatable_fields = ['pk_address_type']
 	#---------------------------------------------------------------
 	def get_identities(self, same_lastname=False):
 		pass
@@ -350,20 +352,20 @@ def address_exists(country=None, state=None, urb=None, suburb=None, postcode=Non
 		return None
 	return rows[0][0]
 #------------------------------------------------------------
-#def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
 def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
 
+	if suburb is not None:
+		suburb = gmTools.none_if(suburb.strip(), u'')
+
 	pk_address = address_exists (
-		country=country,
-		state=state,
-		urb=urb,
-		suburb=suburb,
-		postcode=postcode,
-		street=street,
-		number=number,
-		subunit=subunit
-#		,notes_street=notes_street,
-#		notes_subunit=notes_subunit
+		country = country,
+		state = state,
+		urb = urb,
+		suburb = suburb,
+		postcode = postcode,
+		street = street,
+		number = number,
+		subunit = subunit
 	)
 	if pk_address is not None:
 		return cAddress(aPK_obj=pk_address)
@@ -394,16 +396,11 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 
 	if suburb is not None:
 		queries = [{
-			'cmd': u"update dem.street set suburb = %(suburb)s where id=%(pk_street)s",
+			# CAVE: suburb will be ignored if there already is one
+			'cmd': u"update dem.street set suburb = %(suburb)s where id=%(pk_street)s and suburb is Null",
 			'args': {'suburb': suburb, 'pk_street': adr['pk_street']}
 		}]
-
-#	if notes_street is not None:
-#		adr['notes_street'] = notes_street
-#	if notes_subunit is not None:
-#		adr['notes_subunit'] = notes_subunit
-
-#	adr.save_payload()
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
 
 	return adr
 #------------------------------------------------------------
@@ -480,7 +477,7 @@ if __name__ == "__main__":
 	sys.exit()
 
 	_log.SetAllLogLevels(gmLog.lData)
-	gmDispatcher.connect(_post_patient_selection, gmSignals.post_patient_selection())
+	gmDispatcher.connect(_post_patient_selection, 'post_patient_selection')
 	while 1:
 		pID = raw_input('a patient: ')
 		if pID == '':
@@ -502,7 +499,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.90  2007-11-12 22:52:01  ncq
+# Revision 1.91  2007-11-17 16:10:53  ncq
+# - improve create_address()
+# - cleanup and fixes
+#
+# Revision 1.90  2007/11/12 22:52:01  ncq
 # - create_address() now doesn't care about non-changing fields
 #
 # Revision 1.89  2007/11/07 22:59:31  ncq
