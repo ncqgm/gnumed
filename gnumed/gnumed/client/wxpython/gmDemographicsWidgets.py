@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.126 2007-08-28 14:18:12 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmDemographicsWidgets.py,v 1.127 2007-11-17 16:36:59 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,13 +17,16 @@ import wx.wizard
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets
+from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
+from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl
+
 
 # constant defs
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
+
 
 try:
 	_('do-not-translate-but-make-epydoc-happy')
@@ -126,7 +129,350 @@ def disable_identity(identity=None):
 
 	return True
 #============================================================
-# address phrasewheels
+# address phrasewheels and widgets
+#============================================================
+class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__identity = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			self.__identity = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		self.new_callback = self._add_address
+		self.edit_callback = self._edit_address
+		self.delete_callback = self._del_address
+		self.refresh_callback = self.refresh
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, *args, **kwargs):
+		if self.__identity is None:
+			return
+
+		adrs = self.__identity.get_addresses()
+		self._LCTRL_items.set_string_items (
+			items = [ [ a['l10n_address_type'], a['street'], a['urb'], gmTools.coalesce(a['suburb'], u''), a['l10n_state'], a['l10n_country'] ] for a in adrs ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = adrs)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('Type'),
+			_('Street'),
+			_('Town'),
+			_('Suburb'),
+			_('State'),
+			_('Country')
+		])
+	#--------------------------------------------------------
+	def _add_address(self):
+		ea = cAddressEditAreaPnl(self, -1)
+		ea.identity = self.__identity
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+		return False
+	#--------------------------------------------------------
+	def _edit_address(self, address):
+		ea = cAddressEditAreaPnl(self, -1, address = address)
+		ea.identity = self.__identity
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+		return False
+	#--------------------------------------------------------
+	def _del_address(self, address):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(
+				'Are you sure you want to remove this\n'
+				'address from the patient file ?\n'
+				'\n'
+				'The address itself will not be deleted\n'
+				'but it will no longer be associated with\n'
+				'this patient.'
+			),
+			_('Removing address')
+		)
+		if not go_ahead:
+			return False
+		self.__identity.unlink_address(address = address)
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#------------------------------------------------------------
+class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__identity = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			self.__identity = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		self.new_callback = None
+		self.edit_callback = None
+		self.delete_callback = None
+		self.refresh_callback = None
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self):
+		if self.__identity is None:
+			return
+
+		comms = self.__identity.get_comm_channels()
+		self._LCTRL_items.set_string_items (
+			items = [ [ c['l10n_comm_type'], c['url'], gmTools.bool2str(c['is_confidential'], u'X', u'') ] for c in comms ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = comms)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('Type'),
+			_('URL'),
+			_('confidential')
+		])
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#============================================================
+class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl.__init__(self, *args, **kwargs)
+
+		self.__identity = None
+
+#		self.__register_interests()
+
+		self.refresh()
+
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self):
+		if self.__identity is None:
+			return
+
+		self._PNL_addresses.identity = self.__identity
+		self._PNL_comms.identity = self.__identity
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#============================================================
+class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			self.__address = kwargs['address']
+			del kwargs['address']
+		except KeyError:
+			self.__address = None
+
+		wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self.identity = None
+
+		self.__register_interests()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, address = None):
+		if address is not None:
+			self.__address = address
+
+		if self.__address is not None:
+			self._PRW_type.SetText(self.__address['l10n_address_type'])
+			self._PRW_zip.SetText(self.__address['postcode'])
+			self._PRW_street.SetText(self.__address['street'], data = self.__address['street'])
+			self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.__address['notes_street'], ''))
+			self._TCTRL_number.SetValue(self.__address['number'])
+			self._TCTRL_subunit.SetValue(gmTools.coalesce(self.__address['subunit'], ''))
+			self._PRW_suburb.SetText(gmTools.coalesce(self.__address['suburb'], ''))
+			self._PRW_urb.SetText(self.__address['urb'], data = self.__address['urb'])
+			self._PRW_state.SetText(self.__address['l10n_state'], data = self.__address['code_state'])
+			self._PRW_country.SetText(self.__address['l10n_country'], data = self.__address['code_country'])
+			self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.__address['notes_subunit'], ''))
+		# FIXME: clear fields
+#		else:
+#			pass
+	#--------------------------------------------------------
+	def save(self):
+		"""Links address to patient, creating new address if necessary"""
+
+		if not self.__valid_for_save():
+			return False
+
+		# link address to patient
+		adr = self.identity.link_address (
+			number = self._TCTRL_number.GetValue().strip(),
+			street = self._PRW_street.GetValue().strip(),
+			postcode = self._PRW_zip.GetValue().strip(),
+			urb = self._PRW_urb.GetValue().strip(),
+			state = self._PRW_state.GetData(),
+			country = self._PRW_country.GetData(),
+			subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u''),
+			suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
+			id_type = self._PRW_type.GetData()
+		)
+
+		notes = self._TCTRL_notes_street.GetValue().strip()
+		if notes != u'':
+			adr['notes_street'] = notes
+		notes = self._TCTRL_notes_subunit.GetValue().strip()
+		if notes != u'':
+			adr['notes_subunit'] = notes
+		adr.save_payload()
+
+		self.__address = adr
+
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		self._PRW_zip.add_callback_on_lose_focus(self._on_zip_set)
+		self._PRW_country.add_callback_on_lose_focus(self._on_country_set)
+#		self.PRW_town.add_callback_on_selection (self.on_town_set)
+	#--------------------------------------------------------
+	def _on_zip_set(self):
+		"""Set the street, town, state and country according to entered zip code."""
+		zip_code = self._PRW_zip.GetValue()
+		self._PRW_street.set_context(context = u'zip', val = zip_code)
+		self._PRW_urb.set_context(context = u'zip', val = zip_code)
+		self._PRW_state.set_context(context = u'zip', val = zip_code)
+		self._PRW_country.set_context(context = u'zip', val = zip_code)
+	#--------------------------------------------------------
+	def _on_country_set(self):
+		"""Set the states according to entered country."""
+		country = self._PRW_country.GetData()
+		if country is None:
+			self._PRW_state.unset_context(context = 'country')
+		else:
+			self._PRW_state.set_context(context = 'country', val = country)
+	#--------------------------------------------------------
+#	def on_town_set (self, data):
+#		"""
+#		Set postcode, country and state in accordance with the town
+#		"""
+#		zip, state_id, state, country_id, country = gmDemographicRecord.get_town_data (self.PRW_town.GetValue ())
+#		if zip:
+#			self.PRW_state.SetText (state, state_id)
+#			self.PRW_zip_code.SetText (zip)
+#			self.PRW_country.SetText (country, country_id)
+#			self.TTC_phone.SetFocus ()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+
+		required_fields = (
+			self._PRW_type,
+			self._PRW_zip,
+			self._PRW_street,
+			self._TCTRL_number,
+			self._PRW_urb,
+			self._PRW_state,
+			self._PRW_country
+		)
+		# validate required fields
+		is_any_field_filled = False
+		for field in required_fields:
+			if len(field.GetValue().strip()) > 0:
+				is_any_field_filled = True
+				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+				field.Refresh()
+				continue
+			if is_any_field_filled:
+				field.SetBackgroundColour('pink')
+				field.SetFocus()
+				field.Refresh()
+				gmGuiHelpers.gm_show_error (
+					_('Address details must be filled in completely or not at all.'),
+					_('Saving contact data')
+				)
+				return False
+
+		return True
+#============================================================
+class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+select id, type from ((
+	select id, _(name) as type, 1 as rank
+	from dem.address_type
+	where _(name) %(fragment_condition)s
+) union (
+	select id, name as type, 2 as rank
+	from dem.address_type
+	where name %(fragment_condition)s
+)) as ur
+order by
+	ur.rank, ur.type
+"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		mp.setWordSeparators(separators=u'[ \t]+')
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select the type of address.'))
+#		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.selection_only = True
+	#--------------------------------------------------------
+#	def GetData(self, can_create=False):
+#		if self.data is None:
+#			if can_create:
+#				self.data = gmMedDoc.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
+#		return self.data
 #============================================================
 class cStateSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -266,6 +612,29 @@ select s1, s2 from (
 		self.unset_context(context = u'zip')
 
 		self.SetToolTipString(_('Type or select a street.'))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.matcher = mp
+#============================================================
+class cSuburbPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = """
+select distinct on (suburb) suburb, suburb
+from dem.street
+where suburb %(fragment_condition)s
+order by suburb
+limit 50
+"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(2, 3, 6)
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+
+		self.SetToolTipString(_('Type or select the suburb.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #============================================================
@@ -1201,9 +1570,6 @@ class cPatIdentityPanel(wx.Panel):
 
 		return True
 #============================================================
-# FIXME: support several addresses
-# FIXME: redo with wxGlade
-
 class cPatContactsPanel(wx.Panel):
 	"""
 	Page containing patient contacts edition fields.
@@ -1734,6 +2100,8 @@ class TestWizardPanel(wx.Panel):
 #============================================================
 if __name__ == "__main__":
 
+	_log.SetAllLogLevels(gmLog.lData)
+
 	#--------------------------------------------------------
 	def test_zipcode_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
@@ -1749,6 +2117,18 @@ if __name__ == "__main__":
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
+	def test_suburb_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cSuburbPhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_address_type_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cAddressTypePhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
 	def test_street_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cStreetPhraseWheel(app.frame, -1)
@@ -1761,18 +2141,47 @@ if __name__ == "__main__":
 		app.SetWidget(cKOrganizerSchedulePnl)
 		app.MainLoop()
 	#--------------------------------------------------------
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
-	gmPG2.get_connection()
-	
-	try:
-		# obtain patient
-#		patient = gmPerson.ask_for_patient()
-#		if patient is None:
-#			print "No patient. Exiting gracefully..."
-#			sys.exit(0)
-#		gmPerson.set_active_patient(patient=patient)
-	
+	def test_address_ea_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		app.SetWidget(cAddressEditAreaPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_person_adrs_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonAddressesManagerPnl(app.frame, -1)
+		widget.identity = activate_patient()
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_person_comms_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonCommsManagerPnl(app.frame, -1)
+		widget.identity = activate_patient()
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_pat_contacts_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonContactsManagerPnl(app.frame, -1)
+		widget.identity = activate_patient()
+#		app.SetWidget(cPersonContactsManagerPnl)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def activate_patient():
+		patient = gmPerson.ask_for_patient()
+		if patient is None:
+			print "No patient. Exiting gracefully..."
+			sys.exit(0)
+		gmPerson.set_active_patient(patient=patient)
+		return patient
+	#--------------------------------------------------------
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+
+		gmI18N.activate_locale()
+		gmI18N.install_domain(domain='gnumed')
+		gmPG2.get_connection()
+
 #		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 
 #		app = wx.PyWidgetTester(size = (400, 300))
@@ -1785,16 +2194,26 @@ if __name__ == "__main__":
 #		test_zipcode_prw()
 #		test_state_prw()
 #		test_street_prw()
-		test_organizer_pnl()
-
-	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-		# but re-raise them
-		raise
+#		test_organizer_pnl()
+		#test_address_type_prw()
+		#test_suburb_prw()
+		#test_address_ea_pnl()
+		test_pat_contacts_pnl()
+		#test_person_adrs_pnl()
+		#test_person_comms_pnl()
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.126  2007-08-28 14:18:12  ncq
+# Revision 1.127  2007-11-17 16:36:59  ncq
+# - cPersonAddressesManagerPnl
+# - cPersonContactsManagerPnl
+# - cPersonCommsManagerPnl
+# - cAddressEditAreaPnl
+# - cAddressTypePhraseWheel
+# - cSuburbPhraseWheel
+# - more tests
+#
+# Revision 1.126  2007/08/28 14:18:12  ncq
 # - no more gm_statustext()
 #
 # Revision 1.125  2007/08/12 00:09:07  ncq
