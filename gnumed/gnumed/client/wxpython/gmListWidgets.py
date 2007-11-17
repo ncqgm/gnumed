@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.18 2007-10-08 12:56:02 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmListWidgets.py,v 1.19 2007-11-17 16:38:13 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 from Gnumed.business import gmPerson
 from Gnumed.pycommon import gmTools, gmDispatcher
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
+from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
 def get_choices_from_list(parent=None, msg=None, caption=None, choices=None, selections=None, columns=None, data=None, edit_callback=None, new_callback=None, delete_callback=None, refresh_callback=None, single_selection=False):
@@ -148,6 +148,96 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._BTN_new.Enable(callback is not None)
 
 	new_callback = property(_get_noop, _set_new_callback)
+#================================================================
+class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			msg = kwargs['msg']
+			del kwargs['msg']
+		except KeyError: msg = None
+
+		wxgGenericListManagerPnl.wxgGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		if msg is None:
+			self._LBL_message.Hide()
+		else:
+			self._LBL_message.SetLabel(msg)
+
+		# new/edit/delete must return True/False to enable refresh
+		self.__new_callback = None				# called when NEW button pressed, no argument passed in
+		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
+		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
+		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
+	#------------------------------------------------------------
+	# external API
+	#------------------------------------------------------------
+	def set_columns(self, columns=None):
+		self._LCTRL_items.set_columns(columns = columns)
+	#------------------------------------------------------------
+	def set_string_items(self, items = None):
+		self._LCTRL_items.set_string_items(items = items)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.Select(0)
+	#------------------------------------------------------------
+	def set_selections(self, selections = None):
+		self._LCTRL_items.set_selections(selections = selections)
+	#------------------------------------------------------------
+	def set_data(self, data = None):
+		self._LCTRL_items.set_data(data = data)
+	#------------------------------------------------------------
+	def get_selected_item_data(self, only_one=False):
+		return self._LCTRL_items.get_selected_item_data(only_one=only_one)
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_list_item_selected(self, event):
+		if self.edit_callback is not None:
+			self._BTN_edit.Enable(True)
+		if self.delete_callback is not None:
+			self._BTN_remove.Enable(True)
+	#------------------------------------------------------------
+	def _on_list_item_deselected(self, event):
+		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+			self._BTN_edit.Enable(False)
+			self._BTN_remove.Enable(False)
+	#------------------------------------------------------------
+	def _on_add_button_pressed(self, event):
+		if not self.new_callback():
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
+	#------------------------------------------------------------
+	def _on_edit_button_pressed(self, event):
+		# if the edit button *can* be pressed there are *supposed*
+		# to be both an item selected and an editor configured
+		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
+	#------------------------------------------------------------
+	def _on_remove_button_pressed(self, event):
+		# if the delete button *can* be pressed there are *supposed*
+		# to be both an item selected and an deletor configured
+		if not self.delete_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			return
+		if self.refresh_callback is None:
+			return
+		self.refresh_callback(lctrl = self._LCTRL_items)
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _get_new_callback(self):
+		return self.__new_callback
+
+	def _set_new_callback(self, callback):
+		self.__new_callback = callback
+		self._BTN_add.Enable(callback is not None)
+
+	new_callback = property(_get_new_callback, _set_new_callback)
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
@@ -312,7 +402,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.18  2007-10-08 12:56:02  ncq
+# Revision 1.19  2007-11-17 16:38:13  ncq
+# - cGenericListManagerPnl
+#
+# Revision 1.18  2007/10/08 12:56:02  ncq
 # - document callbacks
 # - protect against self.__data being None in get(_selected)_item_data()
 #
