@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.138 2007-11-12 22:56:34 ncq Exp $
-__version__ = "$Revision: 1.138 $"
+# $Id: gmPerson.py,v 1.139 2007-11-17 16:11:42 ncq Exp $
+__version__ = "$Revision: 1.139 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -497,23 +497,17 @@ select * from dem.v_external_ids4identity where
 
 		return filtered
 	#--------------------------------------------------------
-	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None):
+	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
 		@param number The number of the address.
-		@param number A types.StringType instance.
 		@param street The name of the street.
-		@param street A types.StringType instance.
 		@param postcode The postal code of the address.
 		@param urb The name of town/city/etc.
-		@param urb A types.StringType instance.
-		@param state The name of the state.
-		@param state A types.StringType instance.
-		@param country The name of the country.
-		@param country A types.StringType instance.
+		@param state The code of the state.
+		@param country The code of the country.
+		@param id_type The primary key of the address type.
 		"""
-		# FIXME: add address type handling
-
 		# create/get address
 		adr = gmDemographicRecord.create_address (
 			country = country,
@@ -526,24 +520,40 @@ select * from dem.v_external_ids4identity where
 			subunit = subunit
 		)
 
-		# purge cache
-		try:del self._ext_cache['addresses']
-		except: pass
-
 		# already linked ?
-		cmd = u"select exists(select 1 from dem.lnk_person_org_address where id_identity=%s and id_address=%s)"
+		cmd = u"select * from dem.lnk_person_org_address where id_identity = %s and id_address = %s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, adr['pk_address']]}])
-		if rows[0][0]:
-			return True
+		# no, link to person
+		if len(rows) == 0:
+			args = {'id': self.pk_obj, 'adr': adr['pk_address'], 'type': id_type}
+			if id_type is None:
+				cmd = u"""
+					insert into dem.lnk_person_org_address(id_identity, id_address)
+					values (%(id)s, %(adr)s)"""
+			else:
+				cmd = u"""
+					insert into dem.lnk_person_org_address(id_identity, id_address, id_type)
+					values (%(id)s, %(adr)s, %(type)s)"""
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		else:
+			# already linked - but needs to change type ?
+			if id_type is not None:
+				r = rows[0]
+				if r['id_type'] != id_type:
+					cmd = "update dem.lnk_person_org_address set id_type = %(type) where id = %(id)s"
+					gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'type': id_type, 'id': r['id']}}])
 
-		# link to person
-		cmd = u"insert into dem.lnk_person_org_address(id_identity, id_address) values (%(id)s, %(adr)s)"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'id': self.pk_obj, 'adr': adr['pk_address']}}])
-
-		return True
+		return adr
 	#----------------------------------------------------------------------
 	def unlink_address(self, address=None):
-		print "[%s].unlink_address(): missing code" % self.__class__.__name__
+		"""Remove an address from the patient.
+
+		The address itself stays in the database.
+		The address can be either cAdress or cPatientAdress.
+		"""
+		cmd = u"delete from dem.lnk_person_org_address where id_identity = %(person)s and id_address = %(adr)s"
+		args = {'person': self.pk_obj, 'adr': address['pk_address']}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#----------------------------------------------------------------------
 	# relatives API
 	#----------------------------------------------------------------------
@@ -584,6 +594,7 @@ select * from dem.v_external_ids4identity where
 	def link_new_relative(self, rel_type = 'parent'):
 		# create new relative
 		id_new_relative = create_dummy_identity()
+		
 		relative = cIdentity(aPK_obj=id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
@@ -2063,7 +2074,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.138  2007-11-12 22:56:34  ncq
+# Revision 1.139  2007-11-17 16:11:42  ncq
+# - improve link_address()
+# - unlink_address()
+#
+# Revision 1.138  2007/11/12 22:56:34  ncq
 # - add missing '' around match_type
 # - get_external_ids() and use in export_as_gdt()
 # - add_external_id()
