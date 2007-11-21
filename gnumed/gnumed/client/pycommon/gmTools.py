@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.41 2007-10-23 21:23:30 ncq Exp $
+# $Id: gmTools.py,v 1.42 2007-11-21 13:28:35 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -181,7 +181,7 @@ class gmPaths(gmBorg.cBorg):
 
 	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
 #===========================================================================
-def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False):
+def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='latin1'):
 	"""Send an E-Mail.
 
 	<debug>: see smtplib.set_debuglevel()
@@ -201,12 +201,22 @@ def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, 
 	if server is None:
 		server = default_mail_server
 
+	if subject is None:
+		subject = u'gmTools.py: send_mail() test'
+
+	body = u"""From: %s
+To: %s
+Subject: %s
+
+%s
+""" % (sender, u', '.join(receiver), subject, message)
+
 	import smtplib
 	session = smtplib.SMTP(server)
 	session.set_debuglevel(debug)
 	if auth is not None:
 		session.login(auth['user'], auth['password'])
-	refused = session.sendmail(sender, receiver, message)
+	refused = session.sendmail(sender, receiver, body.encode(encoding))
 	session.quit()
 	if len(refused) != 0:
 		_log.Log(gmLog.lErr, "refused recipients: %s" % refused)
@@ -660,7 +670,11 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.41  2007-10-23 21:23:30  ncq
+# Revision 1.42  2007-11-21 13:28:35  ncq
+# - enhance send_mail() with subject and encoding
+# - handle body formatting
+#
+# Revision 1.41  2007/10/23 21:23:30  ncq
 # - cleanup
 #
 # Revision 1.40  2007/10/09 10:29:02  ncq
