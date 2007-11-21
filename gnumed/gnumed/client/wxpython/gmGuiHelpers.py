@@ -11,12 +11,12 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.71 2007-10-21 20:18:32 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmGuiHelpers.py,v 1.72 2007-11-21 13:31:53 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os, shutil, datetime as pyDT, traceback, exceptions
+import sys, os, shutil, datetime as pyDT, traceback, exceptions, re as regex, codecs
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
 
@@ -25,7 +25,7 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals, gmTools, gmCfg
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals, gmTools, gmCfg, gmI18N
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
 
 
@@ -71,18 +71,17 @@ def handle_uncaught_exception_wx(t, v, tb):
 				'logs',
 				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
 			))
+			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
+			_log.flush()
+			shutil.copy2(original_name, new_name)
 
 		dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
 		dlg.ShowModal()
 		comment = dlg._TCTRL_comment.GetValue()
 		if comment is not None:
 			_log.Log(gmLog.lErr, u'user comment: %s' % comment.strip())
+			_log.flush()
 		dlg.Destroy()
-
-		_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-		_log.flush()
-		shutil.copy2(original_name, new_name)
-
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	office = gmSurgery.gmCurrentPractice()
@@ -108,13 +107,13 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		exception = kwargs['exception']
 		del kwargs['exception']
-		logfile = kwargs['logfile']
+		self.logfile = kwargs['logfile']
 		del kwargs['logfile']
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
 		self._TCTRL_helpdesk.SetValue(helpdesk)
-		self._TCTRL_logfile.SetValue(logfile)
+		self._TCTRL_logfile.SetValue(self.logfile)
 		t, v, tb = exception
 		self._TCTRL_exc_type.SetValue(str(t))
 		self._TCTRL_exc_value.SetValue(str(v))
@@ -125,6 +124,84 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	def _on_close_gnumed_button_pressed(self, evt):
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
+		evt.Skip()
+	#------------------------------------------
+	def _on_mail_button_pressed(self, evt):
+		receivers = regex.findall (
+			'[\S]+@[\S]+',
+			self._TCTRL_helpdesk.GetValue().strip(),
+			flags = regex.UNICODE | regex.LOCALE
+		)
+		if len(receivers) == 0:
+			receivers = [u'gnumed-devel@gnu.org']
+		dlg = c2ButtonQuestionDlg (
+			self,
+			-1,
+			caption = _('Sending bug report'),
+			question = _(
+				'Your bug report will be sent to:\n'
+				'\n'
+				'%s\n'
+				'\n'
+				'Make sure you have reviewed the log file for potentially\n'
+				'sensitive information before sending out the bug report.\n'
+				'\n'
+				'Note that emailing the report may take a while depending\n'
+				'on the speed of your internet connection.\n'
+			) % u'\n'.join(receivers),
+			button_defs = [
+				{'label': _('Send report'), 'tooltip': _('Yes, send the bug report.')},
+				{'label': _('Cancel'), 'tooltip': _('No, do not send the bug report.')}
+			],
+			show_checkbox = True,
+			checkbox_msg = _('include log file in bug report')
+		)
+		dlg._CHBOX_dont_ask_again.SetValue(True)
+		go_ahead = dlg.ShowModal()
+		if go_ahead == wx.ID_NO:
+			dlg.Destroy()
+			evt.Skip()
+			return
+
+		comment = self._TCTRL_comment.GetValue().strip()
+		if comment == u'':
+			comment = wx.GetTextFromUser (
+				message = _(
+					'Please enter a short note on what you\n'
+					'were about to do in GNUmed:'
+				),
+				caption = _('Sending bug report'),
+				parent = self
+			)
+			if comment.strip() == u'':
+				dlg.Destroy()
+				evt.Skip()
+				return
+
+		msg = u"Report sent via GNUmed's handler for unexpected exceptions:\n\n %s\n\n" % comment
+		if dlg._CHBOX_dont_ask_again.GetValue():
+			for line in codecs.open(self.logfile, 'rU', 'latin1', 'replace'):
+				msg = msg + line
+
+		dlg.Destroy()
+
+		wx.BeginBusyCursor()
+		gmTools.send_mail (
+			sender = gmTools.default_mail_sender,
+			receiver = receivers,
+			subject = u'<bug>: %s' % comment,
+			message = msg,
+			encoding = gmI18N.get_encoding(),
+			server = gmTools.default_mail_server,
+			auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+		)
+		wx.EndBusyCursor()
+
+		evt.Skip()
+	#------------------------------------------
+	def _on_view_log_button_pressed(self, evt):
+		from Gnumed.pycommon import gmMimeLib
+		gmMimeLib.call_viewer_on_file(self.logfile, block = False)
 		evt.Skip()
 # ========================================================================
 def configure_string_option(parent=None, message=None, option=None, bias=u'user', default_value=u'', validator=None):
@@ -242,6 +319,12 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 		except KeyError:
 			show_checkbox = False
 
+		try:
+			checkbox_msg = kwargs['checkbox_msg']
+			del kwargs['checkbox_msg']
+		except KeyError:
+			checkbox_msg = None
+
 		del kwargs['caption']
 		del kwargs['question']
 		del kwargs['button_defs']
@@ -253,6 +336,9 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
 		if not show_checkbox:
 			self._CHBOX_dont_ask_again.Hide()
+		else:
+			if checkbox_msg is not None:
+				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
 
 		buttons = [self._BTN_1, self._BTN_2]
 		for idx in range(len(button_defs)):
@@ -692,7 +778,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.71  2007-10-21 20:18:32  ncq
+# Revision 1.72  2007-11-21 13:31:53  ncq
+# - use send_mail() in exception handling dialog
+#
+# Revision 1.71  2007/10/21 20:18:32  ncq
 # - configure_string_option()
 #
 # Revision 1.70  2007/10/19 12:50:31  ncq
