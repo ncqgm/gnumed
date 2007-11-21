@@ -11,7 +11,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         wx.Dialog.__init__(self, *args, **kwds)
         self.__szr_middle_staticbox = wx.StaticBox(self, -1, _("Details"))
         self.__pnl_top_message = wx.Panel(self, -1, style=wx.NO_BORDER)
-        self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_comment = wx.TextCtrl(self, -1, "")
         self._TCTRL_helpdesk = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_logfile = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_exc_type = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
@@ -19,12 +19,14 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self._TCTRL_traceback = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)
         self._BTN_ok = wx.Button(self, wx.ID_OK, _("Keep running"))
         self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Close GNUmed"))
-        self._BTN_mail = wx.Button(self, -1, _("Email report"))
+        self._BTN_view_log = wx.Button(self, -1, _("View log"))
+        self._BTN_mail = wx.Button(self, -1, _("Send report"))
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_close_gnumed_button_pressed, id=wx.ID_CANCEL)
+        self.Bind(wx.EVT_BUTTON, self._on_view_log_button_pressed, self._BTN_view_log)
         self.Bind(wx.EVT_BUTTON, self._on_mail_button_pressed, self._BTN_mail)
         # end wxGlade
 
@@ -44,6 +46,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         self._BTN_ok.SetToolTipString(_("Close this dialog but keep running GNUmed."))
         self._BTN_ok.SetDefault()
         self._BTN_close.SetToolTipString(_("Close this dialog AND the GNUmed client."))
+        self._BTN_view_log.SetToolTipString(_("View the log file."))
         self._BTN_mail.SetToolTipString(_("Email a bug report to the GNUmed developers."))
         # end wxGlade
 
@@ -87,7 +90,8 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
         __szr_buttons.Add(self._BTN_ok, 0, wx.RIGHT|wx.EXPAND, 3)
         __szr_buttons.Add(self._BTN_close, 0, wx.LEFT|wx.EXPAND, 3)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_mail, 0, wx.EXPAND, 3)
+        __szr_buttons.Add(self._BTN_view_log, 0, wx.RIGHT|wx.EXPAND, 3)
+        __szr_buttons.Add(self._BTN_mail, 0, wx.LEFT|wx.EXPAND, 3)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
@@ -110,6 +114,10 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
 
     def _on_mail_button_pressed(self, event): # wxGlade: wxgUnhandledExceptionDlg.<event_handler>
         print "Event handler `_on_mail_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_view_log_button_pressed(self, event): # wxGlade: wxgUnhandledExceptionDlg.<event_handler>
+        print "Event handler `_on_view_log_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgUnhandledExceptionDlg
