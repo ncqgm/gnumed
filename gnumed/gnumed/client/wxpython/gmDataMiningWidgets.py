@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.5 2007-09-24 18:31:16 ncq Exp $
-__version__ = '$Revision: 1.5 $'
+# $Id: gmDataMiningWidgets.py,v 1.6 2007-11-21 14:33:40 ncq Exp $
+__version__ = '$Revision: 1.6 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -211,14 +211,9 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if query == u'':
 			return
 
-		auth = {'user': gmTools.default_mail_sender, 'password': u'gm/bugs/gmx'}
-		msg = u"""
-To: gnumed-devel@gnu.org
-From: GNUmed Report Generator <gnumed@gmx.net>
-Subject: user contributed report
-
-This is a report definition contributed
-by a GNUmed user:
+#		auth = {'user': gmTools.default_mail_sender, 'password': u'gm/bugs/gmx'}
+		auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+		msg = u"""This is a report definition contributed by a GNUmed user:
 
 #--------------------------------------
 
@@ -231,7 +226,13 @@ by a GNUmed user:
 The GNUmed client.
 """ % (report, query)
 
-		if not gmTools.send_mail(message = msg, auth = auth):
+		if not gmTools.send_mail (
+			message = msg,
+			auth = auth,
+			sender = u'GNUmed Report Generator <gnumed@gmx.net>',
+			receiver = [u'gnumed-devel@gnu.org'],
+			subject = u'user contributed report'
+		):
 			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
 			return False
 
@@ -411,7 +412,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.5  2007-09-24 18:31:16  ncq
+# Revision 1.6  2007-11-21 14:33:40  ncq
+# - fix use of send_mail()
+#
+# Revision 1.5  2007/09/24 18:31:16  ncq
 # - support visualizing data mining results
 #
 # Revision 1.4  2007/09/10 13:50:05  ncq
