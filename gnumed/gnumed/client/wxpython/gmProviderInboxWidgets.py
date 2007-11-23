@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.17 2007-11-02 13:59:33 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmProviderInboxWidgets.py,v 1.18 2007-11-23 23:36:38 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -14,7 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmTools
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmTools, gmCfg
 from Gnumed.business import gmPerson, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
@@ -39,6 +39,9 @@ def configure_workplace_plugins(parent=None):
 
 	#-----------------------------------
 	def edit(workplace=None):
+
+		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
+
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
 				parent = parent,
@@ -48,42 +51,79 @@ def configure_workplace_plugins(parent=None):
 				style = wx.OK | wx.CENTRE
 			)
 			dlg.ShowModal()
-			wp_name = dlg.GetValue().strip()
-			if wp_name == u'':
+			workplace = dlg.GetValue().strip()
+			if workplace == u'':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'), gmLog.lErr)
 				return False
-
-			print "plugins:", available_plugins
-
-			gmListWidgets.get_choices_from_list (
-				parent = parent,
-				msg = _('\nSelect the plugins to load for the workplace [%s]:\n') % wp_name,
-				caption = _('Configuring GNUmed workplaces ...'),
-				choices = available_plugins,
-				columns = [_('Plugins')]
-			)
+			curr_plugins = []
+			choices = available_plugins
 		else:
-			pass
+			dbcfg = gmCfg.cCfgSQL()
+			curr_plugins = dbcfg.get2 (
+				option = u'horstspace.notebook.plugin_load_order',
+				workplace = workplace,
+				bias = 'workplace'
+			)
+			choices = curr_plugins[:]
+			for p in available_plugins:
+				if p not in choices:
+					choices.append(p)
+
+		sels = range(len(curr_plugins))
+		new_plugins = gmListWidgets.get_choices_from_list (
+			parent = parent,
+			msg = _(
+				'\nSelect the plugins to load for the workplace "%s".\n'
+				'\n'
+				'Note that he plugins currently associated with\n'
+				'this workplace are preselected.\n'
+			) % workplace,
+			caption = _('Configuring GNUmed workplaces ...'),
+			choices = choices,
+			selections = sels,
+			columns = [_('Plugins')],
+			single_selection = False
+		)
+
+		if new_plugins == curr_plugins:
+			return True
+
+		if new_plugins is None:
+			return True
+
+		dbcfg.set (
+			option = u'horstspace.notebook.plugin_load_order',
+			value = new_plugins,
+			workplace = workplace
+		)
+
+		return True
 	#-----------------------------------
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
 	workplaces = gmSurgery.gmCurrentPractice().workplaces
-	available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
+	try:
+		sels = [workplaces.index(curr_workplace)]
+	except ValueError:
+		sels = []
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nSelect the workplace to configure below:\n'),
+		msg = _(
+			'\nSelect the workplace to configure below.\n'
+			'\n'
+			'The currently active workplace is preselected.\n'
+		),
 		caption = _('Configuring GNUmed workplaces ...'),
 		choices = workplaces,
-#		selections = ,
+		selections = sels,
 		columns = [_('Workplace')],
 		single_selection = True,
 		edit_callback = edit,
 		new_callback = edit
 	)
-
 #============================================================
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):
 
@@ -230,7 +270,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.17  2007-11-02 13:59:33  ncq
+# Revision 1.18  2007-11-23 23:36:38  ncq
+# - finish configure_workplace_plugins()
+#
+# Revision 1.17  2007/11/02 13:59:33  ncq
 # - request user attention when new item arrives
 #
 # Revision 1.16  2007/10/30 12:51:45  ncq
