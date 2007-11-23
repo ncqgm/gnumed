@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.19 2007-11-17 16:38:13 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmListWidgets.py,v 1.20 2007-11-23 23:34:39 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -302,6 +302,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = data
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
+		self.Select(0, on = 0)
 		for idx in selections:
 			self.Select(idx = idx, on = 1)
 	#------------------------------------------------------------
@@ -402,7 +403,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.19  2007-11-17 16:38:13  ncq
+# Revision 1.20  2007-11-23 23:34:39  ncq
+# - when explicitely setting the selections deselect the
+#   0th-index item selected by default
+#
+# Revision 1.19  2007/11/17 16:38:13  ncq
 # - cGenericListManagerPnl
 #
 # Revision 1.18  2007/10/08 12:56:02  ncq
