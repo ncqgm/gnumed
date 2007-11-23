@@ -4,15 +4,19 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.74 2007-10-29 13:18:35 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmPlugin.py,v 1.75 2007-11-23 23:35:47 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
-import os, sys, re
+import os, sys, re, glob
+
 
 import wx
 
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmSignals, gmTools
 from Gnumed.business import gmPerson, gmSurgery
 
@@ -338,45 +342,37 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	return plugin
 #------------------------------------------------------------------
 def get_installed_plugins(plugin_dir=''):
-	_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
+	"""Looks for installed plugins in the filesystem.
 
-	# parse plugin directory
-	candidates = []
-	# find candidate plugins directories
-	for path in sys.path:
-		# make sure it's a system path, not a user defined one
-		if path.find(sys.prefix) == -1:
-			continue
-		if path.find('site-packages') == -1:
-			continue
-		candidates.append(path)
-	if len(candidates) == 0:
-		_log.Log(gmLog.lErr, 'no candidate directories to scan for plugins found among the following')
-		_log.Log(gmLog.lErr, str(sys.path))
-		return []
-	# among them find (the) one holding plugins
+	The first directory in sys.path which contains a wxpython/gui/
+	is considered the one -- because that's where the import will
+	get it from.
+	"""
 	search_path = None
-	for candidate in candidates:
-		tmp = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
+	for path in sys.path:
+		tmp = os.path.join(path, 'Gnumed', 'wxpython', plugin_dir)
 		if os.path.exists(tmp):
 			search_path = tmp
 			break
 	if search_path is None:
-		_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
-		_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
+		_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/Gnumed/wxpython/%s/]' % plugin_dir)
+		_log.Log(gmLog.lErr, 'candidates: %s' % str(sys.path))
 		return []
-	# now scan it
-	files = os.listdir(search_path)
-	_log.Log(gmLog.lData, "plugin set: %s" % plugin_dir)
+
 	_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
-	_log.Log(gmLog.lData, "files found: %s" % str(files))
-	p_list = []
+
+	files = glob.glob(os.path.join(search_path, 'gm*.py'))
+	plugins = []
 	for file in files:
-		if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
-			p_list.append(file[:-3])
-	return p_list
+		path, fname = os.path.split(file)
+		mod_name, ext = os.path.splitext(fname)
+		plugins.append(mod_name)
+
+	_log.Log(gmLog.lData, "plugins found: %s" % str(plugins))
+
+	return plugins
 #------------------------------------------------------------------
-def GetPluginLoadList(option, plugin_dir = '', defaults = None):
+def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	"""Get a list of plugins to load.
 
 	1) from database if option is not None
@@ -386,7 +382,8 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	FIXME: look at gmRichardSpace to see how to load plugins
 	FIXME: NOT from files in directories (important for py2exe)
 	"""
-	curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
+	if workplace is None:
+		workplace = gmSurgery.gmCurrentPractice().active_workplace
 
 	p_list = None
 
@@ -394,7 +391,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 		dbcfg = gmCfg.cCfgSQL()
 		p_list = dbcfg.get2 (
 			option = option,
-			workplace = curr_workplace,
+			workplace = workplace,
 			bias = 'workplace',
 			default = defaults
 		)
@@ -414,7 +411,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 	dbcfg.set (
 		option = option,
 		value = p_list,
-		workplace = curr_workplace
+		workplace = workplace
 	)
 
 	_log.Log(gmLog.lData, "plugin load list stored: %s" % str(p_list))
@@ -431,11 +428,19 @@ def UnloadPlugin (set, name):
 # Main
 #------------------------------------------------------------------
 if __name__ == '__main__':
-	print "please write a unit test"
+
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+		print get_installed_plugins('gui')
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.74  2007-10-29 13:18:35  ncq
+# Revision 1.75  2007-11-23 23:35:47  ncq
+# - cleanup
+# - fix get_installed_plugins()
+# - add workplace option to GetPluginLoadList()
+# - rig test suite
+#
+# Revision 1.74  2007/10/29 13:18:35  ncq
 # - only call repopulate_ui on widgets if they have one as some
 #   won't need it as they update ON_PAINT
 #
