@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.368 2007-11-03 17:57:19 ncq Exp $
-__version__ = "$Revision: 1.368 $"
+# $Id: gmGuiMain.py,v 1.369 2007-11-23 23:33:50 ncq Exp $
+__version__ = "$Revision: 1.369 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,7 +52,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
 from Gnumed.exporters import gmPatientExporter
 
@@ -295,9 +295,9 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ui.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after client startup.'))
 		wx.EVT_MENU(self, ID, self.__on_set_startup_plugin)
 
-#		ID = wx.NewId()
-#		menu_config.Append(ID, _('Workplace plugins'), _('Choose the plugins to load in the current workplace.'))
-#		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('Workplace plugins'), _('Choose the plugins to load per workplace.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
 
 		# -- submenu gnumed / config / ui / patient search
 		menu_cfg_pat_search = wx.Menu()
@@ -1155,8 +1155,8 @@ class gmTopLevelFrame(wx.Frame):
 			validator = is_valid
 		)
 	#----------------------------------------------
-#	def __on_configure_workplace(self, evt):
-#		pass
+	def __on_configure_workplace(self, evt):
+		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 		# raw check for OsiriX binary
@@ -2038,7 +2038,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.368  2007-11-03 17:57:19  ncq
+# Revision 1.369  2007-11-23 23:33:50  ncq
+# - can now configure workplace plugins
+#
+# Revision 1.368  2007/11/03 17:57:19  ncq
 # - call hook on request_user_attention and app window actication/deactivation
 # - call hook on client init startup
 # - hence no more hardcoded checking external sources on startup
