@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.141 2007-11-28 13:57:45 ncq Exp $
-__version__ = "$Revision: 1.141 $"
+# $Id: gmPerson.py,v 1.142 2007-11-28 22:35:03 ncq Exp $
+__version__ = "$Revision: 1.142 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -230,10 +230,6 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return None
 	#--------------------------------------------------------
 	def get_names(self):
-		"""
-		Retrieve a list containing all the patient's names, in the
-		form of a dictionary of keys: first, last, title, preferred.
-		"""
 		cmd = u"select * from dem.v_person_names where pk_identity = %(pk_pat)s"
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
@@ -260,14 +256,16 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		"""Return descriptive string for patient."""
 		title = gmTools.coalesce (
 			self._payload[self._idx['title']],
-			map_gender2salutation(self._payload[self._idx['gender']]) + u' ',
-			'%s'[:4]
+			map_gender2salutation(self._payload[self._idx['gender']]),
+			u'%s'[:4],
+			u'%s '
 		)
-		nick = self._payload[self._idx['preferred']]
-		if nick is None:
-			nick = u''
-		else:
-			nick = u' (%s)' % nick
+		nick = gmTools.coalesce (
+			self._payload[self._idx['preferred']],
+			u'',
+			u' (%s)',
+			u'%s'
+		)
 		return u'%s%s %s%s' % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']], nick)
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
@@ -278,8 +276,10 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		@param active When True, the new name will become the active one (hence setting other names to inactive)
 		@type active A types.BooleanType instance
 		"""
-		return create_name(self.ID, firstnames, lastnames, active)
-#		self.refetch_payload()
+		name = create_name(self.ID, firstnames, lastnames, active)
+		if active:
+			self.refetch_payload()
+		return name
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
 		"""
@@ -288,9 +288,6 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		@param nickname The preferred/nick/warrior name to set.
 		"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
-		try:
-			del self._ext_cache['names']
-		except: pass
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
@@ -842,6 +839,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			tmp = self.patient
 		except AttributeError:
 			self.patient = gmNull.cNull()
+			self.__register_interests()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
@@ -932,6 +930,13 @@ class gmCurrentPatient(gmBorg.cBorg):
 		_log.Log(gmLog.lInfo, 'forced patient unlock at lock depth [%s]' % self.__lock_depth)
 		self.__lock_depth = 0
 		gmDispatcher.send(signal='patient_unlocked')
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_identity_change)
+		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_identity_change)
+	#--------------------------------------------------------
+	def _on_identity_change(self):
+		self.patient.refetch_payload()
 	#--------------------------------------------------------
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
@@ -2089,7 +2094,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.141  2007-11-28 13:57:45  ncq
+# Revision 1.142  2007-11-28 22:35:03  ncq
+# - streamline get_description()
+# - make current patient listen on its identity/name tables
+#
+# Revision 1.141  2007/11/28 13:57:45  ncq
 # - fix SQL of cPersonName
 #
 # Revision 1.140  2007/11/28 11:51:48  ncq
