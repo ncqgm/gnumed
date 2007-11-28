@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.45 2007-10-19 12:49:39 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmBusinessDBObject.py,v 1.46 2007-11-28 13:58:32 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -399,8 +399,9 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
 				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
 				_log.Log(gmLog.lErr, args)
-				# FIXME: turn into proper exception
-				return (False, None)
+				raise
+#				# FIXME: turn into proper exception
+#				return (False, None)
 
 		conn.commit()
 		close_conn()
@@ -442,7 +443,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.45  2007-10-19 12:49:39  ncq
+# Revision 1.46  2007-11-28 13:58:32  ncq
+# - hide one less exception
+#
+# Revision 1.45  2007/10/19 12:49:39  ncq
 # - much improved XMIN docs, TODO for XMIN removal
 #
 # Revision 1.44  2007/10/12 07:26:25  ncq
