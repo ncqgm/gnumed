@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.108 2007-11-05 12:10:05 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmPatientExporter.py,v 1.109 2007-11-28 11:52:13 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -894,7 +894,7 @@ class cEmrExport:
         self.__target.write('\n------------\n')
         self.__target.write('    Id: %s \n' % self.__patient['pk_identity'])
         cont = 0
-        for name in self.__patient.get_all_names():
+        for name in self.__patient.get_names():
             if cont == 0:
                 self.__target.write('    Name (Active): %s, %s\n' % (name['first'], name['last']) )
             else:
@@ -1249,7 +1249,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.108  2007-11-05 12:10:05  ncq
+# Revision 1.109  2007-11-28 11:52:13  ncq
+# - get_all_names() -> get_names()
+#
+# Revision 1.108  2007/11/05 12:10:05  ncq
 # - support admin soap type
 #
 # Revision 1.107  2007/06/18 19:33:19  ncq
