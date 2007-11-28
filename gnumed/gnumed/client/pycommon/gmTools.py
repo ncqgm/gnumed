@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.42 2007-11-21 13:28:35 ncq Exp $
+# $Id: gmTools.py,v 1.43 2007-11-28 13:59:23 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -510,7 +510,8 @@ if __name__ == '__main__':
 		print 'testing coalesce()'
 		print "------------------"
 		tests = [
-			[None, 'something other than <None>', None, None, 'something other than <None>']
+			[None, 'something other than <None>', None, None, 'something other than <None>'],
+			['Captain', 'Mr.', '%s.'[:4], 'Mr.', 'Capt.']
 		]
 		passed = True
 		for test in tests:
@@ -670,7 +671,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.42  2007-11-21 13:28:35  ncq
+# Revision 1.43  2007-11-28 13:59:23  ncq
+# - test improved
+#
+# Revision 1.42  2007/11/21 13:28:35  ncq
 # - enhance send_mail() with subject and encoding
 # - handle body formatting
 #
