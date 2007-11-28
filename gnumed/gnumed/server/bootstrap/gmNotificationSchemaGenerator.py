@@ -9,7 +9,7 @@ the table "gm.notifying_tables".
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -27,6 +27,13 @@ _log.Log(gmLog.lInfo, __version__)
 #==================================================================
 # SQL statements for notification triggers
 #------------------------------------------------------------------
+
+dem_identity_accessor = u"""-- retrieve identity PK via pk
+	if TG_OP = ''DELETE'' then
+		_pk_identity := OLD.pk;
+	else
+		_pk_identity := NEW.pk;
+	end if;"""
 
 # this map defines how table columns can be used in SQL to
 # access the identity PK related to a row in that table
@@ -189,6 +196,13 @@ def create_notification_schema(cursor):
 				'sig': notifying_def['signal']
 			})
 
+	# explicitely append dem.identity
+	schema.append(trigger_ddl_with_pk % {
+		'schema': 'dem',
+		'tbl': 'identity',
+		'sig': 'identity',
+		'identity_accessor': dem_identity_accessor
+	})
 	schema.append('-- ----------------------------------------------')
 
 	return schema
@@ -219,7 +233,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.25  2007-11-28 14:01:07  ncq
+# Revision 1.26  2007-11-28 22:38:10  ncq
+# - make it know about dem.identity
+#
+# Revision 1.25  2007/11/28 14:01:07  ncq
 # - fix ,
 #
 # Revision 1.24  2007/11/28 11:57:01  ncq
