@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.369 2007-11-23 23:33:50 ncq Exp $
-__version__ = "$Revision: 1.369 $"
+# $Id: gmGuiMain.py,v 1.370 2007-11-28 22:36:40 ncq Exp $
+__version__ = "$Revision: 1.370 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -638,8 +638,10 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MAXIMIZE(self, self.OnMaximize)
 
 		# intra-client signals
-		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._on_pre_patient_selection, 'pre_patient_selection')
+		gmDispatcher.connect(self._on_post_patient_selection, 'post_patient_selection')
+		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_pat_name_changed)
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_pat_name_changed)
 
 		gmDispatcher.connect(self._on_set_statustext, u'statustext')
 		gmDispatcher.connect(self._on_request_user_attention, u'request_user_attention')
@@ -675,6 +677,12 @@ class gmTopLevelFrame(wx.Frame):
 			wx.Bell()
 
 		gmHooks.run_hook_script(hook = u'request_user_attention')
+	#-----------------------------------------------
+	def _on_pat_name_changed(self):
+		wx.CallAfter(self.__on_pat_name_changed)
+	#-----------------------------------------------
+	def __on_pat_name_changed(self):
+		self.updateTitle()
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
@@ -2038,7 +2046,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.369  2007-11-23 23:33:50  ncq
+# Revision 1.370  2007-11-28 22:36:40  ncq
+# - listen on identity/name changes for current patient
+#
+# Revision 1.369  2007/11/23 23:33:50  ncq
 # - can now configure workplace plugins
 #
 # Revision 1.368  2007/11/03 17:57:19  ncq

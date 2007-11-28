@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.87 2007-10-25 12:27:29 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmTopPanel.py,v 1.88 2007-11-28 22:36:41 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -252,6 +252,8 @@ class cMainTopPanel(wx.Panel):
 		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'allg_mod_db', receiver = self._update_allergies)
 		gmDispatcher.connect(signal = u'allg_state_mod_db', receiver = self._update_allergies)
+		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_name_identity_change)
 	#----------------------------------------------
 	def _on_lock(self, evt):
 		print "should be locking client now by obscuring data"
@@ -292,18 +294,24 @@ class cMainTopPanel(wx.Panel):
 #				gmLog.lErr
 #			)
 	#----------------------------------------------
+	def _on_name_identity_change(self):
+		wx.CallAfter(self.__on_name_identity_change)
+	#----------------------------------------------
+	def __on_name_identity_change(self):
+		self.patient_selector.SetValue(self.curr_pat['description'])
+	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		# needed because GUI stuff can't be called from a thread (and that's
 		# where we are coming from via backend listener -> dispatcher)
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
-		wx.CallAfter(self.__update_allergies, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
 		age = self.curr_pat['medical_age']
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		self.txt_age.SetValue(age)
 		self.patient_selector.SetValue(self.curr_pat['description'])
+		self.txt_age.SetValue(age)
+		self.__update_allergies()
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -433,7 +441,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.87  2007-10-25 12:27:29  ncq
+# Revision 1.88  2007-11-28 22:36:41  ncq
+# - listen on identity/name changes for current patient
+#
+# Revision 1.87  2007/10/25 12:27:29  ncq
 # - cleanup
 #
 # Revision 1.86  2007/10/25 12:21:39  ncq
