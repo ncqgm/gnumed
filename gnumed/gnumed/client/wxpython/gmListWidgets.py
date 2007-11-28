@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmListWidgets.py,v $
-# $Id: gmListWidgets.py,v 1.20 2007-11-23 23:34:39 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmListWidgets.py,v 1.21 2007-11-28 22:37:00 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -211,18 +211,20 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
-		# if the edit button *can* be pressed there are *supposed*
-		# to be both an item selected and an editor configured
-		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+		item = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		if not self.edit_callback(item):
 			return
 		if self.refresh_callback is None:
 			return
 		self.refresh_callback(lctrl = self._LCTRL_items)
 	#------------------------------------------------------------
 	def _on_remove_button_pressed(self, event):
-		# if the delete button *can* be pressed there are *supposed*
-		# to be both an item selected and an deletor configured
-		if not self.delete_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+		item = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if item is None:
+			return
+		if not self.delete_callback(item):
 			return
 		if self.refresh_callback is None:
 			return
@@ -403,7 +405,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmListWidgets.py,v $
-# Revision 1.20  2007-11-23 23:34:39  ncq
+# Revision 1.21  2007-11-28 22:37:00  ncq
+# - robustify in the absence of selected values
+#
+# Revision 1.20  2007/11/23 23:34:39  ncq
 # - when explicitely setting the selections deselect the
 #   0th-index item selected by default
 #
