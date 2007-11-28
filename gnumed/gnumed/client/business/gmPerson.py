@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.139 2007-11-17 16:11:42 ncq Exp $
-__version__ = "$Revision: 1.139 $"
+# $Id: gmPerson.py,v 1.140 2007-11-28 11:51:48 ncq Exp $
+__version__ = "$Revision: 1.140 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -146,9 +146,39 @@ where pk_identity in (
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
-
 #============================================================
-class cIdentity (gmBusinessDBObject.cBusinessDBObject):
+class cPersonName(gmBusinessDBObject.cBusinessDBObject):
+	_cmd_fetch_payload = u"select * from dem.v_person_names where pk_name = %s"
+	_cmds_store_payload = [
+		u"""update dem.names set
+			active = False
+		where
+			id != %(pk_name)s and				-- act on *other* names only thereby not touching XMIN
+			id_identity = %(pk_identity)s and
+			%(active_name)s is True				-- act only when needed
+			""",
+		u"""update dem.names set
+			active = %(active_name)s,
+			preferred = %(preferred)s,
+			comment = %(comment)s
+		where
+			id = %(pk_name)s and
+			id_identity = %(pk_identity)s and	-- belt and suspenders
+			xmin = %(xmin_names)s""",
+		u"""select xmin from dem.names where id = %(pk_name)s"""
+	]
+	_updatable_fields = ['active_name', 'preferred', 'comment']
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if attribute == 'active':
+			# cannot *directly* deactivate a name, only indirectly
+			# by activating another one
+			# FIXME: should be done at DB level
+			if self._payload[self._idx['active_name']] is True:
+				return
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+#============================================================
+class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
 	_cmds_store_payload = [
 		u"""update dem.identity set
@@ -178,6 +208,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 				raise TypeError, '[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime' % (self.__class__.__name__, type(value), value)
 			if value.tzinfo is None:
 				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
+			# compare DOB at seconds level
+			old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
+			new_dob = value.strftime('%Y %m %d %H %M %S')
+			if new_dob == old_dob:
+				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def cleanup(self):
@@ -186,61 +221,39 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	# identity API
 	#--------------------------------------------------------
 	def get_active_name(self):
-		"""
-		Retrieve the patient's active name.
-		"""
-		try:
-			self._ext_cache['names']
-		except KeyError:
-			# ensure the cache of names is created
-			self.get_all_names()
-		try:
-			return self._ext_cache['names']['active']
-		except:
-			_log.Log(gmLog.lErr, 'cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
-			return None
+		for name in self.get_names():
+			if name['active_name'] is True:
+				return name
+
+		_log.Log(gmLog.lErr, 'cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
+		return None
 	#--------------------------------------------------------
-	def get_all_names(self):
+	def get_names(self):
 		"""
 		Retrieve a list containing all the patient's names, in the
 		form of a dictionary of keys: first, last, title, preferred.
 		"""
-		try:
-			return self._ext_cache['names']['all']
-		except KeyError:
-			pass
-		# create cache of names
-		self._ext_cache['names'] = {}
-		# fetch names from backend
-		pk_identity = self._payload[self._idx['pk_identity']]
-		cmd = u"""
-			select
-				n.firstnames,
-				n.lastnames,
-				i.title,
-				n.preferred,
-				n.active
-			from
-				dem.names n, dem.identity i
-			where
-				n.id_identity=%s and
-				i.pk=%s"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [pk_identity, pk_identity]}])
-		# fill in cache with values
-		self._ext_cache['names'] = {}
-		self._ext_cache['names']['all'] = []
-		self._ext_cache['names']['active'] = None
+		cmd = u"select * from dem.v_person_names where pk_identity = %(pk_pat)s"
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+				'cmd': cmd,
+				'args': {'pk_pat': self._payload[self._idx['pk_identity']]}
+			}],
+			get_col_idx = True
+		)
+
 		if len(rows) == 0:
 			# no names registered for patient
-			return [{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}]
-		for row in rows:
-			name = {'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]}
-			# fill 'all' names cache
-			self._ext_cache['names']['all'].append(name)
-			if row[4]:
-				# fill 'active' name cache
-				self._ext_cache['names']['active'] = name
-		return self._ext_cache['names']['all']
+			return [{
+				'firstnames': '**?**',
+				'lastnames': '**?**',
+				'title': '**?**',
+				'preferred':'**?**',
+				'active': False
+			}]
+
+		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
+		return names
 	#--------------------------------------------------------
 	def get_description(self):
 		"""Return descriptive string for patient."""
@@ -255,29 +268,17 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		else:
 			nick = u' (%s)' % nick
 		return u'%s%s %s%s' % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']], nick)
-	#-------------------------------------------------------- 	
-	def add_name(self, firstnames, lastnames, active=True, nickname=None):
-		"""
-		Add a name.
+	#--------------------------------------------------------
+	def add_name(self, firstnames, lastnames, active=True):
+		"""Add a name.
+
 		@param firstnames The first names.
 		@param lastnames The last names.
 		@param active When True, the new name will become the active one (hence setting other names to inactive)
 		@type active A types.BooleanType instance
-		@param nickname The preferred/nick/warrior name to set.
 		"""
-		queries = []
-		active = (active and 't') or 'f'
-		queries.append (
-			{'cmd': u"select dem.add_name(%s, %s, %s, %s)", 'args': [self.ID, firstnames, lastnames, active]}
-		)
-		if nickname is not None:
-			queries.append({'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]})
-		rows, idx = gmPG2.run_rw_queries(queries=queries)
-		try:			
-			del self._ext_cache['names']
-		except: pass
-		self.refetch_payload()
-		return True
+		return create_name(self.ID, firstnames, lastnames, active)
+#		self.refetch_payload()
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
 		"""
@@ -459,9 +460,9 @@ select * from dem.v_external_ids4identity where
 
 		return filtered
 	#--------------------------------------------------------
-	def link_communication(self, comm_medium, url, is_confidential = False):
-		"""
-		Link a communication medium with a patient.
+	def link_comm_channel(self, comm_medium, url, is_confidential = False):
+		"""Link a communication medium with a patient.
+
 		@param comm_medium The name of the communication medium.
 		@param url The communication resource locator.
 		@type url A types.StringType instance.
@@ -474,9 +475,14 @@ select * from dem.v_external_ids4identity where
 			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
 			return False
 		# FIXME: make link_person_comm() create comm type if necessary
-		cmd = u"SELECT dem.link_person_comm(%(pk)s, %(medium)s, %(url)s, %(secret)s)"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
+		cmd = u"SELECT dem.link_person_comm(%(pk_pat)s, %(medium)s, %(url)s, %(secret)s)"
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk_pat': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
 		return True
+	#--------------------------------------------------------
+	def unlink_comm_channel(self, comm_channel=None):
+		cmd = u"delete from dem.lnk_identity2comm where id = %(pk)s and id_identity = %(pat)s"
+		args = {'pk': comm_channel['pk_link_identity2comm'], 'pat': self.pk_obj}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	# contacts API
 	#--------------------------------------------------------
@@ -959,7 +965,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 			raise AttributeError
 		if not isinstance(self.patient, gmNull.cNull):
 			return getattr(self.patient, attribute)
-#		return self.patient
 	#--------------------------------------------------------
 	# __get/setitem__ handling
 	#--------------------------------------------------------
@@ -1640,6 +1645,15 @@ def format_age_medically(age=None):
 	minutes, seconds = divmod(age.seconds, 60)
 	return "%sm%ss" % (int(minutes), int(seconds))
 #============================================================
+def create_name(pk_person, firstnames, lastnames, active=False):
+	queries = [{
+		'cmd': u"select dem.add_name(%s, %s, %s, %s)",
+		'args': [pk_person, firstnames, lastnames, active]
+	}]
+	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
+	name = cPersonName(aPK_obj = rows[0][0])
+	return name
+#============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
 	cmd1 = u"""
@@ -1917,13 +1931,13 @@ if __name__ == '__main__':
 		print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
 	
 		print '\nGetting all names...'
-		for a_name in new_identity.get_all_names():
+		for a_name in new_identity.get_names():
 			print a_name
 		print 'Active name: %s' % (new_identity.get_active_name())
 		print 'Setting nickname...'
 		new_identity.set_nickname(nickname='test nickname')
 		print 'Refetching all names...'
-		for a_name in new_identity.get_all_names():
+		for a_name in new_identity.get_names():
 			print a_name
 		print 'Active name: %s' % (new_identity.get_active_name())		
 	 
@@ -1947,7 +1961,7 @@ if __name__ == '__main__':
 		
 		print '\nIdentity communications: %s' % new_identity.get_comm_channels()
 		print 'Creating identity communication...'
-		new_identity.link_communication('homephone', '1234566')
+		new_identity.link_comm_channel('homephone', '1234566')
 		print 'Identity communications: %s' % new_identity.get_comm_channels()
 	#--------------------------------------------------------
 	def test_patient_search_queries():
@@ -2039,7 +2053,7 @@ if __name__ == '__main__':
 			if myPatient is None:
 				break
 			print "ID       ", myPatient.ID
-			print "names     ", myPatient.get_all_names()
+			print "names     ", myPatient.get_names()
 			print "addresses:", myPatient.get_addresses(address_type='home')
 			print "recent birthday:", myPatient.dob_in_range()
 			myPatient.export_as_gdt(filename='apw.gdt', encoding = 'cp850')
@@ -2074,7 +2088,16 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.139  2007-11-17 16:11:42  ncq
+# Revision 1.140  2007-11-28 11:51:48  ncq
+# - cPersonName
+# - cIdentity:
+# 	- check dob at __setitem__ level
+# 	- get_all_names() -> get_names(), remove cache
+# 	- use dem.v_person_names
+# 	- fix add_name()
+# - create_name()
+#
+# Revision 1.139  2007/11/17 16:11:42  ncq
 # - improve link_address()
 # - unlink_address()
 #
