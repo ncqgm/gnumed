@@ -9,7 +9,7 @@ the table "gm.notifying_tables".
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -57,14 +57,14 @@ col2identity_accessor = {
 		_pk_identity := OLD.fk_patient;
 	else
 		_pk_identity := NEW.fk_patient;
-	end if;"""
+	end if;""",
 
 	'id_identity': u"""-- retrieve identity PK via id_identity
 	if TG_OP = ''DELETE'' then
 		_pk_identity := OLD.id_identity;
 	else
 		_pk_identity := NEW.id_identity;
-	end if;""",
+	end if;"""
 }
 
 trigger_ddl_without_pk = """
@@ -219,7 +219,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.24  2007-11-28 11:57:01  ncq
+# Revision 1.25  2007-11-28 14:01:07  ncq
+# - fix ,
+#
+# Revision 1.24  2007/11/28 11:57:01  ncq
 # - support id_identity as person pk accessor
 #
 # Revision 1.23  2007/11/05 12:11:16  ncq
