@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.105 $
+# $Revision: 1.106 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-11-10 21:54+CET\n"
-"PO-Revision-Date: 2007-11-10 21:20+0100\n"
+"POT-Creation-Date: 2007-11-28 23:38+CET\n"
+"PO-Revision-Date: 2007-11-28 15:18+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1330,13 +1330,34 @@ msgid "Town"
 msgstr "Ort"
 
 msgid "Suburb:"
-msgstr "Stadtbezirk:"
+msgstr "Ortsteil:"
 
 msgid "State"
 msgstr "Bundesland"
 
 msgid "Country"
 msgstr "Land"
+
+msgid "GNUmed  generic EditArea dialog"
+msgstr "allgemeiner Bearbeitungsdialog"
+
+msgid "Save the entered data into the database."
+msgstr "Die eingegebenen Daten abspeichern."
+
+msgid "Cancel editing the data and discard changes."
+msgstr "Abbrechen und Änderungen verwerfen."
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Add a new item to the list."
+msgstr "Der Liste einen neuen Eintrag hinzufügen."
+
+msgid "Edit the selected item."
+msgstr "Den markierten Eintrags ändern."
+
+msgid "Remove the selected item(s) from the list."
+msgstr "Gewählte Einträge aus der Liste löschen."
 
 msgid "&Edit"
 msgstr "Bea&rbeiten"
@@ -1524,23 +1545,29 @@ msgid "The episode you want to move the displayed narrative to."
 msgstr ""
 "Die Episode, der die angezeigten Karteieinträge zugeordnet werden sollen."
 
-msgid "The addresses known for this patient."
-msgstr "Die für diesen Patienten bekannten Adressen."
+msgid "Check this to make this the currently active name."
+msgstr "Hier ankreuzen, um den gegenwärtig benutzten Namen zu markieren."
 
-msgid "Add an address for this patient."
-msgstr "Eine Adresse für diesen Patienten hinzufügen."
+msgid "Enter a comment relevant to this name (such as \"before marriage\")."
+msgstr "Geben Sie einen Kommentar zu diesem Namen ein (z.B. \"Geburtsname\")."
 
-msgid "The address is no longer associated with this patient."
-msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
+msgid "Title"
+msgstr "Titel"
 
-msgid "The communication paths known for this patient."
-msgstr "Die für diesen Patienten bekannten Kommunikationsmittel."
+msgid "First name"
+msgstr "Vorname"
 
-msgid "Add a communications path for this patient."
-msgstr "Einen Kommunikationsweg für diesen Patienten hinzufügen."
+msgid "Last name"
+msgstr "Nachname"
 
-msgid "The communications path is no longer associated with this patient."
-msgstr "Das Kommunikationsmittel trifft für diesen Patienten nicht mehr zu."
+msgid "Nick name"
+msgstr "Spitzname"
+
+msgid "Date of birth"
+msgstr "Geburtsdatum"
+
+msgid "Gender"
+msgstr "Geschlecht"
 
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
@@ -1911,8 +1938,11 @@ msgstr "Weiterlaufen"
 msgid "Close GNUmed"
 msgstr "GNUmed beenden"
 
-msgid "Email report"
-msgstr "Bericht mailen"
+msgid "View log"
+msgstr "Logdatei ansehen"
+
+msgid "Send report"
+msgstr "Bericht senden"
 
 msgid "GNUmed exception handler"
 msgstr "GNUmed-Fehlerbehandlung"
@@ -1922,6 +1952,9 @@ msgstr "Diesen Dialog schließen, GNUmed läuft weiter."
 
 msgid "Close this dialog AND the GNUmed client."
 msgstr "Diesen Dialog UND GNUmed schließen."
+
+msgid "View the log file."
+msgstr "Die Logdatei ansehen."
 
 msgid "Email a bug report to the GNUmed developers."
 msgstr "Einen Fehlerbericht an die GNUmed-Entwickler mailen."
@@ -2302,7 +2335,46 @@ msgid "Disabling patient"
 msgstr "Patient deaktivieren"
 
 msgid "Suburb"
-msgstr "Stadtbezirk"
+msgstr "Ortsteil"
+
+msgid "Adding new address"
+msgstr "Neue Adresse hinzufügen"
+
+msgid "Editing address"
+msgstr "Adresse bearbeiten"
+
+msgid ""
+"Are you sure you want to remove this\n"
+"address from the patient's addresses ?\n"
+"\n"
+"The address itself will not be deleted\n"
+"but it will no longer be associated with\n"
+"this patient."
+msgstr ""
+"Sind Sie sicher, daß diese Adresse aus den\n"
+"Kontakten dieses Patienten entfernt werden soll ?\n"
+"\n"
+"Die Adresse wird nicht tatsächlich gelöscht, sondern\n"
+"nicht mehr dem Patienten zugeordnet."
+
+msgid "Removing address"
+msgstr "Adresse entfernen"
+
+msgid "URL"
+msgstr "Nummer"
+
+msgid "confidential"
+msgstr "vertraulich"
+
+msgid ""
+"Are you sure this patient can no longer\n"
+"be contacted via this channel ?"
+msgstr ""
+"Sind Sie sicher, daß dieser Patient nicht\n"
+"mehr auf diesem Weg erreicht werden kann?"
+
+msgid "Removing communication channel"
+msgstr "Einen Kommunikationskanal entfernen"
 
 msgid "Address details must be filled in completely or not at all."
 msgstr "Adressangaben müssen komplett oder gar nicht eingegeben werden."
@@ -2331,11 +2403,11 @@ msgstr "Tippen oder wählen Sie einen Ort."
 msgid "Type or select a country."
 msgstr "Tippen oder wählen Sie ein Land/einen Staat."
 
-msgid "Type or select a lastname (family name)."
-msgstr "Tippen oder wählen Sie einen Familiennamen."
+msgid "Type or select a last name (family name/surname)."
+msgstr "Tippen oder wählen Sie einen Familien-/Nachnamen."
 
-msgid "Type or select a firstname (surname/given name)."
-msgstr "Tippen oder wählen Sie einen Vornamen."
+msgid "Type or select a first name (forename/Christian name/given name)."
+msgstr "Tippen oder wählen Sie einen Vorname."
 
 msgid ""
 "Type or select an alias (nick name, preferred name, call name, warrior name, "
@@ -2344,43 +2416,78 @@ msgstr ""
 "Tippen oder wählen Sie ein Pseudonym (Spitzname, Wunschname, Rufname, "
 "Kriegername, Künstlername)."
 
-msgid "Type or select a title."
-msgstr "Tippen oder wählen Sie einen Titel."
+msgid ""
+"Type or select a title. Note that the title applies to the person, not to a "
+"particular name !"
+msgstr ""
+"Tippen oder wählen Sie einen Titel. Beachten Sie, daß der Titel zur Person "
+"gehört, nicht zu einem bestimmten Hamen dieser Person !"
 
 msgid "Type or select an occupation."
 msgstr "Tippen oder wählen Sie einen Beruf."
 
-msgid "Last name"
+msgid "Cannot parse <%s> into proper timestamp."
+msgstr "Kann <%s> nicht in einen Zeitpunkt übersetzen."
+
+msgid "Lastname"
 msgstr "Nachname"
+
+msgid "Firstname"
+msgstr "Vorname"
+
+msgid "Preferred Name"
+msgstr "Rufname"
+
+msgid "Adding new name"
+msgstr "Neuen Namen hinzufügen"
+
+msgid "Editing name"
+msgstr "Name bearbeiten"
+
+msgid ""
+"It is often advisable to keep old names around and\n"
+"just create a new \"currently active\" name.\n"
+"\n"
+"This allows finding the patient by both the old\n"
+"and the new name (think before/after marriage).\n"
+"\n"
+"Are you sure you want to really delete\n"
+"this name from the patient ?"
+msgstr ""
+"Es ist oft sinnvoller, \"alte\" Namen aufzubewahren und\n"
+"einen neuen Namen als derzeit gültigen anzulegen.\n"
+"\n"
+"So kann man Patienten später sowohl über den alten\n"
+"als auch den neuen Namen finden.\n"
+"\n"
+"Wollen Sie den gewählten Namen tatsächlich aus\n"
+"der Namensliste des Patienten löschen ?"
+
+msgid "Deleting name"
+msgstr "Name löschen"
+
+msgid "ID type"
+msgstr "Typ der Identifikation"
+
+msgid "Issuer"
+msgstr "Herausgeber"
+
+msgid "Context"
+msgstr "Kontext"
 
 msgid "Required: lastname (family name)"
 msgstr "Pflichtfeld: Nachname (Familienname)"
 
-msgid "First name"
-msgstr "Vorname"
-
 msgid "Required: surname/given name/first name"
 msgstr "Pflichtfeld: Vorname"
-
-msgid "Nick name"
-msgstr "Spitzname"
-
-msgid "Date of birth"
-msgstr "Geburtsdatum"
 
 msgid "Required: date of birth, if unknown or aliasing wanted then invent one"
 msgstr ""
 "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung gewünscht "
 "- einfach erfinden"
 
-msgid "Gender"
-msgstr "Geschlecht"
-
 msgid "Required: gender of patient"
 msgstr "Pflichtfeld: Geschlecht des Patienten"
-
-msgid "Title"
-msgstr "Titel"
 
 msgid "primary/home address: zip code/postcode"
 msgstr "Hauptwohnsitz: Postleitzahl"
@@ -2424,9 +2531,6 @@ msgstr "Vorname muß eingegeben werden."
 msgid "Must select gender."
 msgstr "Geschlecht muß gewählt werden."
 
-msgid "Cannot parse <%s> into proper timestamp."
-msgstr "Kann <%s> nicht in einen Zeitpunkt übersetzen."
-
 msgid ""
 "To properly create an address, all the related fields must be filled in."
 msgstr ""
@@ -2442,9 +2546,6 @@ msgstr "Identität"
 msgid "Contacts"
 msgstr "Kontakte"
 
-msgid "Occupations"
-msgstr "Berufe"
-
 msgid ""
 "required: date of birth, if unknown or aliasing wanted then invent one (Y-m-"
 "d)"
@@ -2455,26 +2556,14 @@ msgstr ""
 msgid "Invalid date"
 msgstr "ungültiges Datum"
 
-msgid "Cannot update patient address."
-msgstr "Kann Patientenadresse nicht aktualisieren."
-
-msgid "Cannot update patient phone number."
-msgstr "Kann Telefonnummer des Patienten nicht aktualisieren."
-
 msgid "primary occupation of the patient"
 msgstr "der Hauptberuf des Patienten"
 
 msgid "Last updated"
 msgstr "zuletzt geändert"
 
-msgid "restore fields with current values from backend"
-msgstr "Setze Eingabefelder auf Werte in der Datenbank"
-
-msgid "&Save"
-msgstr "&Speichern"
-
-msgid "save patient information"
-msgstr "Patientendaten speichern"
+msgid "Cannot update patient address."
+msgstr "Kann Patientenadresse nicht aktualisieren."
 
 msgid "Adult"
 msgstr "Erwachsene"
@@ -2786,9 +2875,6 @@ msgstr ""
 msgid "Select the health issues you are interested in ..."
 msgstr "Wählen Sie die Grunderkrankungen, die von Interesse sind ..."
 
-msgid "confidential"
-msgstr "vertraulich"
-
 msgid "relevant"
 msgstr "relevant"
 
@@ -2835,126 +2921,6 @@ msgstr "Textauszug der Kartei"
 
 msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr "Derzeit kein Patient aktiviert. Kann keine Karteieinträge laden."
-
-msgid "Quantity"
-msgstr "Menge"
-
-msgid "Repeats"
-msgstr "Folgeverordnungen"
-
-msgid "Usual"
-msgstr "Gewöhnlich"
-
-msgid "Veteran"
-msgstr "Veteran"
-
-msgid "Reg 24"
-msgstr ""
-
-msgid "bulk bill"
-msgstr ""
-
-msgid "concession"
-msgstr "Zulassung"
-
-msgid "private"
-msgstr "privat"
-
-msgid "workcover"
-msgstr "AU"
-
-msgid "chums"
-msgstr ""
-
-msgid "head office"
-msgstr "Hauptquartier"
-
-msgid "W Phone"
-msgstr "Fon (Arbeit)"
-
-msgid "W Fax  "
-msgstr "Fax (Arbeit)"
-
-msgid "W Email"
-msgstr "E-Mail (Arbeit)"
-
-msgid "Appointment Type"
-msgstr "Termintyp"
-
-msgid "request for"
-msgstr ""
-
-msgid "Include All Meds"
-msgstr "Medikamente anhängen"
-
-msgid "Relationship"
-msgstr "Verwandtschaftsgrad"
-
-msgid "Significance"
-msgstr "Signifikanz"
-
-msgid "Progress Notes"
-msgstr "Verlaufsnotizen"
-
-msgid "More Notes"
-msgstr "Karteieintrag"
-
-msgid "Age"
-msgstr "Alter"
-
-msgid "Year"
-msgstr "Jahr"
-
-msgid "Class"
-msgstr "Klasse (?)"
-
-msgid "Generic"
-msgstr "generisch"
-
-msgid "Brand"
-msgstr "Handelsname"
-
-msgid "Strength"
-msgstr "Stärke"
-
-msgid "For"
-msgstr "Für"
-
-msgid "Organization"
-msgstr "Organisation"
-
-msgid "Street1"
-msgstr "Straße"
-
-msgid "Street2"
-msgstr "Straße"
-
-msgid "Postcode"
-msgstr "PLZ"
-
-msgid "Include"
-msgstr "Anhang"
-
-msgid "To See"
-msgstr "Übw an"
-
-msgid "Contact By"
-msgstr ""
-
-msgid "Include List"
-msgstr ""
-
-msgid "Company"
-msgstr "Firma"
-
-msgid "Notes on form"
-msgstr ""
-
-msgid "Medications"
-msgstr "Medikamente"
-
-msgid "Copy To"
-msgstr "Nachrichtlich"
 
 msgid "save entry into medical record"
 msgstr "Daten in Kartei abspeichern"
@@ -3037,6 +3003,9 @@ msgstr "Lokalisierung"
 msgid "Progress Note"
 msgstr "Verlaufsnotiz"
 
+msgid "Age"
+msgstr "Alter"
+
 msgid "N/A"
 msgstr "N/A"
 
@@ -3081,12 +3050,6 @@ msgstr ""
 
 msgid "must select address"
 msgstr "eine Adresse muß gewählt sein"
-
-msgid "add tests"
-msgstr "neuer Test"
-
-msgid "delete tests"
-msgstr "Test löschen"
 
 msgid " (L) "
 msgstr "li"
@@ -3204,6 +3167,46 @@ msgstr ""
 "denn sonst werden einige Funktionen von\n"
 "GNUmed nicht verfügbar sein."
 
+msgid "Sending bug report"
+msgstr "Fehlerbericht senden"
+
+msgid ""
+"Your bug report will be sent to:\n"
+"\n"
+"%s\n"
+"\n"
+"Make sure you have reviewed the log file for potentially\n"
+"sensitive information before sending out the bug report.\n"
+"\n"
+"Note that emailing the report may take a while depending\n"
+"on the speed of your internet connection.\n"
+msgstr ""
+"Ihr Fehlerbericht wird an folgende Adressen versandt:\n"
+"\n"
+"%s\n"
+"\n"
+"Kontrollieren Sie die Logdatei vorher auf potentiell\n"
+"sensible Informationen.\n"
+"\n"
+"Abhängig von Ihrer Internetanbindung kann es einen\n"
+"Moment dauern, ehe der Bericht vollständig versandt ist.\n"
+
+msgid "Yes, send the bug report."
+msgstr "Ja, den Fehlerbericht senden."
+
+msgid "No, do not send the bug report."
+msgstr "Den Fehlerbericht nicht senden."
+
+msgid "include log file in bug report"
+msgstr "Logdatei dem Fehlerbericht hinzufügen"
+
+msgid ""
+"Please enter a short note on what you\n"
+"were about to do in GNUmed:"
+msgstr ""
+"Geben Sie eine kurze Notiz darüber ein\n"
+"was Sie gerade in GNUmed zu tun beabsichtigten:"
+
 msgid "Configuration"
 msgstr "Konfiguration"
 
@@ -3318,6 +3321,12 @@ msgstr ""
 
 msgid "Initial plugin"
 msgstr "Startmodul"
+
+msgid "Choose the plugins to load per workplace."
+msgstr "Die pro Arbeitsplatz zu ladenden Module wählen."
+
+msgid "Workplace plugins"
+msgstr "Arbeitsplatz-Module"
 
 msgid "Patient Search ..."
 msgstr "Patientensuche ..."
@@ -3754,6 +3763,10 @@ msgid ""
 "\n"
 "Select the desired plugin below:"
 msgstr ""
+"GNUmed kann nach Patientenaktivierung\n"
+"ein voreingestelltes Modul aktivieren.\n"
+"\n"
+"Wählen Sie hier dieses Modul aus:"
 
 msgid ""
 "Do you want GNUmed to show the consultation\n"
@@ -4838,12 +4851,6 @@ msgstr "Praxis"
 msgid "Cannot set patient picture from [%s]."
 msgstr "Kann Patientenbild nicht aus Datei [%s] laden."
 
-msgid "Lastname"
-msgstr "Nachname"
-
-msgid "Firstname"
-msgstr "Vorname"
-
 msgid "Nickname"
 msgstr "Spitzname"
 
@@ -5054,6 +5061,9 @@ msgstr "Korr.Termin"
 msgid "&Print"
 msgstr "&Drucken"
 
+msgid "&Save"
+msgstr "&Speichern"
+
 msgid "day"
 msgstr "Tag"
 
@@ -5092,20 +5102,30 @@ msgstr "Kann neuen Arbeitsplatz nicht ohne Namen speichern."
 
 msgid ""
 "\n"
-"Select the plugins to load for the workplace [%s]:\n"
+"Select the plugins to load for the workplace \"%s\".\n"
+"\n"
+"Note that he plugins currently associated with\n"
+"this workplace are preselected.\n"
 msgstr ""
 "\n"
-"Die für den Arbeitsplatz [%s] zu ladenden Module wählen:\n"
+"Wählen Sie die für den Arbeitsplatz \"%s\" zu ladenden Module.\n"
+"\n"
+"Die derzeit für den Arbeitsplatz konfigurierten Module\n"
+"sind vorselektiert.\n"
 
 msgid "Plugins"
 msgstr "Module"
 
 msgid ""
 "\n"
-"Select the workplace to configure below:\n"
+"Select the workplace to configure below.\n"
+"\n"
+"The currently active workplace is preselected.\n"
 msgstr ""
 "\n"
-"Wählen Sie den zu konfigurierenden Arbeitsplatz aus:\n"
+"Wählen Sie den zu konfigurierenden Arbeitsplatz aus.\n"
+"\n"
+"Der aktive Arbeitsplatz ist vorselektiert.\n"
 
 msgid "Workplace"
 msgstr "Arbeitsplatz"
@@ -5713,7 +5733,7 @@ msgid "Sort Z to A"
 msgstr ""
 
 msgid "Send Email"
-msgstr ""
+msgstr "Email senden"
 
 msgid "Load Web Address"
 msgstr "Webseite laden"
@@ -5743,7 +5763,7 @@ msgid "Please enter at least three digits of the drug name."
 msgstr ""
 
 msgid "Starting drug data browser"
-msgstr ""
+msgstr "Starte Medikamentenbrowser"
 
 msgid ""
 "Cannot start the drug data browser.\n"
@@ -6032,9 +6052,6 @@ msgstr ""
 msgid "XDT Viewer"
 msgstr "XDT-Betrachter"
 
-msgid "Preferred Name"
-msgstr "Rufname"
-
 msgid "icon_letter_A"
 msgstr ""
 
@@ -6076,6 +6093,12 @@ msgstr "heutige Verordnungen"
 
 msgid "Drug"
 msgstr "Medikament"
+
+msgid "Strength"
+msgstr "Stärke"
+
+msgid "For"
+msgstr "Für"
 
 msgid "Authority Indications"
 msgstr ""
@@ -6171,7 +6194,7 @@ msgid "Recalls/Reviews"
 msgstr ""
 
 msgid "Logged"
-msgstr ""
+msgstr "Vermerkt"
 
 msgid "Recall or Review"
 msgstr ""
@@ -6203,8 +6226,140 @@ msgstr "zuletzt"
 msgid "Prescribed For"
 msgstr "&Verschrieben fuer"
 
+msgid "Quantity"
+msgstr "Menge"
+
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Type or select a title."
+#~ msgstr "Tippen oder wählen Sie einen Titel."
+
+#~ msgid "Email report"
+#~ msgstr "Bericht mailen"
+
+#~ msgid "Occupations"
+#~ msgstr "Berufe"
+
+#~ msgid "Cannot update patient phone number."
+#~ msgstr "Kann Telefonnummer des Patienten nicht aktualisieren."
+
+#~ msgid "restore fields with current values from backend"
+#~ msgstr "Setze Eingabefelder auf Werte in der Datenbank"
+
+#~ msgid "save patient information"
+#~ msgstr "Patientendaten speichern"
+
+#~ msgid "The addresses known for this patient."
+#~ msgstr "Die für diesen Patienten bekannten Adressen."
+
+#~ msgid "Add an address for this patient."
+#~ msgstr "Eine Adresse für diesen Patienten hinzufügen."
+
+#~ msgid "The address is no longer associated with this patient."
+#~ msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
+
+#~ msgid "The communication paths known for this patient."
+#~ msgstr "Die für diesen Patienten bekannten Kommunikationsmittel."
+
+#~ msgid "Add a communications path for this patient."
+#~ msgstr "Einen Kommunikationsweg für diesen Patienten hinzufügen."
+
+#~ msgid "The communications path is no longer associated with this patient."
+#~ msgstr "Das Kommunikationsmittel trifft für diesen Patienten nicht mehr zu."
+
+#~ msgid "Repeats"
+#~ msgstr "Folgeverordnungen"
+
+#~ msgid "Usual"
+#~ msgstr "Gewöhnlich"
+
+#~ msgid "Veteran"
+#~ msgstr "Veteran"
+
+#~ msgid "concession"
+#~ msgstr "Zulassung"
+
+#~ msgid "private"
+#~ msgstr "privat"
+
+#~ msgid "workcover"
+#~ msgstr "AU"
+
+#~ msgid "head office"
+#~ msgstr "Hauptquartier"
+
+#~ msgid "W Phone"
+#~ msgstr "Fon (Arbeit)"
+
+#~ msgid "W Fax  "
+#~ msgstr "Fax (Arbeit)"
+
+#~ msgid "W Email"
+#~ msgstr "E-Mail (Arbeit)"
+
+#~ msgid "Appointment Type"
+#~ msgstr "Termintyp"
+
+#~ msgid "Include All Meds"
+#~ msgstr "Medikamente anhängen"
+
+#~ msgid "Relationship"
+#~ msgstr "Verwandtschaftsgrad"
+
+#~ msgid "Significance"
+#~ msgstr "Signifikanz"
+
+#~ msgid "Progress Notes"
+#~ msgstr "Verlaufsnotizen"
+
+#~ msgid "More Notes"
+#~ msgstr "Karteieintrag"
+
+#~ msgid "Year"
+#~ msgstr "Jahr"
+
+#~ msgid "Class"
+#~ msgstr "Klasse (?)"
+
+#~ msgid "Generic"
+#~ msgstr "generisch"
+
+#~ msgid "Brand"
+#~ msgstr "Handelsname"
+
+#~ msgid "Organization"
+#~ msgstr "Organisation"
+
+#~ msgid "Street1"
+#~ msgstr "Straße"
+
+#~ msgid "Street2"
+#~ msgstr "Straße"
+
+#~ msgid "Postcode"
+#~ msgstr "PLZ"
+
+#~ msgid "Include"
+#~ msgstr "Anhang"
+
+#~ msgid "To See"
+#~ msgstr "Übw an"
+
+#~ msgid "Company"
+#~ msgstr "Firma"
+
+#~ msgid "Medications"
+#~ msgstr "Medikamente"
+
+#~ msgid "Copy To"
+#~ msgstr "Nachrichtlich"
+
+#~ msgid "add tests"
+#~ msgstr "neuer Test"
+
+#~ msgid "delete tests"
+#~ msgstr "Test löschen"
 
 #~ msgid ""
 #~ "GNUmed invoked the hook\n"
@@ -6265,9 +6420,6 @@ msgstr "erstmals"
 #~ msgid "template in use"
 #~ msgstr "Vorlage aktiv"
 
-#~ msgid "Check if this template is currently in use."
-#~ msgstr "Hier ankreuzen, wenn diese Vorlage aktiviert sein soll."
-
 #~ msgid "The revision of this form template."
 #~ msgstr "Die Version der Vorlage."
 
@@ -6309,9 +6461,6 @@ msgstr "erstmals"
 
 #~ msgid "Cannot export document part from database to file."
 #~ msgstr "Kann diesen Dokumententeil nicht in eine Datei exportieren."
-
-#~ msgid "generic list selector dialog"
-#~ msgstr "allgemeine Listenauswahl"
 
 #~ msgid "Delete patient"
 #~ msgstr "Patienten löschen"
