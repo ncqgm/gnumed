@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.18 2007-11-23 23:36:38 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmProviderInboxWidgets.py,v 1.19 2007-11-28 11:56:30 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -257,7 +257,8 @@ Leaving message in inbox.""") % handler_key,
 #============================================================
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmI18N
+	_log.SetAllLogLevels(gmLog.lData)
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
@@ -270,7 +271,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.18  2007-11-23 23:36:38  ncq
+# Revision 1.19  2007-11-28 11:56:30  ncq
+# - better logging
+#
+# Revision 1.18  2007/11/23 23:36:38  ncq
 # - finish configure_workplace_plugins()
 #
 # Revision 1.17  2007/11/02 13:59:33  ncq
