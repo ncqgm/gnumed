@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.129 2007-11-28 14:00:10 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmDemographicsWidgets.py,v 1.130 2007-11-28 22:35:58 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -940,7 +940,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 
 		self.__identity['gender'] = self._PRW_gender.GetData()
 		self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
-		self.__identity['title'] = self._PRW_title.GetValue().strip()
+		self.__identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
 		self.__identity.save_payload()
 
 		active = self._CHBOX_active.GetValue()
@@ -954,8 +954,8 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			self.__name = self.__identity.add_name(first, last, active)
 
 		self.__name['active_name'] = active
-		self.__name['preferred'] = self._PRW_nick.GetValue().strip()
-		self.__name['comment'] = self._TCTRL_comment.GetValue().strip()
+		self.__name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
+		self.__name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 
 		self.__name.save_payload()
 
@@ -2295,7 +2295,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.129  2007-11-28 14:00:10  ncq
+# Revision 1.130  2007-11-28 22:35:58  ncq
+# - make empty == None == NULL on nick/title/comment
+#
+# Revision 1.129  2007/11/28 14:00:10  ncq
 # - fix a few typos
 # - set titles on generic edit areas
 #
