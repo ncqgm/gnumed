@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.140 2007-11-28 11:51:48 ncq Exp $
-__version__ = "$Revision: 1.140 $"
+# $Id: gmPerson.py,v 1.141 2007-11-28 13:57:45 ncq Exp $
+__version__ = "$Revision: 1.141 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -153,9 +153,10 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 		u"""update dem.names set
 			active = False
 		where
-			id != %(pk_name)s and				-- act on *other* names only thereby not touching XMIN
-			id_identity = %(pk_identity)s and
-			%(active_name)s is True				-- act only when needed
+			%(active_name)s is True	and			-- act only when needed and only
+			id_identity = %(pk_identity)s and	-- on names of this identity
+			active is True and					-- which are active
+			id != %(pk_name)s					-- but NOT *this* name
 			""",
 		u"""update dem.names set
 			active = %(active_name)s,
@@ -164,13 +165,13 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 		where
 			id = %(pk_name)s and
 			id_identity = %(pk_identity)s and	-- belt and suspenders
-			xmin = %(xmin_names)s""",
-		u"""select xmin from dem.names where id = %(pk_name)s"""
+			xmin = %(xmin_name)s""",
+		u"""select xmin as xmin_name from dem.names where id = %(pk_name)s"""
 	]
 	_updatable_fields = ['active_name', 'preferred', 'comment']
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		if attribute == 'active':
+		if attribute == 'active_name':
 			# cannot *directly* deactivate a name, only indirectly
 			# by activating another one
 			# FIXME: should be done at DB level
@@ -257,11 +258,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_description(self):
 		"""Return descriptive string for patient."""
-		title = self._payload[self._idx['title']]
-		if title is None:
-			title = map_gender2salutation(self._payload[self._idx['gender']]) + u' '
-		else:
-			title = title[:4] + u'.'
+		title = gmTools.coalesce (
+			self._payload[self._idx['title']],
+			map_gender2salutation(self._payload[self._idx['gender']]) + u' ',
+			'%s'[:4]
+		)
 		nick = self._payload[self._idx['preferred']]
 		if nick is None:
 			nick = u''
@@ -2088,7 +2089,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.140  2007-11-28 11:51:48  ncq
+# Revision 1.141  2007-11-28 13:57:45  ncq
+# - fix SQL of cPersonName
+#
+# Revision 1.140  2007/11/28 11:51:48  ncq
 # - cPersonName
 # - cIdentity:
 # 	- check dob at __setitem__ level
