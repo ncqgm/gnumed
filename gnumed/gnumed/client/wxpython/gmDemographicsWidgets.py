@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.127 2007-11-17 16:36:59 ncq Exp $
-__version__ = "$Revision: 1.127 $"
+# $Id: gmDemographicsWidgets.py,v 1.128 2007-11-28 11:56:13 ncq Exp $
+__version__ = "$Revision: 1.128 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
-from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl
+from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl
 
 
 # constant defs
@@ -132,7 +132,10 @@ def disable_identity(identity=None):
 # address phrasewheels and widgets
 #============================================================
 class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing a person's addresses.
 
+	Does NOT act on/listen to the current patient.
+	"""
 	def __init__(self, *args, **kwargs):
 
 		try:
@@ -155,6 +158,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def refresh(self, *args, **kwargs):
 		if self.__identity is None:
+			self._LCTRL_items.set_string_items()
 			return
 
 		adrs = self.__identity.get_addresses()
@@ -194,9 +198,8 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _del_address(self, address):
 		go_ahead = gmGuiHelpers.gm_show_question (
-			_(
-				'Are you sure you want to remove this\n'
-				'address from the patient file ?\n'
+			_(	'Are you sure you want to remove this\n'
+				"address from the patient's addresses ?\n"
 				'\n'
 				'The address itself will not be deleted\n'
 				'but it will no longer be associated with\n'
@@ -221,7 +224,10 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	identity = property(_get_identity, _set_identity)
 #------------------------------------------------------------
 class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing a person's addresses.
 
+	Does NOT act on/listen to the current patient.
+	"""
 	def __init__(self, *args, **kwargs):
 
 		try:
@@ -235,7 +241,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self.new_callback = None
 		self.edit_callback = None
 		self.delete_callback = None
-		self.refresh_callback = None
+		self.refresh_callback = self.refresh
 
 		self.__init_ui()
 		self.refresh()
@@ -244,6 +250,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def refresh(self):
 		if self.__identity is None:
+			self._LCTRL_items.set_string_items()
 			return
 
 		comms = self.__identity.get_comm_channels()
@@ -262,6 +269,20 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('confidential')
 		])
 	#--------------------------------------------------------
+	def _del_comm(self, comm):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(	'Are you sure this patient can no longer\n'
+				"be contacted via this channel ?"
+			),
+			_('Removing communication channel')
+		)
+		if not go_ahead:
+			return False
+		self.__identity.unlink_comm_channel(address = address)
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
 	def _get_identity(self):
 		return self.__identity
 
@@ -270,28 +291,41 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
+	#--------------------------------------------------------
+#		phone = self.TTC_phone.GetValue().strip()
+#		if len(phone) > 0:
+#			success = self.__ident.link_communication (
+#				comm_medium = 'homephone',
+#				url = phone,
+#				is_confidential = False
+#			)
+#		if not success:
+#			gmDispatcher.send(signal='statustext', msg=_('Cannot update patient phone number.'))
+#			return False
 #============================================================
 class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl):
+	"""A panel for editing contact data for a person.
 
+	- provides access to:
+	  - addresses
+	  - communication paths
+
+	Does NOT act on/listen to the current patient.
+	"""
 	def __init__(self, *args, **kwargs):
 
 		wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl.__init__(self, *args, **kwargs)
 
 		self.__identity = None
-
-#		self.__register_interests()
-
 		self.refresh()
-
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def refresh(self):
-		if self.__identity is None:
-			return
-
 		self._PNL_addresses.identity = self.__identity
 		self._PNL_comms.identity = self.__identity
+	#--------------------------------------------------------
+	# properties
 	#--------------------------------------------------------
 	def _get_identity(self):
 		return self.__identity
@@ -303,7 +337,10 @@ class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsMan
 	identity = property(_get_identity, _set_identity)
 #============================================================
 class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl):
+	"""An edit area for editing/creating an address.
 
+	Does NOT act on/listen to the current patient.
+	"""
 	def __init__(self, *args, **kwargs):
 		try:
 			self.__address = kwargs['address']
@@ -376,15 +413,20 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 	def __register_interests(self):
 		self._PRW_zip.add_callback_on_lose_focus(self._on_zip_set)
 		self._PRW_country.add_callback_on_lose_focus(self._on_country_set)
-#		self.PRW_town.add_callback_on_selection (self.on_town_set)
 	#--------------------------------------------------------
 	def _on_zip_set(self):
 		"""Set the street, town, state and country according to entered zip code."""
 		zip_code = self._PRW_zip.GetValue()
-		self._PRW_street.set_context(context = u'zip', val = zip_code)
-		self._PRW_urb.set_context(context = u'zip', val = zip_code)
-		self._PRW_state.set_context(context = u'zip', val = zip_code)
-		self._PRW_country.set_context(context = u'zip', val = zip_code)
+		if zip_code.strip() == u'':
+			self._PRW_street.unset_context(context = u'zip')
+			self._PRW_urb.unset_context(context = u'zip')
+			self._PRW_state.unset_context(context = u'zip')
+			self._PRW_country.unset_context(context = u'zip')
+		else:
+			self._PRW_street.set_context(context = u'zip', val = zip_code)
+			self._PRW_urb.set_context(context = u'zip', val = zip_code)
+			self._PRW_state.set_context(context = u'zip', val = zip_code)
+			self._PRW_country.set_context(context = u'zip', val = zip_code)
 	#--------------------------------------------------------
 	def _on_country_set(self):
 		"""Set the states according to entered country."""
@@ -393,17 +435,6 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			self._PRW_state.unset_context(context = 'country')
 		else:
 			self._PRW_state.set_context(context = 'country', val = country)
-	#--------------------------------------------------------
-#	def on_town_set (self, data):
-#		"""
-#		Set postcode, country and state in accordance with the town
-#		"""
-#		zip, state_id, state, country_id, country = gmDemographicRecord.get_town_data (self.PRW_town.GetValue ())
-#		if zip:
-#			self.PRW_state.SetText (state, state_id)
-#			self.PRW_zip_code.SetText (zip)
-#			self.PRW_country.SetText (country, country_id)
-#			self.TTC_phone.SetFocus ()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -747,7 +778,7 @@ select code, name from (
 		self.selection_only = True
 		self.matcher = mp
 #============================================================
-# identity phrasewheels
+# identity phrasewheels and widgets
 #============================================================
 class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -760,7 +791,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select a lastname (family name)."))
+		self.SetToolTipString(_("Type or select a last name (family name/surname)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
 #============================================================
@@ -778,7 +809,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select a firstname (surname/given name)."))
+		self.SetToolTipString(_("Type or select a first name (forename/Christian name/given name)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
 #============================================================
@@ -814,7 +845,7 @@ class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			*args,
 			**kwargs
 		)
-		self.SetToolTipString(_("Type or select a title."))
+		self.SetToolTipString(_("Type or select a title. Note that the title applies to the person, not to a particular name !"))
 		self.matcher = mp
 #============================================================
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -845,7 +876,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = True
 		self.matcher = mp
 		self.picklist_delay = 50
-#============================================================
+#------------------------------------------------------------
 class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -861,7 +892,335 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
 #============================================================
-# new patient wizard classes
+class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl):
+	"""An edit area for editing/creating name/gender/dob.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		self.__name = kwargs['name']
+		del kwargs['name']
+		self.__identity = gmPerson.cIdentity(aPK_obj = self.__name['pk_identity'])
+
+		wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self.__register_interests()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self):
+		if self.__name is None:
+			return
+
+		self._PRW_title.SetText(gmTools.coalesce(self.__name['title'], u''))
+		self._PRW_firstname.SetText(self.__name['firstnames'])
+		self._PRW_lastname.SetText(self.__name['lastnames'])
+		self._PRW_nick.SetText(gmTools.coalesce(self.__name['preferred'], u''))
+		dob = self.__identity['dob']
+		self._PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
+		self._PRW_gender.SetData(self.__name['gender'])
+		self._CHBOX_active.SetValue(self.__name['active_name'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.__name['comment'], u''))
+		# FIXME: clear fields
+#		else:
+#			pass
+	#--------------------------------------------------------
+	def save(self):
+
+		if not self.__valid_for_save():
+			return False
+
+		self.__identity['gender'] = self._PRW_gender.GetData()
+		self.__identity['dob'] = self._PRW_dob.GetData().get_pydt()
+		self.__identity['title'] = self._PRW_title.GetValue().strip()
+		self.__identity.save_payload()
+
+		active = self._CHBOX_active.GetValue()
+		first = self._PRW_firstname.GetValue().strip()
+		last = self._PRW_lastname.GetValue().strip()
+		old_nick = self.__name['preferred']
+
+		# is new name ?
+		old_name = self.__name['firstnames'] + self.__name['lastnames']
+		if (first + last) != old_name:
+			self.__name = self.__identity.add_name(first, last, active)
+
+		self.__name['active_name'] = active
+		self.__name['preferred'] = self.PRW_nick.GetValue().strip()
+		self.__name['comment'] = self._TCTRL_comment.GetValue().strip()
+
+		self.__name.save_payload()
+
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		self._PRW_firstname.add_callback_on_lose_focus(self._on_name_set)
+	#--------------------------------------------------------
+	def _on_name_set(self):
+		"""Set the gender according to entered firstname.
+
+		Matches are fetched from existing records in backend.
+		"""
+		firstname = self._PRW_firstname.GetValue().strip()
+		if firstname == u'':
+			return True
+		rows, idx = gmPG2.run_ro_queries(queries = [{
+			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
+			'args': [firstname]
+		}])
+		if len(rows) == 0:
+			return True
+		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
+		return True
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+
+		error_found = True
+
+		if self._PRW_lastname.GetData() is None:
+			self._PRW_gender.SetBackgroundColour('pink')
+			self._PRW_gender.Refresh()
+			self._PRW_gender.SetFocus()
+			error_found = False
+		else:
+			self._PRW_gender.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_gender.Refresh()
+
+		if not self._PRW_dob.is_valid_timestamp():
+			val = self._PRW_dob.GetValue().strip()
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot parse <%s> into proper timestamp.') % val)
+			self._PRW_dob.SetBackgroundColour('pink')
+			self._PRW_dob.Refresh()
+			self._PRW_dob.SetFocus()
+			error_found = False
+		else:
+			self._PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_dob.Refresh()
+
+		if self._PRW_lastname.GetValue().strip() == u'':
+			self._PRW_lastname.SetBackgroundColour('pink')
+			self._PRW_lastname.Refresh()
+			self._PRW_lastname.SetFocus()
+			error_found = False
+		else:
+			self._PRW_lastname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_lastname.Refresh()
+
+		if self._PRW_firstname.GetValue().strip() == u'':
+			self._PRW_firstname.SetBackgroundColour('pink')
+			self._PRW_firstname.Refresh()
+			self._PRW_firstname.SetFocus()
+			error_found = False
+		else:
+			self._PRW_firstname.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_firstname.Refresh()
+
+		return error_found
+#============================================================
+class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing a person's names.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__identity = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			self.__identity = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		self.new_callback = self._add_name
+		self.edit_callback = self._edit_name
+		self.delete_callback = self._del_name
+		self.refresh_callback = self.refresh
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, *args, **kwargs):
+		if self.__identity is None:
+			self._LCTRL_items.set_string_items()
+			return
+
+		names = self.__identity.get_names()
+		self._LCTRL_items.set_string_items (
+			items = [ [
+					gmTools.bool2str(n['active_name'], 'X', ''),
+					gmTools.coalesce(n['title'], gmPerson.map_gender2salutation(n['gender'])),
+					n['lastnames'],
+					n['firstnames'],
+					gmTools.coalesce(n['preferred'], u''),
+					gmTools.coalesce(n['comment'], u'')
+				] for n in names ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = names)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('Active'),
+			_('Title'),
+			_('Lastname'),
+			_('Firstname'),
+			_('Preferred Name'),
+			_('Comment')
+		])
+	#--------------------------------------------------------
+	def _add_name(self):
+		ea = cNameGenderDOBEditAreaPnl(self, -1, name = self.__identity.get_active_name())
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+		return False
+	#--------------------------------------------------------
+	def _edit_name(self, name):
+		ea = cNameGenderDOBEditAreaPnl(self, -1, name = name)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+		return False
+	#--------------------------------------------------------
+	def _del_name(self, name):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(	'It is often advisable to keep old names around and\n'
+				'just create a new "currently active" name.\n'
+				'\n'
+				'This allows finding the patient by both the old\n'
+				'and the new name (think before/after marriage).\n'
+				'\n'
+				'Are you sure you want to really delete\n'
+				"this name from the patient ?"
+			),
+			_('Deleting name')
+		)
+		if not go_ahead:
+			return False
+#		self.__identity.unlink_address(address = address)
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#------------------------------------------------------------
+class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing a person's external IDs.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__identity = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			self.__identity = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+#		self.new_callback = self._add_address
+#		self.edit_callback = self._edit_address
+#		self.delete_callback = self._del_address
+		self.refresh_callback = self.refresh
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, *args, **kwargs):
+		if self.__identity is None:
+			self._LCTRL_items.set_string_items()
+			return
+
+		ids = self.__identity.get_external_ids()
+		self._LCTRL_items.set_string_items (
+			items = [ [
+					i['name'],
+					i['value'],
+					i['issuer'],
+					i['context'],
+					gmTools.coalesce(i['comment'], u'')
+				] for i in ids ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = ids)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('ID type'),
+			_('Value'),
+			_('Issuer'),
+			_('Context'),
+			_('Comment')
+		])
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#------------------------------------------------------------
+class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityManagerPnl):
+	"""A panel for editing identity data for a person.
+
+	- provides access to:
+	  - name
+	  - external IDs
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		wxgPersonIdentityManagerPnl.wxgPersonIdentityManagerPnl.__init__(self, *args, **kwargs)
+
+		self.__identity = None
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self):
+		self._PNL_names.identity = self.__identity
+		self._PNL_ids.identity = self.__identity
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#============================================================
+# new-patient wizard classes
 #============================================================
 class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 	"""
@@ -1294,123 +1653,90 @@ class cFormDTD:
 #============================================================
 # patient demographics editing classes
 #============================================================
-class cPatEditionNotebook(wx.Notebook):
-	"""Notebook style widget displaying patient edition pages:
+class cPersonDemographicsEditorNb(wx.Notebook):
+	"""Notebook displaying demographics editing pages:
 
-		-Identity
-		-Contacts (addresses, phone numbers, etc)
-		-Occupations
-		...
-	0.1: Basic set of fields (those in new patient wizard) structured in
-	a notebook widget.
-	Post 0.1: Improve the notebook patient edition widget supporting
-	aditional (insurance, relatives, etc), complex and multiple elements
-	(differet types of addresses, phones, etc).
+		- Identity
+		- Contacts (addresses, phone numbers, etc)
+		- Occupations
+
+	Does NOT act on/listen to the current patient.
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize):
+	def __init__(self, parent, id):
 
 		wx.Notebook.__init__ (
 			self,
 			parent = parent,
 			id = id,
-			pos = pos,
-			size = size,
 			style = wx.NB_TOP | wx.NB_MULTILINE | wx.NO_BORDER,
 			name = self.__class__.__name__
 		)
-# | wx.VSCROLL | wx.HSCROLL
-#		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 
-		self.__pat = gmPerson.gmCurrentPatient()
+		self.__identity = None
 		self.__do_layout()
-		self.__register_interests()
 		self.SetSelection(0)
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def save(self):
-		return self.GetCurrentPage().save()
-	#--------------------------------------------------------
 	def refresh(self):
-		"""Populate fields in pages with data from model.
-		"""
-		# refresh identity reference in pages
+		"""Populate fields in pages with data from model."""
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
-			page.set_identity(self.__pat)
+			page.identity = self.__identity
 
 		return True
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
 	def __do_layout(self):
-		"""
-		Build patient edition notebook pages.
-		"""
+		"""Build patient edition notebook pages."""
 		# identity page
-		new_page = cPatIdentityPanel (
-			parent = self,
-			id = -1,
-			ident = self.__pat
-		)
+		new_page = cPersonIdentityManagerPnl(self, -1)
+		new_page.identity = self.__identity
 		self.AddPage (
 			page = new_page,
 			text = _('Identity'),
 			select = True
 		)
+
 		# contacts page
-		label = _('Contacts')		
-		new_page = cPatContactsPanel (
-			parent = self,
-			id = -1,
-			ident = self.__pat
-		)
+		new_page = cPersonContactsManagerPnl(self, -1)
+		new_page.identity = self.__identity
 		self.AddPage (
 			page = new_page,
-			text = label,
+			text = _('Contacts'),
 			select = False
 		)
+
 		# occupations page
-		label = _('Occupations')
-		new_page = cPatOccupationsPanel (
-			parent = self,
-			id = -1,
-			ident = self.__pat
-		)
-		self.AddPage (
-			page = new_page,
-			text = label,
-			select = False
-		)
+#		label = _('Occupations')
+#		new_page = cPatOccupationsPanel (
+#			parent = self,
+#			id = -1,
+#			ident = self.__pat
+#		)
+#		self.AddPage (
+#			page = new_page,
+#			text = label,
+#			select = False
+#		)
 	#--------------------------------------------------------
-	# event handling
+	# properties
 	#--------------------------------------------------------
-	def __register_interests(self):
-		"""
-		Configure enabled event signals
-		"""
-		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.pre_patient_selection(), receiver=self._on_pre_patient_selection)
-		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
-	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		"""Another patient is about to be activated."""
-#		print "[%s]: another patient is about to become active" % self.__class__.__name__
-#		print "need code to ask user about unsaved patient details"
-		pass
-	#--------------------------------------------------------
-	def _on_application_closing(self):
-#		print "[%s]: the application is closing down" % self.__class__.__name__
-#		print "need code to  ask user about unsaved patient details"
-		pass
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+
+	identity = property(_get_identity, _set_identity)
 #============================================================
 # FIXME: redo layout with wxGlade
 
 class cPatIdentityPanel(wx.Panel):
-	"""
-	Page containing patient identity edition fields.
-	"""
+	"""Page containing patient identity edition fields."""
+
 	def __init__(self, parent, id, ident=None):
 		"""
 		Creates a new instance of cPatIdentityPanel
@@ -1562,247 +1888,11 @@ class cPatIdentityPanel(wx.Panel):
 		old_name = self.__ident['firstnames'] + self.__ident['lastnames']
 		if (first + last) != old_name:
 			# FIXME: proper handling of "active"
-			self.__ident.add_name(firstnames = first, lastnames = last, active = True, nickname = None)
+			self.__ident.add_name(firstnames = first, lastnames = last, active = True)
 
 		nick = self.PRW_nick.GetValue().strip()
 		if (nick != self.__ident['preferred']) and (nick != ''):
 			self.__ident.set_nickname(nickname = nick)
-
-		return True
-#============================================================
-class cPatContactsPanel(wx.Panel):
-	"""
-	Page containing patient contacts edition fields.
-	"""
-	def __init__(self, parent, id, ident=None):
-		"""
-		Creates a new instance of BasicPatDetailsPanel
-		@param parent - The parent widget
-		@type parent - A wx.Window instance
-		@param id - The widget id
-		@type id - An integer
-		@param dtd The object containing the data model.
-		@type dtd A cFormDTD instance
-		"""
-		wx.Panel.__init__(self, parent, id)
-
-		self.__ident = ident
-		if os.environ.has_key ("LANG"):
-			self.locale = os.environ['LANG']
-		else:
-			self.locale = 'unknown'
-		self.__do_layout()
-		self.__register_interests()
-	#--------------------------------------------------------
-	def __do_number (self):
-		STT_address_number = wx.StaticText(self.PNL_form, -1, _('Number'))
-		self.TTC_address_number = wx.TextCtrl(self.PNL_form, -1)
-		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
-		self.SZR_input.Add(STT_address_number, 0, wx.SHAPED)
-		self.SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	def __do_zip (self):
-		STT_zip_code = wx.StaticText(self.PNL_form, -1, _('Zip code'))
-		self.PRW_zip_code = cZipcodePhraseWheel(parent = self.PNL_form, id = -1)
-		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
-		self.SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		self.SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	def __do_street (self):
-		STT_street = wx.StaticText(self.PNL_form, -1, _('Street'))
-		self.PRW_street = cStreetPhraseWheel(parent = self.PNL_form, id = -1)
-		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
-		self.SZR_input.Add(STT_street, 0, wx.SHAPED)
-		self.SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	def __do_town (self):
-		STT_town = wx.StaticText(self.PNL_form, -1, _('Town'))
-		self.PRW_town = cUrbPhraseWheel(parent = self.PNL_form, id = -1)
-		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
-		self.SZR_input.Add(STT_town, 0, wx.SHAPED)
-		self.SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	def __do_state_country (self):
-		# state
-		STT_state = wx.StaticText(self.PNL_form, -1, _('State'))
-		STT_state.SetForegroundColour('red')
-		self.PRW_state = cStateSelectionPhraseWheel(parent=self.PNL_form, id=-1)
-		self.PRW_state.SetToolTipString(_("primary/home address: state"))
-		# country
-		STT_country = wx.StaticText(self.PNL_form, -1, _('Country'))
-		self.PRW_country = cCountryPhraseWheel(parent = self.PNL_form, id = -1)
-		self.PRW_country.SetToolTipString(_("primary/home address: country"))
-
-		self.SZR_input.Add(STT_state, 0, wx.SHAPED)
-		self.SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
-		self.SZR_input.Add(STT_country, 0, wx.SHAPED)
-		self.SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	def __do_phones (self):
-		# phone
-		STT_phone = wx.StaticText(self.PNL_form, -1, _('Phone'))
-		self.TTC_phone = wx.TextCtrl(self.PNL_form, -1)
-		self.TTC_phone.SetToolTipString(_("phone number at home"))
-		self.SZR_input.Add(STT_phone, 0, wx.SHAPED)
-		self.SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
-	#--------------------------------------------------------
-	def __do_layout(self):
-
-		self.PNL_form = wx.Panel(self, -1)
-		# layout input widgets
-		self.SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
-		self.SZR_input.AddGrowableCol(1)
-		if self.locale[:5] == 'en_AU':
-			self.__do_number ()
-			self.__do_street ()
-			self.__do_town ()
-			self.__do_zip ()
-			self.__do_state_country ()
-			self.__do_phones ()
-		else:
-			self.__do_zip ()
-			self.__do_street ()
-			self.__do_number ()
-			self.__do_town ()
-			self.__do_state_country ()
-			self.__do_phones ()
-
-		self.PNL_form.SetSizerAndFit(self.SZR_input)
-		
-		# layout page
-		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(self.PNL_form, 1, wx.EXPAND)
-		self.SetSizer(SZR_main)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		"""
-		Configure enabled event signals
-		"""
-		# custom
-		if self.locale[:5] == 'en_AU':
-			self.PRW_town.add_callback_on_selection (self.on_town_set)
-		else:
-			self.PRW_country.add_callback_on_selection(self.on_country_selected)
-			self.PRW_zip_code.add_callback_on_lose_focus(self.on_zip_set)
-	#--------------------------------------------------------
-	def on_country_selected(self, data):
-		"""
-		Set the states according to entered country.
-		"""
-		if data is None:
-			data = '%'
-		self.PRW_state.set_context(context='country', val=data)
-		return True
-	#--------------------------------------------------------
-	def on_zip_set(self):
-		"""
-		Set the street, town, state and country according to entered zip code.
-		"""
-		zip_code = self.PRW_zip_code.GetValue()
-		self.PRW_street.set_context(context=u'zip', val=zip_code)
-		self.PRW_town.set_context(context=u'zip', val=zip_code)
-		self.PRW_state.set_context(context=u'zip', val=zip_code)
-		self.PRW_country.set_context(context=u'zip', val=zip_code)
-		return True
-	#--------------------------------------------------------
-	def on_town_set (self, data):
-		"""
-		Set postcode, country and state in accordance with the town
-		"""
-		zip, state_id, state, country_id, country = gmDemographicRecord.get_town_data (self.PRW_town.GetValue ())
-		if zip:
-			self.PRW_state.SetText (state, state_id)
-			self.PRW_zip_code.SetText (zip)
-			self.PRW_country.SetText (country, country_id)
-			self.TTC_phone.SetFocus ()
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		address_fields = (
-			self.TTC_address_number,
-			self.PRW_zip_code,
-			self.PRW_street,
-			self.PRW_town,
-			self.PRW_state,
-			self.PRW_country
-		)
-
-		# validate required fields
-		is_any_field_filled = False
-		for field in address_fields:
-			if len(field.GetValue().strip()) > 0:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-				continue
-			if is_any_field_filled:
-				field.SetBackgroundColour('pink')
-				field.SetFocus()
-				field.Refresh()
-				gmGuiHelpers.gm_show_error (
-					_('Address details must be filled in completely or not at all.'),
-					_('Saving contact data')
-				)
-				return False
-
-		return True
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------
-	def set_identity(self, identity):
-		return self.refresh(identity=identity)
-	#--------------------------------------------------------
-	def refresh(self, identity=None):
-		if identity is not None:
-			self.__ident = identity
-
-		adrs = self.__ident.get_addresses(address_type='home')
-		if len(adrs) != 0:
-			home = adrs[0]
-			self.TTC_address_number.SetValue(home['number'])
-			self.PRW_street.SetText(home['street'])
-			self.PRW_zip_code.SetText(home['postcode'])
-			self.PRW_town.SetText(home['urb'])
-			self.PRW_country.SetData(data = home['code_country'])
-			self.PRW_state.SetData(data = home['code_state'])
-
-		comms = self.__ident.get_comm_channels(comm_medium = 'homephone')
-		if len(comms) != 0:
-			self.TTC_phone.SetValue(comms[0]['url'])
-
-		return True
-	#--------------------------------------------------------
-	def save(self):
-
-		if not self.__valid_for_save():
-			return False
-
-		success = self.__ident.link_address (
-			number = self.TTC_address_number.GetValue().strip(),
-			street = self.PRW_street.GetValue().strip(),
-			postcode = self.PRW_zip_code.GetValue().strip(),
-			urb = self.PRW_town.GetValue().strip(),
-			state = self.PRW_state.GetData(),
-			country = self.PRW_country.GetData()
-		)
-		if not success:
-			gmDispatcher.send(signal='statustext', msg=_('Cannot update patient address.'))
-			return False
-
-		phone = self.TTC_phone.GetValue().strip()
-		if len(phone) > 0:
-			success = self.__ident.link_communication (
-				comm_medium = 'homephone',
-				url = phone,
-				is_confidential = False
-			)
-		if not success:
-			gmDispatcher.send(signal='statustext', msg=_('Cannot update patient phone number.'))
-			return False
 
 		return True
 #============================================================
@@ -1872,30 +1962,16 @@ class cPatOccupationsPanel(wx.Panel):
 		return True
 #============================================================
 class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
-	"""
-	Notebook based patient edition panel.
-	Composed of: notebooked patient details; restore and save buttons
+	"""Patient demographics plugin for main notebook.
+
+	Hosts another notebook with pages for Identity, Contacts, etc.
+
+	Acts on/listens to the currently active patient.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, id):
-		"""
-		Contructs a new instance of patient edition panel
-
-		@param parent: Wx parent widget
-		@param id: Wx widget id
-		"""
-		# Call parents constructors
-		wx.Panel.__init__ (
-			self,
-			parent = parent,
-			id = id,
-			pos = wx.DefaultPosition,
-			size = wx.DefaultSize,
-			style = wx.NO_BORDER
-		)
+		wx.Panel.__init__ (self, parent = parent, id = id, style = wx.NO_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__pat = gmPerson.gmCurrentPatient()
-		# ui construction and event handling set up
 		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -1905,76 +1981,36 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	# internal helpers
 	#--------------------------------------------------------
 	def __do_layout(self):
-		"""
-		Arrange widgets.
-		"""
-
-		# - patient edition notebook
-		self.__patient_notebook = cPatEditionNotebook(self, -1)
-		# - buttons
-		self.__BTN_restore = wx.Button(self, -1, _('&Restore'))
-		self.__BTN_restore.SetToolTipString(_('restore fields with current values from backend'))
-
-		self.__BTN_save = wx.Button(self, -1, _('&Save'))
-		self.__BTN_save.SetToolTipString(_('save patient information'))
-
-		# - arrange
-		szr_btns = wx.BoxSizer(wx.HORIZONTAL)
-		szr_btns.Add(self.__BTN_restore, 0, wx.SHAPED)
-		szr_btns.Add(self.__BTN_save, 0, wx.SHAPED)
+		"""Arrange widgets."""
+		self.__patient_notebook = cPersonDemographicsEditorNb(self, -1)
 
 		szr_main = wx.BoxSizer(wx.VERTICAL)
 		szr_main.Add(self.__patient_notebook, 1, wx.EXPAND)
-		szr_main.Add(szr_btns)
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		"""Configure enabled event signals
-		"""
-		# wxPython events
-		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self._on_save)
-		wx.EVT_BUTTON(self.__BTN_restore, self.__BTN_restore.GetId(), self._on_restore)
-		# internal signals
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
-	def _on_post_patient_selection(self):
-		"""Patient changed."""
+	def _on_pre_patient_selection(self):
 		self._schedule_data_reget()
 	#--------------------------------------------------------
-	def _on_save(self, event):
-		"""Save data to backend and close editor.
-		"""		
-		# FIXME 0.1: Refresh values from backend rather than from the
-		# original version of the DTD, so data integrity
-		# can be assured. Currenlty, pat.get_identity() is
-		# returning its version before save_payload().
-		# FIXME post 0.1: internal signal
-		if not self.__patient_notebook.save():
-			return False
-
-		self.__patient_notebook.refresh()
-		return True
-	#--------------------------------------------------------
-	def _on_restore(self, event):
-		"""
-		Restore patient edition form with values originally
-		fetched from backed, prior to any modification by
-		the user.
-		"""
-		self.__patient_notebook.refresh()
-		return True
+	def _on_post_patient_selection(self):
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		"""
-		Populate fields in pages with data from model.
-		"""
-		if self.__patient_notebook.refresh():
-			return True
-		return False
+		"""Populate fields in pages with data from model."""
+		pat = gmPerson.gmCurrentPatient()
+		if pat.is_connected():
+			self.__patient_notebook.identity = pat
+		else:
+			self.__patient_notebook.identity = None
+		self.__patient_notebook.refresh()
+		return True
 #============================================================				
 def create_identity_from_dtd(dtd=None):
 	"""
@@ -2022,7 +2058,7 @@ def update_identity_from_dtd(identity, dtd=None):
 	# names
 	# FIXME: proper handling of "active"
 	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
-		identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True, nickname = None)
+		identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True)
 	# nickname
 	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
 		identity.set_nickname(nickname = dtd['nick'])
@@ -2141,6 +2177,32 @@ if __name__ == "__main__":
 		app.SetWidget(cKOrganizerSchedulePnl)
 		app.MainLoop()
 	#--------------------------------------------------------
+	def test_person_names_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonNamesManagerPnl(app.frame, -1)
+		widget.identity = activate_patient()
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_person_ids_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonIDsManagerPnl(app.frame, -1)
+		widget.identity = activate_patient()
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_pat_ids_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonIdentityManagerPnl(app.frame, -1)
+		widget.identity = activate_patient()
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_name_ea_pnl():
+		app = wx.PyWidgetTester(size = (600, 400))
+		app.SetWidget(cNameGenderDOBEditAreaPnl, name = activate_patient().get_active_name())
+		app.MainLoop()
+	#--------------------------------------------------------
 	def test_address_ea_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
 		app.SetWidget(cAddressEditAreaPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
@@ -2164,7 +2226,14 @@ if __name__ == "__main__":
 		app = wx.PyWidgetTester(size = (600, 400))
 		widget = cPersonContactsManagerPnl(app.frame, -1)
 		widget.identity = activate_patient()
-#		app.SetWidget(cPersonContactsManagerPnl)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_cPersonDemographicsEditorNb():
+		app = wx.PyWidgetTester(size = (600, 400))
+		widget = cPersonDemographicsEditorNb(app.frame, -1)
+		widget.identity = activate_patient()
+		widget.refresh()
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -2190,21 +2259,36 @@ if __name__ == "__main__":
 #		app.frame.Show(True)
 #		app.MainLoop()
 
-		# run tests
+		# phrasewheels
 #		test_zipcode_prw()
 #		test_state_prw()
 #		test_street_prw()
 #		test_organizer_pnl()
 		#test_address_type_prw()
 		#test_suburb_prw()
+
+		# contacts related widgets
 		#test_address_ea_pnl()
-		test_pat_contacts_pnl()
 		#test_person_adrs_pnl()
 		#test_person_comms_pnl()
+		#test_pat_contacts_pnl()
+
+		# identity related widgets
+		#test_person_names_pnl()
+		#test_person_ids_pnl()
+		#test_pat_ids_pnl()
+		#test_name_ea_pnl()
+
+		test_cPersonDemographicsEditorNb()
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.127  2007-11-17 16:36:59  ncq
+# Revision 1.128  2007-11-28 11:56:13  ncq
+# - comments/wording improved, cleanup
+# - name/gender/dob edit area and use in person identity panel/notebook plugin
+# - more tests
+#
+# Revision 1.127  2007/11/17 16:36:59  ncq
 # - cPersonAddressesManagerPnl
 # - cPersonContactsManagerPnl
 # - cPersonCommsManagerPnl
