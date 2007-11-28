@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.128 2007-11-28 11:56:13 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmDemographicsWidgets.py,v 1.129 2007-11-28 14:00:10 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -184,16 +184,22 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		ea = cAddressEditAreaPnl(self, -1)
 		ea.identity = self.__identity
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
 			return True
+		dlg.Destroy()
 		return False
 	#--------------------------------------------------------
 	def _edit_address(self, address):
 		ea = cAddressEditAreaPnl(self, -1, address = address)
 		ea.identity = self.__identity
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Editing address'))
 		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
 			return True
+		dlg.Destroy()
 		return False
 	#--------------------------------------------------------
 	def _del_address(self, address):
@@ -948,7 +954,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			self.__name = self.__identity.add_name(first, last, active)
 
 		self.__name['active_name'] = active
-		self.__name['preferred'] = self.PRW_nick.GetValue().strip()
+		self.__name['preferred'] = self._PRW_nick.GetValue().strip()
 		self.__name['comment'] = self._TCTRL_comment.GetValue().strip()
 
 		self.__name.save_payload()
@@ -974,7 +980,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		}])
 		if len(rows) == 0:
 			return True
-		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
+		wx.CallAfter(self._PRW_gender.SetData, rows[0][0])
 		return True
 	#--------------------------------------------------------
 	# internal helpers
@@ -983,7 +989,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 
 		error_found = True
 
-		if self._PRW_lastname.GetData() is None:
+		if self._PRW_gender.GetData() is None:
 			self._PRW_gender.SetBackgroundColour('pink')
 			self._PRW_gender.Refresh()
 			self._PRW_gender.SetFocus()
@@ -1082,15 +1088,21 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _add_name(self):
 		ea = cNameGenderDOBEditAreaPnl(self, -1, name = self.__identity.get_active_name())
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Adding new name'))
 		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
 			return True
+		dlg.Destroy()
 		return False
 	#--------------------------------------------------------
 	def _edit_name(self, name):
 		ea = cNameGenderDOBEditAreaPnl(self, -1, name = name)
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Editing name'))
 		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
 			return True
+		dlg.Destroy()
 		return False
 	#--------------------------------------------------------
 	def _del_name(self, name):
@@ -2283,7 +2295,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.128  2007-11-28 11:56:13  ncq
+# Revision 1.129  2007-11-28 14:00:10  ncq
+# - fix a few typos
+# - set titles on generic edit areas
+#
+# Revision 1.128  2007/11/28 11:56:13  ncq
 # - comments/wording improved, cleanup
 # - name/gender/dob edit area and use in person identity panel/notebook plugin
 # - more tests
