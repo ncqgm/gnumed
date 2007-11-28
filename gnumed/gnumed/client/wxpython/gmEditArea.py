@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.112 2007-11-17 16:37:46 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmEditArea.py,v 1.113 2007-11-28 14:00:42 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -142,13 +142,6 @@ class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 		szr = self.GetSizer()
 		szr.Fit(self)
 		self.Refresh()
-
-#		if allergy is None:
-#			self._BTN_save.SetLabel(_('&Save'))
-#			self._BTN_clear.SetLabel(_('&Clear'))
-#		else:
-#			self._BTN_save.SetLabel(_('Update'))
-#			self._BTN_clear.SetLabel(_('&Restore'))
 
 		self._PNL_ea.refresh()
 	#--------------------------------------------------------
@@ -2098,7 +2091,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.112  2007-11-17 16:37:46  ncq
+# Revision 1.113  2007-11-28 14:00:42  ncq
+# - cleanup
+#
+# Revision 1.112  2007/11/17 16:37:46  ncq
 # - cleanup
 # - cGenericEditAreaDlg
 #
