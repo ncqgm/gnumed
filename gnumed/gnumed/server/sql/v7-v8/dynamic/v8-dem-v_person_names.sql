@@ -5,16 +5,16 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v8-dem-v_person_names.sql,v 1.2 2007-11-28 22:37:33 ncq Exp $
--- $Revision: 1.2 $
+-- $Id: v8-dem-v_person_names.sql,v 1.3 2007-12-02 10:01:30 ncq Exp $
+-- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 \set check_function_bodies 1
 
 -- --------------------------------------------------------------
-select gm.add_table_for_notifies('dem', 'names', 'name', True);
-select gm.add_table_for_notifies('dem', 'identity', True);
+select gm.add_table_for_notifies('dem', 'names', 'name');
+select gm.add_table_for_notifies('dem', 'identity');
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -51,11 +51,14 @@ where
 grant select on dem.v_person_names to group "gm-public";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v8-dem-v_person_names.sql,v $', '$Revision: 1.2 $');
+select gm.log_script_insertion('$RCSfile: v8-dem-v_person_names.sql,v $', '$Revision: 1.3 $');
 
 -- ==============================================================
 -- $Log: v8-dem-v_person_names.sql,v $
--- Revision 1.2  2007-11-28 22:37:33  ncq
+-- Revision 1.3  2007-12-02 10:01:30  ncq
+-- - fix use of gm.add_notifying_table()
+--
+-- Revision 1.2  2007/11/28 22:37:33  ncq
 -- - notify from dem.names/dem.identity, too
 --
 -- Revision 1.1  2007/11/28 11:48:30  ncq
