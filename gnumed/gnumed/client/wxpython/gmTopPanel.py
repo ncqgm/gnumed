@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.88 2007-11-28 22:36:41 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmTopPanel.py,v 1.89 2007-12-02 11:00:58 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -299,6 +299,7 @@ class cMainTopPanel(wx.Panel):
 	#----------------------------------------------
 	def __on_name_identity_change(self):
 		self.patient_selector.SetValue(self.curr_pat['description'])
+		self.txt_age.SetValue(self.curr_pat['medical_age'])
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		# needed because GUI stuff can't be called from a thread (and that's
@@ -441,7 +442,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.88  2007-11-28 22:36:41  ncq
+# Revision 1.89  2007-12-02 11:00:58  ncq
+# - update age, too, on pat identity change
+#
+# Revision 1.88  2007/11/28 22:36:41  ncq
 # - listen on identity/name changes for current patient
 #
 # Revision 1.87  2007/10/25 12:27:29  ncq
