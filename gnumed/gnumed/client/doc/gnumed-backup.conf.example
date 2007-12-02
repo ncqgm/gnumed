@@ -1,24 +1,28 @@
 #!/bin/sh
 #------------------------------------------------------------
 #
-# this is a shell fragment used by gm-backup_database.sh
+# This is a shell fragment sourced by backup shell scripts.
 #
-# copy this file to /etc/gnumed/gnumed-backup.conf and
-# configure appropriately
+# Copy this file to /etc/gnumed/gnumed-backup.conf and
+# configure appropriately.
 #
 # If the PostgreSQL users $GM_DBO and/or "postgres" need a
 # password you will have to configure that using a .pgpass
-# file (see the PG manual for how to do that).
+# file (see the PG manual for how to do that):
 #
 # http://www.postgresql.org/docs/8.1/static/libpq-pgpass.html
 #
 #------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-backup.conf.example,v $
-# $Id: gnumed-backup.conf.example,v 1.10 2007-10-22 12:37:02 ncq Exp $
+# $Id: gnumed-backup.conf.example,v 1.11 2007-12-02 11:42:48 ncq Exp $
+
 
 #------------------------------------------------------------
 # those need to be changed in most if not all cases
 #------------------------------------------------------------
+
+
+# options for *taking* backups:
 
 # identify the logical/business-level owner of this
 # GNUmed database instance, such as "ACME GP Office",
@@ -33,6 +37,34 @@ GM_DATABASE="gnumed_v8"
 
 # user/group the backup is eventually owned by
 BACKUP_OWNER="$USER.$USER"
+
+
+# options for *offsiting* backups:
+
+# this needs to be set to a host you can reach via rsync w/o
+# need for manually entering a password (say, SSH public key
+# authentication)
+OFFSITE_BACKUP_HOST="need to set this"
+
+# this is where you want the backup files to end up
+# on OFFSITE_BACKUP_HOST
+OFFSITE_BACKUP_DIR="need to set this"
+
+# the maximum bandwith, in KBytes/second, to utilize,
+# empty means full speed ahead
+MAX_OFFSITING_BANDWIDTH=""
+
+# how to determine whether or not to transfer a file:
+# yes
+#  - compare files by CRC
+#  - can put quite a bit of load on both machines
+# no
+#  - compare files by timestamp and size
+#  - a lot cheaper CPU-wise but may result
+#    in redundant file transfers
+#
+# default "yes" - better safe than sorry
+OFFSITE_BY_CRC="yes"
 
 #------------------------------------------------------------
 # those need to be changed less likely:
@@ -75,7 +107,11 @@ GNOTARY_TAN="free"
 
 #============================================================
 # $Log: gnumed-backup.conf.example,v $
-# Revision 1.10  2007-10-22 12:37:02  ncq
+# Revision 1.11  2007-12-02 11:42:48  ncq
+# - improved docs
+# - add options for moving backups offsite
+#
+# Revision 1.10  2007/10/22 12:37:02  ncq
 # - default database change
 #
 # Revision 1.9  2007/09/24 18:25:45  ncq
