@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.22 2007-07-03 15:57:24 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmMatchProvider.py,v 1.23 2007-12-02 20:59:13 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -456,13 +456,15 @@ class cMatchProvider_SQL2(cMatchProvider):
 					# we don't have a context value for this key, so skip the where condition
 					where_fragments[context_key] = u''
 
-			query = query % where_fragments
+			cmd = query % where_fragments
 
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': self._args}])
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
 			except:
-				_log.LogException('Error running match provider SQL, ignoring query.')
-				continue
+				_log.LogException('Error running match provider SQL, dropping query.')
+				idx = self._queries.index(query)
+				del self._queries[idx]
+				break
 
 			# no matches found: try next query
 			if len(rows) == 0:
@@ -480,7 +482,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.22  2007-07-03 15:57:24  ncq
+# Revision 1.23  2007-12-02 20:59:13  ncq
+# - drop failing queries
+#
+# Revision 1.22  2007/07/03 15:57:24  ncq
 # - use gmPG2.sanitize_pg_regex()
 # - ignore failing match retrieval queries such
 #   that we don't freak out in the phrasewheel
