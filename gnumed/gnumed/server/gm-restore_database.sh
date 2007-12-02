@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-restore_database.sh,v $
-# $Id: gm-restore_database.sh,v 1.1 2007-11-30 13:36:41 ncq Exp $
+# $Id: gm-restore_database.sh,v 1.2 2007-12-02 11:48:24 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -36,16 +36,6 @@ fi
 
 
 echo ""
-echo "==> Testing backup file integrity ..."
-bzip2 -tvv $BACKUP
-if test $? -ne 0 ; then
-	echo "    ERROR: integrity check failed, aborting"
-	exit 1
-fi
-
-
-
-echo ""
 echo "==> Reading configuration ..."
 CONF="/etc/gnumed/gnumed-restore.conf"
 echo "    file: $CONF"
@@ -53,6 +43,15 @@ if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "    ERROR: Cannot read configuration file ${CONF}. Aborting."
+	exit 1
+fi
+
+
+echo ""
+echo "==> Testing backup file integrity ..."
+bzip2 -tvv $BACKUP
+if test $? -ne 0 ; then
+	echo "    ERROR: integrity check failed, aborting"
 	exit 1
 fi
 
@@ -151,7 +150,11 @@ exit 0
 
 #==============================================================
 # $Log: gm-restore_database.sh,v $
-# Revision 1.1  2007-11-30 13:36:41  ncq
+# Revision 1.2  2007-12-02 11:48:24  ncq
+# - source config before testing backup integrity so we don't waste
+#   time only to discover we cannot find our options ...
+#
+# Revision 1.1  2007/11/30 13:36:41  ncq
 # - renamed to better reflect distinction to restoring data only
 #
 # Revision 1.5  2007/07/03 10:04:32  ncq
