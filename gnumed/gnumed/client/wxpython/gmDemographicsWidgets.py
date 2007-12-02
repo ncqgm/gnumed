@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.130 2007-11-28 22:35:58 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gmDemographicsWidgets.py,v 1.131 2007-12-02 11:35:19 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -186,9 +186,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
 			return True
-		dlg.Destroy()
 		return False
 	#--------------------------------------------------------
 	def _edit_address(self, address):
@@ -197,9 +195,11 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Editing address'))
 		if dlg.ShowModal() == wx.ID_OK:
-			dlg.Destroy()
+			# did we add an entirely new address ?
+			# if so then unlink the old one as implied by "edit"
+			if ea.address['pk_address'] != address['pk_address']:
+				self.__identity.unlink_address(address = address)
 			return True
-		dlg.Destroy()
 		return False
 	#--------------------------------------------------------
 	def _del_address(self, address):
@@ -349,10 +349,10 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 	"""
 	def __init__(self, *args, **kwargs):
 		try:
-			self.__address = kwargs['address']
+			self.address = kwargs['address']
 			del kwargs['address']
 		except KeyError:
-			self.__address = None
+			self.address = None
 
 		wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl.__init__(self, *args, **kwargs)
 
@@ -365,20 +365,20 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 	#--------------------------------------------------------
 	def refresh(self, address = None):
 		if address is not None:
-			self.__address = address
+			self.address = address
 
-		if self.__address is not None:
-			self._PRW_type.SetText(self.__address['l10n_address_type'])
-			self._PRW_zip.SetText(self.__address['postcode'])
-			self._PRW_street.SetText(self.__address['street'], data = self.__address['street'])
-			self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.__address['notes_street'], ''))
-			self._TCTRL_number.SetValue(self.__address['number'])
-			self._TCTRL_subunit.SetValue(gmTools.coalesce(self.__address['subunit'], ''))
-			self._PRW_suburb.SetText(gmTools.coalesce(self.__address['suburb'], ''))
-			self._PRW_urb.SetText(self.__address['urb'], data = self.__address['urb'])
-			self._PRW_state.SetText(self.__address['l10n_state'], data = self.__address['code_state'])
-			self._PRW_country.SetText(self.__address['l10n_country'], data = self.__address['code_country'])
-			self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.__address['notes_subunit'], ''))
+		if self.address is not None:
+			self._PRW_type.SetText(self.address['l10n_address_type'])
+			self._PRW_zip.SetText(self.address['postcode'])
+			self._PRW_street.SetText(self.address['street'], data = self.address['street'])
+			self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.address['notes_street'], ''))
+			self._TCTRL_number.SetValue(self.address['number'])
+			self._TCTRL_subunit.SetValue(gmTools.coalesce(self.address['subunit'], ''))
+			self._PRW_suburb.SetText(gmTools.coalesce(self.address['suburb'], ''))
+			self._PRW_urb.SetText(self.address['urb'], data = self.address['urb'])
+			self._PRW_state.SetText(self.address['l10n_state'], data = self.address['code_state'])
+			self._PRW_country.SetText(self.address['l10n_country'], data = self.address['code_country'])
+			self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.address['notes_subunit'], ''))
 		# FIXME: clear fields
 #		else:
 #			pass
@@ -410,7 +410,7 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			adr['notes_subunit'] = notes
 		adr.save_payload()
 
-		self.__address = adr
+		self.address = adr
 
 		return True
 	#--------------------------------------------------------
@@ -2295,7 +2295,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.130  2007-11-28 22:35:58  ncq
+# Revision 1.131  2007-12-02 11:35:19  ncq
+# - in edit unlink old address if new one created
+#
+# Revision 1.130  2007/11/28 22:35:58  ncq
 # - make empty == None == NULL on nick/title/comment
 #
 # Revision 1.129  2007/11/28 14:00:10  ncq
