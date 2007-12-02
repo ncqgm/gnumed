@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
@@ -1394,7 +1394,7 @@ if __name__ == '__main__':
 #	def testOrgPerson(f1, a1, personList):
 
 	def deletePerson(id):
-		cmds = [ ( "delete from dem.lnk_identity2comm_chan where id_identity=%d"%id,[]),
+		cmds = [ ( "delete from dem.lnk_identity2comm_chan where fk_identity=%d"%id,[]),
 			("delete from dem.names where id_identity=%d"%id,[]),
 			("delete from dem.identity where id = %d"%id,[]) ]
 		result = gmPG.run_commit("personalia", cmds)
@@ -2021,7 +2021,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.36  2007-07-17 10:38:06  ncq
+# Revision 1.37  2007-12-02 20:56:37  ncq
+# - adjust to table changes
+#
+# Revision 1.36  2007/07/17 10:38:06  ncq
 # - fix some epydoc related stuff
 #
 # Revision 1.35  2006/07/19 20:25:00  ncq
