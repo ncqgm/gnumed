@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.2 2007-11-04 22:58:45 ncq Exp $
+# $Id: gm-backup_data.sh,v 1.3 2007-12-02 11:45:18 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -60,11 +60,29 @@ fi
 # local only
 pg_dump --data-only -v -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql 2> /dev/null
 
+# tar and test it
+if test -z ${VERIFY_TAR} ; then
+	tar -cf ${BACKUP_FILENAME}-data_only.tar ${BACKUP_FILENAME}-data_only.sql
+else
+	tar -cWf ${BACKUP_FILENAME}-data_only.tar ${BACKUP_FILENAME}-data_only.sql
+fi ;
+
+if test "$?" != "0" ; then
+	echo "Creating backup tar archive [${BACKUP_FILENAME}-data_only.tar] failed. Aborting."
+	exit 1
+fi
+rm -f ${BACKUP_FILENAME}-data_only.sql
+
+chown ${BACKUP_OWNER} ${BACKUP_FILENAME}-data_only.tar
+
 exit 0
 
 #==============================================================
 # $Log: gm-backup_data.sh,v $
-# Revision 1.2  2007-11-04 22:58:45  ncq
+# Revision 1.3  2007-12-02 11:45:18  ncq
+# - tar the sql so it gets picked up by both the zipping and offsiting script
+#
+# Revision 1.2  2007/11/04 22:58:45  ncq
 # - improved docs
 #
 # Revision 1.1  2007/11/04 01:40:45  ncq
