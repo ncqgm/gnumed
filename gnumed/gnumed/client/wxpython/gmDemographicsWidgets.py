@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.131 2007-12-02 11:35:19 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmDemographicsWidgets.py,v 1.132 2007-12-02 21:00:45 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
-from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl
+from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl
 
 
 # constant defs
@@ -228,86 +228,6 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
-#------------------------------------------------------------
-class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
-	"""A list for managing a person's addresses.
-
-	Does NOT act on/listen to the current patient.
-	"""
-	def __init__(self, *args, **kwargs):
-
-		try:
-			self.__identity = kwargs['identity']
-			del kwargs['identity']
-		except KeyError:
-			self.__identity = None
-
-		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
-
-		self.new_callback = None
-		self.edit_callback = None
-		self.delete_callback = None
-		self.refresh_callback = self.refresh
-
-		self.__init_ui()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self):
-		if self.__identity is None:
-			self._LCTRL_items.set_string_items()
-			return
-
-		comms = self.__identity.get_comm_channels()
-		self._LCTRL_items.set_string_items (
-			items = [ [ c['l10n_comm_type'], c['url'], gmTools.bool2str(c['is_confidential'], u'X', u'') ] for c in comms ]
-		)
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.set_data(data = comms)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __init_ui(self):
-		self._LCTRL_items.set_columns(columns = [
-			_('Type'),
-			_('URL'),
-			_('confidential')
-		])
-	#--------------------------------------------------------
-	def _del_comm(self, comm):
-		go_ahead = gmGuiHelpers.gm_show_question (
-			_(	'Are you sure this patient can no longer\n'
-				"be contacted via this channel ?"
-			),
-			_('Removing communication channel')
-		)
-		if not go_ahead:
-			return False
-		self.__identity.unlink_comm_channel(address = address)
-		return True
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return self.__identity
-
-	def _set_identity(self, identity):
-		self.__identity = identity
-		self.refresh()
-
-	identity = property(_get_identity, _set_identity)
-	#--------------------------------------------------------
-#		phone = self.TTC_phone.GetValue().strip()
-#		if len(phone) > 0:
-#			success = self.__ident.link_communication (
-#				comm_medium = 'homephone',
-#				url = phone,
-#				is_confidential = False
-#			)
-#		if not success:
-#			gmDispatcher.send(signal='statustext', msg=_('Cannot update patient phone number.'))
-#			return False
 #============================================================
 class cPersonContactsManagerPnl(wxgPersonContactsManagerPnl.wxgPersonContactsManagerPnl):
 	"""A panel for editing contact data for a person.
@@ -474,6 +394,66 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 				return False
 
 		return True
+#============================================================
+class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+select * from (
+	(select
+		pk_address,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+		|| urb || coalesce(' (' || suburb || ')', '')
+		|| coalesce(', ' || notes_street, '')
+		|| coalesce(', ' || notes_subunit, '')
+		) as address
+	from
+		dem.v_address
+	where
+		street %(fragment_condition)s
+
+	) union (
+
+	select
+		pk_address,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+		|| urb || coalesce(' (' || suburb || ')', '')
+		|| coalesce(', ' || notes_street, '')
+		|| coalesce(', ' || notes_subunit, '')
+		) as address
+	from
+		dem.v_address
+	where
+		postcode_street %(fragment_condition)s
+
+	) union (
+
+	select
+		pk_address,
+		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
+		|| urb || coalesce(' (' || suburb || ')', '')
+		|| coalesce(', ' || notes_street, '')
+		|| coalesce(', ' || notes_subunit, '')
+		) as address
+	from
+		dem.v_address
+	where
+		postcode_urb %(fragment_condition)s
+	)
+) as union_result
+order by union_result.address limit 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(2, 4, 6)
+#		mp.setWordSeparators(separators=u'[ \t]+')
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select an address by postcode or street name.'))
+		self.selection_only = True
 #============================================================
 class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -783,6 +763,198 @@ select code, name from (
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
 		self.matcher = mp
+#============================================================
+# communications channel related widgets
+#============================================================
+class cCommChannelTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+select pk, type from ((
+	select pk, _(description) as type, 1 as rank
+	from dem.enum_comm_types
+	where _(description) %(fragment_condition)s
+) union (
+	select pk, description as type, 2 as rank
+	from dem.enum_comm_types
+	where description %(fragment_condition)s
+)) as ur
+order by
+	ur.rank, ur.type
+"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		mp.setWordSeparators(separators=u'[ \t]+')
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select the type of communications channel.'))
+		self.selection_only = True
+#------------------------------------------------------------
+class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl):
+	"""An edit area for editing/creating a comms channel.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+		try:
+			self.channel = kwargs['comm_channel']
+			del kwargs['comm_channel']
+		except KeyError:
+			self.channel = None
+
+		wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self.identity = None
+
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, comm_channel = None):
+		if comm_channel is not None:
+			self.channel = comm_channel
+
+		if self.channel is not None:
+			self._PRW_type.SetText(self.channel['l10n_comm_type'])
+			self._TCTRL_url.SetValue(self.channel['url'])
+			self._PRW_address.SetData(data = self.channel['pk_address'])
+			self._CHBOX_confidential.SetValue(self.channel['is_confidential'])
+		# FIXME: clear fields
+#		else:
+#			pass
+	#--------------------------------------------------------
+	def save(self):
+		"""Links comm channel to patient."""
+
+		if not self.__valid_for_save():
+			return False
+
+		self.identity.link_comm_channel (
+			pk_channel_type = self._PRW_type.GetData(),
+			url = self._TCTRL_url.GetValue().strip(),
+			is_confidential = self._CHBOX_confidential.GetValue(),
+			pk_address = self._PRW_address.GetData()
+		)
+
+		return True
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+
+		no_errors = True
+
+		if self._PRW_type.GetData() is None:
+			self._PRW_type.SetBackgroundColour('pink')
+			self._PRW_type.SetFocus()
+			self._PRW_type.Refresh()
+			no_errors = False
+		else:
+			self._PRW_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_type.Refresh()
+
+		if self._TCTRL_url.GetValue().strip() == u'':
+			self._TCTRL_url.SetBackgroundColour('pink')
+			self._TCTRL_url.SetFocus()
+			self._TCTRL_url.Refresh()
+			no_errors = False
+		else:
+			self._TCTRL_url.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._TCTRL_url.Refresh()
+
+		return no_errors
+#------------------------------------------------------------
+class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing a person's comm channels.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__identity = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			self.__identity = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		self.new_callback = self._add_comm
+#		self.edit_callback = self._edit_comm
+		self.delete_callback = self._del_comm
+		self.refresh_callback = self.refresh
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, *args, **kwargs):
+		if self.__identity is None:
+			self._LCTRL_items.set_string_items()
+			return
+
+		comms = self.__identity.get_comm_channels()
+		self._LCTRL_items.set_string_items (
+			items = [ [ gmTools.bool2str(c['is_confidential'], u'X', u''), c['l10n_comm_type'], c['url'] ] for c in comms ]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = comms)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('confidential'),
+			_('Type'),
+			_('URL')
+		])
+	#--------------------------------------------------------
+	def _add_comm(self):
+		ea = cCommChannelEditAreaPnl(self, -1)
+		ea.identity = self.__identity
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Adding new communications channel'))
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+		return False
+	#--------------------------------------------------------
+	def _edit_comm(self, comm_channel):
+		ea = cCommChannelEditAreaPnl(self, -1, comm_channel = comm_channel)
+		ea.identity = self.__identity
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Editing communications channel'))
+		if dlg.ShowModal() == wx.ID_OK:
+			return True
+		return False
+	#--------------------------------------------------------
+	def _del_comm(self, comm):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(	'Are you sure this patient can no longer\n'
+				"be contacted via this channel ?"
+			),
+			_('Removing communication channel')
+		)
+		if not go_ahead:
+			return False
+		self.__identity.unlink_comm_channel(comm_channel = comm)
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
 #============================================================
 # identity phrasewheels and widgets
 #============================================================
@@ -1703,6 +1875,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""Build patient edition notebook pages."""
+
 		# identity page
 		new_page = cPersonIdentityManagerPnl(self, -1)
 		new_page.identity = self.__identity
@@ -2108,7 +2281,7 @@ def link_contacts_from_dtd(identity, dtd=None):
 			gmDispatcher.send(signal='statustext', msg = _('Cannot update patient address.'))
 
 	if len(dtd['phone']) > 0:
-		identity.link_communication (
+		identity.link_comm_channel (
 			comm_medium = 'homephone',
 			url = dtd['phone'],
 			is_confidential = False
@@ -2174,6 +2347,12 @@ if __name__ == "__main__":
 	def test_address_type_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cAddressTypePhraseWheel(app.frame, -1)
+		app.frame.Show(True)
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_address_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		pw = cAddressPhraseWheel(app.frame, -1)
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
@@ -2278,6 +2457,7 @@ if __name__ == "__main__":
 #		test_organizer_pnl()
 		#test_address_type_prw()
 		#test_suburb_prw()
+		test_address_prw()
 
 		# contacts related widgets
 		#test_address_ea_pnl()
@@ -2291,11 +2471,18 @@ if __name__ == "__main__":
 		#test_pat_ids_pnl()
 		#test_name_ea_pnl()
 
-		test_cPersonDemographicsEditorNb()
+		#test_cPersonDemographicsEditorNb()
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.131  2007-12-02 11:35:19  ncq
+# Revision 1.132  2007-12-02 21:00:45  ncq
+# - cAddressPhraseWheel
+# - cCommChannelTypePhraseWheel
+# - cCommChannelEditAreaPnl
+# - use thereof
+# - more tests
+#
+# Revision 1.131  2007/12/02 11:35:19  ncq
 # - in edit unlink old address if new one created
 #
 # Revision 1.130  2007/11/28 22:35:58  ncq
