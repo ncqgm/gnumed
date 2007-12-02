@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.142 2007-11-28 22:35:03 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gmPerson.py,v 1.143 2007-12-02 20:58:06 ncq Exp $
+__version__ = "$Revision: 1.143 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -73,6 +73,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 
+		# FIXME: include inactive names
 		cmd = u"""
 select *, '%s' as match_type from dem.v_basic_person
 where pk_identity in (
@@ -445,7 +446,7 @@ select * from dem.v_external_ids4identity where
 	# comms API
 	#--------------------------------------------------------
 	def get_comm_channels(self, comm_medium=None):
-		cmd = u"select * from dem.v_person_comms where pk_identity=%s"
+		cmd = u"select * from dem.v_person_comms where pk_identity = %s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 
 		filtered = rows
@@ -458,7 +459,7 @@ select * from dem.v_external_ids4identity where
 
 		return filtered
 	#--------------------------------------------------------
-	def link_comm_channel(self, comm_medium, url, is_confidential = False):
+	def link_comm_channel(self, comm_medium=None, url=None, is_confidential=False, pk_address=None, pk_channel_type=None):
 		"""Link a communication medium with a patient.
 
 		@param comm_medium The name of the communication medium.
@@ -467,18 +468,44 @@ select * from dem.v_external_ids4identity where
 		@param is_confidential Wether the data must be treated as confidential.
 		@type is_confidential A types.BooleanType instance.
 		"""
-		# locate communication in enum list and sanity check
-		comm_list = get_comm_list()
-		if comm_medium not in comm_list:
-			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
-			return False
-		# FIXME: make link_person_comm() create comm type if necessary
-		cmd = u"SELECT dem.link_person_comm(%(pk_pat)s, %(medium)s, %(url)s, %(secret)s)"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk_pat': self.pk_obj, 'medium': comm_medium, 'url': url, 'secret': is_confidential}}])
-		return True
+		# FIXME: create comm type if necessary
+		args = {'pat': self.pk_obj, 'url': url, 'secret': is_confidential, 'adr': pk_address}
+
+		if pk_channel_type is None:
+			args['type'] = comm_medium
+			cmd = u"""insert into dem.lnk_identity2comm (
+				fk_identity,
+				url,
+				fk_type,
+				is_confidential,
+				fk_address
+			) values (
+				%(pat)s,
+				%(url)s,
+				(select pk from dem.enum_comm_types where description ilike %(type)s),
+				%(secret)s,
+				%(adr)s
+			)"""
+		else:
+			args['type'] = pk_channel_type
+			cmd = u"""insert into dem.lnk_identity2comm (
+				fk_identity,
+				url,
+				fk_type,
+				is_confidential,
+				fk_address
+			) values (
+				%(pat)s,
+				%(url)s,
+				%(type)s,
+				%(secret)s,
+				%(adr)s
+			)"""
+
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	def unlink_comm_channel(self, comm_channel=None):
-		cmd = u"delete from dem.lnk_identity2comm where id = %(pk)s and id_identity = %(pat)s"
+		cmd = u"delete from dem.lnk_identity2comm where pk = %(pk)s and fk_identity = %(pat)s"
 		args = {'pk': comm_channel['pk_link_identity2comm'], 'pat': self.pk_obj}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
@@ -2094,7 +2121,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.142  2007-11-28 22:35:03  ncq
+# Revision 1.143  2007-12-02 20:58:06  ncq
+# - adjust to table changes
+# - fix link_comm_channel()
+#
+# Revision 1.142  2007/11/28 22:35:03  ncq
 # - streamline get_description()
 # - make current patient listen on its identity/name tables
 #
