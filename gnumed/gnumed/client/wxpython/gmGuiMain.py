@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.370 2007-11-28 22:36:40 ncq Exp $
-__version__ = "$Revision: 1.370 $"
+# $Id: gmGuiMain.py,v 1.371 2007-12-03 21:06:00 ncq Exp $
+__version__ = "$Revision: 1.371 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1587,7 +1587,7 @@ Search results:
 
 		# shutdown application scripting listener
 		try:
-			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
+			gmGuiBroker.GuiBroker()['scripting listener'].shutdown()
 		except KeyError:
 			_log.LogException('no access to scripting listener thread', verbose=0)
 		except:
@@ -1749,20 +1749,6 @@ class gmApp(wx.App):
 
 		if gmCLI.has_arg('--debug'):
 			self.RedirectStdio()
-			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
-
-		if self.__guibroker['main.slave_mode']:
-			self.__guibroker['main.slave_personality'] = self.user_prefs_cfg_file.get('workplace', 'slave personality')
-			if not self.__guibroker['main.slave_personality']:
-				msg = _(
-					'Slave mode requested but personality not set.\n\n'
-					'(The personality must be set so that clients can\n'
-					'find the appropriate GNUmed instance to attach to.)\n\n'
-					'Set slave personality in config file !'
-				)
-				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
-				return False
-			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % self.__guibroker['main.slave_personality'])
 
 		# check account <-> staff member association
 		try:
@@ -1770,7 +1756,7 @@ class gmApp(wx.App):
 			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
 		except gmExceptions.ConstructorError, ValueError:
 			account = gmPG2.get_current_user()
-			_log.LogException('DB account [%s] cannot be used as a GNUmed staff login' % account, sys.exc_info(), verbose=0)
+			_log.LogException('DB account [%s] cannot be used as a GNUmed staff login' % account, verbose=0)
 			msg = _(
 				'The database account [%s] cannot be used as a\n'
 				'staff member login for GNUmed. There was an\n'
@@ -1781,17 +1767,7 @@ class gmApp(wx.App):
 			return False
 
 		self.__starting_up = True
-
-		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
-		wx.EVT_END_SESSION(self, self._on_end_session)
-		self.Bind(wx.EVT_ACTIVATE_APP, self._on_app_activated)
-
-#You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your app
-#get/looses focus, or you can wx.EVT_ACTIVATE with any of your toplevel
-#windows and call evt.GetActive() in the handler to see whether it is
-#gaining or loosing focus.
-
-		# set up language in database
+		self.__register_events()
 		self.__set_db_lang()
 
 		# display database banner
@@ -1801,38 +1777,17 @@ class gmApp(wx.App):
 			gmGuiHelpers.gm_show_info(msg, _('Verifying database'))
 
 		# create the main window
-		cli_layout = gmCLI.arg.get('--layout', None)
 		# FIXME: load last position from backend
+		cli_layout = gmCLI.arg.get('--layout', None)
 		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440), cli_layout)
 		self.SetTopWindow(frame)
 
 		frame.CentreOnScreen(wx.BOTH)
 		frame.Show(True)
 
-		# last but not least: start macro listener if so desired
 		if self.__guibroker['main.slave_mode']:
-			import socket
-			from Gnumed.pycommon import gmScriptingListener
-			from Gnumed.wxpython import gmMacro
-			macro_executor = gmMacro.cMacroPrimitives(self.__guibroker['main.slave_personality'])
-			port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
-			if not port:
-				port = 9999
-			try:
-				self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
-			except socket.error, e:
-				_log.LogException('cannot start GNUmed XML-RPC server')
-				gmGuiHelpers.gm_show_error (
-					aMessage = (
-						'Cannot start the GNUmed server:\n'
-						'\n'
-						' [%s]'
-					) % e,
-					aTitle = _('GNUmed startup')
-				)
+			if not self.__setup_scripting_listener():
 				return False
-
-			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
 		wx.CallAfter(self._do_after_init)
 
@@ -1846,23 +1801,6 @@ class gmApp(wx.App):
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
 
 		# - raise startup-default plugin (done in cTopLevelFrame)
-
-		# - load external patient sources
-#		dbcfg = gmCfg.cCfgSQL()
-#		search_on_startup = bool(dbcfg.get2 (
-#			option = 'patient_search.external_sources.immediately_search_on_startup',
-#			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#			bias = 'user',
-#			default = 1
-#		))
-#		if search_on_startup:
-#			search_immediately = bool(dbcfg.get2 (
-#				option = 'patient_search.external_sources.immediately_search_if_single_source',
-#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#				bias = 'user',
-#				default = 0
-#			))
-#			gmPatSearchWidgets.load_patient_from_external_sources(parent = self.GetTopWindow(), search_immediately = search_immediately)
 
 		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
 
@@ -1908,6 +1846,59 @@ class gmApp(wx.App):
 		del kwargs['signal']
 		for key in kwargs.keys():
 			print '    [%s]: %s' % (key, kwargs[key])
+	#----------------------------------------------
+	def __register_events(self):
+		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
+		wx.EVT_END_SESSION(self, self._on_end_session)
+		self.Bind(wx.EVT_ACTIVATE_APP, self._on_app_activated)
+		#You can bind your app to wx.EVT_ACTIVATE_APP which will fire when your app
+		#get/looses focus, or you can wx.EVT_ACTIVATE with any of your toplevel
+		#windows and call evt.GetActive() in the handler to see whether it is
+		#gaining or loosing focus.
+
+		if gmCLI.has_arg('--debug'):
+			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+	#----------------------------------------------
+	def __setup_scripting_listener(self):
+
+			slave_personality = self.user_prefs_cfg_file.get('workplace', 'slave personality')
+			if slave_personality is None:
+				msg = _(
+					'Slave mode requested but personality not set.\n\n'
+					'(The personality must be set so that clients can\n'
+					'find the appropriate GNUmed instance to attach to.)\n\n'
+					'Set slave personality in config file !'
+				)
+				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
+				return False
+
+			import socket
+			from Gnumed.pycommon import gmScriptingListener
+			from Gnumed.wxpython import gmMacro
+
+			macro_executor = gmMacro.cMacroPrimitives(slave_personality)
+
+			# FIXME: handle port via /var/run/
+			port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
+			if not port:
+				port = 9999
+
+			try:
+				self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port=port, macro_executor=macro_executor)
+			except socket.error, e:
+				_log.LogException('cannot start GNUmed XML-RPC server')
+				gmGuiHelpers.gm_show_error (
+					aMessage = (
+						'Cannot start the GNUmed server:\n'
+						'\n'
+						' [%s]'
+					) % e,
+					aTitle = _('GNUmed startup')
+				)
+				return False
+
+			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % slave_personality)
+			return True
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
@@ -2046,7 +2037,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.370  2007-11-28 22:36:40  ncq
+# Revision 1.371  2007-12-03 21:06:00  ncq
+# - streamline OnInit()
+#
+# Revision 1.370  2007/11/28 22:36:40  ncq
 # - listen on identity/name changes for current patient
 #
 # Revision 1.369  2007/11/23 23:33:50  ncq
