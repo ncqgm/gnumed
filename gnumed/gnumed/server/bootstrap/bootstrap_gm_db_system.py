@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -767,7 +767,7 @@ class database:
 				print "    ... failed (check [%s])" % tag
 				return False
 
-			_log.Log(gmLog.lInfo, 'plausibility check [%s]: success' % tag)
+			_log.Log(gmLog.lInfo, 'plausibility check [%s] succeeded' % tag)
 
 		return True
 	#--------------------------------------------------------------
@@ -1282,7 +1282,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.67  2007-11-09 14:42:37  ncq
+# Revision 1.68  2007-12-03 20:48:46  ncq
+# - better wording in log
+#
+# Revision 1.67  2007/11/09 14:42:37  ncq
 # - announce disabled notification and auditing DDL generation
 # - don't consider sys.exit() a fatal exception though it throws SystemExit
 #
