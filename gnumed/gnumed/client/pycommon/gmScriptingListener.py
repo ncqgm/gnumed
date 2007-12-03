@@ -4,83 +4,81 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select
-import gmDispatcher, gmLog, gmExceptions
-_log = gmLog.gmDefLog
 
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmDispatcher, gmLog, gmExceptions
+
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
 #=====================================================================
 class cScriptingListener:
-	def __init__(self, port = 9999, macro_executor = None, poll_interval = 3):
-		if macro_executor is None:
-			raise gmExceptions.ConstructorError, "need macro executor object parameter"
+
+	# FIXME: this should use /var/run/gnumed/xml-rpc-port.pid
+	# FIXME: and store the current port there
+
+	"""This class handles how GNUmed listens for external requests.
+
+	It starts an XML-RPC server and forks a thread which
+	listens for incoming requests. Those requests are then
+	handed over to a macro executor and the results handed
+	back to the caller.
+	"""
+	def __init__(self, port = None, macro_executor = None, poll_interval = 3):
 		# listener thread will regularly try to acquire
 		# this lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
 		if not self._quit_lock.acquire(0):
 			_log.Log(gmLog.lErr, 'cannot acquire thread quit lock !?! aborting')
 			raise gmExceptions.ConstructorError, "cannot acquire thread quit-lock"
+
 		# check for data every 'poll_interval' seconds
 		self._poll_interval = poll_interval
-		# setup XML-RPC server
-		if not self.__start_server(port, macro_executor):
-			raise gmExceptions.ConstructorError, "cannot start XML-RPC server on port [%s]" % port
-		# start thread
-		if not self.__start_thread():
-			raise gmExceptions.ConstructorError, "cannot start listener thread"
-	#-------------------------------
-	def __del__(self):
-		# allow listener thread to acquire quit lock
-		try:
-			self._quit_lock.release()
-			# give the thread time to terminate
-			if self._thread is not None:
-				self._thread.join(self._poll_interval+2)
-		except:	pass
-		# ???
-		try:
-			self._server.socket.shutdown(2)
-		except: pass
-		try:
-			self._server.socket.close()
-		except: pass
-		try:
-			del self._server
-		except: pass
-	#-------------------------------
-	def __start_server(self, a_port, a_macro_executor):
-		self._port = int(a_port)
-		self._macro_executor = a_macro_executor
-		try:
-			self._server = SimpleXMLRPCServer.SimpleXMLRPCServer(addr=('127.0.0.1', self._port), logRequests=False)
-			self._server.register_instance(self._macro_executor)
-			self._server.allow_reuse_address = True
-		except:
-			_log.LogException('cannot start XML-RPC server [localhost:%s]' % a_port, sys.exc_info())
-			return None
-		return 1
+		# localhost only for somewhat better security
+		self._listener_address = '127.0.0.1'
+		self._port = int(port)
+		self._macro_executor = macro_executor
+
+		self._server = SimpleXMLRPCServer.SimpleXMLRPCServer(addr=(self._listener_address, self._port), logRequests=False)
+		self._server.register_instance(self._macro_executor)
+		self._server.allow_reuse_address = True
+
+		self._thread = threading.Thread(target = self._process_RPCs)
+		self._thread.start()
+
+		_log.Log(gmLog.lInfo, 'scripting listener started on [%s:%s]' % (self._listener_address, self._port))
+		_log.Log(gmLog.lInfo, 'macro executor is [%s]' % self._macro_executor)
 	#-------------------------------
 	# public API
 	#-------------------------------
-	def tell_thread_to_stop(self):
+	def shutdown(self):
+		"""Cleanly shut down. Complement to __init__()."""
+
+		# allow listener thread to acquire quit lock and give it time to terminate
 		self._quit_lock.release()
+		if self._thread is not None:
+			self._thread.join(self._poll_interval+5)
+
+		try:
+			self._server.socket.shutdown(2)
+		except:
+			_log.LogException('cannot cleanly shutdown(5) scripting listener socket')
+
+		try:
+			self._server.socket.close()
+		except:
+			_log.LogException('cannot cleanly close() scripting listener socket')
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
-	def __start_thread(self):
-		try:
-			self._thread = threading.Thread(target = self._process_RPCs)
-			self._thread.start()
-		except StandardError:
-			_log.LogException("cannot start thread", sys.exc_info(), verbose=1)
-			return None
-		return 1
-	#-------------------------------
-	# the actual thread code
-	#-------------------------------
 	def _process_RPCs(self):
+		"""The actual thread code."""
 		while 1:
 			if self._quit_lock.acquire(0):
 				break
@@ -112,25 +110,38 @@ class cScriptingListener:
 # main
 #=====================================================================
 if __name__ == "__main__":
+
 	_log.SetAllLogLevels(gmLog.lData)
 
-_log.Log(gmLog.lData, __version__)
-
-if __name__ == "__main__":
-	import xmlrpclib
 	#-------------------------------
 	class runner:
 		def tell_time(self):
 			return time.asctime()
 	#-------------------------------
-	listener = cScriptingListener(macro_executor=runner(), port=9999)
-	s = xmlrpclib.ServerProxy('http://localhost:9999')
-	t = s.tell_time()
-	print t
-	listener.tell_thread_to_stop()
+	if (len(sys.argv) > 1) and (sys.argv[1] == u'test'):
+		import xmlrpclib
+
+		try:
+			listener = cScriptingListener(macro_executor=runner(), port=9999)
+		except:
+			_log.LogException('cannot instantiate scripting listener')
+			sys.exit(1)
+
+		s = xmlrpclib.ServerProxy('http://localhost:9999')
+		try:
+			t = s.tell_time()
+			print t
+		except:
+			_log.LogException('cannot interact with server')
+
+		listener.shutdown()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.2  2004-09-13 08:51:03  ncq
+# Revision 1.3  2007-12-03 20:43:53  ncq
+# - lots of cleanup
+# - fix/enhance test suite
+#
+# Revision 1.2  2004/09/13 08:51:03  ncq
 # - make sure port is an integer
 # - start XML RPC server with logRequests=False
 # - socket allow_reuse_address
