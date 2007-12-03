@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.132 2007-12-02 21:00:45 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmDemographicsWidgets.py,v 1.133 2007-12-03 20:44:14 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1285,14 +1285,14 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 				'This allows finding the patient by both the old\n'
 				'and the new name (think before/after marriage).\n'
 				'\n'
-				'Are you sure you want to really delete\n'
+				'Do you still want to really delete\n'
 				"this name from the patient ?"
 			),
 			_('Deleting name')
 		)
 		if not go_ahead:
 			return False
-#		self.__identity.unlink_address(address = address)
+		self.__identity.delete_name(name = name)
 		return True
 	#--------------------------------------------------------
 	# properties
@@ -2475,7 +2475,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.132  2007-12-02 21:00:45  ncq
+# Revision 1.133  2007-12-03 20:44:14  ncq
+# - use delete_name()
+#
+# Revision 1.132  2007/12/02 21:00:45  ncq
 # - cAddressPhraseWheel
 # - cCommChannelTypePhraseWheel
 # - cCommChannelEditAreaPnl
