@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.143 2007-12-02 20:58:06 ncq Exp $
-__version__ = "$Revision: 1.143 $"
+# $Id: gmPerson.py,v 1.144 2007-12-03 20:42:37 ncq Exp $
+__version__ = "$Revision: 1.144 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -27,7 +27,6 @@ _log.Log(gmLog.lInfo, __version__)
 
 __gender_list = None
 __gender_idx = None
-__comm_list = None
 
 __gender2salutation_map = None
 
@@ -51,7 +50,11 @@ class cDTO_person(object):
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 
-		shall we mogrify name parts ? probably not
+		shall we mogrify name parts ? probably not as external
+		sources should know what they do
+
+		finds by inactive name, too, but then shows
+		the corresponding active name ;-)
 
 		Returns list of matching identities (may be empty)
 		or None if it was told to create an identity but couldn't.
@@ -73,7 +76,6 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 
-		# FIXME: include inactive names
 		cmd = u"""
 select *, '%s' as match_type from dem.v_basic_person
 where pk_identity in (
@@ -281,6 +283,14 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		if active:
 			self.refetch_payload()
 		return name
+	#--------------------------------------------------------
+	def delete_name(self, name=None):
+		cmd = u"delete from dem.names where id = %(name)s and id_identity = %(pat)s"
+		args = {'name': name['pk_name'], 'pat': self.ID}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		# can't have been the active name as that would raise an
+		# exception (since no active name would be left) so no
+		# data refetch needed
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
 		"""
@@ -1839,16 +1849,6 @@ def map_firstnames2gender(firstnames=None):
 		return None
 	return rows[0][0]
 #============================================================
-def get_comm_list():	
-	global __comm_list
-	if __comm_list is None:
-		cmd = u"select description from dem.enum_comm_types order by description"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-		__comm_list = []
-		for row in rows:
-			__comm_list.append(row[0])
-	return __comm_list
-#============================================================
 def get_staff_list(active_only=False):
 	if active_only:
 		cmd = u"select * from dem.v_staff where is_active order by can_login desc, short_alias asc"
@@ -2121,7 +2121,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.143  2007-12-02 20:58:06  ncq
+# Revision 1.144  2007-12-03 20:42:37  ncq
+# - .delete_name()
+# - remove get_comm_list()
+#
+# Revision 1.143  2007/12/02 20:58:06  ncq
 # - adjust to table changes
 # - fix link_comm_channel()
 #
