@@ -4,7 +4,7 @@ This module implements functions a macro can legally use.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -36,6 +36,13 @@ known_placeholders = [
 	'soap_p'
 ]
 
+# those must satisfy '.+::.+' when used
+known_variant_placeholders = [
+	'soap',
+	'progress_notes',
+	'date_of_birth'
+]
+
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 	"""Replaces placeholders in forms, fields, etc.
@@ -48,6 +55,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	"""
 	def __init__(self, *args, **kwargs):
 
+		self.pat = gmPerson.gmCurrentPatient()
 		self.debug = False
 	#--------------------------------------------------------
 	# __getitem__ API
@@ -61,13 +69,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		Unknown placeholders still deliver a result but it will be
 		made glaringly obvious that the placeholder was unknown.
 		"""
-		if placeholder not in known_placeholders:
-			if self.debug:
-				return _('unknown placeholder: <%s>' % placeholder)
-			else:
-				return None
+		# static placeholders
+		if placeholder in known_placeholders:
+			return getattr(self, placeholder)
 
-		return getattr(self, placeholder)
+		# variable placeholders
+		parts = placeholder.split('::', 1)
+		if len(parts) == 2:
+			name, data = parts
+			handler = getattr(self, '_get_variant_%s' % name, None)
+			if handler is not None:
+				return handler(data = data)
+
+		if self.debug:
+			return _('unknown placeholder: <%s>' % placeholder)
+
+		return None
 	#--------------------------------------------------------
 	# properties actually handling placeholders
 	#--------------------------------------------------------
@@ -78,38 +95,34 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		pass
 	#--------------------------------------------------------
 	def _get_lastname(self):
-		pat = gmPerson.gmCurrentPatient()
-		return pat.get_active_name()['last']
+		return self.pat.get_active_name()['lastnames']
 	#--------------------------------------------------------
 	def _get_firstname(self):
-		pat = gmPerson.gmCurrentPatient()
-		return pat.get_active_name()['first']
+		return self.pat.get_active_name()['firstnames']
 	#--------------------------------------------------------
 	def _get_title(self):
-		pat = gmPerson.gmCurrentPatient()
-		return gmTools.coalesce(pat.get_active_name()['title'], u'')
+		return gmTools.coalesce(self.pat.get_active_name()['title'], u'')
 	#--------------------------------------------------------
 	def _get_dob(self):
-		pat = gmPerson.gmCurrentPatient()
-		return pat['dob'].strftime('%x')
+		return self._get_variant_date_of_birth(data='%x')
 	#--------------------------------------------------------
-	def _get_progress_notes(self, soap_cats=None):
-		return self.__get_progress_notes()
+	def _get_progress_notes(self):
+		return self._get_variant_soap()
 	#--------------------------------------------------------
 	def _get_soap_s(self):
-		return self.__get_progress_notes(soap_cats = [u's'])
+		return self._get_variant_soap(data = u's')
 	#--------------------------------------------------------
 	def _get_soap_o(self):
-		return self.__get_progress_notes(soap_cats = [u'o'])
+		return self._get_variant_soap(data = u'o')
 	#--------------------------------------------------------
 	def _get_soap_a(self):
-		return self.__get_progress_notes(soap_cats = [u'a'])
+		return self._get_variant_soap(data = u'a')
 	#--------------------------------------------------------
 	def _get_soap_p(self):
-		return self.__get_progress_notes(soap_cats = [u'p'])
+		return self._get_variant_soap(data = u'p')
 	#--------------------------------------------------------
 	def _get_soap_admin(self):
-		return self.__get_progress_notes(soap_cats = [None])
+		return self._get_variant_soap(soap_cats = None)
 	#--------------------------------------------------------
 	# property definitions
 	#--------------------------------------------------------
@@ -126,14 +139,26 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	soap_p = property(_get_soap_p, _setter_noop)
 	soap_admin = property(_get_soap_admin, _setter_noop)
 	#--------------------------------------------------------
-	# internal helpers
+	# variant handlers
 	#--------------------------------------------------------
-	def __get_progress_notes(self, soap_cats=None):
-		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats=soap_cats)
+	def _get_variant_progress_notes(self, data=None):
+		return self._get_variant_soap(data=data)
+	#--------------------------------------------------------
+	def _get_variant_soap(self, data=None):
+		if data is not None:
+			data = list(data)
+		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = data)
 		if len(narr) == 0:
 			return u''
 		narr = [ n['narrative'] for n in narr ]
 		return u'\n'.join(narr)
+	#--------------------------------------------------------
+	def _get_variant_date_of_birth(self, data='%x'):
+		return self.pat['dob'].strftime(data)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+
 #=====================================================================
 class cMacroPrimitives:
 	"""Functions a macro can legally use.
@@ -189,7 +214,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.37 $" % self.__class__.__name__
+		return "%s $Revision: 1.38 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""
@@ -375,7 +400,7 @@ if __name__ == '__main__':
 		handler = gmPlaceholderHandler()
 		handler.debug = True
 
-		for placeholder in ['a', 'b', None]:
+		for placeholder in ['a', 'b']:
 			print handler[placeholder]
 
 		pat = gmPerson.ask_for_patient()
@@ -384,9 +409,14 @@ if __name__ == '__main__':
 
 		gmPerson.set_active_patient(patient = pat)
 
+		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
+
 		app = wx.PyWidgetTester(size = (200, 50))
 		for placeholder in known_placeholders:
 			print placeholder, "=", handler[placeholder]
+
+		ph = 'progress_notes::ap'
+		print '%s: %s' % (ph, handler[ph])
 
 	#--------------------------------------------------------
 	def test_scripting():
@@ -418,7 +448,7 @@ if __name__ == '__main__':
 		print s.detach(conn_auth)
 		del s
 
-		listener.tell_thread_to_stop()
+		listener.shutdown()
 	#--------------------------------------------------------
 
 	if len(sys.argv) > 0 and sys.argv[1] == 'test':
@@ -427,7 +457,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.37  2007-11-05 12:10:21  ncq
+# Revision 1.38  2007-12-03 20:45:16  ncq
+# - add variant placeholder handling ! :-)
+#
+# Revision 1.37  2007/11/05 12:10:21  ncq
 # - support admin soap type
 #
 # Revision 1.36  2007/10/19 12:52:00  ncq
