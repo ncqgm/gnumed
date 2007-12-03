@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmNarrativeWidgets.py,v $
-# $Id: gmNarrativeWidgets.py,v 1.5 2007-09-10 12:36:02 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmNarrativeWidgets.py,v 1.6 2007-12-03 20:45:28 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -26,6 +26,7 @@ _log.Log(gmLog.lInfo, __version__)
 # narrative related widgets/functions
 #------------------------------------------------------------
 def select_narrative_from_episodes(parent=None, soap_cats=None):
+	"""soap_cats needs to be a list"""
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
@@ -226,7 +227,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmNarrativeWidgets.py,v $
-# Revision 1.5  2007-09-10 12:36:02  ncq
+# Revision 1.6  2007-12-03 20:45:28  ncq
+# - improved docs
+#
+# Revision 1.5  2007/09/10 12:36:02  ncq
 # - improved wording in narrative selector at SOAP level
 #
 # Revision 1.4  2007/09/09 19:21:04  ncq
