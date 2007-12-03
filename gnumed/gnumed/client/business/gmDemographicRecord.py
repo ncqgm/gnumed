@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.92 2007-12-02 20:56:37 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmDemographicRecord.py,v 1.93 2007-12-03 20:41:07 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -29,6 +29,8 @@ from Gnumed.business import gmMedDoc
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
+
+__comm_list = None
 #===================================================================
 class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	"""A class representing an entity in itself.
@@ -210,14 +212,13 @@ def getExtIDTypes (context = 'p'):
 		return {}
 	return dict (rl)
 #----------------------------------------------------------------
-def getCommChannelTypes():
-	"""Gets the dictionary of comm channel types to internal ID"""
-	row_list = gmPG.run_ro_query('personalia', "select description, pk from dem.enum_comm_types")
-	if row_list is None:
-		return None
-	if len (row_list) == 0:
-		return None
-	return dict(row_list)
+def get_comm_channel_types():
+	global __comm_list
+	if __comm_list is None:
+		cmd = u"select pk, description from dem.enum_comm_types"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		__comm_list = rows
+	return __comm_list
 #----------------------------------------------------------------
 def getRelationshipTypes():
 	"""Gets a dictionary of relationship types to internal id"""
@@ -499,7 +500,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.92  2007-12-02 20:56:37  ncq
+# Revision 1.93  2007-12-03 20:41:07  ncq
+# - get_comm_channel_types()
+#
+# Revision 1.92  2007/12/02 20:56:37  ncq
 # - adjust to table changes
 #
 # Revision 1.91  2007/11/17 16:10:53  ncq
