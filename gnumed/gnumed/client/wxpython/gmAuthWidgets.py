@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.1 2007-12-04 16:03:43 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmAuthWidgets.py,v 1.2 2007-12-04 16:14:52 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -154,6 +154,43 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	dlg.Destroy()
 
 	return connected
+#================================================================
+def get_dbowner_connection(procedure=None, dbo_password=None):
+	if procedure is None:
+		procedure = _('<restricted procedure>')
+
+	# 1) get password for gm-dbo
+	if dbo_password is None:
+		pwd_gm_dbo = wx.GetPasswordFromUser (
+			message = _("""
+ [%s]
+
+This is a restricted procedure. We need the
+password for the GNUmed database owner.
+
+Please enter the password for <gm-dbo>:""") % procedure,
+			caption = procedure
+		)
+		if pwd_gm_dbo == '':
+			return None
+	else:
+		pwd_gm_dbo = dbo_password
+
+	# 2) connect as gm-dbo
+	login = gmPG2.get_default_login()
+	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user='gm-dbo', password=pwd_gm_dbo)
+	try:
+		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True, pooled=False)
+	except:
+		_log.LogException('cannot connect')
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
+			aTitle = procedure,
+			aLogLevel = None
+		)
+		return None
+
+	return conn
 #================================================================
 class cBackendProfile:
 	pass
@@ -641,7 +678,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.1  2007-12-04 16:03:43  ncq
+# Revision 1.2  2007-12-04 16:14:52  ncq
+# - get_dbowner_connection()
+#
+# Revision 1.1  2007/12/04 16:03:43  ncq
 # - merger of gmLogin and gmLoginDialog
 #
 #
