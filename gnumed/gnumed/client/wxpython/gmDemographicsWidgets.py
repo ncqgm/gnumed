@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.133 2007-12-03 20:44:14 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmDemographicsWidgets.py,v 1.134 2007-12-04 16:16:27 ncq Exp $
+__version__ = "$Revision: 1.134 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,7 +17,7 @@ import wx.wizard
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea
+from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea, gmAuthWidgets
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl
@@ -114,7 +114,7 @@ def disable_identity(identity=None):
 		return True
 
 	# get admin connection
-	conn = gmGuiHelpers.get_dbowner_connection (
+	conn = gmAuthWidgets.get_dbowner_connection (
 		procedure = _('Disabling patient')
 	)
 	# - user cancelled
@@ -2475,7 +2475,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.133  2007-12-03 20:44:14  ncq
+# Revision 1.134  2007-12-04 16:16:27  ncq
+# - use gmAuthWidgets
+#
+# Revision 1.133  2007/12/03 20:44:14  ncq
 # - use delete_name()
 #
 # Revision 1.132  2007/12/02 21:00:45  ncq

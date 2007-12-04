@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.372 2007-12-04 15:20:31 ncq Exp $
-__version__ = "$Revision: 1.372 $"
+# $Id: gmGuiMain.py,v 1.373 2007-12-04 16:16:27 ncq Exp $
+__version__ = "$Revision: 1.373 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1742,8 +1742,8 @@ class gmApp(wx.App):
 		self.__setup_platform()
 
 		# connect to backend (implicitely runs login dialog)
-		from Gnumed.wxpython import gmLogin
-		if not gmLogin.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
+		from Gnumed.wxpython import gmAuthWidgets
+		if not gmAuthWidgets.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
@@ -2033,7 +2033,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.372  2007-12-04 15:20:31  ncq
+# Revision 1.373  2007-12-04 16:16:27  ncq
+# - use gmAuthWidgets
+#
+# Revision 1.372  2007/12/04 15:20:31  ncq
 # - assume default slave personality "gnumed-client" if not set
 #
 # Revision 1.371  2007/12/03 21:06:00  ncq

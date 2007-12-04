@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.16 2007-04-23 01:11:51 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmStaffWidgets.py,v 1.17 2007-12-04 16:16:27 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -16,7 +16,7 @@ import wx
 
 from Gnumed.pycommon import gmLog, gmPG2, gmTools
 from Gnumed.business import gmPerson
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmGuiHelpers, gmAuthWidgets
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
 
 _log = gmLog.gmDefLog
@@ -112,7 +112,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	def _on_activate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Activating GNUmed staff member.'))
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Activating GNUmed staff member.'))
 		if conn is None:
 			return False
 
@@ -134,7 +134,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	def _on_deactivate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Deactivating GNUmed staff member.'))
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Deactivating GNUmed staff member.'))
 		if conn is None:
 			return False
 
@@ -158,7 +158,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	def _on_save_button_pressed(self, event):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
 
-		conn = gmGuiHelpers.get_dbowner_connection(procedure = _('Modifying GNUmed staff member.'))
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Modifying GNUmed staff member.'))
 		if conn is None:
 			return False
 
@@ -215,7 +215,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			return False
 
 		# connect as "gm-dbo"
-		conn = gmGuiHelpers.get_dbowner_connection (
+		conn = gmAuthWidgets.get_dbowner_connection (
 			procedure = _('Enlisting Patient as Staff.'),
 			dbo_password = gmTools.none_if(self._TXT_dbo_password.GetValue(), u'')
 		)
@@ -237,7 +237,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.16  2007-04-23 01:11:51  ncq
+# Revision 1.17  2007-12-04 16:16:27  ncq
+# - use gmAuthWidgets
+#
+# Revision 1.16  2007/04/23 01:11:51  ncq
 # - handle gm-dbo password field
 #
 # Revision 1.15  2007/03/01 16:35:01  ncq

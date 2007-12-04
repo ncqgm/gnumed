@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -203,12 +203,11 @@ def __request_login_params_gui_wx():
 
 	# Let's launch the login dialog
 	# if wx was not initialized /no main App loop, an exception should be raised anyway
-	import gmLoginDialog
-	dlg = gmLoginDialog.LoginDialog(None, -1)
+	import gmAuthWidgets
+	dlg = gmAuthWidgets.cLoginDialog(None, -1)
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginInfo()
 	dlg.Destroy()
-	del gmLoginDialog
 
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
@@ -1270,7 +1269,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.61  2007-12-04 15:11:20  ncq
+# Revision 1.62  2007-12-04 16:14:24  ncq
+# - use gmAuthWidgets
+#
+# Revision 1.61  2007/12/04 15:11:20  ncq
 # - sanity_check_database_settings()
 # - force sql_inheritance to on after connect
 #
