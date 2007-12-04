@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -603,6 +603,8 @@ class database:
 
 		curs = self.conn.cursor()
 		curs.execute(u"set lc_messages to 'C'")
+		# we need inheritance or else things will fail miserably
+		curs.execute("alter database %s set sql_inheritance to on" % self.name)
 		curs.close()
 
 		return self.conn and 1
@@ -1282,7 +1284,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.68  2007-12-03 20:48:46  ncq
+# Revision 1.69  2007-12-04 15:24:38  ncq
+# - set database default sql_inheritance to on
+#
+# Revision 1.68  2007/12/03 20:48:46  ncq
 # - better wording in log
 #
 # Revision 1.67  2007/11/09 14:42:37  ncq
