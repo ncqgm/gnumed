@@ -6,7 +6,8 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
+
 
 
 [backend]
@@ -21,12 +22,12 @@ any-doc
 $logins$
 
 
-
 # If the system locale matches this value a mismatch
 # with the database locale will be ignored.
 # Remove this option if you want to stop ignoring mismatches.
 #
 #ignored mismatching system locale = de_DE@euro
+
 
 # If GNUmed cannot detect the proper timezone from system
 # information or you want to use a timezone different from
@@ -44,7 +45,9 @@ $logins$
 [workplace]
 
 # Set the help desk contact information for your
-# GNUmed installation here.
+# GNUmed installation here. If this includes a
+# valid email address that address can be used
+# to email error logs to on request.
 help desk = GNUmed developers <gnumed-devel@gnu.org>
 
 
@@ -56,8 +59,14 @@ XDT profiles = $XDT profiles$
 generic XDT connector
 $XDT profiles$
 
-slave personality = slave-test
-# use default 9999
+
+# default is gnumed-client if not set
+#
+#slave personality = slave-test
+
+
+# default is 9999 if not set
+#
 #xml-rpc port = 7777
 
 
@@ -78,7 +87,10 @@ encoding =
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.9  2007-09-04 23:22:32  ncq
+# Revision 1.10  2007-12-04 15:10:37  ncq
+# - improved documentation
+#
+# Revision 1.9  2007/09/04 23:22:32  ncq
 # - added slave options
 #
 # Revision 1.8  2007/07/02 16:05:31  ncq
