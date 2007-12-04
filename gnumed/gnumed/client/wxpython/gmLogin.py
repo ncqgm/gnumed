@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.36 2007-11-09 14:40:33 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmLogin.py,v 1.37 2007-12-04 15:23:14 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "H.Herb"
 
 import wx
@@ -39,11 +39,16 @@ Currently connected to database:
  user: %s
 """)
 
+msg_insanity = _("""
+There is a serious problem with the database settings:
+
+%s
+""")
+
 msg_fail = _("""
 You must connect to a different database in order
 to use the GNUmed client. You may have to contact
-your administrator for help."""
-)
+your administrator for help.""")
 
 msg_override = _("""
 The client will, however, continue to start up because
@@ -51,36 +56,34 @@ you are running a development/test version of GNUmed.
 
 There may be schema related errors. Please report and/or
 fix them. Do not rely on this database to work properly
-in all cases !"""
-)
+in all cases !""")
+
 #==============================================================
 def connect_to_database(max_attempts=3, expected_version=None, require_version=True):
 	"""Display the login dialog and try to log into the backend.
 
 	- up to max_attempts times
-	- returns:
-		- valid backend broker object if connection successful
-		- None otherwise
+	- returns True/False
 	"""
 	# force programmer to set a valid expected_version
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
 
 	attempt = 0
-	connected = False
 
 	dlg = gmLoginDialog.LoginDialog(None, -1)
 	dlg.Centre(wx.BOTH)
 
 	while attempt < max_attempts:
 
-		dlg.ShowModal()
+		connected = False
 
+		dlg.ShowModal()
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
 			_log.Log(gmLog.lInfo, "user cancelled login dialog")
 			break
 
-		# now try to connect to the backend
+		# try getting a connection to verify the DSN works
 		dsn = gmPG2.make_psycopg2_dsn (
 			database = login.database,
 			host = login.host,
@@ -88,31 +91,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			user = login.user,
 			password = login.password
 		)
-
 		try:
-			# try getting a connection to verify the DSN works
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True)
-			gmPG2.set_default_login(login = login)
-			gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
-
-			compatible = gmPG2.database_schema_compatible(version = expected_version)
-
-			if compatible or not require_version:
-				dlg.panel.save_state()
-
-			if not compatible:
-				connected_db_version = gmPG2.get_schema_version()
-				msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
-				if require_version:
-					gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'), None)
-					continue
-				gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'), None)
-
-			listener = gmBackendListener.gmBackendListener(conn=conn)
-
 			connected = True
-			break
-
 		except gmPG2.cAuthenticationError, e:
 			attempt += 1
 			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
@@ -125,13 +106,37 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 					_('Connecting to backend'),
 					gmLog.lErr
 				)
-			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
-
+			_log.LogException(u"login attempt %s/%s failed, may retry" % (attempt, max_attempts), verbose=0)
+			continue
 		except StandardError:
-			_log.LogException(u"login attempt %s/%s failed" % (attempt+1, max_attempts), verbose=0)
+			_log.LogException(u"login attempt %s/%s failed, useless to retry" % (attempt+1, max_attempts), verbose=0)
 			break
 
-	dlg.Close()
+		# connect was successful:
+		gmPG2.set_default_login(login = login)
+		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
+
+		compatible = gmPG2.database_schema_compatible(version = expected_version)
+		if compatible or not require_version:
+			dlg.panel.save_state()
+
+		if not compatible:
+			connected_db_version = gmPG2.get_schema_version()
+			msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
+			if require_version:
+				gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'), None)
+				continue
+			gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'), None)
+
+		sanity = gmPG2.sanity_check_database_settings()
+		if sanity is not True:
+			gmGuiHelpers.gm_show_error((msg_insanity % sanity) + msg_fail, _('Verifying database settings'), None)
+			continue
+
+		listener = gmBackendListener.gmBackendListener(conn=conn)
+		break
+
+#	dlg.Close()
 	dlg.Destroy()
 
 	return connected
@@ -142,7 +147,11 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.36  2007-11-09 14:40:33  ncq
+# Revision 1.37  2007-12-04 15:23:14  ncq
+# - reorder connect_to_database()
+# - check server settings sanity
+#
+# Revision 1.36  2007/11/09 14:40:33  ncq
 # - gmPG2 dumps schema by itself now on hash mismatch
 #
 # Revision 1.35  2007/10/23 21:24:39  ncq
