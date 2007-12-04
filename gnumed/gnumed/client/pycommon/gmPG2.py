@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -289,6 +289,34 @@ def set_default_login(login=None):
 # =======================================================================
 # netadata API
 # =======================================================================
+def sanity_check_database_settings():
+	_log.Log(gmLog.lInfo, 'checking database settings')
+	settings = {
+		u'allow_system_table_mods': [u'off', u'system breakage'],
+		u'fsync': [u'on', u'data loss/corruption'],
+		u'full_page_writes': [u'on', u'data loss/corruption'],
+		u'password_encryption': [u'on', u'breach of confidentiality'],
+		u'regex_flavor': [u'advanced', u'query breakage'],
+		u'synchronous_commit': [u'on', u'data loss/corruption'],
+		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption']
+	}
+
+	cmd = u"select name, setting from pg_settings where name in %(settings)s"
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
+
+	all_good = True
+	msg = []
+	for row in rows:
+		if row[1] != settings[row[0]][0]:
+			all_good = False
+			msg.append(' option [%s] = [%s] risks "%s"' % (row[0], row[1], settings[row[0]][1]))
+			_log.Log(gmLog.lWarn, 'PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
+
+	if not all_good:
+		return u'\n'.join(msg)
+
+	return True
+#------------------------------------------------------------------------
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
 	if version == 'devel':
@@ -883,6 +911,11 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	cmd = 'set session characteristics as transaction %s' % access_mode
 	curs.execute(cmd)
 
+	# 6) SQL inheritance mode
+	_log.Log(gmLog.lData, 'sql_inheritance [on]')
+	cmd = 'set sql_inheritance to on'
+	curs.execute(cmd)
+
 	# version string
 	global postgresql_version_string
 	if postgresql_version_string is None:
@@ -1237,7 +1270,11 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.60  2007-11-09 14:39:10  ncq
+# Revision 1.61  2007-12-04 15:11:20  ncq
+# - sanity_check_database_settings()
+# - force sql_inheritance to on after connect
+#
+# Revision 1.60  2007/11/09 14:39:10  ncq
 # - log schema dump if verbose on failed version detection
 #
 # Revision 1.59  2007/10/25 16:41:30  ncq
