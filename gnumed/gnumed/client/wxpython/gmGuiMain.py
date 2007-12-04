@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.373 2007-12-04 16:16:27 ncq Exp $
-__version__ = "$Revision: 1.373 $"
+# $Id: gmGuiMain.py,v 1.374 2007-12-04 18:38:04 ncq Exp $
+__version__ = "$Revision: 1.374 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -498,6 +498,10 @@ class gmTopLevelFrame(wx.Frame):
 			_('Manage documentation of allergies for the current patient.')
 		)
 		wx.EVT_MENU(self, ID, self.__on_manage_allergies)
+		# - edit occupation
+		ID = wx.NewId()
+		menu_emr.Append(ID, _('Edit occupation'), _('Edit occupation details for the current patient.'))
+		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
 		# - draw a line
 		menu_emr.AppendSeparator()
 
@@ -1356,6 +1360,16 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
+	def __on_edit_occupation(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add allergy. No active patient.'))
+			return False
+
+		gmDemographicsWidgets.edit_occupation()
+
+		evt.Skip()
+	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
@@ -2033,7 +2047,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.373  2007-12-04 16:16:27  ncq
+# Revision 1.374  2007-12-04 18:38:04  ncq
+# - edit occupation via menu
+#
+# Revision 1.373  2007/12/04 16:16:27  ncq
 # - use gmAuthWidgets
 #
 # Revision 1.372  2007/12/04 15:20:31  ncq
