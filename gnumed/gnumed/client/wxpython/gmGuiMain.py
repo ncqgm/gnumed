@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.371 2007-12-03 21:06:00 ncq Exp $
-__version__ = "$Revision: 1.371 $"
+# $Id: gmGuiMain.py,v 1.372 2007-12-04 15:20:31 ncq Exp $
+__version__ = "$Revision: 1.372 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1861,44 +1861,40 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def __setup_scripting_listener(self):
 
-			slave_personality = self.user_prefs_cfg_file.get('workplace', 'slave personality')
-			if slave_personality is None:
-				msg = _(
-					'Slave mode requested but personality not set.\n\n'
-					'(The personality must be set so that clients can\n'
-					'find the appropriate GNUmed instance to attach to.)\n\n'
-					'Set slave personality in config file !'
-				)
-				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
-				return False
+		import socket
+		from Gnumed.pycommon import gmScriptingListener
+		from Gnumed.wxpython import gmMacro
 
-			import socket
-			from Gnumed.pycommon import gmScriptingListener
-			from Gnumed.wxpython import gmMacro
+		slave_personality = self.user_prefs_cfg_file.get('workplace', 'slave personality')
+		if slave_personality is None:
+			_log.Log(gmLog.lWarning, 'slave mode personality not set in config file')
+			_log.Log(gmLog.lInfo, 'assuming personality <gnumed-client>')
+			slave_personality = u'gnumed-client'
 
-			macro_executor = gmMacro.cMacroPrimitives(slave_personality)
+		macro_executor = gmMacro.cMacroPrimitives(personality = slave_personality)
 
-			# FIXME: handle port via /var/run/
-			port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
-			if not port:
-				port = 9999
+		# FIXME include /etc/gnumed/gnumed-client.conf in search
+		# FIXME: handle port via /var/run/
+		port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
+		if port is None:
+			port = 9999
 
-			try:
-				self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port=port, macro_executor=macro_executor)
-			except socket.error, e:
-				_log.LogException('cannot start GNUmed XML-RPC server')
-				gmGuiHelpers.gm_show_error (
-					aMessage = (
-						'Cannot start the GNUmed server:\n'
-						'\n'
-						' [%s]'
-					) % e,
-					aTitle = _('GNUmed startup')
-				)
-				return False
+		try:
+			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
+		except socket.error, e:
+			_log.LogException('cannot start GNUmed XML-RPC server')
+			gmGuiHelpers.gm_show_error (
+				aMessage = (
+					'Cannot start the GNUmed server:\n'
+					'\n'
+					' [%s]'
+				) % e,
+				aTitle = _('GNUmed startup')
+			)
+			return False
 
-			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % slave_personality)
-			return True
+		_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % slave_personality)
+		return True
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
@@ -2037,7 +2033,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.371  2007-12-03 21:06:00  ncq
+# Revision 1.372  2007-12-04 15:20:31  ncq
+# - assume default slave personality "gnumed-client" if not set
+#
+# Revision 1.371  2007/12/03 21:06:00  ncq
 # - streamline OnInit()
 #
 # Revision 1.370  2007/11/28 22:36:40  ncq
