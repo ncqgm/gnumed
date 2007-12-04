@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.75 2007-12-04 17:08:14 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmGuiHelpers.py,v 1.76 2007-12-04 17:32:33 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -134,17 +134,29 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		)
 		if len(receivers) == 0:
 			receivers = [u'gnumed-devel@gnu.org']
+
 		receiver_string = wx.GetTextFromUser (
-			message = _('Edit the list of email addresses to send the\nbug report to (separate addresses by spaces):'),
+			message = _(
+				'Edit the list of email addresses to send the\n'
+				'bug report to (separate addresses by spaces).\n'
+				'\n'
+				'Note that <gnumed-devel@gnu.org> refers to\n'
+				'the public GNUmed mailing list.'
+			),
 			caption = _('Sending bug report'),
 			default_value = ','.join(receivers),
 			parent = self
 		)
+		if receiver_string.strip() == u'':
+			evt.Skip()
+			return
+
 		receivers = regex.findall (
 			'[\S]+@[\S]+',
 			receiver_string,
 			flags = regex.UNICODE | regex.LOCALE
 		)
+
 		dlg = c2ButtonQuestionDlg (
 			self,
 			-1,
@@ -247,13 +259,6 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 
 		if user_val == current_value:
 			return
-
-#		user_val = wx.GetTextFromUser (
-#			message = message,
-#			caption = _('Configuration'),
-#			default_value = default_value,
-#			parent = parent
-#		)
 
 		validated, user_val = validator(user_val)
 		if validated:
@@ -805,7 +810,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.75  2007-12-04 17:08:14  ncq
+# Revision 1.76  2007-12-04 17:32:33  ncq
+# - improved wording
+#
+# Revision 1.75  2007/12/04 17:08:14  ncq
 # - allow editing bug report targets before sending
 #
 # Revision 1.74  2007/12/04 16:15:28  ncq
