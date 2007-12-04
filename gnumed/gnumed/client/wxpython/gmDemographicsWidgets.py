@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.134 2007-12-04 16:16:27 ncq Exp $
-__version__ = "$Revision: 1.134 $"
+# $Id: gmDemographicsWidgets.py,v 1.135 2007-12-04 18:37:15 ncq Exp $
+__version__ = "$Revision: 1.135 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -93,6 +93,41 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self.reload_appointments()
+#============================================================
+def edit_occupation():
+
+	pat = gmPerson.gmCurrentPatient()
+	curr_jobs = pat.get_occupations()
+	if len(curr_jobs) > 0:
+		old_job = curr_jobs[0]['l10n_occupation']
+		update = curr_jobs[0]['modified_when'].strftime('%m/%Y')
+	else:
+		old_job = u''
+		update = u''
+
+	msg = _(
+		'Please enter the primary occupation of the patient.\n'
+		'\n'
+		'Currently recorded:\n'
+		'\n'
+		' %s (last updated %s)'
+	) % (old_job, update)
+
+	new_job = wx.GetTextFromUser (
+		message = msg,
+		caption = _('Editing primary occupation'),
+		default_value = old_job,
+		parent = None
+	)
+	if new_job.strip() == u'':
+		return
+
+	for job in curr_jobs:
+		# unlink all but the new job
+		if job['l10n_occupation'] != new_job:
+			pat.unlink_occupation(occupation = job['l10n_occupation'])
+	# and link the new one
+	pat.link_occupation(occupation = new_job)
 #============================================================
 def disable_identity(identity=None):
 	# ask user for assurance
@@ -1842,7 +1877,6 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 
 		- Identity
 		- Contacts (addresses, phone numbers, etc)
-		- Occupations
 
 	Does NOT act on/listen to the current patient.
 	"""
@@ -1893,19 +1927,6 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 			text = _('Contacts'),
 			select = False
 		)
-
-		# occupations page
-#		label = _('Occupations')
-#		new_page = cPatOccupationsPanel (
-#			parent = self,
-#			id = -1,
-#			ident = self.__pat
-#		)
-#		self.AddPage (
-#			page = new_page,
-#			text = label,
-#			select = False
-#		)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1916,170 +1937,6 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		self.__identity = identity
 
 	identity = property(_get_identity, _set_identity)
-#============================================================
-# FIXME: redo layout with wxGlade
-
-class cPatIdentityPanel(wx.Panel):
-	"""Page containing patient identity edition fields."""
-
-	def __init__(self, parent, id, ident=None):
-		"""
-		Creates a new instance of cPatIdentityPanel
-		@param parent - The parent widget
-		@type parent - A wx.Window instance
-		@param id - The widget id
-		@type id - An integer
-		"""
-		wx.Panel.__init__(self, parent, id)
-		self.__ident = ident
-		self.__do_layout()
-		self.__register_interests()
-	#--------------------------------------------------------
-	def __do_layout(self):
-
-		PNL_form = wx.Panel(self, -1)
-
-		# last name
-		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
-		STT_lastname.SetForegroundColour('red')
-		self.PRW_lastname = cLastnamePhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_lastname.SetToolTipString(_('Required: lastname (family name)'))
-
-		# first name
-		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
-		STT_firstname.SetForegroundColour('red')
-		self.PRW_firstname = cFirstnamePhraseWheel(parent = PNL_form, id = -1)
-		self.PRW_firstname.SetToolTipString(_('Required: surname/given name/first name'))
-
-		# nickname
-		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
-		self.PRW_nick = cNicknamePhraseWheel(parent = PNL_form, id = -1)
-
-		# DOB
-		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
-		STT_dob.SetForegroundColour('red')
-		self.PRW_dob = gmDateTimeInput.cFuzzyTimestampInput(parent = PNL_form, id = -1)
-		self.PRW_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
-
-		# gender
-		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
-		STT_gender.SetForegroundColour('red')
-		self.PRW_gender = cGenderSelectionPhraseWheel(parent = PNL_form, id=-1)
-		self.PRW_gender.SetToolTipString(_("Required: gender of patient"))
-
-		# title
-		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
-		self.PRW_title = cTitlePhraseWheel(parent = PNL_form, id = -1)
-
-		# layout input widgets
-		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
-		SZR_input.AddGrowableCol(1)
-		SZR_input.Add(STT_lastname, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_lastname, 1, wx.EXPAND)
-		SZR_input.Add(STT_firstname, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_firstname, 1, wx.EXPAND)
-		SZR_input.Add(STT_nick, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)
-		SZR_input.Add(STT_dob, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_dob, 1, wx.EXPAND)
-		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
-		SZR_input.Add(STT_title, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
-		PNL_form.SetSizerAndFit(SZR_input)
-		# layout page
-		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(PNL_form, 1, wx.EXPAND)
-		self.SetSizer(SZR_main)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		"""
-		Configure enabled event signals
-		"""
-		# custom
-		self.PRW_firstname.add_callback_on_lose_focus(self.on_name_set)
-	#--------------------------------------------------------
-	def on_name_set(self):
-		"""
-		Set the gender according to entered firstname.
-		Matches are fetched from existing records in backend.
-		"""
-		firstname = self.PRW_firstname.GetValue().strip()
-		rows, idx = gmPG2.run_ro_queries(queries = [{
-			'cmd': u"select gender from dem.name_gender_map where name ilike %s",
-			'args': [firstname]
-		}])
-		if len(rows) == 0:
-			return True
-		wx.CallAfter(self.PRW_gender.SetData, rows[0][0])
-		return True
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------
-	def valid_for_save(self):
-		if not self.PRW_dob.is_valid_timestamp():
-			msg = _('Cannot parse <%s> into proper timestamp.')
-			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
-			self.PRW_dob.SetBackgroundColour('pink')
-			self.PRW_dob.Refresh()
-			self.PRW_dob.SetFocus()
-			return False
-		self.PRW_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self.PRW_dob.Refresh()
-		return True
-	#--------------------------------------------------------
-	def set_identity(self, identity):
-		return self.refresh(identity=identity)
-	#--------------------------------------------------------
-	def refresh(self, identity=None):
-
-		if identity is not None:
-			self.__ident = identity
-
-		dob = gmDateTime.cFuzzyTimestamp(timestamp = self.__ident['dob'])
-		active_name = self.__ident.get_active_name()
-
-		self.PRW_gender.SetData(self.__ident['gender'])
-		self.PRW_dob.SetText(value = dob.strftime('%Y-%m-%d %H:%M'), data = dob)
-		self.PRW_lastname.SetText(active_name['last'])
-		self.PRW_firstname.SetText(active_name['first'])
-		self.PRW_title.SetText(gmTools.coalesce(self.__ident['title'], ''))
-		self.PRW_nick.SetText(gmTools.coalesce(active_name['preferred'], ''))
-		return True
-	#--------------------------------------------------------
-	def save(self):
-
-		if not self.valid_for_save():
-			return False
-
-		if self.__ident['gender'] != self.PRW_gender.GetData():
-			self.__ident['gender'] = self.PRW_gender.GetData()
-		new_dob = self.PRW_dob.GetData().get_pydt()
-		old_dob = self.__ident['dob']
-		if new_dob.strftime('%Y %M %d %H %M') != old_dob.strftime('%Y %M %d %H %M'):
-			self.__ident['dob'] = new_dob
-		if self.__ident['title'] != self.PRW_title.GetValue():
-			self.__ident['title'] = self.PRW_title.GetValue().strip()
-		# FIXME: error checking
-		# FIXME: we need a trigger to update the values of the
-		# view, identity['keys'], eg. lastnames and firstnames
-		# are not refreshed.
-		self.__ident.save_payload()
-
-		first = self.PRW_firstname.GetValue().strip()
-		last = self.PRW_lastname.GetValue().strip()
-		old_name = self.__ident['firstnames'] + self.__ident['lastnames']
-		if (first + last) != old_name:
-			# FIXME: proper handling of "active"
-			self.__ident.add_name(firstnames = first, lastnames = last, active = True)
-
-		nick = self.PRW_nick.GetValue().strip()
-		if (nick != self.__ident['preferred']) and (nick != ''):
-			self.__ident.set_nickname(nickname = nick)
-
-		return True
 #============================================================
 # FIXME: support multiple occupations
 # FIXME: redo with wxGlade
@@ -2475,7 +2332,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.134  2007-12-04 16:16:27  ncq
+# Revision 1.135  2007-12-04 18:37:15  ncq
+# - edit_occupation()
+# - cleanup
+#
+# Revision 1.134  2007/12/04 16:16:27  ncq
 # - use gmAuthWidgets
 #
 # Revision 1.133  2007/12/03 20:44:14  ncq
