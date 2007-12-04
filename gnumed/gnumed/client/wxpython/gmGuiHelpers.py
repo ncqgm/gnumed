@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.72 2007-11-21 13:31:53 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmGuiHelpers.py,v 1.73 2007-12-04 15:17:39 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -408,6 +408,55 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 			self.EndModal(wx.ID_NO)
 		else:
 			self.Close()
+
+# ========================================================================
+class cStartupProgressBar(wx.ProgressDialog):
+	def __init__(self, nr_actions):
+
+		wx.ProgressDialog.__init__(
+			self,
+			parent = None,
+			title = _('GNUmed: Starting up ...'),
+			message = u' ' * 80 + u'\n\n\n',
+			maximum = nr_actions,
+			style = wx.PD_ELAPSED_TIME | wx.PD_CAN_ABORT
+		)
+
+		# set window icon
+		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
+		png_fname = os.path.join(paths.system_app_data_dir, 'bitmaps', 'serpent.png')
+		icon = wx.EmptyIcon()
+		try:
+			icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
+		except:
+			_log.Log(gmLog.lWarn, 'wx.Icon.LoadFile() not supported')
+		self.SetIcon(icon)
+		self.idx = 0
+#		self.nr_plugins = nr_plugins
+#		self.prev_plugin = ""
+	#----------------------------------------------------------
+	def Update (self, msg = None):
+#		if result == -1:
+#			result = ""
+#		elif result == 0:
+#			result = _("failed")
+#		else:
+#			result = _("success")
+
+#_("GNUmed: configuring [%s] (%s plugins)") % (gmSurgery.gmCurrentPractice().active_workplace, nr_plugins),
+#_("loading list of plugins                               "),
+		wx.ProgressDialog.Update(self, self.idx, msg)
+#		self.prev_plugin = plugin
+		self.idx += 1
+
+#			_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
+#				self.prev_plugin,
+#				result,
+#				(self.idx+1),
+#				self.nr_plugins,
+#				plugin
+#			)
+
 # ========================================================================
 class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 
@@ -778,7 +827,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.72  2007-11-21 13:31:53  ncq
+# Revision 1.73  2007-12-04 15:17:39  ncq
+# - start general purpose progress bar
+#
+# Revision 1.72  2007/11/21 13:31:53  ncq
 # - use send_mail() in exception handling dialog
 #
 # Revision 1.71  2007/10/21 20:18:32  ncq
