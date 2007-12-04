@@ -1,4 +1,4 @@
-"""GnuMed GUI helper classes and functions
+"""GNUmed GUI helper classes and functions.
 
 This module provides some convenient wxPython GUI
 helper thingies that are widely used throughout
@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.74 2007-12-04 16:15:28 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmGuiHelpers.py,v 1.75 2007-12-04 17:08:14 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -134,6 +134,17 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		)
 		if len(receivers) == 0:
 			receivers = [u'gnumed-devel@gnu.org']
+		receiver_string = wx.GetTextFromUser (
+			message = _('Edit the list of email addresses to send the\nbug report to (separate addresses by spaces):'),
+			caption = _('Sending bug report'),
+			default_value = ','.join(receivers),
+			parent = self
+		)
+		receivers = regex.findall (
+			'[\S]+@[\S]+',
+			receiver_string,
+			flags = regex.UNICODE | regex.LOCALE
+		)
 		dlg = c2ButtonQuestionDlg (
 			self,
 			-1,
@@ -598,6 +609,7 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		caption = aTitle,
 		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
+	dlg.SetFocus()
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
@@ -619,6 +631,7 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 		caption = aTitle,
 		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
+	dlg.SetFocus()
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
@@ -640,6 +653,7 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 		caption = aTitle,
 		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
+	dlg.SetFocus()
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
@@ -656,6 +670,7 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 		aTitle,
 		style
 	)
+	dlg.SetFocus()
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
 
@@ -790,7 +805,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.74  2007-12-04 16:15:28  ncq
+# Revision 1.75  2007-12-04 17:08:14  ncq
+# - allow editing bug report targets before sending
+#
+# Revision 1.74  2007/12/04 16:15:28  ncq
 # - remove get_dbowner_connection()
 #
 # Revision 1.73  2007/12/04 15:17:39  ncq
