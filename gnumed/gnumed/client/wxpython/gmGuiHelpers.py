@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.73 2007-12-04 15:17:39 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmGuiHelpers.py,v 1.74 2007-12-04 16:15:28 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -665,43 +665,6 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 		return False
 	else:
 		return None
-#-------------------------------------------------------------------------
-def get_dbowner_connection(procedure=None, dbo_password=None):
-	if procedure is None:
-		procedure = _('<restricted procedure>')
-
-	# 1) get password for gm-dbo
-	if dbo_password is None:
-		pwd_gm_dbo = wx.GetPasswordFromUser (
-			message = _("""
- [%s]
-
-This is a restricted procedure. We need the
-password for the GNUmed database owner.
-
-Please enter the password for <gm-dbo>:""") % procedure,
-			caption = procedure
-		)
-		if pwd_gm_dbo == '':
-			return None
-	else:
-		pwd_gm_dbo = dbo_password
-
-	# 2) connect as gm-dbo
-	login = gmPG2.get_default_login()
-	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user='gm-dbo', password=pwd_gm_dbo)
-	try:
-		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True, pooled=False)
-	except:
-		_log.LogException('cannot connect')
-		gm_show_error (
-			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
-			aTitle = procedure,
-			aLogLevel = gmLog.lErr
-		)
-		return None
-
-	return conn
 #----------------------------------------------------------------------
 def makePageTitle(wizPg, title):
 	"""
@@ -827,7 +790,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.73  2007-12-04 15:17:39  ncq
+# Revision 1.74  2007-12-04 16:15:28  ncq
+# - remove get_dbowner_connection()
+#
+# Revision 1.73  2007/12/04 15:17:39  ncq
 # - start general purpose progress bar
 #
 # Revision 1.72  2007/11/21 13:31:53  ncq
