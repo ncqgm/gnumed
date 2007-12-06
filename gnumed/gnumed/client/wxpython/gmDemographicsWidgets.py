@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.135 2007-12-04 18:37:15 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmDemographicsWidgets.py,v 1.136 2007-12-06 08:41:31 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea, gmAuthWidgets
 from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
-from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl
+from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
 
 
 # constant defs
@@ -198,7 +198,20 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		adrs = self.__identity.get_addresses()
 		self._LCTRL_items.set_string_items (
-			items = [ [ a['l10n_address_type'], a['street'], a['urb'], gmTools.coalesce(a['suburb'], u''), a['l10n_state'], a['l10n_country'] ] for a in adrs ]
+			items = [ [
+					a['l10n_address_type'],
+					a['street'],
+					gmTools.coalesce(a['notes_street'], u''),
+					a['number'],
+					gmTools.coalesce(a['subunit'], u''),
+					a['postcode'],
+					a['urb'],
+					gmTools.coalesce(a['suburb'], u''),
+					a['l10n_state'],
+					a['l10n_country'],
+					gmTools.coalesce(a['notes_subunit'], u'')
+				] for a in adrs
+			]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = adrs)
@@ -209,10 +222,15 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_columns(columns = [
 			_('Type'),
 			_('Street'),
+			_('Directions'),
+			_('Number'),
+			_('Subunit'),
+			_('Postcode'),
 			_('Town'),
 			_('Suburb'),
 			_('State'),
-			_('Country')
+			_('Country'),
+			_('Comment')
 		])
 	#--------------------------------------------------------
 	def _add_address(self):
@@ -991,8 +1009,10 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 	identity = property(_get_identity, _set_identity)
 #============================================================
-# identity phrasewheels and widgets
+# identity widgets
 #============================================================
+# phrasewheels
+#------------------------------------------------------------
 class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1007,7 +1027,7 @@ class cLastnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_("Type or select a last name (family name/surname)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
-#============================================================
+#------------------------------------------------------------
 class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1025,7 +1045,7 @@ class cFirstnamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_("Type or select a first name (forename/Christian name/given name)."))
 		self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
-#============================================================
+#------------------------------------------------------------
 class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1046,7 +1066,7 @@ class cNicknamePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		# nicknames CAN start with lower case !
 		#self.capitalisation_mode = gmTools.CAPS_NAMES
 		self.matcher = mp
-#============================================================
+#------------------------------------------------------------
 class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -1060,7 +1080,7 @@ class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		)
 		self.SetToolTipString(_("Type or select a title. Note that the title applies to the person, not to a particular name !"))
 		self.matcher = mp
-#============================================================
+#------------------------------------------------------------
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a gender."""
 
@@ -1104,7 +1124,123 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_("Type or select an occupation."))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
-#============================================================
+#------------------------------------------------------------
+class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"""
+select distinct name, name || coalesce(' (' || issuer || ')', '')
+from dem.enum_ext_id_types
+where name %(fragment_condition)s
+order by name limit 25"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_("Enter or select a type for the external ID."))
+		self.matcher = mp
+#------------------------------------------------------------
+class cExternalIDIssuerPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"""
+select distinct issuer, issuer
+from dem.enum_ext_id_types
+where issuer %(fragment_condition)s
+order by issuer limit 25"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 3, 5)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_("Type or select an occupation."))
+		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.matcher = mp
+#------------------------------------------------------------
+# edit areas
+#------------------------------------------------------------
+class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
+	"""An edit area for editing/creating external IDs.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+	
+		try:
+			self.ext_id = kwargs['external_id']
+			del kwargs['external_id']
+		except:
+			self.ext_id = None
+
+		wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl.__init__(self, *args, **kwargs)
+
+		self.identity = None
+
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, ext_id=None):
+		if ext_id is not None:
+			self.ext_id = ext_id
+
+		if self.ext_id is not None:
+			self._PRW_type.SetText(value = self.ext_id['name'], data = self.ext_id['pk_type'])
+			self._TCTRL_value.SetValue(self.ext_id['value'])
+			self._PRW_issuer.SetText(self.ext_id['issuer'])
+			self._TCTRL_comment.SetValue(gmTools.coalesce(self.ext_id['comment'], u''))
+		# FIXME: clear fields
+#		else:
+#			pass
+	#--------------------------------------------------------
+	def save(self):
+
+		if not self.__valid_for_save():
+			return False
+
+		# add new external ID
+		if self.ext_id is None:
+			self.identity.add_external_id (
+				id_type = self._PRW_type.GetValue().strip(),
+				id_value = self._TCTRL_value.GetValue().strip(),
+				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
+				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+			)
+		# edit old external ID
+		else:
+			self.identity.update_external_id (
+				pk_id = self.ext_id['pk_id'],
+				type = self._PRW_type.GetValue().strip(),
+				value = self._TCTRL_value.GetValue().strip(),
+				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
+				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
+			)
+
+		return True
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+
+		no_errors = True
+
+		if self._PRW_type.GetData() is None:
+			self._PRW_type.SetBackgroundColour('pink')
+			self._PRW_type.SetFocus()
+			self._PRW_type.Refresh()
+			no_errors = False
+		else:
+			self._PRW_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._PRW_type.Refresh()
+
+		if self._TCTRL_value.GetValue().strip() == u'':
+			self._TCTRL_value.SetBackgroundColour('pink')
+			self._TCTRL_value.SetFocus()
+			self._TCTRL_value.Refresh()
+			no_errors = False
+		else:
+			self._TCTRL_value.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+			self._TCTRL_value.Refresh()
+
+		return no_errors
+#------------------------------------------------------------
 class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEditAreaPnl):
 	"""An edit area for editing/creating name/gender/dob.
 
@@ -1155,7 +1291,7 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 		last = self._PRW_lastname.GetValue().strip()
 		old_nick = self.__name['preferred']
 
-		# is new name ?
+		# is it a new name ?
 		old_name = self.__name['firstnames'] + self.__name['lastnames']
 		if (first + last) != old_name:
 			self.__name = self.__identity.add_name(first, last, active)
@@ -1235,7 +1371,9 @@ class cNameGenderDOBEditAreaPnl(wxgNameGenderDOBEditAreaPnl.wxgNameGenderDOBEdit
 			self._PRW_firstname.Refresh()
 
 		return error_found
-#============================================================
+#------------------------------------------------------------
+# list manager
+#------------------------------------------------------------
 class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing a person's names.
 
@@ -1356,9 +1494,9 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
-#		self.new_callback = self._add_address
-#		self.edit_callback = self._edit_address
-#		self.delete_callback = self._del_address
+		self.new_callback = self._add_id
+		self.edit_callback = self._edit_id
+		self.delete_callback = self._del_id
 		self.refresh_callback = self.refresh
 
 		self.__init_ui()
@@ -1376,10 +1514,11 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			items = [ [
 					i['name'],
 					i['value'],
-					i['issuer'],
+					gmTools.coalesce(i['issuer'], u''),
 					i['context'],
 					gmTools.coalesce(i['comment'], u'')
-				] for i in ids ]
+				] for i in ids
+			]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = ids)
@@ -1395,6 +1534,39 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Comment')
 		])
 	#--------------------------------------------------------
+	def _add_id(self):
+		ea = cExternalIDEditAreaPnl(self, -1)
+		ea.identity = self.__identity
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Adding new external ID'))
+		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
+			return True
+		dlg.Destroy()
+		return False
+	#--------------------------------------------------------
+	def _edit_id(self, ext_id):
+		ea = cExternalIDEditAreaPnl(self, -1, external_id = ext_id)
+		ea.identity = self.__identity
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Editing external ID'))
+		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
+			return True
+		dlg.Destroy()
+		return False
+	#--------------------------------------------------------
+	def _del_id(self, ext_id):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(	'Do you really want to delete this\n'
+				'external ID from the patient ?'),
+			_('Deleting external ID')
+		)
+		if not go_ahead:
+			return False
+		self.__identity.delete_external_id(pk_ext_id = ext_id['pk_id'])
+		return True
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_identity(self):
@@ -1405,6 +1577,8 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
+#------------------------------------------------------------
+# integrated panels
 #------------------------------------------------------------
 class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityManagerPnl):
 	"""A panel for editing identity data for a person.
@@ -2332,7 +2506,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.135  2007-12-04 18:37:15  ncq
+# Revision 1.136  2007-12-06 08:41:31  ncq
+# - improve address display
+# - better layout
+# - external ID phrasewheels and edit area
+#
+# Revision 1.135  2007/12/04 18:37:15  ncq
 # - edit_occupation()
 # - cleanup
 #
