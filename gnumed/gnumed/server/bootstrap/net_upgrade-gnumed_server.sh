@@ -2,11 +2,13 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_upgrade-gnumed_server.sh,v $
-# $Id: net_upgrade-gnumed_server.sh,v 1.1 2007-11-02 12:44:09 ncq Exp $
+# $Id: net_upgrade-gnumed_server.sh,v 1.2 2007-12-06 13:08:13 ncq Exp $
 # ============================================
 
 PREV_VER="7"
 NEXT_VER="8"
+
+OTHER_UPGRADE_OPTS="$1"
 
 # try to determine distribution of target system
 # SUSE
@@ -51,11 +53,14 @@ echo " ["`pwd`"]"
 echo ""
 echo "The GNUmed database is about to be upgraded."
 echo "You may need to enter your password now:"
-sudo ./upgrade-db.sh ${PREV_VER} ${NEXT_VER}
+sudo ./upgrade-db.sh ${PREV_VER} ${NEXT_VER} ${OTHER_UPGRADE_OPTS}
 
 # ============================================
 # $Log: net_upgrade-gnumed_server.sh,v $
-# Revision 1.1  2007-11-02 12:44:09  ncq
+# Revision 1.2  2007-12-06 13:08:13  ncq
+# - support more upgrade-db.sh options
+#
+# Revision 1.1  2007/11/02 12:44:09  ncq
 # - first version to ease migration
 #
 #
