@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.374 2007-12-04 18:38:04 ncq Exp $
-__version__ = "$Revision: 1.374 $"
+# $Id: gmGuiMain.py,v 1.375 2007-12-06 10:47:14 ncq Exp $
+__version__ = "$Revision: 1.375 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -474,34 +474,39 @@ class gmTopLevelFrame(wx.Frame):
 			_('Start a new encounter for the active patient right now.')
 		)
 		wx.EVT_MENU(self, ID, self.__on_start_new_encounter)
+
+		# - submenu "Medical History"
+		menu_history = wx.Menu()
+		menu_emr.AppendMenu(wx.NewId(), _('Medical &History ...'), menu_history)
 		# - add health issue
 		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
-		menu_emr.Append (
+		menu_history.Append (
 			ID_ADD_HEALTH_ISSUE_TO_EMR,
-			_('Add &Past History (Foundational Issue)'),
+			_('&Past History (Foundational Issue)'),
 			_('Add a Past Medical History Item (Foundational Health Issue) to the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
 		# - document current medication
 		ID_ADD_DRUGS_TO_EMR = wx.NewId()
-		menu_emr.Append (
+		menu_history.Append (
 			ID_ADD_DRUGS_TO_EMR,
-			_('Document current medication'),
+			_('Current &Medication'),
 			_('Select current medication from drug database and save into progress notes.')
 		)
 		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
 		# - add allergy
 		ID = wx.NewId()
-		menu_emr.Append (
+		menu_history.Append (
 			ID,
-			_('manage &allergies'),
+			_('&Allergies'),
 			_('Manage documentation of allergies for the current patient.')
 		)
 		wx.EVT_MENU(self, ID, self.__on_manage_allergies)
 		# - edit occupation
 		ID = wx.NewId()
-		menu_emr.Append(ID, _('Edit occupation'), _('Edit occupation details for the current patient.'))
+		menu_history.Append(ID, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		wx.EVT_MENU(self, ID, self.__on_edit_occupation)
+
 		# - draw a line
 		menu_emr.AppendSeparator()
 
@@ -1365,9 +1370,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.is_connected():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add allergy. No active patient.'))
 			return False
-
 		gmDemographicsWidgets.edit_occupation()
-
 		evt.Skip()
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
@@ -2047,7 +2050,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.374  2007-12-04 18:38:04  ncq
+# Revision 1.375  2007-12-06 10:47:14  ncq
+# - submenu EMR -> History Taking
+#
+# Revision 1.374  2007/12/04 18:38:04  ncq
 # - edit occupation via menu
 #
 # Revision 1.373  2007/12/04 16:16:27  ncq
