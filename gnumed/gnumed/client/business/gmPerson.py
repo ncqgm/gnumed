@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.145 2007-12-06 08:39:02 ncq Exp $
-__version__ = "$Revision: 1.145 $"
+# $Id: gmPerson.py,v 1.146 2007-12-06 10:43:31 ncq Exp $
+__version__ = "$Revision: 1.146 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -375,7 +375,7 @@ update dem.lnk_identity2ext_id set
 	comment = %(comment)s
 where id = %(pk)s"""
 		args = {'pk': pk_id, 'ctxt': u'p', 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
-		rows, idx = gmPG2.run_rw_quries(queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	def get_external_ids(self, id_type=None, issuer=None, context=None):
 		where_parts = ['pk_identity = %(pat)s']
@@ -2159,7 +2159,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.145  2007-12-06 08:39:02  ncq
+# Revision 1.146  2007-12-06 10:43:31  ncq
+# - fix typo
+#
+# Revision 1.145  2007/12/06 08:39:02  ncq
 # - add documentation on external IDs
 # - delete_external_id()
 # - edit_external_id() -> update_external_id()
