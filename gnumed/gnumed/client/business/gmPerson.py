@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.144 2007-12-03 20:42:37 ncq Exp $
-__version__ = "$Revision: 1.144 $"
+# $Id: gmPerson.py,v 1.145 2007-12-06 08:39:02 ncq Exp $
+__version__ = "$Revision: 1.145 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -302,7 +302,22 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
-	def add_external_id(self, id_type=None, id_value=None, issuer=u'external', comment=None, context=u'p'):
+	# external ID API
+	#
+	# since external IDs are not treated as first class
+	# citizens (classes in their own right, that is), we
+	# handle them *entirely* within cIdentity, also they
+	# only make sense with one single person (like names)
+	# and are not reused (like addresses), so they are
+	# truly added/deleted, not just linked/unlinked
+	#--------------------------------------------------------
+	def add_external_id(self, id_type=None, id_value=None, issuer=None, comment=None, context=u'p'):
+		"""Adds an external ID to the patient.
+
+		creates ID type if necessary
+		context hardcoded to 'p' for now
+		"""
+		# check for existing ID by type/value/issuer
 		cmd = u"""
 select * from dem.v_external_ids4identity where
 	pk_identity = %(pat)s and
@@ -318,6 +333,7 @@ select * from dem.v_external_ids4identity where
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
+		# create new ID if not found
 		if len(rows) == 0:
 			cmd = u"""insert into dem.lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values (
 				%(id_val)s,
@@ -335,19 +351,33 @@ select * from dem.v_external_ids4identity where
 			}
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
+		# or update comment of existing ID
 		else:
 			row = rows[0]
 			if comment is not None:
-				# comment not already there
+				# comment not already there ?
 				if gmTools.coalesce(row['comment'], '').find(comment.strip()) == -1:
 					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
 					cmd = u"update dem.lnk_identity2ext_id set comment = %(comment)s where id=%(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
 					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
-	def get_external_ids(self, id_type=None, issuer=None, context=None):
-		"""{'delete': u"delete from dem.lnk_identity2ext_id where id_identity = %s and external_id = %s"}"""
+	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
+		"""Edits an existing external ID.
 
+		creates ID type if necessary
+		context hardcoded to 'p' for now		
+		"""
+		cmd = u"""
+update dem.lnk_identity2ext_id set
+	fk_origin = (select dem.add_external_id_type(%(type)s, %(issuer)s, %(ctxt)s)),
+	external_id = %(value)s,
+	comment = %(comment)s
+where id = %(pk)s"""
+		args = {'pk': pk_id, 'ctxt': u'p', 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
+		rows, idx = gmPG2.run_rw_quries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def get_external_ids(self, id_type=None, issuer=None, context=None):
 		where_parts = ['pk_identity = %(pat)s']
 		args = {'pat': self.ID}
 
@@ -367,6 +397,14 @@ select * from dem.v_external_ids4identity where
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows
+	#--------------------------------------------------------
+	def delete_external_id(self, pk_ext_id=None):
+		cmd = u"""
+delete from dem.lnk_identity2ext_id
+where id_identity = %(pat)s and id = %(pk)s"""
+		args = {'pat': self.ID, 'pk': pk_ext_id}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
@@ -2121,7 +2159,12 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.144  2007-12-03 20:42:37  ncq
+# Revision 1.145  2007-12-06 08:39:02  ncq
+# - add documentation on external IDs
+# - delete_external_id()
+# - edit_external_id() -> update_external_id()
+#
+# Revision 1.144  2007/12/03 20:42:37  ncq
 # - .delete_name()
 # - remove get_comm_list()
 #
