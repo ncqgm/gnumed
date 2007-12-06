@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.41 2007-12-02 11:43:39 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.42 2007-12-06 13:08:55 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -295,12 +295,12 @@ cp -R ../../server/sql/v6-v7/python/*.py ./GNUmed-$CLIENTREV/server/sql/v6-v7/py
 
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
 #mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/data
 #mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/python
 
 cp -R ../../server/sql/v7-v8/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
-#cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
+cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
 #cp -R ../../server/sql/v7-v8/data/* ./GNUmed-$CLIENTREV/server/sql/v7-v8/data
 #cp -R ../../server/sql/v7-v8/python/*.py ./GNUmed-$CLIENTREV/server/sql/v7-v8/python
 
@@ -340,7 +340,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.41  2007-12-02 11:43:39  ncq
+# Revision 1.42  2007-12-06 13:08:55  ncq
+# - include v7-v8/static/
+#
+# Revision 1.41  2007/12/02 11:43:39  ncq
 # - include gm-backup_data.sh
 #
 # Revision 1.40  2007/10/25 12:22:04  ncq
