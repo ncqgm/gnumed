@@ -1,13 +1,13 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.136 2007-12-06 08:41:31 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gmDemographicsWidgets.py,v 1.137 2007-12-06 10:46:05 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import time, string, sys, os, datetime as pyDT, csv, codecs
+import time, string, sys, os, datetime as pyDT, csv, codecs, re as regex
 
 
 import wx
@@ -1129,10 +1129,10 @@ class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		query = u"""
-select distinct name, name || coalesce(' (' || issuer || ')', '')
+select distinct pk, (name || coalesce(' (%s ' || issuer || ')', '')) as label
 from dem.enum_ext_id_types
-where name %(fragment_condition)s
-order by name limit 25"""
+where name %%(fragment_condition)s
+order by label limit 25""" % _('issued by')
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
@@ -1173,6 +1173,8 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 
 		self.identity = None
 
+		self.__register_events()
+
 		self.refresh()
 	#--------------------------------------------------------
 	# external API
@@ -1195,10 +1197,13 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		if not self.__valid_for_save():
 			return False
 
+		# strip out " (issued by ...)" added by phrasewheel
+		type = regex.split(' \(%s .+\)$' % _('issued by'), self._PRW_type.GetValue().strip(), 1)[0]
+
 		# add new external ID
 		if self.ext_id is None:
 			self.identity.add_external_id (
-				id_type = self._PRW_type.GetValue().strip(),
+				id_type = type,
 				id_value = self._TCTRL_value.GetValue().strip(),
 				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
 				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
@@ -1207,7 +1212,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		else:
 			self.identity.update_external_id (
 				pk_id = self.ext_id['pk_id'],
-				type = self._PRW_type.GetValue().strip(),
+				type = type,
 				value = self._TCTRL_value.GetValue().strip(),
 				issuer = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u''),
 				comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
@@ -1216,6 +1221,26 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl):
 		return True
 	#--------------------------------------------------------
 	# internal helpers
+	#--------------------------------------------------------
+	def __register_events(self):
+		self._PRW_type.add_callback_on_lose_focus(self._on_type_set)
+	#--------------------------------------------------------
+	def _on_type_set(self):
+		"""Set the issuer according to the selected type.
+
+		Matches are fetched from existing records in backend.
+		"""
+		pk_curr_type = self._PRW_type.GetData()
+		if pk_curr_type is None:
+			return True
+		rows, idx = gmPG2.run_ro_queries(queries = [{
+			'cmd': u"select issuer from dem.enum_ext_id_types where pk = %s",
+			'args': [pk_curr_type]
+		}])
+		if len(rows) == 0:
+			return True
+		wx.CallAfter(self._PRW_issuer.SetText, rows[0][0])
+		return True
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 
@@ -2506,7 +2531,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.136  2007-12-06 08:41:31  ncq
+# Revision 1.137  2007-12-06 10:46:05  ncq
+# - improve external ID type phrasewheel
+# - in edit area on setting ext id type pre-set corresponding issuer if any
+#
+# Revision 1.136  2007/12/06 08:41:31  ncq
 # - improve address display
 # - better layout
 # - external ID phrasewheels and edit area
