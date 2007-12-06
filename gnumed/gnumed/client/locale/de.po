@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.107 $
+# $Revision: 1.108 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed 0.2\n"
-"POT-Creation-Date: 2007-12-04 18:32+CET\n"
-"PO-Revision-Date: 2007-12-04 18:46+0100\n"
+"POT-Creation-Date: 2007-12-06 11:07+CET\n"
+"PO-Revision-Date: 2007-12-06 11:09+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -787,7 +787,7 @@ msgid "Check if this reaction applies to this drug/generic only, not the entire 
 msgstr "Hier markieren, wenn die Reaktion nur auf dieses Medikament bzw. Generikum und nicht die Medikamentenklasse zutrifft."
 
 msgid "Displays drug classe(s) along with their ATC code."
-msgstr ""
+msgstr "Zeigt Medikamentenklassen mit zugehörigem ATC-Code."
 
 msgid "Document signs and symptoms. If reaction is to a drug also document time of onset after drug administration (<24h, 24-72h, >72h)."
 msgstr "Dokumentation der Symptome. Bei Reaktion auf ein Medikament auch den Zeitraum bis zum Beginn nach Medikamentengabe vermerken (<24h, 24-72h, >72h)."
@@ -868,7 +868,7 @@ msgid "Check this if the communications channel is to be treated confidentially.
 msgstr "Setzen Sie ein Häkchen, wenn dieser Kommunikationsweg *vertraulich* behandelt werden soll."
 
 msgid "Channel"
-msgstr "Weg"
+msgstr "Kanal"
 
 msgid "URL"
 msgstr "Nummer"
@@ -1113,6 +1113,21 @@ msgstr "Beschreibung"
 
 msgid "Status"
 msgstr "Status"
+
+msgid "Enter the actual ID (number, identifier, ...) here."
+msgstr "Geben Sie hier die ID (Nummer, Aktenzeichen, ...) ein."
+
+msgid "Enter a comment on this external ID."
+msgstr "Geben Sie einen Kommentar zu dieser ID ein."
+
+msgid "ID Type"
+msgstr "Typ der Identifikation"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "Issuer"
+msgstr "Herausgeber"
 
 msgid "edit form template details"
 msgstr "Details der Vorlage ändern"
@@ -1432,7 +1447,7 @@ msgid "Urgent"
 msgstr "Dringlich"
 
 msgid "With Sample"
-msgstr ""
+msgstr "Mit Probe"
 
 msgid "Print"
 msgstr "Drucken"
@@ -1764,9 +1779,6 @@ msgstr "Hotline"
 msgid "Log file"
 msgstr "Log-Datei"
 
-msgid "Value"
-msgstr "Wert"
-
 msgid "load file"
 msgstr "Datei laden"
 
@@ -1780,7 +1792,7 @@ msgid "Batch"
 msgstr "Charge"
 
 msgid "Sequence"
-msgstr ""
+msgstr "Sequenz"
 
 msgid "Site"
 msgstr "Stelle"
@@ -2282,6 +2294,22 @@ msgid "Start"
 msgstr "Beginn"
 
 msgid ""
+"Please enter the primary occupation of the patient.\n"
+"\n"
+"Currently recorded:\n"
+"\n"
+" %s (last updated %s)"
+msgstr ""
+"Geben Sie den Hauptberuf des Patienten ein.\n"
+"\n"
+"Derzeit vermerkt:\n"
+"\n"
+" %s (zuletzt geändert %s)"
+
+msgid "Editing primary occupation"
+msgstr "Den Hauptberuf des Patienten bearbeiten"
+
+msgid ""
 "Are you sure you really, positively want\n"
 "to disable the following patient ?\n"
 "\n"
@@ -2296,6 +2324,12 @@ msgstr ""
 
 msgid "Disabling patient"
 msgstr "Patient deaktivieren"
+
+msgid "Subunit"
+msgstr "Unternummer"
+
+msgid "Postcode"
+msgstr "PLZ"
 
 msgid "Suburb"
 msgstr "Ortsteil"
@@ -2390,6 +2424,12 @@ msgstr "Tippen oder wählen Sie einen Titel. Beachten Sie, daß der Titel zur Pe
 msgid "Type or select an occupation."
 msgstr "Tippen oder wählen Sie einen Beruf."
 
+msgid "issued by"
+msgstr "ausgegeben von"
+
+msgid "Enter or select a type for the external ID."
+msgstr "Tippen oder wählen Sie den Typ für diese ID."
+
 msgid "Cannot parse <%s> into proper timestamp."
 msgstr "Kann <%s> nicht in einen Zeitpunkt übersetzen."
 
@@ -2433,11 +2473,24 @@ msgstr "Name löschen"
 msgid "ID type"
 msgstr "Typ der Identifikation"
 
-msgid "Issuer"
-msgstr "Herausgeber"
-
 msgid "Context"
 msgstr "Kontext"
+
+msgid "Adding new external ID"
+msgstr "Neue externe ID hinzufügen"
+
+msgid "Editing external ID"
+msgstr "Externe ID bearbeiten"
+
+msgid ""
+"Do you really want to delete this\n"
+"external ID from the patient ?"
+msgstr ""
+"Wollen Sie diese externe ID tatsächlich\n"
+"aus der Patientenakte löschen ?"
+
+msgid "Deleting external ID"
+msgstr "Externe ID löschen"
 
 msgid "Required: lastname (family name)"
 msgstr "Pflichtfeld: Nachname (Familienname)"
@@ -2506,12 +2559,6 @@ msgstr "Identität"
 
 msgid "Contacts"
 msgstr "Kontakte"
-
-msgid "required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"
-msgstr "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung gewünscht - einfach erfinden (J-M-D)"
-
-msgid "Invalid date"
-msgstr "ungültiges Datum"
 
 msgid "primary occupation of the patient"
 msgstr "der Hauptberuf des Patienten"
@@ -2993,7 +3040,7 @@ msgid "E-MAIL"
 msgstr "E-Mail"
 
 msgid "must have a recipient"
-msgstr ""
+msgstr "muß einen Empfänger haben"
 
 msgid "must select address"
 msgstr "eine Adresse muß gewählt sein"
@@ -3425,23 +3472,32 @@ msgstr "Neuen Kontakt beginnen"
 msgid "Start a new encounter for the active patient right now."
 msgstr "Sofort einen neuen Kontakt für den aktiven Patienten beginnen."
 
-msgid "Add &Past History (Foundational Issue)"
-msgstr "&Grunderkrankung (Eigenanamnese) hinzufügen"
+msgid "Medical &History ..."
+msgstr "&Anamneseerhebung ..."
+
+msgid "&Past History (Foundational Issue)"
+msgstr "&Grunderkrankung (Eigenanamnese)"
 
 msgid "Add a Past Medical History Item (Foundational Health Issue) to the EMR of the active patient"
 msgstr "Eine Grunderkrankung der Eigenanamnese des aktiven Patienten hinzufügen"
 
-msgid "Document current medication"
-msgstr "Medikation dokumentieren"
+msgid "Current &Medication"
+msgstr "Derzeitige &Medikation"
 
 msgid "Select current medication from drug database and save into progress notes."
 msgstr "Wählen Sie die derzeitige Medikation aus der Medikamentendatenbank und speichere diese in der Kartei ab."
 
-msgid "manage &allergies"
-msgstr "&Allergien dokumentieren"
+msgid "&Allergies"
+msgstr "&Allergien"
 
 msgid "Manage documentation of allergies for the current patient."
 msgstr "Dokumentation von Allergien für den aktiven Patienten."
+
+msgid "&Occupation"
+msgstr "&Beruf"
+
+msgid "Edit occupation details for the current patient."
+msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
 
 msgid "&Write letter"
 msgstr "&Brief schreiben"
@@ -5324,7 +5380,7 @@ msgid "Employees"
 msgstr "Angestellte"
 
 msgid "Category/Email"
-msgstr ""
+msgstr "Kategorie/E-Mail"
 
 msgid "Office"
 msgstr "Praxis"
@@ -5402,16 +5458,16 @@ msgid "Add an Organisation"
 msgstr "Eine Organisation hinzufügen"
 
 msgid "Save Record"
-msgstr ""
+msgstr "Datensatz speichern"
 
 msgid "Add Branch or Department"
 msgstr ""
 
 msgid "Add an Employee"
-msgstr ""
+msgstr "Angestellten hinzufügen"
 
 msgid "Add Person"
-msgstr ""
+msgstr "Person hinzufügen"
 
 msgid "Refresh Display"
 msgstr "neu darstellen"
@@ -5420,10 +5476,10 @@ msgid "Find Specific Records in Contacts Database"
 msgstr ""
 
 msgid "Sort A to Z"
-msgstr ""
+msgstr "A-Z sortieren"
 
 msgid "Sort Z to A"
-msgstr ""
+msgstr "Z-A sortieren"
 
 msgid "Send Email"
 msgstr "Email senden"
@@ -5923,6 +5979,20 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Document current medication"
+#~ msgstr "Medikation dokumentieren"
+#~ msgid "manage &allergies"
+#~ msgstr "&Allergien dokumentieren"
+#~ msgid "Edit occupation"
+#~ msgstr "Beruf bearbeiten"
+#~ msgid ""
+#~ "required: date of birth, if unknown or aliasing wanted then invent one (Y-"
+#~ "m-d)"
+#~ msgstr ""
+#~ "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung "
+#~ "gewünscht - einfach erfinden (J-M-D)"
+#~ msgid "Invalid date"
+#~ msgstr "ungültiges Datum"
 #~ msgid ""
 #~ "Slave mode requested but personality not set.\n"
 #~ "\n"
@@ -6009,8 +6079,6 @@ msgstr "erstmals"
 #~ msgstr "Straße"
 #~ msgid "Street2"
 #~ msgstr "Straße"
-#~ msgid "Postcode"
-#~ msgstr "PLZ"
 #~ msgid "Include"
 #~ msgstr "Anhang"
 #~ msgid "To See"
