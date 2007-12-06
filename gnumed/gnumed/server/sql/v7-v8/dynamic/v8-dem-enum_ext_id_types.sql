@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v8-dem-enum_ext_id_types.sql,v 1.1 2007-11-12 22:50:44 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: v8-dem-enum_ext_id_types.sql,v 1.2 2007-12-06 08:42:11 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -27,7 +27,7 @@ declare
 	_context alias for $3;
 	_pk int;
 begin
-	select pk into _pk from dem.enum_ext_id_types where name = _name and context = _context;
+	select pk into _pk from dem.enum_ext_id_types where name = _name and issuer = _issuer;
 	if FOUND then
 		return _pk;
 	end if;
@@ -71,11 +71,14 @@ where
 grant select on dem.v_external_ids4identity to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: v8-dem-enum_ext_id_types.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: v8-dem-enum_ext_id_types.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: v8-dem-enum_ext_id_types.sql,v $
--- Revision 1.1  2007-11-12 22:50:44  ncq
+-- Revision 1.2  2007-12-06 08:42:11  ncq
+-- - match detection of existing external ID types to unique index on the table
+--
+-- Revision 1.1  2007/11/12 22:50:44  ncq
 -- - add_external_id() now returns PK
 -- - v_external_ids4identity
 --
