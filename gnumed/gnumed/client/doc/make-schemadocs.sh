@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
@@ -9,7 +9,7 @@ DB_LIST="gnumed_v7 gnumed_v8"
 
 export PGUSER="gm-dbo"
 
-for DB in ${DB_LIST}-*.tar ; do
+for DB in ${DB_LIST} ; do
 
 	mkdir ~/gm-schemadocs/${DB}/
 
@@ -26,7 +26,10 @@ done
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.16  2007-12-08 15:11:31  ncq
+# Revision 1.17  2007-12-08 15:18:55  ncq
+# - remove -tar.sql
+#
+# Revision 1.16  2007/12/08 15:11:31  ncq
 # - make it multi-DB
 #
 # Revision 1.15  2007/10/22 12:37:02  ncq
