@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_database.sh,v $
-# $Id: gm-backup_database.sh,v 1.14 2007-10-25 12:27:46 ncq Exp $
+# $Id: gm-backup_database.sh,v 1.15 2007-12-08 15:23:14 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -29,19 +29,20 @@
 # .pgpass file.
 #==============================================================
 
-# load config file
 CONF="/etc/gnumed/gnumed-backup.conf"
+
+#==============================================================
+# There really should not be any need to
+# change anything below this line.
+#==============================================================
+
+# load config file
 if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "Cannot read configuration file ${CONF}. Aborting."
 	exit 1
 fi
-
-#==============================================================
-# There really should not be any need to
-# change anything below this line.
-#==============================================================
 
 TS=`date +%Y-%m-%d-%H-%M-%S`
 if test -z ${GM_HOST} ; then
@@ -93,7 +94,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_database.sh,v $
-# Revision 1.14  2007-10-25 12:27:46  ncq
+# Revision 1.15  2007-12-08 15:23:14  ncq
+# - minor cleanup
+#
+# Revision 1.14  2007/10/25 12:27:46  ncq
 # - we don't compress so don't say so
 #
 # Revision 1.13  2007/09/24 18:40:04  ncq

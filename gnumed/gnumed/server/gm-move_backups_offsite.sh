@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-move_backups_offsite.sh,v $
-# $Id: gm-move_backups_offsite.sh,v 1.7 2007-12-02 11:46:52 ncq Exp $
+# $Id: gm-move_backups_offsite.sh,v 1.8 2007-12-08 15:23:15 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -29,19 +29,20 @@
 #
 #==============================================================
 
-# load config file
 CONF="/etc/gnumed/gnumed-backup.conf"
+
+#==============================================================
+# There really should not be any need to
+# change anything below this line.
+#==============================================================
+
+# load config file
 if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "Cannot read configuration file ${CONF}. Aborting."
 	exit 1
 fi
-
-#==============================================================
-# There really should not be any need to
-# change anything below this line.
-#==============================================================
 
 LOG="${BACKUP_DIR}/backup.log"
 HOST=`hostname`
@@ -76,7 +77,10 @@ fi
 
 #==============================================================
 # $Log: gm-move_backups_offsite.sh,v $
-# Revision 1.7  2007-12-02 11:46:52  ncq
+# Revision 1.8  2007-12-08 15:23:15  ncq
+# - minor cleanup
+#
+# Revision 1.7  2007/12/02 11:46:52  ncq
 # - better docs
 # - source options from gnumed-backup.conf
 # - sharpen up glob regex

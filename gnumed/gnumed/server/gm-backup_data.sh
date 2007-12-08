@@ -2,7 +2,7 @@
 
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-backup_data.sh,v $
-# $Id: gm-backup_data.sh,v 1.3 2007-12-02 11:45:18 ncq Exp $
+# $Id: gm-backup_data.sh,v 1.4 2007-12-08 15:23:14 ncq Exp $
 #
 # author: Karsten Hilbert
 # license: GPL v2
@@ -33,19 +33,20 @@
 #
 #==============================================================
 
-# load config file
 CONF="/etc/gnumed/gnumed-backup.conf"
+
+#==============================================================
+# There really should not be any need to
+# change anything below this line.
+#==============================================================
+
+# load config file
 if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "Cannot read configuration file ${CONF}. Aborting."
 	exit 1
 fi
-
-#==============================================================
-# There really should not be any need to
-# change anything below this line.
-#==============================================================
 
 TS=`date +%Y-%m-%d-%H-%M-%S`
 BACKUP_BASENAME="backup-${GM_DATABASE}-${INSTANCE_OWNER}-"`hostname`
@@ -79,7 +80,10 @@ exit 0
 
 #==============================================================
 # $Log: gm-backup_data.sh,v $
-# Revision 1.3  2007-12-02 11:45:18  ncq
+# Revision 1.4  2007-12-08 15:23:14  ncq
+# - minor cleanup
+#
+# Revision 1.3  2007/12/02 11:45:18  ncq
 # - tar the sql so it gets picked up by both the zipping and offsiting script
 #
 # Revision 1.2  2007/11/04 22:58:45  ncq
