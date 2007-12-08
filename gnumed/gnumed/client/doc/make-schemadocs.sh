@@ -1,25 +1,35 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
-DB=gnumed_v8
+DB_LIST="gnumed_v7 gnumed_v8"
 
 export PGUSER="gm-dbo"
-postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t html
-postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dot
-postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t dia
-postgresql_autodoc -d $DB -f ~/gm-schemadocs/gnumed-schema -t zigzag.dia
 
-grep -v log_ ~/gm-schemadocs/gnumed-schema.dot > ~/gm-schemadocs/gnumed-schema-no_audit.dot
+for DB in ${DB_LIST}-*.tar ; do
 
-dot -Tpng -o ~/gm-schemadocs/gnumed-schema.png ~/gm-schemadocs/gnumed-schema-no_audit.dot
+	mkdir ~/gm-schemadocs/${DB}/
+
+	postgresql_autodoc -d ${DB} -f ~/gm-schemadocs/${DB}/gnumed-schema -t html
+	postgresql_autodoc -d ${DB} -f ~/gm-schemadocs/${DB}/gnumed-schema -t dot
+	postgresql_autodoc -d ${DB} -f ~/gm-schemadocs/${DB}/gnumed-schema -t dia
+	postgresql_autodoc -d ${DB} -f ~/gm-schemadocs/${DB}/gnumed-schema -t zigzag.dia
+
+	grep -v log_ ~/gm-schemadocs/${DB}/gnumed-schema.dot > ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
+
+	dot -Tpng -o ~/gm-schemadocs/${DB}/gnumed-schema.png ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
+
+done
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.15  2007-10-22 12:37:02  ncq
+# Revision 1.16  2007-12-08 15:11:31  ncq
+# - make it multi-DB
+#
+# Revision 1.15  2007/10/22 12:37:02  ncq
 # - default database change
 #
 # Revision 1.14  2007/09/24 18:26:20  ncq
