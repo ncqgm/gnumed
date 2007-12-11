@@ -126,21 +126,21 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.46 2007-11-28 13:58:32 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmBusinessDBObject.py,v 1.47 2007-12-11 14:17:18 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, copy, types, inspect
+import sys, copy, types, inspect, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmLog, gmPG2
+from Gnumed.pycommon import gmExceptions, gmPG2
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gnumed.database')
+_log.info(__version__)
 #============================================================
 class cBusinessDBObject:
 	"""Represents business objects in the database.
@@ -233,11 +233,11 @@ class cBusinessDBObject:
 			self._payload = row['data']
 			self.pk_obj = self._payload[self._idx[row['pk_field']]]
 		except:
-			_log.LogException('faulty <row> argument structure: %s' % row, sys.exc_info())
+			_log.exception('faulty <row> argument structure: %s' % row)
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
 		if len(self._idx.keys()) != len(self._payload):
-			_log.Log(gmLog.lPanic, 'field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
-			_log.Log(gmLog.lPanic, 'faulty <row> argument structure: %s' % row)
+			_log.critical('field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
+			_log.critical('faulty <row> argument structure: %s' % row)
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
 		self.original_payload = {}
 		for field in self._idx.keys():
@@ -246,9 +246,9 @@ class cBusinessDBObject:
 	def __del__(self):
 		if self.__dict__.has_key('_is_modified'):
 			if self._is_modified:
-				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
-				_log.Log(gmLog.lData, 'original: %s' % self.original_payload)
-				_log.Log(gmLog.lData, 'modified: %s' % self._payload)
+				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
+				_log.debug('original: %s' % self.original_payload)
+				_log.debug('modified: %s' % self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
@@ -267,11 +267,11 @@ class cBusinessDBObject:
 		# 2) extension method results ...
 		getter = getattr(self, 'get_%s' % attribute, None)
 		if not callable(getter):
-			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
-			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
-			_log.Log(gmLog.lWarn, '[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
+			_log.warning('[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
+			_log.warning('[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
+			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
 			methods = filter(lambda x: x[0].startswith('get_'), inspect.getmembers(self, inspect.ismethod))
-			_log.Log(gmLog.lWarn, '[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
+			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
 			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
 
 		self._ext_cache[attribute] = getter()
@@ -287,8 +287,8 @@ class cBusinessDBObject:
 					self._is_modified = True
 				return
 			except KeyError:
-				_log.Log(gmLog.lWarn, '[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
-				_log.Log(gmLog.lWarn, '[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
+				_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
+				_log.warning('[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
 
 		# 2) setters providing extensions
@@ -310,10 +310,10 @@ class cBusinessDBObject:
 				return
 
 		# 3) don't know what to do with <attribute>
-		_log.Log(gmLog.lErr, '[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
-		_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
+		_log.error('[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
+		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 		methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
-		_log.Log(gmLog.lWarn, '[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
+		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
 		raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: cannot set [%s]' % (self.__class__.__name__, attribute)
 	#--------------------------------------------------------
 	# external API
@@ -328,14 +328,14 @@ class cBusinessDBObject:
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
 	def get_patient(self):
-		_log.Log(gmLog.lErr, '[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
+		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
 	#--------------------------------------------------------
 	def refetch_payload(self):
 		"""Fetch field values from backend.
 		"""
 		if self._is_modified:
-			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
+			_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 			return False
 		if type(self.pk_obj) == types.DictType:
 			arg = self.pk_obj
@@ -346,7 +346,7 @@ class cBusinessDBObject:
 			get_col_idx = True
 		)
 		if len(rows) == 0:
-			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
+			_log.error('[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return False
 		self._payload = rows[0]
 		return True
@@ -395,13 +395,11 @@ class cBusinessDBObject:
 			except KeyError:
 				conn.rollback()
 				close_conn()
-				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
-				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
-				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
-				_log.Log(gmLog.lErr, args)
+				_log.error('[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
+				_log.error('payload keys: %s' % str(self._idx))
+				_log.error('XMIN refetch keys: %s' % str(idx))
+				_log.error(args)
 				raise
-#				# FIXME: turn into proper exception
-#				return (False, None)
 
 		conn.commit()
 		close_conn()
@@ -415,11 +413,6 @@ class cBusinessDBObject:
 		return (True, None)
 #============================================================
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-
-	_log.SetAllLogLevels(gmLog.lData)
 	#--------------------------------------------------------
 	class cTestObj(cBusinessDBObject):
 		_cmd_fetch_payload = None
@@ -432,18 +425,27 @@ if __name__ == '__main__':
 		def set_something(self):
 			pass
 	#--------------------------------------------------------
-	data = {
-		'pk_field': 'bogus_pk',
-		'idx': {'bogus_pk': 0, 'bogus_field': 1},
-		'data': [-1, 'bogus_data']
-	}
-	obj = cTestObj(row=data)
-#	print obj['wrong_field']
-	obj['wrong_field'] = 1
+	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
+		data = {
+			'pk_field': 'bogus_pk',
+			'idx': {'bogus_pk': 0, 'bogus_field': 1},
+			'data': [-1, 'bogus_data']
+		}
+		obj = cTestObj(row=data)
+		#print obj['wrong_field']
+		obj['wrong_field'] = 1
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.46  2007-11-28 13:58:32  ncq
+# Revision 1.47  2007-12-11 14:17:18  ncq
+# - use stdlib logging
+#
+# Revision 1.46  2007/11/28 13:58:32  ncq
 # - hide one less exception
 #
 # Revision 1.45  2007/10/19 12:49:39  ncq
