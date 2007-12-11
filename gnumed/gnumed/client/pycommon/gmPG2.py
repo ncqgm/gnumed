@@ -12,34 +12,34 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # stdlib
-import time, locale, sys, re as regex, os, codecs, types, datetime
+import time, locale, sys, re as regex, os, codecs, types, datetime, logging
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmLoginInfo, gmExceptions, gmDateTime, gmBorg
+from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gnumed.database')
+_log.info(__version__)
 
 
 # 3rd party
 try:
 	import psycopg2 as dbapi
 except ImportError:
-	_log.LogException("Python database adapter psycopg2 not found.", sys.exc_info(), verbose=1)
+	_log.exception("Python database adapter psycopg2 not found.")
 	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
 	raise
 
-_log.Log(gmLog.lData, 'psycopg2 version: %s' % dbapi.__version__)
-_log.Log(gmLog.lInfo, 'PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
+_log.info('psycopg2 version: %s' % dbapi.__version__)
+_log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 if not (float(dbapi.apilevel) >= 2.0):
 	raise ImportError('gmPG2: supported DB-API level too low')
 if not (dbapi.threadsafety > 0):
@@ -66,13 +66,13 @@ import psycopg2.pool
 # =======================================================================
 #_default_client_encoding = 'UNICODE'
 _default_client_encoding = 'UTF8'
-_log.Log(gmLog.lInfo, 'assuming default client encoding of [%s]' % _default_client_encoding)
+_log.info('assuming default client encoding of [%s]' % _default_client_encoding)
 
 # default time zone for connections
 if gmDateTime.current_iso_timezone_string is None:
 	gmDateTime.init()
 _default_client_timezone = gmDateTime.current_iso_timezone_string
-_log.Log(gmLog.lInfo, 'assuming default client time zone of [%s]' % _default_client_timezone)
+_log.info('assuming default client time zone of [%s]' % _default_client_timezone)
 
 # MUST NOT be uniocde or else getquoted will not work
 _timestamp_template = "cast('%s' as timestamp with time zone)"
@@ -147,21 +147,21 @@ def set_default_client_encoding(encoding = None):
 	try:
 		codecs.lookup(py_enc)
 	except LookupError:
-		_log.Log(gmLog.lWarn, '<codecs> module can NOT handle encoding [psycopg2::<%s> -> Python::<%s>]' % (encoding, py_enc))
+		_log.warning('<codecs> module can NOT handle encoding [psycopg2::<%s> -> Python::<%s>]' % (encoding, py_enc))
 		raise
 	# FIXME: check encoding against the database
 	# FIXME: - but we may not yet have access
 	# FIXME: - psycopg2 will pull its encodings from the database eventually
 	# it seems save to set it
 	global _default_client_encoding
-	_log.Log(gmLog.lInfo, 'setting default client encoding from [%s] to [%s]' % (_default_client_encoding, str(encoding)))
+	_log.info('setting default client encoding from [%s] to [%s]' % (_default_client_encoding, str(encoding)))
 	_default_client_encoding = encoding
 	return True
 #---------------------------------------------------
 def set_default_client_timezone(timezone = None):
 	# FIXME: verify against database before setting
 	global _default_client_timezone
-	_log.Log(gmLog.lInfo, 'setting default client time zone from [%s] to [%s]' % (_default_client_timezone, timezone))
+	_log.info('setting default client time zone from [%s] to [%s]' % (_default_client_timezone, timezone))
 	_default_client_timezone = timezone
 	return True
 # =======================================================================
@@ -186,7 +186,7 @@ def __request_login_params_tui():
 		login.password = getpass.getpass("password (not shown): ")
 		login.port = __prompted_input("port [5432]: ", 5432)
 	except KeyboardInterrupt:
-		_log.Log(gmLog.lWarn, "user cancelled text mode login dialog")
+		_log.warning("user cancelled text mode login dialog")
 		print "user cancelled text mode login dialog"
 		raise gmExceptions.ConnectionError(_("Cannot connect to database without login information!"))
 
@@ -279,19 +279,19 @@ def set_default_login(login=None):
 
 	global _default_login
 	_default_login = login
-	_log.Log(gmLog.lInfo, 'setting default login from [%s] to [%s]' % (_default_login, login))
+	_log.info('setting default login from [%s] to [%s]' % (_default_login, login))
 
 	global _default_dsn
 	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
 	_default_dsn = dsn
-	_log.Log(gmLog.lInfo, 'setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
+	_log.info('setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 
 	return True
 # =======================================================================
 # netadata API
 # =======================================================================
 def sanity_check_database_settings():
-	_log.Log(gmLog.lInfo, 'checking database settings')
+	_log.info('checking database settings')
 	settings = {
 		u'allow_system_table_mods': [u'off', u'system breakage'],
 		u'fsync': [u'on', u'data loss/corruption'],
@@ -311,7 +311,7 @@ def sanity_check_database_settings():
 		if row[1] != settings[row[0]][0]:
 			all_good = False
 			msg.append(' option [%s] = [%s] risks "%s"' % (row[0], row[1], settings[row[0]][1]))
-			_log.Log(gmLog.lWarn, 'PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
+			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
 
 	if not all_good:
 		return u'\n'.join(msg)
@@ -332,15 +332,15 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 		}]
 	)
 	if rows[0]['md5'] != expected_hash:
-		_log.Log(gmLog.lErr, 'database schema version mismatch')
-		_log.Log(gmLog.lErr, 'expected: %s (%s)' % (version, expected_hash))
-		_log.Log(gmLog.lErr, 'detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
+		_log.error('database schema version mismatch')
+		_log.error('expected: %s (%s)' % (version, expected_hash))
+		_log.error('detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
 		if verbose:
-			_log.Log(gmLog.lData, 'schema dump follows:')
+			_log.debug('schema dump follows:')
 			for line in get_schema_structure(link_obj=link_obj).split():
-				_log.Log(gmLog.lData, line)
+				_log.debug(line)
 		return False
-	_log.Log(gmLog.lInfo, 'detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
+	_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
 	return True
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
@@ -395,7 +395,7 @@ select exists (
 #------------------------------------------------------------------------
 def get_col_indices(cursor = None):
 	if cursor.description is None:
-		_log.Log(gmLog.lErr, 'no result description available: unused cursor or last query did not select rows')
+		_log.error('no result description available: unused cursor or last query did not select rows')
 		return None
 	col_indices = {}
 	col_index = 0
@@ -497,20 +497,20 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			conn.close()
 			return True
 
-	_log.Log(gmLog.lData, 'expecting bytea data of size: [%s] bytes' % data_size)
-	_log.Log(gmLog.lData, 'using chunk size of: [%s] bytes' % chunk_size)
+	_log.debug('expecting bytea data of size: [%s] bytes' % data_size)
+	_log.debug('using chunk size of: [%s] bytes' % chunk_size)
 
 	# chunk size of 0 means "retrieve whole field at once"
 	if chunk_size == 0:
 		chunk_size = data_size
-		_log.Log(gmLog.lData, 'chunk size [0] bytes: retrieving all data at once')
+		_log.debug('chunk size [0] bytes: retrieving all data at once')
 
 	# Windoze sucks: it can't transfer objects of arbitrary size,
 	# anyways, we need to split the transfer,
 	# however, only possible if postgres >= 7.2
 	needed_chunks, remainder = divmod(data_size, chunk_size)
-	_log.Log(gmLog.lData, 'chunks to retrieve: [%s]' % needed_chunks)
-	_log.Log(gmLog.lData, 'remainder to retrieve: [%s] bytes' % remainder)
+	_log.debug('chunks to retrieve: [%s]' % needed_chunks)
+	_log.debug('remainder to retrieve: [%s] bytes' % remainder)
 
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
@@ -525,7 +525,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 		try:
 			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
 		except:
-			_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, chunk_size))
+			_log.error('cannot retrieve chunk [%s/%s], size [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, chunk_size))
 			conn.close()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
@@ -539,7 +539,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 		try:
 			rows, idx = run_ro_queries(link_obj=conn, queries=[data_query])
 		except:
-			_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes' % remainder)
+			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
 			conn.close()
 			raise
 		# it would be a fatal error to see more than one result as ids are supposed to be unique
@@ -623,7 +623,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
 	if verbose:
-		_log.Log(gmLog.lData, 'cursor: %s' % curs)
+		_log.debug('cursor: %s' % curs)
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:
@@ -636,15 +636,15 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		try:
 			curs.execute(query['cmd'], args)
 			if verbose:
-				_log.Log(gmLog.lData, 'ran query: [%s]' % curs.query)
-				_log.Log(gmLog.lData, 'PG status message: %s' % curs.statusmessage)
-				_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
+				_log.debug('ran query: [%s]' % curs.query)
+				_log.debug('PG status message: %s' % curs.statusmessage)
+				_log.debug('cursor description: %s' % curs.description)
 		except:
 			curs_close()
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			conn_close()
-			_log.Log(gmLog.lErr, 'query failed: [%s]' % curs.query)
-			_log.Log(gmLog.lErr, 'PG status message: %s' % curs.statusmessage)
+			_log.error('query failed: [%s]' % curs.query)
+			_log.error('PG status message: %s' % curs.statusmessage)
 			_log.flush()
 			raise
 
@@ -655,8 +655,8 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
 		if verbose:
-			_log.Log(gmLog.lData, 'last query returned [%s (%s)] rows' % (curs.rowcount, len(data)))
-			_log.Log(gmLog.lData, 'cursor description: %s' % curs.description)
+			_log.debug('last query returned [%s (%s)] rows' % (curs.rowcount, len(data)))
+			_log.debug('cursor description: %s' % curs.description)
 
 	curs_close()
 	tx_rollback()		# rollback just so that we don't stay IDLE IN TRANSACTION forever
@@ -827,7 +827,7 @@ def get_raw_connection(dsn=None, verbose=False):
 			where name='server_version'"""
 		)
 		postgresql_version = curs.fetchone()['version']
-		_log.Log(gmLog.lInfo, 'PostgreSQL version (numeric): %s' % postgresql_version)
+		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
 		if verbose:
 			__log_PG_settings(curs=curs)
 		curs.close()
@@ -866,13 +866,13 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		encoding = _default_client_encoding
 	if encoding is None:
 		encoding = gmI18N.get_encoding()
-		_log.Log(gmLog.lWarn, 'client encoding not specified')
-		_log.Log(gmLog.lWarn, 'the string encoding currently set in the active locale is used: [%s]' % encoding)
-		_log.Log(gmLog.lWarn, 'for this to work the application MUST have called locale.setlocale() before')
+		_log.warning('client encoding not specified')
+		_log.warning('the string encoding currently set in the active locale is used: [%s]' % encoding)
+		_log.warning('for this to work the application MUST have called locale.setlocale() before')
 
 	# set connection properties
 	# 1) client encoding
-	_log.Log(gmLog.lData, 'client string encoding [%s]' % encoding)
+	_log.debug('client string encoding [%s]' % encoding)
 	try:
 		conn.set_client_encoding(encoding)
 	except dbapi.OperationalError:
@@ -884,22 +884,22 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	# 2) transaction isolation level
 	if readonly:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-		_log.Log(gmLog.lData, 'isolation level [read committed]')
+		_log.debug('isolation level [read committed]')
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
-		_log.Log(gmLog.lData, 'isolation level [serializable]')
+		_log.debug('isolation level [serializable]')
 
 	curs = conn.cursor()
 
 	# 3) client time zone
-	_log.Log(gmLog.lData, 'time zone [%s]' % _default_client_timezone)
+	_log.debug('time zone [%s]' % _default_client_timezone)
 	cmd = "set time zone interval '%s' hour to minute" % _default_client_timezone
 	curs.execute(cmd)
 
 	# 4) datestyle
 	# regarding DMY/YMD handling: since we force *input* to
 	# ISO, too, the DMY/YMD setting is not needed
-	_log.Log(gmLog.lData, 'datestyle [ISO]')
+	_log.debug('datestyle [ISO]')
 	cmd = "set datestyle to 'ISO'"
 	curs.execute(cmd)
 
@@ -908,12 +908,12 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		access_mode = 'READ ONLY'
 	else:
 		access_mode = 'READ WRITE'
-	_log.Log(gmLog.lData, 'access mode [%s]' % access_mode)
+	_log.debug('access mode [%s]' % access_mode)
 	cmd = 'set session characteristics as transaction %s' % access_mode
 	curs.execute(cmd)
 
 	# 6) SQL inheritance mode
-	_log.Log(gmLog.lData, 'sql_inheritance [on]')
+	_log.debug('sql_inheritance [on]')
 	cmd = 'set sql_inheritance to on'
 	curs.execute(cmd)
 
@@ -922,7 +922,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	if postgresql_version_string is None:
 		curs.execute('select version()')
 		postgresql_version_string = curs.fetchone()['version']
-		_log.Log(gmLog.lInfo, 'PostgreSQL version (string): "%s"' % postgresql_version_string)
+		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
 
 	curs.close()
 	conn.commit()
@@ -942,14 +942,14 @@ def __log_PG_settings(curs=None):
 	try:
 		curs.execute(u'show all')
 	except:
-		_log.LogException("cannot log PG settings (>>>show all<<< failed)", sys.exc_info(), verbose = 0)
+		_log.exception("cannot log PG settings (>>>show all<<< failed)")
 		return False
 	settings = curs.fetchall()
 	if settings is None:
-		_log.Log(gmLog.lErr, 'cannot log PG settings (>>>show all<<< did not return rows)')
+		_log.error('cannot log PG settings (>>>show all<<< did not return rows)')
 		return False
 	for setting in settings:
-		_log.Log(gmLog.lData, "PG option [%s]: %s" % (setting[0], setting[1]))
+		_log.debug("PG option [%s]: %s" % (setting[0], setting[1]))
 	return True
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):
@@ -986,7 +986,7 @@ class cAdapterMxDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tz == '???':
-			_log.Log(gmLog.lInfo, '[%s]: no time zone string available in (%s), assuming local time zone' % (self.__class__.__name__, dt))
+			_log.info('[%s]: no time zone string available in (%s), assuming local time zone' % (self.__class__.__name__, dt))
 		self.__dt = dt
 
 	def getquoted(self):
@@ -1017,10 +1017,11 @@ try:
 	import mx.DateTime as mxDT
 	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
 except ImportError:
-	_log.Log(gmLog.lWarn, 'cannot import mx.DateTime')
+	_log.warning('cannot import mx.DateTime')
 
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
+
+	logging.basicConfig(level=logging.DEBUG)
 
 	gmDateTime.init()
 
@@ -1271,7 +1272,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.63  2007-12-06 13:07:19  ncq
+# Revision 1.64  2007-12-11 15:38:11  ncq
+# - use std logging
+#
+# Revision 1.63  2007/12/06 13:07:19  ncq
 # - add v8 schema hash
 #
 # Revision 1.62  2007/12/04 16:14:24  ncq
