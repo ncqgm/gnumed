@@ -54,7 +54,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -398,17 +398,21 @@ class cLogTargetFile(cLogTarget):
 	# the actual file handle
 	__handle = None
 	#---------------------------
-	def __init__ (self, aLogLevel = lErr, aFileName = '', aMode = 'ab'):
+	def __init__ (self, aLogLevel = lErr, aFileName = '', aMode = 'ab', file_obj = None):
 		# do our extra work
-		self.__handle = open (aFileName, aMode)
+		if file_obj is not None:
+			self.__handle = file_obj
+		else:
+			self.__handle = open (aFileName, aMode)
 		if self.__handle is None:
 			return None
 		else:
 			# call inherited
 			cLogTarget.__init__(self, aLogLevel)
-			self.ID = os.path.abspath (aFileName) # the file name canonicalized
+			#self.ID = os.path.abspath (aFileName) # the file name canonicalized
+			self.ID = os.path.abspath(self.__handle.name)
 
-		self.writeMsg (lInfo, "instantiated log file [%s] with ID [%s] " % (aFileName, self.ID))
+		self.writeMsg (lInfo, "instantiated log file [%s] with ID [%s] " % (self.__handle.name, self.ID))
 	#---------------------------
 	def dummy(self):
 		for module in sys.modules.values():
@@ -639,6 +643,13 @@ def __open_default_logfile():
 
 	- we don't have a logger available yet
 	"""
+	# make sure standard logging is initialized
+	# and redirect file logging to that
+	from Gnumed.pycommon import gmLog2
+	loghandle = cLogTargetFile (lInfo, file_obj = gmLog2._default_logfile)
+	return loghandle
+
+	#---------------------------------------
 	loghandle = None
 
 	# get base dir from name of script
@@ -704,7 +715,7 @@ def __open_default_logfile():
 	if os.path.exists(tmp):
 		logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
 		try:
-			loghandle = cLogTargetFile (lInfo, logName, "wb")
+			loghandle = cLogTargetFile (lInfo, logName, "ab")
 			print "log file is [%s]" % logName
 			return loghandle
 		except:
@@ -713,7 +724,7 @@ def __open_default_logfile():
 	# /tmp/base_name.log
 	logName = os.path.join('tmp', base_name)
 	try:
-		loghandle = cLogTargetFile(lInfo, logName, "wb")
+		loghandle = cLogTargetFile(lInfo, logName, "ab")
 		print "log file is [%s]" % logName
 		return loghandle
 	except:
@@ -723,7 +734,7 @@ def __open_default_logfile():
 	# last resort for inferior operating systems such as DOS/Windows
 	logName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
 	try:
-		loghandle = cLogTargetFile (lInfo, logName, "wb")
+		loghandle = cLogTargetFile (lInfo, logName, "ab")
 		print "log file is [%s]" % logName
 		return loghandle
 	except:
@@ -860,7 +871,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.29  2007-05-08 16:03:20  ncq
+# Revision 1.30  2007-12-11 14:29:53  ncq
+# - redirect logging to gmLog2 standard logger
+#
+# Revision 1.29  2007/05/08 16:03:20  ncq
 # - cleanup
 #
 # Revision 1.28  2007/03/26 14:43:08  ncq
