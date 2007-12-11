@@ -1,4 +1,4 @@
-"""GnuMed client internal signal handling.
+"""GNUmed client internal signal handling.
 
 # this code has been written by Patrick O'Brien <pobrien@orbtech.com>
 # downloaded from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/87056
@@ -8,6 +8,7 @@ import types
 import sys
 import weakref
 import traceback
+import logging
 
 
 known_signals = [
@@ -22,6 +23,8 @@ known_signals = [
 	u'episodes_modified',
 	u'request_user_attention'
 ]
+
+_log = logging.getLogger('gnumed.messaging')
 
 connections = {}
 senders = {}
@@ -79,6 +82,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 		raise ValueError('gmDispatcher.connect(): must define <receiver>')
 
 	if signal not in known_signals:
+		_log.error('unknown signal [%(sig)s]', {'sig': signal})
 		print "DISPATCHER ERROR: connect(): unknown signal [%s]" % signal
 
 	if signal is not Any:
@@ -118,6 +122,7 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	Disconnecting is not required. The use of disconnect is the same as for
 	connect, only in reverse. Think of it as undoing a previous connection."""
 	if signal not in known_signals:
+		_log.error('unknown signal [%(sig)s]', {'sig': signal})
 		print "DISPATCHER ERROR: disconnect(): unknown signal [%s]" % signal
 
 	if signal is not Any:
@@ -127,11 +132,13 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	try:
 		receivers = connections[senderkey][signal]
 	except KeyError:
+		_log.error('no receivers for signal %(sig)s from sender %(sender)s', {'sig': repr(signal), 'sender': sender})
 		print 'DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender)
 		return
 	try:
 		receivers.remove(receiver)
 	except ValueError:
+		_log.error('receiver [%(rx)s] not connected to signal [%(sig)s] from [%(sender)s]', {'rx': receiver, 'sig': repr(signal), 'sender': sender})
 		print "DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender)
 	_cleanupConnections(senderkey, signal)
 #---------------------------------------------------------------------
@@ -142,6 +149,7 @@ def send(signal=None, sender=None, **kwds):
 	If sender is None, signal is sent anonymously.
 	"""
 	if signal not in known_signals:
+		_log.error('unknown signal [%(sig)s]', {'sig': signal})
 		print "DISPATCHER ERROR: send(): unknown signal [%s]" % signal
 
 	signal = str(signal)
@@ -190,6 +198,8 @@ def send(signal=None, sender=None, **kwds):
 			# to print directly to the console instead of making the whole
 			# module depend on gmLog.py
 			typ, val, tb = sys.exc_info()
+			_log.error('%(t)s, <%(v)s>', {'t': typ, 'v': val})
+			_log.error('calling <%(rx)s> failed', {'rx': str(receiver)})
 			print 'DISPATCHER ERROR: %s <%s>' % (typ, val)
 			print 'DISPATCHER ERROR: calling <%s> failed' % str(receiver)
 			traceback.print_tb(tb)
@@ -254,6 +264,7 @@ def _call(receiver, **kwds):
 		fc = receiver.func_code
 		acceptable_args = fc.co_varnames[0:fc.co_argcount]
 	else:
+		_log.error('<%(rx)s> must be instance, method or function', {'rx': str(receiver)})
 		print 'DISPATCHER ERROR: _call(): <%s> must be instance, method or function' % str(receiver)
 	if not (fc.co_flags & 8):
 		# fc does not have a **kwds type parameter, therefore 
@@ -293,7 +304,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.11  2007-11-02 13:52:52  ncq
+# Revision 1.12  2007-12-11 14:19:27  ncq
+# - stdlib logging
+#
+# Revision 1.11  2007/11/02 13:52:52  ncq
 # - add two signals
 #
 # Revision 1.10  2007/10/25 12:19:18  ncq
