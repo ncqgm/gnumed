@@ -12,9 +12,11 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
+
+print "*** gmSignals deprecated ***"
 
 #=============================================================
 def popup_notice():
@@ -208,7 +210,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.18  2007-10-25 12:26:47  ncq
+# Revision 1.19  2007-12-11 14:31:59  ncq
+# - show depreciation warning
+#
+# Revision 1.18  2007/10/25 12:26:47  ncq
 # - allergy signals are gone
 #
 # Revision 1.17  2007/08/12 00:06:38  ncq
