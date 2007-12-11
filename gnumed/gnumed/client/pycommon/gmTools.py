@@ -2,30 +2,28 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.43 2007-11-28 13:59:23 ncq Exp $
+# $Id: gmTools.py,v 1.44 2007-12-11 14:33:48 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # std libs
-import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile
+import datetime as pydt, re as regex, sys, os, os.path, csv, tempfile, logging
 
 
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmBorg
+from Gnumed.pycommon import gmBorg
 
 
 _ = lambda x:x
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gnumed.tools')
+_log.info(__version__)
 
 # CAPitalization modes:
-(
-	CAPS_NONE,					# don't touch it
+(	CAPS_NONE,					# don't touch it
 	CAPS_FIRST,					# CAP first char, leave rest as is
 	CAPS_ALLCAPS,				# CAP all chars
 	CAPS_WORDS,					# CAP first char of every word
@@ -58,8 +56,8 @@ def handle_uncaught_exception(t, v, tb):
 	print "| Type :", t
 	print "| Value:", v
 	print "`========================================================"
-	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
-	# FIXME: allow user to mail report to developers from here
+#	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
+	_log.critical('unhandled exception caught', exc_info = (t,v,tb))
 	sys.__excepthook__(t,v,tb)
 
 #===========================================================================
@@ -101,7 +99,7 @@ class gmPaths(gmBorg.cBorg):
 			self.system_app_data_dir = self.local_base_dir
 
 		if wx is None:
-			_log.Log(gmLog.lData, 'wxPython not available')
+			_log.debug('wxPython not available')
 			self.__log_paths()
 			return True
 
@@ -125,7 +123,7 @@ class gmPaths(gmBorg.cBorg):
 			# Robin attests that the following doesn't give
 			# sane values on Windows, so IFDEF it
 			if 'wxMSW' in wx.PlatformInfo:
-				_log.Log(gmLog.lWarn, 'this platform returns a broken value for the system-wide application data dir')
+				_log.warning('this platform (wxMSW) returns a broken value for the system-wide application data dir')
 				self.system_app_data_dir = self.local_base_dir
 			else:
 				self.system_app_data_dir = std_paths.GetDataDir()
@@ -136,19 +134,19 @@ class gmPaths(gmBorg.cBorg):
 		return True
 	#--------------------------------------
 	def __log_paths(self):
-		_log.Log(gmLog.lData, 'local application base dir: %s' % self.local_base_dir)
-		_log.Log(gmLog.lData, 'current working dir: %s' % self.working_dir)
-		_log.Log(gmLog.lData, 'user home dir: %s' % os.path.expanduser('~'))
-		_log.Log(gmLog.lData, 'user-specific config dir: %s' % self.user_config_dir)
-		_log.Log(gmLog.lData, 'system-wide config dir: %s' % self.system_config_dir)
-		_log.Log(gmLog.lData, 'system-wide application data dir: %s' % self.system_app_data_dir)
+		_log.debug('local application base dir: %s', self.local_base_dir)
+		_log.debug('current working dir: %s', self.working_dir)
+		_log.debug('user home dir: %s', os.path.expanduser('~'))
+		_log.debug('user-specific config dir: %s', self.user_config_dir)
+		_log.debug('system-wide config dir: %s', self.system_config_dir)
+		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
 	#--------------------------------------
 	# properties
 	#--------------------------------------
 	def _set_user_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
 			msg = '[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path)
-			_log.Log(gmLog.lErr, msg)
+			_log.error(msg)
 			raise ValueError(msg)
 		self.__user_config_dir = path
 
@@ -160,7 +158,7 @@ class gmPaths(gmBorg.cBorg):
 	def _set_system_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
 			msg = '[%s:system_config_dir]: invalid path [%s]' % (self.__class__.__name__, path)
-			_log.Log(gmLog.lErr, msg)
+			_log.error(msg)
 			raise ValueError(msg)
 		self.__system_config_dir = path
 
@@ -172,7 +170,7 @@ class gmPaths(gmBorg.cBorg):
 	def _set_system_app_data_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
 			msg = '[%s:system_app_data_dir]: invalid path [%s]' % (self.__class__.__name__, path)
-			_log.Log(gmLog.lErr, msg)
+			_log.error(msg)
 			raise ValueError(msg)
 		self.__system_app_data_dir = path
 
@@ -219,7 +217,7 @@ Subject: %s
 	refused = session.sendmail(sender, receiver, body.encode(encoding))
 	session.quit()
 	if len(refused) != 0:
-		_log.Log(gmLog.lErr, "refused recipients: %s" % refused)
+		_log.error("refused recipients: %s" % refused)
 		return False
 
 	return True
@@ -262,7 +260,7 @@ def import_module_from_directory(module_path=None, module_name=None):
 	"""Import a module from any location."""
 
 	if module_path not in sys.path:
-		_log.Log(gmLog.lInfo, 'appending to sys.path: [%s]' % module_path)
+		_log.info('appending to sys.path: [%s]' % module_path)
 		sys.path.append(module_path)
 		remove_path = True
 	else:
@@ -273,9 +271,9 @@ def import_module_from_directory(module_path=None, module_name=None):
 
 	try:
 		module = __import__(module_name)
-		_log.Log(gmLog.lInfo, 'imported module [%s] as [%s]' % (module_name, module))
+		_log.info('imported module [%s] as [%s]' % (module_name, module))
 	except StandardError:
-		_log.LogException('cannot __import__() module [%s] from [%s]' % (module_name, module_path), verbose=0)
+		_log.exception('cannot __import__() module [%s] from [%s]' % (module_name, module_path))
 		if remove_path:
 			sys.path.remove(module_path)
 		raise
@@ -482,8 +480,6 @@ def wrap(text, width):
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 
-	_log.SetAllLogLevels(gmLog.lData)
-
 	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print "testing str2interval()"
@@ -657,13 +653,16 @@ This is a test mail from the gmTools.py module.
 			print size2str(test)
 	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+
+		from Gnumed.pycommon import gmLog2
+
 		#test_str2interval()
 		#test_coalesce()
 		#test_capitalize()
 		#test_import_module()
 		#test_mkdir()
 		#test_send_mail()
-		#test_gmPaths()
+		test_gmPaths()
 		#test_none_if()
 		#test_bool2str()
 		#test_get_unique_filename()
@@ -671,7 +670,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.43  2007-11-28 13:59:23  ncq
+# Revision 1.44  2007-12-11 14:33:48  ncq
+# - use standard logging module
+#
+# Revision 1.43  2007/11/28 13:59:23  ncq
 # - test improved
 #
 # Revision 1.42  2007/11/21 13:28:35  ncq

@@ -5,20 +5,17 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.8 2007-08-20 14:22:05 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPsql.py,v 1.9 2007-12-11 14:33:48 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 # stdlib
-import sys, os, string, re, urllib2
+import sys, os, string, re, urllib2, logging
 
-# GnuMed
-import gmLog
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.8 $')
-
+_log = logging.getLogger('gnumed.bootstrapper')
+_log.info(__version__)
 #===================================================================
 def shellrun (cmd):
 	"""
@@ -69,13 +66,13 @@ class Psql:
 			try:
 				self.file = urllib2.urlopen (filename)
 			except URLError:
-				_log.Log (gmLog.lErr, "cannot access %s" % filename)
+				_log.error("cannot access %s" % filename)
 				return 1
 		else:
 			if os.access (filename, os.R_OK):
 				self.file = open(filename)
 			else:
-				_log.Log (gmLog.lErr, "cannot open file [%s]" % filename)
+				_log.error("cannot open file [%s]" % filename)
 				return 1
 
 		self.lineno = 0
@@ -92,15 +89,15 @@ class Psql:
 
 			# \echo
 			if self.match (r"^\\echo (.*)"):
-				_log.Log (gmLog.lInfo, self.fmt_msg(shell(self.groups[0])))
+				_log.info(self.fmt_msg(shell(self.groups[0])))
 				continue
 			# \qecho
 			if self.match (r"^\\qecho (.*)"):
-				_log.Log (gmLog.lInfo, self.fmt_msg(shell (self.groups[0])))
+				_log.info(self.fmt_msg(shell (self.groups[0])))
 				continue
 			# \q
 			if self.match (r"^\\q"):
-				_log.Log (gmLog.lWarn, self.fmt_msg("script terminated by \\q"))
+				_log.warning(self.fmt_msg("script terminated by \\q"))
 				return 0
 			# \set
 			if self.match (r"^\\set (\S+) (\S+)"):
@@ -114,16 +111,16 @@ class Psql:
 				continue
 			# \connect
 			if self.match (r"^\\connect.*"):
-				_log.Log (gmLog.lErr, self.fmt_msg("\\connect not yet supported in scripts"))
+				_log.error(self.fmt_msg("\\connect not yet supported in scripts"))
 				continue
 			# \lo_import
 			if self.match (r"^\\lo_import.*"):
-				_log.Log (gmLog.lErr, self.fmt_msg("\\lo_import not yet supported"))
+				_log.error(self.fmt_msg("\\lo_import not yet supported"))
 				# no sense to continue here
 				return 1
 			# \copy ... to ...
 			if self.match (r"^\\copy .* to '(\S+)' .*"):
-				_log.Log (gmLog.lErr, self.fmt_msg("\\copy to not implemented"))
+				_log.error(self.fmt_msg("\\copy to not implemented"))
 				return 1
 			# \copy ... from ...
 			if self.match (r"^\\copy .* from '(\S+)' .*"):
@@ -131,7 +128,7 @@ class Psql:
 				try:
 					copyfd = file (os.path.join (os.path.dirname (self.filename), copyfile))
 				except error:
-					_log.Log (gmLog.lErr, self.fmt_msg(error))
+					_log.error(self.fmt_msg(error))
 					return 1
 				self.line = self.line[1:].strip() # lop off leading slash
 				self.line.replace ("'%s'" % copyfile, 'stdin')
@@ -148,7 +145,7 @@ class Psql:
 					self.conn.commit ()
 					curs.close ()
 				except StandardError, error:
-					gmLog.gmDefLog.Log (gmLog.lErr, "%s: %d: %s" % (copyfile, copyline, error))
+					_log.error("%s: %d: %s" % (copyfile, copyline, error))
 					if self.vars['ON_ERROR_STOP']:
 						return 1
 				continue
@@ -161,14 +158,14 @@ class Psql:
 
 			# \encoding
 			if self.match (r"^\\encoding.*"):
-				_log.Log (gmLog.lErr, self.fmt_msg("\\encoding not yet supported"))
+				_log.error(self.fmt_msg("\\encoding not yet supported"))
 				continue
 
 			# other '\' commands
 			if self.match (r"^\\(.*)") and not in_string:
 				# most other \ commands are for controlling output formats, don't make
 				# much sense in an installation script, so we gently ignore them
-				_log.Log (gmLog.lWarn, self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
+				_log.warning(self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
 				continue
 
 			# non-'\' commands
@@ -200,17 +197,17 @@ class Psql:
 #								self.conn.commit ()
 #								curs.close ()
 #								curs = self.conn.cursor ()
-#								_log.Log (gmLog.lData, self.fmt_msg ("transaction committed"))
+#								_log.debug(self.fmt_msg ("transaction committed"))
 #							else:
-#								_log.Log (gmLog.lWarn, self.fmt_msg ("COMMIT without BEGIN: no actual transaction happened!"))
+#								_log.warning(self.fmt_msg ("COMMIT without BEGIN: no actual transaction happened!"))
 #							transaction_started = False
 
 #						elif curr_cmd.strip ().upper () == 'BEGIN':
 #							if transaction_started:
-#								_log.Log (gmLog.lWarn, self.fmt_msg ("BEGIN inside transaction"))
+#								_log.warning(self.fmt_msg ("BEGIN inside transaction"))
 #							else:
 #								transaction_started = True
-#								_log.Log (gmLog.lData, self.fmt_msg ("starting transaction"))
+#								_log.debug(self.fmt_msg ("starting transaction"))
 
 #						else:
 						if curr_cmd.strip() != '':
@@ -226,15 +223,15 @@ class Psql:
 								curs.execute (curr_cmd)
 #								if not transaction_started:
 					except StandardError, error:
-						_log.Log (gmLog.lData, curr_cmd)
+						_log.debug(curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
-							_log.Log (gmLog.lWarn, self.fmt_msg(error))
+							_log.warning(self.fmt_msg(error))
 						else:
 							if self.vars['ON_ERROR_STOP']:
-								_log.Log (gmLog.lErr, self.fmt_msg(error))
+								_log.error(self.fmt_msg(error))
 								return 1
 							else:
-								_log.Log (gmLog.lData, self.fmt_msg(error))
+								_log.debug(self.fmt_msg(error))
 
 					self.conn.commit()
 					curs.close()
@@ -259,7 +256,10 @@ if __name__ == '__main__':
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.8  2007-08-20 14:22:05  ncq
+# Revision 1.9  2007-12-11 14:33:48  ncq
+# - use standard logging module
+#
+# Revision 1.8  2007/08/20 14:22:05  ncq
 # - support "vacuum"
 #
 # Revision 1.7  2006/12/06 16:45:37  ncq
