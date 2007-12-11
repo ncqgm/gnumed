@@ -1,26 +1,16 @@
-#############################################################################
-#
+############################################################################
 # gmLoginInfo - a class to encapsulate Postgres login information
-# ---------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: none
-# @change log:
-#	01.06.2001 hherb initial implementation
-#	26.10.2001 hherb comments added
-#	08.02.2001 hherb made DB API 2.0 compatible
-#
-# @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.13 2007-10-22 12:37:59 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmLoginInfo.py,v 1.14 2007-12-11 14:30:44 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
-import gmLog
+import logging
 
+_log = logging.getLogger('gnumed.database')
+_log.info(__version__)
 #====================================================================
 class LoginInfo:
 	"""a class to encapsulate Postgres login information to default database"""
@@ -143,7 +133,7 @@ class LoginInfo:
 		try:
 			port = int (port)
 		except ValueError:
-			gmLog.gmDefLog.Log (gmLog.lWarn, "tried to set port to '%s', set to -1" % port)
+			_log.warning("tried to set port to '%s', set to -1" % port)
 			port = -1
 		self.port = port
 	#------------------------------------------
@@ -172,7 +162,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.13  2007-10-22 12:37:59  ncq
+# Revision 1.14  2007-12-11 14:30:44  ncq
+# - std logging
+#
+# Revision 1.13  2007/10/22 12:37:59  ncq
 # - default db change
 #
 # Revision 1.12  2007/06/11 20:23:45  ncq
@@ -255,3 +248,9 @@ if __name__ == "__main__" :
 # Revision 1.7  2003/01/04 09:05:17  ncq
 # - added CVS tracking keywords
 #
+
+
+# old change log:
+#	01.06.2001 hherb initial implementation
+#	26.10.2001 hherb comments added
+#	08.02.2001 hherb made DB API 2.0 compatible
