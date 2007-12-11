@@ -53,16 +53,16 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys, shutil, types, cPickle, decimal
+import os.path, fileinput, string, sys, shutil, types, cPickle, decimal, logging
 
 # gnumed modules
-import gmLog, gmNull, gmPG2, gmTools
+import gmNull, gmPG2, gmTools
 
-_log = gmLog.gmDefLog
+_log = logging.getLogger('gnumed.cfg')
 gmCLI_ = None
 
 # flags for __get_conf_name
@@ -74,7 +74,7 @@ cfg_IGNORE_CMD_LINE = 2
 # it will already be in many databases
 cfg_DEFAULT = "xxxDEFAULTxxx"
 
-_log.Log(gmLog.lInfo, __version__)
+_log.info(__version__)
 
 gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
 #================================
@@ -122,11 +122,11 @@ class cCfgSQL:
 			if default is None:
 				# ... and no default either
 				return None
-			_log.Log(gmLog.lInfo, 'creating option [%s] with default [%s]' % (option, default))
+			_log.info('creating option [%s] with default [%s]' % (option, default))
 			success = self.set(workplace = workplace, cookie = cookie, option = option, value = default)
 			if not success:
 				# ... but cannot create option with default value either
-				_log.Log(gmLog.lErr, 'creating option failed')
+				_log.error('creating option failed')
 			return default
 
 		cfg_type = rows[0][0]
@@ -157,7 +157,7 @@ class cCfgSQL:
 		# found
 		if len(rows) > 0:
 			return rows[0][0]
-		_log.Log(gmLog.lWarn, 'no user AND workplace specific value for option [%s] in config database' % option)
+		_log.warning('no user AND workplace specific value for option [%s] in config database' % option)
 
 		# 2) search value with biased query
 		if bias == 'user':
@@ -188,7 +188,7 @@ class cCfgSQL:
 				value = rows[0][0]
 			)
 			return rows[0][0]
-		_log.Log(gmLog.lWarn, 'no user OR workplace specific value for option [%s] in config database' % option)
+		_log.warning('no user OR workplace specific value for option [%s] in config database' % option)
 
 		# 3) search value within default site policy
 		where_parts = [
@@ -208,13 +208,13 @@ class cCfgSQL:
 				value = rows[0]['value']
 			)
 			return rows[0]['value']
-		_log.Log(gmLog.lWarn, 'no default site policy value for option [%s] in config database' % option)
+		_log.warning('no default site policy value for option [%s] in config database' % option)
 
 		# 4) not found, set default ?
 		if default is None:
-			_log.Log(gmLog.lWarn, 'no default value for option [%s] supplied by caller' % option)
+			_log.warning('no default value for option [%s] supplied by caller' % option)
 			return None
-		_log.Log(gmLog.lInfo, 'setting option [%s] to default [%s]' % (option, default))
+		_log.info('setting option [%s] to default [%s]' % (option, default))
 		success = self.set (
 			workplace = workplace,
 			cookie = cookie,
@@ -236,7 +236,7 @@ class cCfgSQL:
 		"""
 		# sanity checks
 		if option is None:
-			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
+			_log.error("Need to know which option to retrieve.")
 			return None
 
 		alias = self.__make_alias(workplace, 'CURRENT_USER', cookie, option)
@@ -267,7 +267,7 @@ limit 1""" % where_clause
 
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		if len(rows) == 0:
-			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % alias)
+			_log.warning('option definition for [%s] not in config database' % alias)
 			return None
 		return rows[0][0]
 	#----------------------------
@@ -301,10 +301,10 @@ limit 1""" % where_clause
 				opt_value = gmPG2.dbapi.Binary(cPickle.dumps(value))
 				val_type = '::bytea'
 			except cPickle.PicklingError:
-				_log.Log(gmLog.lErr, "cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
+				_log.error("cannot pickle option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
 				raise
 			except:
-				_log.Log(gmLog.lErr, "don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
+				_log.error("don't know how to store option of type [%s] (key: %s, value: %s)" % (type(value), alias, str(value)))
 				raise
 
 		cmd = u'select cfg.set_option(%%(opt)s, %%(val)s%s, %%(wp)s, %%(cookie)s, NULL)' % val_type
@@ -458,20 +458,20 @@ class cCfgFile:
 	def getOptions(self, aGroup = None):
 		"""Return list of all options in a group."""
 		if not self._cfg_data['groups'].has_key(aGroup):
-			_log.Log(gmLog.lWarn, "Cannot return options for [%s]. No such group." % aGroup)
+			_log.warning("Cannot return options for [%s]. No such group." % aGroup)
 			return None
 
 		return self._cfg_data['groups'][aGroup]['options'].keys()
 	#----------------------------
 	def get(self, aGroup = None, anOption = None):
 		if not self._cfg_data['groups'].has_key(aGroup):
-			_log.Log(gmLog.lWarn, 'group [%s] not found' % aGroup)
+			_log.warning('group [%s] not found' % aGroup)
 			return None
 
 		group = self._cfg_data['groups'][aGroup]
 
 		if not group['options'].has_key(anOption):
-			_log.Log(gmLog.lWarn, 'option <%s> not found in group [%s]' % (anOption, aGroup))
+			_log.warning('option <%s> not found in group [%s]' % (anOption, aGroup))
 			return None
 
 		return group['options'][anOption]['value']
@@ -483,7 +483,7 @@ class cCfgFile:
 			if self._cfg_data.has_key('comment'):
 				return self._cfg_data['comment']
 			else:
-				_log.Log(gmLog.lWarn, 'file [%s] has no comment' % self.cfgName)
+				_log.warning('file [%s] has no comment' % self.cfgName)
 				return None
 
 		# group or option level
@@ -492,20 +492,20 @@ class cCfgFile:
 				if self._cfg_data['groups'][aGroup].has_key('comment'):
 					return self._cfg_data['groups'][aGroup]['comment']
 				else:
-					_log.Log(gmLog.lWarn, 'group [%s] (in [%s]) has no comment' % (aGroup, self.cfgName))
+					_log.warning('group [%s] (in [%s]) has no comment' % (aGroup, self.cfgName))
 					return None
 			else:
 				if self._cfg_data['groups'][aGroup]['options'].has_key(anOption):
 					if self._cfg_data['groups'][aGroup]['options'][anOption].has_key('comment'):
 						return self._cfg_data['groups'][aGroup]['options'][anOption]['comment']
 					else:
-						_log.Log(gmLog.lWarn, 'option [%s] in group [%s] (in [%s]) has no comment' % (anOption, aGroup, self.cfgName))
+						_log.warning('option [%s] in group [%s] (in [%s]) has no comment' % (anOption, aGroup, self.cfgName))
 						return None
 				else:
-					_log.Log(gmLog.lErr, 'option [%s] not in group [%s] in file [%s]' % (anOption, aGroup, self.cfgName))
+					_log.error('option [%s] not in group [%s] in file [%s]' % (anOption, aGroup, self.cfgName))
 					return None
 		else:
-			_log.Log(gmLog.lErr, 'group [%s] not in file [%s]' % (aGroup, self.cfgName))
+			_log.error('group [%s] not in file [%s]' % (aGroup, self.cfgName))
 			return None
 	#----------------------------
 	# API - setting config items
@@ -518,7 +518,7 @@ class cCfgFile:
 		# setting file level comment ?
 		if aGroup is None:
 			if aComment is None:
-				_log.Log(gmLog.lErr, "don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
+				_log.error("don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
 				return None
 			self._cfg_data['comment'] = [str(aComment)]
 			self._modified = 1
@@ -531,7 +531,7 @@ class cCfgFile:
 		# setting group level comment ?
 		if anOption is None:
 			if aComment is None:
-				_log.Log(gmLog.lErr, "don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
+				_log.error("don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
 				return None
 			self._cfg_data['groups'][aGroup]['comment'] = aComment
 			self._modified = 1
@@ -539,7 +539,7 @@ class cCfgFile:
 
 		# setting option
 		if aValue is None:
-			_log.Log(gmLog.lErr, "don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
+			_log.error("don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
 			return None
 		# make sure option is there
 		if not self._cfg_data['groups'][aGroup]['options'].has_key(anOption):
@@ -563,7 +563,7 @@ class cCfgFile:
 		# FIXME: actually we need to reread the config file here before writing
 		"""
 		if not self._modified:
-			_log.Log(gmLog.lInfo, "No changed items: nothing to be stored.")
+			_log.info("No changed items: nothing to be stored.")
 			return 1
 
 		bak_name = "%s.gmCfg.bak" % self.cfgName
@@ -575,7 +575,7 @@ class cCfgFile:
 		try:
 			shutil.copyfile(self.cfgName, bak_name)
 		except:
-			_log.LogException("Problem backing up config file !", sys.exc_info(), verbose=0)
+			_log.exception("Problem backing up config file !")
 
 		# open new file for writing
 		new_name = "%s.gmCfg.new" % self.cfgName
@@ -617,7 +617,7 @@ class cCfgFile:
 		try:
 			shutil.copyfile(new_name, self.cfgName)
 		except StandardError:
-			_log.LogException('cannot move modified options into config file', verbose=0)
+			_log.exception('cannot move modified options into config file')
 
 		os.remove(new_name)
 		return 1
@@ -631,10 +631,10 @@ class cCfgFile:
 		# check if the group exists
 		if aGroup is not None:
 			if not self._cfg_data['groups'].has_key(aGroup):
-				_log.Log(gmLog.lWarn, 'group [%s] not found' % aGroup)
+				_log.warning('group [%s] not found' % aGroup)
 				return None
 		else:
-			_log.Log(gmLog.lWarn, 'No group to delete specified.')
+			_log.warning('No group to delete specified.')
 			return None
 		
 		# now we know that the group exists
@@ -645,7 +645,7 @@ class cCfgFile:
 			group = self._cfg_data['groups'][aGroup]
 
 			if not group['options'].has_key(anOption):
-				_log.Log(gmLog.lWarn, 'option <%s> not found in group [%s]' % (anOption, aGroup))
+				_log.warning('option <%s> not found in group [%s]' % (anOption, aGroup))
 				return None
 			else:
 				del group['options'][anOption]
@@ -660,7 +660,7 @@ class cCfgFile:
 		- None: no valid name found
 		- true(1): valid name found
 		"""
-		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
+		_log.debug('(<aDir=%s>, <aName=%s>)' % (aDir, aName))
 
 		# did the user manually supply a config file on the command line ?
 		if not (flags & cfg_IGNORE_CMD_LINE):
@@ -669,15 +669,15 @@ class cCfgFile:
 				self.cfgName = gmCLI_.arg['--conf-file']
 				# file valid ?
 				if os.path.isfile(self.cfgName):
-					_log.Log(gmLog.lData, 'found config file [--conf-file=%s]' % self.cfgName)
+					_log.debug('found config file [--conf-file=%s]' % self.cfgName)
 					return 1
 				else:
-					_log.Log(gmLog.lErr, "config file [--conf-file=%s] not found, aborting" % self.cfgName)
+					_log.error("config file [--conf-file=%s] not found, aborting" % self.cfgName)
 					return None
 			else:
-				_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
+				_log.debug("No config file given on command line. Format: --conf-file=<config file>")
 		else:
-			_log.Log(gmLog.lInfo, 'ignoring command line per cfg_IGNORE_CMD_LINE')
+			_log.info('ignoring command line per cfg_IGNORE_CMD_LINE')
 
 		candidate_files = []
 
@@ -725,7 +725,7 @@ class cCfgFile:
 				a_dir = os.path.abspath(os.path.expanduser(os.path.join(env_key_val, 'etc')))
 				std_dirs.append(a_dir)
 			else:
-				_log.Log(gmLog.lInfo, "$%s not set" % env_key)
+				_log.info("$%s not set" % env_key)
 
 			# - ~/.base_dir/
 			a_dir = os.path.expanduser(os.path.join('~', '.' + base_dir))
@@ -754,27 +754,27 @@ class cCfgFile:
 			cfgNameHidden = os.path.expanduser(os.path.join('~', '.' + base_name))
 			candidate_files.insert(1, cfgNameHidden)
 
-		_log.Log(gmLog.lData, "config file search order: %s" % str(candidate_files))
+		_log.debug("config file search order: %s" % str(candidate_files))
 
 		# eventually loop through all candidates
 		for candidate in (candidate_files):
 			if not os.path.isfile(candidate):
-				_log.Log(gmLog.lInfo, "config file [%s] not found" % candidate)
+				_log.info("config file [%s] not found" % candidate)
 			else:
-				_log.Log(gmLog.lInfo, 'found config file [%s]' % candidate)
+				_log.info('found config file [%s]' % candidate)
 				self.cfgName = candidate
 				return 1
 
 		# still don't have a valid config file name ?!?
 		# we can't help it
-		_log.Log(gmLog.lErr, "cannot find config file in any of the standard paths")
+		_log.error("cannot find config file in any of the standard paths")
 		return None
 	#----------------------------
 	def __parse_conf_file(self):
 		if not os.path.exists(self.cfgName):
-			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
+			_log.warning("config file [%s] not found" % self.cfgName)
 
-		_log.Log(gmLog.lData, "parsing config file [%s]" % self.cfgName)
+		_log.debug("parsing config file [%s]" % self.cfgName)
 
 		return self.__parse_conf (fileinput.input(self.cfgName))
 
@@ -831,10 +831,10 @@ class cCfgFile:
 				try:
 					tmp, comment = line.split(']', 1)
 				except:
-					_log.Log(gmLog.lErr, 'parse error in line #%s of config file [%s]' % (fileinput.filelineno(), fileinput.filename()))
+					_log.error('parse error in line #%s of config file [%s]' % (fileinput.filelineno(), fileinput.filename()))
 					raise
 				if tmp == "[":
-					_log.Log(gmLog.lErr, 'empty group definition "[]" not allowed')
+					_log.error('empty group definition "[]" not allowed')
 					continue
 
 				comment = string.strip(comment)
@@ -843,7 +843,7 @@ class cCfgFile:
 
 				curr_group = tmp[1:]
 				if self._cfg_data['groups'].has_key(curr_group):
-					_log.Log(gmLog.lWarn, 'duplicate group [%s] (file [%s]) - overriding options' % (curr_group, self.cfgName))
+					_log.warning('duplicate group [%s] (file [%s]) - overriding options' % (curr_group, self.cfgName))
 				else:
 					self._cfg_data['groups'][curr_group] = {'options': {}}
 
@@ -854,14 +854,14 @@ class cCfgFile:
 			#----------
 			# option= ?
 			if not curr_group:
-				_log.Log(gmLog.lErr, 'option found before first group statement')
+				_log.error('option found before first group statement')
 				continue
 
 			#  normalize
 			colon_pos = line.find(":")
 			equal_pos = line.find("=")
 			if colon_pos == -1 and equal_pos == -1:
-				_log.Log(gmLog.lErr, 'option [%s] does not contain a separator ("=" or ":")' % line)
+				_log.error('option [%s] does not contain a separator ("=" or ":")' % line)
 				continue
 			if colon_pos < equal_pos:
 				line = line.replace(':', '=', 1)
@@ -870,11 +870,11 @@ class cCfgFile:
 			name, tmp = line.split('=', 1)
 			name = string.strip(name)
 			if name == "":
-				_log.Log(gmLog.lErr, 'option name must not be empty')
+				_log.error('option name must not be empty')
 				continue
 			curr_opt = name
 			if self._cfg_data['groups'][curr_group]['options'].has_key(curr_opt):
-				_log.Log(gmLog.lWarn, 'duplicate option [%s] (group [%s], file [%s]) - overriding value' % (curr_opt, curr_group, self.cfgName))
+				_log.warning('duplicate option [%s] (group [%s], file [%s]) - overriding value' % (curr_opt, curr_group, self.cfgName))
 			else:
 				self._cfg_data['groups'][curr_group]['options'][curr_opt] = {}
 
@@ -935,10 +935,10 @@ def create_default_cfg_file():
 			f.write('\n')
 			f.close()
 		except StandardError:
-			_log.LogException("Cannot create empty default config file [%s]." % tmp, sys.exc_info(), verbose=0)
+			_log.exception("Cannot create empty default config file [%s]." % tmp)
 			return None
 
-	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
+	_log.error('Created empty config file [%s].' % tmp)
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
 #-------------------------------------------------------------
@@ -986,11 +986,11 @@ def getDBParam(workplace = None, cookie = None, option = None):
 		if result is not None:
 			matchingSet = set[0]
 			break
-		_log.Log(gmLog.lData, '[%s] not found for [%s@%s]' % (option, set[1], set[2]))
+		_log.debug('[%s] not found for [%s@%s]' % (option, set[1], set[2]))
 
 	# cleanup
 	if matchingSet is None:
-		_log.Log (gmLog.lWarn, 'no config data for [%s]' % option)
+		_log.warning('no config data for [%s]' % option)
 	return (result, matchingSet)
 #-------------------------------------------------------------
 def setDBParam(workplace = None, user = None, cookie = None, option = None, value = None):
@@ -1020,8 +1020,6 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 # main
 #=============================================================
 if __name__ == "__main__":
-
-	_log.SetAllLogLevels(gmLog.lData)
 
 	#---------------------------------------------------------
 	def test_db_cfg():
@@ -1061,7 +1059,6 @@ if __name__ == "__main__":
 
 	#---------------------------------------------------------
 
-	_log.SetAllLogLevels(gmLog.lData)
 	# if there's an argument assume it to be a config
 	# file and test that
 	if len(sys.argv) > 1:
@@ -1072,7 +1069,7 @@ if __name__ == "__main__":
 #			myCfg = cCfgFile(aFile = sys.argv[1],flags=cfg_SEARCH_STD_DIRS)
 		except:
 			exc = sys.exc_info()
-			_log.LogException('unhandled exception', exc, verbose=1)
+			_log.exception('unhandled exception')
 			raise
 
 		print myCfg
@@ -1113,7 +1110,7 @@ if __name__ == "__main__":
 	try:
 		test_db_cfg()
 	except:
-		_log.LogException('test suite failed', sys.exc_info(), True)
+		_log.exception('test suite failed')
 		raise
 
 else:
@@ -1124,11 +1121,14 @@ else:
 	try:
 		gmDefCfgFile = cCfgFile()
 	except IOError:
-		_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
+		_log.exception('unhandled exception')
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.54  2007-02-22 17:41:13  ncq
+# Revision 1.55  2007-12-11 15:35:28  ncq
+# - use std lib logging
+#
+# Revision 1.54  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.53  2007/02/17 14:11:56  ncq

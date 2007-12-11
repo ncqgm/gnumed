@@ -1,22 +1,17 @@
-"""GnuMed scripting listener.
+"""GNUmed scripting listener.
 
 This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time, threading, SimpleXMLRPCServer, select
+import sys, time, threading, SimpleXMLRPCServer, select, logging
 
 
-if __name__ == '__main__':
-	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmLog, gmExceptions
-
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gnumed.scripting')
+_log.info(__version__)
 #=====================================================================
 class cScriptingListener:
 
@@ -35,8 +30,9 @@ class cScriptingListener:
 		# this lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
 		if not self._quit_lock.acquire(0):
-			_log.Log(gmLog.lErr, 'cannot acquire thread quit lock !?! aborting')
-			raise gmExceptions.ConstructorError, "cannot acquire thread quit-lock"
+			_log.error('cannot acquire thread quit lock !?! aborting')
+			import thread
+			raise thread.error("cannot acquire thread quit-lock")
 
 		# check for data every 'poll_interval' seconds
 		self._poll_interval = poll_interval
@@ -52,8 +48,8 @@ class cScriptingListener:
 		self._thread = threading.Thread(target = self._process_RPCs)
 		self._thread.start()
 
-		_log.Log(gmLog.lInfo, 'scripting listener started on [%s:%s]' % (self._listener_address, self._port))
-		_log.Log(gmLog.lInfo, 'macro executor is [%s]' % self._macro_executor)
+		_log.info('scripting listener started on [%s:%s]' % (self._listener_address, self._port))
+		_log.info('macro executor is [%s]' % self._macro_executor)
 	#-------------------------------
 	# public API
 	#-------------------------------
@@ -68,12 +64,12 @@ class cScriptingListener:
 		try:
 			self._server.socket.shutdown(2)
 		except:
-			_log.LogException('cannot cleanly shutdown(5) scripting listener socket')
+			_log.exception('cannot cleanly shutdown(5) scripting listener socket')
 
 		try:
 			self._server.socket.close()
 		except:
-			_log.LogException('cannot cleanly close() scripting listener socket')
+			_log.exception('cannot cleanly close() scripting listener socket')
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
@@ -111,8 +107,6 @@ class cScriptingListener:
 #=====================================================================
 if __name__ == "__main__":
 
-	_log.SetAllLogLevels(gmLog.lData)
-
 	#-------------------------------
 	class runner:
 		def tell_time(self):
@@ -124,7 +118,7 @@ if __name__ == "__main__":
 		try:
 			listener = cScriptingListener(macro_executor=runner(), port=9999)
 		except:
-			_log.LogException('cannot instantiate scripting listener')
+			_log.exception('cannot instantiate scripting listener')
 			sys.exit(1)
 
 		s = xmlrpclib.ServerProxy('http://localhost:9999')
@@ -132,12 +126,15 @@ if __name__ == "__main__":
 			t = s.tell_time()
 			print t
 		except:
-			_log.LogException('cannot interact with server')
+			_log.exception('cannot interact with server')
 
 		listener.shutdown()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.3  2007-12-03 20:43:53  ncq
+# Revision 1.4  2007-12-11 15:39:01  ncq
+# - use std lib logging
+#
+# Revision 1.3  2007/12/03 20:43:53  ncq
 # - lots of cleanup
 # - fix/enhance test suite
 #
