@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -808,7 +808,7 @@ class database:
 		target_version = _cfg.get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
 			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
-			print '    identity hash of "%s": %s' % (self.name, gmPG2.known_schema_hashes[target_version])
+#			print '    identity hash of "%s": %s' % (self.name, gmPG2.known_schema_hashes[target_version])
 			return True
 		_log.Log(gmLog.lErr, 'target database identity hash invalid')
 		if target_version == 'devel':
@@ -1284,7 +1284,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.69  2007-12-04 15:24:38  ncq
+# Revision 1.70  2007-12-11 12:44:11  ncq
+# - less console verbosity
+#
+# Revision 1.69  2007/12/04 15:24:38  ncq
 # - set database default sql_inheritance to on
 #
 # Revision 1.68  2007/12/03 20:48:46  ncq
