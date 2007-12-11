@@ -5,19 +5,19 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time, threading, select
+import sys, time, threading, select, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmLog, gmExceptions, gmBorg
+from Gnumed.pycommon import gmDispatcher, gmExceptions, gmBorg
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gnumed.database')
+_log.info(__version__)
 #=====================================================================
 class gmBackendListener(gmBorg.cBorg):
 
@@ -29,7 +29,7 @@ class gmBackendListener(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
-		_log.Log(gmLog.lInfo, 'starting backend notifications listener thread')
+		_log.info('starting backend notifications listener thread')
 
 		# the listener thread will regularly try to acquire
 		# this lock, when it succeeds it will quit
@@ -37,11 +37,8 @@ class gmBackendListener(gmBorg.cBorg):
 		# take the lock now so it cannot be taken by the worker
 		# thread until it is released in stop_thread()
 		if not self._quit_lock.acquire(0):
-			_log.Log(gmLog.lErr, 'cannot acquire thread quit lock !?! aborting')
+			_log.error('cannot acquire thread quit lock !?! aborting')
 			raise gmExceptions.ConstructorError, "cannot acquire thread quit-lock"
-
-		# remember what signals we are listening for; no need to listen twice to the same signal
-#		self._intercepted_notifications = []
 
 		self._conn = conn
 		self._conn.set_isolation_level(0)
@@ -61,36 +58,19 @@ class gmBackendListener(gmBorg.cBorg):
 
 		self.already_inited = True
 	#-------------------------------
-#	def __del__(self):
-#		if self._listener_thread is None:
-#			return 1
-#		try:
-#			self.__unlisten_notification()
-#		except: pass
-#		try:
-#			self._quit_lock.release()
-#			# give the thread time to terminate
-#			self._listener_thread.join(self._poll_interval+2.0)
-#		except: pass
-#		try:
-#			if self._listener_thread.isAlive():
-#				print '__del__(): listener thread still alive after join()'
-#				print '__del__(): active threads:', threading.enumerate()
-#		except:	pass
-	#-------------------------------
 	# public API
 	#-------------------------------
 	def stop_thread(self):
 		if self._listener_thread is None:
 			return
-		_log.Log(gmLog.lInfo, 'stopping backend notifications listener thread')
+		_log.info('stopping backend notifications listener thread')
 		self._quit_lock.release()
 		# give the worker thread time to terminate
 		self._listener_thread.join(self._poll_interval+2.0)
 		try:
 			if self._listener_thread.isAlive():
-				_log.Log(gmLog.lErr, 'listener thread still alive after join()')
-				_log.Log(gmLog.lData, 'active threads: %s' % threading.enumerate())
+				_log.error('listener thread still alive after join()')
+				_log.debug('active threads: %s' % threading.enumerate())
 		except:
 			pass
 
@@ -120,8 +100,8 @@ class gmBackendListener(gmBorg.cBorg):
 		self._conn_lock.release()
 		rows = self._cursor.fetchall()
 		self.patient_specific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
-		_log.Log(gmLog.lInfo, 'configured patient specific notifications:')
-		_log.Log(gmLog.lInfo, '%s' % self.patient_specific_notifications)
+		_log.info('configured patient specific notifications:')
+		_log.info('%s' % self.patient_specific_notifications)
 		gmDispatcher.known_signals.extend(self.patient_specific_notifications)
 
 		# determine unspecific notifications
@@ -131,8 +111,8 @@ class gmBackendListener(gmBorg.cBorg):
 		self._conn_lock.release()
 		rows = self._cursor.fetchall()
 		self.unspecific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
-		_log.Log(gmLog.lInfo, 'configured unspecific notifications:')
-		_log.Log(gmLog.lInfo, '%s' % self.unspecific_notifications)
+		_log.info('configured unspecific notifications:')
+		_log.info('%s' % self.unspecific_notifications)
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
 
 		# determine our backend PID
@@ -142,7 +122,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self._conn_lock.release()
 		rows = self._cursor.fetchall()
 		self.backend_pid = rows[0][0]
-		_log.Log(gmLog.lInfo, 'listener process PID: [%s]' % self.backend_pid)
+		_log.info('listener process PID: [%s]' % self.backend_pid)
 
 		# listen to patient changes inside the local client
 		# so we can re-register patient specific notifications
@@ -162,7 +142,7 @@ class gmBackendListener(gmBorg.cBorg):
 			return
 		for notification in self.patient_specific_notifications:
 			notification = '%s:%s' % (notification, self.curr_patient_pk)
-			_log.Log(gmLog.lData, 'starting to listen for [%s]' % notification)
+			_log.debug('starting to listen for [%s]' % notification)
 			cmd = 'LISTEN "%s"' % notification
 			self._conn_lock.acquire(1)
 			self._cursor.execute(cmd)
@@ -173,7 +153,7 @@ class gmBackendListener(gmBorg.cBorg):
 			return
 		for notification in self.patient_specific_notifications:
 			notification = '%s:%s' % (notification, self.curr_patient_pk)
-			_log.Log(gmLog.lData, 'stopping to listen for [%s]' % notification)
+			_log.debug('stopping to listen for [%s]' % notification)
 			cmd = 'UNLISTEN "%s"' % notification
 			self._conn_lock.acquire(1)
 			self._cursor.execute(cmd)
@@ -182,7 +162,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __register_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
 			sig = '%s:' % sig
-			_log.Log(gmLog.lInfo, 'starting to listen for [%s]' % sig)
+			_log.info('starting to listen for [%s]' % sig)
 			cmd = 'LISTEN "%s"' % sig
 			self._conn_lock.acquire(1)
 			self._cursor.execute(cmd)
@@ -191,7 +171,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __unregister_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
 			sig = '%s:' % sig
-			_log.Log(gmLog.lInfo, 'stopping to listen for [%s]' % sig)
+			_log.info('stopping to listen for [%s]' % sig)
 			cmd = 'UNLISTEN "%s"' % sig
 			self._conn_lock.acquire(1)
 			self._cursor.execute(cmd)
@@ -206,7 +186,7 @@ class gmBackendListener(gmBorg.cBorg):
 			name = self.__class__.__name__
 		)
 		self._listener_thread.setDaemon(True)
-		_log.Log(gmLog.lInfo, 'starting listener thread')
+		_log.info('starting listener thread')
 		self._listener_thread.start()
 	#-------------------------------
 	# the actual thread code
@@ -268,10 +248,6 @@ class gmBackendListener(gmBorg.cBorg):
 if __name__ == "__main__":
 
 	notifies = 0
-
-	_log.SetAllLogLevels(gmLog.lData)
-
-	import time
 
 	from Gnumed.pycommon import gmPG2, gmI18N
 	from Gnumed.business import gmPerson
@@ -357,10 +333,6 @@ if __name__ == "__main__":
 				print '==> got notification from database "%s":' % kwargs['signal']
 			except KeyError:
 				print '==> received signal from client: "%s"' % kwargs['signal']
-#			if kwargs['signal'].endswith('_db'):
-#				print '==> got notification from database "%s":' % kwargs['signal']
-#			else:
-#				print '==> received signal from client: "%s"' % kwargs['signal']
 			del kwargs['signal']
 			for key in kwargs.keys():
 				print '    [%s]: %s' % (key, kwargs[key])
@@ -398,7 +370,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.12  2007-10-30 12:48:17  ncq
+# Revision 1.13  2007-12-11 14:16:29  ncq
+# - cleanup
+# - use logging
+#
+# Revision 1.12  2007/10/30 12:48:17  ncq
 # - attach_identity_pk -> carries_identity_pk
 #
 # Revision 1.11  2007/10/25 12:18:37  ncq
