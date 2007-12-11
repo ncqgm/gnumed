@@ -8,28 +8,27 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.21 2006-05-15 13:36:00 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPatientHolder.py,v 1.22 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "R.Terry, SJ Tan"
 
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
-from Gnumed.business import gmPerson
-from Gnumed.wxpython import gmGuiHelpers
 import sys
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
+
+import wx
+
+
+from Gnumed.pycommon import gmDispatcher, gmLog, gmExceptions
+from Gnumed.business import gmPerson
+from Gnumed.wxpython import gmGuiHelpers
 
 #====================================================
 class PatientHolder:
 	def __init__(self):
 		# patient is about to change
-		gmDispatcher.connect(self._on_pre_patient_selection, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self._on_pre_patient_selection, u'pre_patient_selection')
 		# new patient has been selected
-		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._on_post_patient_selection, u'post_patient_selection')
 		self.patient = gmPerson.gmCurrentPatient()
 	#------------------------------------------------
 	def _on_post_patient_selection( self, **kwds):
@@ -76,7 +75,10 @@ class PatientHolder:
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.21  2006-05-15 13:36:00  ncq
+# Revision 1.22  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.21  2006/05/15 13:36:00  ncq
 # - signal cleanup:
 #   - activating_patient -> pre_patient_selection
 #   - patient_selected -> post_patient_selection

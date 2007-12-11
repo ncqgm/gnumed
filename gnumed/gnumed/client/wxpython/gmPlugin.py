@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.75 2007-11-23 23:35:47 ncq Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmPlugin.py,v 1.76 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.76 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,7 +17,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmSignals, gmTools
+from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmLog, gmCfg, gmDispatcher, gmTools
 from Gnumed.business import gmPerson, gmSurgery
 
 _log = gmLog.gmDefLog
@@ -229,8 +229,8 @@ class cNotebookPlugin:
 class cPatientChange_PluginMixin:
 	"""This mixin adds listening to patient change signals."""
 	def __init__(self):
-		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._pre_patient_selection, u'pre_patient_selection')
+		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	# -----------------------------------------------------
 	def _pre_patient_selection(self, **kwds):
 		print "%s._pre_patient_selection() not implemented" % self.__class__.__name__
@@ -434,7 +434,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.75  2007-11-23 23:35:47  ncq
+# Revision 1.76  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.75  2007/11/23 23:35:47  ncq
 # - cleanup
 # - fix get_installed_plugins()
 # - add workplace option to GetPluginLoadList()

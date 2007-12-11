@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.150 2007-11-05 11:41:46 ncq Exp $
-__version__ = "$Revision: 1.150 $"
+# $Id: gmMedDocWidgets.py,v 1.151 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.151 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -14,7 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmSignals, gmDateTime, gmTools
+from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools
 from Gnumed.business import gmPerson, gmMedDoc, gmEMRStructItems, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl, wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
@@ -1503,7 +1503,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.150  2007-11-05 11:41:46  ncq
+# Revision 1.151  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.150  2007/11/05 11:41:46  ncq
 # - use blobs.delete_document()
 #
 # Revision 1.149  2007/10/31 22:07:18  ncq

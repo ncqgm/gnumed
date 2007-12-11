@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.137 2007-12-06 10:46:05 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmDemographicsWidgets.py,v 1.138 2007-12-11 12:49:25 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -18,7 +18,7 @@ import wx.wizard
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmPlugin, gmPhraseWheel, gmGuiHelpers, gmDateTimeInput, gmRegetMixin, gmDataMiningWidgets, gmListWidgets, gmEditArea, gmAuthWidgets
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmCfg, gmI18N, gmMatchProvider, gmPG2, gmTools, gmDateTime, gmShellAPI
 from Gnumed.business import gmDemographicRecord, gmPerson
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl, wxgPersonContactsManagerPnl, wxgPersonIdentityManagerPnl, wxgNameGenderDOBEditAreaPnl, wxgCommChannelEditAreaPnl, wxgExternalIDEditAreaPnl
 
@@ -2531,7 +2531,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.137  2007-12-06 10:46:05  ncq
+# Revision 1.138  2007-12-11 12:49:25  ncq
+# - explicit signal handling
+#
+# Revision 1.137  2007/12/06 10:46:05  ncq
 # - improve external ID type phrasewheel
 # - in edit area on setting ext id type pre-set corresponding issuer if any
 #

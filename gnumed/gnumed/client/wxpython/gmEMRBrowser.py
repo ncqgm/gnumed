@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.81 2007-09-07 10:56:57 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmEMRBrowser.py,v 1.82 2007-12-11 12:49:25 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import sys, types, os.path, StringIO, codecs
 import wx
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmExceptions, gmTools
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmAllergyWidgets, gmNarrativeWidgets
@@ -422,7 +422,7 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 #		self.__register_interests()
 	#--------------------------------------------------------
 #	def __register_interests(self):
-#		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self.repopulate_ui)
+#		gmDispatcher.connect(signal= u'post_patient_selection', receiver=self.repopulate_ui)
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._emr_tree.refresh()
@@ -442,7 +442,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self.__register_events()
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
@@ -484,7 +484,7 @@ class cEMRJournalPanel(wx.Panel):
 		self.Layout()
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
@@ -558,7 +558,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.81  2007-09-07 10:56:57  ncq
+# Revision 1.82  2007-12-11 12:49:25  ncq
+# - explicit signal handling
+#
+# Revision 1.81  2007/09/07 10:56:57  ncq
 # - cleanup
 #
 # Revision 1.80  2007/08/29 22:09:10  ncq

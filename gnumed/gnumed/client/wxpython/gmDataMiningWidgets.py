@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.6 2007-11-21 14:33:40 ncq Exp $
-__version__ = '$Revision: 1.6 $'
+# $Id: gmDataMiningWidgets.py,v 1.7 2007-12-11 12:49:25 ncq Exp $
+__version__ = '$Revision: 1.7 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -19,7 +19,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmSignals, gmPG2, gmMatchProvider, gmI18N
+from Gnumed.pycommon import gmLog, gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N
 from Gnumed.business import gmPerson, gmDataMining
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
@@ -412,7 +412,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDataMiningWidgets.py,v $
-# Revision 1.6  2007-11-21 14:33:40  ncq
+# Revision 1.7  2007-12-11 12:49:25  ncq
+# - explicit signal handling
+#
+# Revision 1.6  2007/11/21 14:33:40  ncq
 # - fix use of send_mail()
 #
 # Revision 1.5  2007/09/24 18:31:16  ncq

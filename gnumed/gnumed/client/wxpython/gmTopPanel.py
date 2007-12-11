@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.89 2007-12-02 11:00:58 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmTopPanel.py,v 1.90 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -11,7 +11,7 @@ import sys, os.path
 
 import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmPG2, gmSignals, gmDispatcher, gmLog, gmCLI, gmTools
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmCLI, gmTools
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets, gmAllergyWidgets
 
@@ -249,7 +249,7 @@ class cMainTopPanel(wx.Panel):
 		wx.EVT_LEFT_DCLICK(self.txt_allergies, self._on_allergies_dclicked)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'allg_mod_db', receiver = self._update_allergies)
 		gmDispatcher.connect(signal = u'allg_state_mod_db', receiver = self._update_allergies)
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
@@ -442,7 +442,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.89  2007-12-02 11:00:58  ncq
+# Revision 1.90  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.89  2007/12/02 11:00:58  ncq
 # - update age, too, on pat identity change
 #
 # Revision 1.88  2007/11/28 22:36:41  ncq

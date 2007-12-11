@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.76 2007-12-04 17:32:33 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmGuiHelpers.py,v 1.77 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.77 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -25,7 +25,7 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmSignals, gmTools, gmCfg, gmI18N
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG2, gmLoginInfo, gmDispatcher, gmTools, gmCfg, gmI18N
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
 
 
@@ -810,7 +810,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.76  2007-12-04 17:32:33  ncq
+# Revision 1.77  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.76  2007/12/04 17:32:33  ncq
 # - improved wording
 #
 # Revision 1.75  2007/12/04 17:08:14  ncq

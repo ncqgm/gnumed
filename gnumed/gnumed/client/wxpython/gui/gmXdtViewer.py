@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.29 2007-08-29 14:43:43 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmXdtViewer.py,v 1.30 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -20,7 +20,7 @@ import sys, os, os.path, codecs
 import wx
 
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
@@ -420,7 +420,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.29  2007-08-29 14:43:43  ncq
+# Revision 1.30  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.29  2007/08/29 14:43:43  ncq
 # - show xDT field ID in third column to enable more comfortable debugging
 #
 # Revision 1.28  2007/08/12 00:12:41  ncq

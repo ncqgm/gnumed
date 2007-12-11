@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375 2007-12-06 10:47:14 ncq Exp $
-__version__ = "$Revision: 1.375 $"
+# $Id: gmGuiMain.py,v 1.376 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.376 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,7 +51,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
 from Gnumed.exporters import gmPatientExporter
@@ -1613,7 +1613,7 @@ Search results:
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
 
 		# signal imminent demise to plugins
-		gmDispatcher.send(gmSignals.application_closing())
+		gmDispatcher.send(u'application_closing')
 
 		# remember GUI size
 		curr_width, curr_height = self.GetClientSizeTuple()
@@ -2050,7 +2050,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375  2007-12-06 10:47:14  ncq
+# Revision 1.376  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.375  2007/12/06 10:47:14  ncq
 # - submenu EMR -> History Taking
 #
 # Revision 1.374  2007/12/04 18:38:04  ncq

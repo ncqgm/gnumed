@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.97 2007-11-12 23:05:55 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmPatSearchWidgets.py,v 1.98 2007-12-11 12:49:26 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -21,7 +21,7 @@ import sys, os.path, time, glob, datetime as pyDT, re as regex
 import wx
 
 
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools, gmDateTime, gmMatchProvider
 from Gnumed.business import gmPerson, gmKVK, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg, wxgSelectPersonDTOFromListDlg
@@ -555,7 +555,7 @@ class cPatientSelector(wx.TextCtrl):
 		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
 		#----------------------------------------------
@@ -856,7 +856,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.97  2007-11-12 23:05:55  ncq
+# Revision 1.98  2007-12-11 12:49:26  ncq
+# - explicit signal handling
+#
+# Revision 1.97  2007/11/12 23:05:55  ncq
 # - import extra data from DTOs
 #
 # Revision 1.96  2007/11/10 20:58:59  ncq
