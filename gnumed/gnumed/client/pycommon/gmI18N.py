@@ -1,7 +1,3 @@
-#===========================================================================
-# THIS NEEDS TO BE IMPORTED FIRST IN YOUR MODULES !
-#===========================================================================
-
 """GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
@@ -37,24 +33,18 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.33 2007-07-10 20:34:37 ncq Exp $
+# $Id: gmI18N.py,v 1.34 2007-12-11 14:27:02 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 #stdlib
-import sys, os.path, os, re as regex, locale, gettext
+import sys, os.path, os, re as regex, locale, gettext, logging
 
 
-# GNUmed libs
-if __name__ == "__main__":
-	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmTools
-
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gnumed.i18n')
+_log.info(__version__)
 
 system_locale = ''
 system_locale_level = {}
@@ -79,7 +69,7 @@ def __split_locale_into_levels():
 	  - en_US:en
 	  - German_Germany.1252
 	"""
-	_log.Log(gmLog.lData, 'splitting canonical locale [%s] into levels' % system_locale)
+	_log.debug('splitting canonical locale [%s] into levels' % system_locale)
 
 	global system_locale_level
 	system_locale_level['full'] = system_locale
@@ -88,7 +78,7 @@ def __split_locale_into_levels():
 	# trim '_<COUNTRY>@<variant>' part
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 
-	_log.Log(gmLog.lData, 'system locale levels: %s' % system_locale_level)
+	_log.debug('system locale levels: %s' % system_locale_level)
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
 	_setlocale_categories = {}
@@ -96,7 +86,7 @@ def __log_locale_settings(message=None):
 		try:
 			_setlocale_categories[category] = getattr(locale, category)
 		except:
-			_log.Log(gmLog.lWarn, 'this OS does not have locale.%s' % category)
+			_log.warning('this OS does not have locale.%s' % category)
 
 	_getlocale_categories = {}
 	for category in 'LC_CTYPE LC_COLLATE LC_TIME LC_MONETARY LC_MESSAGES LC_NUMERIC'.split():
@@ -106,68 +96,68 @@ def __log_locale_settings(message=None):
 			pass
 
 	if message is not None:
-		_log.Log(gmLog.lData, message)
+		_log.debug(message)
 
-	_log.Log(gmLog.lData, 'current locale settings:')
-	_log.Log(gmLog.lData, 'locale.get_locale(): %s' % str(locale.getlocale()))
+	_log.debug('current locale settings:')
+	_log.debug('locale.get_locale(): %s' % str(locale.getlocale()))
 	for category in _getlocale_categories.keys():
-		_log.Log (gmLog.lData, 'locale.get_locale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
+		_log.debug('locale.get_locale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
 
 	for category in _setlocale_categories.keys():
-		_log.Log (gmLog.lData, '(locale.set_locale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
+		_log.debug('(locale.set_locale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
 
 	try:
-		_log.Log(gmLog.lData, 'locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
+		_log.debug('locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
 	except ValueError:
-		_log.LogException('the OS locale setup seems faulty')
+		_log.exception('the OS locale setup seems faulty')
 
-	_log.Log(gmLog.lData, 'encoding sanity check (also check "locale.nl_langinfo(CODESET)" below):')
+	_log.debug('encoding sanity check (also check "locale.nl_langinfo(CODESET)" below):')
 	pref_loc_enc = locale.getpreferredencoding(do_setlocale=False)
 	loc_enc = locale.getlocale()[1]
 	py_str_enc = sys.getdefaultencoding()
 	sys_fs_enc = sys.getfilesystemencoding()
-	_log.Log(gmLog.lData, 'sys.getdefaultencoding(): [%s]' % py_str_enc)
-	_log.Log(gmLog.lData, 'locale.getpreferredencoding(): [%s]' % pref_loc_enc)
-	_log.Log(gmLog.lData, 'locale.getlocale()[1]: [%s]' % loc_enc)
-	_log.Log(gmLog.lData, 'sys.getfilesystemencoding(): [%s]' % sys_fs_enc)
+	_log.debug('sys.getdefaultencoding(): [%s]' % py_str_enc)
+	_log.debug('locale.getpreferredencoding(): [%s]' % pref_loc_enc)
+	_log.debug('locale.getlocale()[1]: [%s]' % loc_enc)
+	_log.debug('sys.getfilesystemencoding(): [%s]' % sys_fs_enc)
 	if loc_enc is not None:
 		loc_enc = loc_enc.upper()
 	if pref_loc_enc.upper() != loc_enc:
-		_log.Log(gmLog.lWarn, 'encoding suggested by locale (%s) does not match encoding currently set in locale (%s)' % (pref_loc_enc, loc_enc))
-		_log.Log(gmLog.lWarn, 'this might lead to encoding errors')
+		_log.warning('encoding suggested by locale (%s) does not match encoding currently set in locale (%s)' % (pref_loc_enc, loc_enc))
+		_log.warning('this might lead to encoding errors')
 	import codecs
 	for enc in [pref_loc_enc, loc_enc, py_str_enc, sys_fs_enc]:
 		if enc is not None:
 			try:
 				codecs.lookup(enc)
-				_log.Log(gmLog.lData, '<codecs> module CAN handle encoding [%s]' % enc)
+				_log.debug('<codecs> module CAN handle encoding [%s]' % enc)
 			except LookupError:
-				_log.Log(gmLog.lWarn, '<codecs> module can NOT handle encoding [%s]' % enc)
-	_log.Log(gmLog.lData, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
+				_log.warning('<codecs> module can NOT handle encoding [%s]' % enc)
+	_log.debug('on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
 
-	_log.Log(gmLog.lData, 'locale related environment variables (${LANG} is typically used):')
+	_log.debug('locale related environment variables (${LANG} is typically used):')
 	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
 		try:
-			_log.Log(gmLog.lData, '${%s}=%s' % (var, os.environ[var]))
+			_log.debug('${%s}=%s' % (var, os.environ[var]))
 		except KeyError:
-			_log.Log(gmLog.lData, '${%s} not set' % (var))
+			_log.debug('${%s} not set' % (var))
 
-	_log.Log(gmLog.lData, 'database of locale conventions:')
+	_log.debug('database of locale conventions:')
 	data = locale.localeconv()
 	for key in data.keys():
-		_log.Log(gmLog.lData, 'locale.localeconv(%s): %s' % (key, data[key]))
+		_log.debug('locale.localeconv(%s): %s' % (key, data[key]))
 
 	_nl_langinfo_categories = {}
 	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
 		try:
 			_nl_langinfo_categories[category] = getattr(locale, category)
 		except:
-			_log.Log(gmLog.lWarn, 'this OS does not support nl_langinfo category locale.%s' % category)
+			_log.warning('this OS does not support nl_langinfo category locale.%s' % category)
 	try:
 		for category in _nl_langinfo_categories.keys():
-			_log.Log(gmLog.lData, 'locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
+			_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
 	except:
-		_log.LogException('this OS does not support nl_langinfo', sys.exc_info())
+		_log.exception('this OS does not support nl_langinfo')
 
 #---------------------------------------------------------------------------
 def activate_locale():
@@ -184,21 +174,21 @@ def activate_locale():
 		loc, loc_enc = locale.getlocale()
 		if loc is None:
 			loc = locale.setlocale(locale.LC_ALL, '')
-			_log.Log(gmLog.lData, "activating user-default locale with <locale.setlocale(locale.LC_ALL, '')> returns: [%s]" % loc)
+			_log.debug("activating user-default locale with <locale.setlocale(locale.LC_ALL, '')> returns: [%s]" % loc)
 		else:
-			_log.Log(gmLog.lInfo, 'user-default locale already activated')
+			_log.info('user-default locale already activated')
 		loc, loc_enc = locale.getlocale()
 	except AttributeError:
-		_log.LogException('Windows does not support locale.LC_ALL', sys.exc_info(), verbose=0)
+		_log.exception('Windows does not support locale.LC_ALL')
 	except:
-		_log.LogException('error activating user-default locale', sys.exc_info(), verbose=0)
+		_log.exception('error activating user-default locale')
 
 	# logging state of affairs
 	__log_locale_settings('locale settings after activating user-default locale')
 
 	# did we find any locale setting ? assume en_EN if not
 	if loc in [None, 'C']:
-		_log.Log(gmLog.lErr, 'the current system locale is still [None] or [C], assuming [en_EN]')
+		_log.error('the current system locale is still [None] or [C], assuming [en_EN]')
 		system_locale = "en_EN"
 	else:
 		system_locale = loc
@@ -215,72 +205,72 @@ def install_domain(domain=None, language=None):
 	if domain is None:
 		# get text domain from name of script
 		domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-	_log.Log(gmLog.lInfo, 'text domain is [%s]' % domain)
+	_log.info('text domain is [%s]' % domain)
 
-	_log.Log(gmLog.lData, 'searching message catalog file for system locale [%s]' % system_locale)
+	_log.debug('searching message catalog file for system locale [%s]' % system_locale)
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
 		tmp = os.getenv(env_var)
 		if env_var is None:
-			_log.Log(gmLog.lData, '${%s} not set' % env_var)
+			_log.debug('${%s} not set' % env_var)
 		else:
-			_log.Log(gmLog.lData, '${%s} = [%s]' % (env_var, tmp))
+			_log.debug('${%s} = [%s]' % (env_var, tmp))
 
 	if language is not None:
-		_log.Log(gmLog.lInfo, 'explicit setting of ${LANG} requested: [%s]' % language)
-		_log.Log(gmLog.lInfo, 'this will override the system locale language setting')
+		_log.info('explicit setting of ${LANG} requested: [%s]' % language)
+		_log.info('this will override the system locale language setting')
 		os.environ['LANG'] = language
 
 	# search for message catalog
 	candidates = []
 	# 1) try standard places first
 	if os.name == 'posix':
-		_log.Log(gmLog.lData, 'system is POSIX, looking in standard locations (see Python Manual)')
+		_log.debug('system is POSIX, looking in standard locations (see Python Manual)')
 		# if this is reported to segfault/fail/except on some
 		# systems we may have to assume "sys.prefix/share/locale/"
 		candidates.append(gettext.bindtextdomain(domain))
 	else:
-		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
+		_log.debug('No use looking in standard POSIX locations - not a POSIX system.')
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
-	_log.Log(gmLog.lData, 'looking at ${%s}' % env_key)
+	_log.debug('looking at ${%s}' % env_key)
 	if os.environ.has_key(env_key):
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'locale'))
-		_log.Log(gmLog.lData, '${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
+		_log.debug('${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		candidates.append(loc_dir)
 	else:
-		_log.Log(gmLog.lInfo, "${%s} not set" % env_key)
+		_log.info("${%s} not set" % env_key)
 	# 3) one level above path to binary
 	#    last resort for inferior operating systems such as DOS/Windows
 	#    strip one directory level
 	#    this is a rather neat trick :-)
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
-	_log.Log(gmLog.lData, 'looking above binary install directory [%s]' % loc_dir)
+	_log.debug('looking above binary install directory [%s]' % loc_dir)
 	candidates.append(loc_dir)
 	# 4) in path to binary
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
-	_log.Log(gmLog.lData, 'looking in binary install directory [%s]' % loc_dir)
+	_log.debug('looking in binary install directory [%s]' % loc_dir)
 	candidates.append(loc_dir)
 
 	# now try to actually install it
 	for candidate in candidates:
-		_log.Log(gmLog.lData, 'trying [%s](/%s/LC_MESSAGES/%s.mo)' % (candidate, system_locale, domain))
+		_log.debug('trying [%s](/%s/LC_MESSAGES/%s.mo)' % (candidate, system_locale, domain))
 		if not os.path.exists(candidate):
 			continue
 		try:
 			gettext.install(domain, candidate, unicode=1)
 		except:
-			_log.LogException('installing text domain [%s] failed from [%s]' % (domain, candidate), sys.exc_info(), verbose=0)
+			_log.exception('installing text domain [%s] failed from [%s]' % (domain, candidate))
 			continue
 		# does it translate ?
 		if _(__tag__) == __tag__:
-			_log.Log(gmLog.lData, 'does not translate: [%s] => [%s]' % (__tag__, _(__tag__)))
+			_log.debug('does not translate: [%s] => [%s]' % (__tag__, _(__tag__)))
 			continue
 		else:
-			_log.Log(gmLog.lData, 'found msg catalog: [%s] => [%s]' % (__tag__, _(__tag__)))
+			_log.debug('found msg catalog: [%s] => [%s]' % (__tag__, _(__tag__)))
 			return True
 
 	# 5) install a dummy translation class
-	_log.Log(gmLog.lWarn, "Giving up and falling back to NullTranslations() class in despair.")
+	_log.warning("Giving up and falling back to NullTranslations() class in despair.")
 	# this shouldn't fail
 	dummy = gettext.NullTranslations()
 	dummy.install()
@@ -294,31 +284,41 @@ def get_encoding():
 	returns None. So in that case try to fallback to
 	locale.getpreferredencoding().
 	"""
-	return gmTools.coalesce (
-		locale.getlocale()[1],
-		locale.getpreferredencoding()
-	)
+	loc = locale.getlocale()[1]
+	if loc is not None:
+		return loc
+	return locale.getpreferredencoding()
 #===========================================================================
 # Main
 #---------------------------------------------------------------------------
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
 
-	print "======================================================================"
-	print __doc__
-	print "======================================================================"
-	print "authors:", __author__
-	print "license:", __license__, "; version:", __version__
-	activate_locale()
-	print "system locale: ", system_locale, "; levels:", system_locale_level
-	install_domain()
-	# == do not remove this line =============================
-	tmp = _('translate this or i18n will not work properly !')
-	# ========================================================
+	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+
+#		# GNUmed libs
+#		sys.path.insert(0, '../../')
+#		from Gnumed.pycommon import gmLog2
+
+		print "======================================================================"
+		print __doc__
+		print "======================================================================"
+		print "authors:", __author__
+		print "license:", __license__, "; version:", __version__
+		activate_locale()
+		print "system locale: ", system_locale, "; levels:", system_locale_level
+		install_domain()
+		# ********************************************************
+		# == do not remove this line =============================
+		tmp = _('translate this or i18n will not work properly !')
+		# ********************************************************
+		# ********************************************************
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.33  2007-07-10 20:34:37  ncq
+# Revision 1.34  2007-12-11 14:27:02  ncq
+# - use std logging
+#
+# Revision 1.33  2007/07/10 20:34:37  ncq
 # - in install_domain(): rename text_domain arg to domain
 #
 # Revision 1.32  2007/04/01 15:20:52  ncq

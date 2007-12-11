@@ -8,18 +8,20 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.23 2007-12-02 20:59:13 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmMatchProvider.py,v 1.24 2007-12-11 14:31:11 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
-import string, types, time, sys, re
+import string, types, time, sys, re, logging
+
 
 # GNUmed
-import gmPG2, gmExceptions, gmLog
+import gmPG2, gmExceptions
 
-_log = gmLog.gmDefLog
 
+_log = logging.getLogger('gnumed.phrasewheel')
+_log.info(__version__)
 #============================================================
 class cMatchProvider:
 	"""Base class for match providing objects.
@@ -124,10 +126,10 @@ class cMatchProvider:
 		"""
 		# sanity checks
 		if aSubstring < aWord:
-			_log.Log(gmLog.lErr, 'Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_substring, self.__threshold_word))
+			_log.error('Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_substring, self.__threshold_word))
 			return (1==0)
 		if aWord < aPhrase:
-			_log.Log(gmLog.lErr, 'Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_word, self.__threshold_phrase))
+			_log.error('Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_word, self.__threshold_phrase))
 			return (1==0)
 
 		# now actually reassign thresholds
@@ -142,12 +144,12 @@ class cMatchProvider:
 			self.word_separators = cMatchProvider.default_word_separators
 			return 1
 		if separators == "":
-			_log.Log(gmLog.lErr, 'Not defining any word separators does not make sense ! Keeping previous setting.')
+			_log.error('Not defining any word separators does not make sense ! Keeping previous setting.')
 			return None
 		try:
 			self.word_separators = re.compile(separators)
 		except:
-			_log.LogException('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
+			_log.exception('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
 			return None
 		return True
 	#--------------------------------------------------------
@@ -158,7 +160,7 @@ class cMatchProvider:
 		try:
 			self.ignored_chars = re.compile(ignored_chars)
 		except:
-			_log.LogException('cannot compile ignored_chars regex >>>%s<<<, keeping previous setting' % ignored_chars)
+			_log.exception('cannot compile ignored_chars regex >>>%s<<<, keeping previous setting' % ignored_chars)
 			return None
 		return True
 	#--------------------------------------------------------
@@ -211,7 +213,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		"""aSeq must be a list of dicts. Each dict must have the keys (data, label, weight)
 		"""
 		if not type(aSeq) in [types.ListType, types.TupleType]:
-			_log.Log(gmLog.lErr, 'fixed list match provider argument must be a list or tuple of dicts')
+			_log.error('fixed list match provider argument must be a list or tuple of dicts')
 			raise gmExceptions.ConstructorError
 
 		self.__items = aSeq
@@ -305,7 +307,7 @@ class cMatchProvider_Func(cMatchProvider):
 	def __init__(self, get_candidates = None):
 		"""get_candidates() must return a list of strings."""
 		if get_candidates is None:
-			_log.Log(gmLog.lErr, 'must define function to retrieve match candidates list')
+			_log.error('must define function to retrieve match candidates list')
 			raise gmException.ConstructorError, 'must define match candidates function'
 		self._get_candidates = get_candidates
 		cMatchProvider.__init__(self)
@@ -461,7 +463,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
 			except:
-				_log.LogException('Error running match provider SQL, dropping query.')
+				_log.exception('Error running match provider SQL, dropping query.')
 				idx = self._queries.index(query)
 				del self._queries[idx]
 				break
@@ -482,7 +484,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.23  2007-12-02 20:59:13  ncq
+# Revision 1.24  2007-12-11 14:31:11  ncq
+# - use std logging
+#
+# Revision 1.23  2007/12/02 20:59:13  ncq
 # - drop failing queries
 #
 # Revision 1.22  2007/07/03 15:57:24  ncq
