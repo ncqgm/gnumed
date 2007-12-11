@@ -33,9 +33,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.34 2007-12-11 14:27:02 ncq Exp $
+# $Id: gmI18N.py,v 1.35 2007-12-11 15:36:18 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -295,6 +295,11 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 1 and sys.argv[1] == u'test':
 
+		logging.basicConfig (
+			level = logging.DEBUG
+#			stream = _default_logfile
+		)
+
 #		# GNUmed libs
 #		sys.path.insert(0, '../../')
 #		from Gnumed.pycommon import gmLog2
@@ -315,7 +320,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.34  2007-12-11 14:27:02  ncq
+# Revision 1.35  2007-12-11 15:36:18  ncq
+# - no more gmLog2.py importing
+#
+# Revision 1.34  2007/12/11 14:27:02  ncq
 # - use std logging
 #
 # Revision 1.33  2007/07/10 20:34:37  ncq
