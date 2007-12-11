@@ -1,4 +1,4 @@
-"""GnuMed command line options handling.
+"""GNUmed command line options handling.
 
 All command line argument handling should go through this module.
 
@@ -43,13 +43,14 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, getopt, string, re
-import gmLog
+import sys, getopt, string, re, logging
 
-_log = gmLog.gmDefLog
+
+_log = logging.getLogger('gnumed.cli')
+_log.info(__version__)
 _cli_args = {}
 
 # define global shortcuts
@@ -63,11 +64,7 @@ def _preparse_cmdline():
 	- this is needed to tell getopt which options to get
 	- ALL logging in here is lData level noise
 	"""
-	# contract "option = value" to "option=value"
-#	cmd_line = re.sub('(\s|\t)*=(\s|\t)*', '=', string.join(sys.argv[1:]))
-#	_log.Log(gmLog.lData, "normalized command line is >>%s<<" % cmd_line)
-#	arg_list = map(lambda x: '-%s' % x, re.split('[\s\t]+-', cmd_line))
-	_log.Log(gmLog.lData, "unparsed command line is >>%s<<" % string.join(sys.argv))
+	_log.debug("unparsed command line is >>%s<<" % string.join(sys.argv))
 	opts = []
 	short_opt_names = ""
 	long_opt_names = []
@@ -84,7 +81,6 @@ def _preparse_cmdline():
 		# is this an option ?
 		if arg[0:1] == "-":
 			# yes it is
-
 			# strip trailing values (=...)
 			val_pos = string.find(arg, "=")
 			if val_pos != -1:
@@ -103,7 +99,7 @@ def _preparse_cmdline():
 				opts.append("-%s" % opt)
 				# but log a warning
 				if len(arg) > 2:
-					_log.Log(gmLog.lWarn, 'Unable to handle aggregated short arguments. Had to truncate "short" option "%s" to "-%s".' % (arg, opt))
+					_log.warning('Unable to handle aggregated short arguments. Had to truncate "short" option "%s" to "-%s".' % (arg, opt))
 			else:
 				# long option ("--opt")
 				opt = opt[2:]
@@ -111,7 +107,7 @@ def _preparse_cmdline():
 				opts.append(arg)
 		else:
 			# nope (so maybe a filename)
-			_log.Log(gmLog.lInfo, 'argument <%s> does not seem to be an option argument since it does not start with a "-"' % arg)
+			_log.info('argument <%s> does not seem to be an option argument since it does not start with a "-"' % arg)
 
 	return short_opt_names, long_opt_names, opts
 #---------------------------------------------------------------------
@@ -123,50 +119,44 @@ def _parse_opts(short_names, long_names, arg_list):
 	try:
 		(opts, args) = getopt.getopt(arg_list, short_names, long_names)
 	except getopt.GetoptError:
-		_log.Log(gmLog.lWarn, "problem parsing command line")
-		exc = sys.exc_info()
-		_log.LogException("Non-fatal exception caught:", exc, verbose=0)
+		_log.exception("problem parsing command line")
 
 	for opt in opts:
 		_cli_args[opt[0]] = opt[1]
 
-	_log.Log(gmLog.lData, "command line arguments: %s" % str(_cli_args))
+	_log.debug("command line arguments: %s" % str(_cli_args))
 ######################################################################
 # Main
 #=====================================================================
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-
-_log.Log(gmLog.lData, __version__)
-
 if __name__ == "__main__":
-	_ = lambda x:x
-	print "testing gmCLI"
-	print "============="
-	print "You gave me the following arguments on the command line:"
-	(shorts, longs, opts) = _preparse_cmdline()
-	print "short options:", shorts
-	print "long  options:", longs
-	_parse_opts(shorts, longs, opts)
-	print "This yields the following command line arguments dictionary:"
-	print _cli_args
-	if has_arg("--help") or has_arg("-h") or has_arg("-?"):
-		print "You requested help. Wise you."
-		print __doc__
+
+	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+		print "testing gmCLI"
+		print "============="
+		print "You gave me the following arguments on the command line:"
+		(shorts, longs, opts) = _preparse_cmdline()
+		print "short options:", shorts
+		print "long  options:", longs
+		_parse_opts(shorts, longs, opts)
+		print "This yields the following command line arguments dictionary:"
+		print _cli_args
+
+		if has_arg("--help") or has_arg("-h") or has_arg("-?"):
+			print "You requested help. Wise you."
+			print __doc__
+		else:
+			print "You might wanna try --help, -h, or -?"
+
 	else:
-		print "You might wanna try --help, -h, or -?"
-
-	print "======================================================================"
-	print __doc__
-	print "======================================================================"
-
-else:
-	(shorts, longs, opts) = _preparse_cmdline()
-	_parse_opts(shorts, longs, opts)
+		(shorts, longs, opts) = _preparse_cmdline()
+		_parse_opts(shorts, longs, opts)
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.3  2007-03-08 16:19:30  ncq
+# Revision 1.4  2007-12-11 14:17:50  ncq
+# - use stdlib logging and fix test suite
+#
+# Revision 1.3  2007/03/08 16:19:30  ncq
 # - typo and cleanup
 #
 # Revision 1.2  2004/05/11 08:09:19  ncq
