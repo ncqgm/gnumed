@@ -194,14 +194,11 @@ def send(signal=None, sender=None, **kwds):
 			response = _call(receiver, signal=signal, sender=sender, **kwds)
 			responses += [(receiver, response)]
 		except:
-			# this seems such a fundamental error that it appears reasonable
-			# to print directly to the console instead of making the whole
-			# module depend on gmLog.py
+			# this seems such a fundamental error that it appears
+			# reasonable to print directly to the console
 			typ, val, tb = sys.exc_info()
-			_log.error('%(t)s, <%(v)s>', {'t': typ, 'v': val})
-			_log.error('calling <%(rx)s> failed', {'rx': str(receiver)})
-			print 'DISPATCHER ERROR: %s <%s>' % (typ, val)
-			print 'DISPATCHER ERROR: calling <%s> failed' % str(receiver)
+			_log.critical('%(t)s, <%(v)s>', {'t': typ, 'v': val})
+			_log.critical('calling <%(rx)s> failed', {'rx': str(receiver)})
 			traceback.print_tb(tb)
 	return responses
 #---------------------------------------------------------------------
@@ -304,7 +301,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.12  2007-12-11 14:19:27  ncq
+# Revision 1.13  2007-12-11 15:35:46  ncq
+# - log, don't print, but critical
+#
+# Revision 1.12  2007/12/11 14:19:27  ncq
 # - stdlib logging
 #
 # Revision 1.11  2007/11/02 13:52:52  ncq
