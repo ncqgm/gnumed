@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.95 2007-09-24 22:05:57 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmSOAPWidgets.py,v 1.96 2007-12-12 16:24:57 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import types
 import wx
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmTools
+from Gnumed.pycommon import gmDispatcher, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmTools
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
@@ -194,10 +194,10 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		# wxPython events
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.pre_patient_selection(), receiver=self._on_pre_patient_selection)
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
-		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
-		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
+		gmDispatcher.connect(signal='pre_patient_selection', receiver=self._on_pre_patient_selection)
+		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal='episodes_modified', receiver=self._on_episodes_modified)
+		gmDispatcher.connect(signal='application_closing', receiver=self._on_application_closing)
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		"""Another patient is about to be activated."""
@@ -391,8 +391,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._on_post_patient_selection)
-		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
+		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
+		gmDispatcher.connect(signal='episodes_modified', receiver=self._on_episodes_modified)
 		# FIXME: issues modified missing
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
@@ -871,8 +871,8 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self._on_discard_note)
 
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._save_note)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_note)
+		gmDispatcher.connect(signal = 'pre_patient_selection', receiver = self._save_note)
+		gmDispatcher.connect(signal = 'application_closing', receiver = self._save_note)
 
 		return True
 	#--------------------------------------------------------
@@ -1076,7 +1076,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.95  2007-09-24 22:05:57  ncq
+# Revision 1.96  2007-12-12 16:24:57  ncq
+# - explicit signals
+#
+# Revision 1.95  2007/09/24 22:05:57  ncq
 # - ask user for episode name when needed
 #
 # Revision 1.94  2007/08/12 00:12:41  ncq
