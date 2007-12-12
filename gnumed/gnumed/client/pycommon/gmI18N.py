@@ -33,9 +33,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.35 2007-12-11 15:36:18 ncq Exp $
+# $Id: gmI18N.py,v 1.36 2007-12-12 16:18:31 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -43,7 +43,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 import sys, os.path, os, re as regex, locale, gettext, logging
 
 
-_log = logging.getLogger('gnumed.i18n')
+_log = logging.getLogger('gm.i18n')
 _log.info(__version__)
 
 system_locale = ''
@@ -145,8 +145,13 @@ def __log_locale_settings(message=None):
 	_log.debug('database of locale conventions:')
 	data = locale.localeconv()
 	for key in data.keys():
-		_log.debug('locale.localeconv(%s): %s' % (key, data[key]))
-
+		if loc_enc is None:
+			_log.debug(u'locale.localeconv(%s): %s', key, data[key])
+		else:
+			try:
+				_log.debug(u'locale.localeconv(%s): %s', key, unicode(data[key]))
+			except UnicodeDecodeError:
+				_log.debug(u'locale.localeconv(%s): %s', key, unicode(data[key], loc_enc))
 	_nl_langinfo_categories = {}
 	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
 		try:
@@ -155,10 +160,15 @@ def __log_locale_settings(message=None):
 			_log.warning('this OS does not support nl_langinfo category locale.%s' % category)
 	try:
 		for category in _nl_langinfo_categories.keys():
-			_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
+			if loc_enc is None:
+				_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
+			else:
+				try:
+					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category])))
+				except UnicodeDecodeError:
+					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
 	except:
 		_log.exception('this OS does not support nl_langinfo')
-
 #---------------------------------------------------------------------------
 def activate_locale():
 	"""Get system locale from environment."""
@@ -287,7 +297,7 @@ def get_encoding():
 	loc = locale.getlocale()[1]
 	if loc is not None:
 		return loc
-	return locale.getpreferredencoding()
+	return locale.getpreferredencoding(do_setlocale=False)
 #===========================================================================
 # Main
 #---------------------------------------------------------------------------
@@ -295,14 +305,7 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 1 and sys.argv[1] == u'test':
 
-		logging.basicConfig (
-			level = logging.DEBUG
-#			stream = _default_logfile
-		)
-
-#		# GNUmed libs
-#		sys.path.insert(0, '../../')
-#		from Gnumed.pycommon import gmLog2
+		logging.basicConfig(level = logging.DEBUG)
 
 		print "======================================================================"
 		print __doc__
@@ -320,7 +323,12 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.35  2007-12-11 15:36:18  ncq
+# Revision 1.36  2007-12-12 16:18:31  ncq
+# - cleanup
+# - need to be careful about logging locale settings since
+#   they come in the active locale ...
+#
+# Revision 1.35  2007/12/11 15:36:18  ncq
 # - no more gmLog2.py importing
 #
 # Revision 1.34  2007/12/11 14:27:02  ncq
