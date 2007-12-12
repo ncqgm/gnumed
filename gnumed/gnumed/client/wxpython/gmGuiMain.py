@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.376 2007-12-11 12:49:26 ncq Exp $
-__version__ = "$Revision: 1.376 $"
+# $Id: gmGuiMain.py,v 1.377 2007-12-12 16:24:32 ncq Exp $
+__version__ = "$Revision: 1.377 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -63,7 +63,6 @@ except NameError:
 
 _cfg = gmCfg.gmDefCfgFile
 _provider = None
-email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
@@ -2050,7 +2049,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.376  2007-12-11 12:49:26  ncq
+# Revision 1.377  2007-12-12 16:24:32  ncq
+# - cleanup
+#
+# Revision 1.376  2007/12/11 12:49:26  ncq
 # - explicit signal handling
 #
 # Revision 1.375  2007/12/06 10:47:14  ncq
