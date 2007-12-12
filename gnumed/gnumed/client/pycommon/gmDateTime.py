@@ -35,9 +35,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.15 2007-12-11 14:18:20 ncq Exp $
+# $Id: gmDateTime.py,v 1.16 2007-12-12 16:17:15 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -50,7 +50,7 @@ import mx.DateTime as mxDT
 import psycopg2						# this will go once datetime has timezone classes
 
 
-_log = logging.getLogger('gnumed.datetime')
+_log = logging.getLogger('gm.datetime')
 _log.info(__version__)
 
 
@@ -928,7 +928,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.15  2007-12-11 14:18:20  ncq
+# Revision 1.16  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.15  2007/12/11 14:18:20  ncq
 # - stdlib logging
 #
 # Revision 1.14  2007/09/04 23:28:06  ncq

@@ -43,13 +43,13 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string, re, logging
 
 
-_log = logging.getLogger('gnumed.cli')
+_log = logging.getLogger('gm.cli')
 _log.info(__version__)
 _cli_args = {}
 
@@ -153,7 +153,10 @@ else:
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.5  2007-12-11 15:34:50  ncq
+# Revision 1.6  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.5  2007/12/11 15:34:50  ncq
 # - fix faulty indenting
 #
 # Revision 1.4  2007/12/11 14:17:50  ncq

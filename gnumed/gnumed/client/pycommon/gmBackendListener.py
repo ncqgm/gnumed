@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher, gmExceptions, gmBorg
 
 
-_log = logging.getLogger('gnumed.database')
+_log = logging.getLogger('gm.database')
 _log.info(__version__)
 #=====================================================================
 class gmBackendListener(gmBorg.cBorg):
@@ -370,7 +370,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.13  2007-12-11 14:16:29  ncq
+# Revision 1.14  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.13  2007/12/11 14:16:29  ncq
 # - cleanup
 # - use logging
 #

@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.15 2007-12-11 14:31:12 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmMimeLib.py,v 1.16 2007-12-12 16:17:15 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ if __name__ == '__main__':
 import gmShellAPI, gmTools, gmCfg
 
 
-_log = logging.getLogger('gnumed.docs')
+_log = logging.getLogger('gm.docs')
 _log.info(__version__)
 #=======================================================================================
 def guess_mimetype(aFileName = None):
@@ -256,7 +256,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.15  2007-12-11 14:31:12  ncq
+# Revision 1.16  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.15  2007/12/11 14:31:12  ncq
 # - use std logging
 #
 # Revision 1.14  2007/10/12 14:19:18  ncq

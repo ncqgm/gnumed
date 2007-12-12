@@ -4,13 +4,13 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select, logging
 
 
-_log = logging.getLogger('gnumed.scripting')
+_log = logging.getLogger('gm.scripting')
 _log.info(__version__)
 #=====================================================================
 class cScriptingListener:
@@ -131,7 +131,10 @@ if __name__ == "__main__":
 		listener.shutdown()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.4  2007-12-11 15:39:01  ncq
+# Revision 1.5  2007-12-12 16:17:16  ncq
+# - better logger names
+#
+# Revision 1.4  2007/12/11 15:39:01  ncq
 # - use std lib logging
 #
 # Revision 1.3  2007/12/03 20:43:53  ncq

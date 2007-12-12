@@ -2,8 +2,8 @@
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmScanBackend.py,v $
-# $Id: gmScanBackend.py,v 1.51 2007-12-11 15:38:29 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmScanBackend.py,v 1.52 2007-12-12 16:17:15 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __license__ = "GPL"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmShellAPI, gmTools, gmI18N
 
 
-_log = logging.getLogger('gnumed.scanning')
+_log = logging.getLogger('gm.scanning')
 _log.info(__version__)
 
 _twain_module = None
@@ -486,7 +486,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmScanBackend.py,v $
-# Revision 1.51  2007-12-11 15:38:29  ncq
+# Revision 1.52  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.51  2007/12/11 15:38:29  ncq
 # - no more gmLog2
 #
 # Revision 1.50  2007/12/11 14:33:48  ncq

@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.3 2007-12-11 14:33:48 ncq Exp $
+# $Id: gmShellAPI.py,v 1.4 2007-12-12 16:17:16 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -12,7 +12,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 import os, sys, logging
 
 
-_log = logging.getLogger('gnumed.shell')
+_log = logging.getLogger('gm.shell')
 _log.info(__version__)
 
 #===========================================================================
@@ -80,8 +80,7 @@ if __name__ == '__main__':
 
 	if len(sys.argv) > 1 and sys.argv[1] == u'test':
 
-		sys.path.insert(0, '../../')
-		from Gnumed.pycommon import gmLog2
+		logging.basicConfig(level = logging.DEBUG)
 
 		print "-------------------------------------"
 		print "running:", sys.argv[2]
@@ -94,7 +93,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.3  2007-12-11 14:33:48  ncq
+# Revision 1.4  2007-12-12 16:17:16  ncq
+# - better logger names
+#
+# Revision 1.3  2007/12/11 14:33:48  ncq
 # - use standard logging module
 #
 # Revision 1.2  2007/03/31 21:20:34  ncq

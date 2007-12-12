@@ -5,8 +5,8 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.9 2007-12-11 14:33:48 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPsql.py,v 1.10 2007-12-12 16:17:15 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -14,7 +14,7 @@ __license__ = "GPL (details at http://www.gnu.org)"
 import sys, os, string, re, urllib2, logging
 
 
-_log = logging.getLogger('gnumed.bootstrapper')
+_log = logging.getLogger('gm.bootstrapper')
 _log.info(__version__)
 #===================================================================
 def shellrun (cmd):
@@ -256,7 +256,10 @@ if __name__ == '__main__':
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.9  2007-12-11 14:33:48  ncq
+# Revision 1.10  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.9  2007/12/11 14:33:48  ncq
 # - use standard logging module
 #
 # Revision 1.8  2007/08/20 14:22:05  ncq

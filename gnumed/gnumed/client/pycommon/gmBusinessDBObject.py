@@ -126,8 +126,8 @@ which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.47 2007-12-11 14:17:18 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmBusinessDBObject.py,v 1.48 2007-12-12 16:17:15 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions, gmPG2
 
 
-_log = logging.getLogger('gnumed.database')
+_log = logging.getLogger('gm.database')
 _log.info(__version__)
 #============================================================
 class cBusinessDBObject:
@@ -442,7 +442,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.47  2007-12-11 14:17:18  ncq
+# Revision 1.48  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.47  2007/12/11 14:17:18  ncq
 # - use stdlib logging
 #
 # Revision 1.46  2007/11/28 13:58:32  ncq

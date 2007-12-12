@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg
 
 
-_log = logging.getLogger('gnumed.database')
+_log = logging.getLogger('gm.database')
 _log.info(__version__)
 
 
@@ -1272,7 +1272,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.64  2007-12-11 15:38:11  ncq
+# Revision 1.65  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.64  2007/12/11 15:38:11  ncq
 # - use std logging
 #
 # Revision 1.63  2007/12/06 13:07:19  ncq

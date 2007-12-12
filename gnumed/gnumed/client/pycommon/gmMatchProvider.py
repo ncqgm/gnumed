@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.24 2007-12-11 14:31:11 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmMatchProvider.py,v 1.25 2007-12-12 16:17:15 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -20,7 +20,7 @@ import string, types, time, sys, re, logging
 import gmPG2, gmExceptions
 
 
-_log = logging.getLogger('gnumed.phrasewheel')
+_log = logging.getLogger('gm.ui')
 _log.info(__version__)
 #============================================================
 class cMatchProvider:
@@ -484,7 +484,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.24  2007-12-11 14:31:11  ncq
+# Revision 1.25  2007-12-12 16:17:15  ncq
+# - better logger names
+#
+# Revision 1.24  2007/12/11 14:31:11  ncq
 # - use std logging
 #
 # Revision 1.23  2007/12/02 20:59:13  ncq
