@@ -1,4 +1,4 @@
-"""GNUmed log framework.
+"""GNUmed loggin framework setup.
 
 All error logging, user notification and otherwise unhandled 
 exception handling should go through classes or functions of 
@@ -36,8 +36,8 @@ some messages separate from others.
 """
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.1 2007-12-11 10:03:45 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmLog2.py,v 1.2 2007-12-12 16:23:21 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -46,41 +46,42 @@ __license__ = "GPL (details at http://www.gnu.org)"
 import logging, sys, os, codecs
 
 
-_default_logfile_name = None
-_default_logfile = None
+_logfile_name = None
+_logfile = None
 #===============================================================
-def setup_default_logging():
+def __setup_logging():
 
-	global _default_logfile
-	if _default_logfile is not None:
+	global _logfile
+	if _logfile is not None:
 		return True
 
-	if not __find_default_logfile():
+	if not __get_logfile_name():
 		return False
 
 	if sys.version[:3] < '2.5':
-		fmt = '%(asctime)s  [%(levelname)-7s]  %(name)s (%(pathname)s @ #%(lineno)d): %(message)s'
+		fmt = '%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s @ #%(lineno)d): %(message)s'
 	else:
-		fmt = '%(asctime)s  [%(levelname)-7s]  %(name)s (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
+		fmt = '%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 
-	_default_logfile = codecs.open(filename = _default_logfile_name, mode = 'wb', encoding = 'utf8', errors = 'replace')
+	_logfile = codecs.open(filename = _logfile_name, mode = 'wb', encoding = 'utf8', errors = 'replace')
 
 	logging.basicConfig (
 		format = fmt,
 		datefmt = '%Y-%m-%d %H:%M:%S',
 		level = logging.DEBUG,
-		stream = _default_logfile
+		stream = _logfile
 	)
 
-	# activate things
-	# FIXME: really needed ?
-	logger = logging.getLogger('GNUmed compat logger')
+	logger = logging.getLogger('gm.logging')
+	logger.critical(u'-------- start of logging ------------------------------')
+	logger.info(u'log file is <%s>', _logfile_name)
+	logger.info(u'log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
 #---------------------------------------------------------------
-def __find_default_logfile():
+def __get_logfile_name():
 
-	global _default_logfile_name
-	if _default_logfile_name is not None:
-		return _default_logfile_name
+	global _logfile_name
+	if _logfile_name is not None:
+		return _logfile_name
 
 	def_log_basename = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 	def_log_name = def_log_basename + '.log'
@@ -94,7 +95,7 @@ def __find_default_logfile():
 				dir = '.'
 			if name == '':
 				name = def_log_name
-			_default_logfile_name = os.path.abspath(os.path.expanduser(os.path.join(dir, name)))
+			_logfile_name = os.path.abspath(os.path.expanduser(os.path.join(dir, name)))
 			return True
 
 	# else store it in ~/.def_log_basename/def_log_name
@@ -105,26 +106,30 @@ def __find_default_logfile():
 		if (e.errno == 17) and not os.path.isdir(dir):
 			raise
 
-	_default_logfile_name = os.path.join(dir, def_log_name)
+	_logfile_name = os.path.join(dir, def_log_name)
 
 	return True
 #===============================================================
 # main
 #---------------------------------------------------------------
-setup_default_logging()
+__setup_logging()
 
 if __name__ == '__main__':
 
 	#-----------------------------------------------------------
 	def test():
-		my_logger.error("I expected to see %s::test()" % __file__)
+		logger = logging.getLogger('logging-test')
+		logger.error("I expected to see %s::test()" % __file__)
 	#-----------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == u'test':
-		my_logger = logging.getLogger('logging-test')
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.1  2007-12-11 10:03:45  ncq
+# Revision 1.2  2007-12-12 16:23:21  ncq
+# - we want the default to be the default in GNUmed,
+#   no need to call it that
+#
+# Revision 1.1  2007/12/11 10:03:45  ncq
 # - eventually start switching to Python standard logging
 #
 #
