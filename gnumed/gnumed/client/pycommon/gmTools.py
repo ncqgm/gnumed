@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.44 2007-12-11 14:33:48 ncq Exp $
+# $Id: gmTools.py,v 1.45 2007-12-12 16:24:09 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -19,7 +19,7 @@ from Gnumed.pycommon import gmBorg
 
 
 _ = lambda x:x
-_log = logging.getLogger('gnumed.tools')
+_log = logging.getLogger('gm.tools')
 _log.info(__version__)
 
 # CAPitalization modes:
@@ -49,7 +49,7 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
 		# decode UTF-8 back to Unicode, cell by cell:
 		yield [unicode(cell, 'utf-8') for cell in row]
 #===========================================================================
-def handle_uncaught_exception(t, v, tb):
+def handle_uncaught_exception_console(t, v, tb):
 
 	print ",========================================================"
 	print "| Unhandled exception caught !"
@@ -654,7 +654,7 @@ This is a test mail from the gmTools.py module.
 	#-----------------------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		from Gnumed.pycommon import gmLog2
+		logging.basicConfig(level = logging.DEBUG)
 
 		#test_str2interval()
 		#test_coalesce()
@@ -670,7 +670,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.44  2007-12-11 14:33:48  ncq
+# Revision 1.45  2007-12-12 16:24:09  ncq
+# - general cleanup
+#
+# Revision 1.44  2007/12/11 14:33:48  ncq
 # - use standard logging module
 #
 # Revision 1.43  2007/11/28 13:59:23  ncq
