@@ -7,8 +7,8 @@ this module
 Theory of operation:
 
 A logger object is a unifying wrapper for an arbitrary number
-of log targets. A log target may be a file, syslog, the console,
-or an email address, or, in fact, any object derived from the
+of log targets. A log target may be a file, the console,
+or, in fact, any object derived from the
 class cLogTarget. Log targets will only log messages with at least
 their own message priority level (log level). Each log target
 may have it's own log level.
@@ -54,23 +54,13 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
-import sys, time, traceback, os.path, os, string, stat
+import sys, time, traceback, os.path, os, string, stat, logging
 
-#, atexit
-
-# safely import SYSLOG, currently POSIX only
-try:
-	import syslog
-	_use_syslog = True
-except ImportError:
-	_use_syslog = False
-	if os.name == 'posix':
-		print "Although we are on a POSIX compliant platform the module SYSLOG cannot be imported !"
-		print "You should download and install this module !"
+_log = logging.getLogger('gm.old_log')
 
 #-------------------------------------------
 # log levels:
@@ -85,6 +75,16 @@ except ImportError:
 # sensitive records, etc)
 
 lPanic, lErr, lWarn, lInfo, lData = range(5)
+
+# any security related items should be tagged with "SECURITY" by the programmer
+_LogLevelPrefix = {lPanic: '[PANIC] ', lErr: '[ERROR] ', lWarn: '[WARN]  ', lInfo: '[INFO]  ', lData: '[DATA]  '}
+prefix2level = {
+	'[PANIC] ': logging.CRITICAL,
+	'[ERROR] ': logging.ERROR,
+	'[WARN]  ': logging.WARNING,
+	'[INFO]  ': logging.INFO,
+	'[DATA]  ': logging.DEBUG
+}
 
 # process non-printable characters ?
 lUncooked = 0
@@ -126,7 +126,7 @@ AsciiName = ['<#0-0x00-nul>',
 			]
 
 class cLogger:
-	# file(s)/pipes, stdout/stderr = console, email, syslog, widget, you-name-it
+	# file(s)/pipes, stdout/stderr = console, widget, you-name-it
 	# can be any arbitrary object derived from cLogTarget (see below)
 	__targets = {}
 	#---------------------------
@@ -213,8 +213,7 @@ class cLogger:
 	def LogDelimiter (self):
 		"""Write a horizontal delimiter to the log target.
 		"""
-		for key in self.__targets.keys():
-			self.__targets[key].writeDelimiter()
+		return
 	#---------------------------
 	def LogException(self, aMsg, exception=None, verbose=1, **kwargs):
 		"""Log an exception.
@@ -311,14 +310,10 @@ class cLogTarget:
 	# default log level
 	__activeLogLevel = lErr
 
-	# any security related items should be tagged with "SECURITY" by the programmer
-	__LogLevelPrefix = {lPanic: '[PANIC] ', lErr: '[ERROR] ', lWarn: '[WARN]  ', lInfo: '[INFO]  ', lData: '[DATA]  '}
 	#---------------------------
 	def __init__(self, aLogLevel = lErr):
 		self.__activeLogLevel = aLogLevel
-		if aLogLevel == lInfo or aLogLevel == lData:
-			self.writeDelimiter()
-		self.writeMsg (lInfo, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
+		self.writeMsg (lInfo, "SECURITY: initial log level is " + _LogLevelPrefix[self.__activeLogLevel])
 		self.__has_ever_logged = 0 # true if ever logged anything interesting
 	#---------------------------
 	def close(self):
@@ -333,7 +328,7 @@ class cLogTarget:
 			self.writeMsg (lPanic, "SECURITY: trying to set invalid log level (" + str(aLogLevel) + ") - keeping current log level (" + str(self.__activeLogLevel) + ")")
 			return None
 		# log the change
-		self.writeMsg (lInfo, "SECURITY: log level change from " + self.__LogLevelPrefix[self.__activeLogLevel] + " to " + self.__LogLevelPrefix[aLogLevel])
+		self.writeMsg (lInfo, "SECURITY: log level change from " + _LogLevelPrefix[self.__activeLogLevel] + " to " + _LogLevelPrefix[aLogLevel])
 		self.__activeLogLevel = aLogLevel
 		return self.__activeLogLevel
 	#---------------------------
@@ -341,14 +336,14 @@ class cLogTarget:
 		if aLogLevel <= self.__activeLogLevel:
 			self.__has_ever_logged = 1
 			timestamp = self.__timestamp()
-			severity = self.__LogLevelPrefix[aLogLevel]
+			severity = _LogLevelPrefix[aLogLevel]
 			self.__tracestack()
 			caller = '(%s:%s@%s): ' % (self.__modulename, self.__functionname, str(self.__linenumber))
 #			caller = "(" + self.__modulename + ":" + self.__functionname + "@" + str(self.__linenumber) + "): "
 			if aLogLevel > lErr:
-				self.dump2stdout (timestamp, severity, caller, aMsg + "\n")
+				self.dump2stdout (timestamp, severity, caller, aMsg)
 			else:
-				self.dump2stderr (timestamp, severity, caller, aMsg + "\n")
+				self.dump2stderr (timestamp, severity, caller, aMsg)
 			# FIXME: lPanic immediately flush()es ?
 			if aLogLevel == lPanic:
 				#self.flush()
@@ -356,9 +351,6 @@ class cLogTarget:
 	#---------------------------
 	def hasLogged (self):
 		return self.__has_ever_logged
-	#---------------------------
-	def writeDelimiter (self):
-		self.dump2stdout (self.__timestamp(), '', '', '------------------------------------------------------------\n')
 	#---------------------------
 	def flush (self):
 		pass
@@ -399,39 +391,44 @@ class cLogTargetFile(cLogTarget):
 	__handle = None
 	#---------------------------
 	def __init__ (self, aLogLevel = lErr, aFileName = '', aMode = 'ab', file_obj = None):
+
 		# do our extra work
-		if file_obj is not None:
-			self.__handle = file_obj
-		else:
-			self.__handle = open (aFileName, aMode)
-		if self.__handle is None:
-			return None
-		else:
-			# call inherited
-			cLogTarget.__init__(self, aLogLevel)
-			#self.ID = os.path.abspath (aFileName) # the file name canonicalized
-			self.ID = os.path.abspath(self.__handle.name)
+#		if file_obj is not None:
+#			self.__handle = file_obj
+		self.__handle = file_obj
+#		else:
+#			self.__handle = open (aFileName, aMode)
+#		if self.__handle is None:
+#			return None
+#		else:
+		# call inherited
+		cLogTarget.__init__(self, aLogLevel)
+		#self.ID = os.path.abspath (aFileName) # the file name canonicalized
+		self.ID = os.path.abspath(self.__handle.name)
 
 		self.writeMsg (lInfo, "instantiated log file [%s] with ID [%s] " % (self.__handle.name, self.ID))
 	#---------------------------
-	def dummy(self):
-		for module in sys.modules.values():
-			if hasattr(module, "__version__"):
-				cLogTarget.writeMsg(gmLog.lData, "[%s]: %s" % (module, module.__version__))
-		cLogTarget.close(self)
-		self.__handle.close()
+#	def dummy(self):
+#		for module in sys.modules.values():
+#			if hasattr(module, "__version__"):
+#				cLogTarget.writeMsg(gmLog.lData, "[%s]: %s" % (module, module.__version__))
+#		cLogTarget.close(self)
+#		self.__handle.close()
 	#---------------------------
 	def dump2stderr(self, aTimeStamp, aPrefix, aLocation, aMsg):
-		try:
-			msg = []
-			for tmp in [aTimeStamp, aPrefix, aLocation, aMsg]:
-				if type(tmp) == type(u''):
-					msg.append(tmp.encode('latin1'))			# FIXME: should be locale encoding, not latin1
-				if type(tmp) == type(''):
-					msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
-			self.__handle.write(' '.join(msg))
-		except:
-			print "*** cannot write to log file [%s] ***" % self.ID
+		_log.log(prefix2level[aPrefix], aMsg)
+		return
+
+#		try:
+#			msg = []
+#			for tmp in [aTimeStamp, aPrefix, aLocation, aMsg]:
+#				if type(tmp) == type(u''):
+#					msg.append(tmp.encode('latin1'))			# FIXME: should be locale encoding, not latin1
+#				if type(tmp) == type(''):
+#					msg.append(unicode(tmp, errors='replace').replace(u'\ufffd', '?').encode('latin1'))
+#			self.__handle.write(' '.join(msg))
+#		except:
+#			print "*** cannot write to log file [%s] ***" % self.ID
 	#---------------------------
 	def flush(self):
 		self.__handle.flush()
@@ -468,31 +465,6 @@ class cLogTargetConsole(cLogTarget):
 		except:
 			print aPrefix + aLocation + aMsg
 #---------------------------------------------------------------
-class cLogTargetSyslog(cLogTarget):
-	def __init__ (self, aLogLevel = lErr):
-		# is syslog available ?
-		if _use_syslog:
-			# call inherited
-			cLogTarget.__init__(self, aLogLevel)
-			# do our extra work
-			syslog.openlog(os.path.basename(sys.argv[0]))
-			syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
-			self.ID = "syslog"
-			self.writeMsg (lData, "instantiated syslog logging with ID " + str(self.ID))
-		else:
-			raise NotImplementedError, "No SYSLOG module available on this platform (" + str(os.name) + ") !"
-	#---------------------------
-	def close(self):
-		print "cLogTargetSyslog.close()"
-#		cLogTarget.close(self)
-#		syslog.closelog()
-	#---------------------------
-	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		syslog.syslog ((syslog.LOG_USER | syslog.LOG_INFO), aPrefix + aLocation + aMsg)
-	#---------------------------
-	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		syslog.syslog ((syslog.LOG_USER | syslog.LOG_ERR), aPrefix + aLocation + aMsg)
-#---------------------------------------------------------------
 class cLogTargetDummy(cLogTarget):
 	def __init__ (self):
 		# call inherited
@@ -502,142 +474,6 @@ class cLogTargetDummy(cLogTarget):
 	def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
 		pass
 #---------------------------------------------------------------
-class cLogTargetEMail(cLogTarget):
-	"""Log into E-Mail.
-
-	- sends log messages to the specified e-mail address upon flush() or close()
-	- holds unsent log messages in a ring buffer
-	"""
-	def __init__ (self, aLogLevel = lErr, aFrom = None, aTo = None, anSMTPServer = None):
-		"""Instantiate.
-
-		- aTo must hold a sequence of addresses (usually a singleton)
-		- anSMTPServer is the URL of a valid SMTP server, will use "localhost" if == None
-		"""
-		# sanity check
-		if aTo == None:
-			raise ValueError, "cLogTargetEMail.__init__(): aTo must contain values !"
-
-		if aFrom == None:
-			# FIXME
-			raise ValueError, "cLogTargetEMail.__init__(): aFrom must contain a value !"
-
-		self.__dump_sys_info = (1==1)
-		self.__max_buf_len = 100
-		self.__max_line_size = 150
-		self.__msg_buffer = []
-
-		# call inherited
-		cLogTarget.__init__(self, aLogLevel)
-
-		# do our extra work
-		self.__from = str(aFrom)
-		self.__to = string.join(aTo, ", ")
-		self.__comment = ""
-
-		if anSMTPServer == None:
-			self.__smtp_server = 'localhost'
-		else:
-			self.__smtp_server = str(anSMTPServer)
-
-		self.ID = "email: " + self.__to
-		self.writeMsg (lInfo, "instantiated e-mail logging with ID " + str(self.ID))
-	#---------------------------
-	def close(self):
-		print "cLogTargetEMail.close()"
-#		cLogTarget.close(self)
-	#---------------------------
-	def setFrom (self, aFrom):
-		self.__from = str(aFrom)
-	#---------------------------
-	def setTo (self, aTo):
-		self.__to = string.join(aTo, ", ")
-	#---------------------------
-	def setComment (self, aComment):
-		self.__comment = str(aComment)
-	#---------------------------
-	def setSysDump (self, aFlag):
-		"""Whether to include various system info when flush()ing."""
-		self.__dump_sys_info = aFlag
-	#---------------------------
-	def setMaxBufLen (self, aBufLen):
-		"""Set maximum number of log messages in ring buffer."""
-		if aBufLen < 5:
-			return (1==1)
-		if aBufLen > 250:
-			return (1==1)
-		self.__max_buf_len = aBufLen
-	#---------------------------
-	def setMaxLineSize (self, aLineSize):
-		"""Set maximum line size in byte."""
-		if aLineSize < 30:
-			return (1==1)
-		if aLineSize > 300:
-			return (1==1)
-		self.__max_line_size = aLineSize
-	#---------------------------
-	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		# any messages containing "CONFIDENTIAL" get dropped
-		if string.find(aMsg, "CONFIDENTIAL") != -1:
-			return (1==1)
-		# any message larger than max_line_size is truncated
-		if len(aMsg) > self.__max_line_size:
-			tmp = aMsg[:self.__max_line_size]
-			aMsg = tmp = " [...]\n"
-		# drop oldest msg from buffer if buffer full
-		if len(self.__msg_buffer) >= self.__max_buf_len:
-			self.__msg_buffer.pop(0)
-		# now finally store the current log message
-		self.__msg_buffer.append(aTimeStamp + aPrefix + aLocation + aMsg)
-	#---------------------------
-	def flush(self):
-		# - PYTHONPATH still missing
-
-		# create mail headers
-		msg = ''
-		msg = msg + 'From: %s\n' % self.__from
-		msg = msg + 'To: %s\n' % self.__to
-		msg = msg + 'Date: %s\n' % time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.localtime(time.time()))
-		msg = msg + 'Subject: gmLog error log\n'
-		msg = msg + '\n'
-
-		# create mail body
-		# - dump comment
-		msg = msg + self.__comment + "\n"
-		msg = msg + '----------------------------------------------\n'
-
-		# - dump system info
-		if self.__dump_sys_info:
-			msg = msg + 'sys.version : %s\n' % sys.version
-			msg = msg + 'sys.platform: %s\n' % sys.platform
-			msg = msg + '----------------------------------------------\n'
-			msg = msg + 'sys.path    : %s\n' % sys.path
-			msg = msg + '----------------------------------------------\n'
-			for key in sys.modules.keys():
-				module = sys.modules[key]
-				msg = msg + '"%s": %s' % (key, module)
-				if hasattr(module, "__version__"):
-					msg = msg + ' (%s)' % module.__version__
-				msg = msg + '\n'
-			msg = msg + '----------------------------------------------\n'
-
-		# - dump actual message buffer
-		msg = msg + string.join(self.__msg_buffer, '')
-
-		# dynamically import smtplib statically - God, I love Python
-		import smtplib
-
-		# connect to mail server
-		smtpd = smtplib.SMTP(self.__smtp_server)
-		# send mail
-		smtpd.sendmail(self.__from, self.__to, msg)
-		# tear down connection
-		smtpd.quit()
-
-		# reinitialize msg buffer
-		del self.__msg_buffer
-		self.__msg_buffer = []
-#---------------------------------------------------------------
 def __open_default_logfile():
 	"""Try to open log file in a standard location.
 
@@ -646,7 +482,7 @@ def __open_default_logfile():
 	# make sure standard logging is initialized
 	# and redirect file logging to that
 	from Gnumed.pycommon import gmLog2
-	loghandle = cLogTargetFile (lInfo, file_obj = gmLog2._default_logfile)
+	loghandle = cLogTargetFile(lData, file_obj = gmLog2._logfile)
 	return loghandle
 
 	#---------------------------------------
@@ -762,15 +598,6 @@ if __name__ == "__main__":
 	# and use that to populate the logger
 	log = cLogger(loghandle)
 
-	# set up an email target
-	print "please type sender and receiver of log messages"
-	aFrom = raw_input("From: ").strip()
-	aTo = raw_input("To: ").strip().split()
-	#aServer = raw_input("SMTP server: ").strip().split()
-	#mailhandle = cLogTargetEMail(lData, aFrom, aTo, aServer[0])
-	mailhandle = cLogTargetEMail(lData, aFrom, aTo)
-	log.AddTarget(mailhandle)
-
 	# should log a security warning
 	loghandle.SetLogLevel (lWarn)
 
@@ -790,12 +617,6 @@ if __name__ == "__main__":
 
 	log.Log (lData, "this should only show up in the log file")
 	log.Log (lInfo, "this should show up both on console and in the log file")
-
-	# syslog is cool, too
-	#if _use_syslog:
-	print "adding syslog logging"
-	sysloghandle = cLogTargetSyslog (lWarn)
-	log.AddTarget (sysloghandle)
 
 	log.Log (lData, "the logger object uncooked: " + str(log))
 	log.Log (lInfo, "and now cooked with some non-printables appended:")
@@ -819,15 +640,18 @@ if __name__ == "__main__":
 	print "Done."
 else:
 	# register application specific default log file
-	target = __open_default_logfile()
+#	target = __open_default_logfile()
+
+	# make sure standard logging is initialized
+	# and redirect file logging to that
+	from Gnumed.pycommon import gmLog2
+	target = cLogTargetFile(lData, file_obj = gmLog2._logfile)
 	if not target:
 		gmDefLog = cLogger(aTarget = None)
 		raise ImportError, "Cannot open any log target. Falling back to dummy log target."
 	else:
 		gmDefLog = cLogger(target)
 
-	# this needs Python 2.x
-	#atexit.register(myExitFunc)
 #---------------------------------------------------------------
 # sample code for inclusion in your project
 #---------------------------------------------------------------
@@ -871,7 +695,11 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.30  2007-12-11 14:29:53  ncq
+# Revision 1.31  2007-12-12 16:19:35  ncq
+# - lots of cleanup
+# - redirect to logging.getLogger() even earlier
+#
+# Revision 1.30  2007/12/11 14:29:53  ncq
 # - redirect logging to gmLog2 standard logger
 #
 # Revision 1.29  2007/05/08 16:03:20  ncq
