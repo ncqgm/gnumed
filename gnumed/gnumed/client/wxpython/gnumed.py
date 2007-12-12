@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-#===========================================================
-# gnumed.py - launcher for the main GNUmed GUI client module
-#===========================================================
 
 __doc__ = """GNUmed client launcher.
 
@@ -25,7 +22,7 @@ care of all the pre- and post-GUI runtime environment setup.
  standard textdomain is, of course, "gnumed.mo".
 --log-file=<file>
  Use this to change the name of the log file.
- See gmLog.py to find out where the standard log file would
+ See gmLog2.py to find out where the standard log file would
  end up.
 --conf-file=<file>
  Use configuration file <file> instead of searching for it in
@@ -42,14 +39,14 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.123 2007-10-21 20:21:17 ncq Exp $
-__version__ = "$Revision: 1.123 $"
+# $Id: gnumed.py,v 1.124 2007-12-12 16:26:10 ncq Exp $
+__version__ = "$Revision: 1.124 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-
 # standard library
-import sys, os, os.path, signal, warnings
+import sys, os, os.path, signal, logging
+#warnings
 
 
 # 1) don't run as module
@@ -75,22 +72,15 @@ against. Please run GNUmed as a non-root user.
 
 # Python 2.3 on Mandrake turns True/False deprecation warnings
 # into exceptions, so revert them to warnings again
-warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
-warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
+#warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
+#warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
 
 
 _log = None
-#_cfg = None
-_email_logger = None
-gmLog = None
 _old_sig_hup = None
 _old_sig_term = None
 
-#==========================================================
-# convenience functions
-#==========================================================
-def setup_console_exption_handler():
-	import_error_sermon = """
+import_error_sermon = """
 CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
 Please make sure you have:
@@ -111,19 +101,30 @@ If you still encounter errors after checking the above
 requirements please ask on the mailing list.
 """ % '\n '.join(sys.path)
 
+#==========================================================
+# convenience functions
+#==========================================================
+def setup_logging():
 	try:
-		from Gnumed.pycommon import gmTools
+		from Gnumed.pycommon import gmLog2
 	except ImportError:
 		sys.exit(import_error_sermon)
 
-	sys.excepthook = gmTools.handle_uncaught_exception
-#==========================================================
-def setup_logging():
-	from Gnumed.pycommon import gmLog as _gmLog
-
-	global gmLog
-	gmLog = _gmLog
 	global _log
+	_log = logging.getLogger('gm.launcher')
+#==========================================================
+def setup_console_exception_handler():
+	try:
+		#from Gnumed.pycommon import gmTools
+		from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
+	except ImportError:
+		sys.exit(import_error_sermon)
+
+	#sys.excepthook = gmTools.handle_uncaught_exception_console
+	sys.excepthook = handle_uncaught_exception_console
+#==========================================================
+def setup_legacy_logging():
+	from Gnumed.pycommon import gmLog
 	_log = gmLog.gmDefLog
 
 	# always start with debugging enabled
@@ -167,26 +168,26 @@ def setup_date_time():
 
 	gmDateTime.init()
 #==========================================================
-def setup_cfg_files():
-	from Gnumed.pycommon import gmCfg, gmNull
+#def setup_cfg_files():
+#	from Gnumed.pycommon import gmCfg, gmNull
 
-	if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
-		if gmCfg.create_default_cfg_file():
+#	if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
+#		if gmCfg.create_default_cfg_file():
 			# now that we got the file we can reopen it as a config file :-)
-			try:
-				f = gmCfg.cCfgFile()
-			except:
-				print "GNUmed startup: Cannot open or create config file by any means."
-				print "GNUmed startup: Please see the log for details."
-				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
-				sys.exit(0)
-			gmCfg.gmDefCfgFile = f
-		else:
-			print "GNUmed startup: Cannot open or create config file by any means.\nPlease see the log for details."
-			sys.exit(0)
+#			try:
+#				f = gmCfg.cCfgFile()
+#			except:
+#				print "GNUmed startup: Cannot open or create config file by any means."
+#				print "GNUmed startup: Please see the log for details."
+#				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
+#				sys.exit(0)
+#			gmCfg.gmDefCfgFile = f
+#		else:
+#			print "GNUmed startup: Cannot open or create config file by any means.\nPlease see the log for details."
+#			sys.exit(0)
 
-	global _cfg
-	_cfg = gmCfg.gmDefCfgFile
+#	global _cfg
+#	_cfg = gmCfg.gmDefCfgFile
 #==========================================================
 def handle_sig_hup(signum, frame):
 	print "SIGHUP caught"
@@ -235,11 +236,11 @@ def log_object_refcounts():
 		pairs.reverse()
 		return pairs
 
-	rcfile = open('./gm-refcount.lst', 'wb')
+#	rcfile = open('./gm-refcount.lst', 'wb')
 #	for refcount, class_ in get_refcounts():
 #		if not class_.__name__.startswith('wx'):
 #			rcfile.write('%10d %s\n' % (refcount, class_.__name__))
-	rcfile.close()
+#	rcfile.close()
 
 #==========================================================
 def check_help_request():
@@ -254,34 +255,31 @@ def check_help_request():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
-setup_console_exption_handler()
-setup_signal_handlers()
 setup_logging()
+
+_log.info('Starting up as main module (%s).', __version__)
+_log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
+
+setup_console_exception_handler()
+setup_signal_handlers()
+setup_legacy_logging()
 
 from Gnumed.pycommon import gmCLI, gmI18N
 
 setup_locale()
 check_help_request()
-
-_log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
-_log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
-_log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
-
 setup_paths()
 setup_date_time()
-#setup_cfg_files()
 
-# import more of our stuff
-from Gnumed.pycommon import gmGuiBroker, gmHooks
+from Gnumed.pycommon import gmHooks
+#, gmGuiBroker
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
-# now actually run GNUmed
 from Gnumed.wxpython import gmGuiMain
-# do we do profiling ?
 if gmCLI.has_arg('--profile'):
 	profile_file = gmCLI.arg['--profile']
-	_log.Log(gmLog.lInfo, 'writing profiling data into %s' % profile_file)
+	_log.info('writing profiling data into %s', profile_file)
 	import profile
 	profile.run('gmGuiMain.main()', profile_file)
 else:
@@ -291,11 +289,14 @@ gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
 log_object_refcounts()
 
-_log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
+_log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.123  2007-10-21 20:21:17  ncq
+# Revision 1.124  2007-12-12 16:26:10  ncq
+# - a whole bunch of cleanup, particularly related to logging
+#
+# Revision 1.123  2007/10/21 20:21:17  ncq
 # - no more mandatory global config file
 #
 # Revision 1.122  2007/09/04 23:30:42  ncq
