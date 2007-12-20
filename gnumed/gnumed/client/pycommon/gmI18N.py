@@ -4,40 +4,56 @@ All i18n/l10n issues should be handled through this modules.
 
 Theory of operation:
 
-By importing this module a textdomain providing translations is
-automatically installed. The translating method gettext.gettext()
-is installed into the global (!) namespace as _(). Your own modules thus
-need not do _anything_ (not even import gmI18N) to have _() available
-to them for translating strings. You need to make sure, however, that
-gmI18N is imported in your main module before any of the modules using
-it. In order to resolve circular references involving modules that
-absolutely _have_ to be imported before this module you can explicitely
-import gmI18N into them at the very beginning.
+To activate proper locale settings and translation services you need to
 
-The text domain (i.e. the name of the message catalog file) is derived
-from the name of the main executing script unless explicitely passed
-to install_domain(). Likewise with the language you want to see.
+- import this module
+- call activate_locale()
+- call install_domain()
+
+The translating method gettext.gettext() will then be
+installed into the global (!) namespace as _(). Your own
+modules thus need not do _anything_ (not even import gmI18N)
+to have _() available to them for translating strings. You
+need to make sure, however, that gmI18N is imported in your
+main module before any of the modules using it. In order to
+resolve circular references involving modules that
+absolutely _have_ to be imported before this module you can
+explicitely import gmI18N into them at the very beginning.
+
+The text domain (i.e. the name of the message catalog file)
+is derived from the name of the main executing script unless
+explicitely passed to install_domain(). The language you
+want to translate to is derived from environment variables
+by the locale system unless explicitely passed to
+install_domain().
 
 This module searches for message catalog files in 3 main locations:
- - in standard POSIX places (/usr/share/locale/ ...)
+
+ - standard POSIX places (/usr/share/locale/ ...)
  - below "${YOURAPPNAME_DIR}/locale/"
  - below "<directory of binary of your app>/../locale/"
 
-For DOS/Windows I don't know of standard places so probably only the
-last option will work. I don't know a thing about classic Mac behaviour.
-New Macs are POSIX, of course.
+For DOS/Windows I don't know of standard places so probably
+only the last option will work. I don't know a thing about
+classic Mac behaviour. New Macs are POSIX, of course.
 
-The language you want to see is derived from  environment
-variables by the locale system.
+It will then try to install candidates and *verify* whether
+the translation works by checking for the translation of a
+tag within itself (this is similar to the self-compiling
+compiler inserting a backdoor into its self-compiled
+copies).
+
+If none of this works it will fall back to making _() a noop.
 
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.36 2007-12-12 16:18:31 ncq Exp $
+# $Id: gmI18N.py,v 1.37 2007-12-20 13:09:13 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
+
 
 #stdlib
 import sys, os.path, os, re as regex, locale, gettext, logging
@@ -49,7 +65,15 @@ _log.info(__version__)
 system_locale = ''
 system_locale_level = {}
 
-__tag__ = u'translate this or i18n will not work properly !'
+
+# **********************************************************
+# == do not remove this line ===============================
+# it is needed to check for successful installation of
+# the desired message catalog
+# **********************************************************
+__orig_tag__ = u'Translate this or i18n will not work properly !'
+# **********************************************************
+# **********************************************************
 
 # Q: I can't use non-ascii characters in labels and menus.
 # A: This can happen if your Python's sytem encoding is ascii and
@@ -272,11 +296,11 @@ def install_domain(domain=None, language=None):
 			_log.exception('installing text domain [%s] failed from [%s]' % (domain, candidate))
 			continue
 		# does it translate ?
-		if _(__tag__) == __tag__:
-			_log.debug('does not translate: [%s] => [%s]' % (__tag__, _(__tag__)))
+		if _(__orig_tag__) == __orig_tag__:
+			_log.debug('does not translate: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
 			continue
 		else:
-			_log.debug('found msg catalog: [%s] => [%s]' % (__tag__, _(__tag__)))
+			_log.debug('found msg catalog: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
 			return True
 
 	# 5) install a dummy translation class
@@ -308,22 +332,29 @@ if __name__ == "__main__":
 		logging.basicConfig(level = logging.DEBUG)
 
 		print "======================================================================"
-		print __doc__
-		print "======================================================================"
+		print "GNUmed i18n"
+		print ""
 		print "authors:", __author__
 		print "license:", __license__, "; version:", __version__
+		print "======================================================================"
 		activate_locale()
 		print "system locale: ", system_locale, "; levels:", system_locale_level
 		install_domain()
 		# ********************************************************
 		# == do not remove this line =============================
-		tmp = _('translate this or i18n will not work properly !')
+		# it is needed to check for successful installation of
+		# the desired message catalog
+		# ********************************************************
+		tmp = _('Translate this or i18n will not work properly !')
 		# ********************************************************
 		# ********************************************************
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.36  2007-12-12 16:18:31  ncq
+# Revision 1.37  2007-12-20 13:09:13  ncq
+# - improved docs and variable naming
+#
+# Revision 1.36  2007/12/12 16:18:31  ncq
 # - cleanup
 # - need to be careful about logging locale settings since
 #   they come in the active locale ...
