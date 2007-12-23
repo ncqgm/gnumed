@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.151 2007-12-11 12:49:26 ncq Exp $
-__version__ = "$Revision: 1.151 $"
+# $Id: gmMedDocWidgets.py,v 1.152 2007-12-23 20:29:35 ncq Exp $
+__version__ = "$Revision: 1.152 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1379,7 +1379,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = 'workplace'
 			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'docs'))
+			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
 		)
 		_log.Log(gmLog.lData, "working into directory [%s]" % tmp_dir)
 
@@ -1503,7 +1503,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.151  2007-12-11 12:49:26  ncq
+# Revision 1.152  2007-12-23 20:29:35  ncq
+# - store tmp docs in tmp/, not tmp/docs/
+#
+# Revision 1.151  2007/12/11 12:49:26  ncq
 # - explicit signal handling
 #
 # Revision 1.150  2007/11/05 11:41:46  ncq
