@@ -2,16 +2,19 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.90 2007-12-11 12:49:26 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmTopPanel.py,v 1.91 2007-12-23 20:29:57 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
+
 import sys, os.path
+
 
 import wx
 
-from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmCLI, gmTools
+
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmCLI, gmTools, gmCfg2
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets, gmAllergyWidgets
 
@@ -103,7 +106,8 @@ class cMainTopPanel(wx.Panel):
 		lbl_pat = wx.StaticText (self, -1, _('Patient'), style = wx.ALIGN_CENTER_VERTICAL)
 		lbl_pat.SetFont (wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
-		if self.__gb['main.slave_mode']:
+		cfg = gmCfg2.gmCfgData()
+		if cfg.get(option = 'slave'):
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
@@ -442,7 +446,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.90  2007-12-11 12:49:26  ncq
+# Revision 1.91  2007-12-23 20:29:57  ncq
+# - use gmCfg2
+#
+# Revision 1.90  2007/12/11 12:49:26  ncq
 # - explicit signal handling
 #
 # Revision 1.89  2007/12/02 11:00:58  ncq
