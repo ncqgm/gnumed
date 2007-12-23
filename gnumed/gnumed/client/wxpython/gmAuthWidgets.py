@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.3 2007-12-23 12:07:40 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmAuthWidgets.py,v 1.4 2007-12-23 20:26:31 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -238,23 +238,6 @@ class cLoginPanel(wx.Panel):
 		"""
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
-
-		self.user_preferences_file = None
-		paths = gmTools.gmPaths(app_name = 'gnumed', wx=wx)
-		if gmCLI.has_arg('--conf-file'):
-			fnames = [gmCLI.arg['--conf-file']]
-		else:
-			fnames = [
-				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.working_dir, 'gnumed.conf')
-			]
-		for fname in fnames:
-			try:
-				open(fname, 'r+b').close()
-				self.user_preferences_file = fname
-				break
-			except IOError:
-				continue
 
 		#True if dialog was cancelled by user 
 		#if the dialog is closed manually, login should be cancelled
@@ -648,7 +631,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.3  2007-12-23 12:07:40  ncq
+# Revision 1.4  2007-12-23 20:26:31  ncq
+# - cleanup
+#
+# Revision 1.3  2007/12/23 12:07:40  ncq
 # - cleanup
 # - use gmCfg2
 #
