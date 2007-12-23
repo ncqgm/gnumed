@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.124 2007-12-12 16:26:10 ncq Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gnumed.py,v 1.125 2007-12-23 20:56:32 ncq Exp $
+__version__ = "$Revision: 1.125 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -77,11 +77,26 @@ against. Please run GNUmed as a non-root user.
 
 
 _log = None
-_old_sig_hup = None
+_cfg = None
+#_old_sig_hup = None
 _old_sig_term = None
+_known_short_options = u'h?'
+_known_long_options = [
+	u'debug',
+	u'slave',
+	u'profile',
+	u'text-domain',
+	u'log-file',
+	u'conf-file',
+	u'lang-gettext',
+	u'override-schema-check',
+	u'help'
+]
 
 import_error_sermon = """
-CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
+GNUmed startup: Cannot load GNUmed Python modules !
+---------------------------------------------------
+CRITICAL ERROR: Program halted.
 
 Please make sure you have:
 
@@ -101,6 +116,18 @@ If you still encounter errors after checking the above
 requirements please ask on the mailing list.
 """ % '\n '.join(sys.path)
 
+missing_config_file = """
+GNUmed startup: Missing configuration file.
+-------------------------------------------
+
+You explicitely specified a configuration file
+on the command line:
+
+	--conf-file=%s
+
+The file does not exist, however.
+"""
+
 #==========================================================
 # convenience functions
 #==========================================================
@@ -114,80 +141,27 @@ def setup_logging():
 	_log = logging.getLogger('gm.launcher')
 #==========================================================
 def setup_console_exception_handler():
-	try:
-		#from Gnumed.pycommon import gmTools
-		from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
-	except ImportError:
-		sys.exit(import_error_sermon)
+	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
 
-	#sys.excepthook = gmTools.handle_uncaught_exception_console
 	sys.excepthook = handle_uncaught_exception_console
 #==========================================================
-def setup_legacy_logging():
-	from Gnumed.pycommon import gmLog
-	_log = gmLog.gmDefLog
+def setup_cli():
+	from Gnumed.pycommon import gmCfg2
 
-	# always start with debugging enabled
-	_log.SetAllLogLevels(gmLog.lData)
-
-	return True
-#==========================================================
-def setup_locale():
-	gmI18N.activate_locale()
-
-	td = None
-	if gmCLI.has_arg('--text-domain'):
-		td = gmCLI.arg['--text-domain']
-
-	l = None
-	if gmCLI.has_arg('--lang-gettext'):
-		l = gmCLI.arg['--lang-gettext']
-
-	gmI18N.install_domain(domain = td, language = l)
-
-	return True
-#==========================================================
-def setup_paths():
-	"""Create needed paths in user home directory."""
-
-	from Gnumed.pycommon import gmTools
-
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'docs')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
-
-	paths = gmTools.gmPaths()
-#==========================================================
-def setup_date_time():
-	from Gnumed.pycommon import gmDateTime
-
-	gmDateTime.init()
-#==========================================================
-#def setup_cfg_files():
-#	from Gnumed.pycommon import gmCfg, gmNull
-
-#	if isinstance(gmCfg.gmDefCfgFile, gmNull.cNull):
-#		if gmCfg.create_default_cfg_file():
-			# now that we got the file we can reopen it as a config file :-)
-#			try:
-#				f = gmCfg.cCfgFile()
-#			except:
-#				print "GNUmed startup: Cannot open or create config file by any means."
-#				print "GNUmed startup: Please see the log for details."
-#				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
-#				sys.exit(0)
-#			gmCfg.gmDefCfgFile = f
-#		else:
-#			print "GNUmed startup: Cannot open or create config file by any means.\nPlease see the log for details."
-#			sys.exit(0)
-
-#	global _cfg
-#	_cfg = gmCfg.gmDefCfgFile
+	global _cfg
+	_cfg = gmCfg2.gmCfgData()
+	_cfg.add_cli (
+		short_options = _known_short_options,
+		long_options = _known_long_options
+	)
+	_cfg.set_option (
+		option = u'debug',
+		value = _cfg.get(option = '--debug', source_order = [('cli', 'return')])
+	)
+	_cfg.set_option (
+		option = u'slave',
+		value = _cfg.get(option = '--slave', source_order = [('cli', 'return')])
+	)
 #==========================================================
 def handle_sig_hup(signum, frame):
 	print "SIGHUP caught"
@@ -216,8 +190,110 @@ def setup_signal_handlers():
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
+def setup_legacy_logging():
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+#==========================================================
+def setup_locale():
+	gmI18N.activate_locale()
+	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
+	l =  _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
+	gmI18N.install_domain(domain = td, language = l)
+#==========================================================
+def check_help_request():
+	src = [(u'cli', u'return')]
+
+	help_requested = (
+		_cfg.get(option = u'--help', source_order = src) or
+		_cfg.get(option = u'-h', source_order = src) or
+		_cfg.get(option = u'-?', source_order = src) or
+	)
+
+	if help_requested:
+		print _(
+			'Help requested\n'
+			'--------------'
+		)
+		print __doc__
+		sys.exit(0)
+#==========================================================
+def setup_paths_and_files():
+	"""Create needed paths in user home directory."""
+
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'tmp')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
+
+	paths = gmTools.gmPaths()
+
+	open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), 'a+').close()
+#==========================================================
+def setup_date_time():
+	gmDateTime.init()
+#==========================================================
+def setup_cfg():
+
+	enc = gmI18N.get_encoding()
+	paths = gmTools.gmPaths()
+
+	# general config sources
+	# the current working dir
+	_cfg.add_file_source (
+		source = u'workbase',
+		file = os.path.join(paths.working_dir, 'gnumed.conf'),
+		encoding = enc
+	)
+	# /etc/gnumed/
+	_cfg.add_file_source (
+		source = u'system',
+		file = os.path.join(paths.system_config_dir, 'gnumed-client.conf'),
+		encoding = enc
+	)
+	# ~/.gnumed/
+	_cfg.add_file_source (
+		source = u'user',
+		file = os.path.join(paths.user_config_dir, 'gnumed.conf'),
+		encoding = enc
+	)
+	# CVS/tgz tree .../gnumed/client/ (IOW a local installation)
+	_cfg.add_file_source (
+		source = u'local',
+		file = os.path.join(paths.local_base_dir, 'gnumed.conf'),
+		encoding = enc
+	)
+	# --conf-file=
+	fname = _cfg.get(option = u'--conf-file', source_order = [(u'cli', u'return')])
+	if fname is None:
+		_cfg.add_file_source(source = u'explicit')
+	else:
+		_cfg.add_file_source (
+			source = u'explicit',
+			file = fname,
+			encoding = enc
+		)
+		if _cfg.source_files['explicit'] is None:
+			sys.exit(missing_config_file % fname)
+
+	# mime type handling sources
+	fname = u'mime_type2file_extension.conf'
+	_cfg.add_file_source (
+		source = u'user-mime',
+		file = os.path.join(paths.user_config_dir, fname),
+		encoding = enc
+	)
+	_cfg.add_file_source (
+		source = u'system-mime',
+		file = os.path.join(paths.system_config_dir, fname),
+		encoding = enc
+	)
+#==========================================================
 def log_object_refcounts():
-	if not gmCLI.has_arg('--debug'):
+	# FIXME: use internal source
+	if not _cfg.get(option = u'debug')
 		return
 
 	import types
@@ -243,16 +319,6 @@ def log_object_refcounts():
 #	rcfile.close()
 
 #==========================================================
-def check_help_request():
-	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
-		print _(
-			'Help requested\n'
-			'--------------'
-		)
-		print __doc__
-		sys.exit(0)
-
-#==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
 setup_logging()
@@ -261,24 +327,41 @@ _log.info('Starting up as main module (%s).', __version__)
 _log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
 
 setup_console_exception_handler()
+setup_cli()
 setup_signal_handlers()
+
+from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmLog, gmHooks, gmPG2
+
 setup_legacy_logging()
-
-from Gnumed.pycommon import gmCLI, gmI18N
-
 setup_locale()
 check_help_request()
-setup_paths()
+setup_paths_and_files()
 setup_date_time()
+setup_cfg()
+setup_backend()
 
-from Gnumed.pycommon import gmHooks
-#, gmGuiBroker
+# set up database connection timezone
+timezone = _cfg.get (
+	group = u'backend',
+	option = 'client timezone',
+	source_order = [('explicit', 'return'), ('workbase', 'return'), ('local', 'return'), ('user', 'return'), ('system', 'return')]
+)
+if timezone is not None:
+	gmPG2.set_default_client_timezone(timezone)
+
+#from Gnumed.pycommon import gmCfg as gmCfg
+
+#from Gnumed.business import gmSurgery
+#praxis = gmSurgery.gmCurrentPractice()
+#print praxis.helpdesk
+#print praxis.active_workplace
 
 gmHooks.run_hook_script(hook = u'startup-before-GUI')
 
 from Gnumed.wxpython import gmGuiMain
-if gmCLI.has_arg('--profile'):
-	profile_file = gmCLI.arg['--profile']
+
+profile_file = _cfg.get(option = u'--profile', source_order = [(u'cli', u'return')])
+if profile_file is not None:
 	_log.info('writing profiling data into %s', profile_file)
 	import profile
 	profile.run('gmGuiMain.main()', profile_file)
@@ -293,7 +376,10 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.124  2007-12-12 16:26:10  ncq
+# Revision 1.125  2007-12-23 20:56:32  ncq
+# - cleanup++
+#
+# Revision 1.124  2007/12/12 16:26:10  ncq
 # - a whole bunch of cleanup, particularly related to logging
 #
 # Revision 1.123  2007/10/21 20:21:17  ncq
