@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.16 2007-12-12 16:17:15 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmMimeLib.py,v 1.17 2007-12-23 11:58:50 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import os, mailcap, sys, mimetypes, shutil, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-import gmShellAPI, gmTools, gmCfg
+import gmShellAPI, gmTools, gmCfg2
 
 
 _log = logging.getLogger('gm.docs')
@@ -108,24 +108,18 @@ def guess_ext_by_mimetype(mimetype=''):
 	_log.error("<%s>: no suitable file extension known to the OS" % mimetype)
 
 	# try to help the OS a bit
-	fname = u'mime_type2file_extension.conf'
-	paths = gmTools.gmPaths()
-	candidates = [
-		os.path.join(paths.user_config_dir, fname),
-		os.path.join(paths.system_config_dir, fname)
-	]
+	cfg = gmCfg2.gmCfgData()
+	ext = cfg.get (
+		group = u'extensions',
+		option = mimetype,
+		source_order = [('user-mime', 'return'), ('system-mime', 'return')]
+	)
 
-	for candidate in candidates:
-		try:
-			cfg = gmCfg.cCfgFile(aFile = candidate)
-		except IOError:
-			continue
-		ext = cfg.get('extensions', mimetype)
-		if ext is not None:
-			_log.debug('<%s>: *.%s (%s)' % (mimetype, ext, candidate))
-			return ext
+	if ext is not None:
+		_log.debug('<%s>: *.%s (%s)' % (mimetype, ext, candidate))
+		return ext
 
-	_log.error("<%s>: no suitable file extension found in [%s]" % (mimetype, ', '.join(candidates)))
+	_log.error("<%s>: no suitable file extension found in config files" % mimetype)
 
 	return ext
 #-----------------------------------------------------------------------------------
@@ -256,7 +250,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.16  2007-12-12 16:17:15  ncq
+# Revision 1.17  2007-12-23 11:58:50  ncq
+# - use gmCfg2
+#
+# Revision 1.16  2007/12/12 16:17:15  ncq
 # - better logger names
 #
 # Revision 1.15  2007/12/11 14:31:12  ncq
