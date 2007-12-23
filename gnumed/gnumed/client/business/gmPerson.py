@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.147 2007-12-11 12:59:11 ncq Exp $
-__version__ = "$Revision: 1.147 $"
+# $Id: gmPerson.py,v 1.148 2007-12-23 11:55:21 ncq Exp $
+__version__ = "$Revision: 1.148 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -19,7 +19,7 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime, gmCLI
+from Gnumed.pycommon import gmLog, gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmCfg, gmTools, gmPG2, gmMatchProvider, gmDateTime
 from Gnumed.business import gmMedDoc, gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
 
 _log = gmLog.gmDefLog
@@ -2159,7 +2159,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.147  2007-12-11 12:59:11  ncq
+# Revision 1.148  2007-12-23 11:55:21  ncq
+# - cleanup
+#
+# Revision 1.147  2007/12/11 12:59:11  ncq
 # - cleanup and explicit signal handling
 #
 # Revision 1.146  2007/12/06 10:43:31  ncq

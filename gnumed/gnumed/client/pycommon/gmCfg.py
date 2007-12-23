@@ -53,16 +53,19 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys, shutil, types, cPickle, decimal, logging
+import os.path, fileinput, string, sys, shutil, types, cPickle, decimal, logging, re as regex, codecs
+
 
 # gnumed modules
-import gmNull, gmPG2, gmTools
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmNull, gmPG2, gmTools, gmBorg
 
-_log = logging.getLogger('gnumed.cfg')
+_log = logging.getLogger('gm.cfg')
 gmCLI_ = None
 
 # flags for __get_conf_name
@@ -77,7 +80,8 @@ cfg_DEFAULT = "xxxDEFAULTxxx"
 _log.info(__version__)
 
 gmDefCfgFile = gmNull.cNull()	# default config file initializes to Null object
-#================================
+
+#==================================================================
 # FIXME: make a cBorg around this
 class cCfgSQL:
 	def __init__(self):
@@ -1021,6 +1025,9 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 #=============================================================
 if __name__ == "__main__":
 
+	root = logging.getLogger()
+	root.setLevel(logging.DEBUG)
+
 	#---------------------------------------------------------
 	def test_db_cfg():
 		print "testing database config"
@@ -1125,7 +1132,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.55  2007-12-11 15:35:28  ncq
+# Revision 1.56  2007-12-23 11:57:14  ncq
+# - cleanup
+#
+# Revision 1.55  2007/12/11 15:35:28  ncq
 # - use std lib logging
 #
 # Revision 1.54  2007/02/22 17:41:13  ncq

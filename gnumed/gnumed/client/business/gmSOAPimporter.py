@@ -25,8 +25,8 @@ This script is designed for importing GNUmed SOAP input "bundles".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.19 2007-12-11 12:59:11 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmSOAPimporter.py,v 1.20 2007-12-23 11:55:21 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -37,7 +37,7 @@ import sys, re
 import mx.DateTime as mxDT
 
 # GnuMed
-from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmExceptions, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmLog, gmCfg, gmExceptions, gmI18N, gmDispatcher
 from Gnumed.business import gmClinNarrative, gmPerson
 
 _log = gmLog.gmDefLog
@@ -236,7 +236,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.19  2007-12-11 12:59:11  ncq
+# Revision 1.20  2007-12-23 11:55:21  ncq
+# - cleanup
+#
+# Revision 1.19  2007/12/11 12:59:11  ncq
 # - cleanup and explicit signal handling
 #
 # Revision 1.18  2007/03/08 11:31:08  ncq
