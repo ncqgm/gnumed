@@ -1,9 +1,9 @@
 """GNUmed Surgery related middleware."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.7 2007-10-23 21:20:24 ncq Exp $
+# $Id: gmSurgery.py,v 1.8 2007-12-23 11:55:49 ncq Exp $
 __license__ = "GPL"
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -12,7 +12,7 @@ import sys, os
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmTools, gmBorg, gmCLI, gmCfg
+from Gnumed.pycommon import gmPG2, gmTools, gmBorg, gmCfg2
 
 #============================================================
 class gmCurrentPractice(gmBorg.cBorg):
@@ -39,30 +39,21 @@ class gmCurrentPractice(gmBorg.cBorg):
 		if self.__helpdesk is not None:
 			return self.__helpdesk
 
-		candidates = []
-		if gmCLI.has_arg('--conf-file'):
-			candidates.append(gmCLI.arg['--conf-file'])
-		paths = gmTools.gmPaths()
-		candidates.extend ([
-			os.path.join(paths.working_dir, 'gnumed.conf'),
-			os.path.join(paths.local_base_dir, 'gnumed.conf'),
-			os.path.join(paths.user_config_dir, 'gnumed.conf'),
-			os.path.join(paths.system_config_dir, 'gnumed-client.conf')
-		])
-
-		self.__helpdesk = None
-		for candidate in candidates:
-			try:
-				cfg = gmCfg.cCfgFile(aFile = candidate)
-			except IOError:
-				continue
-			tmp = cfg.get('workplace', 'help desk')
-			if tmp is not None:
-				self.__helpdesk = tmp
-				break
-
-		if self.__helpdesk is None:
-			self.__helpdesk = 'http://wiki.gnumed.de'
+		cfg = gmCfg2.gmCfgData()
+		self.__helpdesk = gmTools.coalesce (
+			cfg.get (
+				group = u'workplace',
+				option = u'help desk',
+				source_order = [
+					('explicit', 'return'),
+					('workbase', 'return'),
+					('local', 'return'),
+					('user', 'return'),
+					('system', 'return')
+				]
+			),
+			u'http://wiki.gnumed.de'
+		)
 
 		return self.__helpdesk
 
@@ -94,41 +85,26 @@ class gmCurrentPractice(gmBorg.cBorg):
 	def _get_workplace(self):
 		"""Return the current workplace (client profile) definition.
 
-		- from the command line config file
-		- from the config file in the working directory
-		- from the config file in the binary install directory
-		- from the user config file
-		- from the system-wide config file
-
 		The first occurrence counts.
 		"""
 		if self.__active_workplace is not None:
 			return self.__active_workplace
 
-		candidates = []
-		if gmCLI.has_arg('--conf-file'):
-			candidates.append(gmCLI.arg['--conf-file'])
-		paths = gmTools.gmPaths()
-		candidates.extend ([
-			os.path.join(paths.working_dir, 'gnumed.conf'),
-			os.path.join(paths.local_base_dir, 'gnumed.conf'),
-			os.path.join(paths.user_config_dir, 'gnumed.conf'),
-			os.path.join(paths.system_config_dir, 'gnumed-client.conf')
-		])
-
-		self.__active_workplace = None
-		for candidate in candidates:
-			try:
-				cfg = gmCfg.cCfgFile(aFile = candidate)
-			except IOError:
-				continue
-			tmp = cfg.get('workplace', 'name')
-			if tmp is not None:
-				self.__active_workplace = tmp
-				break
-
-		if self.__active_workplace is None:
-			self.__active_workplace = 'GNUmed Default'
+		cfg = gmCfg2.gmCfgData()
+		self.__active_workplace = gmTools.coalesce (
+			cfg.get (
+				group = u'workplace',
+				option = u'name',
+				source_order = [
+					('explicit', 'return'),
+					('workbase', 'return'),
+					('local', 'return'),
+					('user', 'return'),
+					('system', 'return'),
+				]
+			),
+			u'GNUmed Default'
+		)
 
 		return self.__active_workplace
 
@@ -197,7 +173,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmSurgery.py,v $
-# Revision 1.7  2007-10-23 21:20:24  ncq
+# Revision 1.8  2007-12-23 11:55:49  ncq
+# - cleanup, use gmCfg2
+#
+# Revision 1.7  2007/10/23 21:20:24  ncq
 # - cleanup
 #
 # Revision 1.6  2007/10/21 20:16:29  ncq
