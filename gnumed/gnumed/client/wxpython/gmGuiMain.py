@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.378 2007-12-23 20:28:44 ncq Exp $
-__version__ = "$Revision: 1.378 $"
+# $Id: gmGuiMain.py,v 1.379 2007-12-23 22:03:59 ncq Exp $
+__version__ = "$Revision: 1.379 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -158,9 +158,8 @@ class gmTopLevelFrame(wx.Frame):
 	This is where it all happens. Avoid popping up any other windows.
 	Most user interaction should happen to and from widgets within this frame
 	"""
-
 	#----------------------------------------------
-	def __init__(self, parent, id, title, size=wx.DefaultSize, layout=None):
+	def __init__(self, parent, id, title, size=wx.DefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 		wx.Frame.__init__(
@@ -1789,8 +1788,7 @@ class gmApp(wx.App):
 
 		# create the main window
 		# FIXME: load last position from backend
-		cli_layout = gmCLI.arg.get('--layout', None)
-		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440), cli_layout)
+		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
 		self.SetTopWindow(frame)
 
 		frame.CentreOnScreen(wx.BOTH)
@@ -2070,7 +2068,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.378  2007-12-23 20:28:44  ncq
+# Revision 1.379  2007-12-23 22:03:59  ncq
+# - no more gmCLI
+#
+# Revision 1.378  2007/12/23 20:28:44  ncq
 # - use gmCfg2, less gmCLI use
 # - cleanup
 # - less guibroker use

@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.91 2007-12-23 20:29:57 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmTopPanel.py,v 1.92 2007-12-23 22:04:19 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ import sys, os.path
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmCLI, gmTools, gmCfg2
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmTools, gmCfg2
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets, gmAllergyWidgets
 
@@ -446,7 +446,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.91  2007-12-23 20:29:57  ncq
+# Revision 1.92  2007-12-23 22:04:19  ncq
+# - no more gmCLI
+#
+# Revision 1.91  2007/12/23 20:29:57  ncq
 # - use gmCfg2
 #
 # Revision 1.90  2007/12/11 12:49:26  ncq

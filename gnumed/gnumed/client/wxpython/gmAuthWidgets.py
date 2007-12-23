@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.4 2007-12-23 20:26:31 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmAuthWidgets.py,v 1.5 2007-12-23 22:02:56 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,7 +22,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmLog, gmI18N, gmPG2, gmBackendListener, gmTools, gmCLI, gmCfg2
+from Gnumed.pycommon import gmLoginInfo, gmLog, gmI18N, gmPG2, gmBackendListener, gmTools, gmCfg2
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -571,18 +571,18 @@ For assistance on using GnuMed please contact:
 	#----------------------------
 	def __on_login_button_pressed(self, event):
 
+		root_logger = logging.GetLogger()
 		if self._CHBOX_debug.GetValue():
-			_log.SetAllLogLevels(gmLog.lData)
-			gmCLI._cli_args['--debug'] = True
 			_log.Log(gmLog.lInfo, 'debug mode enabled')
+			_cfg.set_option(option = 'debug', value = True)
+			root_logger.setLevel(logging.DEBUG)
 		else:
 			_log.Log(gmLog.lInfo, 'debug mode disabled')
-			gmCLI._cli_args['--debug'] = False
-			del gmCLI._cli_args['--debug']
-			if gmCLI.has_arg("--quiet"):
-				_log.SetAllLogLevels(gmLog.lErr)
+			_cfg.set_option(option = 'debug', value = False)
+			if _cfg.get(option = '--quiet', source_order = [('cli', 'return')]):
+				root_logger.setLevel(logging.ERROR)
 			else:
-				_log.SetAllLogLevels(gmLog.lInfo)
+				root_logger.setLevel(logging.WARNING)
 
 		if self._CHBOX_slave.GetValue():	
 			_log.Log(gmLog.lInfo, 'slave mode enabled')
@@ -631,7 +631,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.4  2007-12-23 20:26:31  ncq
+# Revision 1.5  2007-12-23 22:02:56  ncq
+# - no more gmCLI
+#
+# Revision 1.4  2007/12/23 20:26:31  ncq
 # - cleanup
 #
 # Revision 1.3  2007/12/23 12:07:40  ncq
