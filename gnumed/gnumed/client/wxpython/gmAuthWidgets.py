@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.2 2007-12-04 16:14:52 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmAuthWidgets.py,v 1.3 2007-12-23 12:07:40 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,14 +22,14 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmGuiBroker, gmLoginInfo, gmLog, gmI18N, gmPG2, gmBackendListener, gmCfg, gmTools, gmCLI
+from Gnumed.pycommon import gmLoginInfo, gmLog, gmI18N, gmPG2, gmBackendListener, gmTools, gmCLI, gmCfg2
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_cfg = gmCfg.gmDefCfgFile
+_cfg = gmCfg2.gmCfgData()
 
 try:
 	_('do-not-translate-but-make-epydoc-happy')
@@ -250,13 +250,11 @@ class cLoginPanel(wx.Panel):
 			]
 		for fname in fnames:
 			try:
-				open(fname, 'r+b')
+				open(fname, 'r+b').close()
 				self.user_preferences_file = fname
 				break
 			except IOError:
 				continue
-
-		self.gb = gmGuiBroker.GuiBroker()
 
 		#True if dialog was cancelled by user 
 		#if the dialog is closed manually, login should be cancelled
@@ -291,8 +289,7 @@ class cLoginPanel(wx.Panel):
 				border = 10
 			)
 
-#		if self.gb.has_key('main.slave_mode') and self.gb['main.slave_mode']:
-		if gmCLI.has_arg('--slave'):
+		if _cfg.get(option = 'slave'):
 			paramsbox_caption = _("Slave Login - %s" % gmSurgery.gmCurrentPractice().active_workplace)
 		else:
 			paramsbox_caption = _("Login - %s" % gmSurgery.gmCurrentPractice().active_workplace)
@@ -429,36 +426,18 @@ class cLoginPanel(wx.Panel):
 	#----------------------------------------------------------
 	def __get_previously_used_accounts(self):
 
-		accounts = []
-
-		if gmCLI.has_arg('--conf-file'):
-			fnames = [gmCLI.arg['--conf-file']]
-		else:
-			paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
-			fnames = [
-				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.working_dir, 'gnumed.conf')
-			]
-
-		for fname in fnames:
-			try:
-				cfg_file = gmCfg.cCfgFile (
-					aFile = fname,
-					flags = gmCfg.cfg_IGNORE_CMD_LINE
-				)
-			except IOError:
-				continue
-
-			accounts = gmTools.coalesce (
-				cfg_file.get('backend', 'logins'),
-				[]
-			)
-
-			if len(accounts) > 0:
-				return accounts
-
-		if len(accounts) == 0:
-			return ['any-doc']
+		accounts = gmTools.coalesce (
+			_cfg.get (
+				group = u'backend',
+				option = u'logins',
+				source_order = [
+					(u'explicit', u'return'),
+					(u'user', u'append'),
+					(u'workbase', u'append')
+				]
+			),
+			[]
+		)
 
 		return accounts
 	#----------------------------------------------------
@@ -472,97 +451,86 @@ class cLoginPanel(wx.Panel):
 		as a profile in the system file will override the
 		system file.
 		"""
+		src_order = [
+			(u'explicit', u'return'),
+			(u'system', u'append'),
+			(u'user', u'append'),
+			(u'workbase', u'append')
+		]
+
+		profile_names = gmTools.coalesce (
+			_cfg.get(group = u'backend', option = u'profiles', source_order = src_order),
+			[]
+		)
+
 		profiles = {}
 
-		if gmCLI.has_arg('--conf-file'):
-			fnames = [gmCLI.arg['--conf-file']]
-		else:
-			paths = gmTools.gmPaths()
-			fnames = [
-				os.path.join(paths.system_config_dir, 'gnumed-client.conf'),
-				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.working_dir, 'gnumed.conf')
-			]
-
-		for fname in fnames:
+		for profile_name in profile_names:
+			profile = cBackendProfile()
+			profile.name = profile_name
+			profile_section = 'profile %s' % profile_name
+			profile.host = gmTools.coalesce(_cfg.get(profile_section, u'host', src_order), u'').strip()
+			port = gmTools.coalesce(_cfg.get(profile_section, u'port', src_order), 5432)
 			try:
-				cfg_file = gmCfg.cCfgFile (
-					aFile = fname,
-					flags = gmCfg.cfg_IGNORE_CMD_LINE
-				)
-			except IOError:
+				profile.port = int(port)
+				if profile.port < 1024:
+					raise ValueError('refusing to use priviledged port (< 1024)')
+			except ValueError:
+				_log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name))
 				continue
-
-			profile_names = gmTools.coalesce (
-				cfg_file.get('backend', 'profiles'),
-				[]
-			)
-
-			for profile_name in profile_names:
-				profile = cBackendProfile()
-				profile.name = profile_name
-				profile_section = 'profile %s' % profile_name
-				profile.host = gmTools.coalesce(cfg_file.get(profile_section, 'host'), '').strip()
-				try:
-					profile.port = int (gmTools.coalesce (
-						cfg_file.get(profile_section, 'port'),
-						5432
-					))
-					if profile.port < 1024:
-						raise ValueError('refusing to use priviledged port (< 1024)')
-				except ValueError:
-					_log.LogException('invalid port definition: [%s], skipping profile [%s] in [%s]' % (cfg_file.get(profile_section, 'port'), profile_name, fname))
-					continue
-				profile.database = gmTools.coalesce(cfg_file.get(profile_section, 'database'), '').strip()
-				if profile.database == '':
-					_log.Log(gmLog.lErr, 'database name not specified, skipping profile [%s] in [%s]' % (profile_name, fname))
-					continue
-				profile.encoding = gmTools.coalesce (
-					cfg_file.get(profile_section, 'encoding'),
-					'UTF8'
-				)
-				profiles[profile_name] = profile
+			profile.database = gmTools.coalesce(_cfg.get(profile_section, u'database', src_order), u'').strip()
+			if profile.database == u'':
+				_log.warning('database name not specified, skipping profile [%s]', profile_name)
+				continue
+			profile.encoding = gmTools.coalesce(_cfg.get(profile_section, u'encoding', src_order), u'UTF8')
+			profiles[profile_name] = profile
 
 		if len(profiles) == 0:
-			host = 'salaam.homeunix.com'
-			label = 'public GNUmed database (%s@%s)' % (curr_db, host)
+			host = u'salaam.homeunix.com'
+			label = u'public GNUmed database (%s@%s)' % (curr_db, host)
 			profiles[label] = cBackendProfile()
 			profiles[label].name = label
 			profiles[label].host = host
 			profiles[label].port = 5432
 			profiles[label].database = curr_db
-			profiles[label].encoding = 'UTF8'
+			profiles[label].encoding = u'UTF8'
 			
 		return profiles
 	#----------------------------------------------------------
 	def __load_state(self):
 
-		prefs = gmCfg.cCfgFile (
-			aFile = self.user_preferences_file,
-			flags = gmCfg.cfg_IGNORE_CMD_LINE
-		)
+		prefs = gmCfg.gmCfgData()
+		src_order = [
+			(u'explicit', u'return'),
+			(u'workbase', u'return'),
+			(u'user', u'return'),
+		]
+
 		self._CBOX_user.SetValue (
 			gmTools.coalesce (
-				prefs.get('preferences', 'login'),
+				prefs.get(u'preferences', u'login', src_order),
 				self.__previously_used_accounts[0]
 			)
 		)
 
 		self._CBOX_profile.SetValue (
 			gmTools.coalesce (
-				prefs.get('preferences', 'profile'),
+				prefs.get(u'preferences', u'profile', src_order),
 				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
 			)
 		)
 
-		self._CHBOX_debug.SetValue(gmCLI.has_arg('--debug'))
-		self._CHBOX_slave.SetValue(gmCLI.has_arg('--slave'))
+		self._CHBOX_debug.SetValue(_cfg.get(option = 'debug'))
+		self._CHBOX_slave.SetValue(_cfg.get(option = 'slave'))
 	#----------------------------------------------------
 	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
+		prefs_name = _cfg.get(option = 'user_preferences_file')
+		_log.debug(u'saving login choices in [%s] (%s)', source, prefs_name)
 
+		# FIXME: convert to a standard writer ?
 		prefs = gmCfg.cCfgFile (
-			aFile = self.user_preferences_file,
+			aFile = prefs_name,
 			flags = gmCfg.cfg_IGNORE_CMD_LINE
 		)
 		prefs.set('preferences', 'login', self._CBOX_user.GetValue())
@@ -590,7 +558,9 @@ class cLoginPanel(wx.Panel):
 	# event handlers
 	#----------------------------
 	def OnHelp(self, event):
-		tmp = _cfg.get('workplace', 'help desk')
+		# FIXME: use new config or rather use gmSurgery ?
+		from Gnumed.pycommon import gmCfg
+		tmp = gmCfg.gmDefCfgFile.get('workplace', 'help desk')
 		if tmp is None:
 			print _("You need to set the option [workplace] -> <help desk> in the config file !")
 			tmp = "http://www.gnumed.org"
@@ -633,10 +603,10 @@ For assistance on using GnuMed please contact:
 
 		if self._CHBOX_slave.GetValue():	
 			_log.Log(gmLog.lInfo, 'slave mode enabled')
-			self.gb['main.slave_mode'] = True
+			_cfg.set_option(option = 'slave', value = True)
 		else:
 			_log.Log(gmLog.lInfo, 'slave mode disabled')
-			self.gb['main.slave_mode'] = False
+			_cfg.set_option(option = 'slave', value = False)
 
 		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
 #		self.user = self._CBOX_user.GetValue().strip()
@@ -678,7 +648,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.2  2007-12-04 16:14:52  ncq
+# Revision 1.3  2007-12-23 12:07:40  ncq
+# - cleanup
+# - use gmCfg2
+#
+# Revision 1.2  2007/12/04 16:14:52  ncq
 # - get_dbowner_connection()
 #
 # Revision 1.1  2007/12/04 16:03:43  ncq
