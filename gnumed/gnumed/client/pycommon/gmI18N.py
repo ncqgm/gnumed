@@ -48,14 +48,14 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.37 2007-12-20 13:09:13 ncq Exp $
+# $Id: gmI18N.py,v 1.38 2007-12-23 11:57:59 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
-#stdlib
+# stdlib
 import sys, os.path, os, re as regex, locale, gettext, logging
 
 
@@ -314,13 +314,30 @@ def get_encoding():
 	"""Try to get a sane encoding.
 
 	On MaxOSX locale.setlocale(locale.LC_ALL, '') does not
-	have the desired effect. locale.getlocale()[1] still
-	returns None. So in that case try to fallback to
+	have the desired effect, so that locale.getlocale()[1]
+	still returns None. So in that case try to fallback to
 	locale.getpreferredencoding().
+
+	<sys.getdefaultencoding()>
+		- what Python itself uses to convert string <-> unicode
+		  when no other encoding was specified
+		- ascii by default
+		- can be set in site.py and sitecustomize.py
+	<locale.getpreferredencoding()>
+		- what the current locale would *recommend* using
+		  as the encoding for text conversion
+	<locale.getlocale()[1]>
+		- what the current locale is *actually* using
+		  as the encoding for text conversion
 	"""
-	loc = locale.getlocale()[1]
-	if loc is not None:
-		return loc
+	enc = sys.getdefaultencoding()
+	if enc != 'ascii':
+		return enc
+	_log.debug('default encoding still ASCII, trying something else')
+	enc = locale.getlocale()[1]
+	if enc is not None:
+		return enc
+	_log.debug('*actual* encoding of locale is None, using encoding *recommended* by locale')
 	return locale.getpreferredencoding(do_setlocale=False)
 #===========================================================================
 # Main
@@ -339,6 +356,7 @@ if __name__ == "__main__":
 		print "======================================================================"
 		activate_locale()
 		print "system locale: ", system_locale, "; levels:", system_locale_level
+		print "likely encoding:", get_encoding()
 		install_domain()
 		# ********************************************************
 		# == do not remove this line =============================
@@ -351,7 +369,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.37  2007-12-20 13:09:13  ncq
+# Revision 1.38  2007-12-23 11:57:59  ncq
+# - better docs
+# - better get_encoding()
+#
+# Revision 1.37  2007/12/20 13:09:13  ncq
 # - improved docs and variable naming
 #
 # Revision 1.36  2007/12/12 16:18:31  ncq
