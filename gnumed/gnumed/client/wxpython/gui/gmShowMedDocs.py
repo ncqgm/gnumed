@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -27,7 +27,7 @@ _log.Log(gmLog.lInfo, __version__)
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
-	from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmCfg, gmGuiBroker
+	from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmCfg
 	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord, gmPerson
 	from Gnumed.wxpython import gmGuiHelpers
 
@@ -230,7 +230,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.71  2007-06-10 10:16:05  ncq
+# Revision 1.72  2007-12-23 21:19:17  ncq
+# - cleanup
+#
+# Revision 1.71  2007/06/10 10:16:05  ncq
 # - properly display doc from toolbar tool
 #
 # Revision 1.70  2007/03/08 11:54:44  ncq
