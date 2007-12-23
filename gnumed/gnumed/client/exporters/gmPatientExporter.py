@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.109 2007-11-28 11:52:13 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmPatientExporter.py,v 1.110 2007-12-23 11:56:38 ncq Exp $
+__version__ = "$Revision: 1.110 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -23,12 +23,11 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull, gmPG2, gmTools
+from Gnumed.pycommon import gmLog, gmI18N, gmExceptions, gmNull, gmPG2, gmTools
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmMedDoc, gmDemographicRecord
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
-_cfg = gmCfg.gmDefCfgFile
 #============================================================
 class cEmrExport:
 
@@ -714,7 +713,8 @@ class cEmrExport:
         """
         emr = self.__patient.get_emr()
         # general
-        txt = (' ' * left_margin) + '%s - %s: %s' % (
+        txt = (' ' * left_margin) + '#%s: %s - %s   %s' % (
+            encounter['pk_encounter'],
             encounter['started'].strftime('%Y-%m-%d  %H:%M'),
             encounter['last_affirmed'].strftime('%H:%M'),
             encounter['l10n_type']
@@ -750,7 +750,7 @@ class cEmrExport:
             for soap_entry in soap_cat_narratives:
                 txt += gmTools.wrap (
                     '%s %.8s: %s\n' % (
-                        soap_entry['date'].strftime('%d.%m %H:%M'),
+                        soap_entry['date'].strftime('%d.%m. %H:%M'),
                         soap_entry['provider'],
                         soap_entry['narrative']
                     ), 75
@@ -1135,6 +1135,8 @@ def parse_constraints():
     """
         Obtains, parses and normalizes config file options
     """
+	from Gnumed.pycommon import gmCfg
+	_cfg = gmCfg.gmDefCfgFile
     if isinstance(_cfg, gmNull.cNull):
         usage()
 
@@ -1170,15 +1172,6 @@ def run():
     """
         Main module application execution loop.
     """
-    # Check that output file name is defined and create an instance of exporter
-#    if gmCLI.has_arg('--fileout'):
-#        outFile = open(gmCLI.arg['--fileout'], 'wb')
-#    else:
-#        usage()
-#    export_tool = cEmrExport(parse_constraints(), outFile)
-
-#    export_tool.get_episode_summary()
-
     # More variable initializations
     patient = None
     patient_id = None
@@ -1241,15 +1234,15 @@ if __name__ == "__main__":
 	print "\n\nGNUmed ASCII EMR Export"
 	print     "======================="
 
-	if gmCLI.has_arg('--help'):
-		usage()
-
 	# run main loop
 	export_journal()
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.109  2007-11-28 11:52:13  ncq
+# Revision 1.110  2007-12-23 11:56:38  ncq
+# - improve output, cleanup
+#
+# Revision 1.109  2007/11/28 11:52:13  ncq
 # - get_all_names() -> get_names()
 #
 # Revision 1.108  2007/11/05 12:10:05  ncq
