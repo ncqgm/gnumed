@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.377 2007-12-12 16:24:32 ncq Exp $
-__version__ = "$Revision: 1.377 $"
+# $Id: gmGuiMain.py,v 1.378 2007-12-23 20:28:44 ncq Exp $
+__version__ = "$Revision: 1.378 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -51,7 +51,7 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmCLI, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener
+from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
 from Gnumed.exporters import gmPatientExporter
@@ -61,17 +61,12 @@ try:
 except NameError:
 	_ = lambda x:x
 
-_cfg = gmCfg.gmDefCfgFile
+_cfg = gmCfg2.gmCfgData()
 _provider = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
-
-
-# set up database connection timezone
-timezone = _cfg.get('backend', 'client timezone')
-if timezone is not None:
-	gmPG2.set_default_client_timezone(timezone)
+_scripting_listener = None
 
 expected_db_ver = u'devel'
 current_client_ver = u'CVS HEAD'
@@ -193,7 +188,7 @@ class gmTopLevelFrame(wx.Frame):
 		))
 
 		# set window title via template
-		if self.__gb['main.slave_mode']:
+		if _cfg.get(option = 'slave'):
 			self.__title_template = _('Enslaved GNUmed [%s%s.%s@%s] %s')
 		else:
 			self.__title_template = 'GNUmed [%s%s.%s@%s] %s'
@@ -612,8 +607,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_debugging.Append(ID_UNBLOCK, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
 		wx.EVT_MENU(self, ID_UNBLOCK, self.__on_unblock_cursor)
 
-		if gmCLI.has_arg('--debug'):
-
+		if _cfg.get(option = 'debug'):
 			ID_TOGGLE_PAT_LOCK = wx.NewId()
 			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient'), _('Lock/unlock patient - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
 			wx.EVT_MENU(self, ID_TOGGLE_PAT_LOCK, self.__on_toggle_patient_lock)
@@ -621,7 +615,6 @@ class gmTopLevelFrame(wx.Frame):
 			ID_TEST_EXCEPTION = wx.NewId()
 			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
-
 
 		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
@@ -1602,12 +1595,11 @@ Search results:
 		listener.stop_thread()
 
 		# shutdown application scripting listener
-		try:
-			gmGuiBroker.GuiBroker()['scripting listener'].shutdown()
-		except KeyError:
-			_log.LogException('no access to scripting listener thread', verbose=0)
-		except:
-			_log.LogException('cannot stop scripting listener thread', verbose=0)
+		if scripting_listener is not None:
+			try:
+				scripting_listener.shutdown()
+			except:
+				_log.LogException('cannot stop scripting listener thread', verbose=0)
 
 		gmDispatcher.disconnect(self._on_set_statustext, 'statustext')
 
@@ -1736,17 +1728,19 @@ class gmApp(wx.App):
 		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = 'gnumed')
 
-		if gmCLI.has_arg('--conf-file'):
-			candidates = [gmCLI.arg['--conf-file']]
-		else:
+		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
+		if explicit_file is None:
 			candidates = [
 				os.path.join(paths.user_config_dir, 'gnumed.conf'),
-				os.path.join(paths.local_base_dir, 'gnumed.conf')
+				os.path.join(paths.local_base_dir, 'gnumed.conf'),
+				os.path.join(paths.working_dir, 'gnumed.conf')
 			]
+		else:
+			candidates = [explicit_file]
 		for candidate in candidates:
 			try:
 				open(candidate).close()
-				self.user_prefs_cfg_file = gmCfg.cCfgFile(aFile = candidate, flags = gmCfg.cfg_IGNORE_CMD_LINE)
+				cfg.set_option(option = u'user_preferences_file', value = candidate)
 				break
 			except IOError:
 				continue
@@ -1759,11 +1753,12 @@ class gmApp(wx.App):
 
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmAuthWidgets
-		if not gmAuthWidgets.connect_to_database(expected_version = expected_db_ver, require_version = not gmCLI.has_arg('--override-schema-check')):
+		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
+		if not gmAuthWidgets.connect_to_database(expected_version = expected_db_ver, require_version = not override):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
-		if gmCLI.has_arg('--debug'):
+		if _cfg.get(option = 'debug'):
 			self.RedirectStdio()
 
 		# check account <-> staff member association
@@ -1801,7 +1796,7 @@ class gmApp(wx.App):
 		frame.CentreOnScreen(wx.BOTH)
 		frame.Show(True)
 
-		if self.__guibroker['main.slave_mode']:
+		if _cfg.get(option = 'slave'):
 			if not self.__setup_scripting_listener():
 				return False
 
@@ -1872,32 +1867,49 @@ class gmApp(wx.App):
 		#windows and call evt.GetActive() in the handler to see whether it is
 		#gaining or loosing focus.
 
-		if gmCLI.has_arg('--debug'):
+		if _cfg.get(option = 'debug'):
 			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
 	#----------------------------------------------
 	def __setup_scripting_listener(self):
 
-		import socket
+		from socket import error as SocketError
 		from Gnumed.pycommon import gmScriptingListener
 		from Gnumed.wxpython import gmMacro
 
-		slave_personality = self.user_prefs_cfg_file.get('workplace', 'slave personality')
-		if slave_personality is None:
-			_log.Log(gmLog.lWarning, 'slave mode personality not set in config file')
-			_log.Log(gmLog.lInfo, 'assuming personality <gnumed-client>')
-			slave_personality = u'gnumed-client'
+		slave_personality = gmTools.coalesce (
+			_cfg.get (
+				group = u'workplace',
+				option = u'slave personality',
+				source_order = [
+					('explicit': 'return'),
+					('workbase': 'return'),
+					('user': 'return'),
+					('system', 'return')
+				]
+		 	),
+			u'gnumed-client'
+		)
+
+		# FIXME: handle port via /var/run/
+		port = gmTools.coalesce (
+			int(_cfg.get (
+				group = u'workplace',
+				option = u'xml-rpc port',
+				source_order = [
+					('explicit': 'return'),
+					('workbase': 'return'),
+					('user': 'return'),
+					('system', 'return')
+				]
+			)),
+			9999
+		)
 
 		macro_executor = gmMacro.cMacroPrimitives(personality = slave_personality)
-
-		# FIXME include /etc/gnumed/gnumed-client.conf in search
-		# FIXME: handle port via /var/run/
-		port = self.user_prefs_cfg_file.get('workplace', 'xml-rpc port')
-		if port is None:
-			port = 9999
-
+		global scripting_listener
 		try:
-			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
-		except socket.error, e:
+			scripting_listener = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
+		except SocketError, e:
 			_log.LogException('cannot start GNUmed XML-RPC server')
 			gmGuiHelpers.gm_show_error (
 				aMessage = (
@@ -1909,7 +1921,7 @@ class gmApp(wx.App):
 			)
 			return False
 
-		_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % slave_personality)
+		_log.Log(gmLog.lInfo, 'slave mode personality is [%s]' % slave_personality)
 		return True
 	#----------------------------------------------
 	def __setup_platform(self):
@@ -1971,7 +1983,11 @@ class gmApp(wx.App):
 			_log.Log(gmLog.lWarn, 'database locale [%s] does not match system locale [%s]' % (db_lang, gmI18N.system_locale))
 
 		# returns either None or a locale string
-		ignored_sys_lang = self.user_prefs_cfg_file.get('backend', 'ignored mismatching system locale')
+		ignored_sys_lang = _cfg.get (
+			group = u'backend',
+			option = u'ignored mismatching system locale',
+			source_order = [('user', 'return'), ('local': 'return')]
+		)
 		# are we to ignore *this* mismatch ?
 		if gmI18N.system_locale == ignored_sys_lang:
 			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
@@ -1987,8 +2003,13 @@ class gmApp(wx.App):
 				"with the database locale will be ignored.",
 				"Remove this option if you want to stop ignoring mismatches.",
 			]
-			self.user_prefs_cfg_file.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
-			self.user_prefs_cfg_file.store()
+
+			prefs = gmCfg.cCfgFile (
+				aFile = _cfg.get(option = 'user_preferences_file'),
+				flags = gmCfg.cfg_IGNORE_CMD_LINE
+			)
+			prefs.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
+			prefs.store()
 			return True
 
 		# try setting database language (only possible if translation exists)
@@ -2049,7 +2070,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.377  2007-12-12 16:24:32  ncq
+# Revision 1.378  2007-12-23 20:28:44  ncq
+# - use gmCfg2, less gmCLI use
+# - cleanup
+# - less guibroker use
+#
+# Revision 1.377  2007/12/12 16:24:32  ncq
 # - cleanup
 #
 # Revision 1.376  2007/12/11 12:49:26  ncq
