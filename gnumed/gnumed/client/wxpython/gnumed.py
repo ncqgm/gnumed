@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.125 2007-12-23 20:56:32 ncq Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gnumed.py,v 1.126 2007-12-23 21:15:26 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -291,6 +291,22 @@ def setup_cfg():
 		encoding = enc
 	)
 #==========================================================
+def setup_backend():
+	# set up database connection timezone
+	timezone = _cfg.get (
+		group = u'backend',
+		option = 'client timezone',
+		source_order = [
+			('explicit', 'return'),
+			('workbase', 'return'),
+			('local', 'return'),
+			('user', 'return'),
+			('system', 'return')
+		]
+	)
+	if timezone is not None:
+		gmPG2.set_default_client_timezone(timezone)
+#==========================================================
 def log_object_refcounts():
 	# FIXME: use internal source
 	if not _cfg.get(option = u'debug')
@@ -340,15 +356,6 @@ setup_date_time()
 setup_cfg()
 setup_backend()
 
-# set up database connection timezone
-timezone = _cfg.get (
-	group = u'backend',
-	option = 'client timezone',
-	source_order = [('explicit', 'return'), ('workbase', 'return'), ('local', 'return'), ('user', 'return'), ('system', 'return')]
-)
-if timezone is not None:
-	gmPG2.set_default_client_timezone(timezone)
-
 #from Gnumed.pycommon import gmCfg as gmCfg
 
 #from Gnumed.business import gmSurgery
@@ -376,7 +383,10 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.125  2007-12-23 20:56:32  ncq
+# Revision 1.126  2007-12-23 21:15:26  ncq
+# - add setup_backend()
+#
+# Revision 1.125  2007/12/23 20:56:32  ncq
 # - cleanup++
 #
 # Revision 1.124  2007/12/12 16:26:10  ncq
