@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.76 2007-12-04 17:32:33 ncq Exp $
-__version__ = "$Revision: 1.76 $"
+# $Id: gmGuiHelpers.py,v 1.76.2.1 2007-12-24 23:03:23 shilbert Exp $
+__version__ = "$Revision: 1.76.2.1 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -614,7 +614,6 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		caption = aTitle,
 		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
-	dlg.SetFocus()
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
@@ -636,7 +635,6 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 		caption = aTitle,
 		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
-	dlg.SetFocus()
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
@@ -658,7 +656,6 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 		caption = aTitle,
 		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
 	)
-	dlg.SetFocus()
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
@@ -675,7 +672,6 @@ def gm_show_question(aMessage = 'programmer forgot to specify question', aTitle 
 		aTitle,
 		style
 	)
-	dlg.SetFocus()
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
 
@@ -810,7 +806,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.76  2007-12-04 17:32:33  ncq
+# Revision 1.76.2.1  2007-12-24 23:03:23  shilbert
+# - removed the dlg.setfocus stuff
+#
+# Revision 1.76  2007/12/04 17:32:33  ncq
 # - improved wording
 #
 # Revision 1.75  2007/12/04 17:08:14  ncq
