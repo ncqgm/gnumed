@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.148 2007-12-23 11:55:21 ncq Exp $
-__version__ = "$Revision: 1.148 $"
+# $Id: gmPerson.py,v 1.149 2007-12-24 23:25:39 shilbert Exp $
+__version__ = "$Revision: 1.149 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -117,7 +117,7 @@ where pk_identity in (
 		)
 		return ident
 	#--------------------------------------------------------
-	def import_extra_data(self):
+	def import_extra_data(self,*args,**kwargs):
 		pass
 	#--------------------------------------------------------
 	# customizing behaviour
@@ -2159,7 +2159,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.148  2007-12-23 11:55:21  ncq
+# Revision 1.149  2007-12-24 23:25:39  shilbert
+# - fix missing *args, **kwargs in import_extra_data
+#
+# Revision 1.148  2007/12/23 11:55:21  ncq
 # - cleanup
 #
 # Revision 1.147  2007/12/11 12:59:11  ncq
