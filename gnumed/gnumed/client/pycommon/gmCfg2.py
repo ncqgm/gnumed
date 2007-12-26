@@ -2,12 +2,12 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging, sys, codecs
+import logging, sys, codecs, re as regex
 
 
 if __name__ == "__main__":
@@ -59,6 +59,7 @@ def parse_INI_stream(stream=None):
 				_log.error(line)
 				raise ValueError('INI-stream parsing error')
 			current_group = group
+			continue
 
 		# option
 		if current_group is None:
@@ -146,7 +147,7 @@ class gmCfgData(gmBorg.cBorg):
 
 		return results
 	#--------------------------------------------------
-	def add_file_source(self, source=None, file=None, encoding=None):
+	def add_file_source(self, source=None, file=None, encoding='utf8'):
 		"""Add a source (a file) to the instance."""
 		_log.info('file source "%s": %s (%s)', source, file, encoding)
 
@@ -222,18 +223,20 @@ if __name__ == "__main__":
 		cfg.set_option('internal option', True)
 		print cfg.get(option = '--help', source_order = [('cli', 'return')])
 		print cfg.get(option = '-?', source_order = [('cli', 'return')])
-#		print cfg.get (
-#			'a group',
-#			'an option',
-#			[('commandline', 'return'), ('local', 'return'), ('user', 'return'), ('system', 'return')]
-#		)
+		fname = cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
+		if fname is not None:
+			cfg.add_file_source(source = 'explicit', file = fname)
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		test_gmCfgData()
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.4  2007-12-26 21:11:11  ncq
+# Revision 1.5  2007-12-26 21:50:45  ncq
+# - missing continue
+# - better test suite
+#
+# Revision 1.4  2007/12/26 21:11:11  ncq
 # - need codecs
 #
 # Revision 1.3  2007/12/26 20:47:22  ncq
