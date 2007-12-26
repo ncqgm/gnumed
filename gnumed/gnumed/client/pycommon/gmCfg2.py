@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -117,7 +117,7 @@ class gmCfgData(gmBorg.cBorg):
 		returns NONE when there's no value for an option
 		"""
 		if source_order is None:
-			source_order = [u'internal']
+			source_order = [(u'internal', u'return')]
 		results = []
 		for source, policy in source_order:
 			if group is None:
@@ -232,7 +232,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.5  2007-12-26 21:50:45  ncq
+# Revision 1.6  2007-12-26 22:43:28  ncq
+# - source order needs policy
+#
+# Revision 1.5  2007/12/26 21:50:45  ncq
 # - missing continue
 # - better test suite
 #
