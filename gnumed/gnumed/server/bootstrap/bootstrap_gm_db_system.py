@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.70 $"
+__version__ = "$Revision: 1.71 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -808,7 +808,6 @@ class database:
 		target_version = _cfg.get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
 			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
-#			print '    identity hash of "%s": %s' % (self.name, gmPG2.known_schema_hashes[target_version])
 			return True
 		_log.Log(gmLog.lErr, 'target database identity hash invalid')
 		if target_version == 'devel':
@@ -980,12 +979,7 @@ class gmBundle:
 			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-		if gmPG2.postgresql_version is None:
-			_log.Log(gmLog.lWarn, 'DB adapter does not support version checking')
-			_log.Log(gmLog.lWarn, 'assuming installed PostgreSQL server is compatible with required version %s' % required_version)
-			return True
-
-		if gmPG2.postgresql_version < float(required_version):
+		if float(gmPG2.postgresql_version) < float(required_version):
 			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 
@@ -1284,7 +1278,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.70  2007-12-11 12:44:11  ncq
+# Revision 1.71  2007-12-26 12:37:27  ncq
+# - force version into float to make comparison work
+#
+# Revision 1.70  2007/12/11 12:44:11  ncq
 # - less console verbosity
 #
 # Revision 1.69  2007/12/04 15:24:38  ncq
