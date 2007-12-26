@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.31 2007-12-26 14:35:51 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmXdtViewer.py,v 1.32 2007-12-26 20:19:34 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -380,7 +380,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmCfg2
 
 	cfg = gmCfg2.gmCfgData()
-	cfg.add_cli(long_options=['xdt-file'])
+	cfg.add_cli(long_options=['xdt-file='])
 	#---------------------
 	# set up dummy app
 	class TestApp (wx.App):
@@ -425,7 +425,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.31  2007-12-26 14:35:51  ncq
+# Revision 1.32  2007-12-26 20:19:34  ncq
+# - add = to long options
+#
+# Revision 1.31  2007/12/26 14:35:51  ncq
 # - move to gmLog2/gmCfg2
 #
 # Revision 1.30  2007/12/11 12:49:26  ncq
