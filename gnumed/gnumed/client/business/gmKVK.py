@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.16 2007-11-12 22:54:26 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmKVK.py,v 1.17 2007-12-26 12:35:30 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -121,7 +121,7 @@ select pk_identity from dem.v_external_ids4identity where
 
 		return old_idents
 	#--------------------------------------------------------
-	def import_extra_data(self, identity=None):
+	def import_extra_data(self, identity=None, *args, **kwargs):
 		# Versicherungsnummer
 		identity.add_external_id (
 			id_type = insurance_number_external_id_type,
@@ -246,7 +246,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.16  2007-11-12 22:54:26  ncq
+# Revision 1.17  2007-12-26 12:35:30  ncq
+# - import_extra_data(..., *args, **kwargs)
+#
+# Revision 1.16  2007/11/12 22:54:26  ncq
 # - fix longstanding semantic bug ! KVK-Nummmer really is VKNR
 # - delete KVKd file after importing it
 # - improve get_candidate_identities()
