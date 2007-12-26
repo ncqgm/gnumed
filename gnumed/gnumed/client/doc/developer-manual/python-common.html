@@ -78,66 +78,8 @@ NAME="PYTHON-COMMON"
 ></H1
 ><DIV
 CLASS="SECT2"
-><H2
-CLASS="SECT2"
-><A
-NAME="AEN371"
->4.1.1. gmCLI.py</A
-></H2
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->&#13;GNUmed command line options handling.
-
-All command line argument handling should go through this module.
-
-Theory of operation:
-Upon startup the command line is parsed for any option
-arguments. Those are assumed to start with at least one "-".
-Any arguments not starting with a "-" are considered
-non-option arguments. Option arguments are then stored in
-the module level global dictionary _cli_args{}.
-
-Your module should import gmCLI and query for existence of
-one-letter arguments like this:
-
-if gmCLI.has_arg("-v"):
-	do_something_verbosely()
-else:
-	be_rather_quiet()
-
-If you want to access the value for a long option you should
-first check for it's existence and then access the value:
-
-if gmCLI.has_arg("--foo"):
-	print gmCLI.arg["--foo"]
-else:
-	print "no argument --foo specified"
-
-Remember that even though a long argument exists it may not
-have a value, e.g. the value might amount to an empty string.
-
-Limitations:
-1) Aggregated short arguments are not supported, eg you CANNOT say
-    my-script -fo
-   instead of
-    my-script -f -o
-   In fact, "-fo" will be truncated to "-f"
-2) Values on short arguments are not supported. Use long
-   style arguments for that, e.g.:
-    my-script --foo=bar&#13;</PRE
-></FONT
-></TD
-></TR
-></TABLE
-></DIV
+>
+</DIV
 ><DIV
 CLASS="SECT2"
 ><H2
