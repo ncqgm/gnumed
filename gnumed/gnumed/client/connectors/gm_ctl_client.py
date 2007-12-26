@@ -12,55 +12,49 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.5 2007-10-09 09:55:44 ncq Exp $
-__version__ = '$Revision: 1.5 $'
+# $Id: gm_ctl_client.py,v 1.6 2007-12-26 14:33:11 ncq Exp $
+__version__ = '$Revision: 1.6 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
 
-import sys, time, xmlrpclib, socket, time, os
+import sys, time, xmlrpclib, socket, time, os, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmCfg, gmExceptions, gmI18N, gmLog, gmCLI, gmNull
+from Gnumed.pycommon import gmCfg2, gmI18N, gmLog2
 from Gnumed.wxpython import gmGuiHelpers
 
 
-_log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfgFile
-
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm_ctl_client')
+_log.info(__version__)
 #==================================================================
 class cBaseConnector:
 
 	def __init__(self):
-		# sanity check
-		if isinstance(_cfg, gmNull.cNull):
-			_log.Log(gmLog.lErr, 'cannot run without config file')
-			raise gmExceptions.ConstructorError, _("Cannot find config file. Option syntax: --conf-file=<file>")
 		self.__conn_auth = 0
 		self.__unlock_auth = 0
 	#--------------------------------------------------------------
 	def connect(self):
 		# connect to GNUmed instance
-		port = _cfg.get('GNUmed instance', 'port')
+		port = _cfg.get(group = 'GNUmed instance', option = 'port', source_order = [('explicit', 'return')])
 		self.__gm_server = xmlrpclib.ServerProxy('http://localhost:%s' % int(port))
 
 		try:
-			_log.Log(gmLog.lInfo, 'GNUmed slave XML-RPC server version: %s' % self.__gm_server.version())
+			_log.info('GNUmed slave XML-RPC server version: %s' % self.__gm_server.version())
 		except socket.error, e:
 			# FIXME: differentiate between already-attached and not-there
-			_log.LogException('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
+			_log.exception('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
 			# try starting GNUmed
 			# - no use trying to start GNUmed if wx cannot be imported
 			import wx
-			startup_cmd = _cfg.get('GNUmed instance', 'startup command')
+			startup_cmd = _cfg.get(group = 'GNUmed instance', option = 'startup command', source_order = [('explicit', 'return')])
 			if startup_cmd is None:
-				_log.Log(gmLog.lErr, 'cannot start GNUmed slave, no startup command defined')
+				_log.error('cannot start GNUmed slave, no startup command defined')
 				return False
 			os.system(startup_cmd)	# better be non-blocking, use gmShellAPI
-			_log.Log(gmLog.lInfo, 'trying to start one with [%s]' % startup_cmd)
+			_log.info('trying to start one with [%s]' % startup_cmd)
 			app = wx.PySimpleApp()
 			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 				caption = _('gm_ctl_client: starting slave GNUmed client'),
@@ -97,35 +91,35 @@ class cBaseConnector:
 			if not retry:
 				return False
 
-			alt_port = _cfg.get('GNUmed instance', 'startup port')
+			alt_port = _cfg.get(group = 'GNUmed instance', option = 'startup port', source_order = [('explicit', 'return')])
 			if alt_port is not None:
 				port = alt_port
 
 			try:
-				_log.Log(gmLog.lInfo, self.__gm_server.version())
+				_log.info(self.__gm_server.version())
 			except socket.error, e:
 				# FIXME: differentiate between already-attached and not-there
-				_log.LogException('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
+				_log.exception('cannot attach to GNUmed instance at http://localhost:%s: %s' % (port, e))
 				return False
 
-		_log.Log(gmLog.lInfo, 'enslaveable GNUmed client found, testing suitability')
+		_log.info('enslaveable GNUmed client found, testing suitability')
 
-		target_personality = _cfg.get('GNUmed instance', 'personality')
+		target_personality = _cfg.get(group = 'GNUmed instance', option = 'personality', source_order = [('explicit', 'return')])
 		success, self.__conn_auth = self.__gm_server.attach(target_personality)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot attach: %s' % self.__conn_auth)
+			_log.error('cannot attach: %s' % self.__conn_auth)
 			self.__gm_server.force_detach()
 			user_done, can_attach = self.__gm_server.get_user_answer()
 			while not user_done:
 				time.sleep(0.75)
 				user_done, can_attach = self.__gm_server.get_user_answer()
 			if not can_attach:
-				_log.Log(gmLog.lErr, 'cannot attach to GNUmed instance [%s]' % target_personality)
+				_log.error('cannot attach to GNUmed instance [%s]' % target_personality)
 				return False
-			_log.Log(gmLog.lInfo, 'successfully broke other connection, now attached')
+			_log.info('successfully broke other connection, now attached')
 			success, self.__conn_auth = self.__gm_server.attach(target_personality)
 			if not success:
-				_log.Log(gmLog.lErr, 'cannot attach: %s' % self.__conn_auth)
+				_log.error('cannot attach: %s' % self.__conn_auth)
 				return False
 
 		return True
@@ -134,7 +128,7 @@ class cBaseConnector:
 		# load external patient
 		success, lock_cookie = self.__gm_server.load_patient_from_external_source(self.__conn_auth)
 		if not success:
-			_log.Log(gmLog.lErr, 'error loading patient from external source in GNUmed')
+			_log.error('error loading patient from external source in GNUmed')
 			return False
 		user_done, patient_loaded = self.__gm_server.get_user_answer()
 		# FIXME: this might loop forever
@@ -142,12 +136,12 @@ class cBaseConnector:
 			time.sleep(0.75)
 			user_done, patient_loaded = self.__gm_server.get_user_answer()
 		if not patient_loaded:
-			_log.Log(gmLog.lErr, 'cannot load patient from external source in GNUmed')
+			_log.error('cannot load patient from external source in GNUmed')
 			return False
 		# lock loaded patient
 		success, self.__unlock_auth = self.__gm_server.lock_loaded_patient(self.__conn_auth, lock_cookie)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot lock patient')
+			_log.error('cannot lock patient')
 			return False
 		self.__gm_server.raise_gnumed(self.__conn_auth)
 		return True
@@ -155,14 +149,14 @@ class cBaseConnector:
 	def run_script(self):
 		"""Override this in derived classes."""
 		# run script (eg. raise desired plugin)
-		target_plugin = _cfg.get('script', 'target plugin')
+		target_plugin = _cfg.get(group = 'script', option = 'target plugin', source_order = [('explicit', 'return')])
 		plugins = self.__gm_server.get_loaded_plugins(self.__conn_auth)
 		if target_plugin not in plugins:
-			_log.Log(gmLog.lErr, 'plugin [%s] not loaded in GNUmed' % target_plugin)
-			_log.Log(gmLog.lInfo, str(plugins))
+			_log.error('plugin [%s] not loaded in GNUmed' % target_plugin)
+			_log.info(str(plugins))
 			return False
 		if not self.__gm_server.raise_notebook_plugin(self.__conn_auth, target_plugin):
-			_log.Log(gmLog.lErr, 'cannot raise plugin [%s]' % target_plugin)
+			_log.error('cannot raise plugin [%s]' % target_plugin)
 			return False
 		return True
 	#--------------------------------------------------------------
@@ -173,17 +167,20 @@ class cBaseConnector:
 
 #==================================================================
 if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
 
-	td = None
-	if gmCLI.has_arg('--text-domain'):
-		td = gmCLI.arg['--text-domain']
-	l = None
-	if gmCLI.has_arg('--lang-gettext'):
-		l = gmCLI.arg['--lang-gettext']
+	_cfg = gmCfg2.gmCfgData()
 
+	_cfg.add_cli(long_options = ['text-domain', 'lang-gettext', 'conf-file'])
+	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
+	l = _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = td, language = l)
+
+	_cfg.add_file_source (
+		source = 'explicit',
+		file = _cfg.get(option = '--conf-file', source = [('cli', 'return')]),
+		encoding = gmI18N.get_encoding()
+	)
 
 	connector = cBaseConnector()
 	if not connector.connect():
@@ -198,7 +195,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.5  2007-10-09 09:55:44  ncq
+# Revision 1.6  2007-12-26 14:33:11  ncq
+# - move to gmLog2/gmCfg2
+#
+# Revision 1.5  2007/10/09 09:55:44  ncq
 # - better logging
 # - fix connect error
 #

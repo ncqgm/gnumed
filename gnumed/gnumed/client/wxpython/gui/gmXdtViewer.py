@@ -11,20 +11,22 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.30 2007-12-11 12:49:26 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmXdtViewer.py,v 1.31 2007-12-26 14:35:51 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
 
+
 import wx
 
+
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher
+from Gnumed.pycommon import gmLog2, gmI18N, gmDispatcher
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
-_log = gmLog.gmDefLog
+_log = logging.getLogger('gm.ui')
 _log.Log(gmLog.lInfo, __version__)
 
 #=============================================================================
@@ -94,7 +96,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		if encoding is None:
 			encoding = 'utf8'
 			gmDispatcher.send(signal = 'statustext', msg = _('Encoding missing in xDT file. Assuming [%s].') % encoding)
-			_log.Log(gmLog.lWarn, 'xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
+			_log.warning('xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
 
 		try:
 			xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding, errors='replace')
@@ -229,7 +231,7 @@ class gmXdtViewerPanel(wx.Panel):
 	#-------------------------------------------------------------------------
 	def __decode_xdt(self):
 		if self.filename is None:
-			_log.Log(gmLog.lErr, "Need name of file to parse !")
+			_log.error("Need name of file to parse !")
 			return None
 
 		xDTFile = fileinput.input(self.filename)
@@ -375,7 +377,10 @@ class gmXdtViewer(gmPlugin.cNotebookPlugin):
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmCLI
+	from Gnumed.pycommon import gmCfg2
+
+	cfg = gmCfg2.gmCfgData()
+	cfg.add_cli(long_options=['xdt-file'])
 	#---------------------
 	# set up dummy app
 	class TestApp (wx.App):
@@ -383,9 +388,9 @@ if __name__ == '__main__':
 
 			fname = ""
 			# has the user manually supplied a config file on the command line ?
-			if gmCLI.has_arg('--xdt-file'):
-				fname = gmCLI.arg['--xdt-file']
-				_log.Log(gmLog.lData, 'XDT file is [%s]' % fname)
+			fname = cfg.get(option = '--xdt-file', source_order = [('cli', 'return')])
+			if fname is not None.
+				_log.debug('XDT file is [%s]' % fname)
 				# file valid ?
 				if not os.access(fname, os.R_OK):
 					title = _('Opening xDT file')
@@ -415,12 +420,15 @@ if __name__ == '__main__':
 		app = TestApp ()
 		app.MainLoop ()
 	except StandardError:
-		_log.LogException('Unhandled exception.', sys.exc_info(), verbose=1)
+		_log.exception('Unhandled exception.')
 		raise
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.30  2007-12-11 12:49:26  ncq
+# Revision 1.31  2007-12-26 14:35:51  ncq
+# - move to gmLog2/gmCfg2
+#
+# Revision 1.30  2007/12/11 12:49:26  ncq
 # - explicit signal handling
 #
 # Revision 1.29  2007/08/29 14:43:43  ncq
