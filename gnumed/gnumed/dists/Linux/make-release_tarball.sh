@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.42 2007-12-06 13:08:55 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.43 2007-12-26 18:36:35 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -20,6 +20,8 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/pycommon/gmSerialTools.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmTrace.py "\
 "./GNUmed-$CLIENTREV/client/pycommon/gmdbf.py "\
+"./GNUmed-$CLIENTREV/client/pycommon/gmCLI.py "\
+"./GNUmed-$CLIENTREV/client/pycommon/gmPG.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/README "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_AdminLoginV01.py "\
 "./GNUmed-$CLIENTREV/client/wxGladeWidgets/wxgAU_DBUserSetupV01.py "\
@@ -340,7 +342,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.42  2007-12-06 13:08:55  ncq
+# Revision 1.43  2007-12-26 18:36:35  ncq
+# - delete old CLI/PG libs from tarball
+#
+# Revision 1.42  2007/12/06 13:08:55  ncq
 # - include v7-v8/static/
 #
 # Revision 1.41  2007/12/02 11:43:39  ncq
