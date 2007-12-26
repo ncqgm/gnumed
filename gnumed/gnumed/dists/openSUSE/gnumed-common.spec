@@ -1,5 +1,5 @@
 #
-# spec file for package gnumed-common (Version 0.2.7.1)
+# spec file for package gnumed-common
 #
 # Copyright (c) 2007 Sebastian Hilbert, Leipzig, Germany
 # This file and all modifications and additions to the pristine
@@ -13,7 +13,7 @@
 Name:           gnumed-common
 Summary:        An electronic medical record and patient record archive
 License:        GPL
-Version:        0.2.7.1
+Version:        0.2.8.0
 Release:        0.0
 Group:          Productivity/Publishing/Other
 Source:         http://www.gnumed.de/downloads/client/0.2/GNUmed-client.%{version}.tgz
