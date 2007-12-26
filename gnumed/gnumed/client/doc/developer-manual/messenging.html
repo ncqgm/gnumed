@@ -27,9 +27,7 @@ widgets displaying the patients past medical history, his allergies etc.)
 </ul>
  Both types of messages are handled via a global dispatcher module called 
 gmDispatcher.py <a href="http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/python-common/gmDispatcher.py?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup">
- [source].</a> The module gmPG.py <a href="http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/python-common/gmPG.py?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup">
- [source]</a> takes care of handling the asynchronous messages from the backend 
-via a separate background thread.<br>
+ [source].</a><br>
  <br>
  Procedure changing "global" data that may affect any other widget, must
 post a message through gmDispatcher.<br>
@@ -88,10 +86,6 @@ reacting to a patient being selected notifies the gmDispatcher about this.
          <tr>
            <td valign="top">           
             <pre>def UpdatePatientList(self):<br>    "Update the displayed list of patients from the backend"<br></pre>
-           
-            <pre>&nbsp; &nbsp; #request a backend connection</pre>
-           
-            <pre>&nbsp; &nbsp; db = gmPG.ConnectionPool().GetConnection('demographica')</pre>
            
             <pre>&nbsp; &nbsp; cursor = db.cursor()</pre>
            
