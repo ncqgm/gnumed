@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.130 2007-12-26 20:59:41 ncq Exp $
-__version__ = "$Revision: 1.130 $"
+# $Id: gnumed.py,v 1.131 2007-12-26 21:06:38 ncq Exp $
+__version__ = "$Revision: 1.131 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -154,13 +154,21 @@ def setup_cli():
 		short_options = _known_short_options,
 		long_options = _known_long_options
 	)
+
+	val = _cfg.get(option = '--debug', source_order = [('cli', 'return')])
+	if val is None:
+		val = False
 	_cfg.set_option (
 		option = u'debug',
-		value = gmTools.coalesce(_cfg.get(option = '--debug', source_order = [('cli', 'return')]), False)
+		value = val
 	)
+
+	val = _cfg.get(option = '--slave', source_order = [('cli', 'return')])
+	if val is None:
+		val = False
 	_cfg.set_option (
 		option = u'slave',
-		value = gmTools.coalesce(_cfg.get(option = '--slave', source_order = [('cli', 'return')]), False)
+		value = val
 	)
 #==========================================================
 def handle_sig_hup(signum, frame):
@@ -383,7 +391,10 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.130  2007-12-26 20:59:41  ncq
+# Revision 1.131  2007-12-26 21:06:38  ncq
+# - don't use gmTools too early
+#
+# Revision 1.130  2007/12/26 20:59:41  ncq
 # - fix faulty parens
 #
 # Revision 1.129  2007/12/26 20:53:15  ncq
