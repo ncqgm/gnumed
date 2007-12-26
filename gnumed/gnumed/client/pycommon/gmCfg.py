@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -66,7 +66,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmNull, gmPG2, gmTools, gmBorg
 
 _log = logging.getLogger('gm.cfg')
-gmCLI_ = None
 
 # flags for __get_conf_name
 cfg_SEARCH_STD_DIRS = 1
@@ -433,11 +432,6 @@ class cCfgFile:
 		no config file could be found. 
 		"""
 		self._cfg_data = {}
-		# lazy import gmCLI
-		global gmCLI_
-		if gmCLI_ is None:
-			from Gnumed.pycommon import gmCLI
-			gmCLI_ = gmCLI
 		if aContents:
 			if not self.__parse_conf(aContents.split('\n')):
 				raise SyntaxError, "cannot parse config file"
@@ -665,23 +659,6 @@ class cCfgFile:
 		- true(1): valid name found
 		"""
 		_log.debug('(<aDir=%s>, <aName=%s>)' % (aDir, aName))
-
-		# did the user manually supply a config file on the command line ?
-		if not (flags & cfg_IGNORE_CMD_LINE):
-			# and check command line options
-			if gmCLI_.has_arg('--conf-file'):
-				self.cfgName = gmCLI_.arg['--conf-file']
-				# file valid ?
-				if os.path.isfile(self.cfgName):
-					_log.debug('found config file [--conf-file=%s]' % self.cfgName)
-					return 1
-				else:
-					_log.error("config file [--conf-file=%s] not found, aborting" % self.cfgName)
-					return None
-			else:
-				_log.debug("No config file given on command line. Format: --conf-file=<config file>")
-		else:
-			_log.info('ignoring command line per cfg_IGNORE_CMD_LINE')
 
 		candidate_files = []
 
@@ -1132,7 +1109,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.56  2007-12-23 11:57:14  ncq
+# Revision 1.57  2007-12-26 18:34:02  ncq
+# - no more old CLI lib
+#
+# Revision 1.56  2007/12/23 11:57:14  ncq
 # - cleanup
 #
 # Revision 1.55  2007/12/11 15:35:28  ncq

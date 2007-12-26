@@ -14,7 +14,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -23,12 +23,7 @@ print "gmPG phased out, please replace with gmPG2"
 import sys
 sys.exit
 
-import gmCLI
-if gmCLI.has_arg("--debug"):
-	_query_logging_verbosity = 1
-else:
-	_query_logging_verbosity = 0
-del gmCLI
+_query_logging_verbosity = 1
 
 # check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
@@ -1333,7 +1328,7 @@ def get_current_user():
 	return result[0][0]
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.86 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.87 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1470,7 +1465,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.86  2007-10-25 16:41:47  ncq
+# Revision 1.87  2007-12-26 18:34:02  ncq
+# - no more old CLI lib
+#
+# Revision 1.86  2007/10/25 16:41:47  ncq
 # - cleanup
 #
 # Revision 1.85  2007/02/06 12:11:25  ncq
