@@ -5,14 +5,14 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.6 2007-12-26 22:01:25 shilbert Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmAuthWidgets.py,v 1.7 2007-12-26 22:44:31 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import sys, os.path, cPickle, zlib
+import sys, os.path, cPickle, zlib, logging
 
 
 # 3rd party
@@ -22,13 +22,13 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmLog, gmI18N, gmPG2, gmBackendListener, gmTools, gmCfg2
+from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 _cfg = gmCfg2.gmCfgData()
 
 try:
@@ -95,7 +95,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		dlg.ShowModal()
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
-			_log.Log(gmLog.lInfo, "user cancelled login dialog")
+			_log.info("user cancelled login dialog")
 			break
 
 		# try getting a connection to verify the DSN works
@@ -106,25 +106,28 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			user = login.user,
 			password = login.password
 		)
+		print "trying to connect"
 		try:
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True)
 			connected = True
 		except gmPG2.cAuthenticationError, e:
+#			print "error - retry"
 			attempt += 1
-			_log.LogException(u"login attempt %s/%s failed" % (attempt, max_attempts), verbose=0)
+			_log.exception(u"login attempt %s/%s failed" % (attempt, max_attempts))
 			if attempt < max_attempts:
 				gmGuiHelpers.gm_show_error (_(
 						"Unable to connect to database:\n\n"
 						"%s\n\n"
 						"Please retry or cancel !"
 					) % e,
-					_('Connecting to backend'),
-					gmLog.lErr
+					_('Connecting to backend')
 				)
-			_log.LogException(u"login attempt %s/%s failed, may retry" % (attempt, max_attempts), verbose=0)
+			_log.exception(u"login attempt %s/%s failed, may retry", attempt, max_attempts)
 			continue
-		except StandardError:
-			_log.LogException(u"login attempt %s/%s failed, useless to retry" % (attempt+1, max_attempts), verbose=0)
+		except StandardError, e:
+#			print "error - cancel"
+#			print e
+			_log.exception(u"login attempt %s/%s failed, useless to retry", attempt+1, max_attempts)
 			break
 
 		# connect was successful:
@@ -182,11 +185,10 @@ Please enter the password for <gm-dbo>:""") % procedure,
 	try:
 		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True, pooled=False)
 	except:
-		_log.LogException('cannot connect')
+		_log.exception('cannot connect')
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
-			aTitle = procedure,
-			aLogLevel = None
+			aTitle = procedure
 		)
 		return None
 
@@ -249,6 +251,7 @@ class cLoginPanel(wx.Panel):
 		self.topsizer = wx.BoxSizer(wx.VERTICAL)
 
 		# find bitmap
+		paths = gmTools.gmPaths()
 		bitmap = os.path.join(paths.system_app_data_dir, 'bitmaps', 'gnumedlogo.png')
 		try:
 			png = wx.Image(bitmap, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
@@ -482,7 +485,6 @@ class cLoginPanel(wx.Panel):
 	#----------------------------------------------------------
 	def __load_state(self):
 
-		prefs = gmCfg.gmCfgData()
 		src_order = [
 			(u'explicit', u'return'),
 			(u'workbase', u'return'),
@@ -491,14 +493,14 @@ class cLoginPanel(wx.Panel):
 
 		self._CBOX_user.SetValue (
 			gmTools.coalesce (
-				prefs.get(u'preferences', u'login', src_order),
+				_cfg.get(u'preferences', u'login', src_order),
 				self.__previously_used_accounts[0]
 			)
 		)
 
 		self._CBOX_profile.SetValue (
 			gmTools.coalesce (
-				prefs.get(u'preferences', u'profile', src_order),
+				_cfg.get(u'preferences', u'profile', src_order),
 				self.__backend_profiles[self.__backend_profiles.keys()[0]].name
 			)
 		)
@@ -571,13 +573,13 @@ For assistance on using GnuMed please contact:
 	#----------------------------
 	def __on_login_button_pressed(self, event):
 
-		root_logger = logging.GetLogger()
+		root_logger = logging.getLogger()
 		if self._CHBOX_debug.GetValue():
-			_log.Log(gmLog.lInfo, 'debug mode enabled')
+			_log.info('debug mode enabled')
 			_cfg.set_option(option = 'debug', value = True)
 			root_logger.setLevel(logging.DEBUG)
 		else:
-			_log.Log(gmLog.lInfo, 'debug mode disabled')
+			_log.info('debug mode disabled')
 			_cfg.set_option(option = 'debug', value = False)
 			if _cfg.get(option = '--quiet', source_order = [('cli', 'return')]):
 				root_logger.setLevel(logging.ERROR)
@@ -585,10 +587,10 @@ For assistance on using GnuMed please contact:
 				root_logger.setLevel(logging.WARNING)
 
 		if self._CHBOX_slave.GetValue():	
-			_log.Log(gmLog.lInfo, 'slave mode enabled')
+			_log.info('slave mode enabled')
 			_cfg.set_option(option = 'slave', value = True)
 		else:
-			_log.Log(gmLog.lInfo, 'slave mode disabled')
+			_log.info('slave mode disabled')
 			_cfg.set_option(option = 'slave', value = False)
 
 		self.backend_profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
@@ -605,7 +607,11 @@ For assistance on using GnuMed please contact:
 # main
 #----------------------------------------------------------------
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
+
+	from Gnumed.pycommon import gmI18N
+
+	logging.basicConfig(level = logging.DEBUG)
+
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain='gnumed')
 	#-----------------------------------------------
@@ -631,7 +637,12 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.6  2007-12-26 22:01:25  shilbert
+# Revision 1.7  2007-12-26 22:44:31  ncq
+# - missing import of logging
+# - use std lib logger
+# - cleanup
+#
+# Revision 1.6  2007/12/26 22:01:25  shilbert
 # - cleanup
 #
 # Revision 1.5  2007/12/23 22:02:56  ncq
