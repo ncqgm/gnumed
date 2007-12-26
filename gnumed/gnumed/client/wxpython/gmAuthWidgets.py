@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.5 2007-12-23 22:02:56 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmAuthWidgets.py,v 1.6 2007-12-26 22:01:25 shilbert Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -459,7 +459,7 @@ class cLoginPanel(wx.Panel):
 				if profile.port < 1024:
 					raise ValueError('refusing to use priviledged port (< 1024)')
 			except ValueError:
-				_log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name))
+				_log.warning('invalid port definition: [%s], skipping profile [%s]', port, profile_name)
 				continue
 			profile.database = gmTools.coalesce(_cfg.get(profile_section, u'database', src_order), u'').strip()
 			if profile.database == u'':
@@ -631,7 +631,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.5  2007-12-23 22:02:56  ncq
+# Revision 1.6  2007-12-26 22:01:25  shilbert
+# - cleanup
+#
+# Revision 1.5  2007/12/23 22:02:56  ncq
 # - no more gmCLI
 #
 # Revision 1.4  2007/12/23 20:26:31  ncq
