@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.126 2007-12-23 21:15:26 ncq Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gnumed.py,v 1.127 2007-12-26 12:36:37 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -205,7 +205,7 @@ def check_help_request():
 	help_requested = (
 		_cfg.get(option = u'--help', source_order = src) or
 		_cfg.get(option = u'-h', source_order = src) or
-		_cfg.get(option = u'-?', source_order = src) or
+		_cfg.get(option = u'-?', source_order = src)
 	)
 
 	if help_requested:
@@ -309,7 +309,7 @@ def setup_backend():
 #==========================================================
 def log_object_refcounts():
 	# FIXME: use internal source
-	if not _cfg.get(option = u'debug')
+	if not _cfg.get(option = u'debug'):
 		return
 
 	import types
@@ -383,7 +383,11 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.126  2007-12-23 21:15:26  ncq
+# Revision 1.127  2007-12-26 12:36:37  ncq
+# - missing :
+# - extra or
+#
+# Revision 1.126  2007/12/23 21:15:26  ncq
 # - add setup_backend()
 #
 # Revision 1.125  2007/12/23 20:56:32  ncq
