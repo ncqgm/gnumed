@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.110 2007-12-23 11:56:38 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmPatientExporter.py,v 1.111 2007-12-26 22:26:04 shilbert Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -1135,8 +1135,8 @@ def parse_constraints():
     """
         Obtains, parses and normalizes config file options
     """
-	from Gnumed.pycommon import gmCfg
-	_cfg = gmCfg.gmDefCfgFile
+    from Gnumed.pycommon import gmCfg
+    _cfg = gmCfg.gmDefCfgFile
     if isinstance(_cfg, gmNull.cNull):
         usage()
 
@@ -1239,7 +1239,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.110  2007-12-23 11:56:38  ncq
+# Revision 1.111  2007-12-26 22:26:04  shilbert
+# - indentation error fixed
+#
+# Revision 1.110  2007/12/23 11:56:38  ncq
 # - improve output, cleanup
 #
 # Revision 1.109  2007/11/28 11:52:13  ncq
