@@ -2,12 +2,12 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging, sys
+import logging, sys, codecs
 
 
 if __name__ == "__main__":
@@ -233,7 +233,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.3  2007-12-26 20:47:22  ncq
+# Revision 1.4  2007-12-26 21:11:11  ncq
+# - need codecs
+#
+# Revision 1.3  2007/12/26 20:47:22  ncq
 # - need to create internal source if doesn't exist
 #
 # Revision 1.2  2007/12/26 20:18:03  ncq
