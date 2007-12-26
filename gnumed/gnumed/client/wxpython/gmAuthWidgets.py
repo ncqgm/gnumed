@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.7 2007-12-26 22:44:31 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmAuthWidgets.py,v 1.8 2007-12-26 23:22:27 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -511,7 +511,7 @@ class cLoginPanel(wx.Panel):
 	def save_state(self):
 		"""Save parameter settings to standard configuration file"""
 		prefs_name = _cfg.get(option = 'user_preferences_file')
-		_log.debug(u'saving login choices in [%s] (%s)', source, prefs_name)
+		_log.debug(u'saving login choices in [%s]', prefs_name)
 
 		# FIXME: convert to a standard writer ?
 		prefs = gmCfg.cCfgFile (
@@ -637,7 +637,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.7  2007-12-26 22:44:31  ncq
+# Revision 1.8  2007-12-26 23:22:27  ncq
+# - fix invalid variable access
+#
+# Revision 1.7  2007/12/26 22:44:31  ncq
 # - missing import of logging
 # - use std lib logger
 # - cleanup
