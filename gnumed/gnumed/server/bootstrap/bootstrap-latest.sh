@@ -7,7 +7,7 @@ ln -vsn client Gnumed
 cd -
 export PYTHONPATH="../../:${PYTHONPATH}"
 
-VER="7"
+VER="9"
 LOG_BASE="."
 
 # if you need to adjust the port you want to use to
