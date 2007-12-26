@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.69.2.1 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -985,7 +985,7 @@ class gmBundle:
 			_log.Log(gmLog.lWarn, 'assuming installed PostgreSQL server is compatible with required version %s' % required_version)
 			return True
 
-		if gmPG2.postgresql_version < float(required_version):
+		if float(gmPG2.postgresql_version) < float(required_version):
 			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 
@@ -1284,7 +1284,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.69  2007-12-04 15:24:38  ncq
+# Revision 1.69.2.1  2007-12-26 11:25:12  ncq
+# - at least on MacOSX Python silently miscompares float() and Decimal,
+#   so force both versions to float
+#
+# Revision 1.69  2007/12/04 15:24:38  ncq
 # - set database default sql_inheritance to on
 #
 # Revision 1.68  2007/12/03 20:48:46  ncq
