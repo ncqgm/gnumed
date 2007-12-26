@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.253 2007-12-11 12:59:11 ncq Exp $
-__version__ = "$Revision: 1.253 $"
+# $Id: gmClinicalRecord.py,v 1.254 2007-12-26 18:31:53 ncq Exp $
+__version__ = "$Revision: 1.254 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -251,12 +251,12 @@ where
 		cmd = "select %s from clin.v_pat_items where pk_patient=%%s order by src_table, clin_when" % string.join(fields, ', ')
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
-		if not gmPG.run_query(curs, None, cmd, self.pk_patient):
+		if not gmPG2.run_query(curs, None, cmd, self.pk_patient):
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.pk_patient)
 			curs.close()
 			return None
 		rows = curs.fetchall()
-		view_col_idx = gmPG.get_col_indices(curs)
+		view_col_idx = gmPG2.get_col_indices(curs)
 
 		# aggregate by src_table for item retrieval
 		items_by_table = {}
@@ -287,7 +287,7 @@ where
 				continue
 			elif len(item_ids) == 1:
 				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, None, cmd, item_ids[0]):
+				if not gmPG2.run_query(curs, None, cmd, item_ids[0]):
 					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
@@ -1578,7 +1578,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.253  2007-12-11 12:59:11  ncq
+# Revision 1.254  2007-12-26 18:31:53  ncq
+# - remove reference to old PG library
+#
+# Revision 1.253  2007/12/11 12:59:11  ncq
 # - cleanup and explicit signal handling
 #
 # Revision 1.252  2007/10/25 12:26:05  ncq
