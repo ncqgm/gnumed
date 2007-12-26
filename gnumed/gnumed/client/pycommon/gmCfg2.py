@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -179,6 +179,10 @@ class gmCfgData(gmBorg.cBorg):
 			raise ValueError('neither <option> nor <value> can be None')
 		if source is None:
 			source = u'internal'
+			try:
+				self.__cfg_data[source]
+			except KeyError:
+				self.__cfg_data[source] = {}
 		if group is None:
 			group = source
 		option_path = u'%s::%s' % (group, option)
@@ -215,6 +219,7 @@ if __name__ == "__main__":
 	def test_gmCfgData():
 		cfg = gmCfgData()
 		cfg.add_cli(short_options=u'h?', long_options=[u'help', u'conf-file='])
+		cfg.set_option('internal option', True)
 		print cfg.get(option = '--help', source_order = [('cli', 'return')])
 		print cfg.get(option = '-?', source_order = [('cli', 'return')])
 #		print cfg.get (
@@ -228,7 +233,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.2  2007-12-26 20:18:03  ncq
+# Revision 1.3  2007-12-26 20:47:22  ncq
+# - need to create internal source if doesn't exist
+#
+# Revision 1.2  2007/12/26 20:18:03  ncq
 # - fix test suite
 #
 # Revision 1.1  2007/12/23 11:53:13  ncq
