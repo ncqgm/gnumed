@@ -25,20 +25,14 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.31 2007-03-08 11:36:15 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmLDTimporter.py,v 1.32 2007-12-26 14:35:02 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
 # stdlib
 import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil
 
-from Gnumed.pycommon import gmLog, gmCLI
-if __name__ == '__main__':
-	if gmCLI.has_arg('--debug'):
-		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-	else:
-		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
 
 from Gnumed.pycommon import gmCfg, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson
@@ -777,7 +771,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.31 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.32 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -932,7 +926,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.31 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.32 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -966,7 +960,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.31  2007-03-08 11:36:15  ncq
+# Revision 1.32  2007-12-26 14:35:02  ncq
+# - no more gmCLI
+#
+# Revision 1.31  2007/03/08 11:36:15  ncq
 # - adjust to gmLoginInfo
 #
 # Revision 1.30  2007/01/21 12:21:16  ncq
