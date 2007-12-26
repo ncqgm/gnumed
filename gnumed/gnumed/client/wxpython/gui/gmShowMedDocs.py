@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#----------------------------------------------------------------
 """
 This is a no-frills document display handler for the
 GNUmed medical document database.
@@ -11,226 +9,79 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
 
+
 import wx
 
-from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.wxpython import gmMedDocWidgets
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
-#== classes for standalone use ==================================
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
+from Gnumed.wxpython import gmMedDocWidgets, gmPlugin, images_Archive_plugin
 
-	from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmCfg
-	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord, gmPerson
-	from Gnumed.wxpython import gmGuiHelpers
 
-	wxID_btn_quit = wx.NewId()
-	_cfg = gmCfg.gmDefCfgFile
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
+#================================================================
+wxID_TB_BTN_show_page = wx.NewId()
 
-	class cStandalonePanel(wx.Panel):
+class gmShowMedDocs(gmPlugin.cNotebookPlugin):
+	"""Plugin to encapsulate document tree."""
 
-		def __init__(self, parent, id):
-			# get patient from file
-			if self.__get_pat_data() is None:
-				raise gmExceptions.ConstructorError, "Cannot load patient data."
+	tab_name = _("Documents")
 
-			# set up database connectivity
-			auth_data = gmLoginInfo.LoginInfo(
-				user = _cfg.get('database', 'user'),
-				password = _cfg.get('database', 'password'),
-				host = _cfg.get('database', 'host'),
-				port = _cfg.get('database', 'port'),
-				database = _cfg.get('database', 'database')
-			)
-			backend = gmPG.ConnectionPool(login = auth_data)
+	def name (self):
+		return gmShowMedDocs.tab_name
+	#--------------------------------------------------------
+	def GetWidget (self, parent):
+		self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
+		return self._widget
+	#--------------------------------------------------------
+	def MenuInfo (self):
+		return ('tools', _('Show &archived documents'))
+	#--------------------------------------------------------
+	def can_receive_focus(self):
+		# need patient
+		if not self._verify_patient_avail():
+			return None
+		return 1
+	#--------------------------------------------------------
+	def _on_raise_by_signal(self, **kwds):
+		if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
+			return False
+		if kwds['sort_mode'] == 'review':
+			self._widget._on_sort_by_review_selected(None)
+		return True
+	#--------------------------------------------------------
+	def populate_toolbar (self, tb, widget):
+		tool1 = tb.AddTool(
+			wxID_TB_BTN_show_page,
+			images_Archive_plugin.getreportsBitmap(),
+			shortHelpString=_("show document"),
+			isToggle=False
+		)
+#		wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree._on_activate)
+		wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, self._widget._doc_tree.display_selected_part)
 
-			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
-			cooked_search_terms = {
-				'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
-				'lastnames': self.__xdt_pat['last name'],
-				'gender': self.__xdt_pat['gender'],
-				'firstnames': self.__xdt_pat['first name']
-			}
-
-			# find matching patient IDs
-			searcher = gmPerson.cPatientSearcher_SQL()
-			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
-			if patient_ids is None or len(patient_ids) == 0:
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise gmExceptions.ConstructorError, "Patient from XDT file does not exist in database."
-
-			# ambigous ?
-			if len(patient_ids) != 1:
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Data in xDT file matches more than one patient in database !'),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
-
-			try:
-				gm_pat = gmPerson.gmCurrentPatient(aPKey = patient_ids[0])
-			except:
-				# this is an emergency
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Cannot load patient from database !\nAborting.'),
-					aTitle = _('searching patient')
-				)
-				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0])
-				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
-				raise
-
-			wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize)
-			self.SetTitle(_("stored medical documents"))
-			self.__do_layout()
-			self.tree.refresh()
-			self.tree.SelectItem(self.tree.root)
-			self.Layout()
-		#--------------------------------------------------------
-		def __do_layout(self):
-			# make patient panel
-			gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
-			self.pat_panel = wx.StaticText(
-				id = -1,
-				parent = self,
-				label = "%s %s (%s), %s.%s.%s" % (self.__xdt_pat['first name'], self.__xdt_pat['last name'], gender, self.__xdt_pat['dob day'], self.__xdt_pat['dob month'], self.__xdt_pat['dob year']),
-				style = wx.ALIGN_CENTER
-			)
-			self.pat_panel.SetFont(wx.Font(25, wx.SWISS, wx.NORMAL, wx.NORMAL, 0, ""))
-
-			# make document tree
-			self.tree = gmMedDocWidgets.cDocTree(self, -1)
-
-			# buttons
-			btn_quit = wx.Button(
-				parent = self,
-				id = wxID_btn_quit,
-				label = _('Quit')
-			)
-			wx.EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
-			szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-			szr_buttons.Add(btn_quit, 0, wx.ALIGN_CENTER_VERTICAL, 1)
-
-			szr_main = wx.BoxSizer(wx.VERTICAL)
-			szr_main.Add(self.pat_panel, 0, wx.EXPAND, 1)
-			szr_main.Add(self.tree, 1, wx.EXPAND, 9)
-			szr_main.Add(szr_buttons, 0, wx.EXPAND, 1)
-
-			self.SetAutoLayout(1)
-			self.SetSizer(szr_main)
-			szr_main.Fit(self)
-		#--------------------------------------------------------
-		def __get_pat_data(self):
-			"""Get data of patient for which to retrieve documents.
-
-			"""
-			# FIXME: error checking
-			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
-			# FIXME: actually handle pat_format, too
-			pat_format = _cfg.get("viewer", "patient file format")
-
-			# get patient data from BDT file
-			try:
-				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
-			except:
-				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file, sys.exc_info())
-				gmGuiHelpers.gm_show_error(
-					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
-					aTitle = _('loading patient from xDT file')
-				)
-				return None
-
-			return 1
-		#--------------------------------------------------------
-		def __on_quit(self, evt):
-			app = wx.GetApp()
-			app.ExitMainLoop()
-#== classes for plugin use ======================================
-else:
-	from Gnumed.wxpython import gmPlugin, images_Archive_plugin, images_Archive_plugin1
-
-	wxID_TB_BTN_show_page = wx.NewId()
-
-	class gmShowMedDocs(gmPlugin.cNotebookPlugin):
-		"""Plugin to encapsulate document tree."""
-
-		tab_name = _("Documents")
-
-		def name (self):
-			return gmShowMedDocs.tab_name
-		#--------------------------------------------------------
-		def GetWidget (self, parent):
-			self._widget = gmMedDocWidgets.cSelectablySortedDocTreePnl(parent, -1)
-			return self._widget
-		#--------------------------------------------------------
-		def MenuInfo (self):
-			return ('tools', _('Show &archived documents'))
-		#--------------------------------------------------------
-		def can_receive_focus(self):
-			# need patient
-			if not self._verify_patient_avail():
-				return None
-			return 1
-		#--------------------------------------------------------
-		def _on_raise_by_signal(self, **kwds):
-			if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
-				return False
-			if kwds['sort_mode'] == 'review':
-				self._widget._on_sort_by_review_selected(None)
-			return True
-		#--------------------------------------------------------
-		def populate_toolbar (self, tb, widget):
-			tool1 = tb.AddTool(
-				wxID_TB_BTN_show_page,
-				images_Archive_plugin.getreportsBitmap(),
-				shortHelpString=_("show document"),
-				isToggle=False
-			)
-#			wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree._on_activate)
-			wx.EVT_TOOL(tb, wxID_TB_BTN_show_page, self._widget._doc_tree.display_selected_part)
-
-			tb.AddControl(wx.StaticBitmap(
-				tb,
-				-1,
-				images_Archive_plugin.getvertical_separator_thinBitmap(),
-				wx.DefaultPosition,
-				wx.DefaultSize
-			))
+		tb.AddControl(wx.StaticBitmap(
+			tb,
+			-1,
+			images_Archive_plugin.getvertical_separator_thinBitmap(),
+			wx.DefaultPosition,
+			wx.DefaultSize
+		))
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	_log.Log (gmLog.lInfo, "starting display handler")
-
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
-
-	# catch all remaining exceptions
-	try:
-		application = wx.PyWidgetTester(size=(640,480))
-		application.SetWidget(cStandalonePanel,-1)
-		application.MainLoop()
-	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
-		# but re-raise them
-		raise
-
-	_log.Log (gmLog.lInfo, "closing display handler")
+	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.72  2007-12-23 21:19:17  ncq
+# Revision 1.73  2007-12-26 18:35:57  ncq
+# - cleanup++, no more standalone
+#
+# Revision 1.72  2007/12/23 21:19:17  ncq
 # - cleanup
 #
 # Revision 1.71  2007/06/10 10:16:05  ncq
