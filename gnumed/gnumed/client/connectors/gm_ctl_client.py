@@ -12,8 +12,8 @@ to do smarter things you need to override:
 
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.6 2007-12-26 14:33:11 ncq Exp $
-__version__ = '$Revision: 1.6 $'
+# $Id: gm_ctl_client.py,v 1.7 2007-12-26 20:17:39 ncq Exp $
+__version__ = '$Revision: 1.7 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
 	_cfg = gmCfg2.gmCfgData()
 
-	_cfg.add_cli(long_options = ['text-domain', 'lang-gettext', 'conf-file'])
+	_cfg.add_cli(long_options = ['text-domain=', 'lang-gettext=', 'conf-file='])
 	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
 	l = _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
 	gmI18N.activate_locale()
@@ -195,7 +195,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gm_ctl_client.py,v $
-# Revision 1.6  2007-12-26 14:33:11  ncq
+# Revision 1.7  2007-12-26 20:17:39  ncq
+# - add = to options
+#
+# Revision 1.6  2007/12/26 14:33:11  ncq
 # - move to gmLog2/gmCfg2
 #
 # Revision 1.5  2007/10/09 09:55:44  ncq
