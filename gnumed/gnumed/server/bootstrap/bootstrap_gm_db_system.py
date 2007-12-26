@@ -29,7 +29,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -603,6 +603,8 @@ class database:
 
 		curs = self.conn.cursor()
 		curs.execute(u"set lc_messages to 'C'")
+		# we need English messages to detect errors
+		curs.execute(u"alter database %s set lc_messages to 'C'" % self.name)
 		# we need inheritance or else things will fail miserably
 		curs.execute("alter database %s set sql_inheritance to on" % self.name)
 		curs.close()
@@ -1278,7 +1280,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.71  2007-12-26 12:37:27  ncq
+# Revision 1.72  2007-12-26 18:38:56  ncq
+# - default lc_messages to C on new databases
+#
+# Revision 1.71  2007/12/26 12:37:27  ncq
 # - force version into float to make comparison work
 #
 # Revision 1.70  2007/12/11 12:44:11  ncq
