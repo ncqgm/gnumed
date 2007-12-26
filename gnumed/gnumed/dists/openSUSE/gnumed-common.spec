@@ -69,15 +69,15 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed
 cp -r client/pycommon/__init__.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmBackendListener.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r client/pycommon/gmCLI.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmCfg.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmCfg2.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmDispatcher.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmExceptions.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmI18N.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmLog.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
+cp -r client/pycommon/gmLog2.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmLoginInfo.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
 cp -r client/pycommon/gmNull.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
-cp -r client/pycommon/gmPG.py $RPM_BUILD_ROOT/usr/lib/python/site-packages/Gnumed/pycommon
     
 
 find -P $RPM_BUILD_ROOT -type f | sed s#$RPM_BUILD_ROOT##g > INSTALLED_FILES 
