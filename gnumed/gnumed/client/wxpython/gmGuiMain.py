@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.379 2007-12-23 22:03:59 ncq Exp $
-__version__ = "$Revision: 1.379 $"
+# $Id: gmGuiMain.py,v 1.380 2007-12-26 22:45:46 ncq Exp $
+__version__ = "$Revision: 1.380 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1739,7 +1739,7 @@ class gmApp(wx.App):
 		for candidate in candidates:
 			try:
 				open(candidate).close()
-				cfg.set_option(option = u'user_preferences_file', value = candidate)
+				_cfg.set_option(option = u'user_preferences_file', value = candidate)
 				break
 			except IOError:
 				continue
@@ -1879,9 +1879,9 @@ class gmApp(wx.App):
 				group = u'workplace',
 				option = u'slave personality',
 				source_order = [
-					('explicit': 'return'),
-					('workbase': 'return'),
-					('user': 'return'),
+					('explicit', 'return'),
+					('workbase', 'return'),
+					('user', 'return'),
 					('system', 'return')
 				]
 		 	),
@@ -1894,9 +1894,9 @@ class gmApp(wx.App):
 				group = u'workplace',
 				option = u'xml-rpc port',
 				source_order = [
-					('explicit': 'return'),
-					('workbase': 'return'),
-					('user': 'return'),
+					('explicit', 'return'),
+					('workbase', 'return'),
+					('user', 'return'),
 					('system', 'return')
 				]
 			)),
@@ -1984,7 +1984,7 @@ class gmApp(wx.App):
 		ignored_sys_lang = _cfg.get (
 			group = u'backend',
 			option = u'ignored mismatching system locale',
-			source_order = [('user', 'return'), ('local': 'return')]
+			source_order = [('user', 'return'), ('local', 'return')]
 		)
 		# are we to ignore *this* mismatch ?
 		if gmI18N.system_locale == ignored_sys_lang:
@@ -2068,7 +2068,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.379  2007-12-23 22:03:59  ncq
+# Revision 1.380  2007-12-26 22:45:46  ncq
+# - tuples separate by , not :
+#
+# Revision 1.379  2007/12/23 22:03:59  ncq
 # - no more gmCLI
 #
 # Revision 1.378  2007/12/23 20:28:44  ncq
