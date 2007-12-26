@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.65 $"
+__version__ = "$Revision: 1.66 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -296,6 +296,7 @@ def sanity_check_database_settings():
 		u'allow_system_table_mods': [u'off', u'system breakage'],
 		u'fsync': [u'on', u'data loss/corruption'],
 		u'full_page_writes': [u'on', u'data loss/corruption'],
+		u'lc_messages': [u'C', u'suboptimal error detection'],
 		u'password_encryption': [u'on', u'breach of confidentiality'],
 		u'regex_flavor': [u'advanced', u'query breakage'],
 		u'synchronous_commit': [u'on', u'data loss/corruption'],
@@ -992,9 +993,9 @@ class cAdapterMxDateTime(object):
 	def getquoted(self):
 #		return (_timestamp_template % mxDT.ISO.str(self.__dt)).replace(',', '.')
 		return mxDT.ISO.str(self.__dt).replace(',', '.')
-# =======================================================================
+#=======================================================================
 #  main
-# -----------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 # make sure psycopg2 knows how to handle unicode ...
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
@@ -1272,7 +1273,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.65  2007-12-12 16:17:15  ncq
+# Revision 1.66  2007-12-26 18:34:53  ncq
+# - check for lc_messages being C
+#
+# Revision 1.65  2007/12/12 16:17:15  ncq
 # - better logger names
 #
 # Revision 1.64  2007/12/11 15:38:11  ncq
