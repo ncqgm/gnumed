@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.54.8.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -579,7 +579,11 @@ class cCfgFile:
 
 		# open new file for writing
 		new_name = "%s.gmCfg.new" % self.cfgName
-		new_file = open(new_name, "wb")
+		try:
+			new_file = open(new_name, "wb")
+		except IOError:
+			_log.LogException('Cannot open %s for writing.' % new_name)
+			return 1
 
 		# file level comment
 		if self._cfg_data.has_key('comment'):
@@ -1128,7 +1132,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.54  2007-02-22 17:41:13  ncq
+# Revision 1.54.8.1  2007-12-30 19:12:25  ncq
+# - don't throw exception on not being able to write config file,
+#   rather cover up and return
+#
+# Revision 1.54  2007/02/22 17:41:13  ncq
 # - adjust to gmPerson changes
 #
 # Revision 1.53  2007/02/17 14:11:56  ncq
