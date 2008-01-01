@@ -1,0 +1,32 @@
+# GNUmed config file mapping mimetypes to filename extensions
+# -------------------------------------------------------------
+# This file can live in either or both of
+#
+# /etc/gnumed/
+#	for system wide configuration
+# ~/.gnumed/
+#	 for user specific configuration
+#
+# see also: http://wiki.gnumed.de/bin/view/Gnumed/ConfigFiles
+#
+# -------------------------------------------------------------
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/mime_type2file_extension.conf.example,v $
+# $Revision: 1.1 $
+
+
+
+[extensions]
+
+# - the option should be a mime type
+# - the value should be the corresponding filename
+#   extension without a leading "."
+image/x-bmp = bmp
+
+
+
+# -------------------------------------------------------------
+# $Log: mime_type2file_extension.conf.example,v $
+# Revision 1.1  2008-01-01 15:01:48  ncq
+# - example
+#
+#
