@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.9 2007-09-24 18:37:45 ncq Exp $
+# $Id: gnumed,v 1.10 2008-01-01 13:53:35 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -24,12 +24,17 @@ if echo $name | grep -q -- "-debug" ; then
 	OPTIONS="$OPTIONS --debug"
 fi
 
-# the system-wide configuration file for backend profiles
+# The system-wide configuration file for backend profiles.
 SYSCONF="/etc/gnumed/gnumed-client.conf"
 if [ ! -e ${SYSCONF} ] ; then
 	echo "Global config file ${SYSCONF} missing."
 	exit 1
 fi
+
+# There has to be a user config file (even if empty).
+#if [ ! -e ${HOME}/.gnumed/${name}.conf ] ; then
+#	touch ${HOME}/.gnumed/${name}.conf
+#fi
 
 ## Different ways to obtain the version number of the running Python interpreter
 ## store this here just for the purpose of education :-)
@@ -68,7 +73,10 @@ python ${GNUMEDDIR}/gnumed.py ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.9  2007-09-24 18:37:45  ncq
+# Revision 1.10  2008-01-01 13:53:35  ncq
+# - should not need touching user config file anymore
+#
+# Revision 1.9  2007/09/24 18:37:45  ncq
 # - fix startup script directory error as noticed by Andreas
 #
 # Revision 1.8  2007/05/22 13:49:52  ncq
