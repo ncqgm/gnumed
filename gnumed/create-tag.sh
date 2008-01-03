@@ -1,15 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 #------------------------------------------------------------------
-# $Id: create-tag.sh,v 1.1 2008-01-03 15:53:39 ncq Exp $
+# $Id: create-tag.sh,v 1.2 2008-01-03 16:28:17 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/create-tag.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # License: GPL
 #------------------------------------------------------------------
 
 TAG=$1
 
-if test "${TAG}" == "" ; then
+if ! [[ "${TAG}" =~ "rel-[0-9]-[0-9]-[0-9]((-rc[0-9])|(-[0-9]))?\$" ]] ; then
 	echo ""
 	echo "usage: $0 <tag>"
 	echo ""
@@ -27,8 +27,6 @@ if test "${TAG}" == "" ; then
 	echo ""
 	exit
 fi
-
-# FIXME: verify tag structure
 
 echo "Are you absolutely positively sure you want"
 echo "to tag the CVS tree as \"${TAG}\" ?"
@@ -50,7 +48,10 @@ cvs -v tag -c ${TAG}
 
 #------------------------------------------------------------------
 # $Log: create-tag.sh,v $
-# Revision 1.1  2008-01-03 15:53:39  ncq
+# Revision 1.2  2008-01-03 16:28:17  ncq
+# - stricter TAG checking
+#
+# Revision 1.1  2008/01/03 15:53:39  ncq
 # - make tagging easier
 #
 #
