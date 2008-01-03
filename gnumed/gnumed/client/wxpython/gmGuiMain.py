@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.3 2007-12-26 10:40:25 ncq Exp $
-__version__ = "$Revision: 1.375.2.3 $"
+# $Id: gmGuiMain.py,v 1.375.2.4 2008-01-03 13:20:38 ncq Exp $
+__version__ = "$Revision: 1.375.2.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1884,7 +1884,7 @@ class gmApp(wx.App):
 
 		slave_personality = self.user_prefs_cfg_file.get('workplace', 'slave personality')
 		if slave_personality is None:
-			_log.Log(gmLog.lWarning, 'slave mode personality not set in config file')
+			_log.Log(gmLog.lWarn, 'slave mode personality not set in config file')
 			_log.Log(gmLog.lInfo, 'assuming personality <gnumed-client>')
 			slave_personality = u'gnumed-client'
 
@@ -2050,7 +2050,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.3  2007-12-26 10:40:25  ncq
+# Revision 1.375.2.4  2008-01-03 13:20:38  ncq
+# - fix faulty log level
+#
+# Revision 1.375.2.3  2007/12/26 10:40:25  ncq
 # - bump client version
 #
 # Revision 1.375.2.2  2007/12/20 13:35:33  ncq
