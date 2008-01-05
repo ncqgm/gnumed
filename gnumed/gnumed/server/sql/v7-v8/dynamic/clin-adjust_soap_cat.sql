@@ -8,8 +8,8 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: clin-adjust_soap_cat.sql,v 1.1 2007-11-05 11:35:56 ncq Exp $
--- $Revision: 1.1 $
+-- $Id: clin-adjust_soap_cat.sql,v 1.2 2008-01-05 22:33:36 ncq Exp $
+-- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
@@ -39,7 +39,11 @@ alter table clin.soap_cat_ranks
 	alter column soap_cat
 		drop not null;
 alter table clin.soap_cat_ranks
+	drop constraint soap_cat_ranks_soap_cat;
+alter table clin.soap_cat_ranks
 	drop constraint soap_cat_ranks_soap_cat_check;
+alter table clin.soap_cat_ranks
+	drop constraint soap_cat_ranks_rank;
 alter table clin.soap_cat_ranks
 	drop constraint soap_cat_ranks_rank_check;
 \set ON_ERROR_STOP 1
@@ -64,11 +68,14 @@ drop index clin.idx_narr_soap cascade;
 create index idx_narr_soap on clin.clin_narrative(soap_cat) where (lower(soap_cat) in ('s', 'o', 'a', 'p'));
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('$RCSfile: clin-adjust_soap_cat.sql,v $', '$Revision: 1.1 $');
+select gm.log_script_insertion('$RCSfile: clin-adjust_soap_cat.sql,v $', '$Revision: 1.2 $');
 
 -- ==============================================================
 -- $Log: clin-adjust_soap_cat.sql,v $
--- Revision 1.1  2007-11-05 11:35:56  ncq
+-- Revision 1.2  2008-01-05 22:33:36  ncq
+-- - sigh, some versions have different names for check constraints, too
+--
+-- Revision 1.1  2007/11/05 11:35:56  ncq
 -- - new
 --
 -- Revision 1.7  2007/05/07 16:32:09  ncq
