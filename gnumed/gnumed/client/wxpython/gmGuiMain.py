@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.380 2007-12-26 22:45:46 ncq Exp $
-__version__ = "$Revision: 1.380 $"
+# $Id: gmGuiMain.py,v 1.381 2008-01-05 22:30:30 ncq Exp $
+__version__ = "$Revision: 1.381 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -269,11 +269,11 @@ class gmTopLevelFrame(wx.Frame):
 		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
 
 		ID = wx.NewId()
-		menu_cfg_db.Append(ID, _('Language'), _('Configure the database language.'))
+		menu_cfg_db.Append(ID, _('Language'), _('Configure the database language'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_lang)
 
 		ID = wx.NewId()
-		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message.'))
+		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message (all users).'))
 		wx.EVT_MENU(self, ID, self.__on_set_db_welcome)
 
 		ID = wx.NewId()
@@ -570,7 +570,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# - "recommended" medical links in the Wiki
 		ID_MEDICAL_LINKS = wx.NewId()
-		menu_knowledge.Append(ID_MEDICAL_LINKS, _('medical links (WWW)'), _('Show a page of links to useful medical content.'))
+		menu_knowledge.Append(ID_MEDICAL_LINKS, _('medical links (www)'), _('Show a page of links to useful medical content.'))
 		wx.EVT_MENU(self, ID_MEDICAL_LINKS, self.__on_medical_links)
 
 		# -- menu "Help" --------------
@@ -1464,8 +1464,7 @@ Search results:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_error (
 				_('Error exporting patient EMR as chronological journal.'),
-				_('EMR journal export'),
-				gmLog.lErr
+				_('EMR journal export')
 			)
 			raise
 		wx.EndBusyCursor()
@@ -1515,8 +1514,7 @@ Search results:
 		if not successful:
 			gmGuiHelpers.gm_show_error (
 				_('Error exporting progress notes of current encounter for MEDISTAR import.'),
-				_('MEDISTAR progress notes export'),
-				gmLog.lErr
+				_('MEDISTAR progress notes export')
 			)
 			return False
 
@@ -2068,7 +2066,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.380  2007-12-26 22:45:46  ncq
+# Revision 1.381  2008-01-05 22:30:30  ncq
+# - some wording cleanup for menu items
+#
+# Revision 1.380  2007/12/26 22:45:46  ncq
 # - tuples separate by , not :
 #
 # Revision 1.379  2007/12/23 22:03:59  ncq
