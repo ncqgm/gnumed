@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.2 2008-01-05 19:33:15 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.3 2008-01-05 19:33:59 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
@@ -34,17 +34,17 @@ echo "It will also take care to also install the"
 echo "dependancies needed to operate GNUmed smoothly."
 echo "================================================"
 
-# install dependancies
-echo ""
-echo "Package dependancies are about to be installed."
-echo "You may need to enter your password now:"
-sudo ${PKG_INSTALLER} ${DEPS}
-
 # prepare environment
 mkdir -p ~/.gnumed/server-installation/
 cd ~/.gnumed/server-installation/
 rm -r GNUmed-v?
 rm -f GNUmed-server.latest.tgz
+
+# install dependancies
+echo ""
+echo "Package dependancies are about to be installed."
+echo "You may need to enter your password now:"
+sudo ${PKG_INSTALLER} ${DEPS}
 
 # get and unpack package
 wget -q http://www.gnumed.de/downloads/server/GNUmed-server.latest.tgz
@@ -66,7 +66,10 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.2  2008-01-05 19:33:15  ncq
+# Revision 1.3  2008-01-05 19:33:59  ncq
+# - re-reorder
+#
+# Revision 1.2  2008/01/05 19:33:15  ncq
 # - add sudo and wegt
 # - reorder a bit
 #
