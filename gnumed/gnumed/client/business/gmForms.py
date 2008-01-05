@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.55 2007-11-10 20:49:22 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmForms.py,v 1.55.2.1 2008-01-05 21:39:06 ncq Exp $
+__version__ = "$Revision: 1.55.2.1 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -280,7 +280,7 @@ class cOOoConnector(gmBorg.cBorg):
 		if desktop is None:
 			return None
 
-		doc = desk.loadComponentFromURL(document_uri, "_blank", 0, ())
+		doc = desktop.loadComponentFromURL(document_uri, "_blank", 0, ())
 		return doc
 	#--------------------------------------------------------
 	# properties
@@ -816,7 +816,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.55  2007-11-10 20:49:22  ncq
+# Revision 1.55.2.1  2008-01-05 21:39:06  ncq
+# - faulty variable naming
+#
+# Revision 1.55  2007/11/10 20:49:22  ncq
 # - handle failing to connect to OOo much more gracefully
 #
 # Revision 1.54  2007/10/21 20:12:42  ncq
