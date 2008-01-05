@@ -4,14 +4,16 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.17 2007-12-23 11:58:50 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmMimeLib.py,v 1.18 2008-01-05 16:38:56 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
+# stdlib
 import os, mailcap, sys, mimetypes, shutil, logging
 
 
+# GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 import gmShellAPI, gmTools, gmCfg2
@@ -28,7 +30,15 @@ def guess_mimetype(aFileName = None):
 	worst_case = "application/octet-stream"
 
 	# 1) use Python libextractor
-	# - but we don't have docs for that
+	try:
+		import extractor
+		xtract = extractor.Extractor()
+		props = xtract.extract(filename = aFileName)
+		for prop, val in props:
+			if (prop == 'mimetype') and (val != worst_case):
+				return val
+	except ImportError:
+		_log.exception('Python wrapper for libextractor not installed.')
 
 	ret_code = -1
 
@@ -66,9 +76,9 @@ def guess_mimetype(aFileName = None):
 		else:
 			_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
 
-	# if we and up here we either have an insufficient systemwide
+	# If we and up here we either have an insufficient systemwide
 	# magic number file or we suffer from a deficient operating system
-	# altogether, it can't get much worse if we try ourselves
+	# alltogether. It can't get much worse if we try ourselves.
 
 	_log.info("OS level mime detection failed, falling back to built-in magic")
 
@@ -99,7 +109,7 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 def guess_ext_by_mimetype(mimetype=''):
 	"""Return file extension based on what the OS thinks a file of this mimetype should end in."""
 
-	# FIXME: does this screw up with scope of binding vs. scope of import ?
+	# ask system first
 	ext = mimetypes.guess_extension(mimetype)
 	if ext is not None:
 		_log.debug('<%s>: *.%s' % (mimetype, ext))
@@ -174,9 +184,9 @@ def call_viewer_on_file(aFile = None, block=None):
 	"""
 	# does this file exist, actually ?
 	if not (os.path.isfile(aFile) and os.access(aFile, os.R_OK)):
-		msg = '[%s] is not a readable file' % aFile
-		_log.error(msg)
-		raise IOError(msg)
+		msg = '[%s] is not a readable file'
+		_log.error(msg, aFile)
+		raise IOError(msg % aFile)
 
 	# well, maybe we are on KDE, so try to detect kfmclient
 	__detect_kfmclient()
@@ -194,16 +204,9 @@ def call_viewer_on_file(aFile = None, block=None):
 
 	_log.warning("no viewer found via standard mailcap system")
 	if os.name == "posix":
-		_log.warning("You should add a viewer for this mime type to your mailcap file.")
-		msg = _("Unable to display the file:\n\n"
-				" [%s]\n\n"
-				"Your system does not seem to have a (working)\n"
-				"viewer registered for the file type\n"
-				" [%s]"
-		) % (aFile, mime_type)
-		return False, msg
-
+		_log.warning("you should add a viewer for this mime type to your mailcap file")
 	_log.info("let's see what the OS can do about that")
+
 	# does the file already have an extension ?
 	(path_name, f_ext) = os.path.splitext(aFile)
 	# no
@@ -221,17 +224,20 @@ def call_viewer_on_file(aFile = None, block=None):
 	else:
 		file_to_display = aFile
 
-	#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	# FIXME: this needs more experimentation on Windows
 	file_to_display = os.path.normpath(file_to_display)
-	#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
 	_log.debug("file %s <type %s> (ext %s) -> file %s" % (aFile, mime_type, f_ext, file_to_display))
+
 	try:
 		os.startfile(file_to_display)
 	except:
 		_log.LogException('os.startfile(%s) failed' % file_to_display)
-		return False, _("Unable to start viewer on file [%s].") % file_to_display
+		msg = _("Unable to display the file:\n\n"
+				" [%s]\n\n"
+				"Your system does not seem to have a (working)\n"
+				"viewer registered for the file type\n"
+				" [%s]"
+		) % (file_to_display, mime_type)
+		return False, msg
 
 	# don't kill the file from under the (possibly async) viewer
 #	if file_to_display != aFile:
@@ -250,7 +256,11 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.17  2007-12-23 11:58:50  ncq
+# Revision 1.18  2008-01-05 16:38:56  ncq
+# - eventually use python libextractor module if available
+# - do not assume every POSIX system knows mailcap, MacOSX doesn't
+#
+# Revision 1.17  2007/12/23 11:58:50  ncq
 # - use gmCfg2
 #
 # Revision 1.16  2007/12/12 16:17:15  ncq
