@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.43 2007-12-26 18:36:35 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.44 2008-01-05 16:42:38 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -141,6 +141,7 @@ mkdir -p ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/gnumed.conf.example ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/gnumed-client.conf.example ./GNUmed-$CLIENTREV/client/doc/
 cp -R ../../client/doc/hook_script_example.py ./GNUmed-$CLIENTREV/client/doc/hook_script_example.py
+cp -R ../../client/doc/mime_type2file_extension.conf.example ./GNUmed-$CLIENTREV/client/doc/mime_type2file_extension.conf.example
 cp -R ../../client/doc/man-pages/gnumed.1 ./GNUmed-$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./GNUmed-$CLIENTREV/client/doc/gm_ctl_client.1
 
@@ -342,7 +343,10 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.43  2007-12-26 18:36:35  ncq
+# Revision 1.44  2008-01-05 16:42:38  ncq
+# - include example conf file for mime type to file extension mapping
+#
+# Revision 1.43  2007/12/26 18:36:35  ncq
 # - delete old CLI/PG libs from tarball
 #
 # Revision 1.42  2007/12/06 13:08:55  ncq
