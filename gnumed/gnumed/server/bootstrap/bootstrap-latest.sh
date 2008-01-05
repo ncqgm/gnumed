@@ -36,11 +36,13 @@ echo "not disturb the operation of the GNUmed client in your"
 echo "country in any way."
 echo "==========================================================="
 echo "1) Dropping old baseline gnumed_v2 database if there is any."
+echo "   (you may need to provide the password for ${USER})"
 sudo -u postgres dropdb -i ${PORT_DEF} gnumed_v2
 
 
 echo "=========================="
 echo "2) bootstrapping databases"
+
 
 # baseline v2
 LOG="${LOG_BASE}/bootstrap-latest-v2.log"
@@ -54,6 +56,7 @@ if test "$?" != "0" ; then
 fi
 unset GM_CORE_DB
 
+
 # v2 -> v3
 LOG="${LOG_BASE}/bootstrap-latest-v3.log"
 rm -rf ${LOG}
@@ -64,7 +67,9 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 echo "Dropping obsoleted staging database gnumed_v2 ..."
+echo "(you may need to provide the password for ${USER})"
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v2
+
 
 # v3 -> v4
 LOG="${LOG_BASE}/bootstrap-latest-v4.log"
@@ -76,7 +81,9 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 echo "Dropping obsoleted staging database gnumed_v3 ..."
+echo "(you may need to provide the password for ${USER})"
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v3
+
 
 # v4 -> v5
 LOG="${LOG_BASE}/bootstrap-latest-v5.log"
@@ -88,7 +95,9 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 echo "Dropping obsoleted staging database gnumed_v4 ..."
+echo "(you may need to provide the password for ${USER})"
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v4
+
 
 # v5 -> v6
 LOG="${LOG_BASE}/bootstrap-latest-v6.log"
@@ -100,7 +109,9 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 echo "Dropping obsoleted staging database gnumed_v5 ..."
+echo "(you may need to provide the password for ${USER})"
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v5
+
 
 # v6 -> v7
 LOG="${LOG_BASE}/bootstrap-latest-v7.log"
@@ -112,7 +123,9 @@ if test "$?" != "0" ; then
 	exit 1
 fi
 echo "Dropping obsoleted staging database gnumed_v6 ..."
+echo "(you may need to provide the password for ${USER})"
 sudo -u postgres dropdb ${PORT_DEF} gnumed_v6
+
 
 # v7 -> v8
 LOG="${LOG_BASE}/bootstrap-latest-v8.log"
@@ -123,3 +136,20 @@ if test "$?" != "0" ; then
 	echo "Bootstrapping \"gnumed_v8\" did not finish successfully. Aborting."
 	exit 1
 fi
+echo "Dropping obsoleted staging database gnumed_v7 ..."
+echo "(you may need to provide the password for ${USER})"
+sudo -u postgres dropdb ${PORT_DEF} gnumed_v7
+
+
+# v8 -> v9
+LOG="${LOG_BASE}/bootstrap-latest-v9.log"
+rm -rf ${LOG}
+CONF="update_db-v8_v9.conf"
+./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF}
+if test "$?" != "0" ; then
+	echo "Bootstrapping \"gnumed_v9\" did not finish successfully. Aborting."
+	exit 1
+fi
+#echo "Dropping obsoleted staging database gnumed_v8 ..."
+#echo "(you may need to provide the password for ${USER})"
+#sudo -u postgres dropdb ${PORT_DEF} gnumed_v8
