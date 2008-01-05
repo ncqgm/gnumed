@@ -49,6 +49,7 @@ echo "not disturb the operation of the GNUmed client in your"
 echo "country in any way."
 echo "==========================================================="
 echo "Dropping old database if there is any."
+echo "(you may need to provide the password for ${USER})"
 sudo -u postgres dropdb -i ${PORT_DEF} $GM_CORE_DB
 rm -rf ${LOG}
 echo "======================="
