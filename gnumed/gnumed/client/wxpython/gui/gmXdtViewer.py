@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.32 2007-12-26 20:19:34 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmXdtViewer.py,v 1.33 2008-01-05 16:42:02 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -86,8 +86,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			gmGuiHelpers.gm_show_error (
 				_('Cannot access xDT file\n\n'
 				  ' [%s]'),
-				_('loading xDT file'),
-				gmLog.lErr
+				_('loading xDT file')
 			)
 			return False
 		f.close()
@@ -104,8 +103,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			gmGuiHelpers.gm_show_error (
 				_('Cannot access xDT file\n\n'
 				  ' [%s]'),
-				_('loading xDT file'),
-				gmLog.lErr
+				_('loading xDT file')
 			)
 			return False
 
@@ -396,13 +394,13 @@ if __name__ == '__main__':
 					title = _('Opening xDT file')
 					msg = _('Cannot open xDT file.\n'
 							'[%s]') % fname
-					gmGuiHelpers.gm_show_error(msg, title, gmLog.lErr)
+					gmGuiHelpers.gm_show_error(msg, title)
 					return False
 			else:
 				title = _('Opening xDT file')
 				msg = _('You must provide an xDT file on the command line.\n'
 						'Format: --xdt-file=<file>')
-				gmGuiHelpers.gm_show_error(msg, title, gmLog.lWarn)
+				gmGuiHelpers.gm_show_error(msg, title)
 				return False
 
 			frame = wx.Frame(
@@ -425,7 +423,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.32  2007-12-26 20:19:34  ncq
+# Revision 1.33  2008-01-05 16:42:02  ncq
+# - no more logging in gm_show_*()
+#
+# Revision 1.32  2007/12/26 20:19:34  ncq
 # - add = to long options
 #
 # Revision 1.31  2007/12/26 14:35:51  ncq
