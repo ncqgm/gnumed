@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.131 2007-12-26 21:06:38 ncq Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gnumed.py,v 1.132 2008-01-05 22:32:33 ncq Exp $
+__version__ = "$Revision: 1.132 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -354,7 +354,7 @@ setup_console_exception_handler()
 setup_cli()
 setup_signal_handlers()
 
-from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmLog, gmHooks, gmPG2
+from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmLog, gmHooks
 
 setup_legacy_logging()
 setup_locale()
@@ -362,9 +362,10 @@ check_help_request()
 setup_paths_and_files()
 setup_date_time()
 setup_cfg()
-setup_backend()
 
-#from Gnumed.pycommon import gmCfg as gmCfg
+from Gnumed.pycommon import gmPG2
+
+setup_backend()
 
 #from Gnumed.business import gmSurgery
 #praxis = gmSurgery.gmCurrentPractice()
@@ -391,7 +392,10 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.131  2007-12-26 21:06:38  ncq
+# Revision 1.132  2008-01-05 22:32:33  ncq
+# - setup_backend()
+#
+# Revision 1.131  2007/12/26 21:06:38  ncq
 # - don't use gmTools too early
 #
 # Revision 1.130  2007/12/26 20:59:41  ncq
