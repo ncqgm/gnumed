@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.19 2007-11-28 11:56:30 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmProviderInboxWidgets.py,v 1.20 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -53,7 +53,7 @@ def configure_workplace_plugins(parent=None):
 			dlg.ShowModal()
 			workplace = dlg.GetValue().strip()
 			if workplace == u'':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'), gmLog.lErr)
+				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
 				return False
 			curr_plugins = []
 			choices = available_plugins
@@ -196,8 +196,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 Don't know what to do with it.
 Leaving message in inbox.""") % handler_key,
-				_('handling provider inbox item'),
-				gmLog.lWarn
+				_('handling provider inbox item')
 			)
 			return False
 		if not handle_item(pk_context = msg[6]):
@@ -248,8 +247,7 @@ Leaving message in inbox.""") % handler_key,
 				  'for patient [%s]. However, I cannot find'
 				  'that patient in the GNUmed database.'
 				) % pk_context,
-				_('handling provider inbox item'),
-				gmLog.lErr
+				_('handling provider inbox item')
 			)
 			return False
 		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
@@ -271,7 +269,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.19  2007-11-28 11:56:30  ncq
+# Revision 1.20  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.19  2007/11/28 11:56:30  ncq
 # - better logging
 #
 # Revision 1.18  2007/11/23 23:36:38  ncq

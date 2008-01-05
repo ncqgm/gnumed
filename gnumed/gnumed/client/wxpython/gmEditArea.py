@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.113 2007-11-28 14:00:42 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmEditArea.py,v 1.114 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -287,7 +287,7 @@ class cEditArea2(wx.Panel):
 			'Programmer forgot to override method:\n'
 			'  <%s.reset_ui>'
 		) % self.__class__.__name__
-		gmGuiHelpers.gm_show_error(msg, aLogLevel = gmLog.lErr)
+		gmGuiHelpers.gm_show_error(msg)
 	#--------------------------------------------------------
 	def get_short_error(self):
 		tmp = self._short_error
@@ -2091,7 +2091,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.113  2007-11-28 14:00:42  ncq
+# Revision 1.114  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.113  2007/11/28 14:00:42  ncq
 # - cleanup
 #
 # Revision 1.112  2007/11/17 16:37:46  ncq

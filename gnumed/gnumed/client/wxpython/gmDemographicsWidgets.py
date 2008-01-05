@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.139 2007-12-23 12:10:30 ncq Exp $
-__version__ = "$Revision: 1.139 $"
+# $Id: gmDemographicsWidgets.py,v 1.140 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.140 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1962,7 +1962,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			if is_any_field_filled:
 				error = True
 				msg = _('To properly create an address, all the related fields must be filled in.')
-				gmGuiHelpers.gm_show_error(msg, _('Required fields'), gmLog.lErr)
+				gmGuiHelpers.gm_show_error(msg, _('Required fields'))
 				field.SetBackgroundColour('pink')
 				field.SetFocus()
 				field.Refresh()
@@ -2530,7 +2530,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.139  2007-12-23 12:10:30  ncq
+# Revision 1.140  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.139  2007/12/23 12:10:30  ncq
 # - cleanup
 #
 # Revision 1.138  2007/12/11 12:49:25  ncq

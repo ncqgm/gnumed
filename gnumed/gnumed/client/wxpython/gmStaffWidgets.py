@@ -7,8 +7,8 @@ to anybody else.
 """
 #=========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.17 2007-12-04 16:16:27 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmStaffWidgets.py,v 1.18 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -171,8 +171,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Failed to save changes to GNUmed database user.'),
-				aTitle = _('Modifying GNUmed staff member'),
-				aLogLevel = gmLog.lErr
+				aTitle = _('Modifying GNUmed staff member')
 			)
 			return False
 
@@ -237,7 +236,10 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.Close()
 #==========================================================================
 # $Log: gmStaffWidgets.py,v $
-# Revision 1.17  2007-12-04 16:16:27  ncq
+# Revision 1.18  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.17  2007/12/04 16:16:27  ncq
 # - use gmAuthWidgets
 #
 # Revision 1.16  2007/04/23 01:11:51  ncq

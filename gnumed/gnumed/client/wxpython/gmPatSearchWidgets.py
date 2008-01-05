@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.98 2007-12-11 12:49:26 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmPatSearchWidgets.py,v 1.99 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -232,7 +232,6 @@ def load_persons_from_xdt():
 				' [%s]'
 				) % bdt_file,
 				_('Activating xDT patient')
-			, aLogLevel = None
 			)
 			_log.LogException('cannot read patient from xDT file [%s]' % bdt_file['file'])
 			continue
@@ -856,7 +855,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.98  2007-12-11 12:49:26  ncq
+# Revision 1.99  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.98  2007/12/11 12:49:26  ncq
 # - explicit signal handling
 #
 # Revision 1.97  2007/11/12 23:05:55  ncq

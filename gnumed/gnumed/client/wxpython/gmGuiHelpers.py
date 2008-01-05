@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.79 2007-12-24 23:31:24 shilbert Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmGuiHelpers.py,v 1.80 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.80 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -595,13 +595,9 @@ class cFileDropTarget(wx.FileDropTarget):
 	def OnDropFiles(self, x, y, filenames):
 		self.target.add_filenames(filenames)
 # ========================================================================
-def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
+def gm_show_error(aMessage = None, aTitle = None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify error message')
-
-	if aLogLevel is not None:
-		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
-		_log.Log(aLogLevel, log_msg)
 
 	aMessage += _("\n\nPlease consult the error log for all the gory details !")
 
@@ -618,13 +614,9 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
+def gm_show_info(aMessage = None, aTitle = None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify info message')
-
-	if aLogLevel is not None:
-		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
-		_log.Log(aLogLevel, log_msg)
 
 	if aTitle is None:
 		aTitle = _('generic info message')
@@ -639,13 +631,9 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
+def gm_show_warning(aMessage = None, aTitle = None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify warning')
-
-	if aLogLevel is not None:
-		log_msg = aMessage.replace('\015', ' ').replace('\012', ' ')
-		_log.Log(aLogLevel, log_msg)
 
 	if aTitle is None:
 		aTitle = _('generic warning message')
@@ -806,7 +794,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.79  2007-12-24 23:31:24  shilbert
+# Revision 1.80  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.79  2007/12/24 23:31:24  shilbert
 # - remove some dlg.SetFocus statements
 #
 # Revision 1.78  2007/12/23 12:10:49  ncq

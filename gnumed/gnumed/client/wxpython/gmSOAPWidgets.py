@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.96 2007-12-12 16:24:57 ncq Exp $
-__version__ = "$Revision: 1.96 $"
+# $Id: gmSOAPWidgets.py,v 1.97 2008-01-05 16:41:27 ncq Exp $
+__version__ = "$Revision: 1.97 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -642,7 +642,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			dlg.ShowModal()
 			epi_name = dlg.GetValue().strip()
 			if epi_name == u'':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new episode without a name.'), _('saving progress note'), gmLog.lErr)
+				gmGuiHelpers.gm_show_error(_('Cannot save a new episode without a name.'), _('saving progress note'))
 				return False
 
 			# new unassociated episode
@@ -671,15 +671,14 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# dump progress note to backend
 		importer = gmSOAPimporter.cSOAPImporter()
 		if not importer.import_soap(progress_note):
-			gmGuiHelpers.gm_show_error(_('Error saving progress note.'), _('saving progress note'), gmLog.lErr)
+			gmGuiHelpers.gm_show_error(_('Error saving progress note.'), _('saving progress note'))
 			return False
 
 		# dump embedded data to backend
 		if not self.__embedded_data_holder.save():
 			gmGuiHelpers.gm_show_error (
 				_('Error saving embedded data.'),
-				_('saving progress note'),
-				gmLog.lErr
+				_('saving progress note')
 			)
 			return False
 		self.__embedded_data_holder.clear()
@@ -1076,7 +1075,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.96  2007-12-12 16:24:57  ncq
+# Revision 1.97  2008-01-05 16:41:27  ncq
+# - remove logging from gm_show_*()
+#
+# Revision 1.96  2007/12/12 16:24:57  ncq
 # - explicit signals
 #
 # Revision 1.95  2007/09/24 22:05:57  ncq
