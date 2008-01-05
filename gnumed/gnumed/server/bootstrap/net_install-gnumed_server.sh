@@ -2,7 +2,7 @@
 
 # ============================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/net_install-gnumed_server.sh,v $
-# $Id: net_install-gnumed_server.sh,v 1.1 2007-10-28 10:19:07 ncq Exp $
+# $Id: net_install-gnumed_server.sh,v 1.2 2008-01-05 19:33:15 ncq Exp $
 # ============================================
 
 # try to determine distribution of target system
@@ -14,7 +14,7 @@ if [ -f /etc/SuSE-release ]; then
 fi
 # Debian
 if [ -f /etc/debian_version ]; then
-	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2"
+	DEPS="gnumed-common postgresql postgresql-client cron anacron tar hostname coreutils mailx openssl bzip2 gnupg mc rsync python-psycopg2 sudo wget"
 	PKG_INSTALLER="apt-get install"
 	SYS_TYPE="Debian"
 fi
@@ -34,6 +34,12 @@ echo "It will also take care to also install the"
 echo "dependancies needed to operate GNUmed smoothly."
 echo "================================================"
 
+# install dependancies
+echo ""
+echo "Package dependancies are about to be installed."
+echo "You may need to enter your password now:"
+sudo ${PKG_INSTALLER} ${DEPS}
+
 # prepare environment
 mkdir -p ~/.gnumed/server-installation/
 cd ~/.gnumed/server-installation/
@@ -45,12 +51,6 @@ wget -q http://www.gnumed.de/downloads/server/GNUmed-server.latest.tgz
 tar -xzf GNUmed-server.latest.tgz
 BASEDIR=`ls -1 -d GNUmed-v?`
 mv -f GNUmed-server.latest.tgz ${BASEDIR}-server.tgz
-
-# install dependancies
-echo ""
-echo "Package dependancies are about to be installed."
-echo "You may need to enter your password now:"
-sudo ${PKG_INSTALLER} ${DEPS}
 
 # run bootstrapper
 cd ${BASEDIR}/server/bootstrap/
@@ -66,7 +66,11 @@ sudo ./bootstrap-latest.sh
 
 # ============================================
 # $Log: net_install-gnumed_server.sh,v $
-# Revision 1.1  2007-10-28 10:19:07  ncq
+# Revision 1.2  2008-01-05 19:33:15  ncq
+# - add sudo and wegt
+# - reorder a bit
+#
+# Revision 1.1  2007/10/28 10:19:07  ncq
 # - renamed to better reflect the use beyond Debian
 #
 # Revision 1.7  2007/10/28 09:16:49  ncq
