@@ -4,8 +4,8 @@ FIXME: store screen size
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSnellen.py,v $
-# $Id: gmSnellen.py,v 1.1 2007-10-19 09:37:56 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmSnellen.py,v 1.2 2008-01-05 22:31:20 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Ian Haywood, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -513,18 +513,19 @@ double-click ends""")), 0, wx.ALL, 15)
 		self.EndModal (1)
 
 	def OnOK (self, event):
-		if self.Validate() and self.TransferDataFromWindow():
-			selected_alpha_string = self.alpha_ctrl.GetStringSelection()
-			if selected_alpha_string is None or len (selected_alpha_string) < 2:
-				alpha = cSnellenChart.latin
-			else:
-				alpha = cSnellenChart.alphabets[selected_alpha_string]
-			height = self.height_ctrl.GetValue ()
-			width = self.width_ctrl.GetValue ()
-			mirr = self.mirror_ctrl.GetValue()
-			self.vals = (width, height, alpha, mirr)
-			self.EndModal(0)
-			
+#		if self.Validate() and self.TransferDataFromWindow():
+		selected_alpha_string = self.alpha_ctrl.GetStringSelection()
+		if selected_alpha_string is None or len (selected_alpha_string) < 2:
+			alpha = cSnellenChart.latin
+		else:
+			alpha = cSnellenChart.alphabets[selected_alpha_string]
+		height = self.height_ctrl.GetValue ()
+		width = self.width_ctrl.GetValue ()
+		mirr = self.mirror_ctrl.GetValue()
+		self.vals = (width, height, alpha, mirr)
+		self.EndModal(0)
+
+#		self.EndModal(1)
 
 #============================================================================
 # FIXME needn't be a plugin, rewrite to not be one
@@ -579,7 +580,10 @@ if __name__ == '__main__':
 	main()
 #============================================================================
 # $Log: gmSnellen.py,v $
-# Revision 1.1  2007-10-19 09:37:56  ncq
+# Revision 1.2  2008-01-05 22:31:20  ncq
+# - MacOSX don't seem to have default True on Validate() and TransferDataFromWindow()
+#
+# Revision 1.1  2007/10/19 09:37:56  ncq
 # - moved here
 #
 # Revision 1.21  2007/10/18 18:05:01  ncq
