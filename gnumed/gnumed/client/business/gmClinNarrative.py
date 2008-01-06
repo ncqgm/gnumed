@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -139,7 +139,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 # convenience functions
 #============================================================
-def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, encounter_id=None):
+def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None):
 	"""
 		Creates a new clinical narrative entry
 		
@@ -148,22 +148,50 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 		episode_id - episodes's primary key
 		encounter_id - encounter's primary key
 	"""
-	# sanity check
-	# 1) any of the args being None should fail the SQL code
-	#    but silently do not insert empty narrative
-	if narrative.strip() == '':
+	# any of the args being None should fail the SQL code
+
+	# sanity checks:
+
+	# 1) silently do not insert empty narrative
+	narrative = narrative.strip()
+	if  == u'':
 		return (True, None)
-	# 2) do episode/encounter belong to the patient ?
-	cmd = u"""select pk_patient from clin.v_pat_episodes where pk_episode=%s 
-				 union 
-			 select pk_patient from clin.v_pat_encounters where pk_encounter=%s"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [episode_id, encounter_id]}])
+
+	# 2) also, silently do not insert true duplicates
+	# FIXME: this should check for .provider = current_user but
+	# FIXME: the view has provider mapped to their staff alias
+	cmd = u"""
+select *, xmin_clin_narrative from clin.v_pat_narrative where
+	pk_encounter = %(enc)s
+	and pk_episode = %(epi)s
+	and soap_cat = %(soap)s
+	and narrative = %(narr)s
+"""
+	args = {
+		'enc': encounter_id,
+		'epi': episode_id,
+		'soap': soap_cat,
+		'narr': narrative
+	}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 1:
+		narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
+		return (True, narrative)
+
+	# 3) do episode and encounter belong to the same patient ?
+	cmd = u"""
+select pk_patient from clin.v_pat_episodes where pk_episode = %(epi)s 
+	 union 
+select pk_patient from clin.v_pat_encounters where pk_encounter = %(enc)s
+"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (False, _('internal error, check log'))
 	if len(rows) > 1:
-		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
+		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to different patients !?!' % (episode_id, encounter_id))
 		return (False, _('consistency error, check log'))
+
 	# insert new narrative
 	queries = [
 		{'cmd': u"insert into clin.clin_narrative (fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, lower(%s))",
@@ -172,6 +200,7 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 		{'cmd': u"select currval('clin.clin_narrative_pk_seq')"}
 	]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
+
 	narrative = cNarrative(aPK_obj = rows[0][0])
 	return (True, narrative)
 #------------------------------------------------------------
@@ -226,7 +255,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.27  2007-11-05 12:09:29  ncq
+# Revision 1.28  2008-01-06 08:08:25  ncq
+# - check for duplicate narrative before insertion
+#
+# Revision 1.27  2007/11/05 12:09:29  ncq
 # - support admin soap type
 #
 # Revision 1.26  2007/09/10 12:31:55  ncq
