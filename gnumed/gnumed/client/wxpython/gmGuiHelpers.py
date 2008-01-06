@@ -11,12 +11,12 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.80 2008-01-05 16:41:27 ncq Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmGuiHelpers.py,v 1.81 2008-01-06 08:12:29 ncq Exp $
+__version__ = "$Revision: 1.81 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os, shutil, datetime as pyDT, traceback, exceptions, re as regex, codecs
+import sys, os, shutil, datetime as pyDT, traceback, exceptions, re as regex, codecs, logging
 if __name__ == '__main__':
 	sys.exit("This is not intended to be run standalone !")
 
@@ -25,17 +25,23 @@ import wx
 
 
 from Gnumed.business import gmSurgery
-from Gnumed.pycommon import gmLog, gmPG2, gmLoginInfo, gmDispatcher, gmTools, gmCfg, gmI18N
+from Gnumed.pycommon import gmLog, gmPG2, gmLoginInfo, gmDispatcher, gmTools, gmCfg, gmI18N, gmLog2, gmCfg2
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgUnhandledExceptionDlg, wxgGreetingEditorDlg
 
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log2 = logging.getLogger('gm.gui')
+_log2.info(__version__)
 
 _prev_excepthook = None
-
 # ========================================================================
 def handle_uncaught_exception_wx(t, v, tb):
+
+	_log2.error('unhandled exception caught, debug mode enabled')
+	_cfg = gmCfg2.gmCfgData()
+	_cfg.set_option(option = 'debug', value = True)
+	root_logger = logging.getLogger()
+	root_logger.setLevel(logging.DEBUG)
 
 	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
 
@@ -58,30 +64,43 @@ def handle_uncaught_exception_wx(t, v, tb):
 				'functionality will not be accessible.'
 			) % v
 		)
+		_log.LogException('module [%s] not installed' % v)
 	else:
-		for target in _log.get_targets():
-			if not isinstance(target, gmLog.cLogTargetFile):
-				continue
-			original_name = target.ID
-			name = os.path.basename(target.ID)
-			name, ext = os.path.splitext(name)
-			new_name = os.path.expanduser(os.path.join (
-				'~',
-				'gnumed',
-				'logs',
-				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-			))
-			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-			_log.flush()
-			shutil.copy2(original_name, new_name)
+#		for target in _log.get_targets():
+#			if not isinstance(target, gmLog.cLogTargetFile):
+#				continue
+#			original_name = target.ID
+#			name = os.path.basename(target.ID)
+#			name, ext = os.path.splitext(name)
+#			new_name = os.path.expanduser(os.path.join (
+#				'~',
+#				'gnumed',
+#				'logs',
+#				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+#			))
+#			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
+#			_log.flush()
+#			shutil.copy2(original_name, new_name)
+
+		name = os.path.basename(_logfile_name)
+		name, ext = os.path.splitext(name)
+		new_name = os.path.expanduser(os.path.join (
+			'~',
+			'gnumed',
+			'logs',
+			'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
+		))
 
 		dlg = cUnhandledExceptionDlg(parent = None, id = -1, exception = (t, v, tb), logfile = new_name)
 		dlg.ShowModal()
 		comment = dlg._TCTRL_comment.GetValue()
-		if comment is not None:
-			_log.Log(gmLog.lErr, u'user comment: %s' % comment.strip())
-			_log.flush()
 		dlg.Destroy()
+		if (comment is not None) and (comment.strip() != u''):
+			_log2.error(u'user comment: %s', comment.strip())
+
+		_log2.warning('syncing log file for backup to [%s]', new_name)
+		_log2.flush()
+		shutil.copy2(_logfile_name, new_name)
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	office = gmSurgery.gmCurrentPractice()
@@ -91,6 +110,9 @@ def install_wx_exception_handler():
 	global _prev_excepthook
 	_prev_excepthook = sys.excepthook
 	sys.excepthook = handle_uncaught_exception_wx
+
+	global _logfile_name
+	_logfile_name = gmLog2._logfile_name
 
 	return True
 # ------------------------------------------------------------------------
@@ -122,11 +144,31 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		self.Fit()
 	#------------------------------------------
 	def _on_close_gnumed_button_pressed(self, evt):
+		comment = self._TCTRL_comment.GetValue()
+		if (comment is not None) and (comment.strip() != u''):
+			_log2.error(u'user comment: %s', comment.strip())
+		_log2.warning('syncing log file for backup to [%s]', self.logfile)
+		_log2.flush()
+		shutil.copy2(_logfile_name, self.logfile)
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
 		evt.Skip()
 	#------------------------------------------
 	def _on_mail_button_pressed(self, evt):
+
+		comment = self._TCTRL_comment.GetValue()
+		if (comment is None) or (comment.strip() == u''):
+			comment = wx.GetTextFromUser (
+				message = _(
+					'Please enter a short note on what you\n'
+					'were about to do in GNUmed:'
+				),
+				caption = _('Sending bug report'),
+				parent = self
+			)
+			if comment.strip() == u'':
+				comment = u'user did not enter comment on bug report'
+
 		receivers = regex.findall (
 			'[\S]+@[\S]+',
 			self._TCTRL_helpdesk.GetValue().strip(),
@@ -186,24 +228,13 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			evt.Skip()
 			return
 
-		comment = self._TCTRL_comment.GetValue().strip()
-		if comment == u'':
-			comment = wx.GetTextFromUser (
-				message = _(
-					'Please enter a short note on what you\n'
-					'were about to do in GNUmed:'
-				),
-				caption = _('Sending bug report'),
-				parent = self
-			)
-			if comment.strip() == u'':
-				dlg.Destroy()
-				evt.Skip()
-				return
-
 		msg = u"Report sent via GNUmed's handler for unexpected exceptions:\n\n %s\n\n" % comment
 		if dlg._CHBOX_dont_ask_again.GetValue():
-			for line in codecs.open(self.logfile, 'rU', 'latin1', 'replace'):
+#			for line in codecs.open(self.logfile, 'rU', 'latin1', 'replace'):
+			_log2.error(comment)
+			_log2.warning('syncing log file for emailing')
+			_log2.flush()
+			for line in codecs.open(_logfile_name, 'rU', 'utf8', 'replace'):
 				msg = msg + line
 
 		dlg.Destroy()
@@ -224,7 +255,8 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	#------------------------------------------
 	def _on_view_log_button_pressed(self, evt):
 		from Gnumed.pycommon import gmMimeLib
-		gmMimeLib.call_viewer_on_file(self.logfile, block = False)
+		_log2.flush()
+		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
 		evt.Skip()
 # ========================================================================
 def configure_string_option(parent=None, message=None, option=None, bias=u'user', default_value=u'', validator=None):
@@ -794,7 +826,12 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.80  2008-01-05 16:41:27  ncq
+# Revision 1.81  2008-01-06 08:12:29  ncq
+# - auto-switch to --debug on detecting an unhandled exception
+# - always save user comment if there is any
+# - always backup the log file with comment for later perusal
+#
+# Revision 1.80  2008/01/05 16:41:27  ncq
 # - remove logging from gm_show_*()
 #
 # Revision 1.79  2007/12/24 23:31:24  shilbert
