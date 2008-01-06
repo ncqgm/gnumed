@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.150 2007-12-26 12:35:54 ncq Exp $
-__version__ = "$Revision: 1.150 $"
+# $Id: gmPerson.py,v 1.151 2008-01-06 08:09:38 ncq Exp $
+__version__ = "$Revision: 1.151 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1130,7 +1130,15 @@ class cPatientSearcher_SQL:
 				[ cIdentity(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
 			)
 
-		return identities
+		pks = []
+		unique_identities = []
+		for identity in identities:
+			if identity['pk_identity'] in pks:
+				continue
+			pks.append(identity['pk_identity'])
+			unique_identities.append(identity)
+
+		return unique_identities
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -2159,7 +2167,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.150  2007-12-26 12:35:54  ncq
+# Revision 1.151  2008-01-06 08:09:38  ncq
+# - in patient search by several means weed out duplicate finds
+#
+# Revision 1.150  2007/12/26 12:35:54  ncq
 # - cleanup
 #
 # Revision 1.149  2007/12/24 23:25:39  shilbert
