@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.381 2008-01-05 22:30:30 ncq Exp $
-__version__ = "$Revision: 1.381 $"
+# $Id: gmGuiMain.py,v 1.382 2008-01-07 19:53:00 ncq Exp $
+__version__ = "$Revision: 1.382 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1283,7 +1283,7 @@ class gmTopLevelFrame(wx.Frame):
 				if choice != wx.ID_OK:
 					return True
 				_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-				_log.flush()
+				gmLog2.flush()
 				shutil.copy2(target.ID, new_name)
 				gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
 	#----------------------------------------------
@@ -1592,9 +1592,9 @@ Search results:
 		listener.stop_thread()
 
 		# shutdown application scripting listener
-		if scripting_listener is not None:
+		if _scripting_listener is not None:
 			try:
-				scripting_listener.shutdown()
+				_scripting_listener.shutdown()
 			except:
 				_log.LogException('cannot stop scripting listener thread', verbose=0)
 
@@ -1902,9 +1902,9 @@ class gmApp(wx.App):
 		)
 
 		macro_executor = gmMacro.cMacroPrimitives(personality = slave_personality)
-		global scripting_listener
+		global _scripting_listener
 		try:
-			scripting_listener = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
+			_scripting_listener = gmScriptingListener.cScriptingListener(port = port, macro_executor = macro_executor)
 		except SocketError, e:
 			_log.LogException('cannot start GNUmed XML-RPC server')
 			gmGuiHelpers.gm_show_error (
@@ -2066,7 +2066,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.381  2008-01-05 22:30:30  ncq
+# Revision 1.382  2008-01-07 19:53:00  ncq
+# - misspelled variable fix
+#
+# Revision 1.381  2008/01/05 22:30:30  ncq
 # - some wording cleanup for menu items
 #
 # Revision 1.380  2007/12/26 22:45:46  ncq
