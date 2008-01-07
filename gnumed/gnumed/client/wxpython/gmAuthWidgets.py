@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.8 2007-12-26 23:22:27 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmAuthWidgets.py,v 1.9 2008-01-07 19:51:54 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -70,7 +70,7 @@ There may be schema related errors. Please report and/or
 fix them. Do not rely on this database to work properly
 in all cases !""")
 
-curr_db = 'gnumed_v8'
+curr_db = 'gnumed_v9'
 #================================================================
 # convenience functions
 #----------------------------------------------------------------
@@ -106,12 +106,13 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			user = login.user,
 			password = login.password
 		)
-		print "trying to connect"
 		try:
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True)
 			connected = True
 		except gmPG2.cAuthenticationError, e:
-#			print "error - retry"
+			print "error - retry"
+			print type(e)
+			print str(e).decode('utf8')
 			attempt += 1
 			_log.exception(u"login attempt %s/%s failed" % (attempt, max_attempts))
 			if attempt < max_attempts:
@@ -125,8 +126,10 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			_log.exception(u"login attempt %s/%s failed, may retry", attempt, max_attempts)
 			continue
 		except StandardError, e:
-#			print "error - cancel"
-#			print e
+			print "error - cancel"
+			print dir(e)
+			print e.args
+			print dir(gmPG2.dbapi)
 			_log.exception(u"login attempt %s/%s failed, useless to retry", attempt+1, max_attempts)
 			break
 
@@ -142,13 +145,13 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			connected_db_version = gmPG2.get_schema_version()
 			msg = msg_generic % (connected_db_version, expected_version, login.host, login.database, login.user)
 			if require_version:
-				gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'), None)
+				gmGuiHelpers.gm_show_error(msg + msg_fail, _('Verifying database version'))
 				continue
-			gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'), None)
+			gmGuiHelpers.gm_show_info(msg + msg_override, _('Verifying database version'))
 
 		sanity = gmPG2.sanity_check_database_settings()
 		if sanity is not True:
-			gmGuiHelpers.gm_show_error((msg_insanity % sanity) + msg_fail, _('Verifying database settings'), None)
+			gmGuiHelpers.gm_show_error((msg_insanity % sanity) + msg_fail, _('Verifying database settings'))
 			continue
 
 		listener = gmBackendListener.gmBackendListener(conn=conn)
@@ -514,6 +517,7 @@ class cLoginPanel(wx.Panel):
 		_log.debug(u'saving login choices in [%s]', prefs_name)
 
 		# FIXME: convert to a standard writer ?
+		from Gnumed.pycommon import gmCfg
 		prefs = gmCfg.cCfgFile (
 			aFile = prefs_name,
 			flags = gmCfg.cfg_IGNORE_CMD_LINE
@@ -551,7 +555,7 @@ class cLoginPanel(wx.Panel):
 			tmp = "http://www.gnumed.org"
 
 		wx.MessageBox(_(
-"""GnuMed main login screen
+"""GNUmed main login screen
 
 USER:
  name of the GnuMed user
@@ -563,7 +567,7 @@ button OK:
 button OPTIONS:
  set advanced options
 button CANCEL:
- abort login and quit GnuMed client
+ abort login and quit GNUmed client
 button HELP:
  this help screen
 
@@ -586,7 +590,7 @@ For assistance on using GnuMed please contact:
 			else:
 				root_logger.setLevel(logging.WARNING)
 
-		if self._CHBOX_slave.GetValue():	
+		if self._CHBOX_slave.GetValue():
 			_log.info('slave mode enabled')
 			_cfg.set_option(option = 'slave', value = True)
 		else:
@@ -637,7 +641,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.8  2007-12-26 23:22:27  ncq
+# Revision 1.9  2008-01-07 19:51:54  ncq
+# - bump db version
+# - we still need gmCfg
+#
+# Revision 1.8  2007/12/26 23:22:27  ncq
 # - fix invalid variable access
 #
 # Revision 1.7  2007/12/26 22:44:31  ncq
