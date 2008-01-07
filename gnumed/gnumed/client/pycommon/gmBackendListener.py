@@ -5,7 +5,7 @@ notifications from the database backend.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select, logging
@@ -288,7 +288,7 @@ if __name__ == "__main__":
 
 		# now try with listener to measure impact
 		print "Now in a new shell connect psql to the"
-		print "database <gnumed_v8> on localhost, return"
+		print "database <gnumed_v9> on localhost, return"
 		print "here and hit <enter> to continue."
 		raw_input('hit <enter> when done starting psql')
 		print "You now have about 30 seconds to go"
@@ -370,7 +370,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.14  2007-12-12 16:17:15  ncq
+# Revision 1.15  2008-01-07 19:48:22  ncq
+# - bump db version
+#
+# Revision 1.14  2007/12/12 16:17:15  ncq
 # - better logger names
 #
 # Revision 1.13  2007/12/11 14:16:29  ncq

@@ -91,7 +91,7 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	login = cLogin()
-	login.database = u'gnumed_v8'
+	login.database = u'gnumed_v9'
 	login.host = u'salaam.homeunix.com'
 	login.port = 5432
 	login.user = u'any-doc'
