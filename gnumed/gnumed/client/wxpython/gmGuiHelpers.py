@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.81 2008-01-06 08:12:29 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmGuiHelpers.py,v 1.82 2008-01-07 19:52:40 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -79,7 +79,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 #				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
 #			))
 #			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-#			_log.flush()
+#			gmLog2.flush()
 #			shutil.copy2(original_name, new_name)
 
 		name = os.path.basename(_logfile_name)
@@ -99,7 +99,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 			_log2.error(u'user comment: %s', comment.strip())
 
 		_log2.warning('syncing log file for backup to [%s]', new_name)
-		_log2.flush()
+		gmLog2.flush()
 		shutil.copy2(_logfile_name, new_name)
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
@@ -148,7 +148,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		if (comment is not None) and (comment.strip() != u''):
 			_log2.error(u'user comment: %s', comment.strip())
 		_log2.warning('syncing log file for backup to [%s]', self.logfile)
-		_log2.flush()
+		gmLog2.flush()
 		shutil.copy2(_logfile_name, self.logfile)
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
@@ -233,7 +233,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 #			for line in codecs.open(self.logfile, 'rU', 'latin1', 'replace'):
 			_log2.error(comment)
 			_log2.warning('syncing log file for emailing')
-			_log2.flush()
+			gmLog2.flush()
 			for line in codecs.open(_logfile_name, 'rU', 'utf8', 'replace'):
 				msg = msg + line
 
@@ -255,7 +255,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	#------------------------------------------
 	def _on_view_log_button_pressed(self, evt):
 		from Gnumed.pycommon import gmMimeLib
-		_log2.flush()
+		gmLog2.flush()
 		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
 		evt.Skip()
 # ========================================================================
@@ -826,7 +826,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.81  2008-01-06 08:12:29  ncq
+# Revision 1.82  2008-01-07 19:52:40  ncq
+# - proper use of flush()
+#
+# Revision 1.81  2008/01/06 08:12:29  ncq
 # - auto-switch to --debug on detecting an unhandled exception
 # - always save user comment if there is any
 # - always backup the log file with comment for later perusal
