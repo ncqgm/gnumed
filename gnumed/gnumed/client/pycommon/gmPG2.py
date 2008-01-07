@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -23,7 +23,7 @@ import time, locale, sys, re as regex, os, codecs, types, datetime, logging
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg
+from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N
 
 
 _log = logging.getLogger('gm.database')
@@ -95,8 +95,8 @@ known_schema_hashes = {
 	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
 	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
 	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': '7e7b093af57aea48c288e76632a382e5',	# old (v1) style hash
-	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hash
+	'v5': '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
+	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
 	'v7': '6c9f6d3981483f8e9433df99d1947b27',
 	'v8': '89b13a7af83337c3aad153b717e52360'
 }
@@ -181,7 +181,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v8]: ", 'gnumed_v8')
+		login.database = __prompted_input("database [gnumed_v9]: ", 'gnumed_v9')
 		login.user = __prompted_input("user name: ", '')
 		login.password = getpass.getpass("password (not shown): ")
 		login.port = __prompted_input("port [5432]: ", 5432)
@@ -290,35 +290,6 @@ def set_default_login(login=None):
 # =======================================================================
 # netadata API
 # =======================================================================
-def sanity_check_database_settings():
-	_log.info('checking database settings')
-	settings = {
-		u'allow_system_table_mods': [u'off', u'system breakage'],
-		u'fsync': [u'on', u'data loss/corruption'],
-		u'full_page_writes': [u'on', u'data loss/corruption'],
-		u'lc_messages': [u'C', u'suboptimal error detection'],
-		u'password_encryption': [u'on', u'breach of confidentiality'],
-		u'regex_flavor': [u'advanced', u'query breakage'],
-		u'synchronous_commit': [u'on', u'data loss/corruption'],
-		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption']
-	}
-
-	cmd = u"select name, setting from pg_settings where name in %(settings)s"
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
-
-	all_good = True
-	msg = []
-	for row in rows:
-		if row[1] != settings[row[0]][0]:
-			all_good = False
-			msg.append(' option [%s] = [%s] risks "%s"' % (row[0], row[1], settings[row[0]][1]))
-			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
-
-	if not all_good:
-		return u'\n'.join(msg)
-
-	return True
-#------------------------------------------------------------------------
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
 	if version == 'devel':
@@ -931,26 +902,57 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 	conn.is_decorated = True
 
 	return conn
-# =======================================================================
+# ======================================================================
 # internal helpers
-# -----------------------------------------------------------------------
+#-----------------------------------------------------------------------
 def __noop():
 	pass
-# -----------------------------------------------------------------------
+#-----------------------------------------------------------------------
+def sanity_check_database_settings():
+	_log.info('checking database settings')
+	settings = {
+		u'allow_system_table_mods': [u'off', u'system breakage'],
+		u'default_transaction_read_only': [u'on', u'accidental database writes'],
+		u'fsync': [u'on', u'data loss/corruption'],
+		u'full_page_writes': [u'on', u'data loss/corruption'],
+		u'lc_messages': [u'C', u'suboptimal error detection'],
+		u'password_encryption': [u'on', u'breach of confidentiality'],
+		u'regex_flavor': [u'advanced', u'query breakage'],
+		u'synchronous_commit': [u'on', u'data loss/corruption'],
+		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption']
+	}
+
+	cmd = u"select name, setting from pg_settings where name in %(settings)s"
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
+
+	all_good = True
+	msg = []
+	for row in rows:
+		if row[1] != settings[row[0]][0]:
+			all_good = False
+			msg.append(' option [%s] = [%s] risks "%s"' % (row[0], row[1], settings[row[0]][1]))
+			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
+
+	if not all_good:
+		return u'\n'.join(msg)
+
+	return True
+#------------------------------------------------------------------------
 def __log_PG_settings(curs=None):
 	# don't use any of the run_*()s since that might
 	# create a loop if we fail here
+	# FIXME: use pg_settings
 	try:
 		curs.execute(u'show all')
 	except:
-		_log.exception("cannot log PG settings (>>>show all<<< failed)")
+		_log.exception(u'cannot log PG settings (>>>show all<<< failed)')
 		return False
 	settings = curs.fetchall()
 	if settings is None:
-		_log.error('cannot log PG settings (>>>show all<<< did not return rows)')
+		_log.error(u'cannot log PG settings (>>>show all<<< did not return rows)')
 		return False
 	for setting in settings:
-		_log.debug("PG option [%s]: %s" % (setting[0], setting[1]))
+		_log.debug(u'PG option [%s]: %s', setting[0], setting[1])
 	return True
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):
@@ -962,6 +964,9 @@ class cAuthenticationError(dbapi.OperationalError):
 	def __str__(self):
 		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
 
+	def __unicode__(self):
+		return u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+
 # =======================================================================
 class cEncodingError(dbapi.OperationalError):
 
@@ -971,12 +976,15 @@ class cEncodingError(dbapi.OperationalError):
 
 	def __str__(self):
 		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
+
+	def __unicode__(self):
+		return u'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
 # =======================================================================
 class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tzinfo is None:
-			raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
+			raise ValueError(u'datetime.datetime instance is lacking a time zone: [%s]' % _timestamp_template % dt.isoformat())
 		self.__dt = dt
 
 	def getquoted(self):
@@ -987,7 +995,7 @@ class cAdapterMxDateTime(object):
 
 	def __init__(self, dt):
 		if dt.tz == '???':
-			_log.info('[%s]: no time zone string available in (%s), assuming local time zone' % (self.__class__.__name__, dt))
+			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
 		self.__dt = dt
 
 	def getquoted(self):
@@ -1001,11 +1009,12 @@ class cAdapterMxDateTime(object):
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
+# properly adapt *tuples* into (a, b, c, ...) for
+# "where ... IN (...)" queries
+# but only needed/possible in psycopg2 < 0.2.6
 try:
-	# properly adapt *tuples* into (a, b, c, ...) in "... IN ..." queries
 	psycopg2.extensions.register_adapter(tuple, psycopg2.extras.SQL_IN)
 except AttributeError:
-	# only needed in psycopg2 < 0.2.6
 	pass
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
@@ -1024,8 +1033,6 @@ if __name__ == "__main__":
 
 	logging.basicConfig(level=logging.DEBUG)
 
-	gmDateTime.init()
-
 	#--------------------------------------------------------------------
 	def test_get_connection():
 		print "testing get_connection()"
@@ -1033,13 +1040,13 @@ if __name__ == "__main__":
 		dsn = 'foo'
 		try:
 			conn = get_connection(dsn=dsn)
-		except dbapi.OperationalError:
+		except dbapi.OperationalError, e:
 			print "SUCCESS: get_connection(%s) failed as expected" % dsn
 			t, v = sys.exc_info()[:2]
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v8'
+		dsn = 'dbname=gnumed_v9'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1048,7 +1055,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v8 user=abc'
+		dsn = 'dbname=gnumed_v9 user=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1057,7 +1064,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v8 user=any-doc'
+		dsn = 'dbname=gnumed_v9 user=any-doc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1066,7 +1073,7 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v8 user=any-doc password=abc'
+		dsn = 'dbname=gnumed_v9 user=any-doc password=abc'
 		try:
 			conn = get_connection(dsn=dsn)
 		except cAuthenticationError:
@@ -1075,13 +1082,13 @@ if __name__ == "__main__":
 			print ' ', t
 			print ' ', v
 
-		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=True)
 
-		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn=dsn, readonly=False)
 
-		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		encoding = 'foo'
 		try:
 			conn = get_connection(dsn=dsn, encoding=encoding)
@@ -1113,7 +1120,7 @@ if __name__ == "__main__":
 	def test_ro_queries():
 		print "testing run_ro_queries()"
 
-		dsn = 'dbname=gnumed_v8 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
 		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
@@ -1260,20 +1267,29 @@ if __name__ == "__main__":
 
 		return status
 	#--------------------------------------------------------------------
-	# run tests
-#	test_get_connection()
-#	test_exceptions()
-#	test_ro_queries()
-#	test_request_dsn()
-#	test_set_encoding()
-#	test_connection_pool()
-#	test_list_args()
-#	test_sanitize_pg_regex()
-	test_is_pg_interval()
+
+	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+		# run tests
+		test_get_connection()
+		#test_exceptions()
+		#test_ro_queries()
+		#test_request_dsn()
+		#test_set_encoding()
+		#test_connection_pool()
+		#test_list_args()
+		#test_sanitize_pg_regex()
+		#test_is_pg_interval()
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.66  2007-12-26 18:34:53  ncq
+# Revision 1.67  2008-01-07 19:51:04  ncq
+# - better comments
+# - some cleanup
+# - bump db version
+# - add __unicode__ to exceptions
+# - improve test suite
+#
+# Revision 1.66  2007/12/26 18:34:53  ncq
 # - check for lc_messages being C
 #
 # Revision 1.65  2007/12/12 16:17:15  ncq
