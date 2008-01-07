@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.151 2008-01-06 08:09:38 ncq Exp $
-__version__ = "$Revision: 1.151 $"
+# $Id: gmPerson.py,v 1.152 2008-01-07 19:44:16 ncq Exp $
+__version__ = "$Revision: 1.152 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -495,7 +495,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#--------------------------------------------------------
 	def get_comm_channels(self, comm_medium=None):
 		cmd = u"select * from dem.v_person_comms where pk_identity = %s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
 
 		filtered = rows
 
@@ -505,9 +505,14 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				if row['comm_type'] == comm_medium:
 					filtered.append(row)
 
-		return filtered
+		return [ gmDemographicRecord.cCommChannel(row = {
+					'pk_field': 'pk_lnk_identity2comm',
+					'data': r,
+					'idx': idx
+				}) for r in filtered
+			]
 	#--------------------------------------------------------
-	def link_comm_channel(self, comm_medium=None, url=None, is_confidential=False, pk_address=None, pk_channel_type=None):
+	def link_comm_channel(self, comm_medium=None, url=None, is_confidential=False, pk_channel_type=None):
 		"""Link a communication medium with a patient.
 
 		@param comm_medium The name of the communication medium.
@@ -516,46 +521,20 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		@param is_confidential Wether the data must be treated as confidential.
 		@type is_confidential A types.BooleanType instance.
 		"""
-		# FIXME: create comm type if necessary
-		args = {'pat': self.pk_obj, 'url': url, 'secret': is_confidential, 'adr': pk_address}
-
-		if pk_channel_type is None:
-			args['type'] = comm_medium
-			cmd = u"""insert into dem.lnk_identity2comm (
-				fk_identity,
-				url,
-				fk_type,
-				is_confidential,
-				fk_address
-			) values (
-				%(pat)s,
-				%(url)s,
-				(select pk from dem.enum_comm_types where description ilike %(type)s),
-				%(secret)s,
-				%(adr)s
-			)"""
-		else:
-			args['type'] = pk_channel_type
-			cmd = u"""insert into dem.lnk_identity2comm (
-				fk_identity,
-				url,
-				fk_type,
-				is_confidential,
-				fk_address
-			) values (
-				%(pat)s,
-				%(url)s,
-				%(type)s,
-				%(secret)s,
-				%(adr)s
-			)"""
-
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		comm_channel = gmDemographicRecord.create_comm_channel (
+			comm_medium = comm_medium,
+			url = url,
+			is_confidential = is_confidential,
+			pk_channel_type = pk_channel_type,
+			pk_identity = self.pk_obj
+		)
+		return comm_channel
 	#--------------------------------------------------------
 	def unlink_comm_channel(self, comm_channel=None):
-		cmd = u"delete from dem.lnk_identity2comm where pk = %(pk)s and fk_identity = %(pat)s"
-		args = {'pk': comm_channel['pk_link_identity2comm'], 'pat': self.pk_obj}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmDemographicRecord.delete_comm_channel (
+			pk = comm_channel['pk_link_identity2comm'],
+			pk_patient = self.pk_obj
+		)
 	#--------------------------------------------------------
 	# contacts API
 	#--------------------------------------------------------
@@ -2167,7 +2146,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.151  2008-01-06 08:09:38  ncq
+# Revision 1.152  2008-01-07 19:44:16  ncq
+# - use comm channel API
+#
+# Revision 1.151  2008/01/06 08:09:38  ncq
 # - in patient search by several means weed out duplicate finds
 #
 # Revision 1.150  2007/12/26 12:35:54  ncq
