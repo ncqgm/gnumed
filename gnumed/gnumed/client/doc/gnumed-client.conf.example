@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed-client.conf.example,v $
-# $Id: gnumed-client.conf.example,v 1.7 2007-10-22 12:37:02 ncq Exp $
+# $Id: gnumed-client.conf.example,v 1.8 2008-01-07 14:10:40 ncq Exp $
 
 
 
@@ -44,7 +44,7 @@ database = gnumed_v8
 
 
 
-[profile local GNUmed database (Linux)]
+[profile local GNUmed database (Linux/Mac)]
 host = 
 port = 5432
 database = gnumed_v8
@@ -62,7 +62,10 @@ database = gnumed_v8
 
 # -------------------------------------------------------------
 # $Log: gnumed-client.conf.example,v $
-# Revision 1.7  2007-10-22 12:37:02  ncq
+# Revision 1.8  2008-01-07 14:10:40  ncq
+# - Linux server profile works on Mac, too
+#
+# Revision 1.7  2007/10/22 12:37:02  ncq
 # - default database change
 #
 # Revision 1.6  2007/09/20 19:05:47  ncq
