@@ -18,20 +18,18 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
-import sys, os.path, string
+import sys, os.path, string, logging
 
 
-from Gnumed.pycommon import gmLog, gmPG2
+from Gnumed.pycommon import gmPG2
 
 
-_log = gmLog.gmDefLog
-if __name__ == "__main__" :
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.bootstrapper')
+_log.info(__version__)
 
 # the audit trail tables start with this prefix
 audit_trail_table_prefix = u'log_'
@@ -153,10 +151,10 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 	# does the audit trail target table exist ?
 	exists = gmPG2.table_exists(aCursor, 'audit', audit_trail_table)
 	if exists is None:
-		_log.Log(gmLog.lErr, 'cannot check existance of table [audit.%s]' % audit_trail_table)
+		_log.error('cannot check existance of table [audit.%s]' % audit_trail_table)
 		return None
 	if exists:
-		_log.Log(gmLog.lInfo, 'audit trail table [audit.%s] already exists' % audit_trail_table)
+		_log.info('audit trail table [audit.%s] already exists' % audit_trail_table)
 		# sanity check table structure
 		currently_audited_cols = gmPG2.get_col_defs(link_obj = aCursor, schema = u'audit', table = audit_trail_table)
 		currently_audited_cols = [ '\t%s %s' % (c, currently_audited_cols[1][c]) for c in currently_audited_cols[0] ]
@@ -164,24 +162,24 @@ def audit_trail_table_ddl(aCursor=None, schema='audit', table2audit=None):
 			try:
 				currently_audited_cols.index(col)
 			except ValueError:
-				_log.Log(gmLog.lErr, 'table structure incompatible: column [%s] not found in audit table' % col)
-				_log.Log(gmLog.lErr, '%s.%s:' % (schema, table2audit))
-				_log.Log(gmLog.lErr, '%s' % ','.join(cols2really_audit))
-				_log.Log(gmLog.lErr, '%s.%s:' % (audit_schema, audit_trail_table))
-				_log.Log(gmLog.lErr, '%s' % ','.join(currently_audited_cols))
+				_log.error('table structure incompatible: column [%s] not found in audit table' % col)
+				_log.error('%s.%s:' % (schema, table2audit))
+				_log.error('%s' % ','.join(cols2really_audit))
+				_log.error('%s.%s:' % (audit_schema, audit_trail_table))
+				_log.error('%s' % ','.join(currently_audited_cols))
 				return None
 #			if len(currently_audited_cols) != len(cols2really_audit):
-#				_log.Log(gmLog.lErr, 'table structure incompatible:')
-#				_log.Log(gmLog.lErr, '%s.%s:' % (schema, table2audit))
-#				_log.Log(gmLog.lErr, ' %s' % ', '.join(cols2really_audit))
-#				_log.Log(gmLog.lErr, '%s.%s:' % (audit_schema, audit_trail_table))
-#				_log.Log(gmLog.lErr, ' %s' % ', '.join(currently_audited_cols))
+#				_log.error('table structure incompatible:')
+#				_log.error('%s.%s:' % (schema, table2audit))
+#				_log.error(' %s' % ', '.join(cols2really_audit))
+#				_log.error('%s.%s:' % (audit_schema, audit_trail_table))
+#				_log.error(' %s' % ', '.join(currently_audited_cols))
 #				return None
 		return []
 
 	# must create audit trail table
-	_log.Log(gmLog.lInfo, 'no audit trail table found for [%s.%s]' % (schema, table2audit))
-	_log.Log(gmLog.lInfo, 'creating audit trail table [audit.%s]' % audit_trail_table)
+	_log.info('no audit trail table found for [%s.%s]' % (schema, table2audit))
+	_log.info('creating audit trail table [audit.%s]' % audit_trail_table)
 
 	# create audit table DDL
 	attributes = ',\n'.join(cols2really_audit)
@@ -235,15 +233,15 @@ def create_audit_ddl(aCursor):
 	cmd = u"select schema, table_name from audit.audited_tables"
 	rows, idx = gmPG2.run_ro_queries(link_obj=aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
-		_log.Log(gmLog.lInfo, 'no tables to audit')
+		_log.info('no tables to audit')
 		return None
-	_log.Log(gmLog.lData, rows)
+	_log.debug(rows)
 	# for each marked table
 	ddl = []
 	for row in rows:
 		audit_trail_ddl = audit_trail_table_ddl(aCursor=aCursor, schema=row['schema'], table2audit=row['table_name'])
 		if audit_trail_ddl is None:
-			_log.Log(gmLog.lErr, 'cannot generate audit trail DDL for audited table [%s]' % row['table_name'])
+			_log.error('cannot generate audit trail DDL for audited table [%s]' % row['table_name'])
 			return None
 		ddl.extend(audit_trail_ddl)
 		if len(audit_trail_ddl) != 0:
@@ -282,7 +280,11 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.30  2007-12-09 20:45:45  ncq
+# Revision 1.31  2008-01-07 14:15:43  ncq
+# - port to gmCfg2/gmLog2
+# - create database with default transaction mode set to readonly
+#
+# Revision 1.30  2007/12/09 20:45:45  ncq
 # - a bit of cleanup
 # - when we detect a pre-existing audit log table we better check
 #   its structure - and bingo, a mismatch is found right away

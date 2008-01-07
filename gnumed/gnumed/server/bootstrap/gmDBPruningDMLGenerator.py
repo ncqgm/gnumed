@@ -18,20 +18,15 @@ to weed out superfluous cruft.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmDBPruningDMLGenerator.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os.path, codecs
+import sys, os.path, codecs, logging
 
 
-if __name__ == '__main__':
-	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog
-
-
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.bootstrapper')
+_log.info(__version__)
 
 #==================================================================
 def generate_pruning_dml(filename=None):
@@ -70,13 +65,15 @@ def generate_pruning_dml(filename=None):
 #------------------------------------------------------------------
 if __name__ == "__main__" :
 
-	_log.SetAllLogLevels(gmLog.lData)
-
 	generate_pruning_dml(sys.argv[1])
 
 #==================================================================
 # $Log: gmDBPruningDMLGenerator.py,v $
-# Revision 1.1  2007-11-04 01:28:07  ncq
+# Revision 1.2  2008-01-07 14:15:43  ncq
+# - port to gmCfg2/gmLog2
+# - create database with default transaction mode set to readonly
+#
+# Revision 1.1  2007/11/04 01:28:07  ncq
 # - first version
 #
 #

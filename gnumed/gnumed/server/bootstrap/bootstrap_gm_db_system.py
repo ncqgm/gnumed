@@ -29,22 +29,23 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # standard library
-import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile
+import sys, string, os.path, fileinput, os, time, getpass, glob, re, tempfile, logging
 
 
 # GNUmed imports
 try:
-	from Gnumed.pycommon import gmLog
+	from Gnumed.pycommon import gmLog2
 except ImportError:
 	print """Please make sure the GNUmed Python modules are in the Python path !"""
 	raise
-from Gnumed.pycommon import gmCfg, gmPsql, gmPG2, gmTools
+from Gnumed.pycommon import gmCfg2, gmPsql, gmPG2, gmTools
 from Gnumed.pycommon.gmExceptions import ConstructorError
+
 
 # local imports
 import gmAuditSchemaGenerator
@@ -53,9 +54,10 @@ aud_gen = gmAuditSchemaGenerator
 import gmNotificationSchemaGenerator
 notify_gen = gmNotificationSchemaGenerator
 
-_log = gmLog.gmDefLog
-_log.SetAllLogLevels(gmLog.lData)
-_cfg = gmCfg.gmDefCfgFile
+
+_log = logging.getLogger('gm.bootstrapper')
+_cfg = gmCfg2.gmCfgData()
+
 
 _interactive = False
 _bootstrapped_servers = {}
@@ -114,6 +116,7 @@ On the other hand, if you have a PostgreSQL server
 running somewhere strange, type hostname[:port]
 below, or press RETURN to quit.
 """
+
 superuser_sermon = """
 I can't log on as the PostgreSQL database owner.
 Try running this script as the system administrator (user "root")
@@ -162,13 +165,13 @@ def connect (host, port, db, user, passwd, superuser=0):
 	conn = None
 	dsn = gmPG2.make_psycopg2_dsn(database=db, host=host, port=port, user=user, password=passwd)
 	try:
-		_log.Log (gmLog.lInfo, "trying DB connection to %s on %s as %s" % (db, host or 'localhost', user))
+		_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
 		conn = gmPG2.get_connection(dsn=dsn, readonly=False, pooled=False)
 		cached_host = (host, port) # learn from past successes
 		cached_passwd[user] = passwd
-		_log.Log (gmLog.lInfo, 'successfully connected')
+		_log.info('successfully connected')
 	except gmPG2.dbapi.OperationalError, message:
-		_log.LogException('connection failed', sys.exc_info(), verbose = False)
+		_log.exception('connection failed')
 		m = str(message)
 		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
 			# this pretty much means we're screwed
@@ -176,21 +179,21 @@ def connect (host, port, db, user, passwd, superuser=0):
 				print pg_hba_sermon
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
-			_log.Log (gmLog.lWarn, "attempt w/ blank password failed, retrying with password")
+			_log.warning("attempt w/ blank password failed, retrying with password")
 			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("^FATAL:.*Password authentication failed.*", m):
 			# didn't like supplied password
-			_log.Log (gmLog.lWarn, "password not accepted, retrying")
+			_log.warning("password not accepted, retrying")
 			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("could not connect to server", m):
 			if len(host) == 0:
 				# try again on TCP/IP loopback
-				_log.Log (gmLog.lWarn , "UNIX socket connection failed, retrying on 127.0.0.1")
+				_log.warning("UNIX socket connection failed, retrying on 127.0.0.1")
 				conn = connect ("127.0.0.1", port, db, user, passwd)
 			else:
-				_log.Log (gmLog.lWarn, "connection to host %s:%s failed" % (host, port))
+				_log.warning("connection to host %s:%s failed" % (host, port))
 				if _interactive:
 					print no_server_sermon
 					host = raw_input("New host to connect to:")
@@ -215,14 +218,12 @@ def connect (host, port, db, user, passwd, superuser=0):
 #==================================================================
 class user:
 	def __init__(self, anAlias = None, aPassword = None):
-		self.cfg = _cfg
-
 		if anAlias is None:
 			raise ConstructorError, "need user alias"
 		self.alias = anAlias
 		self.group = "user %s" % self.alias
 
-		self.name = self.cfg.get(self.group, "name")
+		self.name = cfg_get(self.group, "name")
 		if self.name is None:
 			raise ConstructorError, "cannot get user name"
 
@@ -231,33 +232,32 @@ class user:
 		# password not passed in, try to get it from elsewhere
 		if self.password is None:
 			# look into config file
-			self.password = self.cfg.get(self.group, "password")
+			self.password = cfg_get(self.group, "password")
 			# undefined or commented out:
 			# this means the user does not need a password
 			# but connects via IDENT or TRUST
 			if self.password is None:
-				_log.Log(gmLog.lInfo, 'password not defined, assuming connect via IDENT/TRUST')
+				_log.info('password not defined, assuming connect via IDENT/TRUST')
 			# defined but empty:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
 					self.password = getpass.getpass("I need the password for the GNUmed database user [%s].\nPlease type password: " % self.name)
 				else:
-					_log.Log(gmLog.lWarn, 'password for database user [%s] set to empty string' % self.name)
+					_log.warning('password for database user [%s] set to empty string' % self.name)
 
 		return None
 #==================================================================
 class db_server:
-	def __init__(self, aSrv_alias, aCfg, auth_group):
-		_log.Log(gmLog.lInfo, "bootstrapping server [%s]" % aSrv_alias)
+	def __init__(self, aSrv_alias, auth_group):
+		_log.info("bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
 
 		if _bootstrapped_servers.has_key(aSrv_alias):
-			_log.Log(gmLog.lInfo, "server [%s] already bootstrapped" % aSrv_alias)
+			_log.info("server [%s] already bootstrapped" % aSrv_alias)
 			return None
 
-		self.cfg = aCfg
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
 		self.auth_group = auth_group
@@ -270,75 +270,75 @@ class db_server:
 		return None
 	#--------------------------------------------------------------
 	def __bootstrap(self):
-		self.superuser = user(anAlias = self.cfg.get(self.section, "super user alias"))
+		self.superuser = user(anAlias = cfg_get(self.section, "super user alias"))
 
 		# connect to server level template database
 		if not self.__connect_superuser_to_srv_template():
-			_log.Log(gmLog.lErr, "Cannot connect to server template database.")
+			_log.error("Cannot connect to server template database.")
 			return None
 
 		# add users/groups
 		if not self.__bootstrap_db_users():
-			_log.Log(gmLog.lErr, "Cannot bootstrap database users.")
+			_log.error("Cannot bootstrap database users.")
 			return None
 
 		self.conn.close()
 		return True
 	#--------------------------------------------------------------
 	def __connect_superuser_to_srv_template(self):
-		_log.Log(gmLog.lInfo, "connecting to server template database")
+		_log.info("connecting to server template database")
 
 		# sanity checks
-		self.template_db = self.cfg.get(self.section, "template database")
+		self.template_db = cfg_get(self.section, "template database")
 		if self.template_db is None:
-			_log.Log(gmLog.lErr, "Need to know the template database name.")
+			_log.error("Need to know the template database name.")
 			return None
 
-		self.name = self.cfg.get(self.section, "name")
+		self.name = cfg_get(self.section, "name")
 		if self.name is None:
-			_log.Log(gmLog.lErr, "Need to know the server name.")
+			_log.error("Need to know the server name.")
 			return None
 
 		env_var = 'GM_DB_PORT'
 		self.port = os.getenv(env_var)
 		if self.port is None:
-			_log.Log(gmLog.lInfo, 'environment variable [%s] is not set, using database port from config file' % env_var)
-			self.port = self.cfg.get(self.section, "port")
+			_log.info('environment variable [%s] is not set, using database port from config file' % env_var)
+			self.port = cfg_get(self.section, "port")
 		else:
-			_log.Log(gmLog.lInfo, 'using database port [%s] from environment variable [%s]' % (self.port, env_var))
+			_log.info('using database port [%s] from environment variable [%s]' % (self.port, env_var))
 		if self.port is None:
-			_log.Log(gmLog.lErr, "Need to know the database server port address.")
+			_log.error("Need to know the database server port address.")
 			return None
 
 		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 		if self.conn is None:
-			_log.Log(gmLog.lErr, 'Cannot connect.')
+			_log.error('Cannot connect.')
 			return None
 
 		curs = self.conn.cursor()
 		curs.execute(u"set lc_messages to 'C'")
 		curs.close()
 
-		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
+		_log.info("successfully connected to template database [%s]" % self.template_db)
 		return True
 	#--------------------------------------------------------------
 	# user and group related
 	#--------------------------------------------------------------
 	def __bootstrap_db_users(self):
-		_log.Log(gmLog.lInfo, "bootstrapping database users and groups")
+		_log.info("bootstrapping database users and groups")
 
 		# insert standard groups
 		if self.__create_groups() is None:
-			_log.Log(gmLog.lErr, "Cannot create GNUmed standard groups.")
+			_log.error("Cannot create GNUmed standard groups.")
 			return None
 
 		# create GNUmed owner
 		if self.__create_dbowner() is None:
-			_log.Log(gmLog.lErr, "Cannot install GNUmed database owner.")
+			_log.error("Cannot install GNUmed database owner.")
 			return None
 
 #		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
-#			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
+#			_log.error("Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
 #			return None
 
 		return True
@@ -348,13 +348,13 @@ class db_server:
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
+			_log.exception(">>>[%s]<<< failed." % cmd)
 			return None
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
-			_log.Log(gmLog.lInfo, "User [%s] exists." % aUser)
+			_log.info("User [%s] exists." % aUser)
 			return True
-		_log.Log(gmLog.lInfo, "User [%s] does not exist." % aUser)
+		_log.info("User [%s] does not exist." % aUser)
 		return None
 	#--------------------------------------------------------------
 	def __create_dbowner(self):
@@ -364,21 +364,21 @@ class db_server:
 		print "database user who owns all GNUmed database objects."
 		print ""
 
-		dbowner_alias = self.cfg.get("GnuMed defaults", "database owner alias")
+		dbowner_alias = cfg_get("GnuMed defaults", "database owner alias")
 		if dbowner_alias is None:
-			_log.Log(gmLog.lErr, "Cannot load GNUmed database owner name from config file.")
+			_log.error("Cannot load GNUmed database owner name from config file.")
 			return None
 
 		cursor = self.conn.cursor()
 		# does this user already exist ?
-		name = self.cfg.get('user %s' % dbowner_alias, 'name')
+		name = cfg_get('user %s' % dbowner_alias, 'name')
 		if self.__user_exists(cursor, name):
 			cmd = 'alter group "gm-logins" add user "%s"; alter group "gm-logins" add user "%s"; alter group "%s" add user "%s"' % (self.superuser.name, name, self.auth_group, name)
 			try:
 				cursor.execute(cmd)
 			except:
-				_log.Log(gmLog.lErr, ">>>[%s]<<< failed." % cmd)
-				_log.LogException("Cannot add GNUmed database owner [%s] to groups [gm-logins] and [%s]." % (name, self.auth_group), sys.exc_info(), verbose=1)
+				_log.error(">>>[%s]<<< failed." % cmd)
+				_log.exception("Cannot add GNUmed database owner [%s] to groups [gm-logins] and [%s]." % (name, self.auth_group))
 				cursor.close()
 				return False
 			self.conn.commit()
@@ -402,8 +402,8 @@ Make sure to remember the password.
 		try:
 			cursor.execute(cmd)
 		except:
-			_log.Log(gmLog.lErr, ">>>[%s]<<< failed." % cmd)
-			_log.LogException("Cannot create GNUmed database owner [%s]." % _dbowner.name, sys.exc_info(), verbose=1)
+			_log.error(">>>[%s]<<< failed." % cmd)
+			_log.exception("Cannot create GNUmed database owner [%s]." % _dbowner.name)
 			cursor.close()
 			return None
 
@@ -421,13 +421,13 @@ Make sure to remember the password.
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
+			_log.exception(">>>[%s]<<< failed." % cmd)
 			return False
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
-			_log.Log(gmLog.lInfo, "Group %s exists." % aGroup)
+			_log.info("Group %s exists." % aGroup)
 			return True
-		_log.Log(gmLog.lInfo, "Group %s does not exist." % aGroup)
+		_log.info("Group %s does not exist." % aGroup)
 		return False
 	#--------------------------------------------------------------
 	def __create_group(self, aCursor, aGroup):
@@ -439,7 +439,7 @@ Make sure to remember the password.
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
+			_log.exception(">>>[%s]<<< failed." % cmd)
 			return False
 
 		# paranoia is good
@@ -448,20 +448,16 @@ Make sure to remember the password.
 
 		return True
 	#--------------------------------------------------------------
-	def __create_groups(self, aCfg = None, aSection = None):
-		if aCfg is None:
-			cfg = self.cfg
-		else:
-			cfg = aCfg
+	def __create_groups(self, aSection = None):
 
 		if aSection is None:
 			section = "GnuMed defaults"
 		else:
 			section = aSection
 
-		groups = cfg.get(section, "groups")
+		groups = cfg_get(section, "groups")
 		if groups is None:
-			_log.Log(gmLog.lErr, "Cannot load GNUmed group names from config file (section [%s])." % section)
+			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
 			return None
 		groups.append(self.auth_group)
 
@@ -476,45 +472,44 @@ Make sure to remember the password.
 		return True
 #==================================================================
 class database:
-	def __init__(self, aDB_alias, aCfg):
-		_log.Log(gmLog.lInfo, "bootstrapping database [%s]" % aDB_alias)
+	def __init__(self, aDB_alias):
+		_log.info("bootstrapping database [%s]" % aDB_alias)
 
 		global _bootstrapped_dbs
 
 		if _bootstrapped_dbs.has_key(aDB_alias):
-			_log.Log(gmLog.lInfo, "database [%s] already bootstrapped" % aDB_alias)
+			_log.info("database [%s] already bootstrapped" % aDB_alias)
 			return None
 
 		self.conn = None
-		self.cfg = aCfg
 		self.section = "database %s" % aDB_alias
 
-		overrider = self.cfg.get(self.section, 'override name by')
+		overrider = cfg_get(self.section, 'override name by')
 		if overrider is not None:
-			_log.Log(gmLog.lInfo, 'if environment variable [%s] exists, it overrides database name in config file' % overrider)
+			_log.info('if environment variable [%s] exists, it overrides database name in config file' % overrider)
 			self.name = os.getenv(overrider)
 			if self.name is None:
-				_log.Log(gmLog.lInfo, 'environment variable [%s] is not set, using database name from config file' % overrider)
-				self.name = self.cfg.get(self.section, 'name')
+				_log.info('environment variable [%s] is not set, using database name from config file' % overrider)
+				self.name = cfg_get(self.section, 'name')
 		else:
-			self.name = self.cfg.get(self.section, 'name')
+			self.name = cfg_get(self.section, 'name')
 
 		if self.name is None or str(self.name).strip() == '':
-			_log.Log(gmLog.lErr, "Need to know database name.")
+			_log.error("Need to know database name.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
-		self.server_alias = self.cfg.get(self.section, "server alias")
+		self.server_alias = cfg_get(self.section, "server alias")
 		if self.server_alias is None:
-			_log.Log(gmLog.lErr, "Server alias missing.")
+			_log.error("Server alias missing.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
-		self.template_db = self.cfg.get(self.section, "template database")
+		self.template_db = cfg_get(self.section, "template database")
 		if self.template_db is None:
-			_log.Log(gmLog.lErr, "Template database name missing.")
+			_log.error("Template database name missing.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
 		# make sure server is bootstrapped
-		db_server(self.server_alias, self.cfg, auth_group = self.name)
+		db_server(self.server_alias, auth_group = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
@@ -529,10 +524,10 @@ class database:
 
 		# get owner
 		if _dbowner is None:
-			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
+			_dbowner = user(anAlias = cfg_get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
-			_log.Log(gmLog.lErr, "Cannot load GNUmed database owner name from config file.")
+			_log.error("Cannot load GNUmed database owner name from config file.")
 			return None
 
 		# get owner
@@ -540,33 +535,33 @@ class database:
 
 		# connect as owner to template
 		if not self.__connect_superuser_to_template():
-			_log.Log(gmLog.lErr, "Cannot connect to template database.")
+			_log.error("Cannot connect to template database.")
 			return None
 
 		# make sure db exists
 		if not self.__create_db():
-			_log.Log(gmLog.lErr, "Cannot create database.")
+			_log.error("Cannot create database.")
 			return False
 
 		# reconnect as superuser to db
 		if not self.__connect_superuser_to_db():
-			_log.Log(gmLog.lErr, "Cannot connect to database.")
+			_log.error("Cannot connect to database.")
 			return None
 		if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
-			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+			_log.error("cannot import schema definition for database [%s]" % (self.name))
 			return None
 
 		# transfer users
 		if not self.tranfer_users():
-			_log.Log(gmLog.lErr, "Cannot transfer users from old to new database.")
+			_log.error("Cannot transfer users from old to new database.")
 			return None
 
 		# reconnect as owner to db
 		if not self.__connect_owner_to_db():
-			_log.Log(gmLog.lErr, "Cannot connect to database.")
+			_log.error("Cannot connect to database.")
 			return None
 		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
-			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+			_log.error("cannot import schema definition for database [%s]" % (self.name))
 			return None
 
 		return True
@@ -602,11 +597,13 @@ class database:
 		)
 
 		curs = self.conn.cursor()
-		curs.execute(u"set lc_messages to 'C'")
 		# we need English messages to detect errors
+		curs.execute(u"set lc_messages to 'C'")
 		curs.execute(u"alter database %s set lc_messages to 'C'" % self.name)
 		# we need inheritance or else things will fail miserably
 		curs.execute("alter database %s set sql_inheritance to on" % self.name)
+		# we want READ ONLY default transactions for maximum patient data safety
+		curs.execute("alter database %s set default_transaction_read_only to on" % self.name)
 		curs.close()
 
 		return self.conn and 1
@@ -615,7 +612,7 @@ class database:
 
 		# reconnect as superuser to db
 		if not self.__connect_superuser_to_db():
-			_log.Log(gmLog.lErr, "Cannot connect to database.")
+			_log.error("Cannot connect to database.")
 			return False
 
 		curs = self.conn.cursor()
@@ -632,33 +629,33 @@ class database:
 		try:
 			aCursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), verbose=1)
+			_log.exception(">>>[%s]<<< failed." % cmd)
 			return None
 
 		res = aCursor.fetchall()
 		tmp = aCursor.rowcount
 		aCursor.close()
 		if tmp == 1:
-			_log.Log(gmLog.lInfo, "Database [%s] exists." % self.name)
+			_log.info("Database [%s] exists." % self.name)
 			return True
 
-		_log.Log(gmLog.lInfo, "Database [%s] does not exist." % self.name)
+		_log.info("Database [%s] does not exist." % self.name)
 		return None
 	#--------------------------------------------------------------
 	def __create_db(self):
 		if self.__db_exists():
 			# FIXME: verify that database is owned by "gm-dbo"
-			drop_existing = bool(_cfg.get(self.section, 'drop target database'))
+			drop_existing = bool(cfg_get(self.section, 'drop target database'))
 			if drop_existing:
 				print "==> dropping pre-existing *target* database [%s] ..." % self.name
-				_log.Log(gmLog.lInfo, 'trying to drop target database')
+				_log.info('trying to drop target database')
 				cmd = 'drop database "%s"' % self.name
 				self.conn.set_isolation_level(0)
 				cursor = self.conn.cursor()
 				try:
 					cursor.execute(cmd)
 				except:
-					_log.LogException(">>>[%s]<<< failed" % cmd, verbose=1)
+					_log.exception(">>>[%s]<<< failed" % cmd)
 					cursor.close()
 					return False
 				cursor.close()
@@ -667,15 +664,15 @@ class database:
 				return False
 
 		# verify template database hash
-		template_version = _cfg.get(self.section, 'template version')
+		template_version = cfg_get(self.section, 'template version')
 		if template_version is None:
-			_log.Log(gmLog.lWarn, 'cannot check template database identity hash, no version specified')
+			_log.warning('cannot check template database identity hash, no version specified')
 		else:
 			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
-				_log.Log(gmLog.lErr, 'invalid template database')
+				_log.error('invalid template database')
 				return False
 
-		tablespace = _cfg.get(self.section, 'tablespace')
+		tablespace = cfg_get(self.section, 'tablespace')
 		if tablespace is None:
 			cmd = """
 				create database \"%s\" with
@@ -700,7 +697,7 @@ class database:
 		try:
 			cursor.execute(cmd)
 		except:
-			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
+			_log.exception(">>>[%s]<<< failed" % cmd)
 			cursor.close()
 			return False
 		cursor.close()
@@ -708,22 +705,22 @@ class database:
 
 		if not self.__db_exists():
 			return None
-		_log.Log(gmLog.lInfo, "Successfully created GNUmed database [%s]." % self.name)
+		_log.info("Successfully created GNUmed database [%s]." % self.name)
 		return True
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
 		print "==> checking migrated data for plausibility ..."
 
-		plausibility_queries = _cfg.get(self.section, 'upgrade plausibility checks')
+		plausibility_queries = cfg_get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
-			_log.Log(gmLog.lWarn, 'no plausibility checks defined')
+			_log.warning('no plausibility checks defined')
 			print "    ... skipped (no checks defined)"
 			return True
 
 		no_of_queries, remainder = divmod(len(plausibility_queries), 2)
 		if remainder != 0:
-			_log.Log(gmLog.lErr, 'odd number of plausibility queries defined, aborting')
+			_log.error('odd number of plausibility queries defined, aborting')
 			print "    ... failed (configuration error)"
 			return False
 
@@ -752,7 +749,7 @@ class database:
 				)
 				old_val = rows[0][0]
 			except:
-				_log.LogException('error in plausibility check [%s] (old), aborting' % tag)
+				_log.exception('error in plausibility check [%s] (old), aborting' % tag)
 				print "    ... failed (SQL error)"
 				return False
 			try:
@@ -762,29 +759,29 @@ class database:
 				)
 				new_val = rows[0][0]
 			except:
-				_log.LogException('error in plausibility check [%s] (new), aborting' % tag)
+				_log.exception('error in plausibility check [%s] (new), aborting' % tag)
 				print "    ... failed (SQL error)"
 				return False
 
 			if new_val != old_val:
-				_log.Log(gmLog.lErr, 'plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
+				_log.error('plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
 				print "    ... failed (check [%s])" % tag
 				return False
 
-			_log.Log(gmLog.lInfo, 'plausibility check [%s] succeeded' % tag)
+			_log.info('plausibility check [%s] succeeded' % tag)
 
 		return True
 	#--------------------------------------------------------------
 	def import_data(self):
 		print "==> upgrading reference data sets ..."
 
-		import_scripts = _cfg.get(self.section, "data import scripts")
+		import_scripts = cfg_get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
-			_log.Log(gmLog.lInfo, 'skipped data import: no scripts to run')
+			_log.info('skipped data import: no scripts to run')
 			print "    ... skipped (no scripts to run)"
 			return True
 
-		script_base_dir = _cfg.get(self.section, "script base directory")
+		script_base_dir = cfg_get(self.section, "script base directory")
 		script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
 
 		for import_script in import_scripts:
@@ -792,14 +789,14 @@ class database:
 				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script)
 			except ImportError:
 				print "    ... failed (cannot load script [%s])" % import_script
-				_log.Log(gmLog.lErr, 'cannot load data set import script [%s/%s]' % (script_base_dir, import_script))
+				_log.error('cannot load data set import script [%s/%s]' % (script_base_dir, import_script))
 				return False
 
 			try:
 				script.run(conn=self.conn)
 			except:
 				print "    ... failed (cannot run script [%s])" % import_script
-				_log.LogException('cannot run import script [%s]' % import_script)
+				_log.exception('cannot run import script [%s]' % import_script)
 				return False
 
 		return True
@@ -807,43 +804,43 @@ class database:
 	def verify_result_hash(self):
 		# verify template database hash
 		print "==> verifying target database schema ..."
-		target_version = _cfg.get(self.section, 'target version')
+		target_version = cfg_get(self.section, 'target version')
 		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
-			_log.Log(gmLog.lInfo, 'database identity hash properly verified')
+			_log.info('database identity hash properly verified')
 			return True
-		_log.Log(gmLog.lErr, 'target database identity hash invalid')
+		_log.error('target database identity hash invalid')
 		if target_version == 'devel':
 			print "    ... skipped (devel version)"
-			_log.Log(gmLog.lWarn, 'testing/development only, not failing due to invalid target database identity hash')
+			_log.warning('testing/development only, not failing due to invalid target database identity hash')
 			return True
 		print "    ... failed (hash mismatch)"
 		return False
 	#--------------------------------------------------------------
 	def tranfer_users(self):
 		print "==> transferring users ..."
-		transfer_users = _cfg.get(self.section, 'transfer users')
+		transfer_users = cfg_get(self.section, 'transfer users')
 		if transfer_users is None:
-			_log.Log(gmLog.lInfo, 'user transfer not defined')
+			_log.info('user transfer not defined')
 			print "    ... skipped (unconfigured)"
 			return True
 		transfer_users = int(transfer_users)
 		if not transfer_users:
-			_log.Log(gmLog.lInfo, 'configured to not transfer users')
+			_log.info('configured to not transfer users')
 			print "    ... skipped (disabled)"
 			return True
 		cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
 		rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
 		if rows[0][0]:
-			_log.Log(gmLog.lInfo, 'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
+			_log.info('users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
-		_log.Log(gmLog.lErr, 'error transferring user from [%s] to [%s]' % (self.template_db, self.name))
+		_log.error('error transferring user from [%s] to [%s]' % (self.template_db, self.name))
 		print "    ... failed"
 		return False
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		print "==> setting up auditing ..."
 		# get audit trail configuration
-		tmp = _cfg.get(self.section, 'audit disable')
+		tmp = cfg_get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
 		if tmp is not None:
 			# if we don't want auditing on these tables, return without error
@@ -851,17 +848,17 @@ class database:
 				print '    ... skipped (disabled)'
 				return True
 
-		tmp = _cfg.get(self.section, 'audit trail parent table')
+		tmp = cfg_get(self.section, 'audit trail parent table')
 		if tmp is None:
 			return None
 		aud_gen.audit_trail_parent_table = tmp
 
-		tmp = _cfg.get(self.section, 'audit trail table prefix')
+		tmp = cfg_get(self.section, 'audit trail table prefix')
 		if tmp is None:
 			return None
 		aud_gen.audit_trail_table_prefix = tmp
 		
-		tmp = _cfg.get(self.section, 'audit fields table')
+		tmp = cfg_get(self.section, 'audit fields table')
 		if tmp is None:
 			return None
 		aud_gen.audit_fields_table = tmp
@@ -871,7 +868,7 @@ class database:
 		audit_schema = gmAuditSchemaGenerator.create_audit_ddl(curs)
 		curs.close()
 		if audit_schema is None:
-			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
+			_log.error('cannot generate audit trail schema for GNUmed database [%s]' % self.name)
 			return None
 		# write schema to file
 		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
@@ -883,7 +880,7 @@ class database:
 		# import auditing schema
 		psql = gmPsql.Psql (self.conn)
 		if psql.run (tmpfile) != 0:
-			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
+			_log.error("cannot import audit schema definition for database [%s]" % (self.name))
 			return None
 
 		if _keep_temp_files:
@@ -892,13 +889,13 @@ class database:
 		try:
 			os.remove(tmpfile)
 		except StandardError:
-			_log.LogException('cannot remove audit trail schema file [%s]' % tmpfile, sys.exc_info(), verbose = 0)
+			_log.exception('cannot remove audit trail schema file [%s]' % tmpfile)
 		return True
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
 		print "==> setting up notifications ..."
 		# get configuration
-		tmp = _cfg.get(self.section, 'notification disable')
+		tmp = cfg_get(self.section, 'notification disable')
 		# if this option is not given, assume we want notification
 		if tmp is not None:
 			# if we don't want notification on these tables, return without error
@@ -911,7 +908,7 @@ class database:
 		notification_schema = notify_gen.create_notification_schema(curs)
 		curs.close()
 		if notification_schema is None:
-			_log.Log(gmLog.lErr, 'cannot generate notification schema for GNUmed database [%s]' % self.name)
+			_log.error('cannot generate notification schema for GNUmed database [%s]' % self.name)
 			return None
 
 		# write schema to file
@@ -924,7 +921,7 @@ class database:
 		# import notification schema
 		psql = gmPsql.Psql (self.conn)
 		if psql.run(tmpfile) != 0:
-			_log.Log(gmLog.lErr, "cannot import notification schema definition for database [%s]" % (self.name))
+			_log.error("cannot import notification schema definition for database [%s]" % (self.name))
 			return None
 
 		if _keep_temp_files:
@@ -933,7 +930,7 @@ class database:
 		try:
 			os.remove(tmpfile)
 		except StandardError:
-			_log.LogException('cannot remove notification schema file [%s]' % tmpfile, sys.exc_info(), verbose = 0)
+			_log.exception('cannot remove notification schema file [%s]' % tmpfile)
 		return True
 #==================================================================
 class gmBundle:
@@ -946,29 +943,29 @@ class gmBundle:
 		self.section = "bundle %s" % aBundleAlias
 	#--------------------------------------------------------------
 	def bootstrap(self):
-		_log.Log(gmLog.lInfo, "bootstrapping bundle [%s]" % self.alias)
+		_log.info("bootstrapping bundle [%s]" % self.alias)
 
 		# load bundle definition
-		database_alias = _cfg.get(self.section, "database alias")
+		database_alias = cfg_get(self.section, "database alias")
 		if database_alias is None:
-			_log.Log(gmLog.lErr, "Need to know database name to install bundle [%s]." % self.alias)
+			_log.error("Need to know database name to install bundle [%s]." % self.alias)
 			return None
 		# bootstrap database
 		try:
-			database(aDB_alias = database_alias, aCfg = _cfg)
+			database(aDB_alias = database_alias)
 		except:
-			_log.LogException("Cannot bootstrap bundle [%s]." % self.alias, sys.exc_info(), verbose = 1)
+			_log.exception("Cannot bootstrap bundle [%s]." % self.alias)
 			return None
 		self.db = _bootstrapped_dbs[database_alias]
 
 		# check PostgreSQL version
 		if not self.__verify_pg_version():
-			_log.Log(gmLog.lErr, "Wrong PostgreSQL version.")
+			_log.error("Wrong PostgreSQL version.")
 			return None
 
 		# import schema
 		if not _import_schema(group=self.section, schema_opt='schema', conn=self.db.conn):
-			_log.Log(gmLog.lErr, "Cannot import schema definition for bundle [%s] into database [%s]." % (self.alias, database_alias))
+			_log.error("Cannot import schema definition for bundle [%s] into database [%s]." % (self.alias, database_alias))
 			return None
 
 		return True
@@ -976,21 +973,21 @@ class gmBundle:
 	def __verify_pg_version(self):
 		"""Verify database version information."""
 
-		required_version = _cfg.get(self.section, "minimum postgresql version")
+		required_version = cfg_get(self.section, "minimum postgresql version")
 		if required_version is None:
-			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
+			_log.error("Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
 		if float(gmPG2.postgresql_version) < float(required_version):
-			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
+			_log.error("Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 
-		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % gmPG2.postgresql_version)
+		_log.info("installed PostgreSQL version: [%s] - this is fine with me" % gmPG2.postgresql_version)
 		return True
 #==================================================================
 def bootstrap_bundles():
 	# get bundle list
-	bundles = _cfg.get("installation", "bundles")
+	bundles = cfg_get("installation", "bundles")
 	if bundles is None:
 		exit_with_msg("Bundle list empty. Nothing to do here.")
 	# run through bundles
@@ -1023,31 +1020,31 @@ def _run_query(aCurs, aQuery, args=None):
 		try:
 			aCurs.execute(aQuery)
 		except:
-			_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
+			_log.exception(">>>%s<<< failed" % aQuery)
 			return False
 	else:
 		try:
 			aCurs.execute(aQuery, args)
 		except:
-			_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
-			_log.Log(gmLog.lErr, str(args))
+			_log.exception(">>>%s<<< failed" % aQuery)
+			_log.error(str(args))
 			return False
 	return True
 #------------------------------------------------------------------
 def ask_for_confirmation():
-	bundles = _cfg.get("installation", "bundles")
+	bundles = cfg_get("installation", "bundles")
 	if bundles is None:
 		return True
 	print "You are about to install the following parts of GNUmed:"
 	print "-------------------------------------------------------"
 	for bundle in bundles:
-		db_alias = _cfg.get("bundle %s" % bundle, "database alias")
-		db_name = _cfg.get("database %s" % db_alias, "name")
-		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
-		srv_name = _cfg.get("server %s" % srv_alias, "name")
+		db_alias = cfg_get("bundle %s" % bundle, "database alias")
+		db_name = cfg_get("database %s" % db_alias, "name")
+		srv_alias = cfg_get("database %s" % db_alias, "server alias")
+		srv_name = cfg_get("server %s" % srv_alias, "name")
 		print 'bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name)
 	print "-------------------------------------------------------"
-	desc = _cfg.get("installation", "description")
+	desc = cfg_get("installation", "description")
 	if desc is not None:
 		for line in desc:
 			print line
@@ -1062,14 +1059,14 @@ def ask_for_confirmation():
 #--------------------------------------------------------------
 def _import_schema (group=None, schema_opt="schema", conn=None):
 	# load schema
-	schema_files = _cfg.get(group, schema_opt)
+	schema_files = cfg_get(group, schema_opt)
 	if schema_files is None:
-		_log.Log(gmLog.lErr, "Need to know schema definition to install it.")
+		_log.error("Need to know schema definition to install it.")
 		return None
 
-	schema_base_dir = _cfg.get(group, "schema base directory")
+	schema_base_dir = cfg_get(group, "schema base directory")
 	if schema_base_dir is None:
-		_log.Log(gmLog.lWarn, "no schema files base directory specified")
+		_log.warning("no schema files base directory specified")
 		# look for base dirs for schema files
 		if os.path.exists (os.path.join ('.', 'sql')):
 			schema_base_dir = '.'
@@ -1085,9 +1082,9 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 	for file in schema_files:
 		the_file = os.path.join(schema_base_dir, file)
 		if psql.run(the_file) == 0:
-			_log.Log (gmLog.lInfo, 'successfully imported [%s]' % the_file)
+			_log.info('successfully imported [%s]' % the_file)
 		else:
-			_log.Log (gmLog.lErr, 'failed to import [%s]' % the_file)
+			_log.error('failed to import [%s]' % the_file)
 			return None
 	return True
 #------------------------------------------------------------------
@@ -1096,8 +1093,8 @@ def exit_with_msg(aMsg = None):
 		print aMsg
 	print "Please check the log file for details."
 
-	_log.Log(gmLog.lErr, aMsg)
- 	_log.Log(gmLog.lInfo, "shutdown")
+	_log.error(aMsg)
+ 	_log.info("shutdown")
 	sys.exit(1)
 #------------------------------------------------------------------
 def show_msg(aMsg = None):
@@ -1120,74 +1117,83 @@ def become_pg_demon_user():
 	try:
 		import pwd
 	except ImportError:
-		_log.Log (gmLog.lWarn, "running on broken OS -- can't import pwd module")
+		_log.warning("running on broken OS -- can't import pwd module")
 		return None
 
 	try:
 		running_as = pwd.getpwuid(os.getuid())[0]
-		_log.Log(gmLog.lInfo, 'running as user [%s]' % running_as)
+		_log.info('running as user [%s]' % running_as)
 	except:
 		running_as = None
 
 	pg_demon_user_passwd_line = None
 	try:
-		pg_demon_user_passwd_line = pwd.getpwnam ('postgres')
+		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
 		# make sure we actually use this name to log in
-		_cfg.set('user postgres', 'name', 'postgres')
+		_cfg.set_option(group = 'user postgres', option = 'name', value = 'postgres', source = 'file')
 	except KeyError:
 		try:
 			pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
-			_cfg.set('user postgres', 'name', 'pgsql')
+			_cfg.set_option(group = 'user postgres', option = 'name', value = 'pgsql', source = 'file')
 		except KeyError:
-			_log.Log (gmLog.lWarn, 'cannot find postgres user')
+			_log.warning('cannot find postgres user')
 			return None
 
 	if os.getuid() == 0: # we are the super-user
-		_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
+		_log.info('switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
 		os.setuid(pg_demon_user_passwd_line[2])
 
 	elif running_as == pg_demon_user_passwd_line[0]: # we are the postgres user already
-		_log.Log (gmLog.lInfo, 'I already am the UNIX user [%s]' % pg_demon_user_passwd_line[0])
+		_log.info('I already am the UNIX user [%s]' % pg_demon_user_passwd_line[0])
 
 	else:
-		_log.Log(gmLog.lWarn, 'not running as root or postgres, cannot become postmaster demon user')
-		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbo if IDENT auth is forced upon us')
+		_log.warning('not running as root or postgres, cannot become postmaster demon user')
+		_log.warning('may have trouble connecting as gm-dbo if IDENT auth is forced upon us')
 		if _interactive:
 			print "WARNING: This script may not work if not running as the system administrator."
 #==============================================================================
-def get_cfg_in_nice_mode():
-	print welcome_sermon
-	cfgs = []
-	n = 0
-	for cfg_file in glob.glob('*.conf'):
-		cfg = gmCfg.cCfgFile(None, cfg_file)
+#def get_cfg_in_nice_mode():
+#	print welcome_sermon
+#	cfgs = []
+#	n = 0
+#	for cfg_file in glob.glob('*.conf'):
+#		cfg = gmCfg.cCfgFile(None, cfg_file)
 		# only offer those conf files that aren't reserved for gurus
-		if cfg.get('installation', 'guru_only') == '1':
-			continue
-		cfgs.append(cfg)
-		desc = '\n    '.join(cfg.get('installation', 'description'))	# some indentation
-		print  '%2s) %s' % (n, desc)
-		n += 1
-	choice = int(raw_input ('\n\nYour choice: '))
-	if choice == -1:
-		return None
-	return cfgs[choice]
+#		if cfg_get('installation', 'guru_only') == '1':
+#			continue
+#		cfgs.append(cfg)
+#		desc = '\n    '.join(cfg_get('installation', 'description'))	# some indentation
+#		print  '%2s) %s' % (n, desc)
+#		n += 1
+#	choice = int(raw_input ('\n\nYour choice: '))
+#	if choice == -1:
+#		return None
+#	return cfgs[choice]
+#==================================================================
+def cfg_get(group=None, option=None):
+	return _cfg.get (
+		group = group,
+		option = option,
+		source_order = [('file', 'return')]
+	)
 #==================================================================
 def handle_cfg():
-	_log.Log(gmLog.lInfo, "bootstrapping GNUmed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
+	"""Bootstrap the source 'file' in _cfg."""
 
-	print "Using config file [%s]." % _cfg.cfgName
+	_log.info('config file: %s', _cfg.source_files['file'])
+	_log.info('SCM path: %s', cfg_get("revision control", "file"))
+	_log.info('file version: %s', cfg_get("revision control", "version"))
 
 	become_pg_demon_user()
 
-	tmp = _cfg.get("installation", "interactive")
+	tmp = cfg_get("installation", "interactive")
 	global _interactive
 	if tmp == "yes":
 		_interactive = True
 	elif tmp == "no":
 		_interactive = False
 
-	tmp = _cfg.get('installation', 'keep temp files')
+	tmp = cfg_get('installation', 'keep temp files')
 	if tmp == "yes":
 		global _keep_temp_files
 		_keep_temp_files = True
@@ -1206,26 +1212,42 @@ def handle_cfg():
 #==================================================================
 def main():
 
-	global _cfg
-
-	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
-	if _cfg is None:
-		_log.Log(gmLog.lInfo, "No config file specified on command line. Switching to nice mode.")
-		_cfg = get_cfg_in_nice_mode()
-		if _cfg is None:
-			print "bye"
-			sys.exit(0)
-
 	print "======================================="
 	print "Bootstrapping GNUmed database system..."
 	print "======================================="
 
-	cfg_files = _cfg.get('installation', 'config files')
+	# get initial conf file from CLI
+	_cfg.add_cli(long_options = ['conf-file=', 'log-file='])
+	cfg_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
+	if cfg_file is None:
+		_log.error("no config file specified on command line")
+		exit_with_msg('Cannot bootstrap without config file. Use --conf-file=<FILE>.')
+
+	_log.info('initial config file: %s', cfg_file)
+
+	# read that conf file
+	_cfg.add_file_source (
+		source = 'file',
+		file = cfg_file
+	)
+
+	# does it point to other conf files ?
+	cfg_files = _cfg.get (
+		group = 'installation',
+		option = 'config files',
+		source_order = [('file', 'return')]
+	)
 	if cfg_files is None:
+		_log.info('single-shot config file')
 		handle_cfg()
 	else:
+		_log.info('aggregation of config files')
 		for cfg_file in cfg_files:
-			_cfg = gmCfg.cCfgFile(None, cfg_file, flags = gmCfg.cfg_IGNORE_CMD_LINE)
+			# read that conf file
+			_cfg.add_file_source (
+				source = 'file',
+				file = cfg_file
+			)
 			handle_cfg()
 
 	# verify result hash
@@ -1239,16 +1261,19 @@ def main():
 	if not db.import_data():
 		exit_with_msg("Bootstrapping failed: unable to import data")
 
-	_log.Log(gmLog.lInfo, "shutdown")
+	_log.info("shutdown")
 	print "Done bootstrapping: We very likely succeeded."
 
 #==================================================================
 if __name__ == "__main__":
+
+	_log.info("startup (%s)" % __version__)
+
 	try:
 		main()
 		sys.exit(0)
 	except StandardError:
-		_log.LogException('unhandled exception caught')
+		_log.exception('unhandled exception caught')
 		exit_with_msg("Bootstrapping failed: unhandled exception occurred")
 else:
 	print "This currently is not intended to be used as a module."
@@ -1268,11 +1293,11 @@ else:
 #	tmp = pipe.fromchild.read()
 #	lines = tmp.split("\n")
 #	for line in lines:
-#		_log.Log(gmLog.lData, "child stdout: [%s]" % line, gmLog.lCooked)
+#		_log.debug("child stdout: [%s]" % line, gmLog.lCooked)
 #	tmp = pipe.childerr.read()
 #	lines = tmp.split("\n")
 #	for line in lines:
-#		_log.Log(gmLog.lErr, "child stderr: [%s]" % line, gmLog.lCooked)
+#		_log.error("child stderr: [%s]" % line, gmLog.lCooked)
 
 #	pipe.fromchild.close()
 #	pipe.childerr.close()
@@ -1280,7 +1305,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.72  2007-12-26 18:38:56  ncq
+# Revision 1.73  2008-01-07 14:15:43  ncq
+# - port to gmCfg2/gmLog2
+# - create database with default transaction mode set to readonly
+#
+# Revision 1.72  2007/12/26 18:38:56  ncq
 # - default lc_messages to C on new databases
 #
 # Revision 1.71  2007/12/26 12:37:27  ncq

@@ -9,20 +9,20 @@ the table "gm.notifying_tables".
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys, os.path, string
+import sys, os.path, string, logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmPG2
+from Gnumed.pycommon import gmPG2
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.bootstrapper')
+_log.info(__version__)
 
 #==================================================================
 # SQL statements for notification triggers
@@ -144,15 +144,15 @@ def create_notification_schema(cursor):
 	rows, idx = gmPG2.run_ro_queries(link_obj = cursor, queries = [{'cmd': cmd}])
 
 	if len(rows) == 0:
-		_log.Log(gmLog.lInfo, 'no notifying tables')
+		_log.info('no notifying tables')
 		return None
 
-	_log.Log(gmLog.lInfo, 'known identity accessor columns: %s' % col2identity_accessor.keys())
+	_log.info('known identity accessor columns: %s' % col2identity_accessor.keys())
 
 	# for each notifying table
 	schema = []
 	for notifying_def in rows:
-		_log.Log(gmLog.lInfo, 'creating notification DDL for: %s' % notifying_def)
+		_log.info('creating notification DDL for: %s' % notifying_def)
 
 		# does table have a known patient-related column ?
 		identity_access_col = None
@@ -174,7 +174,7 @@ def create_notification_schema(cursor):
 				break
 
 		if identity_access_col is not None:
-			_log.Log(gmLog.lInfo, 'identity accessor on table [%s.%s] is column [%s]' % (
+			_log.info('identity accessor on table [%s.%s] is column [%s]' % (
 				notifying_def['schema_name'],
 				notifying_def['table_name'],
 				identity_access_col
@@ -186,7 +186,7 @@ def create_notification_schema(cursor):
 				'identity_accessor': col2identity_accessor[identity_access_col]
 			})
 		else:
-			_log.Log(gmLog.lInfo, 'no known identity accessor found on table [%s.%s]' % (
+			_log.info('no known identity accessor found on table [%s.%s]' % (
 				notifying_def['schema_name'],
 				notifying_def['table_name']
 			))
@@ -211,7 +211,7 @@ def create_notification_schema(cursor):
 #------------------------------------------------------------------
 if __name__ == "__main__" :
 
-	_log.SetAllLogLevels(gmLog.lData)
+	logging.getLogger().setLevel(logging.DEBUG)
 
 	conn = gmPG2.get_connection(readonly=False, pooled=False)
 	curs = conn.cursor()
@@ -227,13 +227,16 @@ if __name__ == "__main__" :
 
 	file = open('notification-schema.sql', 'wb')
 	for line in schema:
-#		file.write("%s;\n" % line)
 		file.write("%s\n" % line)
 	file.close()
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.26  2007-11-28 22:38:10  ncq
+# Revision 1.27  2008-01-07 14:15:43  ncq
+# - port to gmCfg2/gmLog2
+# - create database with default transaction mode set to readonly
+#
+# Revision 1.26  2007/11/28 22:38:10  ncq
 # - make it know about dem.identity
 #
 # Revision 1.25  2007/11/28 14:01:07  ncq
