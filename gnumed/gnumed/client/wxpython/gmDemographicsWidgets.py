@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.140 2008-01-05 16:41:27 ncq Exp $
-__version__ = "$Revision: 1.140 $"
+# $Id: gmDemographicsWidgets.py,v 1.141 2008-01-07 19:52:26 ncq Exp $
+__version__ = "$Revision: 1.141 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -871,27 +871,38 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		if comm_channel is not None:
 			self.channel = comm_channel
 
-		if self.channel is not None:
+		if self.channel is None:
+			self._PRW_type.SetText(u'')
+			self._TCTRL_url.SetValue(u'')
+			self._PRW_address.SetText(value = u'', data = None)
+			self._CHBOX_confidential.SetValue(False)
+		else:
 			self._PRW_type.SetText(self.channel['l10n_comm_type'])
 			self._TCTRL_url.SetValue(self.channel['url'])
 			self._PRW_address.SetData(data = self.channel['pk_address'])
 			self._CHBOX_confidential.SetValue(self.channel['is_confidential'])
-		# FIXME: clear fields
-#		else:
-#			pass
 	#--------------------------------------------------------
 	def save(self):
 		"""Links comm channel to patient."""
+		if self.channel is None:
+			if not self.__valid_for_save():
+				return False
+			self.channel = self.identity.link_comm_channel (
+				pk_channel_type = self._PRW_type.GetData(),
+				url = self._TCTRL_url.GetValue().strip(),
+				is_confidential = self._CHBOX_confidential.GetValue(),
+			)
+		else:
+			comm_type = self._PRW_type.GetValue().strip()
+			if comm_type != u'':
+				self.channel['comm_type'] = comm_type
+			url = self._TCTRL_url.GetValue().strip()
+			if url != u'':
+				self.channel['url'] = url
+			self.channel['is_confidential'] = self._CHBOX_confidential.GetValue()
 
-		if not self.__valid_for_save():
-			return False
-
-		self.identity.link_comm_channel (
-			pk_channel_type = self._PRW_type.GetData(),
-			url = self._TCTRL_url.GetValue().strip(),
-			is_confidential = self._CHBOX_confidential.GetValue(),
-			pk_address = self._PRW_address.GetData()
-		)
+		self.channel['pk_address'] = self._PRW_address.GetData()
+		self.channel.save_payload()
 
 		return True
 	#--------------------------------------------------------
@@ -937,7 +948,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
 		self.new_callback = self._add_comm
-#		self.edit_callback = self._edit_comm
+		self.edit_callback = self._edit_comm
 		self.delete_callback = self._del_comm
 		self.refresh_callback = self.refresh
 
@@ -2530,7 +2541,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.140  2008-01-05 16:41:27  ncq
+# Revision 1.141  2008-01-07 19:52:26  ncq
+# - enable editing comm channels
+#
+# Revision 1.140  2008/01/05 16:41:27  ncq
 # - remove logging from gm_show_*()
 #
 # Revision 1.139  2007/12/23 12:10:30  ncq
