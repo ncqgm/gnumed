@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -154,7 +154,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 
 	# 1) silently do not insert empty narrative
 	narrative = narrative.strip()
-	if  == u'':
+	if narrative == u'':
 		return (True, None)
 
 	# 2) also, silently do not insert true duplicates
@@ -255,7 +255,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.28  2008-01-06 08:08:25  ncq
+# Revision 1.29  2008-01-07 11:40:21  ncq
+# - fix faulty comparison
+#
+# Revision 1.28  2008/01/06 08:08:25  ncq
 # - check for duplicate narrative before insertion
 #
 # Revision 1.27  2007/11/05 12:09:29  ncq
