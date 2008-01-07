@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -190,7 +190,14 @@ class gmCfgData(gmBorg.cBorg):
 		self.__cfg_data[source][option_path] = value
 	#--------------------------------------------------
 	def add_cli(self, short_options=u'', long_options=None):
+		"""Add command line parameters to config data.
 
+		short:
+		long:
+			list of strings
+			'conf-file=' -> --conf-file=<...>
+			'debug' -> --debug
+		"""
 		import getopt
 
 		if long_options is None:
@@ -232,7 +239,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.6  2007-12-26 22:43:28  ncq
+# Revision 1.7  2008-01-07 14:12:33  ncq
+# - add some documentation to add_cli()
+#
+# Revision 1.6  2007/12/26 22:43:28  ncq
 # - source order needs policy
 #
 # Revision 1.5  2007/12/26 21:50:45  ncq
