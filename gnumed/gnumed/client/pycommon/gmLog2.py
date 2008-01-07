@@ -36,8 +36,8 @@ some messages separate from others.
 """
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.2 2007-12-12 16:23:21 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmLog2.py,v 1.3 2008-01-07 19:48:53 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -48,6 +48,13 @@ import logging, sys, os, codecs
 
 _logfile_name = None
 _logfile = None
+#===============================================================
+def flush():
+	logger = logging.getLogger('gm.logging')
+	logger.critical(u'-------- synced log file -------------------------------')
+	root_logger = logging.getLogger()
+	for handler in root_logger.handlers:
+		handler.flush()
 #===============================================================
 def __setup_logging():
 
@@ -125,7 +132,10 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.2  2007-12-12 16:23:21  ncq
+# Revision 1.3  2008-01-07 19:48:53  ncq
+# - add flush()
+#
+# Revision 1.2  2007/12/12 16:23:21  ncq
 # - we want the default to be the default in GNUmed,
 #   no need to call it that
 #
