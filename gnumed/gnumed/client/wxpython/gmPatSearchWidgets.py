@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.97 2007-11-12 23:05:55 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmPatSearchWidgets.py,v 1.97.2.1 2008-01-08 22:39:31 ncq Exp $
+__version__ = "$Revision: 1.97.2.1 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -326,7 +326,7 @@ def load_patient_from_external_sources(parent=None, search_immediately=False):
 		if curr_pat.is_connected():
 			key_dto = dto.firstnames + dto.lastnames + dto.dob.strftime('%Y-%m-%d') + dto.gender
 			names = curr_pat.get_active_name()
-			key_pat = names['first'] + names['last'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
+			key_pat = names['firstnames'] + names['lastnames'] + curr_pat['dob'].strftime('%Y-%m-%d') + curr_pat['gender']
 			_log.Log(gmLog.lData, 'current patient: %s' % key_pat)
 			_log.Log(gmLog.lData, 'dto patient    : %s' % key_dto)
 			if key_dto == key_pat:
@@ -856,7 +856,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.97  2007-11-12 23:05:55  ncq
+# Revision 1.97.2.1  2008-01-08 22:39:31  ncq
+# - 'first' / 'last' -> 'firstnames' / 'lastnames'
+#
+# Revision 1.97  2007/11/12 23:05:55  ncq
 # - import extra data from DTOs
 #
 # Revision 1.96  2007/11/10 20:58:59  ncq

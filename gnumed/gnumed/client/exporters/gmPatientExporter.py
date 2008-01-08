@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.109 2007-11-28 11:52:13 ncq Exp $
-__version__ = "$Revision: 1.109 $"
+# $Id: gmPatientExporter.py,v 1.109.2.1 2008-01-08 22:37:37 ncq Exp $
+__version__ = "$Revision: 1.109.2.1 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -896,9 +896,9 @@ class cEmrExport:
         cont = 0
         for name in self.__patient.get_names():
             if cont == 0:
-                self.__target.write('    Name (Active): %s, %s\n' % (name['first'], name['last']) )
+                self.__target.write('    Name (Active): %s, %s\n' % (name['firstnames'], name['lastnames']) )
             else:
-                self.__target.write('    Name %s: %s, %s\n' % (cont, name['first'], name['last']))
+                self.__target.write('    Name %s: %s, %s\n' % (cont, name['firstnames'], name['lastnames']))
             cont += 1
         self.__target.write('    Gender: %s\n' % self.__patient['gender'])
         self.__target.write('    Title: %s\n' % self.__patient['title'])
@@ -1249,7 +1249,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.109  2007-11-28 11:52:13  ncq
+# Revision 1.109.2.1  2008-01-08 22:37:37  ncq
+# - 'first' / 'last' -> 'firstnames' / 'lastnames'
+#
+# Revision 1.109  2007/11/28 11:52:13  ncq
 # - get_all_names() -> get_names()
 #
 # Revision 1.108  2007/11/05 12:10:05  ncq

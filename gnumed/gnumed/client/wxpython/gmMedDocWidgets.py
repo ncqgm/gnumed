@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.150 2007-11-05 11:41:46 ncq Exp $
-__version__ = "$Revision: 1.150 $"
+# $Id: gmMedDocWidgets.py,v 1.150.2.1 2008-01-08 22:39:31 ncq Exp $
+__version__ = "$Revision: 1.150.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1038,7 +1038,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		if docs is None:
 			name = curr_pat.get_names()
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['first'], name['last']),
+				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['firstnames'], name['lastnames']),
 				aTitle = _('loading document list')
 			)
 			# avoid recursion of GUI updating
@@ -1503,7 +1503,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.150  2007-11-05 11:41:46  ncq
+# Revision 1.150.2.1  2008-01-08 22:39:31  ncq
+# - 'first' / 'last' -> 'firstnames' / 'lastnames'
+#
+# Revision 1.150  2007/11/05 11:41:46  ncq
 # - use blobs.delete_document()
 #
 # Revision 1.149  2007/10/31 22:07:18  ncq
