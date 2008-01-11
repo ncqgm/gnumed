@@ -2,7 +2,7 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -198,6 +198,10 @@ class gmCfgData(gmBorg.cBorg):
 			'conf-file=' -> --conf-file=<...>
 			'debug' -> --debug
 		"""
+		_log.info('adding command line arguments')
+		_log.debug('raw command line is:')
+		_log.debug('%s', sys.argv)
+
 		import getopt
 
 		if long_options is None:
@@ -239,7 +243,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.7  2008-01-07 14:12:33  ncq
+# Revision 1.8  2008-01-11 16:10:35  ncq
+# - better logging
+#
+# Revision 1.7  2008/01/07 14:12:33  ncq
 # - add some documentation to add_cli()
 #
 # Revision 1.6  2007/12/26 22:43:28  ncq
