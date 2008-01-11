@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -758,7 +758,7 @@ class cLabDataGrid(wx.Grid):
 		if results is None:
 			name = self.__pat.get_names()
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error loading lab data for patient\n[%s %s].') % (name['first'], name['last']),
+				aMessage = _('Error loading lab data for patient\n[%s %s].') % (name['firstnames'], name['lastnames']),
 				aTitle = _('loading lab data')
 			)
 			return None
@@ -863,7 +863,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.28  2007-08-28 14:18:13  ncq
+# Revision 1.29  2008-01-11 16:15:32  ncq
+# - first/last -> first-/lastnames
+#
+# Revision 1.28  2007/08/28 14:18:13  ncq
 # - no more gm_statustext()
 #
 # Revision 1.27  2007/02/22 17:41:13  ncq

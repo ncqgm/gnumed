@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.152 2007-12-23 20:29:35 ncq Exp $
-__version__ = "$Revision: 1.152 $"
+# $Id: gmMedDocWidgets.py,v 1.153 2008-01-11 16:15:33 ncq Exp $
+__version__ = "$Revision: 1.153 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -1038,7 +1038,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		if docs is None:
 			name = curr_pat.get_names()
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['first'], name['last']),
+				aMessage = _('Error searching documents for patient\n[%s %s].') % (name['firstnames'], name['lastnames']),
 				aTitle = _('loading document list')
 			)
 			# avoid recursion of GUI updating
@@ -1503,7 +1503,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.152  2007-12-23 20:29:35  ncq
+# Revision 1.153  2008-01-11 16:15:33  ncq
+# - first/last -> first-/lastnames
+#
+# Revision 1.152  2007/12/23 20:29:35  ncq
 # - store tmp docs in tmp/, not tmp/docs/
 #
 # Revision 1.151  2007/12/11 12:49:26  ncq
