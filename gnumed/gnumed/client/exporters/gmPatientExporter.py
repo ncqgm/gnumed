@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.111 2007-12-26 22:26:04 shilbert Exp $
-__version__ = "$Revision: 1.111 $"
+# $Id: gmPatientExporter.py,v 1.112 2008-01-11 16:10:00 ncq Exp $
+__version__ = "$Revision: 1.112 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -896,9 +896,9 @@ class cEmrExport:
         cont = 0
         for name in self.__patient.get_names():
             if cont == 0:
-                self.__target.write('    Name (Active): %s, %s\n' % (name['first'], name['last']) )
+                self.__target.write('    Name (Active): %s, %s\n' % (name['firstnames'], name['lastnames']) )
             else:
-                self.__target.write('    Name %s: %s, %s\n' % (cont, name['first'], name['last']))
+                self.__target.write('    Name %s: %s, %s\n' % (cont, name['firstnames'], name['lastnames']))
             cont += 1
         self.__target.write('    Gender: %s\n' % self.__patient['gender'])
         self.__target.write('    Title: %s\n' % self.__patient['title'])
@@ -1239,7 +1239,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.111  2007-12-26 22:26:04  shilbert
+# Revision 1.112  2008-01-11 16:10:00  ncq
+# - first/last -> first-/lastnames
+#
+# Revision 1.111  2007/12/26 22:26:04  shilbert
 # - indentation error fixed
 #
 # Revision 1.110  2007/12/23 11:56:38  ncq

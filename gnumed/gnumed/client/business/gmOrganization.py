@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
@@ -1066,7 +1066,7 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 		n = r.get_names()
 		if n['title'][-1] <> '.':
 			n['title'] = n['title'] + '.'
-		d['name'] = ' '.join([n['title'], n['first'], n['last'] ])
+		d['name'] = ' '.join([n['title'], n['firstnames'], n['lastnames'] ])
 		if r.getOccupation() :
 			d['subtype'] = r.getOccupation()
 		
@@ -2021,7 +2021,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.37  2007-12-02 20:56:37  ncq
+# Revision 1.38  2008-01-11 16:08:07  ncq
+# - first/last -> first-/lastnames
+#
+# Revision 1.37  2007/12/02 20:56:37  ncq
 # - adjust to table changes
 #
 # Revision 1.36  2007/07/17 10:38:06  ncq

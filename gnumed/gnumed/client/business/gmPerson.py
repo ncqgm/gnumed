@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.152 2008-01-07 19:44:16 ncq Exp $
-__version__ = "$Revision: 1.152 $"
+# $Id: gmPerson.py,v 1.153 2008-01-11 16:08:08 ncq Exp $
+__version__ = "$Revision: 1.153 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -656,7 +656,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		relative = cIdentity(aPK_obj=id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
-		relative.add_name( '**?**', self.get_names()['last'])
+		relative.add_name( '**?**', self.get_names()['lastnames'])
 		# and link the two
 		if self._ext_cache.has_key('relatives'):
 			del self._ext_cache['relatives']
@@ -2146,7 +2146,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.152  2008-01-07 19:44:16  ncq
+# Revision 1.153  2008-01-11 16:08:08  ncq
+# - first/last -> first-/lastnames
+#
+# Revision 1.152  2008/01/07 19:44:16  ncq
 # - use comm channel API
 #
 # Revision 1.151  2008/01/06 08:09:38  ncq
