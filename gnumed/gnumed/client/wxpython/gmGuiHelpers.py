@@ -11,14 +11,12 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.82 2008-01-07 19:52:40 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmGuiHelpers.py,v 1.83 2008-01-11 16:14:05 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 import sys, os, shutil, datetime as pyDT, traceback, exceptions, re as regex, codecs, logging
-if __name__ == '__main__':
-	sys.exit("This is not intended to be run standalone !")
 
 
 import wx
@@ -34,7 +32,11 @@ _log2 = logging.getLogger('gm.gui')
 _log2.info(__version__)
 
 _prev_excepthook = None
-# ========================================================================
+#=========================================================================
+def set_staff_name(staff_name):
+	global _staff_name
+	_staff_name = staff_name
+#-------------------------------------------------------------------------
 def handle_uncaught_exception_wx(t, v, tb):
 
 	_log2.error('unhandled exception caught, debug mode enabled')
@@ -66,22 +68,6 @@ def handle_uncaught_exception_wx(t, v, tb):
 		)
 		_log.LogException('module [%s] not installed' % v)
 	else:
-#		for target in _log.get_targets():
-#			if not isinstance(target, gmLog.cLogTargetFile):
-#				continue
-#			original_name = target.ID
-#			name = os.path.basename(target.ID)
-#			name, ext = os.path.splitext(name)
-#			new_name = os.path.expanduser(os.path.join (
-#				'~',
-#				'gnumed',
-#				'logs',
-#				'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-#			))
-#			_log.Log(gmLog.lWarn, 'syncing log file for backup to [%s]' % new_name)
-#			gmLog2.flush()
-#			shutil.copy2(original_name, new_name)
-
 		name = os.path.basename(_logfile_name)
 		name, ext = os.path.splitext(name)
 		new_name = os.path.expanduser(os.path.join (
@@ -104,8 +90,8 @@ def handle_uncaught_exception_wx(t, v, tb):
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():
 	office = gmSurgery.gmCurrentPractice()
-	global helpdesk
-	helpdesk = office.helpdesk
+	global _helpdesk
+	_helpdesk = office.helpdesk
 
 	global _prev_excepthook
 	_prev_excepthook = sys.excepthook
@@ -113,6 +99,12 @@ def install_wx_exception_handler():
 
 	global _logfile_name
 	_logfile_name = gmLog2._logfile_name
+
+	global _local_account
+	_local_account = os.path.basename(os.path.expanduser('~'))
+
+	global _staff_name
+	_staff_name = _local_account
 
 	return True
 # ------------------------------------------------------------------------
@@ -134,7 +126,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
-		self._TCTRL_helpdesk.SetValue(helpdesk)
+		self._TCTRL_helpdesk.SetValue(_helpdesk)
 		self._TCTRL_logfile.SetValue(self.logfile)
 		t, v, tb = exception
 		self._TCTRL_exc_type.SetValue(str(t))
@@ -228,9 +220,15 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			evt.Skip()
 			return
 
-		msg = u"Report sent via GNUmed's handler for unexpected exceptions:\n\n %s\n\n" % comment
+		msg = u"""\
+Report sent via GNUmed's handler for unexpected exceptions:
+
+ %s
+
+system account: %s
+staff member  : %s
+ """ % (comment, _local_account, _staff_name)
 		if dlg._CHBOX_dont_ask_again.GetValue():
-#			for line in codecs.open(self.logfile, 'rU', 'latin1', 'replace'):
 			_log2.error(comment)
 			_log2.warning('syncing log file for emailing')
 			gmLog2.flush()
@@ -241,7 +239,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wx.BeginBusyCursor()
 		gmTools.send_mail (
-			sender = gmTools.default_mail_sender,
+			sender = '%s <%s>' % (_staff_name, gmTools.default_mail_sender),
 			receiver = receivers,
 			subject = u'<bug>: %s' % comment,
 			message = msg,
@@ -826,7 +824,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.82  2008-01-07 19:52:40  ncq
+# Revision 1.83  2008-01-11 16:14:05  ncq
+# - cleanup
+# - use staff name/system account in log mailing
+#
+# Revision 1.82  2008/01/07 19:52:40  ncq
 # - proper use of flush()
 #
 # Revision 1.81  2008/01/06 08:12:29  ncq
