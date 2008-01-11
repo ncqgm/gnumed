@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.18 2008-01-05 16:38:56 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmMimeLib.py,v 1.19 2008-01-11 16:11:40 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -150,6 +150,33 @@ def guess_ext_for_file(aFile=None):
 
 	return f_ext
 #-----------------------------------------------------------------------------------
+gnome_open = None
+
+def __detect_gnome_open():
+	global gnome_open
+
+	if gnome_open is not None:
+		return
+
+	gnome_open = ''
+	cmd = 'which gnome-open'
+	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), 'r')
+	tmp = pipe.readline()
+	ret_code = pipe.close()
+	_log.debug('which gnome-open: [%s]' % tmp)
+
+	if tmp == '':
+		_log.debug('gnome-open not found')
+		return
+
+	tmp = tmp.split('\n')[0]
+	if not (os.path.isfile(tmp) and os.access(tmp, os.X_OK)):
+		_log.debug('gnome-open not detectable')
+		return
+
+	gnome_open = tmp
+	return
+#-----------------------------------------------------------------------------------
 kfmclient = None
 
 def __detect_kfmclient():
@@ -158,7 +185,7 @@ def __detect_kfmclient():
 	if kfmclient is not None:
 		return
 
-	kfmclient = ''
+	kfmclient = u''
 	cmd = 'which kfmclient'
 	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), 'r')
 	tmp = pipe.readline()
@@ -190,8 +217,15 @@ def call_viewer_on_file(aFile = None, block=None):
 
 	# well, maybe we are on KDE, so try to detect kfmclient
 	__detect_kfmclient()
-	if kfmclient != '':
+	if kfmclient != u'':
 		cmd = 'kfmclient exec %s' % aFile
+		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
+			return True, ''
+
+	# or else, are we on GNOME ? try to detect gnome-open
+	__detect_gnome_open()
+	if gnome_open != u'':
+		cmd = 'gnome-open %s' % aFile
 		if gmShellAPI.run_command_in_shell(command = cmd, blocking = block):
 			return True, ''
 
@@ -256,7 +290,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.18  2008-01-05 16:38:56  ncq
+# Revision 1.19  2008-01-11 16:11:40  ncq
+# - support gnome-open just like kfmclient
+#
+# Revision 1.18  2008/01/05 16:38:56  ncq
 # - eventually use python libextractor module if available
 # - do not assume every POSIX system knows mailcap, MacOSX doesn't
 #
