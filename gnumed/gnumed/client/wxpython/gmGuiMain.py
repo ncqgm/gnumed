@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.4 2008-01-03 13:20:38 ncq Exp $
-__version__ = "$Revision: 1.375.2.4 $"
+# $Id: gmGuiMain.py,v 1.375.2.5 2008-01-12 23:21:47 ncq Exp $
+__version__ = "$Revision: 1.375.2.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -75,7 +75,7 @@ if timezone is not None:
 	gmPG2.set_default_client_timezone(timezone)
 
 expected_db_ver = u'v8'
-current_client_ver = u'v0.2.8.1'
+current_client_ver = u'v0.2.8.2'
 
 _log.Log(gmLog.lInfo, 'GNUmed client version [%s]' % current_client_ver)
 _log.Log(gmLog.lInfo, 'expected database version [%s]' % expected_db_ver)
@@ -105,8 +105,11 @@ def jump_to_ifap(import_drugs=False):
 			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
 		))
 		# file must exist for Ifap to write into it
-		f = open(transfer_file, 'w+b')
-		f.close()
+		try:
+			f = open(transfer_file, 'w+b').close()
+		except IOError:
+			_log.LogException('cannot create IFAP <-> GNUmed transfer file')
+			return False
 
 	# FIXME: make this more generic so several commands are tried
 	# FIXME: (windows, linux, mac) until one succeeds or all fail
@@ -937,7 +940,7 @@ class gmTopLevelFrame(wx.Frame):
 				'the failing test.'
 			),
 			option = 'external.ifap-win.shell_command',
-			bias = 'workpace',
+			bias = 'workplace',
 			default_value = 'C:\Ifapwin\WIAMDB.EXE', # MS/Windows, not Wine
 			validator = is_valid
 		)
@@ -2050,7 +2053,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.4  2008-01-03 13:20:38  ncq
+# Revision 1.375.2.5  2008-01-12 23:21:47  ncq
+# - bump version
+# - don't crash on non-existing IFAP transfer file path
+# - fix workpace typo
+#
+# Revision 1.375.2.4  2008/01/03 13:20:38  ncq
 # - fix faulty log level
 #
 # Revision 1.375.2.3  2007/12/26 10:40:25  ncq
