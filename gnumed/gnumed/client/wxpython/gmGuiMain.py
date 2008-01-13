@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.375.2.5 2008-01-12 23:21:47 ncq Exp $
-__version__ = "$Revision: 1.375.2.5 $"
+# $Id: gmGuiMain.py,v 1.375.2.6 2008-01-13 01:04:15 ncq Exp $
+__version__ = "$Revision: 1.375.2.6 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -1634,6 +1634,10 @@ Search results:
 		)
 
 		self.timer.Stop()
+
+		sys.stdin = sys.__stdin__
+		sys.stdout = sys.__stdout__
+		sys.stderr = sys.__stderr__
 	#----------------------------------------------
 #	def OnIdle(self, event):
 #		"""Here we can process any background tasks
@@ -2053,7 +2057,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.375.2.5  2008-01-12 23:21:47  ncq
+# Revision 1.375.2.6  2008-01-13 01:04:15  ncq
+# - restore stdio on exit
+#
+# Revision 1.375.2.5  2008/01/12 23:21:47  ncq
 # - bump version
 # - don't crash on non-existing IFAP transfer file path
 # - fix workpace typo
