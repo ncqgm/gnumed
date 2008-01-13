@@ -1,4 +1,3 @@
-#===========================================================================
 __doc__ = """
 GNUmed date/time handling.
 
@@ -35,9 +34,9 @@ This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
 """
 #===========================================================================
-# $Id: gmDateTime.py,v 1.17 2008-01-05 16:37:47 ncq Exp $
+# $Id: gmDateTime.py,v 1.18 2008-01-13 01:14:26 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDateTime.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -48,6 +47,11 @@ import sys, datetime as pyDT, time, os, re as regex, locale, logging
 # 3rd party
 import mx.DateTime as mxDT
 import psycopg2						# this will go once datetime has timezone classes
+
+
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.datetime')
@@ -913,9 +917,6 @@ if __name__ == '__main__':
 	if len(sys.argv) > 1 and sys.argv[1] == "test":
 
 		# GNUmed libs
-		sys.path.insert(0, '../../')
-		from Gnumed.pycommon import gmI18N
-
 		gmI18N.activate_locale()
 		gmI18N.install_domain('gnumed')
 
@@ -928,7 +929,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmDateTime.py,v $
-# Revision 1.17  2008-01-05 16:37:47  ncq
+# Revision 1.18  2008-01-13 01:14:26  ncq
+# - does need gmI18N
+#
+# Revision 1.17  2008/01/05 16:37:47  ncq
 # - typo fix
 #
 # Revision 1.16  2007/12/12 16:17:15  ncq
