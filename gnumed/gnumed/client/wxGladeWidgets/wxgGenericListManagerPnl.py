@@ -53,7 +53,7 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
         __szr_buttons.Add((20, 20), 1, wx.ADJUST_MINSIZE, 0)
         __szr_buttons.Add(self._BTN_remove, 0, 0, 0)
         __szr_buttons.Add((20, 20), 2, wx.ADJUST_MINSIZE, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 5)
+        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
