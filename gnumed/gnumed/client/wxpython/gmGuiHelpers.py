@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.83 2008-01-11 16:14:05 ncq Exp $
-__version__ = "$Revision: 1.83 $"
+# $Id: gmGuiHelpers.py,v 1.84 2008-01-13 01:17:50 ncq Exp $
+__version__ = "$Revision: 1.84 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -45,7 +45,10 @@ def handle_uncaught_exception_wx(t, v, tb):
 	root_logger = logging.getLogger()
 	root_logger.setLevel(logging.DEBUG)
 
-	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
+#	_log.LogException('unhandled exception caught', (t,v,tb), verbose=True)
+#	_log2.exception('unhandled exception caught', exc_info = (t,v,tb))
+	_log2.exception('unhandled exception caught')
+	gmLog2.log_stack_trace()
 
 	# careful: MSW does reference counting on Begin/End* :-(
 	try: wx.EndBusyCursor()
@@ -227,7 +230,8 @@ Report sent via GNUmed's handler for unexpected exceptions:
 
 system account: %s
 staff member  : %s
- """ % (comment, _local_account, _staff_name)
+
+""" % (comment, _local_account, _staff_name)
 		if dlg._CHBOX_dont_ask_again.GetValue():
 			_log2.error(comment)
 			_log2.warning('syncing log file for emailing')
@@ -248,6 +252,7 @@ staff member  : %s
 			auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
 		)
 		wx.EndBusyCursor()
+		gmDispatcher.send(signal='statustext', msg = _('Bug report has been emailed.'))
 
 		evt.Skip()
 	#------------------------------------------
@@ -824,7 +829,11 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.83  2008-01-11 16:14:05  ncq
+# Revision 1.84  2008-01-13 01:17:50  ncq
+# - use log_stack_trace()
+# - annouce completed bug report emailing
+#
+# Revision 1.83  2008/01/11 16:14:05  ncq
 # - cleanup
 # - use staff name/system account in log mailing
 #
