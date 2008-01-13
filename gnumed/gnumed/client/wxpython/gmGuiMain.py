@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.382 2008-01-07 19:53:00 ncq Exp $
-__version__ = "$Revision: 1.382 $"
+# $Id: gmGuiMain.py,v 1.383 2008-01-13 01:19:11 ncq Exp $
+__version__ = "$Revision: 1.383 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -99,8 +99,11 @@ def jump_to_ifap(import_drugs=False):
 			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
 		))
 		# file must exist for Ifap to write into it
-		f = open(transfer_file, 'w+b')
-		f.close()
+		try:
+			f = open(transfer_file, 'w+b').close()
+		except IOError:
+			_log.LogException('cannot create IFAP <-> GNUmed transfer file')
+			return False
 
 	# FIXME: make this more generic so several commands are tried
 	# FIXME: (windows, linux, mac) until one succeeds or all fail
@@ -291,6 +294,14 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_ui.Append(ID, _('Workplace plugins'), _('Choose the plugins to load per workplace.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_workplace)
+
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('Document review'), _('Configure review dialog after document display.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_doc_review_dialog)
+
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('Document UUID display'), _('Configure unique ID dialog on document import.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_doc_uuid_dialog)
 
 		# -- submenu gnumed / config / ui / patient search
 		menu_cfg_pat_search = wx.Menu()
@@ -928,7 +939,7 @@ class gmTopLevelFrame(wx.Frame):
 				'the failing test.'
 			),
 			option = 'external.ifap-win.shell_command',
-			bias = 'workpace',
+			bias = 'workplace',
 			default_value = 'C:\Ifapwin\WIAMDB.EXE', # MS/Windows, not Wine
 			validator = is_valid
 		)
@@ -1165,6 +1176,56 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_workplace(self, evt):
 		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
+	#----------------------------------------------
+	def __on_configure_doc_uuid_dialog(self, evt):
+		gmGuiHelpers.configure_boolean_option (
+			question = _(
+				'After importing a new document do you\n'
+				'want GNUmed to display the unique ID\n'
+				'it auto-generated for that document ?\n'
+				'\n'
+				'This can be useful if you want to label the\n'
+				'originals with that ID for later identification.'
+			),
+			option = u'horstspace.scan_index.show_doc_id',
+			button_tooltips = [
+				_('Yes, display the ID generated for the new document after importing.'),
+				_('No, do not display the ID generated for the new document after importing.')
+			]
+		)
+	#----------------------------------------------
+	def __on_configure_doc_review_dialog(self, evt):
+
+		def is_valid(value):
+			try:
+				value = int(value)
+			except:
+				return False, value
+			if value not in [0, 1, 2]:
+				return False, value
+			return True, value
+
+		gmGuiHelpers.configure_string_option (
+			message = _(
+				'GNUmed can show the document review dialog after\n'
+				'calling the appropriate viewer for that document.\n'
+				'\n'
+				'Select the conditions under which you want\n'
+				'GNUmed to do so:\n'
+				'\n'
+				' 0: never display the review dialog\n'
+				' 1: always display the dialog\n'
+				' 2: only if there is no previous review by me\n'
+				'\n'
+				'Note that if a viewer is configured to not block\n'
+				'GNUmed during document display the review dialog\n'
+				'will actually appear in parallel to the viewer.'
+			),
+			option = u'horstspace.document_viewer.review_after_display',
+			bias = u'user',
+			default_value = 2,
+			validator = is_valid
+		)
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 		# raw check for OsiriX binary
@@ -1619,6 +1680,10 @@ Search results:
 		)
 
 		self.timer.Stop()
+
+		sys.stdin = sys.__stdin__
+		sys.stdout = sys.__stdout__
+		sys.stderr = sys.__stderr__
 	#----------------------------------------------
 #	def OnIdle(self, event):
 #		"""Here we can process any background tasks
@@ -1773,6 +1838,15 @@ class gmApp(wx.App):
 			) % account
 			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
 			return False
+
+		tmp = '%s%s %s (%s = %s)' % (
+			gmTools.coalesce(_provider['title'], ''),
+			_provider['firstnames'],
+			_provider['lastnames'],
+			_provider['short_alias'],
+			_provider['db_user']
+		)
+		gmGuiHelpers.set_staff_name(staff_name = tmp)
 
 		self.__starting_up = True
 		self.__register_events()
@@ -2066,7 +2140,13 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.382  2008-01-07 19:53:00  ncq
+# Revision 1.383  2008-01-13 01:19:11  ncq
+# - don't crash on inaccessible IFAP transfer file
+# - doc management configuration
+# - restore Stdio on exit
+# - set staff name for exception handling
+#
+# Revision 1.382  2008/01/07 19:53:00  ncq
 # - misspelled variable fix
 #
 # Revision 1.381  2008/01/05 22:30:30  ncq
