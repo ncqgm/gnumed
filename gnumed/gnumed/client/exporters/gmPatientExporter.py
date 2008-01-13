@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.112 2008-01-11 16:10:00 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmPatientExporter.py,v 1.113 2008-01-13 01:13:58 ncq Exp $
+__version__ = "$Revision: 1.113 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -637,11 +637,13 @@ class cEmrExport:
             status = _('Active health issue')
         else:
             status = _('Inactive health issue')
-        txt = _('%s "%s" noted at age %s\n') % (
+        txt = _('%s "%s"\n noted at age %s\n') % (
             status,
             issue['description'],
-            issue['age_noted']
+#            issue['age_noted']
+            issue.age_noted_human_readable()
         )
+        print issue.age_noted_human_readable()
         if issue['clinically_relevant']:
             txt += _('clinically relevant: yes\n')
         else:
@@ -1239,7 +1241,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.112  2008-01-11 16:10:00  ncq
+# Revision 1.113  2008-01-13 01:13:58  ncq
+# - use issue.age_noted_human_readable()
+#
+# Revision 1.112  2008/01/11 16:10:00  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.111  2007/12/26 22:26:04  shilbert
