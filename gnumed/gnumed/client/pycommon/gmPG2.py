@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -612,12 +612,12 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				_log.debug('PG status message: %s' % curs.statusmessage)
 				_log.debug('cursor description: %s' % curs.description)
 		except:
+			# FIXME: use .pgcode
 			curs_close()
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			conn_close()
 			_log.error('query failed: [%s]' % curs.query)
 			_log.error('PG status message: %s' % curs.statusmessage)
-			_log.flush()
 			raise
 
 	data = None
@@ -1282,7 +1282,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.67  2008-01-07 19:51:04  ncq
+# Revision 1.68  2008-01-13 01:15:58  ncq
+# - remove faulty flush()
+#
+# Revision 1.67  2008/01/07 19:51:04  ncq
 # - better comments
 # - some cleanup
 # - bump db version
