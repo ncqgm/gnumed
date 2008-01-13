@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.103 $"
+__version__ = "$Revision: 1.104 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -120,6 +120,28 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if len(rows) == 0:
 			return None
 		return cEpisode(aPK_obj=rows[0][0])
+	#--------------------------------------------------------
+	def age_noted_human_readable(self):
+		if self._payload[self._idx['age_noted']] is None:
+			return u'<???>'
+
+		# seemingly silly but convinces PG to "nicely"
+		# format the interval for us
+		cmd = u"""select
+age (
+	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s,
+	(select dob from dem.identity where pk = %(pat)s)
+)::text
+|| ' (' || age (
+	(select dob from dem.identity where pk = %(pat)s) + %(issue_age)s
+)::text || ' ago)'
+"""
+		args = {
+			'pat': self._payload[self._idx['fk_patient']],
+			'issue_age': self._payload[self._idx['age_noted']]
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows[0][0]
 #============================================================
 # use as dummy for unassociated episodes
 def get_dummy_health_issue():
@@ -277,7 +299,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 
 		staff_id - Provider's primary key
 		"""
-		self._payload[self._idx['last_affirmed']] = datetime.datetime.now(tz = gmDateTime.cLocalTimezone())
+		self._payload[self._idx['last_affirmed']] = datetime.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
 		success, data = self.save_payload()
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
@@ -630,7 +652,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.103  2007-10-29 11:04:11  ncq
+# Revision 1.104  2008-01-13 01:12:53  ncq
+# - age_noted_human_readable()
+#
+# Revision 1.103  2007/10/29 11:04:11  ncq
 # - properly handle NULL pk_health_issue in create_apisode() thereby
 #   finding dupes in free-standing episodes, too
 # - this then asks for an explicit allow_dupes (defaulted to False)
