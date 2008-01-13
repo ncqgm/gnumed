@@ -1,4 +1,4 @@
-"""GNUmed loggin framework setup.
+"""GNUmed logging framework setup.
 
 All error logging, user notification and otherwise unhandled 
 exception handling should go through classes or functions of 
@@ -36,8 +36,8 @@ some messages separate from others.
 """
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.3 2008-01-07 19:48:53 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmLog2.py,v 1.4 2008-01-13 01:15:41 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -49,12 +49,61 @@ import logging, sys, os, codecs
 _logfile_name = None
 _logfile = None
 #===============================================================
+# external API
+#===============================================================
 def flush():
 	logger = logging.getLogger('gm.logging')
 	logger.critical(u'-------- synced log file -------------------------------')
 	root_logger = logging.getLogger()
 	for handler in root_logger.handlers:
 		handler.flush()
+#===============================================================
+def log_stack_trace(message=None):
+
+	logger = logging.getLogger('gm.logging')
+
+	tb = sys.exc_info()[2]
+	if tb is None:
+		try:
+			tb = sys.last_traceback
+		except AttributeError:
+			logger.debug('no stack to trace')
+			return
+
+	# recurse back to root caller
+	while 1:
+		if not tb.tb_next:
+			break
+		tb = tb.tb_next
+	# and put the frames on a stack
+	stack_of_frames = []
+	frame = tb.tb_frame
+	while frame:
+		stack_of_frames.append(frame)
+		frame = frame.f_back
+	stack_of_frames.reverse()
+
+	if message is not None:
+		logger.debug(message)
+	logger.debug('stack trace follows:')
+	logger.debug('(locals by frame, outmost frame first)')
+	for frame in stack_of_frames:
+		logger.debug (
+			u'>>> execution frame [%s] in [%s] at line %s <<<',
+			frame.f_code.co_name,
+			frame.f_code.co_filename,
+			frame.f_lineno
+		)
+		for varname, value in frame.f_locals.items():
+			if varname == '__doc__':
+				continue
+			try:
+				logger.debug('%20s = %s', varname, value)
+			except:
+				pass
+
+#===============================================================
+# internal API
 #===============================================================
 def __setup_logging():
 
@@ -91,7 +140,7 @@ def __get_logfile_name():
 		return _logfile_name
 
 	def_log_basename = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-	def_log_name = def_log_basename + '.log'
+	def_log_name = '%s-%s.log' % (def_log_basename, os.getpid())
 
 	# given on command line ?
 	for option in sys.argv[1:]:
@@ -125,14 +174,25 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------
 	def test():
-		logger = logging.getLogger('logging-test')
+		logger = logging.getLogger('gmLog2.test')
 		logger.error("I expected to see %s::test()" % __file__)
+		try:
+			int(None)
+		except:
+			logger.exception('unhandled exception')
+			log_stack_trace()
+		flush()
 	#-----------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == u'test':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.3  2008-01-07 19:48:53  ncq
+# Revision 1.4  2008-01-13 01:15:41  ncq
+# - log_stack_trace() and test
+# - include PID in default log file name
+# - cleanup
+#
+# Revision 1.3  2008/01/07 19:48:53  ncq
 # - add flush()
 #
 # Revision 1.2  2007/12/12 16:23:21  ncq
