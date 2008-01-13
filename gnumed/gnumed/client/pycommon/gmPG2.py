@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.63.2.1 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -645,7 +645,6 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			conn_close()
 			_log.Log(gmLog.lErr, 'query failed: [%s]' % curs.query)
 			_log.Log(gmLog.lErr, 'PG status message: %s' % curs.statusmessage)
-			_log.flush()
 			raise
 
 	data = None
@@ -1271,7 +1270,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.63  2007-12-06 13:07:19  ncq
+# Revision 1.63.2.1  2008-01-13 01:09:05  ncq
+# - remove misplaced flush()
+#
+# Revision 1.63  2007/12/06 13:07:19  ncq
 # - add v8 schema hash
 #
 # Revision 1.62  2007/12/04 16:14:24  ncq
