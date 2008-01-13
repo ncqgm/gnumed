@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.9 2008-01-07 19:51:54 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmAuthWidgets.py,v 1.10 2008-01-13 01:16:52 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -130,6 +130,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			print dir(e)
 			print e.args
 			print dir(gmPG2.dbapi)
+			_log.debug('DSN: %s', dsn)
 			_log.exception(u"login attempt %s/%s failed, useless to retry", attempt+1, max_attempts)
 			break
 
@@ -641,7 +642,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.9  2008-01-07 19:51:54  ncq
+# Revision 1.10  2008-01-13 01:16:52  ncq
+# - log DSN on any connect errors
+#
+# Revision 1.9  2008/01/07 19:51:54  ncq
 # - bump db version
 # - we still need gmCfg
 #
