@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.137 2007-12-06 10:46:05 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmDemographicsWidgets.py,v 1.137.2.1 2008-01-14 13:20:04 ncq Exp $
+__version__ = "$Revision: 1.137.2.1 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -64,7 +64,12 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		try: os.remove(self.fname)
 		except OSError: pass
 		gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
-		csv_file = codecs.open(self.fname , mode = 'rU', encoding = 'utf8', errors = 'replace')
+		try:
+			csv_file = codecs.open(self.fname , mode = 'rU', encoding = 'utf8', errors = 'replace')
+		except IOError:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
+			return
+
 		csv_lines = gmTools.unicode_csv_reader (
 			csv_file,
 			delimiter = ','
@@ -2531,7 +2536,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.137  2007-12-06 10:46:05  ncq
+# Revision 1.137.2.1  2008-01-14 13:20:04  ncq
+# - don't crash if korganizer2gnumed.csv isn't there
+#
+# Revision 1.137  2007/12/06 10:46:05  ncq
 # - improve external ID type phrasewheel
 # - in edit area on setting ext id type pre-set corresponding issuer if any
 #
