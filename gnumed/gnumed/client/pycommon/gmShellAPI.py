@@ -1,9 +1,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmShellAPI.py,v 1.4 2007-12-12 16:17:16 ncq Exp $
+# $Id: gmShellAPI.py,v 1.5 2008-01-14 20:30:11 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmShellAPI.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -16,6 +16,28 @@ _log = logging.getLogger('gm.shell')
 _log.info(__version__)
 
 #===========================================================================
+def detect_external_binary(binary=None):
+	_log.debug('detecting [%s]', binary)
+
+	cmd = 'which %s' % binary
+	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
+	result = pipe.readline()
+	ret_code = pipe.close()
+
+	if ret_code is not None:
+		_log.warning('[%s] returned: %s', cmd, ret_code)
+		return (False, None)
+
+	result = result.strip('\r\n')
+	_log.debug('[%s] returned: %s', cmd, result)
+
+	# redundant on Linux but apparently necessary on MacOSX
+	if not os.access(result, os.X_OK):
+		_log.warning('[%s] not detected', binary)
+		return (False, None)
+
+	return (True, result)
+#===========================================================================
 def run_command_in_shell(command=None, blocking=False):
 	"""Runs a command in a subshell via standard-C system().
 
@@ -25,7 +47,7 @@ def run_command_in_shell(command=None, blocking=False):
 		This will make the code *block* until the shell command exits.
 		It will likely only work on UNIX shells where "cmd &" makes sense.
 	"""
-	_log.debug('given shell command >>>%s<<<' % command)
+	_log.debug('shell command >>>%s<<<' % command)
 	_log.debug('blocking: %s' % blocking)
 
 	# FIXME: command should be checked for shell exploits
@@ -82,18 +104,35 @@ if __name__ == '__main__':
 
 		logging.basicConfig(level = logging.DEBUG)
 
-		print "-------------------------------------"
-		print "running:", sys.argv[2]
-		if run_command_in_shell(command=sys.argv[2], blocking=True):
+		#---------------------------------------------------------
+		def test_detect_external_binary():
+			found, path = detect_external_binary(binary = sys.argv[2])
+			if found:
+				print "found as:", path
+			else:
+				print sys.argv[2], "not found"
+		#---------------------------------------------------------
+		def test_run_command_in_shell():
 			print "-------------------------------------"
-			print "success"
-		else:
-			print "-------------------------------------"
-			print "failure, consult log"
+			print "running:", sys.argv[2]
+			if run_command_in_shell(command=sys.argv[2], blocking=True):
+				print "-------------------------------------"
+				print "success"
+			else:
+				print "-------------------------------------"
+				print "failure, consult log"
+		#---------------------------------------------------------
+
+		#test_run_command_in_shell()
+		test_detect_external_binary()
 
 #===========================================================================
 # $Log: gmShellAPI.py,v $
-# Revision 1.4  2007-12-12 16:17:16  ncq
+# Revision 1.5  2008-01-14 20:30:11  ncq
+# - detect_external_binary()
+# - better tests
+#
+# Revision 1.4  2007/12/12 16:17:16  ncq
 # - better logger names
 #
 # Revision 1.3  2007/12/11 14:33:48  ncq
