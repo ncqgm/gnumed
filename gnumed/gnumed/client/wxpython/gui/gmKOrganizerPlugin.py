@@ -2,15 +2,15 @@
 # GNUmed KOrganizer link
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmKOrganizerPlugin.py,v $
-# $Id: gmKOrganizerPlugin.py,v 1.2 2007-10-12 07:28:25 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmKOrganizerPlugin.py,v 1.3 2008-01-14 20:46:20 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import os, sys
 
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
-from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmExceptions, gmShellAPI
 
 #======================================================================
 class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
@@ -20,11 +20,8 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 	#--------------------------------------------------------
 	def __init__(self):
 		# detect KOrganizer
-		cmd = 'which konsolekalendar'
-		pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), "r")
-		tmp = pipe.readline()
-		ret_code = pipe.close()
-		if tmp == '':
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'konsolekalendar')
+		if not found:
 			raise gmExceptions.ConstructorError('cannot detect "konsolekalendar" via [%s]' % cmd)
 
 		gmPlugin.cNotebookPlugin.__init__(self)
@@ -43,7 +40,10 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 		return True
 #======================================================================
 # $Log: gmKOrganizerPlugin.py,v $
-# Revision 1.2  2007-10-12 07:28:25  ncq
+# Revision 1.3  2008-01-14 20:46:20  ncq
+# - use detect_external_binary()
+#
+# Revision 1.2  2007/10/12 07:28:25  ncq
 # - lots of import related cleanup
 #
 # Revision 1.1  2007/07/09 11:10:24  ncq
