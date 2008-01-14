@@ -4,8 +4,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.19 2008-01-11 16:11:40 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmMimeLib.py,v 1.20 2008-01-14 20:28:21 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -158,23 +158,10 @@ def __detect_gnome_open():
 	if gnome_open is not None:
 		return
 
-	gnome_open = ''
-	cmd = 'which gnome-open'
-	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), 'r')
-	tmp = pipe.readline()
-	ret_code = pipe.close()
-	_log.debug('which gnome-open: [%s]' % tmp)
+	found, gnome_open = gmShellAPI.detect_external_binary(binary = 'gnome-open')
+	if not found:
+		gnome_open = u''
 
-	if tmp == '':
-		_log.debug('gnome-open not found')
-		return
-
-	tmp = tmp.split('\n')[0]
-	if not (os.path.isfile(tmp) and os.access(tmp, os.X_OK)):
-		_log.debug('gnome-open not detectable')
-		return
-
-	gnome_open = tmp
 	return
 #-----------------------------------------------------------------------------------
 kfmclient = None
@@ -185,23 +172,10 @@ def __detect_kfmclient():
 	if kfmclient is not None:
 		return
 
-	kfmclient = u''
-	cmd = 'which kfmclient'
-	pipe = os.popen(cmd.encode(sys.getfilesystemencoding()), 'r')
-	tmp = pipe.readline()
-	ret_code = pipe.close()
-	_log.debug('which kfmclient: [%s]' % tmp)
+	found, kfmclient = gmShellAPI.detect_external_binary(binary = 'kfmclient')
+	if not found:
+		kfmclient = u''
 
-	if tmp == '':
-		_log.debug('kfmclient not found')
-		return
-
-	tmp = tmp.split('\n')[0]
-	if not (os.path.isfile(tmp) and os.access(tmp, os.X_OK)):
-		_log.debug('kfmclient not detectable')
-		return
-
-	kfmclient = tmp
 	return
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
@@ -290,7 +264,10 @@ if __name__ == "__main__":
 
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.19  2008-01-11 16:11:40  ncq
+# Revision 1.20  2008-01-14 20:28:21  ncq
+# - use detect_external_binary()
+#
+# Revision 1.19  2008/01/11 16:11:40  ncq
 # - support gnome-open just like kfmclient
 #
 # Revision 1.18  2008/01/05 16:38:56  ncq
