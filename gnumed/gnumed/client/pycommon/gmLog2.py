@@ -36,14 +36,14 @@ some messages separate from others.
 """
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.4 2008-01-13 01:15:41 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmLog2.py,v 1.5 2008-01-14 20:27:39 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import logging, sys, os, codecs
+import logging, sys, os, codecs, locale
 
 
 _logfile_name = None
@@ -67,7 +67,7 @@ def log_stack_trace(message=None):
 		try:
 			tb = sys.last_traceback
 		except AttributeError:
-			logger.debug('no stack to trace')
+			logger.debug(u'no stack to trace')
 			return
 
 	# recurse back to root caller
@@ -85,8 +85,8 @@ def log_stack_trace(message=None):
 
 	if message is not None:
 		logger.debug(message)
-	logger.debug('stack trace follows:')
-	logger.debug('(locals by frame, outmost frame first)')
+	logger.debug(u'stack trace follows:')
+	logger.debug(u'(locals by frame, outmost frame first)')
 	for frame in stack_of_frames:
 		logger.debug (
 			u'>>> execution frame [%s] in [%s] at line %s <<<',
@@ -95,17 +95,49 @@ def log_stack_trace(message=None):
 			frame.f_lineno
 		)
 		for varname, value in frame.f_locals.items():
-			if varname == '__doc__':
+			if varname == u'__doc__':
 				continue
 			try:
-				logger.debug('%20s = %s', varname, value)
-			except:
-				pass
+				value = u'%s' % value
+			except UnicodeDecodeError:
+				value = '%s' % value
+				value = value.decode(_string_encoding, 'replace')
+			logger.debug(u'%20s = %s', varname, value)
+#===============================================================
+def set_string_encoding(encoding=None):
 
+	logger = logging.getLogger('gm.logging')
+
+	global _string_encoding
+
+	if encoding is not None:
+		codecs.lookup(encoding)
+		_string_encoding = encoding
+		logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+		return True
+
+	enc = sys.getdefaultencoding()
+	if enc != 'ascii':
+		_string_encoding = enc
+		logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+		return True
+
+	enc = locale.getlocale()[1]
+	if enc is not None:
+		_string_encoding = enc
+		logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+		return True
+
+	# FIXME: or rather use utf8 ?
+	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
+	logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+	return True
 #===============================================================
 # internal API
 #===============================================================
 def __setup_logging():
+
+	set_string_encoding()
 
 	global _logfile
 	if _logfile is not None:
@@ -132,6 +164,8 @@ def __setup_logging():
 	logger.critical(u'-------- start of logging ------------------------------')
 	logger.info(u'log file is <%s>', _logfile_name)
 	logger.info(u'log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
+	logger.info(u'log file encoding is <utf8>')
+	logger.info(u'initial "str" -> "unicode" encoding is <%s>', _string_encoding)
 #---------------------------------------------------------------
 def __get_logfile_name():
 
@@ -187,7 +221,12 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.4  2008-01-13 01:15:41  ncq
+# Revision 1.5  2008-01-14 20:27:39  ncq
+# - set_string_encoding()
+# - properly encode values in log_stack_trace()
+# - proper test suite
+#
+# Revision 1.4  2008/01/13 01:15:41  ncq
 # - log_stack_trace() and test
 # - include PID in default log file name
 # - cleanup
