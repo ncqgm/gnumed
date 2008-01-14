@@ -48,9 +48,9 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.39 2008-01-13 01:14:48 ncq Exp $
+# $Id: gmI18N.py,v 1.40 2008-01-14 20:26:35 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -333,7 +333,6 @@ def get_encoding():
 	enc = sys.getdefaultencoding()
 	if enc != 'ascii':
 		return enc
-#	_log.debug('default encoding still ASCII, trying something else')
 	enc = locale.getlocale()[1]
 	if enc is not None:
 		return enc
@@ -369,7 +368,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.39  2008-01-13 01:14:48  ncq
+# Revision 1.40  2008-01-14 20:26:35  ncq
+# - cleanup
+#
+# Revision 1.39  2008/01/13 01:14:48  ncq
 # - remove *really* excessive logging
 #
 # Revision 1.38  2007/12/23 11:57:59  ncq
