@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.141 2008-01-07 19:52:26 ncq Exp $
-__version__ = "$Revision: 1.141 $"
+# $Id: gmDemographicsWidgets.py,v 1.142 2008-01-14 20:40:09 ncq Exp $
+__version__ = "$Revision: 1.142 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -63,7 +63,12 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		try: os.remove(self.fname)
 		except OSError: pass
 		gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
-		csv_file = codecs.open(self.fname , mode = 'rU', encoding = 'utf8', errors = 'replace')
+		try:
+			csv_file = codecs.open(self.fname , mode = 'rU', encoding = 'utf8', errors = 'replace')
+		except IOError:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
+			return
+
 		csv_lines = gmTools.unicode_csv_reader (
 			csv_file,
 			delimiter = ','
@@ -2541,7 +2546,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.141  2008-01-07 19:52:26  ncq
+# Revision 1.142  2008-01-14 20:40:09  ncq
+# - don't crash on missing korganizer transfer file
+#
+# Revision 1.141  2008/01/07 19:52:26  ncq
 # - enable editing comm channels
 #
 # Revision 1.140  2008/01/05 16:41:27  ncq
