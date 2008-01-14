@@ -39,8 +39,8 @@ care of all the pre- and post-GUI runtime environment setup.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-# $Id: gnumed.py,v 1.132 2008-01-05 22:32:33 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gnumed.py,v 1.133 2008-01-14 20:45:45 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -133,9 +133,12 @@ The file does not exist, however.
 #==========================================================
 def setup_logging():
 	try:
-		from Gnumed.pycommon import gmLog2
+		from Gnumed.pycommon import gmLog2 as _gmLog2
 	except ImportError:
 		sys.exit(import_error_sermon)
+
+	global gmLog2
+	gmLog2 = _gmLog2
 
 	global _log
 	_log = logging.getLogger('gm.launcher')
@@ -206,6 +209,8 @@ def setup_locale():
 	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])
 	l =  _cfg.get(option = '--lang-gettext', source_order = [('cli', 'return')])
 	gmI18N.install_domain(domain = td, language = l)
+
+	gmLog2.set_string_encoding()
 #==========================================================
 def check_help_request():
 	src = [(u'cli', u'return')]
@@ -316,7 +321,6 @@ def setup_backend():
 		gmPG2.set_default_client_timezone(timezone)
 #==========================================================
 def log_object_refcounts():
-	# FIXME: use internal source
 	if not _cfg.get(option = u'debug'):
 		return
 
@@ -392,7 +396,10 @@ _log.info('Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.132  2008-01-05 22:32:33  ncq
+# Revision 1.133  2008-01-14 20:45:45  ncq
+# - use set_string_encoding()
+#
+# Revision 1.132  2008/01/05 22:32:33  ncq
 # - setup_backend()
 #
 # Revision 1.131  2007/12/26 21:06:38  ncq
