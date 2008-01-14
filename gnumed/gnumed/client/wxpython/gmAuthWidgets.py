@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.10 2008-01-13 01:16:52 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmAuthWidgets.py,v 1.11 2008-01-14 20:33:06 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -22,7 +22,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2
+from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N, gmLog2
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -110,11 +110,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			conn = gmPG2.get_raw_connection(dsn = dsn, verbose = True)
 			connected = True
 		except gmPG2.cAuthenticationError, e:
-			print "error - retry"
-			print type(e)
-			print str(e).decode('utf8')
 			attempt += 1
-			_log.exception(u"login attempt %s/%s failed" % (attempt, max_attempts))
+			_log.error(u"login attempt %s/%s failed: %s", attempt, max_attempts, e)
+			_log.debug(u'retrying')
 			if attempt < max_attempts:
 				gmGuiHelpers.gm_show_error (_(
 						"Unable to connect to database:\n\n"
@@ -123,16 +121,14 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 					) % e,
 					_('Connecting to backend')
 				)
-			_log.exception(u"login attempt %s/%s failed, may retry", attempt, max_attempts)
 			continue
-		except StandardError, e:
-			print "error - cancel"
-			print dir(e)
-			print e.args
-			print dir(gmPG2.dbapi)
-			_log.debug('DSN: %s', dsn)
-			_log.exception(u"login attempt %s/%s failed, useless to retry", attempt+1, max_attempts)
-			break
+		except gmPG2.dbapi.OperationalError, e:
+#			_log.debug('DSN: %s', dsn)
+			_log.error(u"login attempt %s/%s failed", attempt+1, max_attempts)
+			_log.debug('useless to retry')
+#			gmLog2.log_stack_trace()
+#			break
+			raise
 
 		# connect was successful:
 		gmPG2.set_default_login(login = login)
@@ -642,7 +638,11 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.10  2008-01-13 01:16:52  ncq
+# Revision 1.11  2008-01-14 20:33:06  ncq
+# - cleanup
+# - properly detect connection errors
+#
+# Revision 1.10  2008/01/13 01:16:52  ncq
 # - log DSN on any connect errors
 #
 # Revision 1.9  2008/01/07 19:51:54  ncq
