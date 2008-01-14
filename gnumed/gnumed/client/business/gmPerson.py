@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.153 2008-01-11 16:08:08 ncq Exp $
-__version__ = "$Revision: 1.153 $"
+# $Id: gmPerson.py,v 1.154 2008-01-14 20:26:10 ncq Exp $
+__version__ = "$Revision: 1.154 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1375,7 +1375,7 @@ SELECT DISTINCT ON (pk_identity) * from (
 		if len(queries) > 0:
 			return queries
 
-		_log.Log(gmLog.lData, '[%s]: not a search term with a "simple" structure' % search_term)
+		_log.Log(gmLog.lData, '[%s]: not a search term with a "suggestive" structure' % search_term)
 
 		# no we don't
 		queries = []
@@ -2146,7 +2146,10 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.153  2008-01-11 16:08:08  ncq
+# Revision 1.154  2008-01-14 20:26:10  ncq
+# - better log
+#
+# Revision 1.153  2008/01/11 16:08:08  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.152  2008/01/07 19:44:16  ncq
