@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.97 2008-01-05 16:41:27 ncq Exp $
-__version__ = "$Revision: 1.97 $"
+# $Id: gmSOAPWidgets.py,v 1.98 2008-01-14 20:42:26 ncq Exp $
+__version__ = "$Revision: 1.98 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -150,8 +150,8 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 				page = self.GetPage(page_idx)
 				existing_problem = page.get_problem()
 				# unassociated
-				if existing_problem is None:
-					if problem is None:
+				if problem is None:
+					if existing_problem is None:
 						self.SetSelection(page_idx)
 						return True
 					continue
@@ -160,6 +160,8 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 					if problem['pk_episode'] == existing_problem['pk_episode']:
 						self.SetSelection(page_idx)
 						return True
+					continue
+				# issues
 				if problem['type'] == 'issue':
 					if problem['pk_health_issue'] == existing_problem['pk_health_issue']:
 						self.SetSelection(page_idx)
@@ -1075,7 +1077,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.97  2008-01-05 16:41:27  ncq
+# Revision 1.98  2008-01-14 20:42:26  ncq
+# - don't crash on adding an empty editor
+#
+# Revision 1.97  2008/01/05 16:41:27  ncq
 # - remove logging from gm_show_*()
 #
 # Revision 1.96  2007/12/12 16:24:57  ncq
