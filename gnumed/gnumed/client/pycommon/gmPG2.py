@@ -12,7 +12,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG2.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -141,7 +141,7 @@ order by
 def set_default_client_encoding(encoding = None):
 	# check whether psycopg2 can handle this encoding
 	if encoding not in psycopg2.extensions.encodings:
-		raise ValueError('psycopg2 does not know how to handle (wire) client encoding [%s]' % encoding)
+		raise ValueError('psycopg2 does not know how to handle client (wire) encoding [%s]' % encoding)
 	# check whether Python can handle this encoding
 	py_enc = psycopg2.extensions.encodings[encoding]
 	try:
@@ -779,14 +779,21 @@ def get_raw_connection(dsn=None, verbose=False):
 
 	try:
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
-	except dbapi.OperationalError:
+	except dbapi.OperationalError, e:
 		t, v, tb = sys.exc_info()
-		if str(v).find('fe_sendauth') != -1:
-			raise cAuthenticationError, (dsn, v), tb
-		if str(v).find('authentication failed for user') != -1:
-			raise cAuthenticationError, (dsn, v), tb
-		if regex.search('user ".*" does not exist', str(v)) is not None:
-			raise cAuthenticationError, (dsn, v), tb
+		try:
+			msg = e.args[0]
+		except (AttributeError, IndexError, TypeError):
+			raise
+		msg = unicode(msg, gmI18N.get_encoding(), 'replace')
+		if msg.find('fe_sendauth') != -1:
+			raise cAuthenticationError, (dsn, msg), tb
+#		if msg.find('authentication failed for user') != -1:
+#			raise cAuthenticationError, (dsn, v), tb
+		if regex.search('user ".*" does not exist', msg) is not None:
+			raise cAuthenticationError, (dsn, msg), tb
+		if msg.find('uthenti') != -1:
+			raise cAuthenticationError, (dsn, msg), tb
 		raise
 
 	global postgresql_version
@@ -962,7 +969,8 @@ class cAuthenticationError(dbapi.OperationalError):
 		self.prev_val = prev_val
 
 	def __str__(self):
-		return 'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
+		_log.warning('%s.__str__() called', self.__class__.__name__)
+		return 'PostgreSQL: %sDSN: %s' % (self.prev_val.encode(gmI18N.get_encoding(), 'replace'), self.dsn.encode(gmI18N.get_encoding(), 'replace'))
 
 	def __unicode__(self):
 		return u'PostgreSQL: %sDSN: %s' % (self.prev_val, self.dsn)
@@ -975,7 +983,8 @@ class cEncodingError(dbapi.OperationalError):
 		self.prev_val = prev_val
 
 	def __str__(self):
-		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
+		_log.warning('%s.__str__() called', self.__class__.__name__)
+		return 'PostgreSQL: %s\nencoding: %s' % (self.prev_val.encode(gmI18N.get_encoding(), 'replace'), self.encoding.encode(gmI18N.get_encoding(), 'replace'))
 
 	def __unicode__(self):
 		return u'PostgreSQL: %s\nencoding: %s' % (self.prev_val, self.encoding)
@@ -1282,7 +1291,10 @@ if __name__ == "__main__":
 
 # =======================================================================
 # $Log: gmPG2.py,v $
-# Revision 1.68  2008-01-13 01:15:58  ncq
+# Revision 1.69  2008-01-14 20:29:16  ncq
+# - improve exception type detection in get_raw_connection()
+#
+# Revision 1.68  2008/01/13 01:15:58  ncq
 # - remove faulty flush()
 #
 # Revision 1.67  2008/01/07 19:51:04  ncq
