@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/make-release_tarball.sh,v $
-# $Id: make-release_tarball.sh,v 1.44 2008-01-05 16:42:38 ncq Exp $
+# $Id: make-release_tarball.sh,v 1.45 2008-01-16 19:40:55 ncq Exp $
 # license: GPL
 #====================================================
 CLIENTREV="CVS-HEAD"
@@ -59,6 +59,7 @@ FILES_REMOVE=\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmAU_VaccV01Plugin.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmClinicalWindowManager.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmContacts.py "\
+"./GNUmed-$CLIENTREV/client/wxpython/gui/gmConfigRegistry.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmDemographicsEditor.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmDrugDisplay.py "\
 "./GNUmed-$CLIENTREV/client/wxpython/gui/gmEMRTextDumpPlugin.py "\
@@ -299,13 +300,21 @@ cp -R ../../server/sql/v6-v7/python/*.py ./GNUmed-$CLIENTREV/server/sql/v6-v7/py
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
 mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/data
-#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v7-v8/python
 
 cp -R ../../server/sql/v7-v8/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/dynamic
 cp -R ../../server/sql/v7-v8/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v7-v8/static
-#cp -R ../../server/sql/v7-v8/data/* ./GNUmed-$CLIENTREV/server/sql/v7-v8/data
-#cp -R ../../server/sql/v7-v8/python/*.py ./GNUmed-$CLIENTREV/server/sql/v7-v8/python
+
+
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
+mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/data
+#mkdir -p ./GNUmed-$CLIENTREV/server/sql/v8-v9/python
+
+cp -R ../../server/sql/v8-v9/dynamic/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/dynamic
+cp -R ../../server/sql/v8-v9/static/*.sql ./GNUmed-$CLIENTREV/server/sql/v8-v9/static
+#cp -R ../../server/sql/v8-v9/data/* ./GNUmed-$CLIENTREV/server/sql/v8-v9/data
+#cp -R ../../server/sql/v8-v9/python/*.py ./GNUmed-$CLIENTREV/server/sql/v8-v9/python
 
 #----------------------------------
 # weed out unnecessary stuff
@@ -343,7 +352,11 @@ echo "include schema docs"
 
 #------------------------------------------
 # $Log: make-release_tarball.sh,v $
-# Revision 1.44  2008-01-05 16:42:38  ncq
+# Revision 1.45  2008-01-16 19:40:55  ncq
+# - deprecate gmConfigRegistry
+# - include v8-v9 sql dirs
+#
+# Revision 1.44  2008/01/05 16:42:38  ncq
 # - include example conf file for mime type to file extension mapping
 #
 # Revision 1.43  2007/12/26 18:36:35  ncq
