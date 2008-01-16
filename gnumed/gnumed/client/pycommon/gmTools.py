@@ -2,9 +2,9 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-# $Id: gmTools.py,v 1.46 2007-12-23 11:59:40 ncq Exp $
+# $Id: gmTools.py,v 1.47 2008-01-16 19:42:24 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmTools.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -58,7 +58,6 @@ def handle_uncaught_exception_console(t, v, tb):
 	print "`========================================================"
 	_log.critical('unhandled exception caught', exc_info = (t,v,tb))
 	sys.__excepthook__(t,v,tb)
-
 #===========================================================================
 class gmPaths(gmBorg.cBorg):
 
@@ -674,7 +673,10 @@ This is a test mail from the gmTools.py module.
 
 #===========================================================================
 # $Log: gmTools.py,v $
-# Revision 1.46  2007-12-23 11:59:40  ncq
+# Revision 1.47  2008-01-16 19:42:24  ncq
+# - whitespace sync
+#
+# Revision 1.46  2007/12/23 11:59:40  ncq
 # - improved docs
 #
 # Revision 1.45  2007/12/12 16:24:09  ncq

@@ -54,7 +54,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import inspect, os
@@ -314,6 +314,7 @@ class cLogger:
 				exc_type, exc_val, exc_traceback = sys.exc_info()
 			else:
 				exc_type, exc_val, exc_traceback = exception
+
 			# FIXME: I wonder if the following back-and-forth reversing is necessary
 			# trace back to root caller
 			tb = exc_traceback
@@ -775,7 +776,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.32  2007-12-23 11:58:26  ncq
+# Revision 1.33  2008-01-16 19:42:24  ncq
+# - whitespace sync
+#
+# Revision 1.32  2007/12/23 11:58:26  ncq
 # - show importers for deprecation
 #
 # Revision 1.31  2007/12/12 16:19:35  ncq
