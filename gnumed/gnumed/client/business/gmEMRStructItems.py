@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.104 $"
+__version__ = "$Revision: 1.105 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -527,7 +527,6 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 
 	FIXME: we don't deal with location yet
 	"""
-	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
 		enc_type = u'in surgery'
 	# insert new encounter
@@ -555,15 +554,9 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	return encounter
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = u"SELECT _(description) from clin.encounter_type"
+	cmd = u"SELECT _(description), description from clin.encounter_type"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	if len(rows) == 0:
-		_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
-		return [_('in surgery'), _('chart review')]
-	consultation_types = []
-	for cons_type in rows:
-		consultation_types.append(cons_type[0])
-	return consultation_types
+	return rows
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -652,7 +645,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.104  2008-01-13 01:12:53  ncq
+# Revision 1.105  2008-01-16 19:36:17  ncq
+# - improve get_encounter_types()
+#
+# Revision 1.104  2008/01/13 01:12:53  ncq
 # - age_noted_human_readable()
 #
 # Revision 1.103  2007/10/29 11:04:11  ncq
