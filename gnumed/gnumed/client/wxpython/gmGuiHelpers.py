@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.84 2008-01-13 01:17:50 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmGuiHelpers.py,v 1.85 2008-01-16 19:38:43 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -261,101 +261,6 @@ staff member  : %s
 		gmLog2.flush()
 		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
 		evt.Skip()
-# ========================================================================
-def configure_string_option(parent=None, message=None, option=None, bias=u'user', default_value=u'', validator=None):
-
-	dbcfg = gmCfg.cCfgSQL()
-
-	current_value = dbcfg.get2 (
-		option = option,
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		bias = bias,
-		default = default_value
-	)
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	while True:
-		dlg = wx.TextEntryDialog (
-			parent = parent,
-			message = message,
-			caption = _('Configuration'),
-			defaultValue = u'%s' % current_value,
-			style = wx.OK | wx.CANCEL | wx.CENTRE
-		)
-		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			dlg.Destroy()
-			return
-
-		user_val = dlg.GetValue().strip()
-		dlg.Destroy()
-
-		if user_val == current_value:
-			return
-
-		validated, user_val = validator(user_val)
-		if validated:
-			break
-
-		gmDispatcher.send (
-			signal = u'statustext',
-			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
-			beep = True
-		)
-
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
-		option = option,
-		value = user_val
-	)
-
-	return
-# ========================================================================
-def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	tooltips = [
-		_('Set "%s" to <True>.') % option,
-		_('Set "%s" to <False>.') % option,
-		_('Abort the dialog and do not change the current setting.')
-	]
-	if button_tooltips is not None:
-		for idx in range(len(button_tooltips)):
-			tooltips[idx] = button_tooltips[idx]
-
-	dlg = c3ButtonQuestionDlg (
-		parent,
-		-1,
-		caption = _('Configuration'),
-		question = question,
-		button_defs = [
-			{'label': _('Yes'), 'tooltip': tooltips[0]},
-			{'label': _('No'), 'tooltip': tooltips[1]},
-			{'label': _('Cancel'), 'tooltip': tooltips[2], 'default': True}
-		]
-	)
-
-	decision = dlg.ShowModal()
-	dbcfg = gmCfg.cCfgSQL()
-	if decision == wx.ID_YES:
-		dbcfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			option = option,
-			value = True
-		)
-	elif decision == wx.ID_NO:
-		dbcfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			option = option,
-			value = False
-		)
-
-	return
 # ========================================================================
 class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 
@@ -829,7 +734,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.84  2008-01-13 01:17:50  ncq
+# Revision 1.85  2008-01-16 19:38:43  ncq
+# - configure_*() factored out
+#
+# Revision 1.84  2008/01/13 01:17:50  ncq
 # - use log_stack_trace()
 # - annouce completed bug report emailing
 #
