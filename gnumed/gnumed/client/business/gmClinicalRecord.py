@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.254 2007-12-26 18:31:53 ncq Exp $
-__version__ = "$Revision: 1.254 $"
+# $Id: gmClinicalRecord.py,v 1.255 2008-01-16 19:43:28 ncq Exp $
+__version__ = "$Revision: 1.255 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1242,7 +1242,15 @@ where
 		return True
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
-		self.__encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient)
+		cfg_db = gmCfg.cCfgSQL()
+		enc_type = cfg_db.get2 (
+			option = u'encounter.default_type',
+			workplace = _here.active_workplace,
+			bias = u'user',
+			default = u'in surgery'
+		)
+		# FIXME: look for MRU/MCU encounter type config here
+		self.__encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
 		self.__encounter.set_active(staff_id = _me['pk_staff'])
 		_log.Log(gmLog.lData, 'new encounter [%s] initiated' % self.__encounter['pk_encounter'])
 	#------------------------------------------------------------------
@@ -1374,17 +1382,28 @@ where
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
 		# remove empty encounters
+		cfg_db = gmCfg.cCfgSQL()
+		ttl = cfg_db.get2 (
+			option = u'encounter.ttl_if_empty',
+			workplace = _here.active_workplace,
+			bias = u'user',
+			default = u'1 week'
+		)
+
 		# FIXME: this should be done async
 		cmd = u"""
-delete from clin.encounter where 
+delete from clin.encounter where
 	fk_patient = %(pat)s and
-	age(last_affirmed) > '1 week'::interval and
+	age(last_affirmed) > %(ttl)s::interval and
 	pk not in (select fk_encounter from clin.clin_root_item) and
 	pk not in (select fk_encounter from blobs.doc_med) and
 	pk not in (select fk_encounter from clin.operation)
 """
 		try:
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}])
+			rows, idx = gmPG2.run_rw_queries(queries = [{
+				'cmd': cmd,
+				'args': {'pat': self.pk_patient, 'ttl': ttl}
+			}])
 		except:
 			_log.LogException('error deleting empty encounters')
 
@@ -1578,7 +1597,11 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.254  2007-12-26 18:31:53  ncq
+# Revision 1.255  2008-01-16 19:43:28  ncq
+# - use backend configured default encounter type in create_encounter()
+# - configurable empty encounter removal age
+#
+# Revision 1.254  2007/12/26 18:31:53  ncq
 # - remove reference to old PG library
 #
 # Revision 1.253  2007/12/11 12:59:11  ncq
