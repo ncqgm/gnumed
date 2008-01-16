@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -213,7 +213,11 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		wxgAllergyManagerDlg.wxgAllergyManagerDlg.__init__(self, *args, **kwargs)
 
 		self.__set_columns()
-		self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
+		# MacOSX crashes on this with:
+		#  exception type : wx._core.PyAssertionError
+		#  exception value: C++ assertion "i" failed at /BUILD/wxPython-src-2.8.3.0/src/common/wincmn.cpp(2634) in DoMoveInTabOrder(): MoveBefore/AfterInTabOrder(): win is not a sibling
+		# while Win/Linux work just fine
+		#self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
 		self.__refresh_ui()
 	#--------------------------------------------------------
 	# internal helpers
@@ -467,7 +471,10 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.28  2007-10-25 12:19:53  ncq
+# Revision 1.29  2008-01-16 19:38:15  ncq
+# - wxMAC doesn't like some Move*InTabOrder()
+#
+# Revision 1.28  2007/10/25 12:19:53  ncq
 # - no more useless allergy update
 #
 # Revision 1.27  2007/09/10 18:35:27  ncq
