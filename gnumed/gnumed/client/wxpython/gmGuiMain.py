@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.383 2008-01-13 01:19:11 ncq Exp $
-__version__ = "$Revision: 1.383 $"
+# $Id: gmGuiMain.py,v 1.384 2008-01-16 19:40:22 ncq Exp $
+__version__ = "$Revision: 1.384 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -52,8 +52,8 @@ if (wx.MAJOR_VERSION < 2) or (wx.MINOR_VERSION < 6) or ('unicode' not in wx.Plat
 
 # GNUmed libs
 from Gnumed.pycommon import gmLog, gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N, gmExceptions, gmShellAPI, gmTools, gmDateTime, gmHooks, gmBackendListener, gmCfg2
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets
-from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmStaffWidgets, gmMedDocWidgets, gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets, gmFormWidgets, gmSnellen, gmProviderInboxWidgets, gmCfgWidgets
+from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.exporters import gmPatientExporter
 
 try:
@@ -285,7 +285,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- submenu gnumed / config / ui
 		menu_cfg_ui = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('User Interface ...'), menu_cfg_ui)
+		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
 
 		ID = wx.NewId()
 		menu_cfg_ui.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after client startup.'))
@@ -305,7 +305,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- submenu gnumed / config / ui / patient search
 		menu_cfg_pat_search = wx.Menu()
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Patient Search ...'), menu_cfg_pat_search)
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Patient search ...'), menu_cfg_pat_search)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
@@ -321,7 +321,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- submenu gnumed / config / external tools
 		menu_cfg_ext_tools = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('External Tools ...'), menu_cfg_ext_tools)
+		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
 
 		ID = wx.NewId()
 		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
@@ -350,6 +350,14 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_cfg_encounter.Append(ID, _('Maximum duration'), _('Maximum duration of an encounter.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_enc_max_ttl)
+
+		ID = wx.NewId()
+		menu_cfg_encounter.Append(ID, _('Minimum empty age'), _('Minimum age of an empty encounter before considering for deletion.'))
+		wx.EVT_MENU(self, ID, self.__on_cfg_enc_empty_ttl)
+
+		ID = wx.NewId()
+		menu_cfg_encounter.Append(ID, _('Default type'), _('Default type for new encounters.'))
+		wx.EVT_MENU(self, ID, self.__on_cfg_enc_default_type)
 
 		# -- submenu gnumed / config / emr / episode
 		menu_cfg_episode = wx.Menu()
@@ -407,7 +415,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
 
 		ID_DEL_PAT = wx.NewId()
-		menu_patient.Append(ID_DEL_PAT, _('Inactivate patient'), _('Deactivate patient in database.'))
+		menu_patient.Append(ID_DEL_PAT, _('Deactivate patient'), _('Deactivate patient in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
@@ -481,20 +489,20 @@ class gmTopLevelFrame(wx.Frame):
 
 		# - submenu "Medical History"
 		menu_history = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('Medical &History ...'), menu_history)
+		menu_emr.AppendMenu(wx.NewId(), _('Medical &history ...'), menu_history)
 		# - add health issue
 		ID_ADD_HEALTH_ISSUE_TO_EMR = wx.NewId()
 		menu_history.Append (
 			ID_ADD_HEALTH_ISSUE_TO_EMR,
-			_('&Past History (Foundational Issue)'),
-			_('Add a Past Medical History Item (Foundational Health Issue) to the EMR of the active patient')
+			_('&Past history (foundational issue / PMH)'),
+			_('Add a past/previous medical history item (foundational health issue) to the EMR of the active patient')
 		)
 		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
 		# - document current medication
 		ID_ADD_DRUGS_TO_EMR = wx.NewId()
 		menu_history.Append (
 			ID_ADD_DRUGS_TO_EMR,
-			_('Current &Medication'),
+			_('Current &medication'),
 			_('Select current medication from drug database and save into progress notes.')
 		)
 		wx.EVT_MENU(self, ID_ADD_DRUGS_TO_EMR, self.__on_add_medication)
@@ -547,14 +555,16 @@ class gmTopLevelFrame(wx.Frame):
 		viewer = _('no viewer installed')
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			viewer = u'OsiriX'
-		elif os.access('/usr/bin/amide', os.X_OK):
+		elif gmShellAPI.detect_external_binary(binary = 'aeskulap')[0]:
+			viewer = u'Aeskulap'
+		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
 			viewer = u'AMIDE'
-		elif os.access('/usr/bin/xmedcon', os.X_OK):
+		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.Log(gmLog.lInfo, 'neither OsiriX nor AMIDE nor xmedcon found, disabling "DICOM viewer" menu item')
+			_log.Log(gmLog.lInfo, 'neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -581,7 +591,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		# - "recommended" medical links in the Wiki
 		ID_MEDICAL_LINKS = wx.NewId()
-		menu_knowledge.Append(ID_MEDICAL_LINKS, _('medical links (www)'), _('Show a page of links to useful medical content.'))
+		menu_knowledge.Append(ID_MEDICAL_LINKS, _('Medical links (www)'), _('Show a page of links to useful medical content.'))
 		wx.EVT_MENU(self, ID_MEDICAL_LINKS, self.__on_medical_links)
 
 		# -- menu "Help" --------------
@@ -840,7 +850,7 @@ class gmTopLevelFrame(wx.Frame):
 				return False, value
 			return True, i
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'Some network installations cannot cope with loading\n'
 				'documents of arbitrary size in one piece from the\n'
@@ -901,7 +911,7 @@ class gmTopLevelFrame(wx.Frame):
 			except:
 				return False, value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'When GNUmed cannot find an OpenOffice server it\n'
 				'will try to start one. OpenOffice, however, needs\n'
@@ -927,7 +937,7 @@ class gmTopLevelFrame(wx.Frame):
 			# return True anyways or else we cannot configure Wine properly
 			return True, value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'Enter the shell command with which to start the\n'
 				'the IFAP drug database.\n'
@@ -998,7 +1008,7 @@ class gmTopLevelFrame(wx.Frame):
 	# submenu GNUmed / config / ui / patient search
 	#----------------------------------------------
 	def __on_set_quick_pat_search(self, evt):
-		gmGuiHelpers.configure_boolean_option (
+		gmCfgWidgets.configure_boolean_option (
 			parent = self,
 			question = _(
 				'If there is only one external patient\n'
@@ -1019,7 +1029,7 @@ class gmTopLevelFrame(wx.Frame):
 		def is_valid(value):
 			return gmPG2.is_pg_interval(candidate=value), value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'When a patient is activated GNUmed checks the\n'
 				"proximity of the patient's birthday.\n"
@@ -1083,8 +1093,22 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
+	def __on_cfg_enc_default_type(self, evt):
+		enc_types = gmEMRStructItems.get_encounter_types()
+
+		gmCfgWidgets.configure_string_from_list_option (
+			parent = self,
+			message = _('Select the default type for new encounters.\n'),
+			option = 'encounter.default_type',
+			bias = 'user',
+			default_value = u'in surgery',
+			choices = [ e[0] for e in enc_types ],
+			columns = [_('Encounter type')],
+			data = [ e[1] for e in enc_types ]
+		)
+	#----------------------------------------------
 	def __on_cfg_enc_pat_change(self, event):
-		gmGuiHelpers.configure_boolean_option (
+		gmCfgWidgets.configure_boolean_option (
 			parent = self,
 			question = _(
 				'Do you want GNUmed to show the consultation\n'
@@ -1096,14 +1120,35 @@ class gmTopLevelFrame(wx.Frame):
 				_('No, never show the consultation editor even if it would seem useful.')
 			]
 		)
-		return
+	#----------------------------------------------
+	def __on_cfg_enc_empty_ttl(self, evt):
+
+		def is_valid(value):
+			return gmPG2.is_pg_interval(candidate=value), value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'When a patient is activated GNUmed checks the\n'
+				'chart for encounters lacking any entries.\n'
+				'\n'
+				'Any such encounters older than what you set\n'
+				'here will be removed from the medical record.\n'
+				'\n'
+				'To effectively disable removal of such encounters\n'
+				'set this option to an improbable value.\n'
+			),
+			option = 'encounter.ttl_if_empty',
+			bias = 'user',
+			default_value = '1 week',
+			validator = is_valid
+		)
 	#----------------------------------------------
 	def __on_cfg_enc_min_ttl(self, evt):
 
 		def is_valid(value):
 			return gmPG2.is_pg_interval(candidate=value), value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'When a patient is activated GNUmed checks the\n'
 				'age of the most recent consultation.\n'
@@ -1125,7 +1170,7 @@ class gmTopLevelFrame(wx.Frame):
 		def is_valid(value):
 			return gmPG2.is_pg_interval(candidate=value), value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'When a patient is activated GNUmed checks the\n'
 				'age of the most recent consultation.\n'
@@ -1151,7 +1196,7 @@ class gmTopLevelFrame(wx.Frame):
 				return False, value
 			return gmPG2.is_pg_interval(candidate=value), value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'At any time there can only be one open (ongoing) episode\n'
 				'for each foundational health issue.\n'
@@ -1178,7 +1223,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
 	#----------------------------------------------
 	def __on_configure_doc_uuid_dialog(self, evt):
-		gmGuiHelpers.configure_boolean_option (
+		gmCfgWidgets.configure_boolean_option (
 			question = _(
 				'After importing a new document do you\n'
 				'want GNUmed to display the unique ID\n'
@@ -1205,7 +1250,7 @@ class gmTopLevelFrame(wx.Frame):
 				return False, value
 			return True, value
 
-		gmGuiHelpers.configure_string_option (
+		gmCfgWidgets.configure_string_option (
 			message = _(
 				'GNUmed can show the document review dialog after\n'
 				'calling the appropriate viewer for that document.\n'
@@ -1228,22 +1273,18 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
-		# raw check for OsiriX binary
+
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
 			return
 
-		if os.access('/usr/bin/amide', os.X_OK):
-			# FIXME: search for DICOMDIR and add that to AMIDE call
-			gmShellAPI.run_command_in_shell('/usr/bin/amide', blocking=False)
-			return
+		for viewer in ['aeskulap', 'amide', 'xmedcon']:
+			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
+			if found:
+				gmShellAPI.run_command_in_shell('/usr/bin/amide', blocking=False)
+				return
 
-		# FIXME: 1) search for autorun.inf and run application with wine ([autorun] OPEN=...)
-		# FIXME: 2) search for filetype DICOM and show list and call xmedcon on each
-		# FIXME: scan CD for *.dcm files, put them into list and
-		# FIXME: let user call viewer for each
-		# FIXME: parse DICOMDIR file
-		gmShellAPI.run_command_in_shell('xmedcon', blocking=False)
+		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		cfg = gmSnellen.cSnellenCfgDlg()
@@ -2140,7 +2181,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.383  2008-01-13 01:19:11  ncq
+# Revision 1.384  2008-01-16 19:40:22  ncq
+# - menu item renaming "Upper lower" per Jim
+# - more config options
+# - add Aeskulap to DICOM viewers and better detection of those
+#
+# Revision 1.383  2008/01/13 01:19:11  ncq
 # - don't crash on inaccessible IFAP transfer file
 # - doc management configuration
 # - restore Stdio on exit
