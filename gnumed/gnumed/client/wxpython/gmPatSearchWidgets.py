@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.100 2008-01-11 16:15:33 ncq Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmPatSearchWidgets.py,v 1.101 2008-01-22 12:24:55 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -517,6 +517,7 @@ class cPatientSelector(wx.TextCtrl):
 			name = self.curr_pat['description']
 			if self.curr_pat.locked:
 				name = _('%(name)s (locked)') % {'name': name}
+			name = '%s%s' % (name, gmTools.coalesce(self.__prev_search_term, u'', u' [%s]'))
 
 		self.SetValue(name)
 	#--------------------------------------------------------
@@ -547,8 +548,7 @@ class cPatientSelector(wx.TextCtrl):
 		wx.EVT_SET_FOCUS(self, self._on_get_focus)
 		# - redraw the currently active name upon losing focus
 		#   (but see the caveat in the handler)
-		# FIXME: causes core dump in one version of wxPython -SJTAN
-		#wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
+		wx.EVT_KILL_FOCUS (self, self._on_loose_focus)
 
 		wx.EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
 		wx.EVT_LEFT_UP (self, self._on_left_mousebutton_up)
@@ -557,7 +557,7 @@ class cPatientSelector(wx.TextCtrl):
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)
-		#----------------------------------------------
+	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self._display_name)
 	#--------------------------------------------------------
@@ -601,14 +601,14 @@ class cPatientSelector(wx.TextCtrl):
 		# certain vagaries of wxPython (see the Wiki)
 
 		# remember fragment
-		curr_search_term = self.GetValue()
-		if self.IsModified() and (curr_search_term.strip() != ''):
-			self.__prev_search_term = curr_search_term
+#		curr_search_term = self.GetValue()
+#		if self.IsModified() and (curr_search_term.strip() != ''):
+#			self.__prev_search_term = curr_search_term
 
 		# and display currently active patient
 		self._display_name()
 		# unset highlighting
-		self.SetSelection (0,0)
+		self.SetSelection(0,0)
 		# reset highlight counter
 		self._lclick_count = 0
 
@@ -701,15 +701,18 @@ class cPatientSelector(wx.TextCtrl):
 		if len(idents) == 0:
 			wx.EndBusyCursor()
 			gmGuiHelpers.gm_show_info (
-				_('Cannot find any matching patients.\n'
+				_('Cannot find any matching patients for search term\n\n'
+				  ' "%s"\n\n'
 				  'You may want to try a shorter search term.\n\n'
-				  'Search term: "%s"\n\n'
-				  'You will be taken to the "New Patient" wizard now.'
+				  'GNUmed will let you register a new person now.'
 				) % curr_search_term,
 				_('selecting patient')
 			)
 			wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self.GetParent())
 			wiz.RunWizard(activate=True)
+			# FIXME: hook
+			# FIXME: configurable
+			gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 			return None
 
 		# only one matching identity
@@ -855,7 +858,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.100  2008-01-11 16:15:33  ncq
+# Revision 1.101  2008-01-22 12:24:55  ncq
+# - include search fragment into patient name display
+# - reenable on kill focus handler restoring patient name
+# - improved wording on patient not found
+#
+# Revision 1.100  2008/01/11 16:15:33  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.99  2008/01/05 16:41:27  ncq
