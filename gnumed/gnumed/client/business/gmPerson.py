@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.154 2008-01-14 20:26:10 ncq Exp $
-__version__ = "$Revision: 1.154 $"
+# $Id: gmPerson.py,v 1.155 2008-01-22 11:50:49 ncq Exp $
+__version__ = "$Revision: 1.155 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -181,6 +181,19 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 			if self._payload[self._idx['active_name']] is True:
 				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+	#--------------------------------------------------------
+	def _get_description(self):
+		return '%(last)s, %(title)s %(first)s%(nick)s' % {
+			'last': self._payload[self._idx['lastnames']],
+			'title': gmTools.coalesce (
+				self._payload[self._idx['title']],
+				map_gender2salutation(self._payload[self._idx['gender']])
+			),
+			'first': self._payload[self._idx['firstnames']],
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
+		}
+
+	description = property(_get_description, lambda x:x)
 #============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity=%s"
@@ -257,19 +270,16 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_description(self):
 		"""Return descriptive string for patient."""
-		title = gmTools.coalesce (
-			self._payload[self._idx['title']],
-			map_gender2salutation(self._payload[self._idx['gender']]),
-			u'%s'[:4],
-			u'%s '
-		)
-		nick = gmTools.coalesce (
-			self._payload[self._idx['preferred']],
-			u'',
-			u' (%s)',
-			u'%s'
-		)
-		return u'%s%s %s%s' % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']], nick)
+
+		return '%(last)s, %(title)s %(first)s%(nick)s' % {
+			'last': self._payload[self._idx['lastnames']],
+			'title': gmTools.coalesce (
+				self._payload[self._idx['title']],
+				map_gender2salutation(self._payload[self._idx['gender']])
+			),
+			'first': self._payload[self._idx['firstnames']],
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
+		}
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
 		"""Add a name.
@@ -894,13 +904,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		except AttributeError:
 			self.patient = gmNull.cNull()
 			self.__register_interests()
-
-		# set initial lock state,
-		# this lock protects against activating another patient
-		# when we are controlled from a remote application
-		try:
-			tmp = self.__lock_depth
-		except AttributeError:
+			# set initial lock state,
+			# this lock protects against activating another patient
+			# when we are controlled from a remote application
 			self.__lock_depth = 0
 
 		# user wants copy of current patient
@@ -2123,6 +2129,12 @@ if __name__ == '__main__':
 	def test_dob2medical_age():
 		pass
 	#--------------------------------------------------------
+	def test_name():
+		for pk in range(1,16):
+			name = cPersonName(aPK_obj=pk)
+			print name.description
+			print '  ', name
+	#--------------------------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		#test_patient_search_queries()
 		#test_ask_for_patient()
@@ -2130,8 +2142,9 @@ if __name__ == '__main__':
 		#test_identity()
 		#test_set_active_pat()
 		#test_search_by_dto()
-		test_staff()
-		test_current_provider()
+		#test_staff()
+		#test_current_provider()
+		test_name()
 
 		#map_gender2salutation('m')
 
@@ -2146,7 +2159,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.154  2008-01-14 20:26:10  ncq
+# Revision 1.155  2008-01-22 11:50:49  ncq
+# - cPersonName.description property aligned with cIdentity.get_description()
+# - test cPersonName
+#
+# Revision 1.154  2008/01/14 20:26:10  ncq
 # - better log
 #
 # Revision 1.153  2008/01/11 16:08:08  ncq
