@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.105 $"
+__version__ = "$Revision: 1.106 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string, datetime
@@ -17,10 +17,13 @@ from Gnumed.business import gmClinNarrative
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+#============================================================
+# Foundational Health Issues API
 #============================================================
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one health issue.
-	"""
+	"""Represents one health issue."""
+
 	_cmd_fetch_payload = u"select *, xmin from clin.health_issue where pk=%s"
 	_cmds_store_payload = [
 		u"""update clin.health_issue set
@@ -142,12 +145,50 @@ age (
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
+
 #============================================================
+def create_health_issue(patient_id=None, description=None):
+	"""Creates a new health issue for a given patient.
+
+	patient_id - given patient PK
+	description - health issue name
+	"""
+	try:
+		h_issue = cHealthIssue(patient_id=patient_id, name=description)
+		return (True, h_issue)
+	except gmExceptions.ConstructorError:
+		pass
+
+	queries = []
+	cmd = u"insert into clin.health_issue (fk_patient, description) values (%s, %s)"
+	queries.append({'cmd': cmd, 'args': [patient_id, description]})
+
+	cmd = u"select currval('clin.health_issue_pk_seq')"
+	queries.append({'cmd': cmd})
+
+	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
+	h_issue = cHealthIssue(aPK_obj = rows[0][0])
+
+	return (True, h_issue)
+#-----------------------------------------------------------
+def delete_health_issue(health_issue=None):
+	if isinstance(health_issue, cHealthIssue):
+		pk = health_issue['pk']
+	else:
+		pk = int(health_issue)
+
+	try:
+		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.health_issue where pk=%(pk)s', 'args': {'pk': pk}}])
+	except gmPG2.dbapi.IntegrityError:
+		# should be parsing pgcode/and or error message
+		_log.LogException('cannot delete health issue')
+		raise gmExceptions.DatabaseObjectInUseError('cannot delete health issue, it is in use')
+#------------------------------------------------------------
 # use as dummy for unassociated episodes
 def get_dummy_health_issue():
 	issue = {
 		'pk': None,
-		'description': _('free-standing episodes'),
+		'description': _('Unattributed episodes'),
 		'age_noted': None,
 		'laterality': u'na',
 		'is_active': True,
@@ -156,6 +197,9 @@ def get_dummy_health_issue():
 		'is_cause_of_death': False
 	}
 	return issue
+
+#============================================================
+# episodes API
 #============================================================
 class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical episode.
@@ -264,6 +308,48 @@ from (
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+
+#============================================================
+def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False):
+	"""Creates a new episode for a given patient's health issue.
+
+	pk_health_issue - given health issue PK
+	episode_name - name of episode
+	"""
+	if not allow_dupes:
+		try:
+			episode = cEpisode(id_patient=patient_id, name=episode_name, health_issue=pk_health_issue)
+			if episode['episode_open'] != is_open:
+				episode['episode_open'] = is_open
+				episode.save_payload()
+			return episode
+		except gmExceptions.ConstructorError:
+			pass
+
+	queries = []
+	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
+	queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
+	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
+
+	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
+	return episode
+#-----------------------------------------------------------
+def delete_episode(episode=None):
+	if isinstance(episode, cEpisode):
+		pk = episode['pk_episode']
+	else:
+		pk = int(episode)
+
+	try:
+		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.episode where pk=%(pk)s', 'args': {'pk': pk}}])
+	except gmPG2.dbapi.IntegrityError:
+		# should be parsing pgcode/and or error message
+		_log.LogException('cannot delete episode')
+		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
+
+#============================================================
+# encounter API
 #============================================================
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter."""
@@ -443,80 +529,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def create_health_issue(patient_id=None, description=None):
-	"""Creates a new health issue for a given patient.
 
-	patient_id - given patient PK
-	description - health issue name
-	"""
-	try:
-		h_issue = cHealthIssue(patient_id=patient_id, name=description)
-		return (True, h_issue)
-	except gmExceptions.ConstructorError:
-		pass
-
-	queries = []
-	cmd = u"insert into clin.health_issue (fk_patient, description) values (%s, %s)"
-	queries.append({'cmd': cmd, 'args': [patient_id, description]})
-
-	cmd = u"select currval('clin.health_issue_pk_seq')"
-	queries.append({'cmd': cmd})
-
-	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
-	h_issue = cHealthIssue(aPK_obj = rows[0][0])
-
-	return (True, h_issue)
-#-----------------------------------------------------------
-def delete_health_issue(health_issue=None):
-	if isinstance(health_issue, cHealthIssue):
-		pk = health_issue['pk']
-	else:
-		pk = int(health_issue)
-
-	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.health_issue where pk=%(pk)s', 'args': {'pk': pk}}])
-	except gmPG2.dbapi.IntegrityError:
-		# should be parsing pgcode/and or error message
-		_log.LogException('cannot delete health issue')
-		raise gmExceptions.DatabaseObjectInUseError('cannot delete health issue, it is in use')
-#-----------------------------------------------------------
-def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False, allow_dupes=False):
-	"""Creates a new episode for a given patient's health issue.
-
-	pk_health_issue - given health issue PK
-	episode_name - name of episode
-	"""
-	if not allow_dupes:
-		try:
-			episode = cEpisode(id_patient=patient_id, name=episode_name, health_issue=pk_health_issue)
-			if episode['episode_open'] != is_open:
-				episode['episode_open'] = is_open
-				episode.save_payload()
-			return episode
-		except gmExceptions.ConstructorError:
-			pass
-
-	queries = []
-	cmd = u"insert into clin.episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"
-	queries.append({'cmd': cmd, 'args': [pk_health_issue, patient_id, episode_name, is_open]})
-	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
-
-	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
-	return episode
-#-----------------------------------------------------------
-def delete_episode(episode=None):
-	if isinstance(episode, cEpisode):
-		pk = episode['pk_episode']
-	else:
-		pk = int(episode)
-
-	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.episode where pk=%(pk)s', 'args': {'pk': pk}}])
-	except gmPG2.dbapi.IntegrityError:
-		# should be parsing pgcode/and or error message
-		_log.LogException('cannot delete episode')
-		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
@@ -645,7 +658,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.105  2008-01-16 19:36:17  ncq
+# Revision 1.106  2008-01-22 11:49:14  ncq
+# - cleanup
+# - free-standing -> Unattributed as per list
+#
+# Revision 1.105  2008/01/16 19:36:17  ncq
 # - improve get_encounter_types()
 #
 # Revision 1.104  2008/01/13 01:12:53  ncq
