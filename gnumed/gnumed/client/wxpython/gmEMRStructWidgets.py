@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.71 2007-10-07 12:32:41 ncq Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmEMRStructWidgets.py,v 1.72 2008-01-22 12:21:27 ncq Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -166,7 +166,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		else:
 			self._TCTRL_aoe.SetFocus()
 
-		self._LBL_patient.SetLabel(pat.get_description())
+		self._TCTRL_patient.SetLabel(pat.get_description())
 
 		return True
 	#--------------------------------------------------------
@@ -217,8 +217,6 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 		wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg.__init__(self, *args, **kwargs)
 
 		self._PNL_edit_area.refresh(encounter=encounter)
-
-#		self.Refresh()		# needed ?
 
 		self.Fit()
 	#--------------------------------------------------------
@@ -1153,15 +1151,18 @@ if __name__ == '__main__':
 #		raise
 
 	#test_encounter_edit_area_panel()
-	#test_encounter_edit_area_dialog()
+	test_encounter_edit_area_dialog()
 	#test_epsiode_edit_area_pnl()
 	#test_episode_edit_area_dialog()
 	#test_health_issue_edit_area_dlg()
-	test_episode_selection_prw()
+	#test_episode_selection_prw()
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.71  2007-10-07 12:32:41  ncq
+# Revision 1.72  2008-01-22 12:21:27  ncq
+# - better encounter editor
+#
+# Revision 1.71  2007/10/07 12:32:41  ncq
 # - workplace property now on gmSurgery.gmCurrentPractice() borg
 #
 # Revision 1.70  2007/08/29 22:08:57  ncq
