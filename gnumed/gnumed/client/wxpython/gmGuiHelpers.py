@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.85 2008-01-16 19:38:43 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmGuiHelpers.py,v 1.86 2008-01-22 12:22:18 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -224,9 +224,9 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			return
 
 		msg = u"""\
-Report sent via GNUmed's handler for unexpected exceptions:
+Report sent via GNUmed's handler for unexpected exceptions.
 
- %s
+user comment  : %s
 
 system account: %s
 staff member  : %s
@@ -734,7 +734,10 @@ class cTextWidgetValidator(wx.PyValidator):
 
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.85  2008-01-16 19:38:43  ncq
+# Revision 1.86  2008-01-22 12:22:18  ncq
+# - better layout of bug report email
+#
+# Revision 1.85  2008/01/16 19:38:43  ncq
 # - configure_*() factored out
 #
 # Revision 1.84  2008/01/13 01:17:50  ncq
