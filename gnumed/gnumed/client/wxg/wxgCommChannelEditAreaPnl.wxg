@@ -35,7 +35,7 @@
                 <option>0</option>
                 <object class="wxStaticText" name="__LBL_url" base="EditStaticText">
                     <attribute>0</attribute>
-                    <label>URL</label>
+                    <label>Value</label>
                 </object>
             </object>
             <object class="sizeritem">

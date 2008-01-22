@@ -34,7 +34,7 @@ class wxgCommChannelEditAreaPnl(wx.ScrolledWindow):
         __LBL_type = wx.StaticText(self, -1, _("Channel"))
         _gszr_main.Add(__LBL_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_type, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __LBL_url = wx.StaticText(self, -1, _("URL"))
+        __LBL_url = wx.StaticText(self, -1, _("Value"))
         _gszr_main.Add(__LBL_url, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_url, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __LBL_address = wx.StaticText(self, -1, _("Address"))
