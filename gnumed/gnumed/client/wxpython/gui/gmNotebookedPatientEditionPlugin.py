@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -33,7 +33,7 @@ _log.Log(gmLog.lInfo, __version__)
 class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
 
-	tab_name = _('Patient Details')
+	tab_name = _('Patient details')
 
 	def name (self):
 		return gmNotebookedPatientEditionPlugin.tab_name
@@ -101,7 +101,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.8  2006-12-15 16:31:32  ncq
+# Revision 1.9  2008-01-22 12:26:24  ncq
+# - better tab names
+#
+# Revision 1.8  2006/12/15 16:31:32  ncq
 # - fix test suite
 #
 # Revision 1.7	2006/10/31 16:06:19  ncq

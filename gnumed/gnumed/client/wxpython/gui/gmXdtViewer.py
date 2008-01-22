@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.33 2008-01-05 16:42:02 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmXdtViewer.py,v 1.34 2008-01-22 12:26:24 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -357,7 +357,7 @@ class gmXdtViewerPanel(wx.Panel):
 class gmXdtViewer(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate xDT list-in-panel viewer"""
 
-	tab_name = _('xDT Viewer')
+	tab_name = _('xDT viewer')
 
 	def name(self):
 		return gmXdtViewer.tab_name
@@ -423,7 +423,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.33  2008-01-05 16:42:02  ncq
+# Revision 1.34  2008-01-22 12:26:24  ncq
+# - better tab names
+#
+# Revision 1.33  2008/01/05 16:42:02  ncq
 # - no more logging in gm_show_*()
 #
 # Revision 1.32  2007/12/26 20:19:34  ncq
