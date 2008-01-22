@@ -23,8 +23,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.7 2007-11-03 17:54:04 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmHooks.py,v 1.8 2008-01-22 22:03:25 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -50,16 +50,14 @@ known_hooks = [
 	u'app_deactivated'
 ]
 
+
+hook_module = None
 # ========================================================================
-def run_hook_script(hook=None):
+def __import_hook_module():
 
-	# NOTE: this just *might* be a huge security hole
-
-	if hook is None:
-		raise ValueError('run_hook_script(): <hook> cannot be <None>')
-
-	if hook not in known_hooks:
-		raise ValueError('run_hook_script(): unknown hook [%s]' % hook)
+	global hook_module
+	if hook_module is not None:
+		return True
 
 	# hardcoding path and script name allows us to
 	# not need configuration for it, the environment
@@ -100,8 +98,22 @@ def run_script(hook=None):
 		)
 		return False
 
-	module = gmTools.import_module_from_directory(script_path, script_name)
-	module.run_script(hook = hook)
+	hook_module = gmTools.import_module_from_directory(script_path, script_name)
+	return True
+# ========================================================================
+def run_hook_script(hook=None):
+	# NOTE: this just *might* be a huge security hole
+
+	if hook is None:
+		raise ValueError('run_hook_script(): <hook> cannot be <None>')
+
+	if hook not in known_hooks:
+		raise ValueError('run_hook_script(): unknown hook [%s]' % hook)
+
+	if not __import_hook_module():
+		return False
+
+	hook_module.run_script(hook = hook)
 
 	return True
 # ========================================================================
@@ -112,7 +124,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.7  2007-11-03 17:54:04  ncq
+# Revision 1.8  2008-01-22 22:03:25  ncq
+# - import hook script once only
+#
+# Revision 1.7  2007/11/03 17:54:04  ncq
 # - added hooks
 #
 # Revision 1.6  2007/08/12 00:06:07  ncq
