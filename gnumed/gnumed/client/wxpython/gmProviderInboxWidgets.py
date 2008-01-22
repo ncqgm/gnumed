@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.19 2007-11-28 11:56:30 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmProviderInboxWidgets.py,v 1.19.2.1 2008-01-22 17:22:07 ncq Exp $
+__version__ = "$Revision: 1.19.2.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -59,11 +59,11 @@ def configure_workplace_plugins(parent=None):
 			choices = available_plugins
 		else:
 			dbcfg = gmCfg.cCfgSQL()
-			curr_plugins = dbcfg.get2 (
+			curr_plugins = gmTools.coalesce(dbcfg.get2 (
 				option = u'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
 				bias = 'workplace'
-			)
+			), [])
 			choices = curr_plugins[:]
 			for p in available_plugins:
 				if p not in choices:
@@ -271,7 +271,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.19  2007-11-28 11:56:30  ncq
+# Revision 1.19.2.1  2008-01-22 17:22:07  ncq
+# - don't crash on empty workplace
+#
+# Revision 1.19  2007/11/28 11:56:30  ncq
 # - better logging
 #
 # Revision 1.18  2007/11/23 23:36:38  ncq
