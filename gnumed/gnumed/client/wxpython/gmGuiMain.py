@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.384 2008-01-16 19:40:22 ncq Exp $
-__version__ = "$Revision: 1.384 $"
+# $Id: gmGuiMain.py,v 1.385 2008-01-22 12:23:39 ncq Exp $
+__version__ = "$Revision: 1.385 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -401,26 +401,30 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Patient" ---------------------------
 		menu_patient = wx.Menu()
 
-		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external patient'), _('Load patient from an external source.'))
-		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
-
-		# FIXME: temporary until external program framework is active
-		ID = wx.NewId()
-		menu_patient.Append(ID, _('GDT export'), _('Export demographics of current patient into GDT file.'))
-		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
-
 		ID_CREATE_PATIENT = wx.NewId()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
+		menu_patient.Append(ID_CREATE_PATIENT, _('Register new'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
 
+		ID_LOAD_EXT_PAT = wx.NewId()
+		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create patient from an external source.'))
+		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
+
 		ID_DEL_PAT = wx.NewId()
-		menu_patient.Append(ID_DEL_PAT, _('Deactivate patient'), _('Deactivate patient in database.'))
+		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) patient record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
+
+		menu_patient.AppendSeparator()
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
 		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as staff'), _('Enlist current patient as staff member'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
+
+		# FIXME: temporary until external program framework is active
+		ID = wx.NewId()
+		menu_patient.Append(ID, _('Export to GDT'), _('Export demographics of current patient into GDT file.'))
+		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
+
+		menu_patient.AppendSeparator()
 
 		self.mainmenu.Append(menu_patient, '&Patient')
 		self.__gb['main.patientmenu'] = menu_patient
@@ -597,19 +601,16 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Help" --------------
 		help_menu = wx.Menu()
 
-		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
-		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
+		ID = wx.NewId()
+		help_menu.Append(ID, _('GNUmed wiki'), _('Go to the GNUmed wiki on the web.'))
+		wx.EVT_MENU(self, ID, self.__on_display_wiki)
 
-		ID_CONTRIBUTORS = wx.NewId()
-		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
-		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
+		ID = wx.NewId()
+		help_menu.Append(ID, _('User manual (www)'), _('Go to the User Manual on the web.'))
+		wx.EVT_MENU(self, ID, self.__on_display_user_manual_online)
 
 		menu_debugging = wx.Menu()
 		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
-
-#		ID = wx.NewId()
-#		menu_debugging.Append(ID, _('System information'), _('Collect and show system information.'))
-#		wx.EVT_MENU(self, ID, self.__on_show_sys_info)
 
 		ID_SCREENSHOT = wx.NewId()
 		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
@@ -636,8 +637,18 @@ class gmTopLevelFrame(wx.Frame):
 			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
 
-		# - among other things the Manual is added from a plugin
 		help_menu.AppendSeparator()
+
+		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
+		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
+
+		ID_CONTRIBUTORS = wx.NewId()
+		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
+		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
+
+		help_menu.AppendSeparator()
+
+		# among other things the Manual is added from a plugin
 		self.__gb['main.helpmenu'] = help_menu
 		self.mainmenu.Append(help_menu, _("&Help"))
 
@@ -720,16 +731,18 @@ class gmTopLevelFrame(wx.Frame):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			return True
+
+		# let's try this async
+		self.__sanity_check_encounter()
+
 		self.__on_pre_patient_selection(**kwargs)
 	#----------------------------------------------
 	def __on_pre_patient_selection(self, **kwargs):
 
 		# FIXME: we need a way to make sure the patient has not yet changed
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.is_connected():
-			return True
-
-		self.__sanity_check_encounter()
+#		pat = gmPerson.gmCurrentPatient()
+#		if not pat.is_connected():
+#			return True
 
 		return True
 	#----------------------------------------------
@@ -769,6 +782,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		# no narrative, presumably only import of docs and done
 		if not has_narr:
+			if empty_aoe:
+				enc['assessment_of_encounter'] = _('only documents added')
 			if zero_duration:
 				# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
 				enc.save_payload()
@@ -1281,7 +1296,7 @@ class gmTopLevelFrame(wx.Frame):
 		for viewer in ['aeskulap', 'amide', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
-				gmShellAPI.run_command_in_shell('/usr/bin/amide', blocking=False)
+				gmShellAPI.run_command_in_shell(cmd, blocking=False)
 				return
 
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
@@ -1350,6 +1365,20 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_display_bugtracker(self, evt):
 		webbrowser.open (
 			url = 'http://savannah.gnu.org/bugs/?group=gnumed',
+			new = False,
+			autoraise = True
+		)
+	#----------------------------------------------
+	def __on_display_wiki(self, evt):
+		webbrowser.open (
+			url = 'http://wiki.gnumed.de',
+			new = False,
+			autoraise = True
+		)
+	#----------------------------------------------
+	def __on_display_user_manual_online(self, evt):
+		webbrowser.open (
+			url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual',
 			new = False,
 			autoraise = True
 		)
@@ -1861,9 +1890,6 @@ class gmApp(wx.App):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccessful. Can't run GNUmed without database connection")
 			return False
 
-		if _cfg.get(option = 'debug'):
-			self.RedirectStdio()
-
 		# check account <-> staff member association
 		try:
 			global _provider
@@ -1910,6 +1936,9 @@ class gmApp(wx.App):
 		if _cfg.get(option = 'slave'):
 			if not self.__setup_scripting_listener():
 				return False
+
+		if _cfg.get(option = 'debug'):
+			self.RedirectStdio()
 
 		wx.CallAfter(self._do_after_init)
 
@@ -2181,7 +2210,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.384  2008-01-16 19:40:22  ncq
+# Revision 1.385  2008-01-22 12:23:39  ncq
+# - reorder menus as per list discussion
+# - wiki link/online user manual link in help menu
+#
+# Revision 1.384  2008/01/16 19:40:22  ncq
 # - menu item renaming "Upper lower" per Jim
 # - more config options
 # - add Aeskulap to DICOM viewers and better detection of those
