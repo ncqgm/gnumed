@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.113 2008-01-13 01:13:58 ncq Exp $
-__version__ = "$Revision: 1.113 $"
+# $Id: gmPatientExporter.py,v 1.114 2008-01-22 11:52:24 ncq Exp $
+__version__ = "$Revision: 1.114 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -497,7 +497,7 @@ class cEmrExport:
         # unlinked episodes
         if len(unlinked_episodes) > 0:
             h_issues.insert(0, {
-                'description': _('free-standing episodes'),
+                'description': _('Unattributed episodes'),
                 'pk': None
             })
         # existing issues        
@@ -794,7 +794,7 @@ class cEmrExport:
         # unlinked episodes
         unlinked_episodes = emr.get_episodes(issues = [None])
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description':_('free-standing episodes'), 'pk':None})        
+            h_issues.insert(0, {'description':_('Unattributed episodes'), 'pk':None})        
         for a_health_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk']])
@@ -965,8 +965,7 @@ class cEMRJournalExporter:
 	# external API
 	#--------------------------------------------------------
 	def export_to_file(self, filename=None, patient=None):
-		"""
-		Export medical record into a file.
+		"""Export medical record into a file.
 
 		@type filename: None (creates filename by itself) or string
 		@type patient: None (use currently active patient) or <gmPerson.cIdentity> instance
@@ -1012,8 +1011,9 @@ class cEMRJournalExporter:
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (patient['dob'].strftime('%Y-%m-%d'), patient.get_medical_age()))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(u'| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
+		target.write(u'| %10.10s | %9.9s |   | %s\n' % (_('Entered'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
+
 		# get data
 		cmd = u"""
 select
@@ -1023,33 +1023,46 @@ select
 from clin.v_emr_journal vemrj
 where pk_patient=%s order by date, pk_episode, scr"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}], get_col_idx = True)
+
 		# write data
 		prev_date = u''
 		prev_doc = u''
+		prev_soap = u''
 		for row in rows:
 			# narrative
 			if row[idx['narrative']] is None:
 				continue
 			txt = row[idx['narrative']].replace(u'\n', u' ').replace(u'\r', u' ')
 			no_parts = (len(txt) / self.__part_len) + 1
-			# doc
+
+			# same provider ?
 			curr_doc = row[idx['modified_by']]
 			if curr_doc != prev_doc:
 				prev_doc = curr_doc
 			else:
 				curr_doc = u''
-			# date
+			# same soap category ?
+			curr_soap = row[idx['soap_cat']]
+			if curr_soap != prev_soap:
+				prev_soap = curr_soap
+			else:
+				curr_soap = None
+			# same date ?
 			curr_date = row[idx['date']]
 			if curr_date != prev_date:
 				prev_date = curr_date
 				curr_doc = row[idx['modified_by']]
+				prev_doc = curr_doc
+				curr_soap = row[idx['soap_cat']]
+				prev_soap = curr_soap
 			else:
 				curr_date = u''
+
 			# display first part
 			target.write(u'| %10.10s | %9.9s | %s | %s\n' % (
 				curr_date,
 				curr_doc,
-				self.__tx_soap[row[idx['soap_cat']]],
+				self.__tx_soap[curr_soap],
 				txt[0:self.__part_len]
 			))
 			# more parts ?
@@ -1057,9 +1070,8 @@ where pk_patient=%s order by date, pk_episode, scr"""
 				continue
 			template = u'| %10.10s | %9.9s | %s | %s\n'
 			for part in range(1, no_parts):
-				soap_cat = self.__tx_soap[row[idx['soap_cat']]]
 				msg = txt[(part * self.__part_len):((part+1) * self.__part_len)]
-				line = template % (u'', u'', soap_cat, msg)
+				line = template % (u'', u'', u' ', msg)
 				target.write(line)
 		# write footer
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
@@ -1241,7 +1253,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.113  2008-01-13 01:13:58  ncq
+# Revision 1.114  2008-01-22 11:52:24  ncq
+# - Unattributed
+# - improved Journal formatting as per list
+#
+# Revision 1.113  2008/01/13 01:13:58  ncq
 # - use issue.age_noted_human_readable()
 #
 # Revision 1.112  2008/01/11 16:10:00  ncq
