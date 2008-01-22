@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.82 2007-12-11 12:49:25 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmEMRBrowser.py,v 1.83 2008-01-22 12:20:53 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -385,6 +385,13 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		item1 = self.GetPyData(node1)
 		item2 = self.GetPyData(node2)
 
+		if isinstance(item1, gmEMRStructItems.cEncounter):
+			if item1['started'] == item2['started']:
+				return 0
+			if item1['started'] < item2['started']:
+				return -1
+			return 1
+
 		if isinstance(item1, gmEMRStructItems.cEpisode):
 			start1 = item1.get_access_range()[0]
 			start2 = item2.get_access_range()[0]
@@ -394,18 +401,15 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				return -1
 			return 1
 
-		if isinstance(item1, gmEMRStructItems.cEncounter):
-			if item1['started'] == item2['started']:
-				return 0
-			if item1['started'] < item2['started']:
-				return -1
-			return 1
-
 		if isinstance(item1, gmEMRStructItems.cHealthIssue):
 			if item1['description'].lower() == item2['description'].lower():
 				return 0
 			if item1['description'].lower() > item2['description'].lower():
 				return 1
+			return -1
+
+		# dummpy health issue always on top
+		if isinstance(item1, type({})):
 			return -1
 
 		return 0
@@ -461,9 +465,7 @@ class cEMRJournalPanel(wx.Panel):
 		wx.Panel.__init__(self, *args, **kwargs)
 
 		self.__do_layout()
-
-		if not self.__register_events():
-			raise gmExceptions.ConstructorError, 'cannot register interests'
+		self.__register_events()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		self.__journal = wx.TextCtrl (
@@ -485,7 +487,6 @@ class cEMRJournalPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Expects to be in a Notebook."""
@@ -503,7 +504,6 @@ class cEMRJournalPanel(wx.Panel):
 		try:
 			exporter.export(txt)
 			self.__journal.SetValue(txt.getvalue())
-			txt.close()
 		except ValueError:
 			_log.LogException('cannot get EMR journal')
 			self.__journal.SetValue (_(
@@ -511,6 +511,8 @@ class cEMRJournalPanel(wx.Panel):
 				'in journal form for the active patient.\n\n'
 				'Please check the log file for details.'
 			))
+		txt.close()
+		self.__journal.ShowPosition(self.__journal.GetLastPosition())
 		return True
 #================================================================
 # MAIN
@@ -558,7 +560,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.82  2007-12-11 12:49:25  ncq
+# Revision 1.83  2008-01-22 12:20:53  ncq
+# - dummy health issue always on top
+# - auto-scroll to bottom of journal
+#
+# Revision 1.82  2007/12/11 12:49:25  ncq
 # - explicit signal handling
 #
 # Revision 1.81  2007/09/07 10:56:57  ncq
