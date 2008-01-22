@@ -12,8 +12,8 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgEncounterEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
+        self._TCTRL_patient = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
         self._LCTRL_problems = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT)
-        self._LBL_patient = wx.StaticText(self, -1, "")
         self._PRW_encounter_type = gmEMRStructWidgets.cEncounterTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_start = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
         self._PRW_end = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
@@ -36,13 +36,11 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
     def __do_layout(self):
         # begin wxGlade: wxgEncounterEditAreaPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
-        __gszr_encounter_details = wx.FlexGridSizer(6, 2, 1, 3)
-        __lbl_instructions = wx.StaticText(self, -1, _("Edit the details for todays consultation below.\n\nThe following problems were discussed during this consultation:"), style=wx.ALIGN_CENTRE)
-        __szr_main.Add(__lbl_instructions, 0, wx.EXPAND, 0)
-        __szr_main.Add(self._LCTRL_problems, 1, wx.EXPAND, 0)
-        __lbl_patient = wx.StaticText(self, -1, _("Patient"))
-        __gszr_encounter_details.Add(__lbl_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __gszr_encounter_details.Add(self._LBL_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __gszr_encounter_details = wx.FlexGridSizer(6, 2, 2, 5)
+        __szr_main.Add(self._TCTRL_patient, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 1)
+        __lbl_instructions = wx.StaticText(self, -1, _("Edit the details for the consultation below.\n\nThe following problems were discussed:"), style=wx.ALIGN_CENTRE)
+        __szr_main.Add(__lbl_instructions, 0, wx.TOP|wx.EXPAND, 3)
+        __szr_main.Add(self._LCTRL_problems, 1, wx.TOP|wx.EXPAND, 3)
         __lbl_type = wx.StaticText(self, -1, _("Type"))
         __gszr_encounter_details.Add(__lbl_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._PRW_encounter_type, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
@@ -59,11 +57,9 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         __gszr_encounter_details.Add(__lbl_aoe, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.Add(self._TCTRL_aoe, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __gszr_encounter_details.AddGrowableCol(1)
-        __szr_main.Add(__gszr_encounter_details, 0, wx.EXPAND, 0)
-        self.SetAutoLayout(True)
+        __szr_main.Add(__gszr_encounter_details, 0, wx.TOP|wx.EXPAND, 3)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
-        __szr_main.SetSizeHints(self)
         # end wxGlade
 
 # end of class wxgEncounterEditAreaPnl
