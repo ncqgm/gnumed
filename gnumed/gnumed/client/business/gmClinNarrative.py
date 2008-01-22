@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -81,7 +81,7 @@ class cDiag(gmBusinessDBObject.cBusinessDBObject):
 			Associates a code (from coding system) with this diagnosis.
 		"""
 		# insert new code
-		cmd = u"select clin.add_coded_term (%(diag)s, %(code)s, %(sys)s)"
+		cmd = u"select clin.add_coded_phrase (%(diag)s, %(code)s, %(sys)s)"
 		args = {
 			'diag': self._payload[self._idx['diagnosis']],
 			'code': code,
@@ -119,7 +119,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		# Note: caching won't work without having a mechanism
 		# to evict the cache when the backend changes
-		cmd = u"select code, xfk_coding_system from clin.coded_narrative where term=%s"
+		cmd = u"select code, xfk_coding_system from clin.coded_phrase where term=%s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['narrative']]]}])
 		return rows
 	#--------------------------------------------------------
@@ -128,7 +128,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 			Associates a code (from coding system) with this narrative.
 		"""
 		# insert new code
-		cmd = u"select clin.add_coded_term (%(narr)s, %(code)s, %(sys)s)"
+		cmd = u"select clin.add_coded_phrase (%(narr)s, %(code)s, %(sys)s)"
 		args = {
 			'narr': self._payload[self._idx['narrative']],
 			'code': code,
@@ -255,7 +255,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.29  2008-01-07 11:40:21  ncq
+# Revision 1.30  2008-01-22 22:02:29  ncq
+# - add_coded_term -> add_coded_phrase
+#
+# Revision 1.29  2008/01/07 11:40:21  ncq
 # - fix faulty comparison
 #
 # Revision 1.28  2008/01/06 08:08:25  ncq
