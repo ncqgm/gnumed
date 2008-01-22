@@ -2,20 +2,19 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.18 2006-07-19 20:29:50 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmEMRTextDump.py,v 1.19 2008-01-22 12:21:49 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
+
+import wx
+
+
 from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
 from Gnumed.business import gmPerson
 
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
 
 _log = gmLog.gmDefLog
 #============================================================
@@ -94,14 +93,6 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 			parent,
 			-1
 		)
-
-#		self.txt = wx.StaticText(
-#			self,
-#			-1,
-#			_('No EMR data loaded.'),
-#			style = wx.ST_NO_AUTORESIZE
-#			style = wxALIGN_LEFT
-#		)
 		self.txt = wx.TextCtrl(
 			self,
 			-1,
@@ -126,7 +117,10 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.18  2006-07-19 20:29:50  ncq
+# Revision 1.19  2008-01-22 12:21:49  ncq
+# - cleanup
+#
+# Revision 1.18  2006/07/19 20:29:50  ncq
 # - import cleanup
 #
 # Revision 1.17  2006/05/15 13:35:59  ncq
