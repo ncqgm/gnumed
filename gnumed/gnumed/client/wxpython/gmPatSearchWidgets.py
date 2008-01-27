@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.101 2008-01-22 12:24:55 ncq Exp $
-__version__ = "$Revision: 1.101 $"
+# $Id: gmPatSearchWidgets.py,v 1.102 2008-01-27 21:17:49 ncq Exp $
+__version__ = "$Revision: 1.102 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -700,14 +700,24 @@ class cPatientSelector(wx.TextCtrl):
 
 		if len(idents) == 0:
 			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_info (
-				_('Cannot find any matching patients for search term\n\n'
-				  ' "%s"\n\n'
-				  'You may want to try a shorter search term.\n\n'
-				  'GNUmed will let you register a new person now.'
+
+			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+				wx.GetTopLevelParent(self),
+				-1,
+				caption = _('Selecting patient'),
+				question = _(
+					'Cannot find any matching patients for the search term\n\n'
+					' "%s"\n\n'
+					'You may want to try a shorter search term.\n'
 				) % curr_search_term,
-				_('selecting patient')
+				button_defs = [
+					{'label': _('Go back'), 'tooltip': _('Go back and search again.'), 'default': True},
+					{'label': _('Create new'), 'tooltip': _('Create new patient.')}
+				]
 			)
+			if dlg.ShowModal() == wx.ID_YES:
+				return
+
 			wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self.GetParent())
 			wiz.RunWizard(activate=True)
 			# FIXME: hook
@@ -858,7 +868,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.101  2008-01-22 12:24:55  ncq
+# Revision 1.102  2008-01-27 21:17:49  ncq
+# - improve message on patient not found
+#
+# Revision 1.101  2008/01/22 12:24:55  ncq
 # - include search fragment into patient name display
 # - reenable on kill focus handler restoring patient name
 # - improved wording on patient not found
