@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmFormWidgets.py,v $
-# $Id: gmFormWidgets.py,v 1.7 2007-11-10 20:57:04 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmFormWidgets.py,v 1.8 2008-01-27 21:14:16 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys
@@ -92,7 +92,18 @@ def create_new_letter(parent=None):
 		)
 		return
 
-	doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
+	try:
+		doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
+	except ImportError:
+		gmGuiHelpers.gm_show_error (
+			_('Cannot connect to OpenOffice.\n\n'
+			  'The UNO bridge module for Python\n'
+			  'is not installed.'
+			),
+			_('Letter writer')
+		)
+		return
+
 	if not doc.open_in_ooo():
 		gmGuiHelpers.gm_show_error (
 			_('Cannot connect to OpenOffice.\n'
@@ -294,7 +305,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmFormWidgets.py,v $
-# Revision 1.7  2007-11-10 20:57:04  ncq
+# Revision 1.8  2008-01-27 21:14:16  ncq
+# - gracefully handle UNO import errors
+#
+# Revision 1.7  2007/11/10 20:57:04  ncq
 # - handle failing OOo connection
 # - cleanup leftover templates on failure
 #
