@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -48,16 +48,9 @@ if __name__ == "__main__":
 
 	import wx
 
-    from Gnumed.pycommon import gmCfg
     from Gnumed.business import gmPerson
 
-    _cfg = gmCfg.gmDefCfgFile	
-	
     _log.Log (gmLog.lInfo, "starting multisashed progress notes input plugin...")
-
-    if _cfg is None:
-        _log.Log(gmLog.lErr, "Cannot run without config file.")
-        sys.exit("Cannot run without config file.")
 
     try:
         # make sure we have a db connection
@@ -97,7 +90,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.11  2007-10-12 07:28:25  ncq
+# Revision 1.12  2008-01-27 21:21:59  ncq
+# - no more gmCfg
+#
+# Revision 1.11  2007/10/12 07:28:25  ncq
 # - lots of import related cleanup
 #
 # Revision 1.10  2007/03/08 11:54:44  ncq

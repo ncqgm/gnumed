@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -57,16 +57,9 @@ if __name__ == "__main__":
 	import wx
 
 	# GNUmed
-	from Gnumed.pycommon import gmCfg
 	from Gnumed.business import gmPerson
 
-	_cfg = gmCfg.gmDefCfgFile	
-		
 	_log.Log (gmLog.lInfo, "starting Notebooked progress notes input plugin...")
-
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
 
 	try:
 		# obtain patient
@@ -97,7 +90,10 @@ if __name__ == "__main__":
 	_log.Log (gmLog.lInfo, "closing Notebooked progress notes input plugin...")
 #======================================================================
 # $Log: gmNotebookedProgressNoteInputPlugin.py,v $
-# Revision 1.12  2006-12-18 12:12:27  ncq
+# Revision 1.13  2008-01-27 21:21:59  ncq
+# - no more gmCfg
+#
+# Revision 1.12  2006/12/18 12:12:27  ncq
 # - fix test suite
 #
 # Revision 1.11  2006/11/05 16:05:35  ncq

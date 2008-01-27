@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -50,17 +50,10 @@ if __name__ == "__main__":
 
     import wx
 
-    from Gnumed.pycommon import gmCfg
     from Gnumed.exporters import gmPatientExporter
     from Gnumed.business import gmPerson
 
-    _cfg = gmCfg.gmDefCfgFile	
-	
     _log.Log (gmLog.lInfo, "starting emr browser plugin...")
-
-    if _cfg is None:
-        _log.Log(gmLog.lErr, "Cannot run without config file.")
-        sys.exit("Cannot run without config file.")
 
     try:
         # obtain patient
@@ -93,7 +86,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.14  2007-10-12 07:28:24  ncq
+# Revision 1.15  2008-01-27 21:21:59  ncq
+# - no more gmCfg
+#
+# Revision 1.14  2007/10/12 07:28:24  ncq
 # - lots of import related cleanup
 #
 # Revision 1.13  2006/10/31 16:06:19  ncq

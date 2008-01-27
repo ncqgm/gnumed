@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -60,16 +60,9 @@ if __name__ == "__main__":
 	import wx
 
 	# GNUmed
-	from Gnumed.pycommon import gmCfg
 	from Gnumed.business import gmPerson
 
-	_cfg = gmCfg.gmDefCfgFile	
-		
 	_log.Log (gmLog.lInfo, "starting Notebooked patient edition plugin...")
-
-	if _cfg is None:
-		_log.Log(gmLog.lErr, "Cannot run without config file.")
-		sys.exit("Cannot run without config file.")
 
 	try:
 		# obtain patient
@@ -101,7 +94,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.9  2008-01-22 12:26:24  ncq
+# Revision 1.10  2008-01-27 21:21:59  ncq
+# - no more gmCfg
+#
+# Revision 1.9  2008/01/22 12:26:24  ncq
 # - better tab names
 #
 # Revision 1.8  2006/12/15 16:31:32  ncq

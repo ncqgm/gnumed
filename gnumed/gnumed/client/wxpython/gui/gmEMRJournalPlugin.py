@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -45,17 +45,10 @@ if __name__ == "__main__":
 
     import wx
 
-    from Gnumed.pycommon import gmCfg
     from Gnumed.exporters import gmPatientExporter
     from Gnumed.business import gmPerson
 
-    _cfg = gmCfg.gmDefCfgFile	
-	
     _log.Log (gmLog.lInfo, "starting emr journal plugin...")
-
-    if _cfg is None:
-        _log.Log(gmLog.lErr, "Cannot run without config file.")
-        sys.exit("Cannot run without config file.")
 
     try:
         # obtain patient
@@ -88,7 +81,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.10  2007-10-21 20:25:43  ncq
+# Revision 1.11  2008-01-27 21:21:59  ncq
+# - no more gmCfg
+#
+# Revision 1.10  2007/10/21 20:25:43  ncq
 # - fix syntax error
 #
 # Revision 1.9  2007/10/12 07:28:24  ncq
