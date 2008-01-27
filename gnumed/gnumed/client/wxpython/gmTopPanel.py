@@ -2,19 +2,19 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.92 2007-12-23 22:04:19 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmTopPanel.py,v 1.93 2008-01-27 21:20:58 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, os.path
+import sys, os.path, datetime as pyDT
 
 
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmTools, gmCfg2
+from Gnumed.pycommon import gmGuiBroker, gmPG2, gmDispatcher, gmLog, gmTools, gmCfg2, gmDateTime
 from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
 from Gnumed.wxpython import gmGuiHelpers, gmPatPicWidgets, gmPatSearchWidgets, gmAllergyWidgets
 
@@ -103,21 +103,17 @@ class cMainTopPanel(wx.Panel):
 #		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
 
 		#  - patient selector
-		lbl_pat = wx.StaticText (self, -1, _('Patient'), style = wx.ALIGN_CENTER_VERTICAL)
-		lbl_pat.SetFont (wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
 		cfg = gmCfg2.gmCfgData()
 		if cfg.get(option = 'slave'):
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
-		self.szr_top_row.Add (lbl_pat, 0, wx.ALL, 3)
-		self.szr_top_row.Add (self.patient_selector, 5, wx.BOTTOM, 3)
+
 		#  - age
-		self.txt_age = wx.TextCtrl(self, -1, '', size = (50,-1), style = wx.TE_READONLY)
-		self.txt_age.SetFont (wx.Font(11, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
-		self.txt_age.SetBackgroundColour(bg_col)
-		self.szr_top_row.Add (self.txt_age, 0, wx.BOTTOM | wx.LEFT | wx.RIGHT, 3)
+		self.lbl_age = wx.StaticText(self, -1, u'', style = wx.ALIGN_CENTER_VERTICAL)
+		self.lbl_age.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
+
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wx.StaticText (self, -1, _('Caveat'), style = wx.ALIGN_CENTER_VERTICAL)
 		self.lbl_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
@@ -125,10 +121,12 @@ class cMainTopPanel(wx.Panel):
 		self.lbl_allergies.SetForegroundColour(col_brightred)
 		self.txt_allergies = wx.TextCtrl (self, -1, "", style = wx.TE_READONLY)
 		self.txt_allergies.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
-		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
-		self.szr_top_row.Add (self.lbl_allergies, 0, wx.ALL, 3)
-		self.szr_top_row.Add (self.txt_allergies, 6,wx.BOTTOM, 3)
+
+		self.szr_top_row.Add(self.patient_selector, 6, wx.LEFT | wx.BOTTOM, 3)
+		self.szr_top_row.Add(self.lbl_age, 0, wx.ALL, 3)
+		self.szr_top_row.Add(self.lbl_allergies, 0, wx.ALL, 3)
+		self.szr_top_row.Add(self.txt_allergies, 8, wx.BOTTOM, 3)
 
 		# - bottom row
 		# .----------------------------------------------------------.
@@ -285,25 +283,24 @@ class cMainTopPanel(wx.Panel):
 #		pc.Centre(wx.BOTH)
 #		pc.Show(1)
 	#----------------------------------------------
-#	def _on_episode_selected(self, evt):
-#		epr = self.curr_pat.get_emr()
-#		if epr is None:
-#			return None
-#		ep_name = evt.GetString()
-#		if not epr.set_active_episode(ep_name):
-#			gmGuiHelpers.gm_show_error (
-#				_('Cannot activate episode [%s].\n'
-#				  'Leaving previous one activated.' % ep_name),
-#				_('selecting active episode'),
-#				gmLog.lErr
-#			)
-	#----------------------------------------------
 	def _on_name_identity_change(self):
 		wx.CallAfter(self.__on_name_identity_change)
 	#----------------------------------------------
 	def __on_name_identity_change(self):
 		self.patient_selector.SetValue(self.curr_pat['description'])
-		self.txt_age.SetValue(self.curr_pat['medical_age'])
+
+		if self.curr_pat['dob'].strftime('%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
+			template = _('%s  %s (%s today !)')
+		else:
+			template = u'%s  %s (%s)'
+		age = template % (
+			gmPerson.map_gender2symbol[self.curr_pat['gender']],
+			self.curr_pat['dob'].strftime('%Y-%m-%d'),
+			self.curr_pat['medical_age']
+		)
+		self.lbl_age.SetLabel(age)
+
+		self.Layout()
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		# needed because GUI stuff can't be called from a thread (and that's
@@ -311,12 +308,24 @@ class cMainTopPanel(wx.Panel):
 		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
-		age = self.curr_pat['medical_age']
+		self.patient_selector.SetValue(self.curr_pat['description'])
+
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		self.patient_selector.SetValue(self.curr_pat['description'])
-		self.txt_age.SetValue(age)
+		if self.curr_pat['dob'].strftime('%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
+			template = _('%s  %s (%s today !)')
+		else:
+			template = u'%s  %s (%s)'
+		age = template % (
+			gmPerson.map_gender2symbol[self.curr_pat['gender']],
+			self.curr_pat['dob'].strftime('%Y-%m-%d'),
+			self.curr_pat['medical_age']
+		)
+		self.lbl_age.SetLabel(age)
+
 		self.__update_allergies()
+
+		self.Layout()
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -446,7 +455,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.92  2007-12-23 22:04:19  ncq
+# Revision 1.93  2008-01-27 21:20:58  ncq
+# - no more label "Patient"
+# - make age field a dynamically adjusting static text, include gender and DOB
+# - remind of birthday
+#
+# Revision 1.92  2007/12/23 22:04:19  ncq
 # - no more gmCLI
 #
 # Revision 1.91  2007/12/23 20:29:57  ncq
