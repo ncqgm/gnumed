@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.155 2008-01-22 11:50:49 ncq Exp $
-__version__ = "$Revision: 1.155 $"
+# $Id: gmPerson.py,v 1.156 2008-01-27 21:08:32 ncq Exp $
+__version__ = "$Revision: 1.156 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1698,11 +1698,11 @@ def format_age_medically(age=None):
 		if months == 0:
 			return "%sy" % int(years)
 		else:
-			return "%sy%sm" % (int(years), int(months))
+			return "%sy %sm" % (int(years), int(months))
 	if age.days > 30:
 		months, days = divmod(age.days, 30)
 		weeks = days // 7
-		return "%sm%sw" % (int(months), int(weeks))
+		return "%sm %sw" % (int(months), int(weeks))
 	if age.days > 7:
 		return "%sd" % age.days
 	if age.days > 1:
@@ -1713,11 +1713,11 @@ def format_age_medically(age=None):
 	if age.seconds > 3600:
 		hours, seconds = divmod(age.seconds, 3600)
 		minutes = seconds // 60
-		return "%sh%sm" % (int(hours), int(minutes))
+		return "%sh %sm" % (int(hours), int(minutes))
 	if age.seconds > (5*60):
 		return "%sm" % (int(age.seconds // 60))
 	minutes, seconds = divmod(age.seconds, 60)
-	return "%sm%ss" % (int(minutes), int(seconds))
+	return "%sm %ss" % (int(minutes), int(seconds))
 #============================================================
 def create_name(pk_person, firstnames, lastnames, active=False):
 	queries = [{
@@ -1838,6 +1838,18 @@ def ask_for_patient():
 	return None
 #============================================================
 # gender related
+#------------------------------------------------------------
+# Maps GNUmed related i18n-aware gender specifiers to a unicode symbol.
+map_gender2symbol = {
+	'm': u'\u2642',
+	'f': u'\u2640',
+	'tf': u'\u26A5\u2640',
+	'tm': u'\u26A5\u2642',
+	'h': u'\u26A5'
+#	'tf': u'\u2642\u2640-\u2640',
+#	'tm': u'\u2642\u2640-\u2642',
+#	'h': u'\u2642\u2640'
+}
 #------------------------------------------------------------
 def get_gender_list():
 	global __gender_idx
@@ -2159,7 +2171,11 @@ if __name__ == '__main__':
 				
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.155  2008-01-22 11:50:49  ncq
+# Revision 1.156  2008-01-27 21:08:32  ncq
+# - format_medical_age() improved
+# - map gender to unicode symbol
+#
+# Revision 1.155  2008/01/22 11:50:49  ncq
 # - cPersonName.description property aligned with cIdentity.get_description()
 # - test cPersonName
 #
