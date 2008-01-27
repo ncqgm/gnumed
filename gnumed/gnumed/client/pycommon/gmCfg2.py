@@ -2,12 +2,12 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging, sys, codecs, re as regex
+import logging, sys, codecs, re as regex, shutil, os
 
 
 if __name__ == "__main__":
@@ -19,6 +19,171 @@ _log = logging.getLogger('gm.cfg')
 _log.info(__version__)
 #==================================================================
 # helper functions
+#==================================================================
+def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=None):
+
+	group_seen = False
+	option_seen = False
+	in_list = False
+
+	for line in src:
+
+		# after option already ?
+		if option_seen:
+			sink.write(line)
+			continue
+
+		# start of list ?
+		if regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line) is not None:
+			in_list = True
+			sink.write(line)
+			continue
+
+		# end of list ?
+		if regex.match('\$.+\$.*', line) is not None:
+			in_list = False
+			sink.write(line)
+			continue
+
+		# our group ?
+		if line.strip() == u'[%s]' % group:
+			group_seen = True
+			sink.write(line)
+			continue
+
+		# another group ?
+		if regex.match('\[%s\].*' % group, line) is not None:
+			# next group but option not seen yet ?
+			if group_seen and not option_seen:
+				sink.write(u'%s = %s\n' % (option, value))
+				option_seen = True
+				continue
+			sink.write(line)
+			continue
+
+		# our option ?
+		if regex.match('%s(\s|\t)*=' % option, line) is not None:
+			if group_seen:
+				sink.write(u'%s = %s\n' % (option, value))
+				option_seen = True
+				continue
+			sink.write(line)
+			continue
+
+		# something else (comment, empty line, or other option)
+		sink.write(line)
+
+	# all done ?
+	if option_seen:
+		return
+
+	# need to add group ?
+	if not group_seen:
+		sink.write('[%s]\n' % group)
+
+	# We either just added the group or it was the last group
+	# but did not contain the option. It must have been the
+	# last group then or else the following group would have
+	# triggered the option writeout.
+	sink.write(u'%s = %s\n' % (option, value))
+#==================================================================
+def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=None):
+
+	group_seen = False
+	option_seen = False
+	in_list = False
+
+	for line in src:
+
+		# found option but still in (old) list ?
+		if option_seen and in_list:
+			# end of (old) list ?
+			if regex.match('\$.+\$.*', line) is not None:
+				in_list = False
+				sink.write(line)
+				continue
+			continue
+
+		# after option already and not in (old) list anymore ?
+		if option_seen and not in_list:
+			sink.write(line)
+			continue
+
+		# start of list ?
+		match = regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line)
+		if match is not None:
+			in_list = True
+			# our list ?
+			if group_seen and (match.group('list_name') == option):
+				option_seen = True
+				sink.write(line)
+				sink.write('\n'.join(value))
+				sink.write('\n')
+				continue
+			sink.write(line)
+			continue
+
+		# end of list ?
+		if regex.match('\$.+\$.*', line) is not None:
+			in_list = False
+			sink.write(line)
+			continue
+
+		# our group ?
+		if line.strip() == u'[%s]' % group:
+			group_seen = True
+			sink.write(line)
+			continue
+
+		# another group ?
+		if regex.match('\[%s\].*' % group, line) is not None:
+			# next group but option not seen yet ?
+			if group_seen and not option_seen:
+				option_seen = True
+				sink.write('%s = $%s$\n' % (option, option))
+				sink.write('\n'.join(value))
+				sink.write('\n')
+				continue
+			sink.write(line)
+			continue
+
+		# something else (comment, empty line, or other option)
+		sink.write(line)
+
+	# all done ?
+	if option_seen:
+		return
+
+	# need to add group ?
+	if not group_seen:
+		sink.write('[%s]\n' % group)
+
+	# We either just added the group or it was the last group
+	# but did not contain the option. It must have been the
+	# last group then or else the following group would have
+	# triggered the option writeout.
+	sink.write('%s = $%s$\n' % (option, option))
+	sink.write('\n'.join(value))
+	sink.write('\n')
+	sink.write('$%s$\n' % option)
+#==================================================================
+def set_option_in_INI_file(filename=None, group=None, option=None, value=None, encoding='utf8'):
+
+	src = codecs.open(filename = filename, mode = 'rU', encoding = encoding)
+	sink_name = '.%s.gmCfg2.new.conf' % filename
+	sink = codecs.open(filename = sink_name, mode = 'wb', encoding = encoding)
+
+	# is value a list ?
+	if isinstance(value, type([])):
+		__set_list_in_INI_file(src, sink, group, option, value)
+	else:
+		__set_opt_in_INI_file(src, sink, group, option, value)
+
+	sink.close()
+	src.close()
+
+	shutil.copy2(sink_name, filename)
+	os.remove(sink_name)
 #==================================================================
 def parse_INI_stream(stream=None):
 	"""Parse an iterable for INI-style data."""
@@ -227,7 +392,7 @@ class gmCfgData(gmBorg.cBorg):
 if __name__ == "__main__":
 
 	logging.basicConfig(level = logging.DEBUG)
-
+	#-----------------------------------------
 	def test_gmCfgData():
 		cfg = gmCfgData()
 		cfg.add_cli(short_options=u'h?', long_options=[u'help', u'conf-file='])
@@ -237,13 +402,73 @@ if __name__ == "__main__":
 		fname = cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
 		if fname is not None:
 			cfg.add_file_source(source = 'explicit', file = fname)
+	#-----------------------------------------
+	def test_set_list_opt():
+		src = [
+			'# a comment',
+			'',
+			'[empty group]',
+			'[second group]',
+			'some option = in second group',
+			'# another comment',
+			'[test group]',
+			'',
+			'test list 	= $test list$',
+			'old 1',
+			'old 2',
+			'$test list$',
+			'# another group:',
+			'[dummy group]'
+		]
 
+		__set_list_in_INI_file (
+			src = src,
+			sink = sys.stdout,
+			group = u'test group',
+			option = u'test list',
+			value = list('123')
+		)
+	#-----------------------------------------
+	def test_set_opt():
+		src = [
+			'# a comment',
+			'[empty group]',
+			'# another comment',
+			'',
+			'[second group]',
+			'some option = in second group',
+			'',
+			'[trap group]',
+			'trap list 	= $trap list$',
+			'dummy 1',
+			'test option = a trap',
+			'dummy 2',
+			'$trap list$',
+			'',
+			'[test group]',
+			'test option = for real (old)',
+			''
+		]
+
+		__set_opt_in_INI_file (
+			src = src,
+			sink = sys.stdout,
+			group = u'test group',
+			option = u'test option',
+			value = u'for real (new)'
+		)
+	#-----------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		test_gmCfgData()
+		#test_gmCfgData()
+		#test_set_list_opt()
+		test_set_opt()
 
 #==================================================================
 # $Log: gmCfg2.py,v $
-# Revision 1.8  2008-01-11 16:10:35  ncq
+# Revision 1.9  2008-01-27 21:09:38  ncq
+# - set_option_in_INI_file() and tests
+#
+# Revision 1.8  2008/01/11 16:10:35  ncq
 # - better logging
 #
 # Revision 1.7  2008/01/07 14:12:33  ncq
