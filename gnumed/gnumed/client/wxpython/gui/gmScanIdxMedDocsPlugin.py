@@ -2,7 +2,7 @@
 # GNUmed scan and index plugin
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmScanIdxMedDocsPlugin.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -13,7 +13,7 @@ from Gnumed.wxpython import gmPlugin, gmMedDocWidgets
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient scan index documents window."""
 
-	tab_name = _('Import documents')
+	tab_name = _('Attach documents')
 
 	def name(self):
 		return gmScanIdxMedDocsPlugin.tab_name
@@ -23,7 +23,7 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo(self):
-		return ('patient', _('import documents'))
+		return ('patient', _('Attach documents'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -32,7 +32,10 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 		return 1
 #======================================================================
 # $Log: gmScanIdxMedDocsPlugin.py,v $
-# Revision 1.6  2008-01-22 12:26:24  ncq
+# Revision 1.7  2008-01-27 21:22:18  ncq
+# -rename per Jim
+#
+# Revision 1.6  2008/01/22 12:26:24  ncq
 # - better tab names
 #
 # Revision 1.5  2007/10/12 07:28:25  ncq
