@@ -27,7 +27,7 @@ class wxgReviewDocPartDlg(wx.Dialog):
         self._ChBOX_abnormal = wx.CheckBox(self, -1, _("technically abnormal"))
         self._ChBOX_responsible = wx.CheckBox(self, -1, _("take over responsibility"))
         self._ChBOX_relevant = wx.CheckBox(self, -1, _("clinically relevant"))
-        self._ChBOX_sign_all_pages = wx.CheckBox(self, -1, _("sign all pages"))
+        self._ChBOX_sign_all_pages = wx.CheckBox(self, -1, _("sign all parts"))
         self._BTN_save = wx.Button(self, wx.ID_OK, _("Save"))
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 
