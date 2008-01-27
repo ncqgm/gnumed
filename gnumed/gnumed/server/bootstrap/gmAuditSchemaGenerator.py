@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -238,6 +238,7 @@ def create_audit_ddl(aCursor):
 	_log.debug(rows)
 	# for each marked table
 	ddl = []
+	ddl.append('\set check_function_bodies 1\n\n')
 	for row in rows:
 		audit_trail_ddl = audit_trail_table_ddl(aCursor=aCursor, schema=row['schema'], table2audit=row['table_name'])
 		if audit_trail_ddl is None:
@@ -280,7 +281,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.31  2008-01-07 14:15:43  ncq
+# Revision 1.32  2008-01-27 21:23:22  ncq
+# - check function bodies
+#
+# Revision 1.31  2008/01/07 14:15:43  ncq
 # - port to gmCfg2/gmLog2
 # - create database with default transaction mode set to readonly
 #
