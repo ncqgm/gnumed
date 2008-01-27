@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-# $Id: gmMedDocWidgets.py,v 1.153 2008-01-11 16:15:33 ncq Exp $
-__version__ = "$Revision: 1.153 $"
+# $Id: gmMedDocWidgets.py,v 1.154 2008-01-27 21:16:45 ncq Exp $
+__version__ = "$Revision: 1.154 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path, sys, re as regex
@@ -419,7 +419,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 						msg = _('Error setting responsible clinician for this document.')
 			else:								# - just on this page
 				if not self.__part.set_reviewed(technically_abnormal = abnormal, clinically_relevant = relevant):
-					msg = _('Error setting "reviewed" status of this page.')
+					msg = _('Error setting "reviewed" status of this part.')
 				if self._ChBOX_responsible.GetValue():
 					self.__part['pk_intended_reviewer'] = provider['pk_staff']
 			if msg is not None:
@@ -433,7 +433,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			success, data = self.__part.save_payload()
 			if not success:
 				gmGuiHelpers.gm_show_error (
-					_('Error saving page properties.'),
+					_('Error saving part properties.'),
 					_('editing document properties')
 				)
 				return False
@@ -549,17 +549,32 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(self.acquired_pages) > 0:
 			for i in range(len(self.acquired_pages)):
 				fname = self.acquired_pages[i]
-				self._LBOX_doc_pages.Append(_('page %s: %s' % (i+1, fname)), fname)
+				self._LBOX_doc_pages.Append(_('part %s: %s' % (i+1, fname)), fname)
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		title = _('saving document')
 
 		if self.acquired_pages is None or len(self.acquired_pages) == 0:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('No pages to save. Aquire some pages first.'),
-				aTitle = title
-			)
-			return False
+			dbcfg = gmCfg.cCfgSQL()
+			allow_empty = bool(dbcfg.get2 (
+				option =  u'horstspace.scan_index.allow_partless_documents',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = False
+			))
+			if allow_empty:
+				save_empty = gmGuiHelpers.gm_show_question (
+					aMessage = _('No parts to save. Really save an empty document as a reference ?'),
+					aTitle = title
+				)
+				if not save_empty:
+					return False
+			else:
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('No parts to save. Aquire some parts first.'),
+					aTitle = title
+				)
+				return False
 
 		doc_type_pk = self._PhWheel_doc_type.GetData(can_create = True)
 		if doc_type_pk is None:
@@ -707,8 +722,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		page_idx = self._LBOX_doc_pages.GetSelection()
 		if page_idx == -1:
 			gmGuiHelpers.gm_show_info (
-				aMessage = _('You must select a page before you can view it.'),
-				aTitle = _('displaying page')
+				aMessage = _('You must select a part before you can view it.'),
+				aTitle = _('displaying part')
 			)
 			return None
 		# now, which file was that again ?
@@ -717,7 +732,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if not result:
 			gmGuiHelpers.gm_show_warning (
 				aMessage = _('Cannot display document part:\n%s') % msg,
-				aTitle = _('displaying page')
+				aTitle = _('displaying part')
 			)
 			return None
 		return 1
@@ -726,8 +741,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		page_idx = self._LBOX_doc_pages.GetSelection()
 		if page_idx == -1:
 			gmGuiHelpers.gm_show_info (
-				aMessage = _('You must select a page before you can delete it.'),
-				aTitle = _('deleting page')
+				aMessage = _('You must select a part before you can delete it.'),
+				aTitle = _('deleting part')
 			)
 			return None
 		page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
@@ -753,7 +768,7 @@ not want to lose the file.
 
 Pressing [YES] will permanently remove the file
 from your computer.""") % page_fname,
-			_('deleting page')
+			_('deleting part')
 		)
 		if do_delete:
 			try:
@@ -761,8 +776,8 @@ from your computer.""") % page_fname,
 			except:
 				_log.LogException('Error deleting file.')
 				gmGuiHelpers.gm_show_error (
-					aMessage = _('Cannot delete page in file [%s].\n\nYou may not have write access to it.') % page_fname,
-					aTitle = _('deleting page')
+					aMessage = _('Cannot delete part in file [%s].\n\nYou may not have write access to it.') % page_fname,
+					aTitle = _('deleting part')
 				)
 
 		return 1
@@ -1067,7 +1082,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			else:
 				review = ''
 
-			label = _('%s%7s %s: %s (%s page(s), %s)') % (
+			label = _('%s%7s %s: %s (%s part(s), %s)') % (
 				review,
 				doc['date'].strftime('%m/%Y'),
 				doc['l10n_type'][:26],
@@ -1099,7 +1114,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			# now add parts as child nodes
 			for part in parts:
 
-				pg = _('page %2s') % part['seq_idx']
+				pg = _('part %2s') % part['seq_idx']
 				cmt = gmTools.coalesce(part['obj_comment'], _("no comment available"))
 				sz = gmTools.size2str(part['size'])
 				rev = gmTools.bool2str (
@@ -1340,10 +1355,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __handle_part_context(self):
 		# build menu
-		menu = wx.Menu(title = _('page menu'))
+		menu = wx.Menu(title = _('part menu'))
 		# display file
 		ID = wx.NewId()
-		menu.AppendItem(wx.MenuItem(menu, ID, _('Display page')))
+		menu.AppendItem(wx.MenuItem(menu, ID, _('Display part')))
 		wx.EVT_MENU(menu, ID, self.__display_curr_part)
 		# edit metadata
 		ID = wx.NewId()
@@ -1478,7 +1493,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		fnames = self.__curr_node_data.export_parts_to_files(export_dir=dirname)
 		wx.EndBusyCursor()
 
-		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s pages into the directory [%s].') % (len(fnames), dirname))
+		gmDispatcher.send(signal='statustext', msg=_('Successfully exported %s parts into the directory [%s].') % (len(fnames), dirname))
 
 		return True
 	#--------------------------------------------------------
@@ -1503,7 +1518,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.153  2008-01-11 16:15:33  ncq
+# Revision 1.154  2008-01-27 21:16:45  ncq
+# - label changes per Jim
+# - allow partless docs
+#
+# Revision 1.153  2008/01/11 16:15:33  ncq
 # - first/last -> first-/lastnames
 #
 # Revision 1.152  2007/12/23 20:29:35  ncq
