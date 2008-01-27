@@ -5,8 +5,8 @@ functions for authenticating users.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAuthWidgets.py,v $
-# $Id: gmAuthWidgets.py,v 1.11 2008-01-14 20:33:06 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmAuthWidgets.py,v 1.12 2008-01-27 21:13:17 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -513,15 +513,19 @@ class cLoginPanel(wx.Panel):
 		prefs_name = _cfg.get(option = 'user_preferences_file')
 		_log.debug(u'saving login choices in [%s]', prefs_name)
 
-		# FIXME: convert to a standard writer ?
-		from Gnumed.pycommon import gmCfg
-		prefs = gmCfg.cCfgFile (
-			aFile = prefs_name,
-			flags = gmCfg.cfg_IGNORE_CMD_LINE
+		gmCfg2.set_option_in_INI_file (
+			filename = prefs_name,
+			group = 'preferences',
+			option = 'login',
+			value = self._CBOX_user.GetValue()
 		)
-		prefs.set('preferences', 'login', self._CBOX_user.GetValue())
-		prefs.set('preferences', 'profile', self._CBOX_profile.GetValue())
-		prefs.store()
+
+		gmCfg2.set_option_in_INI_file (
+			filename = prefs_name,
+			group = 'preferences',
+			option = 'profile',
+			value = self._CBOX_profile.GetValue()
+		)
 	#############################################################################
 	# Retrieve current settings from user interface widgets
 	#############################################################################
@@ -544,13 +548,7 @@ class cLoginPanel(wx.Panel):
 	# event handlers
 	#----------------------------
 	def OnHelp(self, event):
-		# FIXME: use new config or rather use gmSurgery ?
-		from Gnumed.pycommon import gmCfg
-		tmp = gmCfg.gmDefCfgFile.get('workplace', 'help desk')
-		if tmp is None:
-			print _("You need to set the option [workplace] -> <help desk> in the config file !")
-			tmp = "http://www.gnumed.org"
-
+		praxis = gmSurgery.gmCurrentPractice()
 		wx.MessageBox(_(
 """GNUmed main login screen
 
@@ -569,7 +567,7 @@ button HELP:
  this help screen
 
 For assistance on using GnuMed please contact:
- %s""") % tmp)
+ %s""") % praxis.helpdesk)
 
 	#----------------------------
 	def __on_login_button_pressed(self, event):
@@ -638,7 +636,10 @@ if __name__ == "__main__":
 
 #================================================================
 # $Log: gmAuthWidgets.py,v $
-# Revision 1.11  2008-01-14 20:33:06  ncq
+# Revision 1.12  2008-01-27 21:13:17  ncq
+# - no more gmCfg
+#
+# Revision 1.11  2008/01/14 20:33:06  ncq
 # - cleanup
 # - properly detect connection errors
 #
