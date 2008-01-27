@@ -23,14 +23,14 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmHooks.py,v $
-# $Id: gmHooks.py,v 1.8 2008-01-22 22:03:25 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmHooks.py,v 1.9 2008-01-27 21:10:34 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 
 # stdlib
-import os, sys
+import os, sys, stat
 
 
 # GNUmed libs
@@ -73,7 +73,7 @@ def run_script(hook=None):
 	pass
 """)
 		f.close()
-		os.chmod(full_script, 33152)
+		os.chmod(full_script, 384)
 
 	if os.path.islink(full_script):
 		gmDispatcher.send (
@@ -89,9 +89,8 @@ def run_script(hook=None):
 		)
 		return False
 
-	stat_val = os.stat(full_script)
-#	if stat_val.st_mode != 384:				# octal 0600
-	if stat_val.st_mode != 33152:			# octal 100600
+	script_mode = stat.S_IMODE(os.stat(full_script).st_mode)
+	if script_mode != 384:				# octal 0600
 		gmDispatcher.send (
 			signal = 'statustext',
 			msg = _('Script must have permissions "0600": [%s].') % full_script
@@ -124,7 +123,10 @@ if __name__ == '__main__':
 
 # ========================================================================
 # $Log: gmHooks.py,v $
-# Revision 1.8  2008-01-22 22:03:25  ncq
+# Revision 1.9  2008-01-27 21:10:34  ncq
+# - fix stat()ing of the hook script
+#
+# Revision 1.8  2008/01/22 22:03:25  ncq
 # - import hook script once only
 #
 # Revision 1.7  2007/11/03 17:54:04  ncq
