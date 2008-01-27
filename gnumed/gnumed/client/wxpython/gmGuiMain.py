@@ -15,8 +15,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.385 2008-01-22 12:23:39 ncq Exp $
-__version__ = "$Revision: 1.385 $"
+# $Id: gmGuiMain.py,v 1.386 2008-01-27 21:15:20 ncq Exp $
+__version__ = "$Revision: 1.386 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -303,6 +303,10 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_ui.Append(ID, _('Document UUID display'), _('Configure unique ID dialog on document import.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_doc_uuid_dialog)
 
+		ID = wx.NewId()
+		menu_cfg_ui.Append(ID, _('Allow empty documents'), _('Whether to allow saving documents without parts.'))
+		wx.EVT_MENU(self, ID, self.__on_configure_partless_docs)
+
 		# -- submenu gnumed / config / ui / patient search
 		menu_cfg_pat_search = wx.Menu()
 		menu_cfg_ui.AppendMenu(wx.NewId(), _('Patient search ...'), menu_cfg_pat_search)
@@ -392,7 +396,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_office.AppendSeparator()
 
 		ID_EDIT_DOC_TYPES = wx.NewId()
-		self.menu_office.Append(ID_EDIT_DOC_TYPES, _('Edit document types'), _('Edit the list of document types available in the system.'))
+		self.menu_office.Append(ID_EDIT_DOC_TYPES, _('Manage document types'), _('Edit the document types available in the system.'))
 		wx.EVT_MENU(self, ID_EDIT_DOC_TYPES, self.__on_edit_doc_types)
 
 		self.__gb['main.officemenu'] = self.menu_office
@@ -1236,6 +1240,23 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_workplace(self, evt):
 		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
+	#----------------------------------------------
+	def __on_configure_partless_docs(self, evt):
+		gmCfgWidgets.configure_boolean_option (
+			question = _(
+				'Do you want GNUmed to enforce that new documents\n'
+				'have at least one part before they can be saved ?\n'
+				'\n'
+				'This can be useful if you want to build up an index\n'
+				'of, say, archived documents but do not presently want\n'
+				'to scan in all the pages contained therein.'
+			),
+			option = u'horstspace.scan_index.allow_partless_documents',
+			button_tooltips = [
+				_('Yes, allow saving documents without any parts.'),
+				_('No, require documents to have at least one part.')
+			]
+		)
 	#----------------------------------------------
 	def __on_configure_doc_uuid_dialog(self, evt):
 		gmCfgWidgets.configure_boolean_option (
@@ -2138,18 +2159,17 @@ class gmApp(wx.App):
 			aTitle = _('checking database language settings'),
 		):
 			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Ignoring mismatch next time.')
-			comment = [
-				"If the system locale matches this value a mismatch",
-				"with the database locale will be ignored.",
-				"Remove this option if you want to stop ignoring mismatches.",
-			]
-
-			prefs = gmCfg.cCfgFile (
-				aFile = _cfg.get(option = 'user_preferences_file'),
-				flags = gmCfg.cfg_IGNORE_CMD_LINE
+#			comment = [
+#				"If the system locale matches this value a mismatch",
+#				"with the database locale will be ignored.",
+#				"Remove this option if you want to stop ignoring mismatches.",
+#			]
+			gmCfg2.set_option_in_INI_file (
+				filename = _cfg.get(option = 'user_preferences_file'),
+				group = 'backend',
+				option = 'ignored mismatching system locale',
+				value = gmI18N.system_locale
 			)
-			prefs.set('backend', 'ignored mismatching system locale', gmI18N.system_locale, comment)
-			prefs.store()
 			return True
 
 		# try setting database language (only possible if translation exists)
@@ -2210,7 +2230,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.385  2008-01-22 12:23:39  ncq
+# Revision 1.386  2008-01-27 21:15:20  ncq
+# - configure partless docs
+# - label changes
+# - use gmCfg2 for setting options
+#
+# Revision 1.385  2008/01/22 12:23:39  ncq
 # - reorder menus as per list discussion
 # - wiki link/online user manual link in help menu
 #
