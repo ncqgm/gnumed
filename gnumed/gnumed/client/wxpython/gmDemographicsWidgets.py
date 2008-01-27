@@ -1,8 +1,8 @@
 """Widgets dealing with patient demographics."""
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.142 2008-01-14 20:40:09 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gmDemographicsWidgets.py,v 1.143 2008-01-27 21:13:50 ncq Exp $
+__version__ = "$Revision: 1.143 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -980,7 +980,7 @@ class cPersonCommsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_columns(columns = [
 			_('confidential'),
 			_('Type'),
-			_('URL')
+			_('Value')
 		])
 	#--------------------------------------------------------
 	def _add_comm(self):
@@ -1465,7 +1465,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Active'),
 			_('Title'),
 			_('Lastname'),
-			_('Firstname'),
+			_('Firstname(s)'),
 			_('Preferred Name'),
 			_('Comment')
 		])
@@ -1688,7 +1688,7 @@ class cBasicPatDetailsPage(wx.wizard.WizardPageSimple):
 		self.PRW_lastname.SetToolTipString(_('Required: lastname (family name)'))
 
 		# first name
-		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
+		STT_firstname = wx.StaticText(PNL_form, -1, _('First name(s)'))
 		STT_firstname.SetForegroundColour('red')
 		self.PRW_firstname = cFirstnamePhraseWheel(parent = PNL_form, id = -1)
 		self.PRW_firstname.SetToolTipString(_('Required: surname/given name/first name'))
@@ -2546,7 +2546,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.142  2008-01-14 20:40:09  ncq
+# Revision 1.143  2008-01-27 21:13:50  ncq
+# - change a few labels per Jim
+#
+# Revision 1.142  2008/01/14 20:40:09  ncq
 # - don't crash on missing korganizer transfer file
 #
 # Revision 1.141  2008/01/07 19:52:26  ncq
