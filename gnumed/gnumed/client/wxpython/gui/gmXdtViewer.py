@@ -11,8 +11,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.34 2008-01-22 12:26:24 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmXdtViewer.py,v 1.35 2008-01-28 16:15:50 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs
@@ -387,7 +387,7 @@ if __name__ == '__main__':
 			fname = ""
 			# has the user manually supplied a config file on the command line ?
 			fname = cfg.get(option = '--xdt-file', source_order = [('cli', 'return')])
-			if fname is not None.
+			if fname is not None:
 				_log.debug('XDT file is [%s]' % fname)
 				# file valid ?
 				if not os.access(fname, os.R_OK):
@@ -423,7 +423,10 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.34  2008-01-22 12:26:24  ncq
+# Revision 1.35  2008-01-28 16:15:50  ncq
+# - fix typo
+#
+# Revision 1.34  2008/01/22 12:26:24  ncq
 # - better tab names
 #
 # Revision 1.33  2008/01/05 16:42:02  ncq
