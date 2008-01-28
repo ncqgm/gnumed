@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.9.2.1 2008-01-01 13:51:23 ncq Exp $
+# $Id: gnumed,v 1.9.2.2 2008-01-28 17:05:42 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert, Andreas Tille
 #--------------------------------------------------
@@ -32,6 +32,9 @@ if [ ! -e ${SYSCONF} ] ; then
 fi
 
 # There has to be a user config file (even if empty).
+if [ ! -d ${HOME}/.gnumed ] ; then
+	mkdir ${HOME}/.gnumed
+fi
 if [ ! -e ${HOME}/.gnumed/${name}.conf ] ; then
 	touch ${HOME}/.gnumed/${name}.conf
 fi
@@ -73,7 +76,10 @@ python ${GNUMEDDIR}/gnumed.py ${CONFFILE} ${OPTIONS}
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.9.2.1  2008-01-01 13:51:23  ncq
+# Revision 1.9.2.2  2008-01-28 17:05:42  ncq
+# - create ~/.gnumed/ (for gnumed.conf) should it be missing
+#
+# Revision 1.9.2.1  2008/01/01 13:51:23  ncq
 # - pull in patch from Debian package touching user config file
 #
 # Revision 1.9  2007/09/24 18:37:45  ncq
