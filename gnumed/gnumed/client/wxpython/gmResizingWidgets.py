@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.48 2007-08-12 00:12:41 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmResizingWidgets.py,v 1.49 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -16,7 +16,7 @@ import wx
 import wx.stc
 
 
-from Gnumed.pycommon import gmI18N, gmLog, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmI18N, gmLog, gmDispatcher
 from Gnumed.wxpython import gmGuiHelpers, gmTimer
 
 _log = gmLog.gmDefLog
@@ -1050,7 +1050,11 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.48  2007-08-12 00:12:41  ncq
+# Revision 1.49  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.48  2007/08/12 00:12:41  ncq
 # - no more gmSignals.py
 #
 # Revision 1.47  2007/05/21 13:06:12  ncq

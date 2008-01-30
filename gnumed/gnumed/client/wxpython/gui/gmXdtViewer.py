@@ -11,11 +11,11 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.35 2008-01-28 16:15:50 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmXdtViewer.py,v 1.36 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
-import sys, os, os.path, codecs
+import sys, os, os.path, codecs, logging
 
 
 import wx
@@ -27,7 +27,7 @@ from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 
 _log = logging.getLogger('gm.ui')
-_log.Log(gmLog.lInfo, __version__)
+_log.info(__version__)
 
 #=============================================================================
 # FIXME: this belongs elsewhere under wxpython/
@@ -423,7 +423,11 @@ if __name__ == '__main__':
 
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.35  2008-01-28 16:15:50  ncq
+# Revision 1.36  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.35  2008/01/28 16:15:50  ncq
 # - fix typo
 #
 # Revision 1.34  2008/01/22 12:26:24  ncq

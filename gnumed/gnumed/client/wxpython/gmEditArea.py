@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.114 2008-01-05 16:41:27 ncq Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmEditArea.py,v 1.115 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -12,7 +12,7 @@ import sys, traceback, time
 
 import wx
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmI18N
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmExceptions, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
@@ -307,9 +307,9 @@ class cEditArea2(wx.Panel):
 	def __register_events(self):
 		# client internal signals
 		if self._patient.is_connected():
-			gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
-			gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
+			gmDispatcher.connect(signal = 'pre_patient_selection', receiver = self._on_pre_patient_selection)
+			gmDispatcher.connect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
+		gmDispatcher.connect(signal = 'application_closing', receiver = self._on_application_closing)
 
 		# wxPython events
 		wx.EVT_CLOSE(self, self._on_close)
@@ -317,9 +317,9 @@ class cEditArea2(wx.Panel):
 		return 1
 	#--------------------------------------------------------
 	def __deregister_events(self):
-		gmDispatcher.disconnect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
-		gmDispatcher.disconnect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
-		gmDispatcher.disconnect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
+		gmDispatcher.disconnect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.disconnect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
+		gmDispatcher.disconnect(signal = u'application_closing', receiver = self._on_application_closing)
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
@@ -717,9 +717,9 @@ class cEditArea(wx.Panel):
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
-		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'application_closing', receiver = self._on_application_closing)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
 
 		return 1
 	#--------------------------------------------------------
@@ -2091,7 +2091,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.114  2008-01-05 16:41:27  ncq
+# Revision 1.115  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.114  2008/01/05 16:41:27  ncq
 # - remove logging from gm_show_*()
 #
 # Revision 1.113  2007/11/28 14:00:42  ncq

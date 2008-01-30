@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.38 2007-04-11 20:47:54 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmDemographics.py,v 1.39 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "R.Terry, SJ Tan"
 
 
@@ -28,7 +28,7 @@ except ImportError:
 
 from mx import DateTime
 
-from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher
 
 import gmPlugin
 import gmSQLListControl
@@ -387,7 +387,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		# load the demographic text controls
 		# send a signal to other objects
 		kwds = {'title':pat_title, 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
-		gmDispatcher.send (gmSignals.post_patient_selection (), sender='Terry Patient Selector', kwds=kwds )
+		gmDispatcher.send ('post_patient_selection', sender='Terry Patient Selector', kwds=kwds )
 
 	def FindPatient (self, name):
 		self.patientslist.SetQueryStr (gmPatientNameQuery.MakeQuery (name), service='personalia')
@@ -434,7 +434,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.38  2007-04-11 20:47:54  ncq
+# Revision 1.39  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.38  2007/04/11 20:47:54  ncq
 # - cleanup
 #
 # Revision 1.37  2006/07/30 17:51:00  ncq

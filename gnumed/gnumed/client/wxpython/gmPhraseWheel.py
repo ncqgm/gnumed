@@ -8,8 +8,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.110 2007-10-29 11:30:21 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmPhraseWheel.py,v 1.111 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.111 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 
@@ -26,7 +26,7 @@ import wx.lib.mixins.listctrl as listmixins
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.wxpython import gmTimer, gmGuiHelpers
-from Gnumed.pycommon import gmTools, gmSignals, gmDispatcher
+from Gnumed.pycommon import gmTools, gmDispatcher
 
 #============================================================
 # those can be used by the <accepted_chars> phrasewheel parameter
@@ -203,7 +203,8 @@ class cPhraseWheel(wx.TextCtrl):
 			add_picklist_to_sizer = False
 		except NotImplementedError:
 			# on MacOSX wx.PopupWindow is not implemented
-			self.__picklist_dropdown = wx.Window(parent=self, style = wx.SIMPLE_BORDER)
+#			self.__picklist_dropdown = wx.Window(parent=self, style = wx.SIMPLE_BORDER)
+			self.__picklist_dropdown = wx.Window(parent=parent, style = wx.SIMPLE_BORDER)
 			szr_scroll = wx.BoxSizer(wx.VERTICAL)
 			self.__picklist_dropdown.SetSizer(szr_scroll)
 			add_picklist_to_sizer = True
@@ -909,7 +910,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.110  2007-10-29 11:30:21  ncq
+# Revision 1.111  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.110  2007/10/29 11:30:21  ncq
 # - rephrase TODOs
 #
 # Revision 1.109  2007/09/02 20:56:30  ncq

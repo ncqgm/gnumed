@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.40 2007-10-08 12:50:54 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmHorstSpace.py,v 1.41 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -25,7 +25,7 @@ import os.path, os, sys
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmSignals, gmCfg
+from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmDispatcher, gmCfg
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
 from Gnumed.business import gmPerson, gmSurgery
 
@@ -94,7 +94,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		# - popup menu on right click in notebook
 		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
 
-		gmDispatcher.connect(self._on_post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._on_post_patient_selection, u'post_patient_selection')
 	#----------------------------------------------
 	def __load_plugins(self):
 		# get plugin list
@@ -316,7 +316,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.40  2007-10-08 12:50:54  ncq
+# Revision 1.41  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.40  2007/10/08 12:50:54  ncq
 # - active_workplace now in gmPractice()
 #
 # Revision 1.39  2007/08/28 14:18:13  ncq

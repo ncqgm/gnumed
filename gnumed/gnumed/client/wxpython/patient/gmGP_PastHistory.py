@@ -32,7 +32,7 @@ import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
 import gmPlugin_Patient, gmLog
 
-import gmDispatcher, gmSignals
+import gmDispatcher
 
 from gmPatientHolder import PatientHolder
 import gmPatientHolder
@@ -190,7 +190,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		self.SetAutoLayout(True)
 		self.Show(True)
 
-		gmDispatcher.connect(self._updateUI,  gmSignals.clin_history_updated())
+		gmDispatcher.connect(self._updateUI,  u'clin_history_updated')
 	
 		self.significant_problem_list.addItemListener( self._significantPastItemSelected)	
 

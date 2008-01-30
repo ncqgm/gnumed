@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.19 2008-01-22 12:21:49 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmEMRTextDump.py,v 1.20 2008-01-30 14:03:41 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -12,7 +12,7 @@ import sys, string
 import wx
 
 
-from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
+from Gnumed.pycommon import gmLog, gmDispatcher, gmExceptions
 from Gnumed.business import gmPerson
 
 
@@ -45,7 +45,7 @@ class gmEMRDumpPanel(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return 1
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
@@ -117,7 +117,11 @@ class gmScrolledEMRTextDump(wx.ScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.19  2008-01-22 12:21:49  ncq
+# Revision 1.20  2008-01-30 14:03:41  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.19  2008/01/22 12:21:49  ncq
 # - cleanup
 #
 # Revision 1.18  2006/07/19 20:29:50  ncq

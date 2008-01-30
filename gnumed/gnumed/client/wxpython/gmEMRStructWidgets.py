@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.72 2008-01-22 12:21:27 ncq Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmEMRStructWidgets.py,v 1.73 2008-01-30 14:03:41 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -24,7 +24,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmSignals, gmTools, gmDateTime, gmCfg
+from Gnumed.pycommon import gmLog, gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
@@ -492,8 +492,8 @@ limit 30"""
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._pre_patient_selection, u'pre_patient_selection')
+		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	#--------------------------------------------------------
 	def _pre_patient_selection(self):
 		return True
@@ -711,8 +711,8 @@ union
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_selection, gmSignals.pre_patient_selection())
-		gmDispatcher.connect(self._post_patient_selection, gmSignals.post_patient_selection())
+		gmDispatcher.connect(self._pre_patient_selection, u'pre_patient_selection')
+		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	#--------------------------------------------------------
 	def _pre_patient_selection(self):
 		return True
@@ -1159,7 +1159,11 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.72  2008-01-22 12:21:27  ncq
+# Revision 1.73  2008-01-30 14:03:41  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.72  2008/01/22 12:21:27  ncq
 # - better encounter editor
 #
 # Revision 1.71  2007/10/07 12:32:41  ncq

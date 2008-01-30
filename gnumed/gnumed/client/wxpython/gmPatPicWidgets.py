@@ -5,15 +5,15 @@
 #embryonic gmGP_PatientPicture.py replacement
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.28 2007-09-10 12:37:37 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPatPicWidgets.py,v 1.29 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # standard lib
-import sys, os, os.path
+import sys, os, os.path, logging
 
 
 # 3rd party
@@ -21,13 +21,13 @@ import wx, wx.lib.imagebrowser
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmTools
+from Gnumed.pycommon import gmDispatcher, gmTools
 from Gnumed.business import gmMedDoc, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 
 
-_log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
+_log = logging.getLogger('gm.ui')
+_log.info(__version__)
 
 ID_AcquirePhoto = wx.NewId()
 ID_ImportPhoto = wx.NewId()
@@ -83,7 +83,7 @@ class cPatientPicture(wx.StaticBitmap):
 		wx.EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
 
 		# dispatcher signals
-		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal=gmSignals.post_patient_selection())
+		gmDispatcher.connect(receiver=self._on_post_patient_selection, signal = u'post_patient_selection')
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
 		if not self.__pat.is_connected():
@@ -171,7 +171,7 @@ class cPatientPicture(wx.StaticBitmap):
 			img_data.Rescale(self.desired_width, self.desired_height)
 			bmp_data = wx.BitmapFromImage(img_data)
 		except:
-			_log.LogException('cannot set patient picture from [%s]' % fname)
+			_log.exception('cannot set patient picture from [%s]', fname)
 			gmDispatcher.send(signal='statustext', msg=_('Cannot set patient picture from [%s].') % fname)
 			return False
 		del img_data
@@ -191,7 +191,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.28  2007-09-10 12:37:37  ncq
+# Revision 1.29  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.28  2007/09/10 12:37:37  ncq
 # - don't send signal on not finding patient pic
 #   a) it's quite obvious
 #   b) it might obscure more important messages

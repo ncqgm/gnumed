@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmProviderInboxWidgets.py,v $
-# $Id: gmProviderInboxWidgets.py,v 1.21 2008-01-27 21:18:45 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmProviderInboxWidgets.py,v 1.22 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -14,7 +14,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmTools, gmCfg
+from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmTools, gmCfg
 from Gnumed.business import gmPerson, gmSurgery
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmPlugin, gmRegetMixin
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
@@ -270,7 +270,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmProviderInboxWidgets.py,v $
-# Revision 1.21  2008-01-27 21:18:45  ncq
+# Revision 1.22  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.21  2008/01/27 21:18:45  ncq
 # - don't crash on trying to edit module-less workplace
 #
 # Revision 1.20  2008/01/05 16:41:27  ncq

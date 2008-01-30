@@ -3,8 +3,8 @@
 
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_ScratchPadRecalls.py,v $
-# $Id: gmGP_ScratchPadRecalls.py,v 1.17 2006-05-15 13:42:02 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmGP_ScratchPadRecalls.py,v 1.18 2008-01-30 14:03:42 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 
 try:
 	import wxversion
@@ -12,7 +12,7 @@ try:
 except ImportError:
 	from wxPython import wx
 
-import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
+import gmPlugin, gmShadow, gmLog, gmDispatcher, gmPG
 from  gmPatientHolder import PatientHolder
 scratchpaddata = {}
 recalldata = {}
@@ -164,7 +164,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===============================================================
 # $Log: gmGP_ScratchPadRecalls.py,v $
-# Revision 1.17  2006-05-15 13:42:02  ncq
+# Revision 1.18  2008-01-30 14:03:42  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.17  2006/05/15 13:42:02  ncq
 # - use new signals for activating_patient/patient_selected
 #
 # Revision 1.16  2005/09/26 18:01:53  ncq

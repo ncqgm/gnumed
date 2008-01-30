@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -15,7 +15,7 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmI18N, gmDateTime, gmTools, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmDispatcher, gmI18N, gmDateTime, gmTools, gmMatchProvider
 from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPerson, gmAllergy
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
@@ -272,7 +272,6 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_dismiss_button_pressed(self, evt):
-#		wx.CallAfter(gmDispatcher.send, signal = gmSignals.allergy_updated())
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
@@ -389,8 +388,8 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
 
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.post_patient_selection(), receiver=self._schedule_data_reget)
-		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._schedule_data_reget)
+#		gmDispatcher.connect(signal = u'vaccinations_updated', receiver=self._schedule_data_reget)
 	#-----------------------------------------------
 	def __reset_ui_content(self):
 		self.editarea.set_data()
@@ -471,7 +470,11 @@ if __name__ == "__main__":
 #		app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.29  2008-01-16 19:38:15  ncq
+# Revision 1.30  2008-01-30 14:03:41  ncq
+# - use signal names directly
+# - switch to std lib logging
+#
+# Revision 1.29  2008/01/16 19:38:15  ncq
 # - wxMAC doesn't like some Move*InTabOrder()
 #
 # Revision 1.28  2007/10/25 12:19:53  ncq
