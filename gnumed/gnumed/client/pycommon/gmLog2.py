@@ -34,10 +34,13 @@ You can of course instantiate any number of additional loggers
 that log to different targets alltogether if you want to keep
 some messages separate from others.
 """
+# TODO:
+# - exception()
+# - ascii_ctrl2mnemonic()
 #========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLog2.py,v $
-# $Id: gmLog2.py,v 1.5 2008-01-14 20:27:39 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmLog2.py,v 1.6 2008-01-30 14:05:09 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -98,9 +101,9 @@ def log_stack_trace(message=None):
 			if varname == u'__doc__':
 				continue
 			try:
-				value = u'%s' % value
+				value = u'%s' % unicode(value)
 			except UnicodeDecodeError:
-				value = '%s' % value
+				value = '%s' % str(value)
 				value = value.decode(_string_encoding, 'replace')
 			logger.debug(u'%20s = %s', varname, value)
 #===============================================================
@@ -113,24 +116,24 @@ def set_string_encoding(encoding=None):
 	if encoding is not None:
 		codecs.lookup(encoding)
 		_string_encoding = encoding
-		logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+		logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
 		return True
 
 	enc = sys.getdefaultencoding()
 	if enc != 'ascii':
 		_string_encoding = enc
-		logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+		logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
 		return True
 
 	enc = locale.getlocale()[1]
 	if enc is not None:
 		_string_encoding = enc
-		logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+		logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
 		return True
 
 	# FIXME: or rather use utf8 ?
 	_string_encoding = locale.getpreferredencoding(do_setlocale=False)
-	logger.info(u'setting "str" -> "unicode" encoding to <%s>', _string_encoding)
+	logger.info(u'setting python.str -> python.unicode encoding to <%s>', _string_encoding)
 	return True
 #===============================================================
 # internal API
@@ -165,7 +168,7 @@ def __setup_logging():
 	logger.info(u'log file is <%s>', _logfile_name)
 	logger.info(u'log level is [%s]', logging.getLevelName(logger.getEffectiveLevel()))
 	logger.info(u'log file encoding is <utf8>')
-	logger.info(u'initial "str" -> "unicode" encoding is <%s>', _string_encoding)
+	logger.info(u'initial python.str -> python.unicode encoding is <%s>', _string_encoding)
 #---------------------------------------------------------------
 def __get_logfile_name():
 
@@ -221,7 +224,11 @@ if __name__ == '__main__':
 		test()
 #===============================================================
 # $Log: gmLog2.py,v $
-# Revision 1.5  2008-01-14 20:27:39  ncq
+# Revision 1.6  2008-01-30 14:05:09  ncq
+# - a bit of cleanup
+# - TODO added
+#
+# Revision 1.5  2008/01/14 20:27:39  ncq
 # - set_string_encoding()
 # - properly encode values in log_stack_trace()
 # - proper test suite
