@@ -7,16 +7,16 @@ These functions are complementing pySerial.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmSerialTools.py,v $
-# $Id: gmSerialTools.py,v 1.2 2004-12-23 16:19:34 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmSerialTools.py,v 1.3 2008-01-30 14:05:31 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
-import time, string
+import time, string, logging
 
-import gmLog
-_log = gmLog.gmDefLog
 
+_log = logging.getLogger('gm.serial')
+_log.info(__version__)
 #----------------------------------------------------
 # general utility
 #----------------------------------------------------
@@ -29,7 +29,7 @@ def wait_for_str(aDrv = None, aString = '', aTimeout = 2500, max_bytes = 2048):
 		return (1, '')
 
 	if aDrv is None:
-		_log.Log(gmLog.lErr, "need source for incoming data")
+		_log.error("need source for incoming data")
 		return (0, '')
 
 	if max_bytes < len(aString):
@@ -54,18 +54,18 @@ def wait_for_str(aDrv = None, aString = '', aTimeout = 2500, max_bytes = 2048):
 				# did we exceed our character buffer limit ?
 				# this stops runaway serial ports
 				if len(rxd) >= max_bytes:
-					_log.Log(gmLog.lErr, 'exceeded maximum # of bytes (%s) to receive' % max_bytes)
+					_log.error('exceeded maximum # of bytes (%s) to receive' % max_bytes)
 					return (0, rxd)
 		# nothing there, wait a slice
 		else:
 			if len(rxd) >= max_bytes:
-				_log.Log(gmLog.lErr, 'exceeded maximum # of bytes to receive')
+				_log.error('exceeded maximum # of bytes to receive')
 				return (0, rxd)
 			time.sleep(float(slice) / 1000)
 
 	# hm, waited for aTimeout but expected string not received
-	_log.Log(gmLog.lWarn, 'wait for [%s] timed out after %s ms' % (aString, aTimeout), gmLog.lCooked)
-	_log.Log(gmLog.lData, rxd, gmLog.lCooked)
+	_log.warning('wait for [%s] timed out after %s ms', aString, aTimeout)
+	_log.debug(rxd)
 	return (0, rxd)
 #--------------------------------------------------------
 def wait_for_data(aDrv = None, aTimeout = 2500):
@@ -74,7 +74,7 @@ def wait_for_data(aDrv = None, aTimeout = 2500):
 	- timeout in milliseconds, please
 	"""
 	if aDrv is None:
-		_log.Log(gmLog.lErr, "Need source for incoming data !")
+		_log.error("Need source for incoming data !")
 		return 0
 
 	loop = 0
@@ -91,11 +91,14 @@ def wait_for_data(aDrv = None, aTimeout = 2500):
 			return 1
 
 	# hm, waited for aTimeout but expected string not received
-	_log.Log(gmLog.lWarn, 'Timed out after %s ms while waiting for data.' % aTimeout)
+	_log.warning('Timed out after %s ms while waiting for data.' % aTimeout)
 	return 0
 #========================================================
 # $Log: gmSerialTools.py,v $
-# Revision 1.2  2004-12-23 16:19:34  ncq
+# Revision 1.3  2008-01-30 14:05:31  ncq
+# - std lib logging
+#
+# Revision 1.2  2004/12/23 16:19:34  ncq
 # - add licence
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
